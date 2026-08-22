@@ -72,14 +72,16 @@ tai/
 │   └── iteracion1.md      bitácora del Paso 0 (análisis de conflictos, aprobado por el autor)
 ├── specs/
 │   └── prd.md           ← Entregable 2 (Product Requirements Document, 13 segmentos)
-└── research/             corpus documental citado por docs/ y specs/
-    ├── README.md          índice del corpus: qué cita cada documento y por qué
-    ├── 01-marco-legal-colombiano/       Ley 1448/2011, Ley 2421/2024, Ley 1581/2012
-    ├── 02-memoria-historica-y-conflicto/  CEV, CNMH, Patiño, minería de texto JEP Caso 03
-    ├── 03-llm-as-a-judge/                 MT-Bench, Themis, JudgeBlender, Preference Leakage
-    ├── 04-analisis-forense-del-testimonio/ LieXBerta, codificación de preguntas forenses
-    ├── 05-etica-sesgos-y-riesgos/          Stochastic Parrots, UNESCO, NLP en trauma
-    └── 06-documentacion-propia/            propuesta y hoja de ruta del TG del autor
+├── research/             corpus documental citado por docs/ y specs/
+│   ├── README.md          índice del corpus: qué cita cada documento y por qué
+│   ├── 01-marco-legal-colombiano/       Ley 1448/2011, Ley 2421/2024, Ley 1581/2012
+│   ├── 02-memoria-historica-y-conflicto/  CEV, CNMH, Patiño, minería de texto JEP Caso 03
+│   ├── 03-llm-as-a-judge/                 MT-Bench, Themis, JudgeBlender, Preference Leakage
+│   ├── 04-analisis-forense-del-testimonio/ LieXBerta, codificación de preguntas forenses
+│   ├── 05-etica-sesgos-y-riesgos/          Stochastic Parrots, UNESCO, NLP en trauma
+│   └── 06-documentacion-propia/            propuesta y hoja de ruta del TG del autor
+└── presentations/        material de apoyo para mostrar el avance en clase
+    └── Veridicus_PVB_PRD.pptx  resumen visual del PVB + PRD (12 diapositivas, ~10 min, con notas del orador)
 ```
 
 ### Qué es Veridicus, en una línea

@@ -27,6 +27,8 @@
 
 - La GPU es opcional: el sistema y las suites de niveles 0 y 1 funcionan completos en CPU; las pruebas que requieren GPU (máquina de hasta 4 GPU y 32 GB de RAM) se agrupan en una etapa separada que corre a demanda. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:practices-discovery:c8177cec18b3a1ab416d585839f49f063e1b8e9bb5b1dc1e2af273732a278cca -->
 
+- Los NFR de calidad (IA, MTTV, latencia, cobertura) no se escriben como historias; quedan diferidos a NFR Requirements y Build and Test. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:user-stories:015afe962524881fea600233bba4a427cd1fca4eebaeb8bff20ecbf7972213b1 -->
+
 ## Guard Policy
 
 <!-- Project-specific. Mode: strict, relaxed, or off. Strict here holds for every intent and cannot be changed from chat. A section under the retired Change Control heading, written by an earlier release, is still read. -->
@@ -89,3 +91,7 @@
 - No volver a preguntar lo que ya deciden el PRD y las 19 decisiones de `docs/coherencia-insumos.md`; preguntar solo lo que falta para criterios medibles. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:requirements-analysis:9f8c3fdf1c0d4d56371a54647353577cb1847b1cd75170a20a99df239be483f3 -->
 - Como el scope `classic` omite Ideation, cada requisito se traza a un segmento del PRD (S1–S13), a una regla AUTONOMIA o a una respuesta de la etapa, y su origen queda documentado. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:requirements-analysis:2bfb7fd323d0d40cc8f495b18fc543b2e068e797412e7a1a173e125f4604dc39 -->
 - Las métricas de adopción del PRD (uso semanal > 85 %, desestimación < 15 % en producción) son hipótesis de producto para el TG, no criterios de aceptación del MVP. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:requirements-analysis:4f04d2dda770fa835296aa00d4535f74ff82f251ed7800db703f55d8a188ab0b -->
+- En una mob, las objeciones que un experto puede resolver se integran sin ronda 2; solo las de criterio (alcance, riesgo, prioridad) se preguntan al humano. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:user-stories:24646d48e7d4b055ecc0b03ed395cf809e732015de983801ad08361b1a140d6a -->
+- No editar un artefacto de AI-DLC ya aprobado: las decisiones que lo precisan se registran en una tabla del artefacto de la etapa actual y el humano decide en la aprobación si se actualiza el original. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:user-stories:e2aaf3f291e4355c3bfc5cc35be21fdebeb957adbf891d55019f63aed6b15ecc -->
+- Partir en User Stories las historias grandes (como umbral frente a paquete de traspaso), porque Units Generation dimensiona con historias y no con criterios. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:user-stories:e3b459d8722232ac75bd11f7b98748718cb2624407f37713375678b851ee33c1 -->
+- La «CoT interrumpida» del Hecho No Documentado la produce el sistema de forma determinista, sin llamar al LLM, porque la guardia del umbral decide antes que el juez. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:user-stories:a5d1c5ece2de99f25b7a0e630d6f02dba5342bbcc64feaf9ca1a9b0ca10cf91b -->

@@ -7,7 +7,7 @@ Este documento analiza el entorno de mercado, la competencia y los factores de d
 
 ## 1. EL VACÍO DEL MERCADO (MARKET GAP)
 
-La reconstrucción de la verdad histórica y judicial en contextos de posconflicto (como el de Colombia, con más de 9 millones de víctimas registradas [3]) requiere procesar y contrastar volúmenes masivos de testimonios. Por ejemplo, la Comisión de la Verdad (CEV) acumuló más de 14.000 entrevistas [4]. 
+La reconstrucción de la verdad histórica y judicial en contextos de posconflicto (como el de Colombia, con más de 9 millones de víctimas registradas [3] [VERIFICAR: la cifra no aparece en los informes del CNMH del corpus]) requiere procesar y contrastar volúmenes masivos de testimonios. Por ejemplo, la Comisión de la Verdad (CEV) acumuló más de 14.000 entrevistas [4]. 
 
 Actualmente, los investigadores se enfrentan a un **vuelo a ciegas** debido a la falta de herramientas tecnológicas que cumplan de forma simultánea con dos condiciones indispensables:
 

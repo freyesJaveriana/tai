@@ -137,13 +137,15 @@ quadrantChart
 ---
 
 #### Caso de Uso 2: Ejecución de la Entrevista Conversacional de Prueba (Flujo de Voz Oral)
+> **Prioridad (Segmento 8):** la entrada por voz y la sugerencia de pregunta son SHOULD. Con la entrada de texto plano (MUST), el analista carga la transcripción y el flujo sigue desde el paso 3.
+
 *   **Actor:** Compareciente (usuario simulado) y Agente Conversacional de Voz.
 *   **Trigger:** El analista inicia formalmente la sesión oral de interrogatorio en la estación de pruebas.
 *   **Flujo de Pasos:**
     1.  El **Compareciente** habla a través del micrófono de la estación; el frontend graba y transmite el audio del compareciente mediante una petición HTTP POST normal asíncrona hacia el backend del clúster (grabación por demanda estilo nota de voz de WhatsApp).
     2.  El microservicio de traducción local (Whisper en contenedor CPU) recibe el archivo de audio y lo transcribe a texto plano, escribiéndolo en el almacenamiento persistente del clúster. Debido al hardware de CPU limitado en el ambiente de validación escolar, se acepta un retraso de procesamiento de **8 a 12 segundos**.
-    3.  El **Agente Conversacional** (orquestado localmente) consulta el marco de referencia en la base de datos vectorial para determinar la siguiente pregunta pertinente.
-    4.  El texto de la respuesta se presenta en pantalla y se asocia a un botón de reproducción por demanda, que utiliza un sintetizador de voz (TTS) para reproducir el sonido solo si el analista hace clic en él.
+    3.  El **Agente Conversacional** (orquestado localmente) consulta el marco de referencia en la base de datos vectorial y **sugiere al analista** la siguiente pregunta pertinente; el analista decide si la formula.
+    4.  El texto de la pregunta aprobada por el analista se presenta en pantalla y se asocia a un botón de reproducción por demanda, que utiliza un sintetizador de voz (TTS) para reproducir el sonido solo si el analista hace clic en él.
 *   **Resultado Esperado:** Interacción conversacional asíncrona fluida guiada por indicadores visuales interactivos para manejar la latencia de CPU.
 *   **KPI Impactado:** Latencia conversacional estándar en CPU (Meta de validación: 8 a 12s; producción ideal: < 1.5s).
 
@@ -163,12 +165,14 @@ quadrantChart
 ---
 
 #### Caso de Uso 4: Evaluación Estilométrica y Alerta de Variaciones Emocionales
+> **Alcance TG2, fuera del MVP (Segmento 8, WON'T).** En el MVP solo existe el clasificador afectivo ligero (COULD), sin meta numérica.
+
 *   **Actor:** Agente de Análisis Afectivo y Analista de Verdad.
 *   **Trigger:** La estructura lingüística y las pausas en el habla del compareciente simulado durante un fragmento del relato denotan variaciones severas en su estabilidad afectiva.
 *   **Flujo de Pasos:**
     1.  El **Agente de Análisis Afectivo** recibe simultáneamente la transcripción literal del relato y las métricas de entonación extraídas localmente.
     2.  Utiliza el microservicio local entrenado en clasificación afectiva (RoBERTa-base) para medir la presencia de tristeza, ira, vacilación y agitación [19].
-    3.  El clasificador XGBoost fusionado (metodología científica **LieXBerta**) calcula el vector de comportamiento y determina que se superó el umbral seguro de vacilación (métrica de característica de 0.4166) [19].
+    3.  El clasificador XGBoost fusionado (metodología científica **LieXBerta**) calcula el vector de comportamiento y determina que se superó el umbral configurado de vacilación [19].
     4.  El sistema enciende un indicador sutil en la interfaz de usuario del analista que reza: *"Fluctuación afectiva por posible estrés/trauma en este fragmento. Se recomienda moderar el ritmo"* [11].
 *   **Resultado Esperado:** Alerta analítica de soporte que ayuda al evaluador humano a cuidar el debido proceso ético y evitar la revictimización o la presión inadecuada sobre un declarante con alta carga psicológica [11, 17].
 *   **KPI Impactado:** Precisión de la clasificación afectiva de la IA validada contra anotaciones expertas (Meta: > 85% de exactitud [19]).
@@ -184,7 +188,7 @@ quadrantChart
     3.  Alinea cada discrepancia marcada con su respectivo fragmento de transcripción y el pasaje exacto del "marco de verdad" sintético que sirvió de contraste, adjuntando la explicación lógica de Cadena de Pensamiento (CoT) generada [9].
     4.  El sistema compila y guarda el reporte en formato Markdown inmutable en el volumen persistente (PVC) asignado de la red de Kubernetes.
 *   **Resultado Esperado:** Un reporte de auditoría completo, transparente, libre de sesgos y completamente auditable por investigadores humanos del sector justicia.
-*   **KPI Impactado:** Tiempo medio de validación de testimonios (MTTV - Meta: > 50% de reducción de tiempo de cotejo frente a la línea base manual).
+*   **KPI Impactado:** Tiempo medio de validación de testimonios (MTTV - Meta: < 10 minutos por caso del Golden Dataset; ver Segmento 10).
 
 ---
 
@@ -193,7 +197,7 @@ quadrantChart
 #### Principio 1: Límite de Autonomía de la IA (Due Process)
 *   **(a) Significado Operativo:** La inteligencia artificial actúa estrictamente como un agente consultor y de soporte del analista. Carece por completo de facultades de decisión autónoma sobre la veracidad del testimonio o sobre cualquier registro procesal real [17].
 *   **(b) Manifestación en el Producto:** Cada alerta de discrepancia semántica o variación afectiva se presenta en la interfaz del analista como una "sugerencia de revisión" o "hallazgo analítico" editable. El analista es el único que puede validar, descartar o editar estos hallazgos antes de consolidarlos en el reporte forense final [16].
-*   **(c) Prohibición Explícita:** Queda **estrictamente prohibido** que el sistema etiquete a un compareciente de forma automática como "mentiroso" o "falso" en la interfaz de usuario, así como aplicar cambios en las bases de datos de producción de la rama judicial sin la firma digital y aprobación explícita de un investigador humano.
+*   **(c) Prohibición Explícita:** Queda **estrictamente prohibido** que el sistema etiquete a un compareciente de forma automática como "mentiroso" o "falso" en la interfaz de usuario, así como aplicar cambios en las bases de datos de producción de la rama judicial sin la aprobación explícita y registrada (quién y cuándo) de un investigador humano.
 
 #### Principio 2: Tolerancia y Resiliencia ante Limitaciones de Hardware (Eficiencia en el MVP)
 *   **(a) Significado Operativo:** El diseño de software debe contemplar que la infraestructura del clúster académico de pruebas puede estar severamente limitada (sin GPUs de alto rendimiento de grado producción), por lo que la arquitectura no debe bloquearse ante latencias de procesamiento prolongadas de la IA.
@@ -215,16 +219,18 @@ quadrantChart
 ### Segmento 7. User journeys
 
 #### Journey 1: Happy Path del Usuario Final (Analista de Verdad)
+> **Prioridad:** la voz (pasos 2 y 3) es SHOULD. Con entrada de texto (MUST), el analista carga la transcripción y el flujo sigue desde el paso 4.
+
 1.  **Ingreso y Selección:** El **Analista de Verdad** accede de manera segura a la consola web local de Veridicus expuesta en la red interna del clúster. Selecciona del catálogo el escenario de control sintético previamente preparado.
 2.  **Apertura de Canal Conversacional:** El analista conecta los periféricos de audio y hace clic en "Iniciar Sesión Conversacional". La interfaz web establece una conexión asíncrona hacia el pod de pasarela backend.
 3.  **Diálogo Asíncrono Reactivo:** El compareciente simulado comienza a hablar. El backend captura el audio grabado y lo envía al pod de Whisper local. Debido a las limitaciones de hardware de pruebas, el procesamiento tarda **8 segundos**. La interfaz visual muestra: `[Procesando transcripción oral...]` junto con un cronómetro de latencia, manteniendo al usuario informado.
-4.  **Generación de Respuestas y Contraste Semántico:** Una vez procesada la transcripción, el **Agente de Evaluación Semántica** consulta de forma local la base de datos `pgvector` [18]. El **Agente Conversacional** formula una respuesta oral pertinente basada exclusivamente en el marco sintético de control y la reproduce mediante el microservicio de voz sintética (TTS), mientras que de fondo se genera una alerta silenciosa de color amarillo en el panel del analista: *"Discrepancia nominal menor detectada: El compareciente mencionó la vereda X, pero el escenario de control registra la vereda Y"*.
+4.  **Generación de Respuestas y Contraste Semántico:** Una vez procesada la transcripción, el **Agente de Evaluación Semántica** consulta de forma local la base de datos `pgvector` [18]. El **Agente Conversacional** sugiere al analista una pregunta pertinente basada exclusivamente en el marco sintético de control; si el analista la aprueba, puede reproducirla mediante el microservicio de voz sintética (TTS), mientras que de fondo se genera una alerta silenciosa de color amarillo en el panel del analista: *"Discrepancia nominal menor detectada: El compareciente mencionó la vereda X, pero el escenario de control registra la vereda Y"*.
 5.  **Revisión y Ajuste de Alertas:** El analista hace clic sobre la alerta para expandirla y visualiza el razonamiento en **Cadena de Pensamiento (CoT)** que justifica el hallazgo [9]. El analista determina que el compareciente se equivocó por confusión geográfica menor y marca la alerta como *"Aceptada con nota: Confusión geográfica"*, editando el reporte dinámico de sesión.
-6.  **Consolidación y Cierre:** Al finalizar la entrevista, el analista hace clic en "Finalizar y Consolidar". El sistema procesa todos los estados de la sesión, indexa las notas y modificaciones hechas por el analista y exporta un documento Markdown inmutable con firmas criptográficas al almacenamiento persistente local (`PersistentVolumeClaim`).
+6.  **Consolidación y Cierre:** Al finalizar la entrevista, el analista hace clic en "Finalizar y Consolidar". El sistema procesa todos los estados de la sesión, indexa las notas y modificaciones hechas por el analista y registra quién consolidó y cuándo, y exporta un documento Markdown inmutable, con su hash SHA-256, al almacenamiento persistente local (`PersistentVolumeClaim`).
 
 #### Journey 2: Happy Path del Administrador/Operador de Plataforma (Líder SRE / CISO)
 1.  **Despliegue Declarativo:** El **Líder SRE** despliega la suite completa de microservicios de Veridicus utilizando un Helm chart privado en el clúster local de Kubernetes [20], especificando los límites y recursos de CPU/Memoria (`resources.limits` y `resources.requests`) para cada pod.
-2.  **Configuración de Autoscaling:** Configura los triggers de **KEDA (Kubernetes Event-driven Autoscaling)** para los pods de inferencia pesada (Whisper y RoBERTa). Establece un escalado a cero (0) réplicas cuando la cola de mensajes local no registre solicitudes de procesamiento de audio activas, liberando recursos del clúster.
+2.  **Configuración de Autoscaling:** Configura los triggers de **KEDA (Kubernetes Event-driven Autoscaling)** para los pods de inferencia pesada (Whisper; RoBERTa queda para el TG2). KEDA es COULD en el MVP (Segmento 8, §5). Establece un escalado a cero (0) réplicas cuando la cola de mensajes local no registre solicitudes de procesamiento de audio activas, liberando recursos del clúster.
 3.  **Auditoría de Aislamiento de Red:** El administrador verifica, mediante políticas de red de Kubernetes (`NetworkPolicies`), que el pod que procesa los datos sin anonimizar esté completamente aislado de internet (red air-gapped). Comprueba que cualquier salida opcional hacia APIs de modelos de lenguaje de terceros pase por el pod proxy de anonimización [17, 20].
 4.  **Monitoreo de Infraestructura:** Abre el dashboard de Grafana alimentado por Prometheus en el clúster. Monitorea en tiempo real el consumo de almacenamiento de la base de datos administrada por *CloudNativePG*, validando que los backups automatizados del "marco de verdad" sintético se ejecuten de manera correcta en el volumen físico local asignado.
 
@@ -236,11 +242,11 @@ quadrantChart
 
 #### Journey 4: Edge Case - Escalabilidad Humana (La IA no puede resolver la tarea)
 1.  **Hecho Altamente Ambiguo:** El compareciente simulado relata un evento complejo empleando términos excesivamente vagos, lenguaje figurado o nombres de ubicaciones rurales inexistentes que el RAG local no logra mapear de forma alguna en la base vectorial de hechos sintéticos [18].
-2.  **Activación de Silencio Fáctico:** En lugar de "adivinar" o alucinar un hecho alternativo para forzar la continuidad conversacional, el **Agente de Evaluación Semántica** (operando con temperatura estricta de 0.0) detecta que la puntuación de similitud semántica de los pasajes recuperados está por debajo del umbral mínimo del sistema. El agente de IA clasifica internamente el turno con un estado de *"Incertidumbre Lógica Crítica (Hecho No Documentado)"*.
-3.  **Bloqueo de Sugerencias Automatizadas:** El sistema suspende temporalmente la generación automática de la siguiente pregunta de voz para evitar que el Agente Conversacional presione inadecuadamente o confunda al usuario.
+2.  **Activación de Silencio Fáctico:** En lugar de "adivinar" o alucinar un hecho alternativo para forzar la continuidad conversacional, el **Agente de Evaluación Semántica** (operando con temperatura estricta de 0.0) detecta que la puntuación de similitud semántica de los pasajes recuperados está por debajo del umbral de similitud configurado (parámetro obligatorio; su valor se fija en NFR Requirements tras medirlo contra el Golden Dataset). El agente de IA clasifica internamente el turno con un estado de *"Incertidumbre Lógica Crítica (Hecho No Documentado)"*.
+3.  **Bloqueo de Sugerencias Automatizadas:** El sistema suspende la sugerencia de la siguiente pregunta para evitar que el Agente Conversacional presione inadecuadamente o confunda al usuario.
 4.  **Entrega del Paquete de Contexto de Traspaso:** El sistema emite una alerta destacada en color rojo en la pantalla del analista: *"La IA no puede validar este fragmento de forma autónoma. Control manual requerido"*. Al mismo tiempo, genera un **Paquete de Contexto de Traspaso** visualizable en un panel lateral de emergencia, el cual contiene:
     *   La transcripción literal del fragmento ambiguo actual y los tres turnos conversacionales previos.
-    *   Las fluctuaciones estilométricas y afectivas estimadas en ese fragmento (por ejemplo, picos elevados de vacilación de **0.78** en el habla del compareciente [19]).
+    *   Las fluctuaciones estilométricas y afectivas estimadas en ese fragmento (solo si el clasificador afectivo ligero, COULD, está activo; el modelo LieXBerta completo es alcance del TG2).
     *   El listado de los 3 pasajes más cercanos devueltos por `pgvector` con sus respectivos coeficientes de baja correlación.
     *   La traza de la Cadena de Pensamiento (CoT) interrumpida del modelo [9].
 5.  **Intervención Humana en Caliente:** El analista asume el control del micrófono e interviene manualmente en la conversación verbal formulando una pregunta aclaratoria personalizada para evaluar la consistencia del relato.
@@ -251,25 +257,38 @@ quadrantChart
 
 #### 1. MUST HAVE (Obligatorio para el proyecto de la materia)
 *   **Entrada de Texto Plano en Español:** Entrada directa de texto para testimonios del Golden Dataset (10 transcripciones), asumiendo la transcripción por audio como un pipeline externo estándar ya probado.
-*   **Grabación por Demanda Opcional:** Interfaz web con botón de control de audio (*Push-to-Talk*) que graba localmente la declaración de prueba en formato WAV/MP3, enviada asíncronamente mediante REST (HTTP POST) al backend para dar la idea de procesamiento de sonido en CPU, procesándose mediante un modelo Whisper ligero en CPU.
-*   **Agente de Validación Semántica Local (RAG):** Consulta semántica local contra la base de datos `pgvector` indexada en un PostgreSQL gestionado en el clúster mediante el operador *CloudNativePG*.
+*   **Agente de Validación Semántica Local (RAG):** Consulta semántica local contra la base de datos `pgvector` indexada en un PostgreSQL gestionado en el clúster mediante el operador *CloudNativePG*. El umbral de similitud del Silencio Fáctico es un parámetro configurable y obligatorio (Segmento 7, Journey 4).
 *   **Audio por Demanda de la Respuesta:** Interfaz que presenta la respuesta en texto, pero que incluye un botón de *"Escuchar Audio"* que genera y reproduce localmente la síntesis de voz (TTS ligero en CPU, como gTTS local o pyttsx3) de la respuesta de manera asíncrona a demanda.
 *   **Cadena de Pensamiento (CoT) Plegable:** Visualización en la interfaz de la explicación lógica paso a paso que justifica por qué se marcó una inconsistencia semántica entre el testimonio simulado y el escenario de control [9].
+*   **Edición y Descarte Manual de Alertas:** Panel interactivo para que el analista apruebe, edite o descarte las incongruencias semánticas detectadas por la IA antes del reporte. Cada cambio de estado de una alerta (pendiente / aceptada / editada / descartada) registra qué analista lo hizo y cuándo (Segmento 6, Principio 1).
+*   **Consolidación Explícita del Reporte:** Acción «Finalizar y Consolidar» que solo puede ejecutar el analista. Registra quién consolidó y cuándo, y guarda junto al reporte Markdown su hash SHA-256 (ver Segmento 10, MTTV).
+*   **Descarga de Reporte Final:** Botón para exportar el acta consolidada de la sesión conversacional de prueba en un formato Markdown estructurado directamente desde el volumen persistente (`PVC`).
+*   **Reanudación de Sesión:** El estado de la sesión se persiste en PostgreSQL en cada turno. Tras una desconexión, la sesión queda «Suspendida» y el analista puede reanudarla desde el último turno registrado (Segmento 7, Journey 3).
+*   **Inicio de Sesión y Roles:** Inicio de sesión local con usuario y contraseña (almacenada con hash) y dos roles, `analista` y `admin`. La identidad queda registrada en cada cambio de estado de alerta y en la consolidación.
 
 #### 2. SHOULD HAVE (Altamente recomendado, de bajo costo en el clúster)
 *   **Feedback Visual de Procesamiento (Anti-Fricción):** Barra de progreso e indicadores de estado interactivos en la interfaz de usuario (*"Procesando audio..."*, *"Consultando marco de verdad..."*) para neutralizar la fricción psicológica de la latencia de CPU en la sustentación en vivo.
-*   **Edición y Descarte Manual de Alertas:** Panel interactivo para que el analista apruebe, edite o descarte las incongruencias semánticas detectadas por la IA antes del reporte.
-*   **Descarga de Reporte Final:** Botón para exportar el acta consolidada de la sesión conversacional de prueba en un formato Markdown estructurado directamente desde el volumen persistente (`PVC`).
+*   **Grabación por Demanda (Voz):** Interfaz web con botón de control de audio (*Push-to-Talk*) que graba localmente la declaración de prueba en formato WAV/MP3, enviada asíncronamente mediante REST (HTTP POST) al backend para dar la idea de procesamiento de sonido en CPU, procesándose mediante un modelo Whisper ligero en CPU. Es lo primero que se añade cuando el flujo de texto funciona de extremo a extremo.
+*   **Sugerencia de Siguiente Pregunta al Analista:** El Agente Conversacional propone al analista la siguiente pregunta, basada exclusivamente en el marco de verdad; el analista decide si la formula. Ninguna pregunta llega al compareciente sin esa decisión, y ningún MUST depende de esta función.
+*   **Protocolo de Permutación en Línea:** Evaluación de cada alerta en ambos órdenes de lectura durante la sesión, de forma asíncrona y sin bloquear la interfaz (Segmento 11, Escenario C). En la evaluación offline del Golden Dataset es obligatorio.
 
 #### 3. COULD HAVE (Deseable, si el tiempo y el cómputo lo permiten)
-*   **Clasificador Afectivo Ligero:** Extracción simple de palabras clave emocionales integradas directamente en el prompt del Agente de Validación de texto, simulando el comportamiento final del modelo *LieXBerta* [19] sin necesidad de levantar el pipeline de RoBERTa + XGBoost.
+*   **Clasificador Afectivo Ligero:** Extracción simple de palabras clave emocionales integradas directamente en el prompt del Agente de Validación de texto, simulando el comportamiento final del modelo *LieXBerta* [19] sin necesidad de levantar el pipeline de RoBERTa + XGBoost. Sin meta numérica en el MVP.
 *   **Historial de Sesiones en Panel Lateral:** Vista de las entrevistas previamente simuladas guardadas en la base de datos local para acceso rápido del analista.
+*   **Proxy de Anonimización hacia un LLM Externo:** Microservicio que enmascara nombres, ubicaciones y números de expediente con expresiones regulares en español antes de cualquier llamada opcional a un LLM externo, con una prueba que verifica el payload saliente. Ningún MUST depende de él.
 
 #### 4. WON'T HAVE (Excluido explícitamente para el MVP académico - Reservado para el alcance completo del TG)
 *   **Transmisión de Voz en Tiempo Real Continuo:** Procesamiento de audio por streaming continuo de baja latencia (<500ms) por protocolos gRPC o WebSockets.
 *   **Uso de Servidores GPU Dedicados de Alto Costo:** Requerimientos de hardware de inferencia masiva y costosa para Whisper en producción (se garantiza el funcionamiento 100% en CPU).
 *   **Modelo Híbrido Completo LieXBerta (RoBERTa-base + XGBoost):** El entrenamiento, calibración empírica y despliegue del modelo clasificador emocional multivariable queda fuera de la materia y se ejecutará de forma exclusiva en el semestre de **Trabajo de Grado 2 (TG2)** [19, 21].
 *   **Integración de Datos Judiciales Reales:** Acceso a bases de datos con expedientes confidenciales reales de la JEP o el CNMH (el MVP se evaluará estrictamente con escenarios y casos de prueba sintéticos/ficticios).
+*   **Firma Criptográfica con Llave por Analista:** La integridad del reporte se garantiza con el registro de quién consolidó y cuándo más el hash SHA-256 del Markdown (ver MUST).
+*   **Recalibración Automática de Umbrales:** El sistema nunca cambia sus umbrales por sí mismo (ver Segmento 10, AIR).
+
+#### 5. Plataforma (prioridad de la infraestructura en el clúster)
+*   **MUST:** PostgreSQL + `pgvector` con el operador *CloudNativePG*; Redis como cola asíncrona; manifiestos o Helm chart con `resources.requests` y `resources.limits` en cada pod; `NetworkPolicy` que niega la salida a internet a los pods que manejan datos sin anonimizar (como artefacto revisable); Kubernetes Secrets inyectados en tiempo de ejecución.
+*   **SHOULD:** Despliegue GitOps con Argo CD; Prometheus y Grafana con el panel AIR.
+*   **COULD:** Autoescalado con KEDA; el proxy de anonimización (ver COULD funcional).
 
 ---
 
@@ -290,7 +309,7 @@ El sistema **Veridicus** se estructura como una aplicación nativa de la nube, c
 
 ##### Módulo B: Orquestador de Sesión (Backend API)
 *   **Description:** API Gateway y motor de estados construido en **FastAPI (Python)** que orquesta el flujo de negocio y la cola de tareas del clúster.
-*   **Features:** Endpoints RESTful de audio/texto, Máquina de estados para control de sesiones conversacionales, Cola de tareas asíncronas basada en **Redis**.
+*   **Features:** Endpoints RESTful de audio/texto, Autenticación local con roles `analista` y `admin`, Máquina de estados para control de sesiones conversacionales, Cola de tareas asíncronas basada en **Redis**.
 
 ##### Módulo C: Servicio de Procesamiento de Voz (Audio AI Service)
 *   **Description:** Microservicio Python que ejecuta tareas de procesamiento de audio en CPU.
@@ -298,7 +317,7 @@ El sistema **Veridicus** se estructura como una aplicación nativa de la nube, c
 
 ##### Módulo D: Motor de Validación y RAG (Semantic Agent Service)
 *   **Description:** Agente inteligente encargado de evaluar la congruencia semántica y el análisis afectivo preliminar del texto transcrito [9, 18, 19].
-*   **Features:** Cliente `pgvector` para búsquedas lógicas, Evaluador Inteligente (*LLM-as-a-judge*) local, Analizador Afectivo Ligero para alertas éticas de trauma [11].
+*   **Features:** Cliente `pgvector` para búsquedas lógicas, Evaluador Inteligente (*LLM-as-a-judge*) local con un modelo cuantizado de ≤ 8B parámetros en CPU (p. ej., Llama 3.1 8B o Mistral 7B vía Ollama/llama.cpp), embeddings multilingües locales (p. ej., `multilingual-e5-small`) y umbral de similitud configurable para el Silencio Fáctico (la elección exacta del modelo y el valor del umbral se fijan en NFR Requirements con un benchmark sobre el Golden Dataset), Analizador Afectivo Ligero para alertas éticas de trauma (COULD) [11].
 
 ##### Módulo E: Base de Datos Soberana (Data Store)
 *   **Description:** Instancia relacional de PostgreSQL con la extensión `pgvector` habilitada, gestionada mediante el operador *CloudNativePG* de la CNCF.
@@ -381,9 +400,9 @@ graph TD
 Para evaluar de forma cuantitativa y cualitativa el desempeño, la estabilidad en Kubernetes y el comportamiento ético de la IA en **Veridicus**, se establece el siguiente marco de métricas, enlazando los baselines científicos y operativos identificados en el estado del arte y en los documentos del proyecto.
 
 #### 1. Métrica de Éxito Principal (North Star Metric)
-*   **Tiempo Medio de Validación de Testimonios (Mean Time to Validate Testimony - MTTV):** Es el tiempo promedio total medido desde que un analista finaliza la sesión de entrevista simulada o recibe una declaración grabada hasta que el reporte técnico de inconsistencias semánticas es auditado, corregido y firmado digitalmente en su versión final por el analista.
-    *   *Baseline (Cotejo Manual Tradicional):* **De 30 minutos a varias horas** [16].
-    *   *Meta del MVP:* **Menos de 10 minutos** por caso en promedio, logrando una reducción de más del **50% al 80%** en el tiempo de cotejo y cierre de actas operativas. Esto alivia drásticamente la fatiga cognitiva del investigador y acelera las obligaciones estatales impuestas por la **Ley 2421 de 2024** [7].
+*   **Tiempo Medio de Validación de Testimonios (Mean Time to Validate Testimony - MTTV):** Es el tiempo promedio medido desde que el analista pulsa «Finalizar sesión» hasta que ejecuta «Finalizar y Consolidar» sobre el reporte de inconsistencias ya auditado y corregido. La consolidación registra quién y cuándo, y guarda el hash SHA-256 del reporte.
+    *   *Baseline (Cotejo Manual Tradicional):* **[VERIFICAR] sin fuente directa.** Como referencia análoga, la codificación manual de tipos de pregunta de una entrevista forense toma entre 30 minutos y varias horas [16]; esa cifra no mide el cotejo de un testimonio.
+    *   *Meta del MVP:* **Menos de 10 minutos** por caso del Golden Dataset en promedio. Esto alivia la fatiga cognitiva del investigador y acelera las obligaciones estatales impuestas por la **Ley 2421 de 2024** [7].
 
 #### 2. KPIs de Negocio y Plataforma (Kubernetes)
 *   **KPI de Activación Técnica (Tasa de Éxito del Pipeline):** Porcentaje de sesiones conversacionales que completan de extremo a extremo el flujo de ingesta de escenario, grabación por demanda, transcripción por Whisper en CPU y consulta vectorial local sin registrar excepciones de desbordamiento de memoria (`OOMKilled`) ni desconexiones por tiempo de espera agotado (`timeout`) en el clúster [20].
@@ -397,20 +416,20 @@ Para evaluar de forma cuantitativa y cualitativa el desempeño, la estabilidad e
     *   *Meta:* **> 85%** de alertas aceptadas u optimizadas por el usuario (manteniendo una tasa de desestimación de alertas o falsos positivos **< 15%**).
 
 #### 3. Métricas de Rendimiento de la Inteligencia Artificial (IA)
-*   **Exactitud de la Clasificación Afectivo-Estilística (LieXBerta):** Concordancia matemática en la predicción de variables de comportamiento afectivo en el habla (vacilación, tristeza, agitación) para guiar al analista [19].
+*   **Exactitud de la Clasificación Afectivo-Estilística (LieXBerta) — alcance TG2, fuera del MVP (Segmento 8, WON'T):** Concordancia matemática en la predicción de variables de comportamiento afectivo en el habla (vacilación, tristeza, agitación) para guiar al analista [19].
     *   *Baseline (Modelos clásicos de aprendizaje automático como SVM o Decision Trees):* Test accuracy del 66.67% al 78.43% [19].
     *   *Meta del MVP forense (Alineado con LieXBerta optimizado):* **87.50% de test accuracy** y **87.13% de test F1-score** tras la reducción de características sin valor explicativo [19].
-*   **Precisión en el Codificador de Preguntas Conversacionales (Protocolo Forense):** Fiabilidad del agente en clasificar e hilvanar las preguntas forenses (invitaciones abiertas, wh-questions y opción-cerrada) de acuerdo con los estándares internacionales [16].
+*   **Precisión en el Codificador de Preguntas Conversacionales (Protocolo Forense) — meta del agente de sugerencia de preguntas (SHOULD, Segmento 8):** Fiabilidad del agente en clasificar e hilvanar las preguntas forenses (invitaciones abiertas, wh-questions y opción-cerrada) de acuerdo con los estándares internacionales [16].
     *   *Baseline (Codificación humana manual):* El personal humano experimenta "desviación por desgaste" (*coding drift*), cometiendo errores de clasificación frecuentes (como confundir invitaciones abiertas con directivas "wh") que distorsionan el control de calidad [16].
     *   *Meta de la IA (Basado en RoBERTa optimizado en 351,920 muestras):* **95% de acuerdo inicial** con manual coders (Kappa de **0.93**), alcanzando hasta un **98% de acuerdo corregido** (Kappa de **0.97**) tras la depuración de inconsistencias del codificador humano [16].
 *   **Consistencia de Juicio del Evaluador Local (Mitigación de Sesgos posicionales):** Capacidad del modelo de evaluación (*LLM-as-a-judge* local) de mantener consistencia semántica independientemente del orden de los factores o las inyecciones de prompts en la transcripción [18].
-    *   *Baseline (Modelos open source estándar sin ajustar como Vicuna-13B en zero-shot):* Sufren de un severo sesgo de posición (favorabilidad del primer elemento de hasta el **53.8%**) y tasas de error de formato inaceptables del **22.5%** al **78.8%** [18].
+    *   *Baseline (Modelos open source estándar sin ajustar como Vicuna-13B en zero-shot):* Sufren de un severo sesgo de posición (Vicuna-13B mantiene su juicio al invertir el orden solo entre el **11.2%** y el **16.2%** de las veces) y tasas de error de formato inaceptables del **22.5%** al **78.8%** [18].
     *   *Meta:* Consistencia del modelo superior al **65%** y **0% de tasa de error de formato** (salida estrictamente parseable en JSON) [18].
 
 #### 4. Métrica de Control de Fallo por Ruido (Métrica de Fatiga)
 *   **Tasa de Ignorancia de Alertas (Alert Ignorance Rate - AIR):** Es el porcentaje de sesiones de entrevista en las cuales el analista descarta o ignora sistemáticamente más del **25% de las alertas de inconsistencia** consecutivas generadas por el sistema.
     *   *Significado Operativo del Fallo por Ruido:* Un AIR elevado revela que la IA está inundando la pantalla del analista con "ruido" o falsas alarmas (falsos positivos). Debido a la fatiga por alertas, el investigador humano deja de prestar atención al sistema, comprometiendo la utilidad del software [16].
-    *   *Meta de Control:* **AIR del 0% de sesiones** (ninguna sesión de pruebas simulada debe superar el umbral límite del 25% de desestimación constante de alertas). De lo contrario, se activa automáticamente un disparador de re-calibración en caliente de los umbrales de coincidencia semántica del motor RAG en el clúster.
+    *   *Meta de Control:* **AIR del 0% de sesiones** (ninguna sesión de pruebas simulada debe superar el umbral límite del 25% de desestimación constante de alertas). Si una sesión lo supera, Prometheus y Grafana alertan al administrador y al analista con una propuesta de nuevo umbral de coincidencia semántica; el cambio lo aplica un humano y queda registrado quién, cuándo, el valor anterior y el nuevo. El sistema nunca modifica sus umbrales por sí mismo (Segmento 6, Principio 1).
 
 ---
 
@@ -421,6 +440,7 @@ Para asegurar que los microservicios de Inteligencia Artificial que integran **V
 #### 1. Dataset de Evaluación Inicial (Golden Dataset)
 Al no utilizar datos judiciales reales por motivos de confidencialidad y ética, se construirá un **Dataset de Control Sintético (Golden Dataset)** compuesto por:
 *   **10 Transcripciones de Control con Anotación Experta Integrada:** Casos simulados de testimonios en texto plano en español que representan de forma balanceada declaraciones verdaderas (alineadas al 100% con el marco de hechos) y declaraciones con discrepancias semánticas sembradas deliberadamente (contradicciones de fechas, nombres de veredas, o roles de actores). Cada muestra del Golden Dataset contará con metadatos etiquetados que detallan de forma integrada: (a) el texto esperado de la declaración, (b) la clasificación estilométrica teórica, y (c) la lista exacta de incongruencias que la IA debe detectar junto con su justificación lógica.
+*   **Composición fija:** un único escenario de control sintético y 10 transcripciones: 4 alineadas al 100 % con el marco de hechos y 6 con discrepancias sembradas (2 de fecha, 2 de lugar, 2 de rol), más 1 caso adicional de Hecho No Documentado (Segmento 7, Journey 4).
 *   **Pruebas de Transcripción Estándar Decopladas:** Se asume que el sistema de transcripción de audio a texto opera bajo un motor estándar y probado en sí mismo en español. Se procesarán eventualmente muestras mediante llamadas de audio opcionales, asumiendo latencias realistas de **8 a 12 segundos** por bloque en hardware limitado.
 
 #### 2. Criterios de Calidad y Evaluación de Outputs
@@ -435,7 +455,7 @@ La evaluación de las respuestas del **Agente de Validación Semántica** (*LLM-
     *   *Evaluación:* Medición de fallos de formato. Basándose en el baseline de Vicuna-13B en zero-shot, el cual sufre de una tasa de error de formato del **22.5% al 78.8%**, Veridicus exige un **0% de tasa de error de formato** mediante el uso de esquemas estructurados de salida (JSON Schema / Instructor) forzados en la API del clúster.
 3.  **Relevancia y Explicabilidad (Semantic Relevance & CoT Score):**
     *   *Criterio:* La justificación lógica por Cadena de Pensamiento (CoT) debe ser clara, convincente y señalar con precisión milimétrica la contradicción.
-    *   *Evaluación:* Dos analistas calificarán una muestra de las 10 explicaciones CoT utilizando una escala de Likert de 1 a 5, exigiendo una puntuación promedio superior a **4.5/5.0** en claridad, emulando la metodología de validación subjetiva de *SDD-LawLLM (2025)*.
+    *   *Evaluación:* Dos evaluadores (el autor y un par del curso) calificarán las explicaciones CoT de las 10 transcripciones con una escala de Likert de 1 a 5, exigiendo una puntuación promedio superior a **4.5/5.0** en claridad (meta propia del proyecto).
 
 #### 3. Protocolo de Red-Teaming y Escenarios Adversariales
 
@@ -446,14 +466,14 @@ Se implementarán sesiones de pruebas de intrusión y seguridad lógica (*Red-Te
 *   **La Mitigación:** Se evalúa enviando el texto manipulado al **Agente de Validación Semántica**. El sistema debe ignorar sistemáticamente estas directrices semánticas de control al operar en un contenedor aislado (`Pod` de Kubernetes) bajo un prompt del sistema inalterable e inyectado como variable de entorno de solo lectura en el clúster.
 
 ##### Escenario B: Fuga de Preferencias (Preference Leakage)
-*   **La Vulnerabilidad:** Si utilizamos el mismo modelo de lenguaje de alta capacidad (como GPT-4o) para generar sintéticamente nuestros "escenarios de control de prueba" y, a la vez, para actuar como el "juez evaluador" de las transcripciones, corremos el riesgo de sufrir de **Preference Leakage (Fuga de Preferencias)**. Esto significa que el juez de IA sobreestimará sistemáticamente el testimonio no por su calidad forense, sino porque comparte características estilísticas o formatos heredados del mismo modelo generador, introduciendo un sesgo de evaluación ciego que puede inflar la tasa de acierto artificialmente hasta en un **27.9% en promedio**.
+*   **La Vulnerabilidad:** Si utilizamos el mismo modelo de lenguaje de alta capacidad (como GPT-4o) para generar sintéticamente nuestros "escenarios de control de prueba" y, a la vez, para actuar como el "juez evaluador" de las transcripciones, corremos el riesgo de sufrir de **Preference Leakage (Fuga de Preferencias)**. Esto significa que el juez de IA sobreestimará sistemáticamente el testimonio no por su calidad forense, sino porque comparte características estilísticas o formatos heredados del mismo modelo generador, introduciendo un sesgo de evaluación ciego: Li et al. reportan puntajes promedio de fuga de preferencias de hasta el **23.6%** según el método de entrenamiento [8].
 *   **La Mitigación:** Para romper este círculo de autovalidación y garantizar la neutralidad del MVP, el sistema implementará un **Esquema de Evaluación Desacoplada (Cross-Model Evaluation)**:
-    *   Si los escenarios de control sintéticos y las transcripciones de prueba son sintetizados utilizando la API de un proveedor (ej. OpenAI GPT-4o), el agente evaluador local (*LLM-as-a-judge*) en el clúster debe operar estrictamente sobre un modelo de una familia de desarrollo completamente independiente y open-source (ej. Meta LLaMA 3.3 o Mistral fine-tuned local en CPU).
+    *   Si los escenarios de control sintéticos y las transcripciones de prueba son sintetizados utilizando la API de un proveedor (ej. OpenAI GPT-4o), el agente evaluador local (*LLM-as-a-judge*) en el clúster debe operar estrictamente sobre un modelo de una familia de desarrollo completamente independiente y open-source (ej. Llama 3.1 8B o Mistral 7B cuantizados localmente en CPU; ver Segmento 9, Módulo D).
     *   Esto bloquea la transferencia de "características espurias" y garantiza que el contraste semántico se deba a la correspondencia fáctica inmutable y no a la simpatía estilística del transformador.
 
 ##### Escenario C: Sesgo de Posición (Position Bias)
-*   **La Vulnerabilidad:** Los modelos evaluadores de IA tienden a favorecer sistemáticamente los primeros testimonios presentados en el contexto (sesgo de posición de hasta el **75% en modelos comerciales**), independientemente de la correspondencia lógica real.
-*   **La Mitigación:** El motor RAG local implementará un protocolo de **Mitigación por Permutación de Contexto (Swapping Protocol)**: cada consulta de incongruencia compleja será evaluada en dos llamadas de backend paralelas en el clúster, invirtiendo el orden de los pasajes de la transcripción y el marco de verdad. Solo se registrará una alerta de incongruencia definitiva si el sistema computa consistentemente la discrepancia en ambos órdenes de lectura.
+*   **La Vulnerabilidad:** Los modelos evaluadores de IA tienden a favorecer sistemáticamente los primeros testimonios presentados en el contexto (incluso GPT-4 solo mantiene su juicio al invertir el orden en el **65%** de los casos [18]), independientemente de la correspondencia lógica real.
+*   **La Mitigación:** El motor RAG local implementará un protocolo de **Mitigación por Permutación de Contexto (Swapping Protocol)**: cada consulta de incongruencia compleja será evaluada en dos llamadas de backend paralelas en el clúster, invirtiendo el orden de los pasajes de la transcripción y el marco de verdad. Solo se registrará una alerta de incongruencia definitiva si el sistema computa consistentemente la discrepancia en ambos órdenes de lectura. **Alcance:** el protocolo es MUST en la evaluación offline del Golden Dataset y SHOULD en línea, donde se ejecuta de forma asíncrona sin bloquear la interfaz (Segmento 6, Principio 2).
 
 ---
 
@@ -469,10 +489,10 @@ A continuación se presenta la matriz de los 10 riesgos principales técnicos, d
 | **4** | **Saturación de Recursos de CPU en el Clúster Local** <br>El procesamiento de múltiples consultas semánticas y análisis de emociones agota el cómputo de CPU del clúster académico, causando bloqueos de pods. | Técnico | Media | Medio | **Cola de Mensajería con Redis y Autoescalado con KEDA:** Desacoplar las consultas mediante un broker de mensajería Redis. Los pods de validación semántica procesan en cola de forma asíncrona. Configurar KEDA para autoescalar los pods en base a la longitud de la cola y aplicar límites estrictos de recursos de CPU en el manifiesto de Kubernetes (`resources.limits`) para evitar caídas por desbordamiento de memoria (`OOMKilled`). |
 | **5** | **Fuga Accidental de Datos Testimoniales Confidenciales** <br>Filtración de fragmentos de testimonios sin anonimizar a nubes públicas comerciales mediante llamadas externas a APIs de LLMs en un modelo híbrido. | Seguridad | Media | Crítico | **Aislamiento Físico y Pod Proxy de Anonimización:** Implementar un microservicio de anonimización obligatoria en la capa de red del clúster (`Pod Proxy`). Ningún paquete de datos puede salir hacia una API externa sin antes pasar por el proxy que enmascara identidades, ubicaciones y números de expediente, validado mediante `NetworkPolicies` estrictas en Kubernetes. |
 | **6** | **Veto Legal o Ético del Sistema por Revictimización** <br>El Oficial de Cumplimiento Ético rechaza la herramienta por clasificar erróneamente los vacíos de memoria de víctimas de trauma como "falsedades" o "engaños". | Legal / Ético | Alta | Crítico | **Prohibición de Juicios de Verdad en la UI:** Modificar toda la interfaz de usuario para desterrar el vocabulario binario ("verdad/mentira"). El sistema reporta únicamente *"Fluctuación afectiva por estrés"* o *"Incongruencia semántica"*, basándose en el análisis estilométrico de trauma que asume que el declarante sufre distorsiones involuntarias y no de mala fe. |
-| **7** | **Ataques de Inyección de Prompts en Texto (Prompt Injection)** <br>Un declarante o un actor malintencionado introduce instrucciones manipuladas en el testimonio textual para burlar el análisis de incongruencias de la IA. | Seguridad | Baja | Alto | **Sanitización de Entradas y Prompts del Sistema Inmutables:** Aplicar un pipeline de pre-procesamiento que escape caracteres especiales en las entradas de texto. Inyectar las instrucciones del sistema (*System Prompts*) y el "marco de verdad" sintético de solo lectura en variables de entorno inmutables dentro del contenedor del Agente de Validación Semántica, bloqueando instrucciones de anulación de contexto. |
-| **8** | **Costos Excesivos de APIs Externas en Escala** <br>En un modelo híbrido, el volumen masivo de consultas de testimonios a APIs comerciales externas (ej. GPT-4o) resulta financieramente insostenible para la institución. | Financiero | Media | Medio | **Caché Semántica Local:** Implementar una capa de almacenamiento en caché semántica en la base de datos local PostgreSQL (`pgvector`). Si un testimonio similar o una consulta fáctica idéntica ya fue evaluada previamente, el sistema devuelve la respuesta almacenada localmente en lugar de llamar a la API externa de pago, reduciendo los costos hasta en un 60%. |
+| **7** | **Ataques de Inyección de Prompts en Texto (Prompt Injection)** <br>Un declarante o un actor malintencionado introduce instrucciones manipuladas en el testimonio textual para burlar el análisis de incongruencias de la IA. | Seguridad | Baja | Alto | **Sanitización de Entradas y Prompts del Sistema Inmutables:** Aplicar un pipeline de pre-procesamiento que escape caracteres especiales en las entradas de texto. Montar las instrucciones del sistema (*System Prompts*) como configuración inmutable de solo lectura (ConfigMap) en el contenedor del Agente de Validación Semántica; el "marco de verdad" vive en `pgvector`, con permisos de solo lectura para el juez. Así se bloquean las instrucciones de anulación de contexto. |
+| **8** | **Costos Excesivos de APIs Externas en Escala** <br>En un modelo híbrido, el volumen masivo de consultas de testimonios a APIs comerciales externas (ej. GPT-4o) resulta financieramente insostenible para la institución. | Financiero | Media | Medio | **Caché Semántica Local:** Implementar una capa de almacenamiento en caché semántica en la base de datos local PostgreSQL (`pgvector`). Si un testimonio similar o una consulta fáctica idéntica ya fue evaluada previamente, el sistema devuelve la respuesta almacenada localmente en lugar de llamar a la API externa de pago, reduciendo el costo de las consultas repetidas. |
 | **9** | **Desalineación Funcional con la Ley 2421 de 2024** <br>El sistema prioriza análisis académicos irrelevantes en lugar de agilizar los tiempos de acreditación y asistencia de víctimas que exige la reforma de ley. | Legal / Producto | Baja | Medio | **Alineación Ontológica con Categorías de Ley:** Diseñar la ontología semántica del RAG basándonos en las categorías formales de afectación, reparación y asistencia establecidas en la **Ley 1448 de 2011** y la **Ley 2421 de 2024**, garantizando que cada reporte final sea utilizable directamente por la analista para sus descargos formales ante el Estado. |
-| **10** | **Falsas Alertas por Variaciones Dialécticas Regionales** <br>El análisis estilométrico emocional del modelo LieXBerta confunde giros lingüísticos de zonas rurales de Colombia con patrones de agitación o vacilación psicológica, perdiendo exactitud. | Técnico | Alta | Medio | **Calibración Lingüística Regional y Desactivación de Alertas:** Permitir al analista calibrar el nivel de sensibilidad estilométrica de la sesión según el origen regional del declarante (ej. Costa, Andes, Llanos). Si la exactitud decae, el analista puede silenciar temporalmente las sugerencias emocionales de texto y apoyarse únicamente en la contrastación factual del RAG semántico. |
+| **10** | **Falsas Alertas por Variaciones Dialécticas Regionales** *(alcance TG2, fuera del MVP)* <br>El análisis estilométrico emocional del modelo LieXBerta confunde giros lingüísticos de zonas rurales de Colombia con patrones de agitación o vacilación psicológica, perdiendo exactitud. | Técnico | Alta | Medio | **Calibración Lingüística Regional y Desactivación de Alertas:** Permitir al analista calibrar el nivel de sensibilidad estilométrica de la sesión según el origen regional del declarante (ej. Costa, Andes, Llanos). Si la exactitud decae, el analista puede silenciar temporalmente las sugerencias emocionales de texto y apoyarse únicamente en la contrastación factual del RAG semántico. |
 
 ---
 
@@ -490,14 +510,14 @@ Durante este bloque, el foco está en la configuración del clúster local y la 
 #### 2. Módulo 6 (CKAD): Diseño de Aplicaciones y Resiliencia (Semanas 10-11)
 Este módulo se centra en dotar al sistema de su arquitectura orientada a eventos, asincronía y reactividad ante latencias [20]:
 *   **Cola de Mensajería Asíncrona (Redis Queue):** Configurar y empaquetar de forma declarativa el pod de Redis para gestionar la cola de procesamiento asíncrona de FastAPI, garantizando que el sistema sea tolerante a retrasos de procesamiento de CPU sin romper el navegador del usuario.
-*   **Autoescalado Dinámico en Kubernetes (KEDA):** Configurar e instalar los triggers de **KEDA** basados en el número de trabajos encolados en Redis. Esto simulará el escalado dinámico de los pods de validación semántica (RAG) y análisis de emociones cuando se detecte carga transaccional activa en la interfaz del analista.
+*   **Autoescalado Dinámico en Kubernetes (KEDA, COULD):** Configurar e instalar los triggers de **KEDA** basados en el número de trabajos encolados en Redis. Esto simulará el escalado dinámico de los pods de validación semántica (RAG) y análisis de emociones cuando se detecte carga transaccional activa en la interfaz del analista.
 *   **Separación de Namespaces:** Organizar el sistema en namespaces dedicados (ej. `veridicus-apps` para frontend/backend, `veridicus-system` para bases de datos y colas), estructurando los entornos de red de forma limpia.
 
 #### 3. Módulo 7 (CKS): Seguridad, Aislamiento y Políticas Éticas (Semanas 12-13)
 Este bloque blinda éticamente a Veridicus, neutralizando el veto de seguridad y el de cumplimiento normativo [17, 20]:
 *   **Aislamiento Físico de Redes (NetworkPolicies):** Implementar políticas de red restrictivas que prohíban la salida de red WAN del clúster local a todos los pods que almacenen transcripciones sin anonimizar, declarándolos como zonas aisladas.
-*   **Pod Proxy de Anonimización:** Desplegar y probar el microservicio que actúa como proxy e interceptor unidireccional. Este pod recibe las solicitudes del Agente de Validación Semántica, aplica lógica de enmascaramiento con expresiones regulares en español, y solo transmite datos depurados en caso de consumir servicios híbridos de APIs externas.
-*   **Gestión Segura de Secretos (Kubernetes Secrets):** Cifrar y almacenar de manera segura todas las credenciales de base de datos y llaves de desarrollo de la IA, inyectándolas como variables de entorno de solo lectura en tiempo de compilación.
+*   **Pod Proxy de Anonimización (COULD):** Desplegar y probar el microservicio que actúa como proxy e interceptor unidireccional. Este pod recibe las solicitudes del Agente de Validación Semántica, aplica lógica de enmascaramiento con expresiones regulares en español, y solo transmite datos depurados en caso de consumir servicios híbridos de APIs externas.
+*   **Gestión Segura de Secretos (Kubernetes Secrets):** Cifrar y almacenar de manera segura todas las credenciales de base de datos y llaves de desarrollo de la IA, inyectándolas como variables de entorno de solo lectura en tiempo de ejecución.
 
 #### 4. Módulo 8 (Producción y GitOps): Automatización y Monitoreo (Semana 14)
 Fase final de automatización de entregas y control operacional [20]:
@@ -558,5 +578,8 @@ Siguiendo la metodología de **Investigación Basada en Diseño (DSR)** y el enf
 *   **Iteración 4: Recorte de Alcance de Audio y Simplificación de Ingesta (El MVP Sensato)**  
     *   *Conflicto Identificado:* El procesamiento de streams continuos de audio oral en tiempo real por protocolos gRPC/WebSockets y el TTS sincrónico sobrepasaban la capacidad de desarrollo y recursos de hardware CPU de la asignatura, arriesgando fallos de sistema (`OOMKilled`) en el clúster local.  
     *   *Decisión de Diseño:* Se simplificó de forma radical el alcance operativo del MVP para la asignatura. Se eliminaron los flujos continuos de transmisión oral y el TTS sincrónico local [20]. En su lugar: (a) se adoptó una entrada asíncrona de **texto plano en español** asumiendo la transcripción como un paso externo y probado de forma estándar; (b) se redujo el dataset de evaluación inicial de 100 a **10 transcripciones de control** en español con anotaciones expertas integradas como metadatos; y (c) se unificó el procesamiento de audio opcional asíncrono estilo nota de voz de WhatsApp por demanda para fines demostrativos en el frontend, resguardando la viabilidad y robustez del clúster académico de este semestre [20].
+*   **Iteración 5: Auditoría de Coherencia de los Insumos (Módulo 5)**  
+    *   *Conflicto Identificado:* Antes de Inception (AI-DLC), el cruce de este PRD con `pvb.md` y `docs/*.md` encontró 19 hallazgos: funciones obligatorias por regla (edición de alertas, consolidación explícita) clasificadas como SHOULD, metas de un modelo afectivo declarado WON'T, plataforma sin prioridad, umbrales sin definir y cifras mal atribuidas a sus fuentes.
+    *   *Decisión de Diseño:* Se aplicaron las 19 decisiones registradas en `docs/coherencia-insumos.md`: voz y sugerencia de preguntas en SHOULD; edición, consolidación, descarga, reanudación y autenticación en MUST; LieXBerta completo marcado como alcance TG2; nueva subsección de Plataforma; umbrales y recalibración siempre bajo decisión humana; y cifras corregidas contra `research/`.
 
 ---

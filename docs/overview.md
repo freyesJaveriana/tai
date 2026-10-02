@@ -63,12 +63,12 @@ El estudio empírico de Solà-Sales et al. (2025) sobre el impacto de las técni
 *   **Narración Libre (Free Recall - FR):** Una mayor duración de la narración espontánea y no inducida reduce de manera sustancial las lagunas de memoria y autocríticas motivacionales [14].
 *   **La naturaleza de los errores:** Los humanos tienden a cometer más **errores de distorsión** (modificar de forma involuntaria un detalle existente, lo cual requiere menor esfuerzo cognitivo) que **errores de comisión** (inventar de forma deliberada un hecho completamente inexistente) [14]. Además, las inconsistencias involuntarias suelen darse en detalles periféricos, mientras que los hechos centrales se recuerdan con alta precisión [14].
 
-Esto fundamenta por qué **Veridicus** no debe catalogar cualquier desajuste temporal o cambio de nombre menor como "engaño deliberado", sino como una fluctuación cognitiva natural o de trauma, enfocando la búsqueda de mentiras exclusivamente en incongruencias de hechos centrales inmutables [11, 14].
+Esto fundamenta por qué **Veridicus** no debe catalogar cualquier desajuste temporal o cambio de nombre menor como "engaño deliberado", sino como una fluctuación cognitiva natural o de trauma, enfocando la búsqueda de incongruencias exclusivamente en los hechos centrales inmutables [11, 14].
 
 ### Detección estilométrica y emocional con LieXBerta:
 Zhou et al. (2025) proponen el modelo **LieXBerta** para solucionar el problema del sesgo subjetivo y la fatiga en interrogatorios prolongados mediante IA [19]. Su modelo demuestra que las personas que engañan deliberadamente bajo escenarios de alta presión psicológica sufren de una carga cognitiva severa que filtra patrones emocionales específicos dentro del texto [19].
 
-El modelo extrae la intensidad emocional en **10 dimensiones lingüísticas** a través de RoBERTa y las procesa con un clasificador XGBoost optimizado [19]. Bajo este diseño, el rendimiento del sistema alcanza una **precisión de prueba del 87.50%** y un **F1-score del 87.13%** [19], demostrando de manera categórica que la integración de la tristeza, la ira y la vacilación lingüística es el mejor indicador semántico para detectar la mentira en el texto de los testimonios reales [19].
+El modelo extrae la intensidad emocional en **10 dimensiones lingüísticas** a través de RoBERTa y las procesa con un clasificador XGBoost optimizado [19]. Bajo este diseño, el rendimiento del sistema alcanza una **precisión de prueba del 87.50%** y un **F1-score del 87.13%** [19], y reporta que integrar rasgos emocionales (como la tristeza, la ira y la vacilación) mejora la clasificación frente a modelos sin ellos [19]. En Veridicus ese resultado no se usa para etiquetar mentiras: el modelo completo es alcance del TG2 y la interfaz solo muestra fluctuaciones afectivas como sugerencias de revisión (`specs/prd.md`, Segmento 6).
 
 ---
 

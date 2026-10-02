@@ -279,7 +279,7 @@ quadrantChart
 
 #### 4. WON'T HAVE (Excluido explícitamente para el MVP académico - Reservado para el alcance completo del TG)
 *   **Transmisión de Voz en Tiempo Real Continuo:** Procesamiento de audio por streaming continuo de baja latencia (<500ms) por protocolos gRPC o WebSockets.
-*   **Uso de Servidores GPU Dedicados de Alto Costo:** Requerimientos de hardware de inferencia masiva y costosa para Whisper en producción (se garantiza el funcionamiento 100% en CPU).
+*   **Uso de Servidores GPU Dedicados de Alto Costo:** Requerimientos de hardware de inferencia masiva y costosa para Whisper en producción (se garantiza el funcionamiento 100% en CPU). Se admite un **perfil GPU opcional** (una máquina de hasta 4 GPU y 32 GB de RAM del sistema) para correr la evaluación del Golden Dataset con modelos más grandes y la demostración; ninguna función del MVP depende de él, y las pruebas que lo usan corren en una etapa separada, a demanda.
 *   **Modelo Híbrido Completo LieXBerta (RoBERTa-base + XGBoost):** El entrenamiento, calibración empírica y despliegue del modelo clasificador emocional multivariable queda fuera de la materia y se ejecutará de forma exclusiva en el semestre de **Trabajo de Grado 2 (TG2)** [19, 21].
 *   **Integración de Datos Judiciales Reales:** Acceso a bases de datos con expedientes confidenciales reales de la JEP o el CNMH (el MVP se evaluará estrictamente con escenarios y casos de prueba sintéticos/ficticios).
 *   **Firma Criptográfica con Llave por Analista:** La integridad del reporte se garantiza con el registro de quién consolidó y cuándo más el hash SHA-256 del Markdown (ver MUST).
@@ -288,7 +288,7 @@ quadrantChart
 #### 5. Plataforma (prioridad de la infraestructura en el clúster)
 *   **MUST:** PostgreSQL + `pgvector` con el operador *CloudNativePG*; Redis como cola asíncrona; manifiestos o Helm chart con `resources.requests` y `resources.limits` en cada pod; `NetworkPolicy` que niega la salida a internet a los pods que manejan datos sin anonimizar (como artefacto revisable); Kubernetes Secrets inyectados en tiempo de ejecución.
 *   **SHOULD:** Despliegue GitOps con Argo CD; Prometheus y Grafana con el panel AIR.
-*   **COULD:** Autoescalado con KEDA; el proxy de anonimización (ver COULD funcional).
+*   **COULD:** Autoescalado con KEDA; el proxy de anonimización (ver COULD funcional); perfil GPU opcional para evaluación y demostración (ver WON'T, GPU).
 
 ---
 

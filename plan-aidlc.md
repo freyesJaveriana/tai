@@ -147,7 +147,11 @@ compuerta puede ceder en trabajo no dirigido, y es justo la que detiene el flujo
 - Orden de iteración: pedir **stage-major** (`aidlc engine state set-construction-iteration
   stage-major`, con mi confirmación explícita), para que todas las unidades pasen por el diseño
   3.1 a 3.4 antes de que alguna llegue a 3.5. Con unit-major, la primera unidad llegaría a Code
-  Generation y bloquearía el diseño de las demás.
+  Generation y bloquearía el diseño de las demás. *(Ya registrado en Delivery Planning, P8.)*
+- **Nota (Delivery Planning, 2026-10-02):** el `bolt-plan.md` quedó con **un Bolt por unidad**
+  (un commit por Bolt, según `org.md`). La primera unidad del plan es **contratos (U1)**, no el
+  flujo de texto: B1 contratos → B2 acceso (U3) → B3 flujo de texto (U4). Por tanto, el primer
+  `code-generation-plan.md` de 3.5 es el de U1.
 - Se aprueban las etapas de diseño 3.1 a 3.4 que apliquen, para todas las unidades. Luego 3.5
   produce el `code-generation-plan.md` de la primera unidad del `bolt-plan.md`.
 - Recordatorio en cada unidad: «Detente al terminar la Parte 1 de Code Generation. No ejecutes

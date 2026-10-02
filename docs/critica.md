@@ -1,6 +1,11 @@
 # Investigación Adversarial y Crítica: Veridicus (Versión Simplificada)
 *Módulo 3 — Documento de Análisis Crítico (`docs/critica.md`)*
 
+> **Nota (2026-10-02, ver `docs/coherencia-insumos.md`, H6):** registro del Módulo 3, superado por
+> `specs/prd.md` en: la mitigación del Riesgo 3 (el MVP no usa gRPC/WebSockets ni streaming de voz:
+> la voz es por demanda y asíncrona), la latencia (8–12 s en CPU) y el modelo LieXBerta completo
+> (alcance del TG2). Ante cualquier diferencia, manda el PRD.
+
 Este documento presenta un análisis de validación adversarial (un estudio de los puntos débiles y riesgos) para **Veridicus: Módulo de Entrevista y Detección de Incongruencias Forenses** [12]. En línea con la honestidad crítica que exige este curso [11], el informe no pretende vender la herramienta como infalible; al contrario, analiza de forma sencilla y directa los riesgos de seguridad, los posibles errores de juicio, la obsolescencia técnica y las limitaciones éticas que podrían hacer que el sistema falle al usarse con personas reales.
 
 ---
@@ -23,7 +28,7 @@ Vender este sistema como una "máquina de la verdad absoluta" sería poco ético
 ## 2. PUNTOS DÉBILES Y CÓMO SE PUEDE ENGAÑAR O DAÑAR EL SISTEMA
 
 ### Riesgo 1: El efecto del trauma y el estrés postraumático (Falsos positivos por dolor)
-*   **El problema:** Las víctimas y los comparecientes de hechos dolorosos en el marco del conflicto armado (que en Colombia involucra a más de 9 millones de personas registradas [2]) a menudo sufren de **Trastorno de Estrés Postraumático (PTSD por sus siglas en inglés)**. Esto causa bloqueos de memoria, confusión en las fechas, cambios en los nombres de las personas o lugares, y alteraciones emocionales en la voz debido al dolor de recordar el trauma [5].
+*   **El problema:** Las víctimas y los comparecientes de hechos dolorosos en el marco del conflicto armado (que en Colombia involucra a más de 9 millones de personas registradas [2] [VERIFICAR: la cifra no aparece en los informes del CNMH del corpus]) a menudo sufren de **Trastorno de Estrés Postraumático (PTSD por sus siglas en inglés)**. Esto causa bloqueos de memoria, confusión en las fechas, cambios en los nombres de las personas o lugares, y alteraciones emocionales en la voz debido al dolor de recordar el trauma [5].
 *   **El peligro:** Si la inteligencia artificial analiza estas dudas o la carga emocional como si fueran un indicio general de mentira, catalogará la tristeza profunda o la vacilación normal de una víctima (que tiene un peso estadístico importante en el modelo matemático [10]) como si fuera un intento deliberado de engañar. Esto generaría una injusticia grave y una revictimización de la persona [5].
 *   **Cómo lo solucionamos (Mitigación):**
     *   **Prohibición de veredictos directos:** El sistema de inteligencia artificial tiene prohibido por diseño etiquetar a una persona como "mentirosa" o usar la palabra "engaño" [5]. Solo señalará de forma neutral "desviaciones o variaciones en las palabras" [5].

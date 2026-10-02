@@ -1,4 +1,6 @@
-# Estado local del contenedor AI-DLC (ver docker/.gitignore)
+# Estado local del contenedor Docker (ver docker/.gitignore).
+# OJO: no nombrar aqui el framework del contenedor; su configurador toma esas
+# lineas como un bloque propio sin marcar y aborta con "config conflict".
 docker/.state/
 docker/.env
 

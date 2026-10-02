@@ -81,6 +81,7 @@ fi
 # settings.local.json gana sobre .claude/settings.json (que reescribe 'aidlc
 # config') y está en el .gitignore que genera AI-DLC.
 local_settings="$WS/.claude/settings.local.json"
+mkdir -p "$WS/.claude"
 [ -s "$local_settings" ] || echo '{}' > "$local_settings"
 if [ "$(jq -r '.statusLine.command // empty' "$local_settings")" != "aidlc-statusline" ]; then
     tmp=$(mktemp)

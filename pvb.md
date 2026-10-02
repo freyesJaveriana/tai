@@ -2,6 +2,12 @@
 
 Este documento de visión de producto constituye la base de validación y requisitos técnicos para el desarrollo de **Veridicus**, alineado con el Trabajo de Grado de Maestría del autor Felipe Reyes Palacio [19], titulado *"Diálogos para la Memoria"* [9], bajo la dirección del Dr. Luis Gabriel Moreno [9].
 
+> **Nota (2026-10-02, ver `docs/coherencia-insumos.md`, H6):** este PVB es el registro del
+> Módulo 2 y queda superado por `specs/prd.md` en: latencia (8–12 s en CPU para el MVP, no 3–5 s),
+> hardware (sin GPU), transporte (sin gRPC/WebSockets ni streaming), Argo Workflows (fuera del MVP),
+> paradigma de UX (la IA sugiere hallazgos y preguntas; el analista decide) y el modelo LieXBerta
+> completo (alcance del TG2). Ante cualquier diferencia, manda el PRD.
+
 ---
 
 ## PRODUCTO

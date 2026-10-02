@@ -20,15 +20,22 @@ flowchart LR
     INC --> U["Unidades + DAG<br/>+ bolt-plan"]
     U --> CON["Construction por unidad<br/>diseño 3.1 a 3.4"]
     CON --> CG["3.5 Code Generation<br/>PARTE 1: plan de tareas"]
-    CG --> STOP{{"ALTO<br/>no se aprueba la Parte 2"}}
+    CG --> STOP{{"ALTO<br/>nunca se elige Approve Plan"}}
 ```
 
 Texto alternativo: los insumos corregidos alimentan Inception, que produce unidades, su grafo
 de dependencias y el plan de Bolts. Construction diseña cada unidad y genera su plan de tareas.
 El flujo se detiene ahí, antes de la Parte 2, que escribe el código.
 
-**Terminado cuando:** cada unidad tiene un `code-generation-plan.md` revisado por mí y ninguna
-unidad ha entrado a la Parte 2.
+> **Ojo:** en AI-DLC v2 no hay una aprobación aparte para la Parte 2. La Parte 1 termina con la
+> pregunta *Plan Approval* (`Approve Plan` / `Request Changes`), y elegir `Approve Plan` es lo que
+> lanza la Parte 2. Por eso **nunca se elige `Approve Plan`**: el plan se revisa, se itera con
+> `Request Changes` y la pregunta se deja sin responder.
+
+**Terminado cuando:** todas las unidades tienen aprobado su diseño (3.1 a 3.4 que apliquen); la
+primera unidad del `bolt-plan.md` tiene un `code-generation-plan.md` revisado por mí; las demás
+tienen su plan de tareas (generado por AI-DLC si el motor lo permite, o derivado a mano con el
+formato del Paso 5, ver §8); y ninguna unidad ha entrado a la Parte 2.
 
 ## 2. Qué cambia frente a la guía de clase
 
@@ -93,6 +100,9 @@ cambió. Esto evita el problema de la v1, donde las copias divergían de los ori
    - `aidlc/spaces/default/memory/team.md`: las reglas AUTONOMIA-01..05 de
      `docs/limite-autonomia.md`, más tres reglas de proceso: una aprobación humana por etapa,
      nunca autonomía en Construction y **no escribir código de aplicación en este trabajo**.
+     Van **solo** bajo `## Mandated` y `## Forbidden`: Practices Discovery (2.2) reemplaza
+     las secciones Way of Working, Walking Skeleton, Testing Posture, Deployment y Code Style,
+     y lo que se escriba ahí se pierde.
 5. Commit: `docs(aidlc): contexto del proyecto y límite de autonomía`.
 
 ### Paso 1 — Auditoría de coherencia de los insumos (antes de Inception)
@@ -115,7 +125,10 @@ hace un commit por documento. Sale de aquí un PRD que no se contradice.
 ```
 
 `strict` hace que un insumo modificado después de aprobado obligue a reaprobar, en lugar de
-solo anunciarse. Encaja con la regla de aprobación por etapa.
+solo anunciarse. Encaja con la regla de aprobación por etapa. Además mantiene activa la compuerta
+de Plan Approval de Code Generation: con `relaxed` (el valor por defecto de `classic`) esa
+compuerta puede ceder en trabajo no dirigido, y es justo la que detiene el flujo antes del código.
+`--guard-policy strict` solo se puede pasar al crear el intent; no lo omitas.
 
 ### Paso 3 — Inception, una etapa por sesión
 
@@ -129,13 +142,23 @@ solo anunciarse. Encaja con la regla de aprobación por etapa.
 ### Paso 4 — Construction hasta el plan de tareas
 
 - Al llegar a Construction, AI-DLC ofrece **una sola vez** continuar en modo autónomo.
-  Respuesta: **no, con compuerta en cada etapa**. Si se acepta, salta compuertas y escribe código.
-- Por cada unidad, en el orden del `bolt-plan.md`, se aprueban las etapas de diseño 3.1 a 3.4
-  que apliquen. Luego 3.5 produce el `code-generation-plan.md`.
+  Respuesta: **«Review each checkpoint»** (compuerta en cada etapa). Si se elige «Continue
+  automatically», salta compuertas y escribe código.
+- Orden de iteración: pedir **stage-major** (`aidlc engine state set-construction-iteration
+  stage-major`, con mi confirmación explícita), para que todas las unidades pasen por el diseño
+  3.1 a 3.4 antes de que alguna llegue a 3.5. Con unit-major, la primera unidad llegaría a Code
+  Generation y bloquearía el diseño de las demás.
+- Se aprueban las etapas de diseño 3.1 a 3.4 que apliquen, para todas las unidades. Luego 3.5
+  produce el `code-generation-plan.md` de la primera unidad del `bolt-plan.md`.
 - Recordatorio en cada unidad: «Detente al terminar la Parte 1 de Code Generation. No ejecutes
   la Parte 2. No escribas código de aplicación.»
-- Revisar el plan (§7) y **no aprobar la Parte 2**. Si hace falta corregir, se usa Request Changes.
-- Pasar a la siguiente unidad (`/aidlc --stage …` o lo que proponga `/aidlc --status`).
+- Revisar el plan (§7) e iterar con **Request Changes**. **Nunca elegir `Approve Plan`**: esa
+  respuesta es la que lanza la Parte 2 (ver §1). Cuando el plan esté bien, dejar la pregunta sin
+  responder, hacer commit + push y cerrar la sesión.
+- Siguientes unidades: el flujo principal queda detenido en la Plan Approval de la primera.
+  Probar `/aidlc --stage code-generation --single` para generar el plan de otra unidad sin mover
+  el flujo principal (aplica la misma regla: nunca `Approve Plan`). Si el motor no deja elegir
+  la unidad, derivar los planes restantes a mano (§8).
 
 ### Paso 5 — Consolidación
 
@@ -166,7 +189,9 @@ y 7 d (son de la cuenta, compartidas con todas mis sesiones de Claude):
 - [ ] Están los pasos de prueba de cada capa.
 - [ ] Las rutas de código apuntan a la raíz del proyecto, nunca a `aidlc/`.
 
-## 8. Ruta corta si se acaba la cuota
+## 8. Ruta corta (cuota agotada o unidades sin plan generado)
 
-Detenerse al aprobar 2.9 Delivery Planning y derivar las tareas a mano desde `unit-of-work.md`,
-`unit-of-work-story-map.md` y `bolt-plan.md`, con el formato del Paso 5.
+Detenerse al aprobar 2.9 Delivery Planning, o en la Plan Approval de la primera unidad, y derivar
+las tareas a mano desde `unit-of-work.md`, `unit-of-work-story-map.md`, `bolt-plan.md` y los
+diseños 3.1 a 3.4 de cada unidad, con el formato del Paso 5. El `code-generation-plan.md` de la
+primera unidad sirve de modelo.

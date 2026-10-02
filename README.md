@@ -63,12 +63,15 @@ revisión explícita.
 ```
 tai/
 ├── pvb.md              ← Entregable 1 (Product Vision Board)
+├── plan-aidlc.md         plan propio para AI-DLC v2.10.0: de PVB/PRD a unidades y tareas
+├── docker/               contenedor aislado tai-aidlc (Claude Code + AI-DLC), ver docker/README.md
 ├── docs/                 insumos del PRD
 │   ├── pvb.md             copia del PVB
 │   ├── overview.md        panorama del dominio (justicia transicional, PLN forense)
 │   ├── mercado.md         análisis de mercado y competencia
 │   ├── icp.md             perfil de cliente ideal y buyer personas
 │   ├── critica.md         investigación adversarial
+│   ├── limite-autonomia.md  reglas AUTONOMIA-01..05 (PRD Segmento 6) para la memoria de AI-DLC
 │   └── iteracion1.md      bitácora del Paso 0 (análisis de conflictos, aprobado por el autor)
 ├── specs/
 │   └── prd.md           ← Entregable 2 (Product Requirements Document, 13 segmentos)

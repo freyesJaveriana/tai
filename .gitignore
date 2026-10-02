@@ -1,0 +1,8 @@
+# Estado local del contenedor AI-DLC (ver docker/.gitignore)
+docker/.state/
+docker/.env
+
+# Ruido del sistema
+.DS_Store
+Thumbs.db
+*.log

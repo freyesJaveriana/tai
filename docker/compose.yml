@@ -1,0 +1,35 @@
+# Contenedor aislado "tai-aidlc". Se maneja con docker\aidlc.bat (no hace falta
+# llamar a compose a mano). Persistencia:
+#   - .state/claude  -> config de Claude Code (login, sesiones, plugins, AI-DLC)
+#   - .state/gh      -> login de GitHub CLI (token que usa git para push)
+#   - .state/git     -> gitconfig global del contenedor (nombre/email, helper de gh)
+#   - volumen tai-aidlc-workspace -> la copia del repo clonada desde GitHub
+# Nada de esto toca ~/.claude, ~/.gitconfig ni el login de gh del host.
+name: tai-aidlc
+
+services:
+  aidlc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tai-aidlc:latest
+    container_name: tai-aidlc
+    hostname: tai-aidlc
+    init: true
+    stdin_open: true
+    tty: true
+    environment:
+      REPO_URL: ${REPO_URL:-https://github.com/freyesJaveriana/tai.git}
+      REPO_BRANCH: ${REPO_BRANCH:-main}
+      GIT_USER_NAME: ${GIT_USER_NAME:-}
+      GIT_USER_EMAIL: ${GIT_USER_EMAIL:-}
+      GIT_CONFIG_GLOBAL: /home/developer/.config/git/config
+    volumes:
+      - ./.state/claude:/home/developer/.claude-config
+      - ./.state/gh:/home/developer/.config/gh
+      - ./.state/git:/home/developer/.config/git
+      - workspace:/workspace
+
+volumes:
+  workspace:
+    name: tai-aidlc-workspace

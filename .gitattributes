@@ -1,0 +1,5 @@
+# Los scripts que corren dentro del contenedor Linux deben quedar con LF,
+# aunque se editen o hagan checkout en Windows.
+*.sh  text eol=lf
+Dockerfile text eol=lf
+*.bat text eol=crlf

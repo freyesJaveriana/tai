@@ -1,0 +1,6 @@
+# Estado persistente del contenedor (logins de Claude/GitHub, sesiones, caches).
+# Contiene credenciales: NUNCA se versiona.
+.state/
+
+# Variables locales (nombre/email de git, repo/rama alternos).
+.env

@@ -87,6 +87,32 @@ tai/
     └── Veridicus_PVB_PRD.pptx  resumen visual del PVB + PRD (12 diapositivas, ~10 min, con notas del orador)
 ```
 
+## Avance del flujo AI-DLC
+
+El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
+[`aidlc/spaces/default/intents/261002-veridicus-mvp/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/)
+(`I/` abajo); cada etapa se cierra con aprobación humana y un commit `aidlc(<etapa>): …`.
+
+**Etapa cerrada más reciente:** Functional Design (2026-10-02). **Siguiente:** NFR Requirements.
+
+| Fase | Etapa | Estado | Documentos principales |
+|---|---|---|---|
+| Inception | Practices Discovery | Aprobada | [`team-practices.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/practices-discovery/team-practices.md) |
+| Inception | Requirements Analysis | Aprobada | [`requirements.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/requirements.md) |
+| Inception | User Stories | Aprobada | [`user-stories/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/user-stories/) |
+| Inception | Refined Mockups | Aprobada | [`mockups.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md), [`interaction-spec.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md) |
+| Inception | Domain Design | Aprobada | [`components.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md), [`decisions.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/decisions.md) |
+| Inception | Units Generation | Aprobada | [`unit-of-work.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md) |
+| Inception | Contract Design | Aprobada | [`contract-summary.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md) |
+| Inception | Delivery Planning | Aprobada | [`bolt-plan.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/bolt-plan.md) |
+| Construction | Functional Design | Aprobada | [`construction/<unidad>/functional-design/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): entidades, reglas, especificación funcional y trazabilidad de las 9 unidades (contracts, identity-access, text-flow, human-review, session-lifecycle, assistant-extras, anonymizer, forensic-report, voice), con su revisión en `reviews/` |
+| Construction | NFR Requirements, NFR Design, Infrastructure Design | Pendientes | — |
+| Construction | Code Generation (solo Parte 1: plan de tareas) | Pendiente | — |
+
+Los hallazgos abiertos de las revisiones de Functional Design quedaron aceptados como riesgo
+en la aprobación. Los cambios propuestos a contratos y a otras unidades están en la tabla
+«Cambios entre unidades» de cada `functional-spec.md`.
+
 ### Qué es Veridicus, en una línea
 
 > Un sistema multiagente de entrevista asistida por IA que contrasta en tiempo real el

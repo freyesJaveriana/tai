@@ -1,0 +1,107 @@
+{
+  "stage": "functional-design",
+  "unit": "assistant-extras",
+  "upstream_ids": [
+    "AC10.3.1",
+    "AC10.3.2",
+    "AC10.3.3",
+    "AC10.5.1",
+    "AC11.1.1",
+    "AC5.5.1",
+    "AC5.5.2",
+    "AC5.5.3",
+    "AC5.5.4",
+    "AC5.6.1",
+    "AC5.6.2",
+    "AC5.6.3"
+  ],
+  "coverage": [
+    {
+      "id": "AC10.3.1",
+      "status": "OK",
+      "target": "BR2.2, BR2.4"
+    },
+    {
+      "id": "AC10.3.2",
+      "status": "OK",
+      "target": "BR2.1"
+    },
+    {
+      "id": "AC10.3.3",
+      "status": "OK",
+      "target": "BR2.5"
+    },
+    {
+      "id": "AC10.5.1",
+      "status": "OK",
+      "target": "BR1.1, BR1.2, BR1.4"
+    },
+    {
+      "id": "AC11.1.1",
+      "status": "OK",
+      "target": "BR3.1, BR3.2"
+    },
+    {
+      "id": "AC5.5.1",
+      "status": "OK",
+      "target": "BR4.1, BR2.3, BR3.2"
+    },
+    {
+      "id": "AC5.5.2",
+      "status": "OK",
+      "target": "BR4.1"
+    },
+    {
+      "id": "AC5.5.3",
+      "status": "OK",
+      "target": "BR4.2"
+    },
+    {
+      "id": "AC5.5.4",
+      "status": "OK",
+      "target": "BR4.3"
+    },
+    {
+      "id": "AC5.6.1",
+      "status": "OK",
+      "target": "BR4.4"
+    },
+    {
+      "id": "AC5.6.2",
+      "status": "OK",
+      "target": "BR4.4"
+    },
+    {
+      "id": "AC5.6.3",
+      "status": "OK",
+      "target": "BR4.4"
+    }
+  ],
+  "reverse": [
+    {
+      "id": "BR1.3",
+      "status": "N/A",
+      "target": "respuesta P2 = A"
+    },
+    {
+      "id": "BR1.5",
+      "status": "N/A",
+      "target": "FR4.2, validación de la segunda lectura"
+    },
+    {
+      "id": "BR1.6",
+      "status": "N/A",
+      "target": "C3, permutation_applied"
+    },
+    {
+      "id": "BR2.6",
+      "status": "N/A",
+      "target": "ADR-003"
+    },
+    {
+      "id": "BR3.3",
+      "status": "N/A",
+      "target": "respuesta P3 = A"
+    }
+  ]
+}

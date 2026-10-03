@@ -1,0 +1,346 @@
+{
+  "stage": "functional-design",
+  "unit": "text-flow",
+  "upstream_ids": [
+    "AC1.1.1",
+    "AC1.1.2",
+    "AC1.1.3",
+    "AC1.1.4",
+    "AC1.1.5",
+    "AC1.3.1",
+    "AC1.3.2",
+    "AC1.3.3",
+    "AC2.1.1",
+    "AC2.1.2",
+    "AC2.1.3",
+    "AC2.1.4",
+    "AC2.2.1",
+    "AC2.2.2",
+    "AC2.2.3",
+    "AC2.2.4",
+    "AC2.2.5",
+    "AC4.3.1",
+    "AC4.3.2",
+    "AC3.3.1",
+    "AC3.3.2",
+    "AC4.1.1",
+    "AC4.1.2",
+    "AC4.1.3",
+    "AC4.1.4",
+    "AC4.1.5",
+    "AC3.1.1",
+    "AC3.1.2",
+    "AC3.1.3",
+    "AC3.1.4",
+    "AC3.1.5",
+    "AC3.1.6",
+    "AC3.1.7",
+    "AC3.1.8",
+    "AC3.2.1",
+    "AC3.2.2",
+    "AC3.2.3",
+    "AC3.2.4",
+    "AC4.2.1",
+    "AC4.2.2",
+    "AC4.2.3",
+    "AC4.2.4",
+    "AC5.5.1",
+    "AC5.5.2",
+    "AC5.5.3",
+    "AC5.5.4",
+    "AC5.6.1",
+    "AC5.6.2",
+    "AC5.6.3",
+    "AC8.4.1",
+    "AC8.4.2"
+  ],
+  "coverage": [
+    {
+      "id": "AC1.1.1",
+      "status": "OK",
+      "target": "BR1.1, BR1.4, BR2.2"
+    },
+    {
+      "id": "AC1.1.2",
+      "status": "OK",
+      "target": "BR1.1"
+    },
+    {
+      "id": "AC1.1.3",
+      "status": "OK",
+      "target": "BR2.1, BR2.4"
+    },
+    {
+      "id": "AC1.1.4",
+      "status": "OK",
+      "target": "BR2.2, BR2.3"
+    },
+    {
+      "id": "AC1.1.5",
+      "status": "OK",
+      "target": "BR2.3, BR3.2"
+    },
+    {
+      "id": "AC1.3.1",
+      "status": "OK",
+      "target": "BR3.1"
+    },
+    {
+      "id": "AC1.3.2",
+      "status": "OK",
+      "target": "BR2.3"
+    },
+    {
+      "id": "AC1.3.3",
+      "status": "OK",
+      "target": "BR3.1"
+    },
+    {
+      "id": "AC2.1.1",
+      "status": "OK",
+      "target": "BR4.1"
+    },
+    {
+      "id": "AC2.1.2",
+      "status": "OK",
+      "target": "BR4.1, BR6.2"
+    },
+    {
+      "id": "AC2.1.3",
+      "status": "OK",
+      "target": "BR4.2"
+    },
+    {
+      "id": "AC2.1.4",
+      "status": "OK",
+      "target": "BR4.3"
+    },
+    {
+      "id": "AC2.2.1",
+      "status": "OK",
+      "target": "BR5.2, BR5.3"
+    },
+    {
+      "id": "AC2.2.2",
+      "status": "OK",
+      "target": "BR5.4"
+    },
+    {
+      "id": "AC2.2.3",
+      "status": "OK",
+      "target": "BR5.6"
+    },
+    {
+      "id": "AC2.2.4",
+      "status": "OK",
+      "target": "BR5.7"
+    },
+    {
+      "id": "AC2.2.5",
+      "status": "OK",
+      "target": "BR13.6"
+    },
+    {
+      "id": "AC4.3.1",
+      "status": "OK",
+      "target": "BR6.1"
+    },
+    {
+      "id": "AC4.3.2",
+      "status": "OK",
+      "target": "BR6.1"
+    },
+    {
+      "id": "AC3.3.1",
+      "status": "OK",
+      "target": "BR9.1"
+    },
+    {
+      "id": "AC3.3.2",
+      "status": "OK",
+      "target": "BR9.2"
+    },
+    {
+      "id": "AC4.1.1",
+      "status": "OK",
+      "target": "BR7.3, BR7.6"
+    },
+    {
+      "id": "AC4.1.2",
+      "status": "OK",
+      "target": "BR7.3, BR7.4, BR10.1, BR10.5"
+    },
+    {
+      "id": "AC4.1.3",
+      "status": "OK",
+      "target": "BR7.5, BR10.5"
+    },
+    {
+      "id": "AC4.1.4",
+      "status": "OK",
+      "target": "BR7.6"
+    },
+    {
+      "id": "AC4.1.5",
+      "status": "OK",
+      "target": "BR7.6, BR10.1"
+    },
+    {
+      "id": "AC3.1.1",
+      "status": "OK",
+      "target": "BR8.5, BR8.6, BR7.6"
+    },
+    {
+      "id": "AC3.1.2",
+      "status": "OK",
+      "target": "BR8.5"
+    },
+    {
+      "id": "AC3.1.3",
+      "status": "OK",
+      "target": "BR7.6, BR13.4"
+    },
+    {
+      "id": "AC3.1.4",
+      "status": "OK",
+      "target": "BR8.3"
+    },
+    {
+      "id": "AC3.1.5",
+      "status": "OK",
+      "target": "BR7.1"
+    },
+    {
+      "id": "AC3.1.6",
+      "status": "OK",
+      "target": "BR7.7, BR7.2"
+    },
+    {
+      "id": "AC3.1.7",
+      "status": "OK",
+      "target": "BR13.1, BR12.4"
+    },
+    {
+      "id": "AC3.1.8",
+      "status": "OK",
+      "target": "BR13.2"
+    },
+    {
+      "id": "AC3.2.1",
+      "status": "OK",
+      "target": "BR8.1, BR8.2, BR11.3"
+    },
+    {
+      "id": "AC3.2.2",
+      "status": "OK",
+      "target": "BR13.3"
+    },
+    {
+      "id": "AC3.2.3",
+      "status": "OK",
+      "target": "BR5.9, BR11.2"
+    },
+    {
+      "id": "AC3.2.4",
+      "status": "OK",
+      "target": "BR8.4"
+    },
+    {
+      "id": "AC4.2.1",
+      "status": "OK",
+      "target": "BR10.2, BR10.3, BR10.4"
+    },
+    {
+      "id": "AC4.2.2",
+      "status": "OK",
+      "target": "BR13.5"
+    },
+    {
+      "id": "AC4.2.3",
+      "status": "OK",
+      "target": "BR13.5"
+    },
+    {
+      "id": "AC4.2.4",
+      "status": "OK",
+      "target": "BR10.1"
+    },
+    {
+      "id": "AC5.5.1",
+      "status": "OK",
+      "target": "BR12.1, BR12.2, BR12.3"
+    },
+    {
+      "id": "AC5.5.2",
+      "status": "OK",
+      "target": "BR8.4, BR12.1"
+    },
+    {
+      "id": "AC5.5.3",
+      "status": "OK",
+      "target": "BR8.5"
+    },
+    {
+      "id": "AC5.5.4",
+      "status": "OK",
+      "target": "BR12.4"
+    },
+    {
+      "id": "AC5.6.1",
+      "status": "OK",
+      "target": "BR13.7"
+    },
+    {
+      "id": "AC5.6.2",
+      "status": "OK",
+      "target": "BR13.7"
+    },
+    {
+      "id": "AC5.6.3",
+      "status": "OK",
+      "target": "BR13.7"
+    },
+    {
+      "id": "AC8.4.1",
+      "status": "OK",
+      "target": "BR11.4"
+    },
+    {
+      "id": "AC8.4.2",
+      "status": "OK",
+      "target": "BR11.4"
+    }
+  ],
+  "reverse": [
+    {
+      "id": "BR1.2",
+      "status": "N/A",
+      "target": "FR2.4, SHA-256 repetido (C1 scenario.duplicate_sha256)"
+    },
+    {
+      "id": "BR1.3",
+      "status": "N/A",
+      "target": "respuesta P3 = A"
+    },
+    {
+      "id": "BR5.1",
+      "status": "N/A",
+      "target": "respuesta P5 = A"
+    },
+    {
+      "id": "BR5.5",
+      "status": "N/A",
+      "target": "sesión cerrada no acepta turnos (components InterviewSession)"
+    },
+    {
+      "id": "BR5.8",
+      "status": "N/A",
+      "target": "plazo del turno (C3, contract-design P3)"
+    },
+    {
+      "id": "BR11.1",
+      "status": "N/A",
+      "target": "transacción de ingesta (C3, ADR-002)"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "platform",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12", "NFR13", "NFR14", "NFR15"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2, NFR1.3" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1" },
+    { "id": "NFR3", "status": "N/A", "target": "latencia de la interfaz; la fijan U4 y Infrastructure Design con los recursos" },
+    { "id": "NFR4", "status": "N/A", "target": "calidad de la IA en nivel 2; U4 y U8" },
+    { "id": "NFR5", "status": "N/A", "target": "resistencia adversarial; U4" },
+    { "id": "NFR6", "status": "N/A", "target": "explicabilidad de la CoT; evaluación manual" },
+    { "id": "NFR7", "status": "N/A", "target": "MTTV; U7" },
+    { "id": "NFR8", "status": "OK", "target": "NFR8.1" },
+    { "id": "NFR9", "status": "N/A", "target": "indexación del escenario; U4" },
+    { "id": "NFR10", "status": "OK", "target": "NFR10.1, NFR10.2, NFR10.3, NFR10.4, NFR10.5, NFR10.6, NFR10.7, NFR10.8, NFR10.9, NFR10.10" },
+    { "id": "NFR11", "status": "OK", "target": "NFR11.1" },
+    { "id": "NFR12", "status": "OK", "target": "NFR12.1" },
+    { "id": "NFR13", "status": "N/A", "target": "U2 no tiene código de aplicación; cada política lleva su control negativo (security-requirements §3)" },
+    { "id": "NFR14", "status": "N/A", "target": "U2 no tiene textos visibles" },
+    { "id": "NFR15", "status": "OK", "target": "NFR15.1" }
+  ]
+}

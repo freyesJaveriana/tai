@@ -93,7 +93,7 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 [`aidlc/spaces/default/intents/261002-veridicus-mvp/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/)
 (`I/` abajo); cada etapa se cierra con aprobación humana y un commit `aidlc(<etapa>): …`.
 
-**Etapa cerrada más reciente:** Functional Design (2026-10-02). **Siguiente:** NFR Requirements.
+**Etapa cerrada más reciente:** NFR Requirements (2026-10-03). **Siguiente:** NFR Design.
 
 | Fase | Etapa | Estado | Documentos principales |
 |---|---|---|---|
@@ -106,11 +106,13 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 | Inception | Contract Design | Aprobada | [`contract-summary.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md) |
 | Inception | Delivery Planning | Aprobada | [`bolt-plan.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/bolt-plan.md) |
 | Construction | Functional Design | Aprobada | [`construction/<unidad>/functional-design/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): entidades, reglas, especificación funcional y trazabilidad de las 9 unidades (contracts, identity-access, text-flow, human-review, session-lifecycle, assistant-extras, anonymizer, forensic-report, voice), con su revisión en `reviews/` |
-| Construction | NFR Requirements, NFR Design, Infrastructure Design | Pendientes | — |
+| Construction | NFR Requirements | Aprobada | [`construction/<unidad>/nfr-requirements/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): requisitos de rendimiento, seguridad, escalado, fiabilidad y observabilidad, decisiones de pila y trazabilidad de las 10 unidades (incluida platform). Claves: juez Qwen2.5-7B Q4 y `multilingual-e5-base` en CPU, umbral inicial 0,80 calibrado en nivel 2, p95 ≤ 60 s por turno de texto, humo en 120 s, plazo proporcional a la cola (tope 3 600 s); revisiones en `reviews/` |
+| Construction | NFR Design, Infrastructure Design | Pendientes | — |
 | Construction | Code Generation (solo Parte 1: plan de tareas) | Pendiente | — |
 
-Los hallazgos abiertos de las revisiones de Functional Design quedaron aceptados como riesgo
-en la aprobación. Los cambios propuestos a contratos y a otras unidades están en la tabla
+Los hallazgos abiertos de las revisiones de Functional Design y de NFR Requirements quedaron
+aceptados como riesgo en la aprobación; los de NFR Requirements están en `reviews/` de cada unidad y
+las precisiones a artefactos aprobados, en §6 de cada `security-requirements.md`. Los cambios propuestos a contratos y a otras unidades están en la tabla
 «Cambios entre unidades» de cada `functional-spec.md`.
 
 ### Qué es Veridicus, en una línea

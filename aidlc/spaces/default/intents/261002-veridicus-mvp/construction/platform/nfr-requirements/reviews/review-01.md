@@ -1,0 +1,29 @@
+## Review
+
+**Verdict:** READY
+**Reviewer:** aidlc-architecture-reviewer-agent
+**Date:** 2026-10-03T01:43:56Z
+**Iteration:** 1
+
+### Findings
+
+| ID | Severity | Location | Finding | Required action | Status |
+|---|---|---|---|---|---|
+| R-01 | Major | aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-requirements/tech-stack-decisions.md > §3 Dependencias de red permitidas; security-requirements.md > NFR1.1, NFR10.9 | La política `veridicus-default-deny` niega entrada y salida a todo el namespace y §3 solo abre DNS y las dependencias de la aplicación. No hay regla para el operador CloudNativePG (D4, D5), que necesita alcanzar los pods de PostgreSQL (estado en 8000, 5432) y los pods de base necesitan salida al API server de Kubernetes. NFR10.9 pone `automountServiceAccountToken: false` en "todo pod de la aplicación" sin aclarar si los pods de CloudNativePG, Prometheus o Redis quedan fuera. Tampoco hay regla para que Prometheus (SHOULD) llegue a otros pods que no sean `session-api`. Tal como está, el `Cluster` de CloudNativePG probablemente no pasa a estado sano bajo la política, y el humano lo descubriría recién al aplicar. | Añadir a §3 las reglas del operador y del API server para los pods de PostgreSQL, indicar en qué namespace corre cada operador y precisar el alcance de NFR10.9 (qué pods quedan exentos y por qué). Agregar una verificación de nivel 0 que cruce cada dependencia real con una regla permitida. | New |
+| R-02 | Major | security-requirements.md > NFR1.2 y NFR10.2; tech-stack-decisions.md > D7 | NFR1.2 manda descargar los modelos "en la máquina anfitriona" y montarlos en un volumen de solo lectura. NFR10.2 impone el perfil `restricted`, que prohíbe volúmenes `hostPath`. El artefacto no dice qué tipo de volumen es ni cómo llegan los archivos al PV o PVC (PV local, copia por Job, etc.), ni cómo se mantiene el `sha256` en esa copia. Sin esa decisión, o se viola NFR10.2 o la descarga de NFR1.2 queda sin camino. | Fijar el tipo de volumen compatible con `restricted` (PVC sobre PV local o equivalente), el paso revisable que lo puebla desde la anfitriona y la comprobación de nivel 0 que rechaza `hostPath` en el render. | New |
+| R-03 | Minor | security-requirements.md > NFR10.1; tech-stack-decisions.md > D4 | NFR10.1 exige que toda imagen del manifiesto renderizado lleve `@sha256:`. D4 incluye charts de terceros (CloudNativePG, kube-prometheus-stack, Argo CD, KEDA) y `team.md` pide digest solo "cuando se puede" para terceros. La política Kyverno rechazaría el render con esos charts, o se aplicará una excepción sin registrar. | Distinguir imágenes propias (digest obligatorio) de las de terceros (versión exacta, digest cuando se pueda) o registrar las excepciones con motivo y caducidad. | New |
+| R-04 | Minor | security-requirements.md > §3 NFR8 y traceability.json > NFR8 | NFR8 de Inception es un resultado de ejecución (≥ 98 % de 50 sesiones sin `OOMKilled` en tandas de 3). La traza lo marca `OK` con solo NFR8.1 (existen `requests`/`limits`), que no demuestra el criterio. El `limit` de memoria es lo que decide el `OOMKilled`, pero el artefacto no dice quién verifica el 98 %. | Marcar NFR8 como parcial en la traza y nombrar la etapa que verifica el 98 % con 3 sesiones concurrentes (Build and Test, Infrastructure Design para los valores). | New |
+| R-05 | Minor | tech-stack-decisions.md > D1, D2; unit-of-work.md > U2 "Qué entrega"; contract-summary.md > C14 | U2 entrega servidor de TTS (C14, P7) pero D1 y D2 no deciden ninguno y no hay `model-tts` en la estructura de `deploy/`. Tampoco hay requisito de volumen o de red para él. | Decidir un servidor de TTS (o registrar que queda fuera del alcance con su ID de historia) y añadirlo a la estructura y a la tabla de red. | New |
+| R-06 | Minor | security-requirements.md > NFR10; tech-stack-decisions.md > §3 (ingress 80/8080) | La entrada al `frontend` y a `session-api` es en el puerto 80 y ningún requisito exige TLS en el ingress. Por esa vía viajan contraseñas, el token de sesión y el testimonio sin anonimizar (aunque sea dentro de una máquina local). Una `NetworkPolicy` no lo cubre. | Añadir un requisito de TLS en el ingress (o documentar la excepción aceptada para el MVP local) con su verificación de nivel 0. | New |
+| R-07 | Minor | security-requirements.md > NFR10.6 y tech-stack-decisions.md > D6; NFR12.1; NFR10.5 | (a) La persistencia de Redis (AOF `everysec` en PVC, P3 = A) está en D6 pero ningún requisito la mide ni la verifica. (b) NFR12.1 se verifica por "Revisión del PR", lo que no es un comando, y §4 dice que "todas" tienen control negativo. (c) La comprobación estática de NFR10.5 busca cadenas literales y se evade con `kubectl  apply`, `kubectl replace/patch/delete` o `helm upgrade --install` partido. | Añadir criterio medible para AOF (`appendonly yes`, `appendfsync everysec`, PVC), un comando para NFR12.1 (o corregir la afirmación de §4) y ampliar el patrón de NFR10.5 con expresión regular y los verbos de escritura. | New |
+
+### Validation Tool Results
+
+| Tool | Result | Interpretation |
+|---|---|---|
+| sensor-traceability (nfr-requirements) | PASS: 0 gaps, 0 orphans, 0 invalid entries | La traza es estructuralmente válida; la calidad de la cobertura de NFR8 se juzga en R-04. |
+| required-sections, upstream-coverage, linter, type-check | No ejecutados por separado; los Markdown no tienen plantilla armada ni código | Sin hallazgos propios. |
+
+### Summary
+
+La seguridad de U2 está bien medida (cada requisito con umbral y control negativo, frontera por componente, STRIDE con mitigación) y la traza pasa el sensor. Los puntos que el humano debe pesar antes de aprobar son R-01 (la política de negar todo probablemente rompe CloudNativePG) y R-02 (el volumen de modelos choca con `restricted`); ambos se resuelven con precisiones, no con rediseño, así que el veredicto es READY con 2 Major.

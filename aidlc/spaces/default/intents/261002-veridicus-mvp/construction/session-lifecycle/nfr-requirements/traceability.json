@@ -1,0 +1,22 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "session-lifecycle",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12", "NFR13", "NFR14", "NFR15"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2, NFR3.3, NFR3.4, NFR3.5, NFR3.6, NFR3.7, NFR3.8, NFR3.9, NFR3.10, NFR3.11, NFR3.12" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.1" },
+    { "id": "NFR5", "status": "N/A", "target": "U6 no crea otra entrada hacia el juez: los turnos pegados usan C2 y el prompt de U4 sin cambios, y el Escenario A lo cubre NFR5.1 de U4" },
+    { "id": "NFR6", "status": "N/A", "target": "U6 no produce ni muestra CoT nueva; la explicabilidad es de U4 y U5" },
+    { "id": "NFR7", "status": "N/A", "target": "MTTV se mide desde «Finalizar sesión» hasta la consolidación (U7); U6 solo deja permitido finalizar desde suspended" },
+    { "id": "NFR8", "status": "OK", "target": "NFR8.1, NFR8.2, NFR8.3, NFR8.4, NFR8.5, NFR8.6, NFR8.7, NFR8.8, NFR8.9, NFR8.10, NFR8.11, NFR8.12" },
+    { "id": "NFR9", "status": "OK", "target": "NFR9.1" },
+    { "id": "NFR10", "status": "OK", "target": "NFR10.1, NFR10.2, NFR10.3, NFR10.4, NFR10.5, NFR10.6, NFR10.7, NFR10.8, NFR10.9, NFR10.10, NFR10.11, NFR10.12" },
+    { "id": "NFR11", "status": "OK", "target": "NFR11.1, NFR11.2" },
+    { "id": "NFR12", "status": "OK", "target": "NFR12.1" },
+    { "id": "NFR13", "status": "OK", "target": "NFR13.1, NFR13.2" },
+    { "id": "NFR14", "status": "OK", "target": "NFR14.1, NFR14.2" },
+    { "id": "NFR15", "status": "OK", "target": "NFR15.1, NFR15.2, NFR15.3, NFR15.4" }
+  ]
+}

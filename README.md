@@ -84,7 +84,8 @@ tai/
 │   ├── 05-etica-sesgos-y-riesgos/          Stochastic Parrots, UNESCO, NLP en trauma
 │   └── 06-documentacion-propia/            propuesta y hoja de ruta del TG del autor
 └── presentations/        material de apoyo para mostrar el avance en clase
-    └── Veridicus_PVB_PRD.pptx  resumen visual del PVB + PRD (12 diapositivas, ~10 min, con notas del orador)
+    ├── Veridicus_PVB_PRD.pptx  resumen visual del PVB + PRD (12 diapositivas, ~10 min, con notas del orador)
+    └── Veridicus_AIDLC_avance.pptx  avance con AI-DLC v2: etapas, interfaz, arquitectura y unidades (6 diapositivas, con notas del orador)
 ```
 
 ## Avance del flujo AI-DLC

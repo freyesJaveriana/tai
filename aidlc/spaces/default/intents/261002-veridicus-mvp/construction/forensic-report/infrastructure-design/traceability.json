@@ -1,0 +1,386 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "forensic-report",
+  "upstream_ids": [
+    "NFR15.1",
+    "NFR15.4",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR7.1",
+    "NFR7.2",
+    "NFR7.3",
+    "NFR8.1",
+    "NFR8.7",
+    "NFR8.8",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.21",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.19",
+    "NFR10.20",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR11.4",
+    "NFR11.5",
+    "NFR11.6",
+    "NFR12.1",
+    "NFR14.1",
+    "NFR2.1",
+    "NFR10.22",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR13.3",
+    "NFR14.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "ServiceMonitor del puerto 8081; panel Veridicus reportes"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "veridicus_session_mttv_seconds en el panel; SLO MTTV"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "Logs JSON por kubectl logs con la lista blanca ampliada"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "Alerta VeridicusReportVolumeFilling sobre gauges propios; promtool test rules"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "Puerta Rendimiento (pytest -m perf) de session-api.yml"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "Puerta Rendimiento; SLO y alerta VeridicusReportConsolidationSlow"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "Puerta Rendimiento (tramos medidos)"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "Puerta Rendimiento; SLO de descarga en monitoring-design"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "Puerta Rendimiento"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "Puerta Rendimiento"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "Puerta Rendimiento"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "Puerta Rendimiento"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "OK",
+      "target": "Puerta Consola (Vitest) de frontend.yml"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "Puerta Consola y Nivel 3 e2e/report.spec.ts"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "Puerta Consola y Nivel 3 e2e/report.spec.ts"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "Arnes golden.mttv de nivel 2; SLO MTTV < 600 s"
+    },
+    {
+      "id": "NFR7.2",
+      "status": "OK",
+      "target": "Puerta Rendimiento"
+    },
+    {
+      "id": "NFR7.3",
+      "status": "OK",
+      "target": "Puerta Nivel 0"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "limits.memory 768 MiB de la API con margen del 47 % (infrastructure-specification 1.1)"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "Nivel 3 e2e/report.spec.ts tras cada despliegue"
+    },
+    {
+      "id": "NFR8.8",
+      "status": "OK",
+      "target": "verify_store al final del nivel 1 y Job veridicus-verify-store"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "Puerta Nivel 1 (fallos inyectados)"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "Puerta Nivel 1; lock_timeout 2 s en veridicus-pg"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "Puerta Nivel 1; metrica files_cleaned_total"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "Recreate con gracia de 30 s y barrido antes de /readyz"
+    },
+    {
+      "id": "NFR10.21",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "Ajustes de plazos en session-api-config; idle_in_transaction_session_timeout 15 s"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "Puerta Consola (retry false)"
+    },
+    {
+      "id": "NFR10.19",
+      "status": "OK",
+      "target": "/readyz?probe=kubernetes con cuota libre y disco libre (P3 = A)"
+    },
+    {
+      "id": "NFR10.20",
+      "status": "OK",
+      "target": "Job veridicus-verify-store con volumen readOnly y rol veridicus_report_ro"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "Puerta Rendimiento; pool de la API de U3"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "Puerta Rendimiento"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "Indices unicos de report_version en la migracion de U7"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "PVC de 2 GiB y cuota VERIDICUS_REPORT_VOLUME_QUOTA_BYTES"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "replicas 1 y strategy Recreate con politica Kyverno veridicus-reports-single-writer"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "NetworkPolicy de session-api sin cambios (solo veridicus-pg:5432); lint-imports en session-api.yml"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "PVC veridicus-reports en StorageClass standard local; politica Kyverno veridicus-reports-mounts"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "Cabeceras de la API sin cache en ingress-nginx; Puerta Consola"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "Subdirectorio reports 0700 del UID 10001, archivos 0400, politica veridicus-reports-mounts"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "Lista blanca del formateador de U3; prueba centinela de nivel 1"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "Prueba centinela de nivel 1"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "Puerta Nivel 0 (escaneo C8)"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "Puerta Nivel 0; gauges del volumen sin etiquetas"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "Permisos INSERT, SELECT de veridicus_app; AuditConvention"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "lint-imports (consolidate solo desde la ruta); Puerta Nivel 1"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "Alerta VeridicusReportIntegrityMismatch; Puerta Nivel 1"
+    },
+    {
+      "id": "NFR11.4",
+      "status": "OK",
+      "target": "Archivos 0400 y O_EXCL; import_store sin reemplazo"
+    },
+    {
+      "id": "NFR11.5",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR11.6",
+      "status": "OK",
+      "target": "Puerta Nivel 1"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "Puerta Nivel 0; backups/ en .gitignore"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "Puerta Nivel 0"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "Niveles 0 y 1 en CI con PostgreSQL en contenedor y directorio temporal, sin modelos ni GPU"
+    },
+    {
+      "id": "NFR10.22",
+      "status": "OK",
+      "target": "Puerta Nivel 0"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "Puerta Cobertura 80 %"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "Puerta Ramas de guardias 100 %"
+    },
+    {
+      "id": "NFR13.3",
+      "status": "OK",
+      "target": "Puerta Tipos y fronteras (lint-imports)"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "Puerta Tipos y fronteras (glosario)"
+    }
+  ]
+}

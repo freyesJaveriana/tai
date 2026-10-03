@@ -1,0 +1,314 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "human-review",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR2.1",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR7.1",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.20",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR11.4",
+    "NFR12.1",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR13.3",
+    "NFR14.1",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4",
+    "NFR15.5"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1 y §3: sin salidas nuevas, solo veridicus-pg:5432 bajo la política de negar todo de U2; cicd-pipeline §1: contrato human_review_no_network"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: niveles 0 y 1 con PostgreSQL en contenedor, sin modelos ni GPU; infrastructure-specification §1: mismos valores en ambas máquinas"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-perf; monitoring-design §3: SLI p95 ≤ 200 ms; infrastructure-specification §2: pool y lock_timeout"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-perf; monitoring-design §3: SLI de cot-views ≤ 100 ms"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-perf; monitoring-design §3: SLI de rechazos ≤ 100 ms"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: índices de la migración; cicd-pipeline §1: contador de sentencias en test-perf"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-perf; monitoring-design §3: SLI de C11 ≤ 150 ms"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "infrastructure-specification §2: ServiceMonitor en :8081; monitoring-design §3: SLI de /metrics ≤ 100 ms"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "cicd-pipeline §2: review.spec.ts de nivel 3; monitoring-design §3: clic → estado ≤ 1 s"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "cicd-pipeline §1: frontend.yml (botones hasta el 204) y §2 Playwright"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "monitoring-design §1: veridicus_review_decisions_total; cicd-pipeline §1: test-perf (NFR3.1 + NFR3.2)"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: limits.memory 768 MiB con suma de picos ≈ 392 MiB; monitoring-design §1: memoria frente al límite"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-perf con 250 sugerencias y 10 rondas; monitoring-design §3"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: cinco índices en la migración de U5; cicd-pipeline §1: pg_indexes y EXPLAIN en test-level1"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "infrastructure-specification §1: 1 réplica como requisito mientras D7 no cambie; coordinación en veridicus-pg; cicd-pipeline §1: prueba de dos instancias"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "infrastructure-specification §1 y §2.3: tablas sin purga, < 50 MB en el PVC de 10 GiB de U2"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "monitoring-design §1–§2: VeridicusDismissalSeriesHigh sobre 200 series; cicd-pipeline §1: ≤ 40 series en test-level1"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "cicd-pipeline §2: review.spec.ts antes de etiquetar; monitoring-design §3"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-level1 con 403 y 0 filas; infrastructure-specification §3: entrada solo desde ingress-nginx"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-level1 sin X-CSRF-Token; infrastructure-specification §3"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "cicd-pipeline §1: test-level1 (CotView exigido); monitoring-design §2: VeridicusReviewCotNotViewed"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: sin UPDATE sobre review_suggestion para veridicus_app; cicd-pipeline §1: SHA-256 en test-level1"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "infrastructure-specification §2 y §2.1: VERIDICUS_REVIEW_TEXT_MAX_CHARS validado contra el catálogo y 64 KiB en la API; cicd-pipeline §1"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "monitoring-design §4: lista blanca de campos; cicd-pipeline §1: centinela en test-level1"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "monitoring-design §4: Problem Details sin interpolar; cicd-pipeline §1"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "monitoring-design §5: panel con solo enums y UUID; cicd-pipeline §1: etiquetas validadas en test-level0"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "cicd-pipeline §2: escáner de vocabulario y catálogo en review.spec.ts"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "cicd-pipeline §1: fallo inyectado en test-level1"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "infrastructure-specification §2 y §4: orden sesión → ronda con lock_timeout 2 s; cicd-pipeline §1: concurrencia en test-level1"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: UPDATE solo de columnas de estado; cicd-pipeline §1: dos consolidaciones en test-level1"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: único parcial de ronda open; cicd-pipeline §1"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: UNIQUE (suggestion_id, user_id) en cot_view; cicd-pipeline §1"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "infrastructure-specification §2 y §2.1: VERIDICUS_DB_LOCK_TIMEOUT_MS=2000 y statement_timeout 2 s; monitoring-design §4: WARNING system.unavailable"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "cicd-pipeline §1: frontend.yml sin reintento de decisiones; monitoring-design §1: invalid_transition"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "monitoring-design §4: WARNING metrics.update_failed; cicd-pipeline §1: fallo de métricas → 201"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "infrastructure-specification §1 y §2.1: check_config() de la readinessProbe y salida ≠ 0 con configuración inválida; cicd-pipeline §2: /readyz en smoke.sh"
+    },
+    {
+      "id": "NFR10.20",
+      "status": "N/A",
+      "target": "Requisito de U4 (ningún cambio del sondeo confirma con un change_seq menor que uno ya entregado) citado por reliability-design §1; es lógica de aplicación de change_cursor sin recurso de infraestructura propio; U5 lo sostiene con el lock_timeout de infrastructure-specification §2.1 y la prueba de tres hilos de cicd-pipeline §1"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: GRANT INSERT, SELECT a veridicus_app y migración con veridicus_owner; cicd-pipeline §1: audit_convention"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: único parcial y trigger; cicd-pipeline §1: test-level1"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2: UPDATE por columnas y trigger review_round_locked_is_final"
+    },
+    {
+      "id": "NFR11.4",
+      "status": "OK",
+      "target": "monitoring-design §2: la regla AIR solo propone; cicd-pipeline §1: regla estática del umbral en test-level0"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1 y §5: catálogo sintético de U1 en test-level0"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: coverage ≥ 80 % en session-api y frontend"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "cicd-pipeline §1: job guards con .coveragerc-guards al 100 % de ramas"
+    },
+    {
+      "id": "NFR13.3",
+      "status": "OK",
+      "target": "cicd-pipeline §1: lint-imports con control negativo"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: frontend.yml con literales solo del catálogo de U1"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "monitoring-design §1: tres métricas en :8081 raspadas por el ServiceMonitor de U3"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: VERIDICUS_AIR_WINDOW=8 en session-api-config"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "cicd-pipeline §1: dismissal_window por tabla en test-level0"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "monitoring-design §2: VeridicusAirThresholdProposal con max by (session_id) y fixture air_series.yaml; cicd-pipeline §1: promtool"
+    },
+    {
+      "id": "NFR15.5",
+      "status": "OK",
+      "target": "monitoring-design §4: eventos estructurados en kubectl logs; cicd-pipeline §1"
+    }
+  ]
+}

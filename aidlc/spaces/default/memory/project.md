@@ -29,6 +29,8 @@
 
 - Los NFR de calidad (IA, MTTV, latencia, cobertura) no se escriben como historias; quedan diferidos a NFR Requirements y Build and Test. (learned 2026-10-02) <!-- cid:261002-veridicus-mvp:user-stories:015afe962524881fea600233bba4a427cd1fca4eebaeb8bff20ecbf7972213b1 -->
 
+- La evaluación de nivel 2 corre desde la anfitriona con kubectl port-forward al juez del clúster en vez de un Job: usa el mismo modelo y digest sin otra imagen, a cambio de depender de un script revisable que el humano ejecuta. (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:57401c1b38d891c5d527a3e950d995833cb2e27e8db4446c96983b1afca30b24 -->
+
 ## Guard Policy
 
 <!-- Project-specific. Mode: strict, relaxed, or off. Strict here holds for every intent and cannot be changed from chat. A section under the retired Change Control heading, written by an earlier release, is still read. -->
@@ -145,3 +147,10 @@
 - Toda escritura que cambia una sesión hace primero change_cursor.bump sobre la fila de la sesión y solo después bloquea la ronda (orden único sesión → ronda), para no perder cambios en el sondeo ni crear interbloqueos. (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:nfr-design:a05ddf03413f0b1e24afda43c989823b65bacdfc5af2ead4d8b0cc2970a3835d -->
 - El juez solo se reintenta ante conexión rechazada o 502/503/504, con 2 reintentos (2 s y 6 s) y solo si el plazo del turno lo permite; el timeout y la salida inválida nunca se reintentan solos. (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:nfr-design:c1f56db58421489dc4f3f974f9d262493881e4b1fae8ab2eb193b5abe069a2d6 -->
 - Ante Whisper caído no hay reintento: el audio crudo no se conserva para reintentar, el turno falla y el analista graba de nuevo (AUTONOMIA-04). (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:nfr-design:b7b2f2dd85d2521002d7f8191e5adf205a43d708f0c0cfcbed9e5442c3378c44 -->
+- Pod Security restricted prohíbe hostPath en el pod, así que los modelos se montan con un PersistentVolume estático de solo lectura y su PVC (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:dd04a5d6d7afa74533d1a29d0fda851e23b42f9842be1b9d50d846ef2a4dc62b -->
+- El archivo del prompt vive en el chart (charts/semantic-agent/files/) porque Helm no lee fuera del chart (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:bfa633c90fb52bd8fa6a7483031336745316306742bc1b340cdd2d5ce3f139b2 -->
+- El aprovisionador hostPath de Minikube ignora fsGroup y no publica kubelet_volume_stats: VERIDICUS_REPORTS_DIR pasa a ser un subdirectorio reports/ 0700 que crea el proceso, y el llenado se mide con la cuota propia de P3 = A. (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:b593a751d1af6cce3ec4eb903f6c5db71d13e09793cbffb4945595056d9a2570 -->
+- Se añadió un Ingress `veridicus-voice` sin buffering de petición ni de respuesta, no pedido por NFR Design: ingress-nginx escribe en disco los cuerpos de más de 16 KiB y eso contradecía NFR10.2. (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:d43334cc037c284acf4d95d8eee979df5f316dfd0f3ea67fa5304156ba24c973 -->
+- Sin Alertmanager, Loki ni redis_exporter: el MVP no notifica a nadie y cada pieza cuesta memoria en una sola máquina (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:429a7a453df1efc4ff60e77eb02977fa9cbca5c45d59291588ca42d3a179d1af -->
+- P1 («la máquina demo tiene 32 gb… deja 4 gb al sistema») se aplicó como Minikube de 28 GiB en la máquina de demostración, y P2 = A extendió la misma regla a la de desarrollo (20 GiB) (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:1e40f89cbf06a267c24bb154982585581d170f31d166e43d7847f9580d5a8838 -->
+- VERIDICUS_TRUSTED_PROXY toma todo el pod CIDR porque solo ingress-nginx alcanza el puerto 8080 (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:d9393e3a6165be61fc11990d04fb6d02a81a59abf14799b339cccbc799aa9eb8 -->

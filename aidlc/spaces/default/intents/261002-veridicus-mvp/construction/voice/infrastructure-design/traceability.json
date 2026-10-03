@@ -1,0 +1,410 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "voice",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR3.12",
+    "NFR3.13",
+    "NFR3.14",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR5.1",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR8.8",
+    "NFR8.9",
+    "NFR8.10",
+    "NFR8.11",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.19",
+    "NFR10.20",
+    "NFR10.21",
+    "NFR11.1",
+    "NFR12.1",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR14.2",
+    "NFR14.3",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "infrastructure-specification.md §5 audio-worker-egress sin ipBlock + Kyverno con controles negativos"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 URL internas y precisión a internal-model-urls (§9)"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 frontend.yml ESLint con speechSynthesis/SpeechRecognition prohibidos"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 niveles 0 y 1 con fakes de Whisper, TTS y micrófono"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 voz en CPU en values-cpu.yaml y values-gpu.yaml (P3 = A)"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.1 veridicus-whisper limits.cpu 4; monitoring-design.md §3 SLO le30"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "monitoring-design.md §3 SLO le120 ≤ 40 s; cicd-pipeline.md §2 check-voice-report.py"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "monitoring-design.md §3 SLO del turno de voz; cicd-pipeline.md §2"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "infrastructure-specification.md §4 Ingress veridicus-voice sin buffering; cicd-pipeline.md §1 pytest -m perf -k voice"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 índice parcial transcribing en veridicus-pg; §2.1 plazos en values"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 plazos de U4 sin cambio en values"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 VERIDICUS_AUDIO_DEADLINE_* y barrido de U4"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 VERIDICUS_WHISPER_TIMEOUT_SECONDS 90"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 paso 7 voice.spec.ts"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 paso 7 voice.spec.ts"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 paso 7 voice.spec.ts"
+    },
+    {
+      "id": "NFR3.12",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 veridicus-tts 2 hilos y concurrencia 1; monitoring-design.md §3 SLO síntesis"
+    },
+    {
+      "id": "NFR3.13",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 VERIDICUS_TTS_TIMEOUT_SECONDS 10 y VERIDICUS_SPEECH_TIMEOUT_SECONDS 12"
+    },
+    {
+      "id": "NFR3.14",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 paso 7 smoke.sh con /readyz de audio-worker"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 WER ≤ 20 % en check-voice-report.py"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 0 textos en clips de silencio"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 dos pasadas idénticas"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 mismas alertas que el texto escrito"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 Escenario A dictado en la corrida de voz"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.1 veridicus-whisper 1 / 1,25 GiB (25 %)"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.1 veridicus-audio-worker 256 / 320 MiB (25 %)"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.1 veridicus-tts 384 / 640 MiB (25 %)"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.1 session-api API sin cambio, subida dentro del margen de U3"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 audio-worker 1 réplica COUNT 1"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 0 turn.error.timeout con 1 y 3 sesiones"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 veridicus-redis maxmemory 384mb noeviction y limits 768 MiB"
+    },
+    {
+      "id": "NFR8.8",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.2 presupuesto de CPU y limits.cpu de Whisper; cicd-pipeline.md §2 corrida mixta"
+    },
+    {
+      "id": "NFR8.9",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 RollingUpdate de audio-worker con grupo compartido"
+    },
+    {
+      "id": "NFR8.10",
+      "status": "OK",
+      "target": "monitoring-design.md §2 VoicePodOOMKilled y §3 turnos terminados antes del plazo"
+    },
+    {
+      "id": "NFR8.11",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.3 readinessProbe de audio-worker; cicd-pipeline.md §3 smoke.sh"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "infrastructure-specification.md §4 proxy-body-size 7m en Ingress veridicus-voice"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "infrastructure-specification.md §4 proxy-request-buffering off; §1 audio-worker sin volúmenes; /tmp en memoria"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 streams con MAXLEN ~ 1000 en :failed"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 save \"\", auto-aof-rewrite-min-size 16mb, BGREWRITEAOF sin renombrar; monitoring-design.md §2 VoiceAofRewriteFailed"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "infrastructure-specification.md §4 proxy-buffering off y proxy-max-temp-file-size 0 en la ruta de audio"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "monitoring-design.md §4 lista blanca de logs y --no-access-log en veridicus-tts"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "infrastructure-specification.md §5 entrada a audio-worker solo desde la API de session-api"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "infrastructure-specification.md §4 ruta GET /api/questions/*/audio en Ingress veridicus-voice"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "infrastructure-specification.md §5 audio-worker-ingress y §8 Secret veridicus-speech-token"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "infrastructure-specification.md §3 models.lock con format por servidor; cicd-pipeline.md §1 check-models-lock.py"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "N/A",
+      "target": "N/A: regla de la aplicación (sin ruta de edición, rótulo en la consola); no requiere recurso de infraestructura"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "N/A",
+      "target": "N/A: Problem Details lo produce el manejador único de libs/; no requiere recurso de infraestructura"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 timeouts en values validados al arrancar"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 grupos audio-worker y session-api-transcripts en veridicus-redis"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "N/A",
+      "target": "N/A: tratamiento de fallos en audio_lifecycle.py (código); la infraestructura no reintenta"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 plazo de audio y barrido de U4"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1.3 sondas de audio-worker"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "monitoring-design.md §2 VoiceSpeechUnavailable; cicd-pipeline.md §5 caída de veridicus-tts"
+    },
+    {
+      "id": "NFR10.19",
+      "status": "N/A",
+      "target": "N/A: reintento con client_request_id en la consola y deduplicación en la base; sin recurso de infraestructura"
+    },
+    {
+      "id": "NFR10.20",
+      "status": "N/A",
+      "target": "N/A: límite de 2 000 caracteres leído del catálogo de U1 en el código"
+    },
+    {
+      "id": "NFR10.21",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 ajustes en values; falta de ajuste impide arrancar"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "N/A",
+      "target": "N/A: historial del turno de U4 en veridicus-pg sin cambios de infraestructura"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 scripts/check-synthetic-audio.sh"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 cobertura ≥ 80 % en audio-worker.yml y tts-server.yml"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 --cov-branch con .coveragerc-guards al 100 %"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 frontend.yml literal fuera del catálogo"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 vitest-axe y §3 voice.spec.ts con axe"
+    },
+    {
+      "id": "NFR14.3",
+      "status": "OK",
+      "target": "infrastructure-specification.md §3 voz es_MX-ald-medium; cicd-pipeline.md §1 check-models-lock.py voz es_*"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "monitoring-design.md §1 PodMonitor de audio-worker en metrics 8081"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "monitoring-design.md §4 formateador de lista blanca"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "monitoring-design.md §4 correlación por message_id, turn_id y attempt"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "monitoring-design.md §1 veridicus_transcriptions_total{result} y §2 alertas"
+    }
+  ]
+}

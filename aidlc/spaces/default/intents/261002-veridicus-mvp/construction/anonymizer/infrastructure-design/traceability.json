@@ -1,0 +1,290 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "anonymizer",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR1.4",
+    "NFR1.5",
+    "NFR1.6",
+    "NFR1.7",
+    "NFR1.8",
+    "NFR1.9",
+    "NFR1.10",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR6.1",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.7",
+    "NFR9.1",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR11.1",
+    "NFR12.1",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 (subchart renderizado solo con anonymizer.enabled); cicd-pipeline.md §2 deploy-level0 render y policies"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 provider-adr y §3 check-anonymizer-enable.py; values.schema.json de infrastructure-specification.md §1"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level0 (comprobación final, 0 peticiones al fake) y propiedades Hypothesis"
+    },
+    {
+      "id": "NFR1.4",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level0 y test-level1 (similitud enmascarada); ruta embed en infrastructure-specification.md §2"
+    },
+    {
+      "id": "NFR1.5",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 NetworkPolicy ipBlock ≥ /24 a 443 y §3 CoreDNS con lista blanca; cicd-pipeline.md §2 policies y coredns"
+    },
+    {
+      "id": "NFR1.6",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 Service interno y URLs solo en el PR de habilitación; cicd-pipeline.md §2 libs.yml (anonymizer_route 100 % ramas)"
+    },
+    {
+      "id": "NFR1.7",
+      "status": "OK",
+      "target": "infrastructure-specification.md §3 verificación manual getaddrinfo de solo lectura; cicd-pipeline.md §4 paso 5"
+    },
+    {
+      "id": "NFR1.8",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level0 (4 cabeceras salientes, rutas en 404)"
+    },
+    {
+      "id": "NFR1.9",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 red de entrada (veridicus-anonymizer-ingress); cicd-pipeline.md §2 policies"
+    },
+    {
+      "id": "NFR1.10",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 job residual y §3 reporte citado por el ADR"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §1 y §2 (pytest-socket solo localhost, sin modelos ni GPU)"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 recursos sin GPU; cicd-pipeline.md §2 policies (0 nvidia.com/gpu)"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level1 -m perf (p95 ≤ 50 ms por 10 000 caracteres)"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level1 -m perf (restaurar p95 ≤ 10 ms)"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level1 (judge p95 ≤ 250 ms); monitoring-design.md §1 y §3 masking_seconds p95 ≤ 0,25 s"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 VERIDICUS_ANONYMIZER_MASKING_TIMEOUT_SECONDS = 2; cicd-pipeline.md §2 test-level0"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 nivel 2 con --model-gateway anonymizer (p95 ≤ 60 s); monitoring-design.md §3"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 nivel 2 con umbrales de NFR4.1 y anonymizer-enable-gate.yml"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 dos corridas de nivel 2 idénticas"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 Escenario A con 0 valores sembrados"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 Escenario B con familia del juez distinta del generador"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level0 (restauración por cadenas hoja, propiedades)"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 recursos (256 MiB / 320 MiB); monitoring-design.md §1 y §2 VeridicusAnonymizerMemoryHigh; cicd-pipeline.md §3 memoria ≥ 1,2 × pico"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 proceso con semáforo de 4; cicd-pipeline.md §2 test-level1 (5.ª llamada 503 < 50 ms); monitoring-design.md §2 VeridicusAnonymizerBusy"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 almacenamiento (sin PVC, emptyDir en memoria) y réplicas sin afinidad"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 load.run_batches (≥ 98 %, 0 OOMKilled, busy = 0); monitoring-design.md §3"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "N/A",
+      "target": "Requisito de U4 (un turno a la vez en el juez) que scalability-design cita como contexto; su infraestructura la fija text-flow/infrastructure-design (una sola ranura del juez)"
+    },
+    {
+      "id": "NFR9.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §3 reindexado con ready_at < 180 s"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 guards (100 % de ramas en domain/ y application/)"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 volcados de memoria (RLIMIT_CORE = 0, no volcable) y almacenamiento; cicd-pipeline.md §2 test-level0"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "monitoring-design.md §4 logs con lista blanca; cicd-pipeline.md §2 test-level1 canary"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 terminationGracePeriodSeconds 180; cicd-pipeline.md §2 test-level0 (exactamente 1 petición por fake)"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 imagen con ca-certificates y §2.1 VERIDICUS_ANONYMIZER_UPSTREAM_URL https"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 Secret veridicus-anonymizer-credential por secretKeyRef; cicd-pipeline.md §6 rotación manual"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 sondas /healthz, /readyz y startupProbe en 8081; cicd-pipeline.md §2 test-level1 (/readyz sin salida)"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2.1 VERIDICUS_ANONYMIZER_MAX_* desde contracts/limits.v1.yaml"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 test-level0 (Problem Details sin datos)"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "infrastructure-specification.md §1 contexto de seguridad y almacenamiento; cicd-pipeline.md §2 policies (veridicus-anonymizer-hardening)"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "infrastructure-specification.md §2 ConfigMap veridicus-anonymizer-rules readOnly con SHA-256; monitoring-design.md §1 rules_info"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "monitoring-design.md §4 auditoría (X-Veridicus-Model, model_digest de C3)"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 audit (datos sintéticos de U1 con 0 hallazgos)"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 coverage (≥ 80 % de líneas)"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "cicd-pipeline.md §2 guards y libs.yml (100 % de ramas)"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "N/A",
+      "target": "Textos e identificadores del glosario: no requieren infraestructura; se comprueban en el código (lint y pruebas de U10)"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "monitoring-design.md §1 métricas por ServiceMonitor en 8081 y §2 alertas"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "monitoring-design.md §4 una línea JSON por llamada con el perfil de U10"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "monitoring-design.md §4 niveles WARNING y ERROR con code y reason"
+    }
+  ]
+}

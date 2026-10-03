@@ -1,0 +1,368 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "assistant-extras",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR3.12",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR6.1",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR11.4",
+    "NFR12.1",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR14.2",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "infrastructure-specification §3: sin destinos nuevos; configuración de U8 sin campos de URL; ModelGateway y VERIDICUS_JUDGE_URL de U4"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "infrastructure-specification §3: NetworkPolicy de U2/U4 y lista blanca de CoreDNS (U10) sin cambios; Kyverno sobre el render con values-extras.yaml; verificación manual en la máquina de demostración"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "cicd-pipeline §2: niveles 0 y 1 con FakeJudge, sin modelos ni GPU, sin reintentos"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: reporte de activación corrido con --profile cpu --extras"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "monitoring-design §3: SLI p95 ≤ 150 s; cicd-pipeline §2: puerta de nivel 2 con extras"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "infrastructure-specification §1: banderas false en values-cpu.yaml y values-gpu.yaml; máquina de desarrollo sin values-extras.yaml"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "infrastructure-specification §2: ranura única de veridicus-judge, hasta 3 llamadas en serie por turno"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "cicd-pipeline §1: prueba de propiedad de nivel 0 en semantic-agent.yml (segunda lectura ⊆ primera)"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "infrastructure-specification §1.2: VERIDICUS_QUESTION_MAX_TOKENS 160 y tope de 6 000 tokens; cicd-pipeline §1: ≤ 600 tokens de instrucciones"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "infrastructure-specification §1.2: VERIDICUS_TURN_DEADLINE_BASE_SECONDS 600 en values-extras.yaml; cicd-pipeline §1.1: check-extras-values.py"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "infrastructure-specification §1.2: VERIDICUS_QUEUE_RECLAIM_IDLE_SECONDS 510 en values-extras.yaml"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "cicd-pipeline §2: perf de nivel 1, p95 ≤ 300 ms; monitoring-design §3"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "OK",
+      "target": "infrastructure-specification §2: índice (session_id, change_seq) en suggested_question; cicd-pipeline §2: perf ≤ 200 ms"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "cicd-pipeline §2: e2e/suggested-question.spec.ts, tarjeta ≤ 3 s; monitoring-design §3"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "cicd-pipeline §2: perf -k affective ≤ 10 ms"
+    },
+    {
+      "id": "NFR3.12",
+      "status": "OK",
+      "target": "infrastructure-specification §1.2: smoke.timeoutSeconds 120 base y 300 con values-extras.yaml; cicd-pipeline §5: humo de desarrollo con extras apagados"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: umbrales de activación de permutation; cicd-pipeline §1: propiedad Hypothesis en nivel 0"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2: columnas forward_grade, reversed_grade y sustained de solo inserción en veridicus-pg"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1 y cicd-pipeline §2: puerta de nivel 2 con umbrales de NFR4 y 0 preguntas en el Hecho No Documentado"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: tasa en línea > 65 % para encender permutation; monitoring-design §1: veridicus_permutation_claims_total"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "OK",
+      "target": "infrastructure-specification §2: temperatura 0, seed 20261002, una ranura; cicd-pipeline §2: dos corridas idénticas"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: Escenario A en el reporte de activación"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: model_digest igual en las tres llamadas; mismo veridicus-judge"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "N/A",
+      "target": "Regla de dominio en semantic-agent (la CoT de la primera lectura se conserva); no requiere recurso ni configuración de infraestructura; la cubre el nivel 0 de semantic-agent.yml"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "cicd-pipeline §5: la carga de NFR8 corre en la máquina de desarrollo, que nunca incluye values-extras.yaml"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "infrastructure-specification §5: 24 turnos sin vencer, una sesión a la vez; monitoring-design §2: VeridicusExtrasQueueBacklog"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "infrastructure-specification §1: requests y limits de U4 sin cambios; monitoring-design §1: memoria / límite > 0,85"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "infrastructure-specification §2: sin colas nuevas ni estado en memoria; decisión condicional en PostgreSQL"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "infrastructure-specification §2: restricción única (turn_id, attempt); < 5 MB sin purga"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "monitoring-design §3: 0 fallos atribuibles a U8 en smoke.sh; cicd-pipeline §2"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "monitoring-design §3: 100 % de turnos terminados y 0 turn.error.timeout en nivel 2"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: pruebas de session-api.yml; ruta de decisión tras el Ingress TLS de U2 con límite de 256 bytes"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "cicd-pipeline §1: nivel 0 del mensaje user con solo turn y passages"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "infrastructure-specification §1: ConfigMap readOnly del prompt con VERIDICUS_QUESTION_PROMPT_SHA256"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "cicd-pipeline §1: contracts/schemas/suggested-question-output.v1.json en el filtro de ai-eval-gate.yml"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "cicd-pipeline §1: lista afectiva sin términos de C8 en nivel 0; infrastructure-specification §1.1"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "infrastructure-specification §3: QuestionDecisionService en la API de session-api con authorize de U3"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "N/A",
+      "target": "Puerto is_question_approved en código de session-api; no requiere recurso de infraestructura; lo cubre el nivel 1 de session-api.yml"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "monitoring-design §4: formateador con lista blanca y prueba centinela; §1: etiquetas de enum"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "infrastructure-specification §1: activación solo por values-extras.yaml en la Application de demostración"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "infrastructure-specification §1: ConfigMap readOnly de la lista afectiva validado al arrancar"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "infrastructure-specification §1.2: VERIDICUS_QUESTION_TIMEOUT_SECONDS 60 en los values"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "infrastructure-specification §2: reintento acotado solo en la segunda lectura; monitoring-design §2: VeridicusSecondReadRetrying"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "monitoring-design §1: veridicus_suggested_questions_total por motivo; §2: VeridicusQuestionDeadlineSkips"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "infrastructure-specification §1: validación al arrancar y /readyz 503; cicd-pipeline §1.1"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "infrastructure-specification §2: GRANT por columna y disparador en veridicus-pg; cicd-pipeline §1: nivel 1 de decisiones simultáneas"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "cicd-pipeline §1: Vitest de la tarjeta en frontend.yml"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "infrastructure-specification §2: question_decision con solo INSERT y SELECT para veridicus_app"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2: disparador BEFORE UPDATE y sin DELETE"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "infrastructure-specification §2: columnas de permutación de solo inserción"
+    },
+    {
+      "id": "NFR11.4",
+      "status": "OK",
+      "target": "cicd-pipeline §3: PR de activación con reporte de nivel 2; values-extras.yaml versionado"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "cicd-pipeline §6: reportes sin texto; fixtures sintéticos revisados por la comprobación de U1 en la CI"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "cicd-pipeline §2: cobertura ≥ 80 % de líneas"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "cicd-pipeline §2: 100 % de ramas en permutation.py, question_policy.py y question_decision.py"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: Vitest de textos del catálogo en frontend.yml"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "cicd-pipeline §2: puerta de nivel 2; infrastructure-specification §1.1: 0 preguntas marcadas por idioma"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "monitoring-design §1: seis métricas veridicus_* en el puerto 8081 con el ServiceMonitor de U4"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "monitoring-design §4: formateador JSON con lista blanca"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "monitoring-design §4: correlación turn_id + attempt + message_id y question_id"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "monitoring-design §4: turn.question con reason y nivel por motivo"
+    }
+  ]
+}

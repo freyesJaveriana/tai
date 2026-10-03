@@ -94,7 +94,7 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 [`aidlc/spaces/default/intents/261002-veridicus-mvp/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/)
 (`I/` abajo); cada etapa se cierra con aprobación humana y un commit `aidlc(<etapa>): …`.
 
-**Etapa cerrada más reciente:** NFR Design (2026-10-03). **Siguiente:** Infrastructure Design.
+**Etapa cerrada más reciente:** Infrastructure Design (2026-10-03). **Siguiente:** Code Generation (solo Parte 1: plan de tareas).
 
 | Fase | Etapa | Estado | Documentos principales |
 |---|---|---|---|
@@ -109,10 +109,10 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 | Construction | Functional Design | Aprobada | [`construction/<unidad>/functional-design/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): entidades, reglas, especificación funcional y trazabilidad de las 9 unidades (contracts, identity-access, text-flow, human-review, session-lifecycle, assistant-extras, anonymizer, forensic-report, voice), con su revisión en `reviews/` |
 | Construction | NFR Requirements | Aprobada | [`construction/<unidad>/nfr-requirements/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): requisitos de rendimiento, seguridad, escalado, fiabilidad y observabilidad, decisiones de pila y trazabilidad de las 10 unidades (incluida platform). Claves: juez Qwen2.5-7B Q4 y `multilingual-e5-base` en CPU, umbral inicial 0,80 calibrado en nivel 2, p95 ≤ 60 s por turno de texto, humo en 120 s, plazo proporcional a la cola (tope 3 600 s); revisiones en `reviews/` |
 | Construction | NFR Design | Aprobada | [`construction/<unidad>/nfr-design/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): diseño de rendimiento, seguridad, escalado, fiabilidad, observabilidad y componentes lógicos, más trazabilidad, de las 10 unidades (U1 y platform solo seguridad). Claves: catálogo único de límites `contracts/limits.v1.yaml`, huella de seguridad versionada, cursor `change_seq` por sesión con orden de bloqueo sesión → ronda, reintento acotado del juez, TLS local con mkcert, subida de audio en memoria y reescritura del AOF de Redis, seudónimos estables del anonimizador; revisiones en `reviews/` |
-| Construction | Infrastructure Design | Pendiente | — |
+| Construction | Infrastructure Design | Aprobada | [`construction/<unidad>/infrastructure-design/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): especificación de infraestructura, monitoreo, pipeline de CI/CD y trazabilidad de las 9 unidades con despliegue. Claves: Minikube + Calico en un namespace `veridicus` (20 GiB/10 CPU en desarrollo, 28 GiB en demostración), red negada por defecto, CloudNativePG con roles separados, Redis 7.2 `noeviction`, límites con ≥ 20 % sobre picos, sonda de `session-api` sin Redis, `Recreate` en la API, respaldo conjunto con `backup-db.sh`, extras solo en la demostración, voz en las dos máquinas, CoreDNS con lista blanca; la CI nunca despliega; revisiones en `reviews/` |
 | Construction | Code Generation (solo Parte 1: plan de tareas) | Pendiente | — |
 
-Los hallazgos abiertos de las revisiones de Functional Design, NFR Requirements y NFR Design quedaron
+Los hallazgos abiertos de las revisiones de Functional Design, NFR Requirements, NFR Design e Infrastructure Design quedaron
 aceptados como riesgo en la aprobación; están en `reviews/` de cada unidad. Las precisiones a artefactos aprobados
 están en §6 de cada `security-requirements.md` y en las tablas «Precisiones a artefactos ya aprobados» de cada diseño de NFR. Los cambios propuestos a contratos y a otras unidades están en la tabla
 «Cambios entre unidades» de cada `functional-spec.md`.

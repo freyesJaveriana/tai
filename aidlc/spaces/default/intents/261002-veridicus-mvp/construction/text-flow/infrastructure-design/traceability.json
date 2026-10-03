@@ -1,0 +1,428 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "text-flow",
+  "upstream_ids": [
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR3.12",
+    "NFR9.1",
+    "NFR9.2",
+    "NFR9.3",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR8.8",
+    "NFR8.9",
+    "NFR8.10",
+    "NFR8.11",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.19",
+    "NFR10.20",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR6.1",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR4.3",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR12.1",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR14.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: juez con 6 hilos y 8,5 GiB, una ranura; monitoring-design §3: SLI p95 ≤ 60 s y alerta VeridicusTurnLatencyHigh"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2: pool 5 + 5 de la API y statement_timeout; la API no llama a modelos"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "infrastructure-specification §2: índices y pool de la API; infrastructure-specification §4: sondeo contra /api/"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "infrastructure-specification §2: índice B-tree por version_id y pool de semantic-agent con rol de solo lectura"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: TURN_DEADLINE_BASE_SECONDS y _MAX_SECONDS en los values"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: DEADLINE_SWEEP_SECONDS 15 en el trabajador"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "infrastructure-specification §4: sondeo de 2 s y 15 s de la consola"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "monitoring-design §3: SLI de alerta visible en ≤ 3 s con Playwright de nivel 3"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "N/A",
+      "target": "Comportamiento del componente de React (performance-design §6); no requiere recursos de infraestructura"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "cicd-pipeline §2: smoke.spec.ts con N = 120 s en scripts/smoke.sh"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: JUDGE_MAX_DATA_TOKENS 6000 y ventana del juez de U2; monitoring-design §1: veridicus_judge_prompt_tokens"
+    },
+    {
+      "id": "NFR3.12",
+      "status": "N/A",
+      "target": "Rechazo sin llamar al juez es lógica de semantic-agent (performance-design §2); se cuenta en veridicus_turns_total"
+    },
+    {
+      "id": "NFR9.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: límites de embeddings y trabajador; monitoring-design §1 y §3: indexación < 180 s"
+    },
+    {
+      "id": "NFR9.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: PASSAGE_MAX_CHARS 1000 en los values"
+    },
+    {
+      "id": "NFR9.3",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: EMBEDDINGS_BATCH 32 en los values"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: veridicus-judge con límite de 8,5 GiB sobre el pico de 7 GiB (21 %)"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: veridicus-embeddings con 1,8 GiB sobre 1,5 GiB (20 %)"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: semantic-agent con 640 MiB sobre 512 MiB (25 %)"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "infrastructure-specification §1.1: session-api-worker con 960 MiB sobre 768 MiB (25 %)"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "monitoring-design §3: ≥ 98 % de 50 sesiones medido por el arnés en la máquina de desarrollo con 20 GiB"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "cicd-pipeline §2 y §3: smoke.sh tras cada despliegue con reversión"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "infrastructure-specification §1 y §2: una réplica de semantic-agent y una ranura del juez"
+    },
+    {
+      "id": "NFR8.8",
+      "status": "OK",
+      "target": "monitoring-design §1 y §2: VeridicusTurnQueueBacklog con cola > 30"
+    },
+    {
+      "id": "NFR8.9",
+      "status": "OK",
+      "target": "infrastructure-specification §2: búsqueda exacta filtrada por version_id sin índice aproximado"
+    },
+    {
+      "id": "NFR8.10",
+      "status": "OK",
+      "target": "infrastructure-specification §1: procesos sin estado en memoria y consumidores en grupo; réplicas por PR"
+    },
+    {
+      "id": "NFR8.11",
+      "status": "OK",
+      "target": "infrastructure-specification §2: XDEL tras procesar y MAXLEN ~ 1000 en los streams de fallidos"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "infrastructure-specification §2 y §2.1: timeouts de base, Redis, juez y embeddings leídos de los values"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "infrastructure-specification §2: grupos de consumidores, XACK + XDEL tras el efecto y reclamo a los 240 s"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: JUDGE_TRANSIENT_RETRIES y JUDGE_RETRY_WAITS_SECONDS; monitoring-design §2: VeridicusJudgeRetrying"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: revisión de plazos cada 15 s en el trabajador"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "infrastructure-specification §2: transacción de indexación de 5 s con el rol veridicus_indexer; monitoring-design §2: VeridicusIndexingFailed"
+    },
+    {
+      "id": "NFR10.19",
+      "status": "OK",
+      "target": "infrastructure-specification §1.2: readinessProbe de trabajador y semantic-agent con todas sus dependencias y la de la API sin Redis"
+    },
+    {
+      "id": "NFR10.20",
+      "status": "N/A",
+      "target": "Reintentos crecientes del sondeo son lógica de la consola (reliability-design §7); el Ingress no corta conexiones cortas"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "infrastructure-specification §1: umbral solo en los values; cicd-pipeline §1 y §3: cambio por PR con reporte del barrido validado por ai-eval-gate.yml"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2.1: JUDGE_SEED y temperatura 0 con una ranura"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "cicd-pipeline §1 y §2: nivel 2 con 0 % de error de formato exigido por ai-eval-gate.yml"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "N/A",
+      "target": "El orden de pasajes es un parámetro del constructor del prompt (security-design §2); lo ejerce el arnés de nivel 2"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "cicd-pipeline §2: el reporte de nivel 2 registra la longitud de la CoT; Likert manual antes de la sustentación"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "monitoring-design §1: ServiceMonitor por proceso en el puerto metrics 8081"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "monitoring-design §4: logs JSON con lista blanca de identificadores"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "monitoring-design §4: correlación por turn_id, attempt y message_id"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "monitoring-design §1 y §2: veridicus_turns_total por code y alertas por code"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "infrastructure-specification §2.2 de U2 y §2.1: URL internas en los values; infrastructure-specification §3: salida solo a servicios de veridicus"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "infrastructure-specification §3: semantic-agent y el trabajador sin salida fuera del namespace"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "N/A",
+      "target": "La comprobación de passage_ids es lógica de dominio (security-design §2); la cubre el job guards al 100 % de ramas"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: prueba de inyección en test-level0 y Escenario A en nivel 2"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "cicd-pipeline §2: el reporte de nivel 2 declara la familia del juez y del generador"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "N/A",
+      "target": "Validación de entradas en cada frontera es lógica de aplicación (security-design §7); ver NFR10.11 para el corte en el Ingress"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "infrastructure-specification §1: prompt en ConfigMap readOnly separado de los datos; cicd-pipeline §1: prueba de aislamiento"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "infrastructure-specification §1: archivo único del prompt en el chart, ConfigMap readOnly y VERIDICUS_JUDGE_PROMPT_SHA256 en los values"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "N/A",
+      "target": "El armado de la alerta con datos del sistema es lógica de dominio (security-design §2), cubierta por el job guards"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "cicd-pipeline §1 y §2: escáner C8 en libs.yml al 100 % de ramas y escaneo de vocabulario en Playwright"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "infrastructure-specification §2: semantic-agent solo con veridicus_judge_ro y SELECT de truthframe.passage_search"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "monitoring-design §4: lista blanca de campos en los logs"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "monitoring-design §4: llama-server sin --verbose ni registro de peticiones"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "infrastructure-specification §2: XACK + XDEL tras el efecto y fallidos solo con identificadores"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "N/A",
+      "target": "Rol, dueño y anti-CSRF los aplica la dependencia de U3 en la API (security-design §7)"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "infrastructure-specification §1: proxy-body-size ≥ 1 MiB en el Ingress y corte por bloques en la API"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "infrastructure-specification §1: imágenes por digest; modelos de deploy/models.lock verificados por U2"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "infrastructure-specification §2 y §2.1: timeouts explícitos de toda E/S; Problem Details en la API"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "cicd-pipeline §3: migraciones con permisos de solo inserción y prueba común de U3"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "infrastructure-specification §2: veridicus_app sin UPDATE ni DELETE sobre las evaluaciones"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "cicd-pipeline §3: el umbral solo cambia por PR con reporte, comprobado por ai-eval-gate.yml"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "infrastructure-specification §5: el nivel 2 usa solo el Golden Dataset sintético; fixtures del catálogo de U1"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: niveles 0 y 1 con fakes y sin GPU ni descargas"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "infrastructure-specification §1 y §5: metas medidas en la máquina de desarrollo con values-cpu.yaml"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: ≥ 80 % de líneas en session-api, semantic-agent, libs y frontend"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "cicd-pipeline §1: job guards con .coveragerc-guards al 100 % de ramas"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "cicd-pipeline §1: frontend.yml falla ante un literal visible fuera del catálogo"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "cicd-pipeline §2: el reporte de nivel 2 marca la CoT con pocas palabras vacías del español"
+    }
+  ]
+}

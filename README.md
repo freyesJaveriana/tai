@@ -85,7 +85,7 @@ tai/
 │   └── 06-documentacion-propia/            propuesta y hoja de ruta del TG del autor
 └── presentations/        material de apoyo para mostrar el avance en clase
     ├── Veridicus_PVB_PRD.pptx  resumen visual del PVB + PRD (12 diapositivas, ~10 min, con notas del orador)
-    └── Veridicus_AIDLC_avance.pptx  avance con AI-DLC v2: etapas, interfaz, arquitectura y unidades (6 diapositivas, con notas del orador)
+    └── Veridicus_AIDLC_avance.pptx  avance con AI-DLC v2: etapas, interfaz, arquitectura, unidades e infraestructura, con el plan de U1 en Code Generation (8 diapositivas, con notas del orador)
 ```
 
 ## Avance del flujo AI-DLC
@@ -94,7 +94,7 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 [`aidlc/spaces/default/intents/261002-veridicus-mvp/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/)
 (`I/` abajo); cada etapa se cierra con aprobación humana y un commit `aidlc(<etapa>): …`.
 
-**Etapa cerrada más reciente:** Infrastructure Design (2026-10-03). **Siguiente:** Code Generation (solo Parte 1: plan de tareas).
+**Etapa cerrada más reciente:** Infrastructure Design (2026-10-03). **En curso:** Code Generation, solo Parte 1 (plan de tareas): el plan de U1 contracts (Bolt B1 «Contratos») está listo; siguen los planes de las demás unidades.
 
 | Fase | Etapa | Estado | Documentos principales |
 |---|---|---|---|
@@ -110,7 +110,7 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 | Construction | NFR Requirements | Aprobada | [`construction/<unidad>/nfr-requirements/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): requisitos de rendimiento, seguridad, escalado, fiabilidad y observabilidad, decisiones de pila y trazabilidad de las 10 unidades (incluida platform). Claves: juez Qwen2.5-7B Q4 y `multilingual-e5-base` en CPU, umbral inicial 0,80 calibrado en nivel 2, p95 ≤ 60 s por turno de texto, humo en 120 s, plazo proporcional a la cola (tope 3 600 s); revisiones en `reviews/` |
 | Construction | NFR Design | Aprobada | [`construction/<unidad>/nfr-design/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): diseño de rendimiento, seguridad, escalado, fiabilidad, observabilidad y componentes lógicos, más trazabilidad, de las 10 unidades (U1 y platform solo seguridad). Claves: catálogo único de límites `contracts/limits.v1.yaml`, huella de seguridad versionada, cursor `change_seq` por sesión con orden de bloqueo sesión → ronda, reintento acotado del juez, TLS local con mkcert, subida de audio en memoria y reescritura del AOF de Redis, seudónimos estables del anonimizador; revisiones en `reviews/` |
 | Construction | Infrastructure Design | Aprobada | [`construction/<unidad>/infrastructure-design/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/): especificación de infraestructura, monitoreo, pipeline de CI/CD y trazabilidad de las 9 unidades con despliegue. Claves: Minikube + Calico en un namespace `veridicus` (20 GiB/10 CPU en desarrollo, 28 GiB en demostración), red negada por defecto, CloudNativePG con roles separados, Redis 7.2 `noeviction`, límites con ≥ 20 % sobre picos, sonda de `session-api` sin Redis, `Recreate` en la API, respaldo conjunto con `backup-db.sh`, extras solo en la demostración, voz en las dos máquinas, CoreDNS con lista blanca; la CI nunca despliega; revisiones en `reviews/` |
-| Construction | Code Generation (solo Parte 1: plan de tareas) | Pendiente | — |
+| Construction | Code Generation (solo Parte 1: plan de tareas) | En curso (U1 lista) | [`code-generation-plan.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md), [`unit-test-instructions.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/unit-test-instructions.md) de U1 contracts: 19 pasos, cada uno con su `Verificación:` (AUTONOMIA-02), para producir los contratos versionados C1–C16 de `contracts/`, el paquete `veridicus_contracts` con la suite de nivel 0, sus generadores (tipos y constantes TypeScript, huella de seguridad) y el *job* de CI. Claves: decisiones PD-1 a PD-5 (la versión 1.0.0 de cada contrato integra las precisiones aprobadas de U1–U10; el escáner en ejecución queda en U4; NFR10.6 por análisis estático de patrones), pruebas de contratos y guardias AUTONOMIA-03/04/05 escritas primero en rojo, suite sin red en ≤ 60 s con ≥ 80 % de líneas y 100 % de ramas en `checks/`. El trabajo se detiene en el plan: la Parte 2 (código) queda fuera de este flujo. Pendientes: los planes de U2–U10 |
 
 Los hallazgos abiertos de las revisiones de Functional Design, NFR Requirements, NFR Design e Infrastructure Design quedaron
 aceptados como riesgo en la aprobación; están en `reviews/` de cada unidad. Las precisiones a artefactos aprobados

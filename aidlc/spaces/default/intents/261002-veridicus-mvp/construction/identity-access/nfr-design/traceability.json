@@ -1,0 +1,176 @@
+{
+  "stage": "nfr-design",
+  "unit": "identity-access",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR12.1",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design §1: sin llamadas externas; salida negada por la NetworkPolicy de U2"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "performance-design §1 y §2: presupuesto de F1 con Argon2id y semáforo"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "performance-design §1 y §3: una consulta por token_sha256 y un UPDATE de last_seen_at"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "performance-design §1 y security-design §5: limitador antes de base y Argon2id"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "performance-design §2: semáforo de 2 con espera de 5 s y 503 con Retry-After"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "scalability-design §1: estado en PostgreSQL y Redis; prueba con dos instancias"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "scalability-design §2: barrido diario por lotes con advisory lock"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design §3: argon2-cffi con parámetros validados y re-hash"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design §3: validador puro y lista común con SHA-256"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design §4 y performance-design §3: cookie, caducidad doble y last_seen_at por petición"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "security-design §4: token de 256 bits y hmac.compare_digest"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "security-design §5: contadores HMAC en Redis con caducidad de 900 s"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "security-design §3: respuesta única y hash señuelo por el mismo semáforo"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "security-design §6: filtro de logger, lista blanca y prueba E2"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "security-design §7: create-admin desde Secret, salida 2 y Job sin root"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "security-design §2: mapa de rutas desde C1 y arranque fallido ante ruta sin roles"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "security-design §4: Cache-Control no-store en /auth/*"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "reliability-design §1: statement_timeout 2 s y timeouts de Redis de 0,5 s"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "reliability-design §2: falla cerrada con 503 system.unavailable"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "reliability-design §3: /readyz con SELECT 1, PING y configuración validada"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "reliability-design §1: create-admin con bloqueo y salida 2"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "reliability-design §1: SELECT FOR UPDATE sobre los admin activos"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design §8: user_change con NOT NULL y permisos INSERT, SELECT"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "security-design §8: import-linter y prueba AST del cargador del umbral"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "security-design §1: usuarios de prueba del catálogo sintético de U1"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "observability-design §2: tres métricas con etiquetas de enum"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "observability-design §1: formateador JSON con lista blanca y request_id"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "observability-design §1: tabla de eventos INFO y ERROR por code"
+    }
+  ]
+}

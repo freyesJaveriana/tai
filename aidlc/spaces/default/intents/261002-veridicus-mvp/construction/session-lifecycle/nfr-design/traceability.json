@@ -1,0 +1,326 @@
+{
+  "stage": "nfr-design",
+  "unit": "session-lifecycle",
+  "upstream_ids": [
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR3.12",
+    "NFR9.1",
+    "NFR8.1",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR12.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR8.8",
+    "NFR4.1",
+    "NFR8.9",
+    "NFR8.10",
+    "NFR10.11",
+    "NFR8.11",
+    "NFR8.12",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.12",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4",
+    "NFR15.1",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR14.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "performance-design §1: transacción única con INSERT de varias filas, change_seq una vez y publicación en una ida y vuelta"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "performance-design §4: una consulta con LEFT JOIN a la vista de pendientes de U5, sin texto de turnos"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "performance-design §2: latido tras la lectura en transacción aparte con SKIP LOCKED; el sondeo nunca espera bloqueos"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "performance-design §4: reanudación en una transacción con UPDATE condicional y lectura con índices (session_id, change_seq)"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "performance-design §5: cargador de U4 con SHA-256 en la lectura y bloqueo de la fila del escenario"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "performance-design §6: división local en un recorrido con el archivo compartido y 0 peticiones"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "performance-design §3: revisión cada 30 s con T = 180 s y bordes probados con reloj controlado"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "performance-design §2: escritura del latido solo si el valor tiene 15 s o más, con veridicus_now()"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "OK",
+      "target": "performance-design §3: índice parcial de expresión sobre COALESCE(last_heartbeat_at, created_at) WHERE status = 'open'"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "performance-design §1: plazos con n0 contado en la transacción y función pura compartida con U4"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "performance-design §7: 60 turnos publicados en orden en una transacción de Redis; corrida de nivel 2"
+    },
+    {
+      "id": "NFR3.12",
+      "status": "OK",
+      "target": "performance-design §6: cronómetro local y etapa por el sondeo de 2 s de U4"
+    },
+    {
+      "id": "NFR9.1",
+      "status": "OK",
+      "target": "performance-design §5: mensaje C4 y el indexador de U4 sin código propio"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "performance-design §7: cuerpo leído una vez y revisión sin memoria propia"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design §1: ningún destino externo; NetworkPolicy de U2 y readyz con la política aplicada"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "security-design §1: vista previa en el navegador con 0 peticiones"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design §2: corte a 524 288 bytes, división en el servidor y límites del catálogo de U1"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design §3: authorize de U3 con roles, dueño y anti-CSRF por ruta"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design §3: owner_user_id en la condición del latido"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "security-design §4: lista blanca ampliada del formateador y prueba centinela"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "security-design §4: XDEL de U4 y marca del lote solo con el UUID"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "security-design §5: comprobación del OpenAPI y transiciones solo en SuspensionSweeper y SessionResume"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "security-design §6: mismo constructor de C2 que U4 con la instantánea del umbral"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "security-design §6: catálogo de U1 y escáner scan(text, literal_sources) en niveles 0 y 3"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design §5: permisos de la base sin UPDATE/DELETE sobre pasajes ni DELETE sobre versiones"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "security-design §5: historial de solo inserción con actor_kind y AuditConvention de U3"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "security-design §7: fixtures sintéticos verificados por la comprobación de U1"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "scalability-design §1: procesos sin estado; SKIP LOCKED, restricciones únicas y WATCH"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "scalability-design §2: límites del catálogo leídos igual por consola y servidor"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "scalability-design §2: tope de 3 600 s para el turno 60 y publicación sin duplicados"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "scalability-design §3: lista sin paginar con disparador medible para paginar"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "scalability-design §4: ≤ 1 UPDATE efectivo cada 15 s por sesión abierta"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "scalability-design §4: tablas de solo inserción < 5 MB y marcas con expiración"
+    },
+    {
+      "id": "NFR8.8",
+      "status": "OK",
+      "target": "reliability-design §6: prueba de corte y reanudación con conteos y vista completa al reanudar"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "reliability-design §6: mismo constructor de C2 y comparación por ordinal de testimonio en niveles 1 y 2"
+    },
+    {
+      "id": "NFR8.9",
+      "status": "OK",
+      "target": "reliability-design §3: revisión con SKIP LOCKED, reanudación con UPDATE condicional y last_heartbeat_at"
+    },
+    {
+      "id": "NFR8.10",
+      "status": "OK",
+      "target": "reliability-design §2: transacción todo o nada y restricción única (session_id, client_request_id)"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "reliability-design §2: marca del lote en MULTI/EXEC con WATCH; reenvío publica solo sin marca"
+    },
+    {
+      "id": "NFR8.11",
+      "status": "OK",
+      "target": "reliability-design §4: ingesta y plazos ignoran el estado; nuevos turnos 409 session.not_open"
+    },
+    {
+      "id": "NFR8.12",
+      "status": "OK",
+      "target": "reliability-design §5: sesión ligada a su versión y números consecutivos por bloqueo y restricción única"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "reliability-design §1: timeouts de U4, 5 s en las dos transacciones largas y SKIP LOCKED sin espera"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "reliability-design §1: validación de los tres ajustes al arrancar y readyz 503"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "reliability-design §3: revisión sobre el estado que reintenta en el siguiente intervalo; latido que no hace fallar el sondeo"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "observability-design §1: formateador de U3 con lista blanca ampliada"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "observability-design §1: eventos por operación y paste_batch_id en turn.queued"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "observability-design §1: WARNING y ERROR con code por cada fallo de U6"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "observability-design §2: métricas de U6 con etiquetas de enum cerrado"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "logical-components §5: fakes de U4 y PostgreSQL/Redis reales sin GPU"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "logical-components §5: metas de nivel 2 medidas con values-cpu.yaml"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "logical-components §5: 80 % de líneas en session-api y frontend"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "logical-components §5: archivo de ejemplos común y prueba de propiedad"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "logical-components §5: catálogo de U1 y fechas en America/Bogota"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "logical-components §5: axe en nivel 3, teclado, icono y texto, aria-live"
+    }
+  ]
+}

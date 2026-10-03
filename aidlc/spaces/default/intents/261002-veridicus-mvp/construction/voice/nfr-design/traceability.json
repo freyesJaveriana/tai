@@ -1,0 +1,410 @@
+{
+  "stage": "nfr-design",
+  "unit": "voice",
+  "upstream_ids": [
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR3.12",
+    "NFR3.13",
+    "NFR3.14",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR5.1",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR11.1",
+    "NFR12.1",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR8.8",
+    "NFR8.9",
+    "NFR8.10",
+    "NFR8.11",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.19",
+    "NFR10.20",
+    "NFR10.21",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4",
+    "NFR15.1",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR14.2",
+    "NFR14.3"
+  ],
+  "coverage": [
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "performance-design §1: camino crítico con presupuesto por tramo y calentamiento de Whisper"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "performance-design §1: tramo de Whisper escalado a 120 s y medición por tramo de duración"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "performance-design §1: turno completo con evaluación de U4 y llegada por sondeo"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "performance-design §2: lectura en streaming a memoria, validación de cabecera y XADD antes del 202"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "performance-design §3: plazo de audio proporcional con COUNT de turnos en transcribing y tope configurable"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "performance-design §3: la ingesta recalcula deadline_at con la fórmula de U4 antes de publicar C2"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "performance-design §3: DeadlineSweeper de U4 ampliado a transcribing"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "performance-design §3: timeout efectivo min(90 s, deadline_at − ahora) sin llamada si es ≤ 0"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "OK",
+      "target": "performance-design §4: mutación de envío independiente del texto y la grabación"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "performance-design §4: codificación WAV en Web Worker con Transferable"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "performance-design §4: change_seq incrementado al guardar el texto y sondeo de 2 s"
+    },
+    {
+      "id": "NFR3.12",
+      "status": "OK",
+      "target": "performance-design §5: camino D4 con cliente persistente y calentamiento de Piper"
+    },
+    {
+      "id": "NFR3.13",
+      "status": "OK",
+      "target": "performance-design §3: timeouts de síntesis 10 s y 12 s validados al arrancar"
+    },
+    {
+      "id": "NFR3.14",
+      "status": "OK",
+      "target": "performance-design §6: humo sin cambios más readyz de audio-worker y voice.spec.ts"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "performance-design §7: Whisper base int8, una transcripción y tmp en memoria"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "performance-design §7: un mensaje a la vez y base64 liberado antes de Whisper"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "performance-design §7: una voz medium, 2 hilos y 300 caracteres"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "performance-design §2: tres copias acotadas a ≈ 20 MB liberadas al terminar la petición"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design §1: NetworkPolicy de salida denegada de audio-worker con controles negativos"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "security-design §1: validador de URL internas de U4 sobre las tres URL de voz"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "security-design §1: reglas de ESLint contra APIs de voz del navegador"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "security-design §7: texto transcrito por la cadena de defensa de U4 y comparación con el turno escrito"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design §3: validación en orden fijo con corte en streaming y cabecera real"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design §2: lectura sin UploadFile, raíz de solo lectura y tmp en memoria (P1 = A)"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design §2: XACK + XDEL con cualquier resultado y fallidos sin contenido"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "security-design §2: AofRewriteRequester pide BGREWRITEAOF con la cola vacía, cota ≈ 2 min (P2 = A)"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "security-design §2: audio solo en memoria del navegador, blob revocado y pistas detenidas"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "security-design §6: lista blanca de logs y Problem Details sin input, prueba de tres centinelas"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "security-design §4: authorize con rol, dueño y anti-CSRF en ambas rutas"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "security-design §4: is_question_approved antes de llamar a audio-worker y 0 llamadas al TTS sin pulsar"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "security-design §4: ruta interna con Bearer en tiempo constante, cuerpo estricto y NetworkPolicy de entrada"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "security-design §5: models.lock verificado y model_digest en cada TranscriptResult"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "security-design §5: sin ruta que edite Turn.text, rótulo y 409 turn.audio_unavailable"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "security-design §6: catálogo de codes de U9 por el manejador único de Problem Details"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design §5: historial del turno de voz, model_digest guardado y sin UPDATE de Turn.text"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "security-design §7: clips generados con Piper y check-synthetic-audio.sh contra el manifiesto"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "scalability-design §1: un audio a la vez y síntesis con semáforo de 1"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "scalability-design §1: plazo proporcional y corrida de voz con 1 y 3 sesiones"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "scalability-design §3: streams vacíos tras procesar, maxmemory ≥ 128 MB y noeviction"
+    },
+    {
+      "id": "NFR8.8",
+      "status": "OK",
+      "target": "scalability-design §4: limits.cpu de model-whisper y corrida de voz mixta"
+    },
+    {
+      "id": "NFR8.9",
+      "status": "OK",
+      "target": "scalability-design §2: clave de dedup con TTL en el MULTI e ingesta idempotente por intento"
+    },
+    {
+      "id": "NFR8.10",
+      "status": "OK",
+      "target": "reliability-design §9: objetivos de la corrida de voz sobre los patrones de §2 a §7"
+    },
+    {
+      "id": "NFR8.11",
+      "status": "OK",
+      "target": "reliability-design §9: readyz de audio-worker en la humo"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "reliability-design §1: tabla de timeouts por llamada"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "reliability-design §2: efecto antes de MULTI con XACK, XDEL y dedup; reclamo a 120 s y 3 entregas"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "reliability-design §2: un tratamiento por resultado sin reintento en audio_lifecycle"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "reliability-design §3: DeadlineSweeper sobre transcribing"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "reliability-design §4: readyz con checks por dependencia y supervisión del hilo consumidor"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "reliability-design §5: 503 speech.unavailable sin reintento automático"
+    },
+    {
+      "id": "NFR10.19",
+      "status": "OK",
+      "target": "reliability-design §6: reintento 1, 2, 4, 8 s con el mismo client_request_id y deduplicación"
+    },
+    {
+      "id": "NFR10.20",
+      "status": "OK",
+      "target": "reliability-design §7: límite de 2 000 caracteres leído del catálogo de U1"
+    },
+    {
+      "id": "NFR10.21",
+      "status": "OK",
+      "target": "reliability-design §7: BaseSettings con validadores cruzados que impiden arrancar"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "reliability-design §8: Whisper base con idioma fijo y normalización común para WER"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "reliability-design §8: VAD y texto vacío como turn.error.invalid_output"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "reliability-design §8: temperatura 0, voraz y sin condicionar al texto previo"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "reliability-design §8: el texto entra a C2 como turno escrito con el determinismo de U4"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "observability-design §1: formateador con lista blanca ampliada"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "observability-design §1: eventos correlacionados por turn_id, attempt y message_id"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "observability-design §1: WARNING y ERROR por code y motivo"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "observability-design §2: dónde se mide cada métrica, más la de reescritura del AOF"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "logical-components §5: FakeWhisper y FakeTts del Protocol de C13 con Redis y PostgreSQL reales"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "logical-components §5: corrida de voz con values-cpu.yaml"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "logical-components §5: ≥ 80 % de líneas por servicio, libs y frontend"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "logical-components §5: 100 % de ramas en audio_lifecycle, validación, lector y AofRewriteRequester"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "logical-components §5: literales del catálogo de U1 con la prueba de U4"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "logical-components §5: vitest-axe, axe-core, teclado y aria-live"
+    },
+    {
+      "id": "NFR14.3",
+      "status": "OK",
+      "target": "logical-components §5: voz es_* en models.lock y WER de preguntas sintetizadas"
+    }
+  ]
+}

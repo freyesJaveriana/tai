@@ -1,0 +1,116 @@
+{
+  "stage": "nfr-design",
+  "unit": "platform",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR2.1",
+    "NFR8.1",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR11.1",
+    "NFR12.1",
+    "NFR15.1"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "§2: veridicus-default-deny, reglas por dependencia, políticas deny-external-egress y verificación manual"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "§4: fetch-models.sh en la anfitriona, models.lock y volumen readOnly; check-no-downloads.sh"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "§2: política internal-model-urls con control negativo"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "§5: política gpu-only-in-gpu-values sobre el render de values-cpu.yaml"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "§5: política require-resources para contenedores e initContainers"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "§4: require-image-digest, Chart.lock y Trivy con .trivyignore con caducidad"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "§5: Pod Security restricted y helper _securityContext.tpl con su política"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "§6: no-inline-secrets y create-secrets.sh con --dry-run=client"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "§4: initContainer verify-model y política require-model-verify"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "§9: check-no-cluster-apply.sh con control negativo; CI sin kubeconfig"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "§7 y §2: requirepass, protected-mode, comandos renombrados y restrict-datastore-ingress"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "§7: CloudNativePG sin superusuario, TLS, roles separados; acceso por NetworkPolicy"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "§2: restrict-datastore-ingress para servidores de modelos y --api-key desde Secret"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "§5: no-sa-token y ningún Role ni ClusterRole"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "§7: Job migrations-job aparte y política no-migrations-in-deployments"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "§7: Prune=false en Cluster y PVC con política no-prune-on-data; deploy key de solo lectura"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "§9b: deploy/ sin datos; gitleaks y revisión del PR"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "§9b: PrometheusRule que solo propone, probada con promtool"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "stage": "nfr-design",
+  "unit": "contracts",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR2.1",
+    "NFR3.1",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR12.1",
+    "NFR12.2",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR15.1"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "§4.9 checks/servers.py: solo rutas relativas o hosts .svc.cluster.local"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "§4.13 pasos sin red: timeout 60 y --disable-socket; meta de diseño ≤ 20 s"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "§4.6 checks/auth_surface.py: 202 como única 2xx en las seis operaciones que encolan"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "§4.3 checks/strict_bodies.py: additionalProperties false en cuerpos JSON y multipart"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "§4.3 C6 y C7 estrictos en cada objeto; C2-C5 por carga extraída del AsyncAPI con fixtures E1, E3, E4, E7-E9"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "§4.7 checks/error_codes.py: catálogo único igual al enum ErrorCode y respuestas con $ref a Problem"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "§4.1 cargador único ruamel.yaml safe y checks/loader_usage.py por análisis AST"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "§4.2 registro de referencias cerrado, checks/refs.py y pytest-socket"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "§4.5 checks/redos.py: maxLength obligatorio y análisis estático del patrón, sin reloj"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "§4.3 y §4.4 catálogo limits.v1.yaml y checks/limits_match.py sobre texto y partes binarias"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "§4.8 checks/threshold.py: ninguna escritura del umbral; similarity_threshold en [0, 1]"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "§4.13 uv.lock con hashes, pip-audit, SHA256SUMS de vendor y acciones fijadas por SHA"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "§4.10 checks/fixture_coverage.py: rechazo por la regla declarada y un positivo y un negativo por regla"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "§4.6 checks/auth_surface.py: sessionCookie y CsrfToken por operación"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "§4.6 checks/auth_surface.py: x-veridicus-roles en toda operación salvo login, logout y me"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "§4.6 sin DELETE ni PUT; única PATCH /users/{user_id}"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "§4.12 checks/datetime_format.py con el formato de format/datetime.v1.yaml"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "§4.8 checks/veracity.py: sin términos de C8 ni categorías prohibidas; enum y rótulos exactos"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "§4.10 checks/synthetic.py: synthetic, mentions contra catálogo y patrones de cédula y radicado"
+    },
+    {
+      "id": "NFR12.2",
+      "status": "OK",
+      "target": "§4.10 gitleaks en pre-commit y CI"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "§2 y §4.13 checks/ como módulos guardia con 100 % de ramas; 80 % de líneas en el paquete"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "§4.13 mypy --strict y ruff check sin errores"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "§4.12 checks/naming.py: snake_case ASCII, code dominio.motivo, enums del PRD exactos"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "§4.12 checks/metrics.py: prefijo veridicus_ y etiquetas sin texto libre"
+    }
+  ]
+}

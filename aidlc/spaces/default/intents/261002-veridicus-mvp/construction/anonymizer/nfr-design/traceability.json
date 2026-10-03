@@ -1,0 +1,284 @@
+{
+  "stage": "nfr-design",
+  "unit": "anonymizer",
+  "upstream_ids": [
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.1",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR9.1",
+    "NFR8.1",
+    "NFR10.1",
+    "NFR10.4",
+    "NFR10.7",
+    "NFR6.1",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR1.4",
+    "NFR1.5",
+    "NFR1.6",
+    "NFR1.7",
+    "NFR1.8",
+    "NFR1.9",
+    "NFR1.10",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR11.1",
+    "NFR12.1",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1"
+  ],
+  "coverage": [
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "observability-design §1: una línea por llamada con campos permitidos y reason"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "observability-design §1: niveles por resultado y correlación por X-Request-Id"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "observability-design §2: métricas veridicus_anonymizer_* más failed_closed_total por reason"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "performance-design §2: google-re2 lineal, normalización lineal y prueba perf"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "performance-design §2: restauración con un patrón re2 y diccionario; prueba perf"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "performance-design §1: presupuesto por tramo de 250 ms incluida la comprobación final"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "performance-design §1: fail_after de 2 s sobre el enmascarado; falla cerrada"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "performance-design §4: nivel 2 con --model-gateway anonymizer en el PR de habilitación"
+    },
+    {
+      "id": "NFR9.1",
+      "status": "OK",
+      "target": "performance-design §3: lotes de 32 y ≤ 6 s de enmascarado para 1 MB"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "performance-design §5: pico de RSS ≤ 256 MiB con 4 llamadas y limits con 20 % de margen"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "reliability-design §1: máquina de estados con falla cerrada en cada rama y 100 % de ramas"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "reliability-design §2: un intento y plazo total con anyio.fail_after (R-04)"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "reliability-design §5: validación al arrancar y /readyz sin conexiones salientes"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "reliability-design §4: restauración por cadenas hoja con prueba de propiedad sobre JSON"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "reliability-design §6: nivel 2 en el PR de habilitación; reindexación y recalibración si cambian los embeddings"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "reliability-design §6: temperatura 0, seed y cuerpo enmascarado determinista por P1 = A"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "scalability-design §2: semáforo de 4 tomado antes de leer el cuerpo; 503 anonymizer.busy"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "scalability-design §3: tabla y NumberingPlan por llamada; numeración estable derivada de la lista"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "scalability-design §4: corrida de carga de 50 sesiones con el proxy en el PR de habilitación"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design §5: política veridicus-anonymizer-disabled-by-default con control negativo; apagado por defecto"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "security-design §10: scripts/check-provider-adr.sh con la sección «Seudónimos estables» añadida por P1 = A"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "security-design §2: enmascarado sobre cadenas decodificadas y comprobación final del cuerpo exacto; propiedades con escapes"
+    },
+    {
+      "id": "NFR1.4",
+      "status": "OK",
+      "target": "security-design §2: embed pasa por la misma cadena de enmascarado y comprobación final"
+    },
+    {
+      "id": "NFR1.5",
+      "status": "OK",
+      "target": "security-design §5: veridicus-egress-only-anonymizer con los casos de R-02 (sin to, namespaceSelector, hostNetwork, sin denegación)"
+    },
+    {
+      "id": "NFR1.6",
+      "status": "OK",
+      "target": "security-design §9: módulo libs/model_gateway/anonymizer_route.py con 100 % de ramas"
+    },
+    {
+      "id": "NFR1.7",
+      "status": "OK",
+      "target": "security-design §10: verificación manual de solo lectura con python o bash de la imagen"
+    },
+    {
+      "id": "NFR1.8",
+      "status": "OK",
+      "target": "security-design §6: rutas, campos y 4 cabeceras salientes permitidas"
+    },
+    {
+      "id": "NFR1.9",
+      "status": "OK",
+      "target": "security-design §5: política veridicus-anonymizer-ingress con controles negativos"
+    },
+    {
+      "id": "NFR1.10",
+      "status": "OK",
+      "target": "security-design §4: prueba residual con lista vacía y tasa en out/anonymizer-residual.json"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "security-design §10: Escenario A con variante de revelar nombres en nivel 2"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "security-design §10: familia del juez externo distinta de la del generador"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design §8: MaskTable y NumberingPlan vaciados en finally"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "observability-design §1: formateador de lista blanca y prueba canary"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "security-design §6: HTTPS, TLS ≥ 1.2, verificación y sin redirecciones"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "security-design §6: credencial por secretKeyRef en SecretStr"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "security-design §7: límites del catálogo de U1 con lectura por bloques"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "security-design §7: Problem Details con los seis code y detail del catálogo"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "security-design §5: política veridicus-anonymizer-hardening"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "security-design §4: ConfigMap readOnly con SHA-256 y schema_version"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design §10: cabeceras X-Veridicus-Masking-Rules y X-Veridicus-Model y model_digest"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "logical-components §5: fixtures del catálogo de U1 con 0 hallazgos"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "logical-components §5: MockTransport, servidor HTTPS local con trustme y pytest-socket"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "logical-components §5: render sin nvidia.com/gpu en el proxy"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "logical-components §5: ≥ 80 % de líneas en services/anonymizer-proxy"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "logical-components §5: 100 % de ramas en domain, application, anonymizer_route y AnonymizerGateway (R-06)"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "logical-components §5: glosario y detail desde el catálogo"
+    }
+  ]
+}

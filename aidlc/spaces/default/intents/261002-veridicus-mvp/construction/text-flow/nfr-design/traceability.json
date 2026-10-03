@@ -1,0 +1,428 @@
+{
+  "stage": "nfr-design",
+  "unit": "text-flow",
+  "upstream_ids": [
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR3.12",
+    "NFR9.1",
+    "NFR9.2",
+    "NFR9.3",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR8.8",
+    "NFR8.9",
+    "NFR8.10",
+    "NFR8.11",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.19",
+    "NFR10.20",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR6.1",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR4.3",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR12.1",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR14.1",
+    "NFR14.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "performance-design §1: camino crítico con presupuesto por tramo y calentamiento del juez"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "performance-design §3 y §5: transacción corta con bloqueo de la sesión; API sin colas ni indexación"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "performance-design §3: índices (session_id, change_seq) para el sondeo"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "performance-design §3: búsqueda exacta filtrada por version_id con B-tree"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "reliability-design §4: deadline_at proporcional a la cola con tope"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "reliability-design §4: hilo de plazos cada 15 s"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "performance-design §6: refetchInterval de 2 000 o 15 000 ms"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "performance-design §1 y observability-design §3: sondeo de 2 s y prueba Playwright de 3 s"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "OK",
+      "target": "performance-design §5 y §6: procesos separados y tarjetas con clave estable"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "reliability-design §9: objetivo de smoke.sh sin fallos de U4"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "performance-design §2: conteo con count_tokens y límites de bloque, instrucciones y salida"
+    },
+    {
+      "id": "NFR3.12",
+      "status": "OK",
+      "target": "performance-design §2: turn.error.system sin llamar al juez"
+    },
+    {
+      "id": "NFR9.1",
+      "status": "OK",
+      "target": "performance-design §4: presupuesto de indexación de 1 MB"
+    },
+    {
+      "id": "NFR9.2",
+      "status": "OK",
+      "target": "performance-design §4: pasajes de 1 000 caracteres"
+    },
+    {
+      "id": "NFR9.3",
+      "status": "OK",
+      "target": "performance-design §4: lotes de 32 con timeout de 30 s"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "performance-design §7: una ranura y ventana de 12 288 tokens"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "performance-design §7: lotes de 32"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "performance-design §7: un turno a la vez sin caché de pasajes"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "performance-design §7: segmentación y envío por lotes"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "reliability-design §9: objetivo de la corrida de carga"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "reliability-design §9: objetivo de la prueba de humo"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "scalability-design §1: una pareja juez y semantic-agent con una ranura"
+    },
+    {
+      "id": "NFR8.8",
+      "status": "OK",
+      "target": "scalability-design §1: capacidad de 60 turnos dentro del plazo"
+    },
+    {
+      "id": "NFR8.9",
+      "status": "OK",
+      "target": "scalability-design §3: costo por versión, no por total"
+    },
+    {
+      "id": "NFR8.10",
+      "status": "OK",
+      "target": "scalability-design §2: grupos de consumidores e idempotencia por (turn_id, attempt)"
+    },
+    {
+      "id": "NFR8.11",
+      "status": "OK",
+      "target": "scalability-design §3: XDEL y fallidos recortados a 1 000"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "reliability-design §1: tabla de timeouts"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "reliability-design §3: XACK tras el efecto, XAUTOCLAIM a 240 s y 3 entregas"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "reliability-design §2: tratamiento por falla con reintento acotado (P1 = A)"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "reliability-design §4: revisión de plazos cubre turnos huérfanos"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "reliability-design §5: indexación todo o nada"
+    },
+    {
+      "id": "NFR10.19",
+      "status": "OK",
+      "target": "reliability-design §6: readyz por proceso y supervisión de hilos"
+    },
+    {
+      "id": "NFR10.20",
+      "status": "OK",
+      "target": "reliability-design §7: reintento creciente y cursor por sesión sin huecos"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "reliability-design §8: barrido del umbral con su reporte en el PR"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "reliability-design §8: temperatura 0, semilla y una ranura"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "reliability-design §8 y security-design §2: gramática JSON y validación de C6"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "OK",
+      "target": "reliability-design §8 y security-design §2: orden de pasajes como parámetro"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "reliability-design §8: instrucciones de CoT en español de 20 a 80 palabras"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "observability-design §2: métricas y punto de medición"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "observability-design §1: formateador con lista blanca"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "observability-design §1: eventos por transición con message_id"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "observability-design §1: WARNING por code y ERROR por dependencia caída"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design §1: ModelGateway solo con URL internas"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "security-design §1: sin descargas en ejecución bajo la NetworkPolicy de U2"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "security-design §2: passage_ids dentro de los recuperados"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "security-design §4: datos JSON en user e invariancia de alertas"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "security-design §3: reporte declara las familias de modelos"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design §7: validación de carga, turno y C2–C4"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design §2 y §4: system desde archivo y datos JSON en user"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design §3: ConfigMap readOnly con SHA-256"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "security-design §2: alerta armada por el sistema y C7 en tres puntos"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "security-design §2: escáner C8 sobre la CoT"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "security-design §5: rol veridicus_judge_ro"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "security-design §6: lista blanca y prueba con cadena centinela"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "security-design §6: llama-server sin registro de peticiones"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "security-design §6: XDEL y fallidos solo con identificadores"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "security-design §7: dependencia authorize de U3"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "security-design §7: corte de la carga a 1 048 576 bytes con 413"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "security-design §3: prompt_sha256 y model_digest en C3"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "security-design §7: Problem Details sin SQL ni texto del modelo"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design §8: tablas en AuditConvention"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "security-design §5: INSERT y SELECT sin UPDATE ni DELETE"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "security-design §8: umbral solo en el cargador y por PR"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "security-design §8: fixtures con el catálogo de U1"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "logical-components §5: fakes deterministas y servicios reales en contenedor"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "logical-components §5: metas medidas con values-cpu.yaml"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "logical-components §5: 80 % de líneas por paquete"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "logical-components §5: 100 % de ramas en los módulos guardia"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "logical-components §5: textos solo del catálogo de U1"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "logical-components §5: marca de CoT fuera del español en nivel 2"
+    }
+  ]
+}

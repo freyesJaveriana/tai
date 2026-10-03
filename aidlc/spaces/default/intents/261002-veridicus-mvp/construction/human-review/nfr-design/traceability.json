@@ -1,0 +1,308 @@
+{
+  "stage": "nfr-design",
+  "unit": "human-review",
+  "upstream_ids": [
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR7.1",
+    "NFR8.1",
+    "NFR1.1",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR11.4",
+    "NFR12.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR15.1",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR15.4",
+    "NFR15.5",
+    "NFR2.1",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR13.3",
+    "NFR14.1"
+  ],
+  "coverage": [
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "performance-design §1: camino de la decisión con presupuesto por tramo y ≤ 6 sentencias"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "performance-design §3: cot-views con INSERT ON CONFLICT sin bloqueos"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "performance-design §1: rechazos que cortan antes de escribir, con rollback"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "performance-design §2: consulta única del estado vigente con número fijo de sentencias"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "performance-design §2: operaciones de C11 en una transacción, p95 ≤ 150 ms"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "performance-design §3: /metrics desde memoria sin consultar la base"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "performance-design §4: mutación sin actualización optimista y sondeo incremental"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "performance-design §4: CoT desplegada al instante y cot-views en segundo plano"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "performance-design §5: tiempo de servidor ≤ 9 s por sesión y horas del reloj del servidor"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "performance-design §5: tope de RSS de U5 ≤ 32 MiB medido en perf"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design §1: import-linter sin clientes de red y NetworkPolicy de U2"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design §2: authorize de U3 con puerto suggestion_owner y actor del Principal"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design §2: anti-CSRF de U3 en ambas rutas"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design §3: CotView del mismo actor comprobado en el servidor"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "security-design §3: esquema sin campos de la IA y sin UPDATE sobre ReviewSuggestion"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "security-design §4: límites del catálogo de U1, lectura acotada a 64 KiB y str.strip()"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "security-design §6: lista blanca de logs y hide_parameters"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "security-design §6: Problem Details con detail del catálogo, sin texto recibido"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "security-design §6: etiquetas de métricas validadas contra su patrón"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "security-design §3: rótulos del catálogo y scan con literal_sources"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design §5: solo inserción y CHECK de nota y reformulación"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "security-design §5: nada entra en una ronda bloqueada"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "security-design §5: permisos por columna, trigger e índice único parcial"
+    },
+    {
+      "id": "NFR11.4",
+      "status": "OK",
+      "target": "security-design §5: regla estática de U3 sobre el umbral"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "security-design §6: fixtures con el catálogo sintético de U1"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "scalability-design §2: carga de 10× con 250 sugerencias y 10 rondas"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "scalability-design §3: índices y EXPLAIN sin Seq Scan"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "scalability-design §4: coordinación en la base y límite de la razón AIR por réplica"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "scalability-design §5: historial sin purga < 50 MB"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "scalability-design §5: cardinalidad acotada y retiro de series al bloquear"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "reliability-design §6: review.spec.ts de punta a punta en nivel 3"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "reliability-design §2: decide en una UnitOfWork con métricas en after_commit"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "reliability-design §2: bloqueo sesión → ronda antes del estado vigente"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "reliability-design §2: lock_round atómico y open_round(for_update=True) con bump"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "reliability-design §2: propose idempotente bajo el bloqueo de sesión de U4"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "reliability-design §2: cot-views idempotente con índice único"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "reliability-design §3: statement_timeout y lock_timeout de 2 s con 503"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "reliability-design §3: decisiones sin reintento automático; cot-views con 3 reintentos"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "reliability-design §3: fallo de métricas aislado y reconstrucción al arrancar"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "reliability-design §4: /readyz y configuración validada al arrancar"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "observability-design §2: tres métricas con etiquetas acotadas"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "observability-design §2: ventana W = 8 sobre la ronda vigente"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "observability-design §2: función pura dismissal_window probada por tabla"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "observability-design §2: series de ejemplo para promtool de U2; regla solo propone"
+    },
+    {
+      "id": "NFR15.5",
+      "status": "OK",
+      "target": "observability-design §1: eventos estructurados con lista blanca de identificadores"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "logical-components §5: pruebas en CPU sin modelos"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "logical-components §5: 80 % de líneas bloqueante"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "logical-components §5: 100 % de ramas en state_machine y effective_state"
+    },
+    {
+      "id": "NFR13.3",
+      "status": "OK",
+      "target": "logical-components §5: contratos de import-linter con control negativo"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "logical-components §5: textos del catálogo y glosario"
+    }
+  ]
+}

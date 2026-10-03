@@ -1,0 +1,386 @@
+{
+  "stage": "nfr-design",
+  "unit": "forensic-report",
+  "upstream_ids": [
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR3.6",
+    "NFR3.7",
+    "NFR3.8",
+    "NFR3.9",
+    "NFR3.10",
+    "NFR3.11",
+    "NFR7.1",
+    "NFR7.2",
+    "NFR7.3",
+    "NFR8.1",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR10.1",
+    "NFR10.2",
+    "NFR10.3",
+    "NFR10.4",
+    "NFR10.5",
+    "NFR10.6",
+    "NFR10.7",
+    "NFR10.8",
+    "NFR10.9",
+    "NFR10.10",
+    "NFR10.11",
+    "NFR11.1",
+    "NFR11.2",
+    "NFR11.3",
+    "NFR11.4",
+    "NFR11.5",
+    "NFR11.6",
+    "NFR12.1",
+    "NFR14.1",
+    "NFR8.2",
+    "NFR8.3",
+    "NFR8.4",
+    "NFR8.5",
+    "NFR8.6",
+    "NFR8.7",
+    "NFR8.8",
+    "NFR10.12",
+    "NFR10.13",
+    "NFR10.14",
+    "NFR10.15",
+    "NFR10.16",
+    "NFR10.21",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.19",
+    "NFR10.20",
+    "NFR15.1",
+    "NFR15.4",
+    "NFR15.2",
+    "NFR15.3",
+    "NFR2.1",
+    "NFR10.22",
+    "NFR13.1",
+    "NFR13.2",
+    "NFR13.3",
+    "NFR14.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "performance-design §3: finalizar con bump, UPDATE condicional e historial en una transacción, p95 ≤ 200 ms"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "performance-design §1: camino crítico de la consolidación con presupuesto total p95 ≤ 1 500 ms y máximo ≤ 2 000 ms"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "performance-design §1: presupuesto por tramo y ≤ 10 sentencias contadas por la prueba perf"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "performance-design §3: descarga leída entera, SHA-256 comparado antes del primer byte"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "performance-design §3: lista de versiones con una consulta por índice único"
+    },
+    {
+      "id": "NFR3.6",
+      "status": "OK",
+      "target": "performance-design §2: rechazos decididos antes del render, 0 filas y 0 archivos"
+    },
+    {
+      "id": "NFR3.7",
+      "status": "OK",
+      "target": "performance-design §2: escaneo antes del SHA-256 y del almacén, sin temporal"
+    },
+    {
+      "id": "NFR3.8",
+      "status": "OK",
+      "target": "performance-design §3: corregir y descartar con bump y operación de C11, sin render"
+    },
+    {
+      "id": "NFR3.9",
+      "status": "OK",
+      "target": "performance-design §4: mutación con retry false, envío único y cursor congelado del diálogo"
+    },
+    {
+      "id": "NFR3.10",
+      "status": "OK",
+      "target": "performance-design §4: botón según el sondeo de U4 y la recarga tras decidir"
+    },
+    {
+      "id": "NFR3.11",
+      "status": "OK",
+      "target": "performance-design §4: enlace de descarga y comparación con X-Veridicus-SHA256"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "performance-design §5: arnés de MTTV de solo lectura con media < 600 s"
+    },
+    {
+      "id": "NFR7.2",
+      "status": "OK",
+      "target": "performance-design §5: tiempo de servidor ≤ 1,7 s medido con las corridas perf"
+    },
+    {
+      "id": "NFR7.3",
+      "status": "OK",
+      "target": "performance-design §5: marcas del reloj inyectable y función pura mttv"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "performance-design §6: un solo búfer de bytes, picos de RSS ≤ 48/96/16 MiB"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "security-design §1: import-linter sin clientes de red y NetworkPolicy de U2"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "security-design §1: política Kyverno de montaje único del PVC"
+    },
+    {
+      "id": "NFR10.1",
+      "status": "OK",
+      "target": "security-design §2: authorize, dueño en el servidor y cuerpo cerrado con expected_cursor"
+    },
+    {
+      "id": "NFR10.2",
+      "status": "OK",
+      "target": "security-design §2: rol analista sin owner-only en lista y descarga"
+    },
+    {
+      "id": "NFR10.3",
+      "status": "OK",
+      "target": "security-design §2: anti-CSRF de U3 en las cuatro rutas que escriben"
+    },
+    {
+      "id": "NFR10.4",
+      "status": "OK",
+      "target": "security-design §5: cabeceras de descarga y vista como texto"
+    },
+    {
+      "id": "NFR10.5",
+      "status": "OK",
+      "target": "security-design §5: ruta calculada desde el UUID, O_NOFOLLOW y comparación con storage_path"
+    },
+    {
+      "id": "NFR10.6",
+      "status": "OK",
+      "target": "security-design §6: sin root, umask 077, 0700 y 0400, comprobado en readyz"
+    },
+    {
+      "id": "NFR10.7",
+      "status": "OK",
+      "target": "security-design §7: lista blanca del formateador y centinela en logs"
+    },
+    {
+      "id": "NFR10.8",
+      "status": "OK",
+      "target": "security-design §7: Problem Details del catálogo sin texto del caso"
+    },
+    {
+      "id": "NFR10.9",
+      "status": "OK",
+      "target": "security-design §3: escaneo C8 del Markdown completo antes del SHA-256"
+    },
+    {
+      "id": "NFR10.10",
+      "status": "OK",
+      "target": "security-design §7: etiquetas de enum y centinela en /metrics"
+    },
+    {
+      "id": "NFR10.11",
+      "status": "OK",
+      "target": "security-design §2: copia de trabajo solo estados y notas, 422 y SHA-256 antes y después"
+    },
+    {
+      "id": "NFR11.1",
+      "status": "OK",
+      "target": "security-design §4: solo inserción, AuditConvention y restricciones"
+    },
+    {
+      "id": "NFR11.2",
+      "status": "OK",
+      "target": "security-design §3: entrada única, quién y cuándo del servidor y cursor de lo revisado (P1 = A)"
+    },
+    {
+      "id": "NFR11.3",
+      "status": "OK",
+      "target": "security-design §4: SHA-256 recalculado en cada descarga con compare_digest"
+    },
+    {
+      "id": "NFR11.4",
+      "status": "OK",
+      "target": "security-design §4: O_EXCL, enlace sin reemplazo y 0400"
+    },
+    {
+      "id": "NFR11.5",
+      "status": "OK",
+      "target": "security-design §4: versión N+1 con supersedes y la anterior intacta"
+    },
+    {
+      "id": "NFR11.6",
+      "status": "OK",
+      "target": "security-design §4: descarte con quién y cuándo, sin versión"
+    },
+    {
+      "id": "NFR12.1",
+      "status": "OK",
+      "target": "security-design §8: fixtures sintéticos y evaluation/out ignorado"
+    },
+    {
+      "id": "NFR14.1",
+      "status": "OK",
+      "target": "security-design §8: textos del catálogo de U1 y fechas ISO 8601 UTC"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "scalability-design §2: bloqueo por sesión y executor de 2 hilos, 3 consolidaciones p95 ≤ 2 000 ms"
+    },
+    {
+      "id": "NFR8.3",
+      "status": "OK",
+      "target": "scalability-design §3: costo independiente del número de versiones, 1 000 filas"
+    },
+    {
+      "id": "NFR8.4",
+      "status": "OK",
+      "target": "scalability-design §3: índices únicos y EXPLAIN sin Seq Scan"
+    },
+    {
+      "id": "NFR8.5",
+      "status": "OK",
+      "target": "scalability-design §3: peor caso ≤ 2 MiB y PVC de 1 GiB"
+    },
+    {
+      "id": "NFR8.6",
+      "status": "OK",
+      "target": "scalability-design §4: replicas 1 y Recreate con política Kyverno"
+    },
+    {
+      "id": "NFR8.7",
+      "status": "OK",
+      "target": "reliability-design §8: report.spec.ts de punta a punta, incluido view_outdated"
+    },
+    {
+      "id": "NFR8.8",
+      "status": "OK",
+      "target": "reliability-design §6: verify_store tras la suite sin huérfanos gracias a P2 = A"
+    },
+    {
+      "id": "NFR10.12",
+      "status": "OK",
+      "target": "reliability-design §1: una UnitOfWork con fallos inyectados en cada paso"
+    },
+    {
+      "id": "NFR10.13",
+      "status": "OK",
+      "target": "reliability-design §1: open_round for_update con bump previo, una gana"
+    },
+    {
+      "id": "NFR10.14",
+      "status": "OK",
+      "target": "reliability-design §1: todas las escrituras de la sesión empiezan con bump"
+    },
+    {
+      "id": "NFR10.15",
+      "status": "OK",
+      "target": "reliability-design §2: archivo antes que fila y limpieza síncrona"
+    },
+    {
+      "id": "NFR10.16",
+      "status": "OK",
+      "target": "reliability-design §4: barrido al arrancar con margen de 300 s como respaldo"
+    },
+    {
+      "id": "NFR10.21",
+      "status": "OK",
+      "target": "reliability-design §1: finalizar con bump y UPDATE condicional"
+    },
+    {
+      "id": "NFR10.17",
+      "status": "OK",
+      "target": "reliability-design §3: plazos de base, bloqueo, volumen y consolidación con CancelToken (P2 = A)"
+    },
+    {
+      "id": "NFR10.18",
+      "status": "OK",
+      "target": "reliability-design §5: sin reintentos automáticos, tampoco ante view_outdated"
+    },
+    {
+      "id": "NFR10.19",
+      "status": "OK",
+      "target": "reliability-design §4: readyz con configuración, permisos, espacio y barrido"
+    },
+    {
+      "id": "NFR10.20",
+      "status": "OK",
+      "target": "reliability-design §6: verify_store y Job de solo lectura"
+    },
+    {
+      "id": "NFR15.1",
+      "status": "OK",
+      "target": "observability-design §2: métricas de consolidación, descargas, huérfanos y limpiezas"
+    },
+    {
+      "id": "NFR15.4",
+      "status": "OK",
+      "target": "observability-design §2: histograma de MTTV con la función pura"
+    },
+    {
+      "id": "NFR15.2",
+      "status": "OK",
+      "target": "observability-design §1: eventos estructurados con lista blanca"
+    },
+    {
+      "id": "NFR15.3",
+      "status": "OK",
+      "target": "observability-design §3: regla del 80 % del volumen y readyz bajo 50 MiB"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "logical-components §5: pruebas en CPU sin modelos"
+    },
+    {
+      "id": "NFR10.22",
+      "status": "OK",
+      "target": "logical-components §5: render determinista con golden file y Hypothesis"
+    },
+    {
+      "id": "NFR13.1",
+      "status": "OK",
+      "target": "logical-components §5: 80 % de líneas en CI"
+    },
+    {
+      "id": "NFR13.2",
+      "status": "OK",
+      "target": "logical-components §5: 100 % de ramas en los módulos guardia"
+    },
+    {
+      "id": "NFR13.3",
+      "status": "OK",
+      "target": "logical-components §5: import-linter con control negativo"
+    },
+    {
+      "id": "NFR14.2",
+      "status": "OK",
+      "target": "logical-components §5: identificadores del glosario"
+    }
+  ]
+}

@@ -1,9 +1,11 @@
 # Veridicus — Diálogos para la Memoria
 
-Proyecto de curso: un sistema de entrevista asistida por IA que contrasta, en Kubernetes
-y de forma soberana, el relato de un compareciente frente a un marco de verdad
-documental, para apoyar (no reemplazar) al analista humano en procesos de justicia
-transicional en Colombia.
+Proyecto de curso: un sistema de entrevista asistida por IA que detecta, en Kubernetes,
+contradicciones dentro del relato de un compareciente sobre hechos centrales, cada una con
+dos citas literales verificadas, para apoyar (no reemplazar) al analista humano en procesos
+de justicia transicional en Colombia. Desde el cambio 01 (DT27, 2026-10-27) es además el
+analizador de incoherencias del Trabajo de Grado *Diálogos para la Memoria*
+([`docs/iteracion2.md`](./docs/iteracion2.md)).
 
 ---
 
@@ -64,7 +66,7 @@ revisión explícita.
 tai/
 ├── pvb.md              ← Entregable 1 (Product Vision Board)
 ├── plan-aidlc.md         plan propio para AI-DLC v2.10.0: de PVB/PRD a unidades y tareas
-├── docker/               contenedor aislado tai-aidlc (Claude Code + AI-DLC), ver docker/README.md
+├── docker/               contenedor aislado (tai-aidlc; tg-veridicus desde el cambio 01), ver docker/README.md
 ├── docs/                 insumos del PRD
 │   ├── pvb.md             copia del PVB
 │   ├── overview.md        panorama del dominio (justicia transicional, PLN forense)
@@ -72,7 +74,8 @@ tai/
 │   ├── icp.md             perfil de cliente ideal y buyer personas
 │   ├── critica.md         investigación adversarial
 │   ├── limite-autonomia.md  reglas AUTONOMIA-01..05 (PRD Segmento 6) para la memoria de AI-DLC
-│   └── iteracion1.md      bitácora del Paso 0 (análisis de conflictos, aprobado por el autor)
+│   ├── iteracion1.md      bitácora del Paso 0 (análisis de conflictos, aprobado por el autor)
+│   └── iteracion2.md      análisis de impacto del cambio 01 (analizador de incoherencias del TG), aprobado
 ├── specs/
 │   └── prd.md           ← Entregable 2 (Product Requirements Document, 13 segmentos)
 ├── research/             corpus documental citado por docs/ y specs/
@@ -94,7 +97,13 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 [`aidlc/spaces/default/intents/261002-veridicus-mvp/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/)
 (`I/` abajo); cada etapa se cierra con aprobación humana y un commit `aidlc(<etapa>): …`.
 
-**Etapa cerrada más reciente:** Infrastructure Design (2026-10-03). **En curso:** Code Generation, solo Parte 1 (plan de tareas): el plan de U1 contracts (Bolt B1 «Contratos») está listo; siguen los planes de las demás unidades.
+**Cambio 01 (2026-10-30):** Veridicus pasa a ser el analizador de incoherencias del TG (DT27). El
+análisis de impacto y sus decisiones están en [`docs/iteracion2.md`](./docs/iteracion2.md); PVB, PRD
+(iteración 6), reglas AUTONOMIA y `plan-aidlc.md` ya están corregidos. El flujo volvió a
+**Requirements Analysis (2.3)** para revisar en este intent las etapas 2.3 a 3.5; la tabla de abajo
+muestra lo aprobado **antes** del cambio, que cada etapa revisada actualizará. El plan de U1 nunca se
+aprobó y se regenerará con el contrato común; desde entonces, el autor elige `Approve Plan` y se
+construye por Bolts.
 
 | Fase | Etapa | Estado | Documentos principales |
 |---|---|---|---|
@@ -119,10 +128,10 @@ están en §6 de cada `security-requirements.md` y en las tablas «Precisiones a
 
 ### Qué es Veridicus, en una línea
 
-> Un sistema multiagente de entrevista asistida por IA que contrasta en tiempo real el
-> relato de un compareciente frente a un marco de verdad documental y señala
-> incongruencias afectivo-semánticas —nunca veredictos de veracidad— para analistas de
-> justicia transicional, desplegado de forma soberana en un clúster Kubernetes local.
+> Un sistema multiagente de entrevista asistida por IA que detecta contradicciones
+> dentro del relato de un compareciente sobre hechos centrales, con dos citas literales
+> verificadas —nunca veredictos de veracidad—, para analistas de justicia transicional,
+> desplegado en un clúster Kubernetes local del que ningún dato sin seudonimizar sale.
 
 Ver `pvb.md` (visión) y `specs/prd.md` (los 13 segmentos de requisitos, incluido el
 alcance MoSCoW del MVP académico) para el detalle completo.

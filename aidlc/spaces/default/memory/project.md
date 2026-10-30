@@ -49,12 +49,9 @@
 
 ## Decided
 
-- **QUÉ:** Veridicus, módulo de entrevista forense que contrasta testimonios orales de comparecientes con un marco de verdad documental y propone hallazgos de incongruencia con su Cadena de Pensamiento (CoT); la fuente única de requisitos es `specs/prd.md` (con `pvb.md`), nunca una copia.
-- **POR QUÉ:** reducir la fatiga analítica y la revictimización en justicia transicional (Colombia) sin emitir veredictos de veracidad y sin que datos sensibles salgan del clúster local (PRD Segmentos 2 y 6).
-- **CÓMO:** microservicios en Kubernetes local (todo funciona en CPU; GPU solo como perfil opcional para evaluación y demo), Whisper local, PostgreSQL + pgvector con CloudNativePG, cola Redis asíncrona, GitOps con PR y evidencia; entregado por los módulos 6–8 del curso (PRD Segmento 13).
-
-<!-- Decisions made in earlier stages that should not be re-asked. -->
-<!-- Format: DECIDED: [decision] (Stage [slug], [date]) -->
+- **QUÉ:** Veridicus es el **analizador de incoherencias** del Trabajo de Grado *Diálogos para la Memoria* (DT27): detecta contradicciones dentro del relato sobre hechos centrales, con dos citas literales verificadas, y las propone como sugerencias de revisión en la consola del analista. La fuente única de requisitos es `specs/prd.md` (con `pvb.md`); el contrato común del analizador vive en el repositorio principal del TG y aquí se implementa en U1. El cambio y sus decisiones (P1–P18) están en `docs/iteracion2.md`.
+- **POR QUÉ:** el mismo código sirve al producto del curso y a la app `sistema` del TG (DT20), sin veredictos de veracidad (DT15) y sin que salga del clúster ningún dato sin seudonimizar (DT18).
+- **CÓMO:** biblioteca de Python con línea de comandos sin infraestructura (DT26), que `semantic-agent` envuelve; modelos comerciales y locales por papel con perfiles de ejecución aprobados por PR (DT21); microservicios en Minikube local para el producto; evaluación de modelos locales por lotes en el clúster ZINE (SLURM, CPU), con scripts que el humano revisa y lanza. El repositorio es público: nada de `/insumos` entra, salvo el contrato común y los ID de decisión.
 
 ## Scope Overrides
 
@@ -154,3 +151,4 @@
 - Sin Alertmanager, Loki ni redis_exporter: el MVP no notifica a nadie y cada pieza cuesta memoria en una sola máquina (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:429a7a453df1efc4ff60e77eb02977fa9cbca5c45d59291588ca42d3a179d1af -->
 - P1 («la máquina demo tiene 32 gb… deja 4 gb al sistema») se aplicó como Minikube de 28 GiB en la máquina de demostración, y P2 = A extendió la misma regla a la de desarrollo (20 GiB) (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:1e40f89cbf06a267c24bb154982585581d170f31d166e43d7847f9580d5a8838 -->
 - VERIDICUS_TRUSTED_PROXY toma todo el pod CIDR porque solo ingress-nginx alcanza el puerto 8080 (learned 2026-10-03) <!-- cid:261002-veridicus-mvp:infrastructure-design:d9393e3a6165be61fc11990d04fb6d02a81a59abf14799b339cccbc799aa9eb8 -->
+- El cambio 01 (DT27, `docs/iteracion2.md`) supera las reglas aprendidas sobre el marco de verdad, el umbral de similitud, el Hecho No Documentado, el Paquete de Contexto de Traspaso, las tres calificaciones, la indexación de escenarios, los *embeddings*, el indicio afectivo, el orden «flujo de texto primero» y la evaluación de nivel 2 por `kubectl port-forward`; donde contradigan el cambio, manda el cambio. (2026-10-30)

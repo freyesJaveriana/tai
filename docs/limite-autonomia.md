@@ -2,7 +2,12 @@
 
 > Origen: extensión de AI-DLC v1 del módulo 5 (`.aidlc-rule-details/extensions/autonomia/`),
 > portada a v2.10.0. En v2 estas reglas viven en `aidlc/spaces/default/memory/team.md`
-> (ver `plan-aidlc.md`, Paso 0); este archivo es la fuente versionada de donde se copian.
+> ver `plan-aidlc.md`, Paso 0); este archivo es la fuente versionada de donde se copian.
+>
+> **Cambio 01 (2026-10-30, DT27, `docs/iteracion2.md`):** AUTONOMIA-04 y AUTONOMIA-05 se
+> reescriben porque Veridicus pasa a ser el analizador de incoherencias del Trabajo de Grado:
+> modelos comerciales solo tras el anonimizador y hallazgos con dos citas verificadas.
+> AUTONOMIA-01, 02 y 03 no cambian de regla; ganan una viñeta de verificación cada una (01 y 03).
 
 ## Overview
 Estas reglas son restricciones bloqueantes en todas las fases de AI-DLC (v2.x). No son
@@ -30,6 +35,8 @@ es un pull request con evidencia adjunta, nunca un `kubectl apply` autónomo.
   equivalente sin un paso previo de aprobación humana
 - Toda tarea que toque un entorno compartido produce un artefacto revisable (manifiesto,
   chart, script de migración, PR), no un cambio directo
+- Ningún plan de tareas envía trabajos al clúster ZINE ni a otro clúster de cómputo: los
+  scripts `sbatch` y su paquete de entrada son artefactos revisables que el humano lanza (DT26)
 
 ---
 
@@ -55,6 +62,8 @@ consolidar el reporte forense final sin la validación explícita de un analista
 **Verification**:
 - Todo hallazgo generado por la IA se modela como «sugerencia de revisión» con estado
   editable (pendiente / aceptada / editada / descartada) y el actor que lo cambia es humano
+- El escaneo de etiquetas de veracidad cubre las observaciones del hallazgo y las
+  observaciones al conductor; solo excluye las dos citas literales del testimonio
 - El paso de consolidación del reporte exige una acción explícita del analista y queda
   registrado quién la hizo y cuándo
 - Existe al menos una prueba automatizada que falla si la salida de la IA o la interfaz
@@ -62,36 +71,46 @@ consolidar el reporte forense final sin la validación explícita de un analista
 
 ---
 
-## Rule AUTONOMIA-04: Ningún dato sensible sale del clúster
+## Rule AUTONOMIA-04: Ningún dato sin seudonimizar sale del clúster
 
-**Rule**: (PRD Segmento 6, Principio 3) Ningún componente puede enviar audio crudo,
-transcripciones sin anonimizar, nombres de víctimas o identificadores reales del proceso
-fuera del clúster local. Cualquier llamada opcional a un LLM externo pasa por el servicio de
-anonimización y solo transporta texto depurado.
+**Rule**: (PRD Segmento 6, Principio 3; DT18, DT21) Ningún componente puede enviar fuera del
+clúster local audio crudo, transcripciones sin seudonimizar, nombres de víctimas ni
+identificadores reales del proceso. Un proveedor comercial solo recibe texto que pasó por el
+anonimizador. Si el anonimizador falla, la llamada no sale (falla cerrado). El anonimizador corre
+siempre dentro del clúster y solo es obligatorio delante de destinos externos.
 
 **Verification**:
 - El diseño de aplicación declara, para cada componente, si corre dentro o fuera del clúster
-  y qué datos cruza esa frontera
-- Toda tarea que integre un servicio externo incluye una prueba que verifica que el payload
-  saliente pasó por el anonimizador (sin nombres ni ubicaciones del conjunto de prueba)
-- Existe una tarea que produce la `NetworkPolicy` que niega salida a internet a los pods que
-  manejan datos sin anonimizar (como artefacto revisable, ver AUTONOMIA-01)
+  y qué datos cruzan esa frontera
+- Un destino externo en la configuración de modelos exige el adaptador anonimizador delante;
+  si no lo tiene, el servicio no arranca (prueba de arranque con un control negativo)
+- Toda tarea que integre un proveedor externo incluye una prueba de que el payload saliente
+  pasó por el anonimizador (sin nombres ni ubicaciones del conjunto de prueba) y otra de que,
+  si el anonimizador falla, no sale ninguna llamada
+- Existe una tarea que produce la `NetworkPolicy` que niega la salida a internet a todos los
+  pods salvo al anonimizador, y a este solo hacia los proveedores configurados (artefacto
+  revisable, ver AUTONOMIA-01)
+- Las claves de API viven en un `Secret` que crea el humano; nunca en el repositorio ni en el
+  archivo de configuración
 
 ---
 
-## Rule AUTONOMIA-05: Sin evidencia documental, la IA escala al humano en lugar de inferir
+## Rule AUTONOMIA-05: Sin dos citas verificadas no hay hallazgo
 
-**Rule**: (PRD Segmento 6, Principio 4, y Segmento 7, Journey 4) Toda alerta de
-incongruencia debe mostrar su Cadena de Pensamiento enlazando el fragmento de la
-transcripción con la cita literal y el identificador del documento del marco de verdad.
-Cuando la similitud recuperada está por debajo del umbral configurado, el sistema NO genera
-alerta ni pregunta automática: marca el turno como «Hecho No Documentado» y entrega el
-Paquete de Contexto de Traspaso al analista.
+**Rule**: (PRD Segmento 6, Principio 4; DT04, DT09, DT15) Todo hallazgo de contradicción
+presenta dos citas literales de la misma transcripción, cada una con su turno y su página (si el
+turno la tiene), más el hecho, el tipo y las observaciones. Antes de que el hallazgo salga del
+analizador, una verificación determinista comprueba que cada cita existe en su turno; si el texto
+pasó por el anonimizador, la cita se restaura primero y se verifica después. Una cita que no
+aparece invalida el hallazgo. Un error del analizador nunca deja un resultado parcial. Las
+vaguedades, las emociones, los detalles periféricos y las versiones de terceros no son
+contradicciones.
 
 **Verification**:
-- El modelo de datos de una alerta incluye como campos obligatorios: fragmento de
-  transcripción, cita del documento, ID del documento y traza CoT; una alerta sin ellos es
-  rechazada por validación
-- El umbral de similitud es un parámetro configurable y existe una prueba que, con una
-  entrada por debajo del umbral, verifica que no se emite alerta ni pregunta y sí se emite el
-  paquete de traspaso
+- El esquema de un hallazgo tiene como campos obligatorios `hecho`, `tipo` (uno de `fecha`,
+  `numero`, `lugar`, `persona`, `negacion`, `secuencia`, `otro`), `cita_a`, `cita_b` y
+  `observaciones`; un hallazgo sin cualquiera de ellos se rechaza por validación
+- Existe una prueba con una cita alterada (y otra con una cita en un turno equivocado) que
+  verifica que el hallazgo no sale del analizador
+- Existe una prueba que verifica que `estado: error` implica una lista de hallazgos vacía
+- Existe una prueba de que la cita seudonimizada se restaura antes de verificarse

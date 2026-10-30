@@ -8,7 +8,14 @@ ideas centrales: el agente propone y yo apruebo, las preguntas van en archivos, 
 compuerta por etapa y el trabajo **para justo antes de escribir código**. Usa la línea v2 de
 AI-DLC con sus propios artefactos, en vez de la v1.0.1 de la guía.
 
-> Se ejecuta **dentro del contenedor** `tai-aidlc` (`docker\aidlc.bat`), no en el host.
+> Se ejecuta **dentro del contenedor** (`tai-aidlc` hasta el módulo 5; `tg-veridicus` desde el
+> cambio 01), no en el host.
+
+> **Cambio 01 (2026-10-30, DT27, [`docs/iteracion2.md`](./docs/iteracion2.md)):** Veridicus pasa a
+> ser el analizador de incoherencias del Trabajo de Grado *Diálogos para la Memoria*, y **el alto
+> antes de la Parte 2 se levanta**: cuando el autor revisa el plan de tareas regenerado de una unidad,
+> elige `Approve Plan` y se construye por Bolts. Las etapas aprobadas se revisan en este mismo intent
+> desde 2.3 (P1 = A). Lo que sigue describe el plan vigente; el original del módulo 5 queda en Git.
 
 ---
 
@@ -16,26 +23,27 @@ AI-DLC con sus propios artefactos, en vez de la v1.0.1 de la guía.
 
 ```mermaid
 flowchart LR
-    IN["pvb.md + specs/prd.md<br/>(corregidos)"] --> INC["Inception<br/>2.1 a 2.9"]
-    INC --> U["Unidades + DAG<br/>+ bolt-plan"]
-    U --> CON["Construction por unidad<br/>diseño 3.1 a 3.4"]
-    CON --> CG["3.5 Code Generation<br/>PARTE 1: plan de tareas"]
-    CG --> STOP{{"ALTO<br/>nunca se elige Approve Plan"}}
+    IN["pvb.md + specs/prd.md<br/>(corregidos, iteración 6)"] --> INC["Inception<br/>revisada desde 2.3"]
+    INC --> CON["Construction por unidad<br/>diseño 3.1 a 3.4"]
+    CON --> CG["3.5 Parte 1: plan de tareas"]
+    CG --> OK{{"Approve Plan<br/>solo el humano, tras revisar"}}
+    OK --> B["Parte 2: Bolts<br/>Review each checkpoint"]
 ```
 
-Texto alternativo: los insumos corregidos alimentan Inception, que produce unidades, su grafo
-de dependencias y el plan de Bolts. Construction diseña cada unidad y genera su plan de tareas.
-El flujo se detiene ahí, antes de la Parte 2, que escribe el código.
+Texto alternativo: los insumos corregidos alimentan la Inception revisada y el diseño por unidad.
+Cada plan de tareas lo revisa el humano y, cuando lo aprueba con `Approve Plan`, se construye por
+Bolts con una compuerta en cada punto de control.
 
 > **Ojo:** en AI-DLC v2 no hay una aprobación aparte para la Parte 2. La Parte 1 termina con la
 > pregunta *Plan Approval* (`Approve Plan` / `Request Changes`), y elegir `Approve Plan` es lo que
-> lanza la Parte 2. Por eso **nunca se elige `Approve Plan`**: el plan se revisa, se itera con
-> `Request Changes` y la pregunta se deja sin responder.
+> lanza la Parte 2. Solo la elige el autor, después de leer el plan; el agente nunca la responde.
+> Mientras el flujo esté en 3.5 sin `Approve Plan`, el guardia de aprobación del plan bloquea **toda**
+> escritura del agente (incluso con `guard.plan-approval off`); para salir de ahí sin aprobar, el
+> autor ejecuta el salto con `!` (`aidlc engine jump execute …`).
 
-**Terminado cuando:** todas las unidades tienen aprobado su diseño (3.1 a 3.4 que apliquen); la
-primera unidad del `bolt-plan.md` tiene un `code-generation-plan.md` revisado por mí; las demás
-tienen su plan de tareas (generado por AI-DLC si el motor lo permite, o derivado a mano con el
-formato del Paso 5, ver §8); y ninguna unidad ha entrado a la Parte 2.
+**Terminado cuando:** los Bolts del plan revisado cumplen su definición de terminado. Lo primero que
+sirve al TG es la biblioteca del analizador con su línea de comandos y un proveedor comercial (cambio
+01, §8); la consola viene después.
 
 ## 2. Qué cambia frente a la guía de clase
 
@@ -52,6 +60,7 @@ formato del Paso 5, ver §8); y ninguna unidad ha entrado a la Parte 2.
 | Contexto saturado | Overlay de despacho por fase | Lo resuelve el motor (entrega reglas por etapa con hooks) |
 | Revisión | Solo humana | Más revisores adversariales (asesores en `classic`) y sensores de trazabilidad |
 | Proveedor | Ninguno | El de mi sesión de Claude (sin Bedrock) |
+| Insumos del TG | — | `/insumos` (solo lectura, fuera del repositorio): cambios numerados en `/insumos/app/cambios/`; al repositorio solo entran el contrato común y los ID de decisión (DT…) |
 
 ## 3. Insumos (fuente única, sin copias)
 
@@ -62,9 +71,12 @@ formato del Paso 5, ver §8); y ninguna unidad ha entrado a la Parte 2.
 | Mercado, ICP, crítica | `docs/mercado.md`, `docs/icp.md`, `docs/critica.md` | Requirements, User Stories, Delivery Planning (riesgos) |
 | Panorama del dominio | `docs/overview.md`, `docs/iteracion1.md` | Requirements Analysis, Domain Design |
 | Límite de autonomía | `docs/limite-autonomia.md` | `memory/team.md` (Paso 0) |
+| Cambio 01 y sus decisiones | `docs/iteracion2.md` | Todas las etapas revisadas desde 2.3 |
+| Contrato común del analizador | Repositorio principal del TG (se implementa en U1) | Contract Design, Code Generation de U1 |
 | Fuentes | `research/` | Citas cuando un artefacto afirme algo del dominio |
 
-**Regla:** no creo `entradas/`. Si una etapa revela un defecto del PRD o del PVB, la corrección
+**Regla:** nada de `/insumos` se copia al repositorio, salvo el contrato común y los ID de decisión
+(el repositorio es público); las pruebas usan transcripciones sintéticas. No creo `entradas/`. Si una etapa revela un defecto del PRD o del PVB, la corrección
 va al **original**, en un commit propio (`fix(prd): …`), y se le avisa al flujo que el insumo
 cambió. Esto evita el problema de la v1, donde las copias divergían de los originales.
 
@@ -82,7 +94,7 @@ cambió. Esto evita el problema de la v1, donde las copias divergían de los ori
 | 2.7 Units Generation | 8, 9 | DAG **acíclico verificado con script**; ninguna historia huérfana; ≥2 unidades independientes; ninguna unidad es «el backend»; cada una se prueba sola |
 | 2.8 Contract Design | 9 | Contratos entre unidades explícitos (API, esquema de alerta con CoT, paquete de traspaso) |
 | 2.9 Delivery Planning | 12, 13 | Orden de Bolts acorde a los módulos 6–8; riesgos de `critica.md` reflejados |
-| 3.1–3.4 Diseño por unidad | 6, 10, 11 | NFR del Principio 2 (CPU, sin GPU); AUTONOMIA-03/04/05 materializadas en el diseño |
+| 3.1–3.4 Diseño por unidad | 6, 10, 11 | NFR del Principio 2 (CPU, sin GPU); AUTONOMIA-03/04/05 (versión del cambio 01: anonimizador con fallo cerrado, dos citas verificadas) materializadas en el diseño; contrato común y perfiles de ejecución |
 | 3.5 Code Generation, **Parte 1** | — | Ver §7 |
 
 ## 5. Pasos
@@ -154,22 +166,17 @@ compuerta puede ceder en trabajo no dirigido, y es justo la que detiene el flujo
   `code-generation-plan.md` de 3.5 es el de U1.
 - Se aprueban las etapas de diseño 3.1 a 3.4 que apliquen, para todas las unidades. Luego 3.5
   produce el `code-generation-plan.md` de la primera unidad del `bolt-plan.md`.
-- Recordatorio en cada unidad: «Detente al terminar la Parte 1 de Code Generation. No ejecutes
-  la Parte 2. No escribas código de aplicación.»
-- Revisar el plan (§7) e iterar con **Request Changes**. **Nunca elegir `Approve Plan`**: esa
-  respuesta es la que lanza la Parte 2 (ver §1). Cuando el plan esté bien, dejar la pregunta sin
-  responder, hacer commit + push y cerrar la sesión.
-- Siguientes unidades: el flujo principal queda detenido en la Plan Approval de la primera.
-  Probar `/aidlc --stage code-generation --single` para generar el plan de otra unidad sin mover
-  el flujo principal (aplica la misma regla: nunca `Approve Plan`). Si el motor no deja elegir
-  la unidad, derivar los planes restantes a mano (§8).
+- Recordatorio en cada unidad: «Detente al terminar la Parte 1 de Code Generation y espera mi
+  `Approve Plan`; no lo elijas tú.»
+- Revisar el plan (§7) e iterar con **Request Changes**. Cuando el plan esté bien, el autor elige
+  **`Approve Plan`** y empieza la Parte 2 por Bolts, con «Review each checkpoint».
+- Los scripts `sbatch` para el clúster ZINE (evaluación de modelos locales por lotes, DT26) y su
+  paquete de entrada son artefactos revisables: los lanza el autor, nunca el agente (AUTONOMIA-01).
 
-### Paso 5 — Consolidación
+### Paso 5 — (retirado por el cambio 01)
 
-`unidades-y-tareas.md` en la raíz, una sección por unidad con la responsabilidad (qué hace y
-qué no), las dependencias, las historias que implementa, la condición de terminado y una tabla
-`| # | Tarea | Criterio (comando) | Historia |`. Es la entrada del loop
-orquestador-codificador-revisor de los módulos 6 y 7.
+La consolidación manual en `unidades-y-tareas.md` era la entrada del loop de los módulos 6 y 7. Con el
+alto levantado, la construcción la hace AI-DLC por Bolts y ese archivo ya no se genera.
 
 ## 6. Higiene de contexto y de cuota
 
@@ -189,13 +196,12 @@ y 7 d (son de la cuenta, compartidas con todas mis sesiones de Claude):
 - [ ] Cada tarea traza a una historia del `unit-of-work-story-map.md`.
 - [ ] Cada tarea tiene un criterio de aceptación **ejecutable** (AUTONOMIA-02).
 - [ ] Ninguna tarea aplica cambios a infraestructura sin aprobación humana previa (AUTONOMIA-01).
-- [ ] Existen las pruebas exigidas por AUTONOMIA-03, 04 y 05 donde aplican.
+- [ ] Existen las pruebas exigidas por AUTONOMIA-03, 04 y 05 (versión del cambio 01) donde aplican.
+- [ ] Ningún *fixture* ni prueba contiene datos del piloto del TG; todo es sintético.
 - [ ] Están los pasos de prueba de cada capa.
 - [ ] Las rutas de código apuntan a la raíz del proyecto, nunca a `aidlc/`.
 
-## 8. Ruta corta (cuota agotada o unidades sin plan generado)
+## 8. Ruta corta (retirada por el cambio 01)
 
-Detenerse al aprobar 2.9 Delivery Planning, o en la Plan Approval de la primera unidad, y derivar
-las tareas a mano desde `unit-of-work.md`, `unit-of-work-story-map.md`, `bolt-plan.md` y los
-diseños 3.1 a 3.4 de cada unidad, con el formato del Paso 5. El `code-generation-plan.md` de la
-primera unidad sirve de modelo.
+Derivar planes de tareas a mano ya no aplica: cada unidad tiene su plan generado y aprobado en AI-DLC
+antes de construirla.

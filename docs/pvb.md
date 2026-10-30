@@ -8,6 +8,13 @@ Este documento de visión de producto constituye la base de validación y requis
 > paradigma de UX (la IA sugiere hallazgos y preguntas; el analista decide) y el modelo LieXBerta
 > completo (alcance del TG2). Ante cualquier diferencia, manda el PRD.
 
+> **Nota (2026-10-27, DT27, ver `docs/iteracion2.md`) [INTERNO]:** Veridicus detecta contradicciones
+> **dentro** del relato sobre hechos centrales, con dos citas literales verificadas. Ya no contrasta
+> el relato con un marco de verdad documental ni analiza emociones o estilo (DT15). Usa modelos
+> comerciales y locales por papel, siempre tras un anonimizador que falla cerrado (DT18). Las
+> menciones que queden a marco de verdad, `pgvector` o análisis afectivo son históricas; manda
+> `specs/prd.md` (Iteración 6).
+
 ---
 
 ## PRODUCTO
@@ -15,14 +22,14 @@ Este documento de visión de producto constituye la base de validación y requis
 **Nombre del producto:** Veridicus: Módulo de Entrevista y Detección de Incongruencias Forenses [19]
 
 **Descripción en una línea (qué hace y para quién):** 
-Es un sistema multiagente de entrevista asistida por IA que interactúa de manera oral con un compareciente, contrastando su relato en tiempo real frente a un marco de verdad establecido y detectando incongruencias afectivo-semánticas para analistas en procesos de justicia transicional [3, 5, 16].
+Es un sistema multiagente de entrevista asistida por IA que, mientras el compareciente relata, detecta contradicciones dentro de su relato sobre hechos centrales, cada una con dos citas literales verificadas, y las propone como sugerencias de revisión a analistas en procesos de justicia transicional [3, 5, 16].
 
 ---
 
 ## 1. PROBLEMA
 
 **Problema que resuelvo:**
-En los contextos de justicia transicional, investigaciones penales y comisiones de la verdad (como la Comisión de la Verdad de Colombia, que recopiló más de 14.000 entrevistas y conversó con más de 30.000 personas [3]), el análisis manual de testimonios masivos para categorizar roles, evaluar veracidad y contrastar versiones con el expediente histórico es logísticamente inviable [4], extremadamente costoso, propenso a sesgos subjetivos de los evaluadores humanos [1, 7], y genera un altísimo costo emocional y fatiga para los investigadores al procesar innumerables relatos de trauma y dolor de las víctimas [10].
+En los contextos de justicia transicional, investigaciones penales y comisiones de la verdad (como la Comisión de la Verdad de Colombia, que recopiló más de 14.000 entrevistas y conversó con más de 30.000 personas [3]), el análisis manual de testimonios masivos para categorizar roles y localizar las contradicciones de cada relato sobre hechos centrales es logísticamente inviable [4], extremadamente costoso, propenso a sesgos subjetivos de los evaluadores humanos [1, 7], y genera un altísimo costo emocional y fatiga para los investigadores al procesar innumerables relatos de trauma y dolor de las víctimas [10].
 
 **¿Este problema sobrevive a las próximas 2-3 generaciones de modelos foundation?**
 [X] Sí, porque es un problema de WORKFLOW/INTEGRACIÓN, no de OUTPUT. Un modelo de lenguaje base más avanzado procesa mejor el texto, pero no resuelve de forma autónoma la gobernanza, las interfaces conversacionales multimodales locales de baja latencia [17], la mitigación de sesgos hegemónicos mediante consenso multiagente [6, 15], el flujo ético de datos sensibles requeridos por normativas internacionales (como las directrices de la UNESCO [15]), ni el despliegue soberano en infraestructuras privadas controladas.
@@ -52,7 +59,7 @@ El **CISO / SRE Lead** y el **Oficial de Ética/Cumplimiento** de la institució
 Construimos un modelo de **Confianza por Diseño (Trust-by-Design)** basado en tres pilares técnicos y de investigación:
 1. **Soberanía y Seguridad en Kubernetes:** Garantizamos aislamiento de datos mediante microservicios locales en contenedores, de modo que el pipeline conversacional (Whisper, procesamiento lingüístico local) pueda operar en entornos air-gapped o de red restringida [18].
 2. **Explicabilidad Rigurosa con CoT:** Cada discrepancia o inconsistencia lógica marcada por el sistema está soportada por una **Cadena de Pensamiento (Chain of Thought - CoT)** [8] que enlaza el fragmento exacto transcrito con la fuente documental inmutable del marco de verdad, haciendo el resultado interpretable y auditable [16].
-3. **Respaldo Científico de Detección de Engaño (LieXBerta):** A diferencia de simples análisis heurísticos de texto, adoptamos la metodología del modelo **LieXBerta** [17], el cual integra clasificadores de emoción basados en modelos de lenguaje grandes (como RoBERTa-base [17]) con variables de comportamiento que alimentan clasificadores XGBoost [17]. Este enfoque alcanza un **87.50% de precisión en test** [17] y un **87.13% de F1-score** [17], superando por más de un 6.5% a los modelos base sin variables emocionales [17], lo que aporta una base empírica sólida y confiable al análisis forense de la entrevista [14].
+3. **Contrato común con la investigación:** el mismo analizador de incoherencias sirve al producto y al Trabajo de Grado *"Diálogos para la Memoria"* [9], con un contrato de entrada y salida versionado, y cada resultado registra el modelo, la versión y el *prompt* usados (DT17, DT26) [INTERNO]. Por diseño, no interpreta emociones ni estilo: las discrepancias son normales en relatos verdaderos de trauma [10] (DT15).
 
 ---
 
@@ -64,7 +71,7 @@ Construimos un modelo de **Confianza por Diseño (Trust-by-Design)** basado en t
 [] Enhancer (AI-Enhanced) — Uso IA para fortalecer un producto/proceso existente
 
 **¿Cómo sobrevives o complementas a los gigantes (hyperscalers, vendors de plataforma, proyectos open source del ecosistema CNCF)?**
-Los proveedores gigantes (como OpenAI o Google) ofrecen modelos de lenguaje potentes, pero generalistas, que no resuelven la lógica de negocio especializada en confrontación forense y carecen de la estructura de control de datos soberana exigida por el sector justicia [15]. **Veridicus** no compite con estos gigantes; los orquesta. El valor diferenciador radica en integrar Whisper, bases de datos vectoriales locales de hechos inmutables, algoritmos de detección de engaño basados en análisis estilométrico/emocional calibrado en español [12, 17], y orquestar este flujo multiagente de forma soberana sobre un clúster local de **Kubernetes** [18]. Para que esta arquitectura sea altamente defendible y escalable, se integran las siguientes herramientas clave del ecosistema de la **CNCF (Cloud Native Computing Foundation)**:
+Los proveedores gigantes (como OpenAI o Google) ofrecen modelos de lenguaje potentes, pero generalistas, que no resuelven la lógica de negocio especializada en confrontación forense y carecen de la estructura de control de datos soberana exigida por el sector justicia [15]. **Veridicus** no compite con estos gigantes; los orquesta. El valor diferenciador radica en integrar Whisper local, un analizador de incoherencias con verificación determinista de citas y un anonimizador que falla cerrado antes de cualquier proveedor comercial, y orquestar este flujo multiagente de forma soberana sobre un clúster local de **Kubernetes** [18]. Para que esta arquitectura sea altamente defendible y escalable, se integran las siguientes herramientas clave del ecosistema de la **CNCF (Cloud Native Computing Foundation)**:
 *   **KEDA (Kubernetes Event-driven Autoscaling - CNCF Graduated):** Autoscaling dinámico a nivel de contenedor de los pods de Whisper y de inferencia basados en GPU. Si no hay entrevistas en curso, escala los recursos costosos a 0, y escala verticalmente basándose en el tamaño de la cola de procesamiento en gRPC/WebSockets [18].
 *   **CloudNativePG (CNCF Sandbox):** Para orquestar bases de datos PostgreSQL de alta disponibilidad a nivel local, habilitando la extensión **pgvector** como nuestro motor de búsqueda semántica local para almacenar el "marco de verdad" fáctico del conflicto armado [18].
 *   **Argo Workflows (CNCF Graduated):** Para programar y monitorear pipelines batch offline de procesamiento lingüístico y análisis estilométrico pesado cuando se analizan audios de larga duración (2-3 horas) [18].
@@ -131,7 +138,7 @@ Aceptamos un mayor costo computacional (empleando llamadas a modelos de lenguaje
 2. **Tasa de Desestimación de Incongruencias:** Porcentaje de discrepancias lógicas sugeridas por el sistema que el investigador humano desestima o clasifica como "normales" o "no sospechosas". *Target: <15% de falsos positivos en producción.*
 
 **Métricas específicas de IA:**
-1. **Precisión del Análisis de Detección de Engaño en Pruebas de Concordancia (Test Accuracy):** Grado de acierto en el alineamiento con evaluaciones de expertos forenses independientes sobre el conjunto de pruebas. *Target: >85% de precisión en test (LieXBerta(3) reporta un 87.50% de precisión y un 87.13% de F1-score bajo 10-fold cross-validation [17]).*
+1. **Citas verificadas en los hallazgos mostrados:** porcentaje de hallazgos de contradicción que llegan al analista con sus dos citas verificadas literalmente en su turno. *Target: 100% (por construcción).* La precisión frente a la codificación de referencia se mide fuera del producto (DT09) [INTERNO].
 2. **Tasa de Alucinación Fáctica del Agente Conversacional:** Porcentaje de turnos en los cuales el agente introduce hechos, lugares o acusaciones no documentadas previamente en la base de datos vectorial inmutable del "marco de verdad". *Target: 0.00% (alineación de verdad estricta).*
 
 ---
@@ -143,12 +150,12 @@ Aceptamos un mayor costo computacional (empleando llamadas a modelos de lenguaje
 *Mitigación:* Veridicus no compite por ser un modelo base de voz. Su valor se encuentra en la **lógica de negocio forense y judicial**, la integración inmutable de hechos del conflicto [3, 5], la explicabilidad mediante Cadena de Pensamiento (CoT) [8] adaptada a la legislación transicional colombiana (Leyes 1448/2011 y 2421/2024 [2, 5]), el almacenamiento seguro local y el historial de tasas de acierto operacionales acumuladas sobre un clúster privado Kubernetes, lo cual no es replicable de manera genérica por APIs comerciales ajenas a la soberanía de datos del estado [15].
 
 **2. ¿Puede un competidor replicar tu producto con la misma API en menos de 6 semanas?**
-*Riesgo:* Sí, un competidor técnico puede empaquetar una llamada a la API de OpenAI y usar prompts estructurados para detectar mentiras en poco tiempo [17].
-*Mitigación:* No obstante, lo que un competidor no puede replicar en 6 semanas es la **validez empírica y metodológica de la calibración estilométrica en español forense** basada en los rasgos emocionales más incidentes para la justicia transicional colombiana (como las variaciones significativas de tristeza, ira y optimismo detectadas en el estudio empírico de LieXBerta con un XGBoost optimizado [17]), la redacción e implementación nativa de políticas de seguridad en **Kubernetes** para el aislamiento del tráfico sensible [18], ni el ciclo de homologación de políticas de privacidad auditadas por comités éticos de derechos humanos [15].
+*Riesgo:* Sí, un competidor técnico puede empaquetar una llamada a la API de OpenAI y usar prompts estructurados para «buscar contradicciones» en poco tiempo.
+*Mitigación:* No obstante, lo que un competidor no puede replicar en 6 semanas es la **verificación determinista de cada cita contra su turno**, el anonimizador que falla cerrado, el registro reproducible de cada corrida y la validación del analizador contra la codificación del Trabajo de Grado (DT09) [INTERNO], la redacción e implementación nativa de políticas de seguridad en **Kubernetes** para el aislamiento del tráfico sensible [18], ni el ciclo de homologación de políticas de privacidad auditadas por comités éticos de derechos humanos [15].
 
 **3. Si tienes éxito a escala, ¿cuál es la primera forma en que se rompe la confianza?**
 *Riesgo:* Que el agente clasifique de forma simplista como "engaño" o "mentira" las inconsistencias normales, contradicciones lógicas o variaciones estilísticas emocionales de un relato provocadas por el **estrés postraumático (PTSD)** o por el dolor de revivir el trauma de la victimización [10]. Esto ocasionaría un daño psicológico irreparable y la revictimización del declarante.
-*Mitigación:* Se implementa un principio ético no relajable: **el agente jamás emite veredictos de veracidad binaria (mentira/verdad)** [10]. El sistema se limita a señalar "Desviaciones o Incongruencias Semánticas" contrastando el fragmento exacto del audio de manera literal con las citas del "marco de verdad" inmutable. Adicionalmente, el clasificador estilométrico emocional debe configurarse con un umbral estricto para priorizar y etiquetar primero variaciones como *"Fluctuación estilística por posible trauma/confusión"* antes de sugerir un intento voluntario de ocultamiento o distorsión fáctica [10]. La decisión analítica y forense es y será siempre prerrogativa exclusiva del analista humano [10].
+*Mitigación:* Se implementa un principio ético no relajable: **el agente jamás emite veredictos de veracidad binaria (mentira/verdad)** [10]. El sistema se limita a señalar posibles contradicciones sobre hechos centrales, con dos citas literales del propio relato, y excluye la vaguedad, la emoción y los detalles periféricos, que son normales en relatos de trauma [10] (DT15). La decisión analítica y forense es y será siempre prerrogativa exclusiva del analista humano [10].
 
 ---
 

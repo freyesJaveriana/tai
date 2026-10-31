@@ -101,14 +101,14 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 análisis de impacto y sus decisiones están en [`docs/iteracion2.md`](./docs/iteracion2.md); PVB, PRD
 (iteración 6), reglas AUTONOMIA y `plan-aidlc.md` ya están corregidos. El flujo volvió a
 **Requirements Analysis (2.3)** para revisar en este intent las etapas 2.3 a 3.5; la tabla de abajo
-muestra lo aprobado **antes** del cambio, que cada etapa revisada actualizará. El plan de U1 nunca se
+muestra lo aprobado **antes** del cambio, que cada etapa revisada actualizará (Requirements Analysis ya está revisada; sigue User Stories). El plan de U1 nunca se
 aprobó y se regenerará con el contrato común; desde entonces, el autor elige `Approve Plan` y se
 construye por Bolts.
 
 | Fase | Etapa | Estado | Documentos principales |
 |---|---|---|---|
 | Inception | Practices Discovery | Aprobada | [`team-practices.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/practices-discovery/team-practices.md) |
-| Inception | Requirements Analysis | Aprobada | [`requirements.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/requirements.md) |
+| Inception | Requirements Analysis | Aprobada (revisión 2, cambio 01) | [`requirements.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/requirements.md): revisión 2 con el contrato común v0.1 del analizador (FR4.1–FR4.9: 7 tipos, dos citas verificadas, `error` ⇒ hallazgos vacíos), anonimizador obligatorio (FR11.3–FR11.4), biblioteca y CLI (FR13), perfiles por papel (FR14), `ModelGateway` (FR15) y lotes en ZINE (FR16); retirados FR2, FR5, FR11.1 y NFR9. Revisión en [`reviews/review-02.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/reviews/review-02.md) (READY; R-01 a R-06 aceptados como riesgo) |
 | Inception | User Stories | Aprobada | [`user-stories/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/user-stories/) |
 | Inception | Refined Mockups | Aprobada | [`mockups.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md), [`interaction-spec.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md) |
 | Inception | Domain Design | Aprobada | [`components.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md), [`decisions.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/decisions.md) |

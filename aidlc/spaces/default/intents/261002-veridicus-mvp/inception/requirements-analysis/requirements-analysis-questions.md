@@ -150,3 +150,144 @@ C. Sí, y las alertas pendientes se excluyen del reporte.
 X. Other (please specify)
 
 [Answer]: A
+
+---
+
+# Segunda pasada — cambio 01 (DT27, 2026-10-30)
+
+Fuentes nuevas: `specs/prd.md` (iteración 6), `pvb.md` corregido, `docs/limite-autonomia.md`
+(AUTONOMIA-04 y 05 reescritas), `docs/iteracion2.md` (análisis de impacto con P1–P18 respondidas, todas
+con la opción recomendada) y el cambio 01 con su contrato común v0.1 (`/insumos/app/cambios/`, fuera
+del repositorio; el contrato entra al repositorio en Contract Design).
+
+Lo que esas fuentes ya deciden no se vuelve a preguntar: objeto del análisis (contradicciones dentro del
+relato, 7 tipos, dos citas verificadas), soberanía (nada sin seudonimizar sale; anonimizador MUST,
+siempre local, solo delante de destinos externos), biblioteca y CLI como unidad propia (P3), páginas
+opcionales en turnos `guiada` (P4), entrada de texto (P5), modos final e incremental en la consola (P6),
+corpus del piloto solo en la máquina local (P7), perfiles por PR elegidos al crear la sesión (P8, P9),
+`NetworkPolicy` (P10), conjunto sintético de calidad (P11), qué se permuta (P12), AIR (P13), modo
+fragmentado obligatorio con modelos locales (P14), repetibilidad (P15) y contenido del reporte (P16).
+
+## Estado de las respuestas de la primera pasada
+
+- **Pregunta 1** (5 de 6 discrepancias sembradas): **superada**; la calidad se mide sobre el conjunto
+  sintético nuevo (P11), con umbrales en NFR Requirements.
+- **Pregunta 2** (turno a turno y pegado): **se mantiene**, ampliada con la importación del JSON del
+  corpus (P5).
+- **Preguntas 3 y 4** (escenario de control): **superadas**; no hay marco de verdad.
+- **Pregunta 5** (roles): **se mantiene** sin las filas de escenarios y umbral; entra «elegir el perfil
+  al crear la sesión» (P8).
+- **Preguntas 6 y 7** y **Seguimiento 1**: **se mantienen** (la CoT pasa a ser las observaciones del
+  hallazgo).
+- **Pregunta 8**: **se mantiene** (el Golden Dataset pasa a ser el conjunto sintético de P11).
+
+Estas 8 preguntas cubren lo que falta para escribir requisitos con criterio medible (AUTONOMIA-02).
+
+---
+
+## Analizador
+
+### Pregunta 9 — ¿Qué hace el verificador cuando la permutación en línea no está activa?
+
+Todo perfil tiene juez y verificador (PRD S8, MUST), y la permutación de las dos citas es obligatoria en
+la evaluación y opcional en línea (P12). Falta decir si el verificador interviene en cada corrida o solo
+cuando hay permutación.
+
+A. El verificador **siempre** confirma cada hallazgo candidato del juez (una llamada, citas en un orden). La permutación añade la segunda llamada con las citas invertidas: obligatoria en la evaluación, activable por perfil en línea. Un candidato que el verificador no confirma no sale del analizador y queda en el registro de la corrida **(Recomendada)**
+B. El verificador solo actúa cuando la permutación está activa; sin ella, el hallazgo sale con el juez más la verificación determinista de las citas.
+C. El verificador es opcional por perfil: un perfil puede no tenerlo.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 10 — ¿Qué cuenta como «cita literal en su turno»?
+
+AUTONOMIA-05 exige que cada cita exista literalmente en su turno, y el 100 % de citas verificadas solo es
+comprobable con una regla exacta. El verificador del piloto (`verificar_codificacion.py`) solo normaliza
+espacios, une con « […] » fragmentos del mismo turno que deben aparecer en orden, y **avisa** (sin
+rechazar) si la cita está en un turno del entrevistador o en un turno plegado.
+
+A. **La regla del piloto**, para que el contrato común se comporte igual en Veridicus y en el TG: solo se normalizan espacios; « […] » une fragmentos del mismo turno en orden; una cita en un turno del entrevistador (`ENT`) o plegado se acepta con un aviso visible para el analista; en turnos sin página (origen `guiada`) se verifica solo contra el turno **(Recomendada)**
+B. Igual que A, pero una cita en un turno del entrevistador **invalida** el hallazgo (solo cuenta el relato del testimoniante).
+C. Normalización más amplia: además de espacios, mayúsculas, tildes y puntuación.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 11 — Con modelos locales, ¿se buscan contradicciones entre fragmentos distintos?
+
+P14 hace obligatorio el modo fragmentado por turnos con solapamiento para los modelos locales (ventana de
+12k del juez de demostración). Una contradicción entre el turno 12 y el turno 400 cae en fragmentos
+distintos, y el cambio 01 no dice cómo se detecta (conflicto C1).
+
+A. **Solo dentro de cada ventana** (con su solapamiento). Las contradicciones más distantes que la ventana son una limitación declarada: la corrida registra el modo y el tamaño de ventana, el reporte los muestra, y la evaluación reporta la sensibilidad según la distancia entre las dos citas **(Recomendada)**
+B. Requisito: una segunda pasada compara los hechos extraídos de cada fragmento para encontrar contradicciones entre fragmentos lejanos.
+C. Con modelos locales solo se analizan entrevistas que caben enteras en la ventana; las más largas terminan en error.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 12 — ¿Es regla dura que juez y verificador sean de familias distintas?
+
+El PRD (S9 módulo D y S11 escenario B) pide juez y verificador de familias distintas (DT04, DT10). El
+perfil `todo-local` de la demostración, con un solo modelo Qwen en Minikube (20 GiB), no lo cumple.
+
+A. **Obligatorio en los perfiles de evaluación** (nivel 2): su validación rechaza juez y verificador de la misma familia. Un perfil de demostración puede usar la misma familia solo si lo declara explícitamente, y la consola y el reporte lo muestran como aviso **(Recomendada)**
+B. Regla dura para todo perfil: `todo-local` necesita dos modelos locales de familias distintas (más memoria en Minikube).
+C. Solo se registra la familia de cada papel; no se valida.
+X. Other (please specify)
+
+[Answer]: A
+
+## Entrada y límites
+
+### Pregunta 13 — ¿Qué tamaño de transcripción admiten la consola y la CLI?
+
+Los límites aprobados (100 000 caracteres por transcripción, 200 turnos, 2 000 caracteres por turno,
+reporte de 2 MiB) quedan por debajo del corpus del piloto (≈ 10 000 a 186 000 caracteres), y P7 permite
+importar esas entrevistas en la consola local (conflicto C2).
+
+A. **Ambas admiten al menos la entrevista más larga del piloto, con margen**; las cifras exactas las fija NFR Requirements en el catálogo único de límites. Con perfil local se usa el modo fragmentado (P14) **(Recomendada)**
+B. La consola mantiene los límites aprobados; las entrevistas largas solo entran por la CLI.
+C. La CLI sin límite; la consola con los límites aprobados.
+X. Other (please specify)
+
+[Answer]: A
+
+## Evaluación y gobierno
+
+### Pregunta 14 — En la evaluación, ¿cuándo un hallazgo «acierta» una contradicción esperada?
+
+El conjunto sintético (P11) trae la lista exacta de contradicciones esperadas con sus dos citas. Para
+medir precisión y sensibilidad hay que fijar cuándo un hallazgo coincide con una esperada.
+
+A. Coincide si cita **el mismo par de turnos** (sin importar el orden). El tipo se mide aparte como acuerdo de tipo. Todo hallazgo en un relato coherente o en un caso trampa es un falso positivo **(Recomendada)**
+B. Coincide solo con el mismo par de turnos **y** el mismo tipo.
+C. Coincide si el texto de las citas se solapa con el de las esperadas, aunque estén en otros turnos.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 15 — ¿Cuál es el criterio de aprobado del anonimizador?
+
+AUTONOMIA-04 pide una prueba de que el payload saliente no lleva nombres ni ubicaciones del conjunto de
+prueba, pero no dice cuántas fugas se toleran.
+
+A. **Cero fugas**: sobre el conjunto sintético, el 100 % de las entidades sembradas (nombres, lugares, números de expediente, con y sin tilde) sale seudonimizado; una sola fuga hace fallar la prueba. Las marcas son coherentes en toda la entrevista y una marca alterada por el modelo invalida el hallazgo **(Recomendada)**
+B. Un umbral de sensibilidad (p. ej., ≥ 95 %) que fija NFR Requirements; las fugas restantes se reportan.
+C. Solo la prueba estructural (el payload pasó por el anonimizador), sin medir fugas.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 16 — ¿Se controla el costo de los proveedores comerciales?
+
+El análisis del cambio 01 (K5) pide que cada corrida registre los *tokens* y que la evaluación declare su
+costo, pero no fija ningún tope.
+
+A. Cada llamada registra *tokens* de entrada y salida; cada corrida y cada reporte de evaluación suman *tokens* y un costo estimado según una tabla de precios versionada por PR. **Sin tope automático** en el MVP **(Recomendada)**
+B. Igual que A, y además cada perfil declara un tope de *tokens* por corrida; al superarlo la corrida termina con `estado: error` sin resultado parcial.
+C. Solo registrar *tokens*, sin costo estimado.
+X. Other (please specify)
+
+[Answer]: A

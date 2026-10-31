@@ -173,3 +173,91 @@ B. Se crea igual una versión nueva.
 X. Other (please specify)
 
 [Answer]: A
+
+---
+
+# Segunda pasada — cambio 01 (DT27, 2026-10-31)
+
+Las historias se revisan con **Modify** sobre la revisión 2 de `requirements.md`. Las respuestas de la
+primera pasada siguen valiendo donde no las supera el cambio 01:
+
+| Respuesta | Estado en la segunda pasada |
+|---|---|
+| 1 (personas) | Se mantiene; la pregunta 9 decide si entra una cuarta persona |
+| 2 (agrupación por recorrido) | Se mantiene; las épicas 1 y 4 quedan retiradas y entran épicas nuevas al final |
+| 3 (NFR como historias solo si son observables) | Se mantiene |
+| 4, Seguimiento 2 (umbral, «no documentada») | **Superadas** por el cambio 01 (no hay umbral ni marco de verdad) |
+| 5 (umbral por PR) | Se generaliza: perfiles, proveedores, *prompts* y límites solo por PR (FR9.2) |
+| 6 (editar = reformulación propia) | Se mantiene; lo que no cambia es hecho, tipo, citas y observaciones de la IA |
+| 7 (copia de trabajo para corregir) | Se mantiene |
+| 8 (50 sesiones, 0 fallos) | Superada por NFR8 de la revisión 2 (≥ 98 %, como máximo 1 fallo cada 50) |
+| Seguimiento 1 (turnos en error) | Se mantiene para los tramos incrementales; la pregunta 13 lo extiende al modo final |
+| Seguimientos 3, 4, 5 | Se mantienen |
+| Seguimiento 6 (escenario duplicado) | **Superada** (no hay escenarios) |
+
+**Plan de la revisión.** Se aplica `docs/iteracion2.md` §2.2: salen US1.1–US1.3, US4.1–US4.3, US8.3
+(pasa a «perfiles solo por PR»), US10.6 y US11.1, que se marcan **Retirada** sin renumerar; cambian las
+historias que esa sección lista; se mantienen las demás; y entran historias nuevas con ID nuevos. Las
+historias del contrato del analizador se agregan a la épica 3; la biblioteca y la CLI, los perfiles y
+modelos, y la evaluación por lotes van en épicas nuevas al final.
+
+## Pregunta 9 — ¿Entra el Investigador del TG como persona?
+
+La CLI, las corridas sobre el corpus del piloto y los lotes en ZINE (FR13, FR16) no los usa el analista
+desde la consola. `docs/iteracion2.md` §2.2 propone una persona nueva.
+
+A. Sí: **P4 Investigador del TG** (sin rol en la consola; usa la CLI, el conjunto sintético, el corpus del piloto fuera de Git y los scripts de ZINE). Es la persona de las historias de la biblioteca, la CLI, la evaluación y ZINE **(Recomendada)**
+B. No: esas historias se escriben para el Administrador de plataforma (P2).
+C. No: se escriben para el Analista de Verdad (P1).
+X. Other (please specify)
+
+[Answer]:
+
+## Pregunta 10 — ¿Qué corre en la primera rebanada frente a AUTONOMIA-04? (R-01 de la revisión de requisitos)
+
+`team.md` pone primero la biblioteca con su CLI y un proveedor comercial, y después el anonimizador.
+AUTONOMIA-04 prohíbe llamar a un proveedor externo sin el anonimizador delante, incluso con datos
+sintéticos; FR14.3 solo obliga a los servicios.
+
+A. La CLI y la biblioteca validan el perfil igual que los servicios (destino externo sin anonimizador ⇒ código ≠ 0 antes de cualquier llamada), y el **anonimizador entra en la primera rebanada** como módulo de la biblioteca; el orden de entrega de `team.md` se corrige en su propio commit **(Recomendada)**
+B. La misma validación, pero la primera rebanada usa solo el perfil `todo-local`; el proveedor comercial llega con el anonimizador (también corrige `team.md`).
+C. La CLI admite un proveedor comercial sin anonimizador solo con el conjunto sintético versionado (se comprueba su SHA-256). Exige una excepción escrita a AUTONOMIA-04.
+X. Other (please specify)
+
+[Answer]:
+
+## Pregunta 11 — ¿Dónde vive el paquete de entrada de ZINE? (R-02 de la revisión de requisitos)
+
+FR16.2 deja que el paquete use el corpus del piloto, y las reglas prohíben versionar entrevistas o
+fragmentos del piloto.
+
+A. En Git solo van los scripts `sbatch` y un **manifiesto** (nombres y SHA-256, sin contenido). El paquete con el corpus del piloto se arma con un script revisable en un directorio ignorado por Git, y una comprobación de nivel 0 falla si Git rastrea algo de ese directorio **(Recomendada)**
+B. ZINE solo recibe el conjunto sintético; el corpus del piloto se corre únicamente en la máquina local.
+C. Igual que A, pero sin manifiesto en Git.
+X. Other (please specify)
+
+[Answer]:
+
+## Pregunta 12 — ¿Cuántas corridas incrementales dispara una entrada de muchos turnos? (R-03 de la revisión de requisitos)
+
+FR4.9 corre el modo incremental «por cada turno nuevo». Un bloque pegado o una transcripción importada
+traen cientos de turnos de golpe.
+
+A. **Una corrida incremental por envío**: un turno escrito o dictado da `desde_turno = hasta_turno = n`; un bloque pegado da una sola corrida con `desde_turno` en su primer turno. Una transcripción **importada** nace cerrada a nuevos turnos y va directo al modo final **(Recomendada)**
+B. Solo los turnos escritos o dictados corren el incremental; lo pegado y lo importado esperan al modo final.
+C. Una corrida incremental por cada turno, también en lo pegado y lo importado.
+X. Other (please specify)
+
+[Answer]:
+
+## Pregunta 13 — ¿Qué pasa si el modo final termina en error?
+
+FR7.1 exige el modo final terminado para consolidar. Un modo final puede terminar en `estado: error`
+(p. ej., `proveedor`), y repetirlo puede fallar igual.
+
+A. El analista puede **relanzar** el modo final mientras la sesión no esté consolidada. Un modo final en error **no bloquea** la consolidación: el diálogo lo avisa y el reporte lo rotula «Modo final no completado. Revisión manual requerida» con su código, igual que los tramos incrementales en error (Seguimiento 1) **(Recomendada)**
+B. La consolidación exige el último modo final en `ok`; el analista relanza hasta lograrlo.
+C. Como A, pero sin relanzar: un solo intento por sesión.
+X. Other (please specify)
+
+[Answer]:

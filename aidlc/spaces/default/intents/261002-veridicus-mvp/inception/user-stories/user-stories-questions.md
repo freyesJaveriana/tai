@@ -211,7 +211,7 @@ B. No: esas historias se escriben para el Administrador de plataforma (P2).
 C. No: se escriben para el Analista de Verdad (P1).
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Pregunta 10 — ¿Qué corre en la primera rebanada frente a AUTONOMIA-04? (R-01 de la revisión de requisitos)
 
@@ -224,7 +224,7 @@ B. La misma validación, pero la primera rebanada usa solo el perfil `todo-local
 C. La CLI admite un proveedor comercial sin anonimizador solo con el conjunto sintético versionado (se comprueba su SHA-256). Exige una excepción escrita a AUTONOMIA-04.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Pregunta 11 — ¿Dónde vive el paquete de entrada de ZINE? (R-02 de la revisión de requisitos)
 
@@ -236,7 +236,7 @@ B. ZINE solo recibe el conjunto sintético; el corpus del piloto se corre única
 C. Igual que A, pero sin manifiesto en Git.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Pregunta 12 — ¿Cuántas corridas incrementales dispara una entrada de muchos turnos? (R-03 de la revisión de requisitos)
 
@@ -248,7 +248,7 @@ B. Solo los turnos escritos o dictados corren el incremental; lo pegado y lo imp
 C. Una corrida incremental por cada turno, también en lo pegado y lo importado.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Pregunta 13 — ¿Qué pasa si el modo final termina en error?
 
@@ -260,4 +260,52 @@ B. La consolidación exige el último modo final en `ok`; el analista relanza ha
 C. Como A, pero sin relanzar: un solo intento por sesión.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
+
+## Pregunta 14 — ¿Cómo entra la validación de modelos locales en ZINE? (decisión del 2026-11-02)
+
+Decidiste que las mediciones de modelos locales en el clúster Ing. Sistemas son **MUST** y se hacen
+mientras la tarea 4L corre en segundo plano, y que no se avanza a pasos de diseño más avanzados sin esa
+validación. Son seis mediciones: (1) velocidad de Qwen3.6-35B-A3B en un SL250s (`llama-bench` y la
+medición `--array=8` de la 4L); (2) funciones de la API compatible con OpenAI del `llama-server` de
+conda-forge (esquema JSON o gramática, `seed`, caché del *prompt*); (3) *tokens* de Qwen de la entrevista
+más larga frente al contexto de 163 840; (4) repetición exacta en CPU con la misma semilla y los mismos
+hilos; (5) instalación de la CLI sin internet en los SL250s; (6) un verificador de otra familia
+descargado para el perfil de evaluación. Falta fijar dónde queda el alto.
+
+A. Una historia **MUST** del Investigador del TG en la épica de ZINE, con un criterio por medición (cada uno con su comando y el dato que registra, sin datos del piloto en Git). Los `.sbatch` los escribe el agente y los lanza el humano (AUTONOMIA-01). **Domain Design no empieza** hasta que revises el reporte de mediciones; User Stories y Refined Mockups siguen. Se propone FR16.3 en la tabla de precisiones de `stories.md`, sin editar `requirements.md` **(Recomendada)**
+B. Igual que A, pero el alto queda en **NFR Requirements**: Domain Design, Units Generation, Contract Design, Delivery Planning y Functional Design siguen sin las mediciones.
+C. Igual que A, pero el alto queda **antes de Refined Mockups** (justo al cerrar User Stories).
+X. Other (please specify)
+
+[Answer]: A
+
+---
+
+## Decisiones que surgieron al revisar el borrador de la segunda pasada
+
+### Pregunta 15 — ¿Se puede revisar el reporte de validación con la medición de la 4L en curso?
+
+AC14.1.1 incluye las horas de la medición `--array=8` de la 4L (la entrevista 118 con Qwen3.6, estimada en
+1–1,5 días, con `--time` de hasta 14 días). Si esa corrida se alarga o se corta, el alto de Domain Design
+queda atado a ella.
+
+A. Sí: si la medición no termina en un plazo que fijas al lanzarla, el reporte se revisa con las cifras **parciales** (llamadas, *tokens* y segundos de `registro_4L_8.csv` y del log del servidor) y lo dice. La decisión de esperar sigue siendo tuya **(Recomendada)**
+B. No: Domain Design espera a que la medición `--array=8` termine, se demore lo que se demore.
+C. AC14.1.1 solo exige `llama-bench`; la medición de la 4L queda como dato informativo que no condiciona el alto.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 16 — ¿Dónde viven los `.sbatch` de validación y su reporte?
+
+`team.md` pide que el código entre por PR, después de configurar GitHub (protección de `main`, CI), y que
+`docs/` vaya por commit directo. Los `.sbatch` de US14.1 se necesitan **antes** de Domain Design, mucho
+antes del primer Bolt.
+
+A. Los `.sbatch` de validación y su reporte (solo cifras) van a `docs/validacion-zine/` por commit directo, como documentación de una medición que no es código del producto; los `.sbatch` de producción (US14.2) entran después por PR **(Recomendada)**
+B. Van a `evaluation/zine/` y entran por PR, así que la configuración de GitHub se adelanta y ese es el primer PR del repositorio.
+C. Los `.sbatch` de validación quedan fuera del repositorio (como los de la 4L en `/insumos`), y solo el reporte con cifras entra a `docs/` por commit directo.
+X. Other (please specify)
+
+[Answer]: A

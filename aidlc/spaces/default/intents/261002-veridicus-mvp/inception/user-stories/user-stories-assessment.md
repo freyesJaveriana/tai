@@ -1,33 +1,36 @@
 # Evaluación — ¿hacen falta historias de usuario?
 
+**Revisión 2 — cambio 01 (DT27, 2026-11-02).**
+
 ## Decisión
 
 **Ejecutar.**
 
 ## Motivo
 
-Veridicus es un producto con interfaz para personas, varios actores con permisos distintos y reglas de
-negocio delicadas (AUTONOMIA-03 y AUTONOMIA-05). Los requisitos de
-`inception/requirements-analysis/requirements.md` dicen qué debe hacer el sistema; las historias dicen
-quién lo hace, en qué orden y cómo se comprueba que terminó, con criterios Given/When/Then que Code
-Generation y Build and Test pueden convertir en pruebas.
+Veridicus es un producto con interfaz para personas, una biblioteca y una línea de comandos que usa otra
+persona, varios actores con permisos distintos y reglas delicadas (AUTONOMIA-03, AUTONOMIA-04 y
+AUTONOMIA-05). Los requisitos de `inception/requirements-analysis/requirements.md` dicen qué debe hacer
+el sistema; las historias dicen quién lo hace, en qué orden y cómo se comprueba que terminó, con criterios
+Given/When/Then que Code Generation y Build and Test pueden convertir en pruebas.
 
 ## Factores considerados
 
 | Factor | Situación en Veridicus |
 |---|---|
-| Tipo de proyecto | Greenfield, multicomponente (frontend, API de sesión, agente semántico, base de datos y cola) |
-| Funciones de cara al usuario | Sí: carga de escenarios, ingreso del testimonio, revisión de alertas, consolidación y descarga |
-| Personas | Al menos dos roles con permisos distintos (`analista`, `admin`) y dos vetos de confianza (SRE/CISO y cumplimiento ético) |
-| Complejidad de las reglas | Alta: umbral del Silencio Fáctico, máquina de estados de la alerta, consolidación bloqueante, versiones de reporte |
+| Tipo de proyecto | Greenfield, multicomponente: biblioteca del analizador con CLI, frontend, API de sesión, trabajador del analizador, anonimizador, base de datos y cola |
+| Funciones de cara al usuario | Sí: crear la sesión con su perfil, importar o ingresar la transcripción, lanzar el modo final, revisar hallazgos, consolidar y descargar; y, para el investigador, la CLI y la evaluación |
+| Personas | Dos roles en la consola (`analista`, `admin`), un usuario de la CLI (Investigador del TG) y dos vetos de confianza (SRE/CISO y cumplimiento ético) |
+| Complejidad de las reglas | Alta: verificación determinista de las dos citas, máquina de estados del hallazgo, fallo cerrado del anonimizador, modo incremental frente a final, consolidación bloqueante, versiones de reporte |
 | Prácticas del equipo | team-practices exige que cada tarea nombre su verificación (AUTONOMIA-02); los criterios de aceptación son el puente |
 
 ## Dónde aportan más las historias
 
-- El flujo de **texto** de punta a punta, que es la primera unidad del plan de entrega (team-practices,
-  Walking Skeleton).
-- La **revisión humana** de alertas y la **consolidación**, donde viven AUTONOMIA-03 y el riesgo de
-  sesgo de automatización.
-- El **Silencio Fáctico**, donde AUTONOMIA-05 exige una prueba por debajo del umbral.
-- Los hallazgos que la revisión de Análisis de Requisitos dejó abiertos (R-01, R-03 a R-06), que aquí se
-  resuelven como criterios de aceptación.
+- La **primera rebanada**: biblioteca y CLI con el anonimizador y un proveedor comercial sobre
+  transcripciones sintéticas (pregunta 10).
+- La **verificación de las dos citas** y el **fallo cerrado**, donde viven AUTONOMIA-04 y AUTONOMIA-05.
+- La **revisión humana** y la **consolidación**, donde viven AUTONOMIA-03 y el riesgo de sesgo de
+  automatización.
+- La **validación de modelos locales en ZINE**, que la pregunta 14 pone antes de Domain Design.
+- Los hallazgos que la revisión de requisitos dejó abiertos (R-01 a R-03), que aquí se resuelven como
+  criterios de aceptación (preguntas 10 a 12).

@@ -21,7 +21,7 @@ Somos un equipo de una persona que trabaja con agentes de IA: el agente propone,
 ## Walking Skeleton
 
 - No ejecutamos la ceremonia de esqueleto andante: el scope `classic` la declara apagada (`skeleton: off`).
-- Sí fijamos el **orden de entrega** (cambio 01, DT27): la primera rebanada de valor es la **biblioteca del analizador de incoherencias con su línea de comandos** y un proveedor comercial, sobre transcripciones sintéticas (y, fuera de Git, las 10 entrevistas del piloto del TG). Siguen el anonimizador, la consola con la revisión, el reporte y la voz.
+- Sí fijamos el **orden de entrega** (cambio 01, DT27): la primera rebanada de valor es la **biblioteca del analizador de incoherencias con su línea de comandos**, con el **anonimizador** como módulo de la biblioteca y la validación del perfil (la línea de comandos rechaza un destino externo sin anonimizador antes de cualquier llamada, igual que los servicios), y un proveedor comercial, sobre transcripciones sintéticas (y, fuera de Git, las 10 entrevistas del piloto del TG). Siguen la consola con la revisión, el reporte y la voz (User Stories, pregunta 10).
 
 ## Testing Posture
 

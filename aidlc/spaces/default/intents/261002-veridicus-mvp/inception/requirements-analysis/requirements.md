@@ -4,6 +4,11 @@
 anterior queda en el historial de Git. Los ID que siguen vigentes se conservan; los que salen quedan
 marcados **Retirado** en la sección 8 para que ninguna referencia posterior quede colgando.
 
+**Precisiones de User Stories (2026-11-02).** Al aprobar la revisión 2 de User Stories, el humano decidió
+traer aquí las decisiones de esa etapa que precisan requisitos (preguntas 10–16 de
+`user-stories-questions.md` y las revisiones del equipo): FR3.6, FR4.2, FR4.9, FR6.1, FR6.4, FR7.1,
+FR7.2, FR7.5, FR11.3, FR14.3, FR16.1, NFR12 y el nuevo **FR16.3**. Cada cambio cita su origen.
+
 **Insumos.** `specs/prd.md` (iteración 6, fuente única de requisitos), `pvb.md` (cede ante el PRD,
 nota H6), `docs/limite-autonomia.md` (AUTONOMIA-01..05, con 04 y 05 reescritas), `docs/iteracion2.md`
 (análisis de impacto del cambio 01 y decisiones P1–P18), el cambio 01 con su **contrato común del
@@ -108,8 +113,9 @@ No hay marco de verdad documental: el contraste con documentos externos es WON'T
 - **FR3.6** El analista puede **importar** una transcripción en el formato del contrato común
   (`entrevista`, `origen: corpus`, turnos con `n`, `hablante`, `pagina`, `pagina_fin`, `texto`,
   `estado`). Un archivo que no cumple el esquema se rechaza completo, con un mensaje en español, y no se
-  crea la sesión (P5). *Criterio:* pruebas con un archivo válido, uno con un turno sin `hablante` y uno
-  con números de turno repetidos.
+  crea la sesión (P5). Una transcripción importada nace **cerrada a turnos nuevos** y va directo al modo
+  final (User Stories, pregunta 12). *Criterio:* pruebas con un archivo válido, uno con un turno sin
+  `hablante` y uno con números de turno repetidos.
 - **FR3.7** La consola y la CLI admiten al menos la entrevista más larga del corpus del piloto con margen;
   las cifras exactas (caracteres por transcripción, turnos, caracteres por turno, tamaño del reporte)
   viven en el catálogo único de límites y las fija NFR Requirements (pregunta 13). Una entrada por encima
@@ -124,8 +130,11 @@ No hay marco de verdad documental: el contraste con documentos externos es WON'T
   está en un turno igual o posterior a `desde_turno`. *Criterio:* toda salida valida contra el esquema
   versionado del contrato (prueba de contrato en nivel 0).
 - **FR4.2** `estado: error` implica `hallazgos` vacío: nunca un resultado parcial. El error lleva un
-  `codigo` estable (`salida_invalida`, `bloqueo_contenido`, `tiempo_agotado`, `proveedor`), y la consola
-  muestra «El analizador no pudo procesar este tramo. Revisión manual requerida» con ese código (S7-J4).
+  `codigo` estable (`salida_invalida`, `bloqueo_contenido`, `tiempo_agotado`, `proveedor` y uno propio
+  para el fallo del anonimizador, propuesto `anonimizador`, cuyo nombre definitivo fija Contract Design),
+  y la consola muestra «El analizador no pudo procesar este tramo. Revisión manual requerida» con ese
+  código (S7-J4); ante el fallo del anonimizador añade «No se envió ningún dato fuera del clúster» (User
+  Stories, revisión de calidad y diseño).
   *Criterio:* una prueba por código verifica la lista vacía (AUTONOMIA-05).
 - **FR4.3** Un hallazgo tiene como campos obligatorios `hecho`, `tipo` (uno de los 7 valores), `cita_a`,
   `cita_b` (cada una con texto, turno y página si el turno la tiene) y `observaciones`; `actos` es
@@ -154,10 +163,15 @@ No hay marco de verdad documental: el contraste con documentos externos es WON'T
   tamaño de ventana y el solapamiento los fija NFR Requirements. Solo se buscan contradicciones dentro de
   cada ventana; las más distantes son una limitación declarada: la corrida registra el modo fragmentado,
   la ventana y el solapamiento, y el reporte los muestra (pregunta 11).
-- **FR4.9** En la consola, el modo incremental corre por cada turno nuevo. El modo final se lanza con un
-  botón tras «Finalizar sesión»; sus hallazgos se unen a los del incremental sin duplicar el mismo par de
-  citas, y la consolidación exige que el modo final haya terminado (P6). *Criterio:* prueba de
-  integración con un hallazgo repetido en ambos modos que aparece una sola vez.
+- **FR4.9** En la consola, el modo incremental corre **una vez por envío**: un turno escrito o dictado
+  da `desde_turno = hasta_turno = n`, y un bloque pegado da una sola corrida desde su primer turno (User
+  Stories, pregunta 12). El modo final se lanza con un botón tras «Finalizar sesión» (o directamente en
+  una transcripción importada, FR3.6); sus hallazgos se unen a los del incremental sin duplicar: un
+  hallazgo es el mismo cuando coincide el **par no ordenado** de (turno, cita normalizada en espacios), y
+  si ya estaba decidido conserva su estado y su historial. El modo final se puede **relanzar** mientras la
+  sesión no esté consolidada; cuenta el último lanzado, y dos lanzamientos simultáneos dan un `202` y un
+  `409` (P6; User Stories, pregunta 13). *Criterio:* prueba de integración con un hallazgo repetido en
+  ambos modos que aparece una sola vez.
 
 ### FR5 — Silencio Fáctico y Paquete de Contexto de Traspaso · **Retirado** (cambio 01)
 
@@ -166,8 +180,11 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 ### FR6 — Revisión humana de hallazgos (MUST) · S6-P1, S8, S12-R2, preguntas 5 y 6, AUTONOMIA-03
 
 - **FR6.1** Todo hallazgo nace `pendiente`. Solo un humano lo cambia a `aceptada`, `editada` o
-  `descartada`, y solo el analista dueño de la sesión (FR1.2). Cada cambio guarda actor, hora, estado
-  anterior y estado nuevo en un historial que no se borra.
+  `descartada`, y solo el analista dueño de la sesión (FR1.2). «Editada» significa que el analista
+  escribe **su propia reformulación**; el hecho, el tipo, las citas y las observaciones de la IA no
+  cambian (pregunta 6). Antes de consolidar, la decisión se puede cambiar entre `aceptada`, `editada` y
+  `descartada`, con las mismas exigencias, pero nunca vuelve a `pendiente` (Seguimiento 5). Cada cambio
+  guarda actor, hora, estado anterior y estado nuevo en un historial que no se borra.
 - **FR6.2** La tarjeta del hallazgo muestra las dos citas en su contexto (turno, hablante y página), el
   tipo y el hecho; las observaciones se muestran plegadas. No se puede marcar un hallazgo como
   `aceptada` ni `editada` sin haber desplegado sus observaciones (pregunta 6). *Criterio:* prueba de
@@ -176,28 +193,36 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 - **FR6.4** Ni la salida de la IA ni la interfaz contienen etiquetas de veracidad sobre el compareciente
   («mentiroso», «falso», «miente», «verdadero», puntaje binario de verdad). El escaneo cubre las
   observaciones de los hallazgos, las observaciones al conductor y los textos de la interfaz, y solo
-  excluye las dos citas literales del testimonio. *Criterio:* prueba automatizada que falla si aparece una
+  excluye las dos citas literales del testimonio y el texto que escribe el analista, que el reporte
+  muestra como suyo (User Stories, Seguimiento 4). *Criterio:* prueba automatizada que falla si aparece una
   de esas etiquetas (AUTONOMIA-03).
 - **FR6.5** La interfaz recuerda, junto a cada hallazgo, que la IA es un asistente y que el criterio del
   analista prevalece (S12-R2).
 
 ### FR7 — Consolidación, reporte y descarga (MUST) · S5-CU5, S7-J1, S8, pregunta 7, Seguimiento 1, P6, P16
 
-- **FR7.1** Solo el analista dueño puede ejecutar «Finalizar y Consolidar», y solo después de
-  «Finalizar sesión» y del modo final terminado (P6). El botón está deshabilitado mientras haya algún
-  hallazgo `pendiente` (Seguimiento 1). *Criterio:* la API rechaza la consolidación con hallazgos
-  pendientes o sin modo final.
+- **FR7.1** Solo el analista dueño puede ejecutar «Finalizar y Consolidar» (en la consola, el botón
+  «Consolidar reporte»), y solo después de «Finalizar sesión» y de que el último modo final lanzado haya
+  **terminado** (P6). El botón está deshabilitado mientras haya algún hallazgo `pendiente` (Seguimiento 1)
+  o algún análisis en cola o en proceso. Un modo final o un tramo incremental terminados en `error`
+  **no bloquean** la consolidación: el diálogo de confirmación lo avisa y ofrece relanzar el modo final
+  (User Stories, pregunta 13). *Criterio:* la API rechaza la consolidación con hallazgos pendientes, sin
+  modo final lanzado o con análisis en proceso, y la acepta con un modo final en `error`.
 - **FR7.2** El reporte es un Markdown con: la transcripción completa por turnos (con hablante y página);
   **todas** las sugerencias con su estado final y nota (P16); por cada una, el hecho, el tipo, las dos
   citas con turno y página, los avisos de FR4.4 y las observaciones; el perfil, `config_sha256`,
   `prompt_sha256`, la versión del analizador y el registro de modelos de cada corrida (FR15.3); el modo
-  fragmentado y su ventana, si se usó; y quién consolidó y cuándo.
+  fragmentado y su ventana, si se usó; «Tramo no evaluado» por cada tramo incremental en `error` y
+  «Modo final no completado. Revisión manual requerida» si el último modo final terminó en `error`, cada
+  uno con su código (User Stories, pregunta 13); y quién consolidó y cuándo.
 - **FR7.3** El sistema guarda el reporte en el volumen persistente y registra su SHA-256. *Criterio:*
   recalcular el SHA-256 del archivo descargado coincide con el registrado.
 - **FR7.4** El analista descarga el reporte consolidado desde la interfaz.
 - **FR7.5** Tras consolidar, la sesión y sus hallazgos quedan **bloqueados**. Una corrección crea una
   **versión nueva** del reporte, con nuevo SHA-256 y nueva consolidación (quién y cuándo), que referencia
-  a la anterior; la anterior se conserva intacta (pregunta 7).
+  a la anterior; la anterior se conserva intacta (pregunta 7). La corrección se hace con «Corregir
+  reporte», que abre una copia de trabajo donde solo cambian estados y notas; consolidarla crea la
+  versión nueva (User Stories, pregunta 7).
 
 ### FR8 — Reanudación de sesión (MUST) · S7-J3, S8
 
@@ -243,7 +268,9 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
   clúster; NER local más reglas; marcas coherentes en toda la entrevista (p. ej., `[PERSONA_3]`); tabla
   de correspondencia solo en memoria del clúster, nunca en logs ni en disco; restauración de las citas
   antes de verificarlas (FR4.4); y detección de marcas alteradas por el modelo, que invalida el hallazgo.
-  Solo es obligatorio delante de destinos externos; con un perfil todo local no interviene (P9). Si falla,
+  Solo es obligatorio delante de destinos externos; con un perfil todo local no interviene (P9). Es un
+  módulo de la biblioteca del analizador y entra en la **primera rebanada**, con la línea de comandos
+  (User Stories, pregunta 10). Si falla,
   la llamada no sale y el tramo queda en `estado: error` (falla cerrado). *Criterios:* sobre el conjunto
   sintético, el 100 % de las entidades sembradas (nombres, lugares y números de expediente, con y sin
   tilde) sale seudonimizado: una sola fuga hace fallar la prueba (pregunta 15); una prueba verifica que,
@@ -297,8 +324,10 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 - **FR14.2** Cada corrida guarda la configuración efectiva y su huella `config_sha256`; dos corridas con
   la misma configuración tienen la misma huella.
 - **FR14.3** Un servicio no arranca si el archivo de perfiles es inválido, si un perfil con destino
-  externo no tiene el anonimizador delante (AUTONOMIA-04) o si falta la clave de API que referencia.
-  *Criterio:* prueba de arranque con un control negativo por cada caso.
+  externo no tiene el anonimizador delante (AUTONOMIA-04) o si falta la clave de API que referencia. La
+  línea de comandos y la biblioteca validan el perfil igual: en esos casos terminan con código ≠ 0
+  **antes** de cualquier llamada (User Stories, pregunta 10). *Criterio:* prueba de arranque, y de la
+  línea de comandos, con un control negativo por cada caso.
 - **FR14.4** Juez y verificador son de familias de modelos distintas. Es obligatorio en los perfiles de
   evaluación, cuya validación rechaza la misma familia. Un perfil de demostración puede usar la misma
   familia solo si lo declara explícitamente, y la consola y el reporte lo muestran como aviso
@@ -324,10 +353,24 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 
 - **FR16.1** Los scripts `sbatch` y el paquete de entrada para correr la línea de comandos contra un
   modelo local servido con API compatible con OpenAI en el clúster ZINE son artefactos revisables que el
-  humano lanza; ningún plan de tareas envía trabajos a ZINE (AUTONOMIA-01).
+  humano lanza; ningún plan de tareas envía trabajos a ZINE (AUTONOMIA-01). En Git solo van los
+  scripts `sbatch`, el script que arma el paquete y un **manifiesto** con nombres y SHA-256, sin
+  contenido; el paquete se arma en un directorio ignorado por Git, y una comprobación de nivel 0 falla si
+  Git rastrea algo de ese directorio (User Stories, pregunta 11).
 - **FR16.2** Cada resultado de ZINE registra modelo, cuantización (Q8 o BF16 para medir capacidades),
   motor y versión, y usa solo corpus público del piloto o el conjunto sintético. *Criterio:* el paquete
   de entrada valida contra el esquema del contrato y no contiene archivos fuera de esas dos fuentes.
+- **FR16.3** (**MUST**) Antes de Domain Design se **validan los modelos locales** en el clúster Ing.
+  Sistemas con seis mediciones: velocidad del modelo local en un nodo, funciones de la API del servidor
+  local (esquema JSON o gramática, `seed`, caché del *prompt*), *tokens* de la entrevista más larga
+  frente al contexto, repetibilidad en CPU, instalación sin internet y un verificador de otra familia.
+  Se hacen mientras la tarea 4L corre en segundo plano; si su medición `--array=8` no termina en el plazo
+  que fija el humano, el reporte se revisa con sus cifras parciales. Los `.sbatch` de validación y el
+  reporte (solo cifras) viven en `docs/validacion-zine/` por commit directo; los `.sbatch` de producción
+  (FR16.1) entran por PR. Los escribe el agente y los lanza el humano (AUTONOMIA-01). *Criterio:* el
+  reporte registra, por medición, el comando exacto, el ID del trabajo SLURM, el nodo y el SHA-256 del
+  modelo, y lleva la línea de revisión del humano en un commit anterior al inicio de Domain Design (User
+  Stories, preguntas 14, 15 y 16; US14.1).
 
 ---
 
@@ -397,7 +440,9 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 - **NFR12 — Datos reales fuera del repositorio (MUST, S8 WON'T, `project.md`, P7).** Ni el repositorio
   ni la CI contienen testimonios, audios, nombres ni expedientes reales, ni fragmentos o codificaciones del
   piloto; las pruebas y los *fixtures* usan transcripciones sintéticas. Las entrevistas del piloto solo se
-  procesan en la máquina local (CLI o consola en Minikube) y sus resultados quedan fuera de Git (FR13.4).
+  procesan en la máquina local (CLI o consola en Minikube) y en el clúster ZINE, empaquetadas fuera de Git
+  (FR16.1); del clúster solo salen cifras, y los resultados quedan fuera de Git (FR13.4; User Stories,
+  pregunta 11).
 - **NFR13 — Calidad del código (MUST, team-practices).** 80 % de líneas por servicio Python, por la
   biblioteca del analizador y por el frontend, y 100 % de ramas en los módulos guardia (verificación de
   citas, validación y máquina de estados del hallazgo, consolidación del reporte, anonimizador), medido en
@@ -487,7 +532,7 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 | Formato exacto de la marca de hablante al dividir texto pegado | Functional Design |
 | Cómo detecta el sistema la pérdida de conexión que suspende una sesión | Functional Design |
 | Política de contraseñas y duración de la sesión web | NFR Requirements |
-| Nivel de accesibilidad de la interfaz (no lo fija el PRD) | User Stories / Refined Mockups |
+| ~~Nivel de accesibilidad de la interfaz (no lo fija el PRD)~~ Cerrada en User Stories: WCAG 2.1 AA (SHOULD) con axe, flujo de texto solo con teclado y estados no solo por color (Seguimiento 3) | User Stories |
 | Distribución de Kubernetes, CNI y lista blanca de CoreDNS en cada máquina | Infrastructure Design |
 
 ---
@@ -511,7 +556,7 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 | FR13 | Nuevo | S8 MUST (analizador), S9-D, S11 §1 y §4; DT26; P3, P7, P11; pregunta 14 |
 | FR14 | Nuevo | S5-CU1, S8 MUST (perfiles), S11-B; DT21; AUTONOMIA-04; P8, P9; pregunta 12 |
 | FR15 | Nuevo | S9-D, S12-R8, S12-R10; DT21; P15; pregunta 16 |
-| FR16 | Nuevo | S8 WON'T (GPU: ZINE), S11 §4; DT26; AUTONOMIA-01 |
+| FR16 | Nuevo; FR16.3 entra por User Stories (2026-11-02) | S8 WON'T (GPU: ZINE), S11 §4; DT26; AUTONOMIA-01; User Stories, preguntas 11 y 14–16 |
 | NFR1 | Se reescribe | S6-P3, S7-J2 (paso 3); AUTONOMIA-04 |
 | NFR2, NFR3 | Se mantienen (latencias por recalcular) | S6-P2, S8 WON'T (GPU); team-practices |
 | NFR4 | Se reescribe | S10 §3, S11 §1–2, S11-C; P11, P14, P15; preguntas 11 y 14; team-practices (nivel 2) |
@@ -522,7 +567,7 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 | NFR9 | **Retirado** | Cambio 01 §2 |
 | NFR10 | Cambia | S12-R7; AUTONOMIA-04; team-practices (Code Style, Deployment) |
 | NFR11 | Cambia (corridas y registro de modelos) | S6-P1; AUTONOMIA-03; DT21 |
-| NFR12 | Cambia (piloto solo en la máquina local) | S8 WON'T (datos reales); `project.md`; P7 |
+| NFR12 | Cambia (piloto en la máquina local y en ZINE, fuera de Git) | S8 WON'T (datos reales); `project.md`; P7; User Stories, pregunta 11 |
 | NFR13 | Cambia (módulos guardia) | team-practices; `team.md` Testing Posture |
 | NFR14 | Se mantiene | team-practices |
 | NFR15 | Cambia (*tokens*, AIR como señal) | S8 §5, S13 §4; P13 |

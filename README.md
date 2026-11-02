@@ -101,7 +101,7 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 análisis de impacto y sus decisiones están en [`docs/iteracion2.md`](./docs/iteracion2.md); PVB, PRD
 (iteración 6), reglas AUTONOMIA y `plan-aidlc.md` ya están corregidos. El flujo volvió a
 **Requirements Analysis (2.3)** para revisar en este intent las etapas 2.3 a 3.5; la tabla de abajo
-muestra lo aprobado **antes** del cambio, que cada etapa revisada actualizará (Requirements Analysis ya está revisada; sigue User Stories). El plan de U1 nunca se
+muestra lo aprobado **antes** del cambio, que cada etapa revisada actualizará (Requirements Analysis y User Stories ya están revisadas; sigue Refined Mockups, y **antes de Domain Design** se validan los modelos locales en el clúster Ing. Sistemas, FR16.3). El plan de U1 nunca se
 aprobó y se regenerará con el contrato común; desde entonces, el autor elige `Approve Plan` y se
 construye por Bolts.
 
@@ -109,7 +109,7 @@ construye por Bolts.
 |---|---|---|---|
 | Inception | Practices Discovery | Aprobada | [`team-practices.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/practices-discovery/team-practices.md) |
 | Inception | Requirements Analysis | Aprobada (revisión 2, cambio 01) | [`requirements.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/requirements.md): revisión 2 con el contrato común v0.1 del analizador (FR4.1–FR4.9: 7 tipos, dos citas verificadas, `error` ⇒ hallazgos vacíos), anonimizador obligatorio (FR11.3–FR11.4), biblioteca y CLI (FR13), perfiles por papel (FR14), `ModelGateway` (FR15) y lotes en ZINE (FR16); retirados FR2, FR5, FR11.1 y NFR9. Revisión en [`reviews/review-02.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/reviews/review-02.md) (READY; R-01 a R-06 aceptados como riesgo) |
-| Inception | User Stories | Aprobada | [`user-stories/`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/user-stories/) |
+| Inception | User Stories | Aprobada (revisión 2, cambio 01) | [`stories.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/user-stories/stories.md): 60 historias activas en 14 épicas, con las retiradas marcadas sin renumerar; épicas nuevas 12 (biblioteca y CLI), 13 (perfiles y modelos) y 14 (ZINE, con US14.1 MUST: validación de modelos locales antes de Domain Design). [`personas.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/user-stories/personas.md) suma P4, Investigador del TG. Revisión en [`reviews/review-03.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/user-stories/reviews/review-03.md) (READY; R-01 a R-05 resueltos) |
 | Inception | Refined Mockups | Aprobada | [`mockups.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md), [`interaction-spec.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md) |
 | Inception | Domain Design | Aprobada | [`components.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md), [`decisions.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/decisions.md) |
 | Inception | Units Generation | Aprobada | [`unit-of-work.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md) |

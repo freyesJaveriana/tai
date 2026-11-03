@@ -2,7 +2,7 @@
 
 **Revisión 2 — cambio 01 (DT27, 2026-11-02).** Fuente: PRD S3 (ICP y vetos de confianza), roles de
 `requirements.md` (FR1.2), respuesta 1 de `user-stories-questions.md` y, en la segunda pasada,
-`docs/iteracion2.md` §2.2 y la respuesta 9. Todas las personas son ficticias; el repositorio usa solo
+`docs/iteracion2.md` §2.2 y la respuesta 9; el rol de P4 en la consola, por Refined Mockups (2026-11-03). Todas las personas son ficticias; el repositorio usa solo
 datos sintéticos.
 
 ## P1 — Analista de Verdad (principal)
@@ -43,11 +43,11 @@ datos sintéticos.
 | Cómo aparece en las historias | Como persona de las historias de integridad (citas verificadas, sin vocabulario de veracidad, *prompt* inmutable, rastro de auditoría) y como criterios de aceptación en las del analista. Su evidencia es el reporte consolidado y el historial de pruebas (R-03 de la primera revisión). |
 | Cambio 01 | «CoT y cita» pasa a «dos citas verificadas». |
 
-## P4 — Investigador del TG (nueva, sin consola)
+## P4 — Investigador del TG (nueva)
 
 | Campo | Contenido |
 |---|---|
-| Rol en la aplicación | Ninguno: no usa la consola. Usa la biblioteca y la línea de comandos. |
+| Rol en la aplicación | `investigador`: en la consola solo sube y consulta reportes de corridas y evaluaciones, sin leer sesiones (FR1.2, FR13.5; Refined Mockups, 2026-11-03). Todo lo demás lo hace con la biblioteca y la línea de comandos. |
 | Contexto | Autor del Trabajo de Grado *Diálogos para la Memoria*, que reutiliza el mismo analizador con el mismo contrato en la app `sistema` (DT17, DT20). Trabaja en su máquina local y en el clúster ZINE (Ing. Sistemas, SLURM, solo CPU). |
 | Objetivos | Correr el analizador por lotes sobre el conjunto sintético y el corpus del piloto; comparar perfiles y modelos con métricas reproducibles; medir la calidad de modelos locales grandes en ZINE; validar los modelos locales antes del diseño (respuesta 14). |
 | Dolores | Corridas largas que se cortan en el clúster; resultados que no se pueden comparar porque no registran modelo, cuantización ni configuración; un repositorio público donde no puede entrar nada del piloto. |
@@ -60,7 +60,7 @@ datos sintéticos.
 | Prioridad | Persona | Relación |
 |---|---|---|
 | 1 | Analista de Verdad | Usa el producto y es el único que valida hallazgos y consolida. |
-| 2 | Investigador del TG | Usa el mismo analizador sin la consola; sus mediciones fijan los perfiles que el analista elige. |
+| 2 | Investigador del TG | Usa el mismo analizador desde la línea de comandos y consulta sus reportes en la consola; sus mediciones fijan los perfiles que el analista elige. |
 | 3 | Administrador de plataforma | Hace posible que el analista trabaje dentro del clúster; nunca cambia el estado de un hallazgo. |
 | 4 | Oficial de Cumplimiento Ético | Audita lo que produce el analista; sus vetos limitan lo que la IA puede mostrar. |
 

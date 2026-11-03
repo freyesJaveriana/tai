@@ -5,12 +5,24 @@ avance:
 
 **https://claude.ai/artifact/5D2otJRp5fh6YsccE6m8iw**
 
-- Privado: solo lo abre su dueño hasta que se comparta desde el menú «Share» del lienzo.
-- Tableros: M4 Sesión (interactivo: desplegar la CoT habilita Aceptar y Editar), M4 con el Paquete de
-  Contexto de Traspaso abierto, colores de estado (configurables desde *Tweaks*, P4), M0 Inicio de
-  sesión, M1 Lista de sesiones con aviso de reanudación, M2 Escenarios de control, M3 Nueva sesión,
-  diálogo de consolidación, M5 Reporte consolidado y M6 Gestión de usuarios.
-- Refleja `mockups.md` tal como se aprobó el 02/10/2026, incluidos los hallazgos abiertos de la revisión
-  (R-01 a R-08), que quedaron aceptados como riesgo. Los textos de testimonio son sintéticos.
-- La fuente de verdad del diseño siguen siendo los cuatro artefactos Markdown de esta carpeta; el lienzo
-  es una vista de apoyo y no se versiona en el repositorio.
+- **Acceso:** compartido con «cualquiera que tenga el enlace». El acceso se cambia desde el menú «Share»
+  del lienzo. Los textos de testimonio son sintéticos.
+- **Revisión 2 (cambio 01, 03/11/2026).** Refleja la revisión 2 de `mockups.md` con estos tableros:
+  - M4 sesión guiada, interactiva:
+    - «Ir a la cita A/B» resalta el turno.
+    - Desplegar las observaciones habilita Aceptar y Editar.
+    - Incluye el tramo no evaluado y la franja del modo final.
+  - Colores de estado y marcas de cita A/B, configurables desde *Tweaks* (P4, P7).
+  - Diálogo de consolidación con el modo final en error.
+  - M0 inicio de sesión.
+  - M1 lista con origen y perfil.
+  - M3 nueva sesión con el selector de perfil, interactiva.
+  - M7 importar transcripción.
+  - M5 reporte.
+  - M6 usuarios con el rol `investigador`.
+  - M8 reportes del investigador, con la comparación.
+- **Tableros retirados:** el Paquete de Contexto de Traspaso y M2 Escenarios de control.
+- El rol `investigador` y M8 están propuestos y pendientes de la decisión del humano en la aprobación.
+  Ver la tabla de precisiones de `mockups.md`.
+- **Fuente de verdad:** siguen siendo los cuatro artefactos Markdown de esta carpeta. El lienzo es una
+  vista de apoyo y no se versiona en el repositorio.

@@ -3025,3 +3025,10 @@
 **Session**: 474c650a-a813-413f-874f-42cbf02b04e7
 
 ---
+
+## Workflow Parked
+**Timestamp**: 2026-11-03T16:11:15Z
+**Event**: WORKFLOW_PARKED
+**Stage**: domain-design
+
+---

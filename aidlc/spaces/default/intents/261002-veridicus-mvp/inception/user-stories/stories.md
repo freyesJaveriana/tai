@@ -17,6 +17,10 @@ evaluación en ZINE van en épicas nuevas al final (respuesta 2).
 **Personas.** P1 Analista de Verdad · P2 Administrador de plataforma · P3 Oficial de Cumplimiento Ético ·
 P4 Investigador del TG (respuesta 9).
 
+**Precisiones de Refined Mockups (2026-11-03).** Al aprobar la revisión 2 de Refined Mockups, el humano
+decidió traer aquí el rol `investigador` (AC2.1.4, AC8.1.1, AC8.2.4) y las historias nuevas US12.6 y
+US12.7 (tabla de precisiones de `inception/refined-mockups/mockups.md`).
+
 ## Convenciones de los criterios
 
 - **Nivel de prueba** al final de cada criterio (team-practices, Testing Posture): `[N0]` unitaria,
@@ -92,7 +96,7 @@ para que todo lo que se analice quede atado a esa configuración de modelos.
 - **AC2.1.1** Given los perfiles aprobados, When creo una sesión con una entrevista guiada o importada y un perfil, Then la sesión guarda el perfil, su configuración efectiva y su `config_sha256`, y su cabecera muestra el perfil, los primeros 12 caracteres de la huella y, por papel, si usa un proveedor comercial. `[N1]` + `[N0]` Vitest
 - **AC2.1.2** Given una sesión S1 creada con el perfil X y un PR que después cambia X, When el servicio reinicia y se analiza un turno de S1, Then la corrida registra la misma `config_sha256` que S1; una sesión S2 creada después guarda la huella nueva. `[N1]`
 - **AC2.1.3** Given un nombre de perfil que no está en el archivo aprobado, When envío `POST` para crear la sesión, Then `422` y 0 filas nuevas. `[N1]`
-- **AC2.1.4** Given un usuario `admin`, When intenta crear una sesión, enviar un turno, pegar o importar una transcripción, finalizar una sesión o lanzar el modo final, Then `403` y 0 filas nuevas; y en la interfaz no ve «Nueva sesión». `[N1]` + `[N0]` Vitest
+- **AC2.1.4** Given un usuario `admin` o `investigador`, When intenta crear una sesión, enviar un turno, pegar o importar una transcripción, finalizar una sesión o lanzar el modo final, Then `403` y 0 filas nuevas; y en la interfaz no ve «Nueva sesión». `[N1]` + `[N0]` Vitest
 - **AC2.1.5** Given una sesión de otro analista, When intento enviar un turno, finalizarla o lanzar su modo final, Then `403`. `[N1]`
 
 ### US2.2 — Enviar el testimonio turno a turno · MUST · P1
@@ -365,7 +369,7 @@ ni perder lo ya analizado.
 Como usuario de Veridicus, quiero entrar con usuario y contraseña, para que cada acción quede a mi nombre.
 *Origen:* FR1.1, FR1.3.
 
-- **AC8.1.1** Given credenciales válidas, When inicio sesión, Then el `analista` llega a la lista de sesiones y el `admin` a la gestión de usuarios. `[N1]` + `[N0]` Vitest
+- **AC8.1.1** Given credenciales válidas, When inicio sesión, Then el `analista` llega a la lista de sesiones, el `admin` a la gestión de usuarios y el `investigador` a los reportes de corridas y evaluaciones. `[N1]` + `[N0]` Vitest
 - **AC8.1.2** Given un usuario inexistente o una contraseña errónea, When intento entrar, Then ambos casos producen el mismo estado y el mismo cuerpo byte a byte, con un mensaje en español. `[N1]`
 - **AC8.1.3** Given una contraseña única sembrada, When busco en todas las columnas de texto y en los logs capturados, Then hay 0 coincidencias y el hash tiene el prefijo de un algoritmo adaptativo con sal. `[N1]`
 - **AC8.1.4** Given cada ruta del OpenAPI salvo inicio de sesión y salud, When la llamo sin token, Then `401`. `[N1]`
@@ -379,6 +383,7 @@ usa la consola.
 - **AC8.2.1** Given que soy `admin`, When creo un usuario `analista`, Then puede iniciar sesión con ese rol. `[N1]`
 - **AC8.2.2** Given un usuario `analista`, When intenta gestionar usuarios, Then `403`. `[N1]`
 - **AC8.2.3** Given un usuario desactivado, When usa su token vigente o intenta entrar, Then `401`, y sus acciones pasadas conservan su autoría. `[N1]`
+- **AC8.2.4** Given que soy `admin`, When creo un usuario `investigador`, Then puede iniciar sesión con ese rol, llega a los reportes de corridas y evaluaciones, y recibe `403` al leer sesiones o reportes de sesiones (FR1.2). `[N1]`
 
 ### US8.3 — Cambiar perfiles, proveedores, *prompts* y límites solo por PR · MUST · P2
 Como Administrador de plataforma, quiero que la configuración de modelos solo cambie mediante un PR, para

@@ -9,6 +9,10 @@ traer aquí las decisiones de esa etapa que precisan requisitos (preguntas 10–
 `user-stories-questions.md` y las revisiones del equipo): FR3.6, FR4.2, FR4.9, FR6.1, FR6.4, FR7.1,
 FR7.2, FR7.5, FR11.3, FR14.3, FR16.1, NFR12 y el nuevo **FR16.3**. Cada cambio cita su origen.
 
+**Precisiones de Refined Mockups (2026-11-03).** Al aprobar la revisión 2 de Refined Mockups, el humano
+decidió traer aquí el tercer rol `investigador` de FR1.2 (seguimiento 8 de `refined-mockups-questions.md`)
+y el nuevo **FR13.5**, la consola de reportes del investigador (respuesta 10 y seguimiento 7).
+
 **Insumos.** `specs/prd.md` (iteración 6, fuente única de requisitos), `pvb.md` (cede ante el PRD,
 nota H6), `docs/limite-autonomia.md` (AUTONOMIA-01..05, con 04 y 05 reescritas), `docs/iteracion2.md`
 (análisis de impacto del cambio 01 y decisiones P1–P18), el cambio 01 con su **contrato común del
@@ -71,16 +75,18 @@ alcance». Las decisiones del Trabajo de Grado se citan por su ID (DT…) y son 
 - **FR1.1** El sistema autentica con usuario y contraseña locales; la contraseña se guarda solo como hash
   de un algoritmo adaptativo con sal. *Criterio:* ninguna columna ni log contiene la contraseña en claro
   (prueba de integración que inspecciona la base y los logs tras crear un usuario).
-- **FR1.2** Existen exactamente dos roles, `analista` y `admin`, con esta matriz (pregunta 5, P8):
+- **FR1.2** Existen exactamente tres roles, `analista`, `admin` e `investigador`, con esta matriz
+  (pregunta 5, P8; el rol `investigador` entra por Refined Mockups, seguimiento 8):
 
-  | Acción | `analista` | `admin` |
-  |---|---|---|
-  | Gestionar usuarios | No | Sí |
-  | Crear sesiones (importar o ingresar turnos) y elegir su perfil al crearlas | Sí | No |
-  | Lanzar el modo final | Solo en sus propias sesiones | No |
-  | Cambiar el estado de hallazgos y consolidar | Solo en sus propias sesiones | No |
-  | Leer sesiones y reportes | Todas | Todas |
-  | Crear o cambiar perfiles, proveedores o *prompts* | Nadie desde la consola: solo por PR (FR9.2) | Ídem |
+  | Acción | `analista` | `admin` | `investigador` |
+  |---|---|---|---|
+  | Gestionar usuarios | No | Sí | No |
+  | Crear sesiones (importar o ingresar turnos) y elegir su perfil al crearlas | Sí | No | No |
+  | Lanzar el modo final | Solo en sus propias sesiones | No | No |
+  | Cambiar el estado de hallazgos y consolidar | Solo en sus propias sesiones | No | No |
+  | Leer sesiones y reportes | Todas | Todas | No |
+  | Subir y leer reportes de corridas y evaluaciones de la CLI (FR13.5) | No | No | Sí |
+  | Crear o cambiar perfiles, proveedores o *prompts* | Nadie desde la consola: solo por PR (FR9.2) | Ídem | Ídem |
 
   *Criterio:* una prueba por cada celda «No» o «Solo propias» verifica que la API responde 403 con un
   Problem Details en español.

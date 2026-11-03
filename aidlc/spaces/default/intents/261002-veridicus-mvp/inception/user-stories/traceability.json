@@ -69,6 +69,7 @@
     "FR13.2",
     "FR13.3",
     "FR13.4",
+    "FR13.5",
     "FR14",
     "FR14.1",
     "FR14.2",
@@ -114,7 +115,7 @@
     {
       "id": "FR1.2",
       "status": "OK",
-      "target": "US8.2, US5.4, US2.1, US2.5, US2.7"
+      "target": "US8.2, US5.4, US2.1, US2.5, US2.7, US12.6"
     },
     {
       "id": "FR1.3",
@@ -440,6 +441,11 @@
       "id": "FR13.4",
       "status": "OK",
       "target": "US12.4"
+    },
+    {
+      "id": "FR13.5",
+      "status": "OK",
+      "target": "US12.6, US12.7"
     },
     {
       "id": "FR14",

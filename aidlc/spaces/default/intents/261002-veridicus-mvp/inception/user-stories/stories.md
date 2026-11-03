@@ -583,6 +583,25 @@ comparar corridas.
 - **AC12.5.2** Given la tabla de precios versionada, When termina una corrida, Then la salida suma los *tokens* por proveedor y un costo estimado; un modelo sin precio en la tabla se reporta como «sin precio» sin detener la corrida. `[N0]`
 - **AC12.5.3** Given una sesión, When abro una corrida en la consola, Then veo su registro de modelos en solo lectura. `[N1]` + `[N0]` Vitest
 
+### US12.6 — Subir y consultar un reporte de corrida o evaluación · MUST · P4
+Como Investigador del TG, quiero subir a la consola los reportes JSON de la CLI y consultarlos, para
+tener en un solo lugar las cifras de cada perfil y modelo sin guardar testimonio.
+*Origen:* FR13.5, FR1.2, NFR12; Refined Mockups (respuesta 10, seguimiento 7).
+
+- **AC12.6.1** Given un reporte JSON válido que incluye en un hallazgo el texto *canary* «CANARIO-7f3a», When el investigador lo sube, Then la respuesta es `201`, se ve «Reporte subido. Se guardaron solo metadatos y cifras; el texto de transcripciones, hallazgos y citas se descartó», y una búsqueda de «CANARIO-7f3a» en todas las columnas de texto y en los logs capturados da 0 coincidencias. `[N1]`
+- **AC12.6.2** Given el mismo archivo subido dos veces (mismo SHA-256), When se sube la segunda, Then `409` con «Este reporte ya está subido» y 0 filas nuevas. `[N1]`
+- **AC12.6.3** Given un usuario `analista` o `admin`, When llama a cualquier ruta de reportes de investigación, Then `403`; y en la interfaz no ve «Reportes». `[N1]` + `[N0]` Vitest
+- **AC12.6.4** Given un reporte al que le falta una métrica, When abro su detalle, Then esa métrica dice «No informado», nunca 0. `[N0]` Vitest
+
+### US12.7 — Comparar dos reportes · SHOULD · P4
+Como Investigador del TG, quiero comparar dos reportes lado a lado, para ver qué cambia entre perfiles,
+modelos o versiones.
+*Origen:* FR13.5; Refined Mockups (seguimiento 7).
+
+- **AC12.7.1** Given 0, 1 o 3 reportes marcados, When miro «Comparar seleccionados», Then está deshabilitado (enfocable) con «Marca dos reportes para compararlos»; con exactamente 2 se habilita. `[N0]` Vitest
+- **AC12.7.2** Given dos reportes de conjuntos distintos, When los comparo, Then solo se comparan metadatos y leo «Conjuntos distintos: las métricas no son comparables». `[N0]` Vitest
+- **AC12.7.3** Given dos reportes comparables, When los comparo, Then cada fila marca «=» o «≠» en texto y las diferencias numéricas llevan su signo. `[N0]` Vitest
+
 ---
 
 ## Épica 13 — Perfiles y modelos
@@ -721,6 +740,8 @@ produjo, para que las mediciones sean comparables.
 | US13.5, US13.7 | US13.6 |
 | US14.2, US14.3 | US12.1 |
 | US14.1 | Ninguna historia: no depende de código (AC14.2.5 instala la CLI real después) |
+| US12.6 | US8.2 (rol `investigador`) y US12.3 (reporte JSON de evaluación) |
+| US12.7 | US12.6 |
 | US2.1, US13.1 | US8.1 y el archivo de perfiles (US13.2) |
 | US2.2, US2.3, US2.6 | US2.1 |
 | US2.4 | US2.2 |

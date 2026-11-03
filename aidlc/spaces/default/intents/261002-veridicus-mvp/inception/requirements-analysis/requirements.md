@@ -320,6 +320,15 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 - **FR13.4** Las corridas sobre el corpus del piloto se hacen en la máquina local y escriben sus
   resultados en un directorio ignorado por Git (P7, P11). *Criterio:* `.gitignore` cubre ese directorio
   y una comprobación de nivel 0 falla si Git rastrea algún archivo dentro de él.
+- **FR13.5** La consola tiene una pantalla de **solo consulta** para el rol `investigador` (FR1.2). En
+  ella se suben los reportes JSON de corrida o de evaluación que produce la línea de comandos (máquina
+  local o ZINE) y se validan contra su esquema. Se guardan **solo metadatos y cifras**: perfil,
+  `config_sha256`, `prompt_sha256`, versiones del analizador y del conjunto, registro de modelos, *tokens*,
+  costo y métricas. Los reportes se listan, se ven en detalle y se comparan de dos en dos; la pantalla no
+  lanza análisis. Nunca guarda texto de transcripciones, hallazgos ni citas (NFR12). *Criterio:* una
+  prueba de integración sube un reporte con un texto *canary* y comprueba que no aparece en ninguna
+  columna de texto ni en los logs; otra prueba comprueba que los roles `analista` y `admin` reciben `403`
+  en esas rutas (Refined Mockups, respuesta 10 y seguimiento 7; historias US12.6 y US12.7).
 
 ### FR14 — Perfiles de ejecución (MUST) · S5-CU1, S8, S11-B; DT21; P8, P9, pregunta 12
 
@@ -559,7 +568,7 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 | FR10 | Cambia FR10.1, FR10.3 y FR10.5 | S8 SHOULD, S5-CU2, S11-C; DT23; P4, P12 |
 | FR11 | FR11.1 **retirado**; FR11.3 sube a MUST; entra FR11.4 | S8, S6-P3, S12-R5; AUTONOMIA-04; DT18; P9, P10; pregunta 15 |
 | FR12 | Cambia FR12.1, FR12.3, FR12.4 y FR12.7 | S8 §5, S7-J2, S13; AUTONOMIA-04; P10 |
-| FR13 | Nuevo | S8 MUST (analizador), S9-D, S11 §1 y §4; DT26; P3, P7, P11; pregunta 14 |
+| FR13 | Nuevo; FR13.5 entra por Refined Mockups (2026-11-03) | S8 MUST (analizador), S9-D, S11 §1 y §4; DT26; P3, P7, P11; pregunta 14; Refined Mockups, respuesta 10 y seguimiento 7 |
 | FR14 | Nuevo | S5-CU1, S8 MUST (perfiles), S11-B; DT21; AUTONOMIA-04; P8, P9; pregunta 12 |
 | FR15 | Nuevo | S9-D, S12-R8, S12-R10; DT21; P15; pregunta 16 |
 | FR16 | Nuevo; FR16.3 entra por User Stories (2026-11-02) | S8 WON'T (GPU: ZINE), S11 §4; DT26; AUTONOMIA-01; User Stories, preguntas 11 y 14–16 |

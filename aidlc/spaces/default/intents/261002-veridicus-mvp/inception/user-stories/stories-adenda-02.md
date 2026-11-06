@@ -82,7 +82,12 @@ para no analizar un relato sin su autorización.
   marco «Autoriza grabar la voz». `[N0]` Vitest
 - **AC15.4.2** Given una sesión sin el registro, When envío un turno, pego un bloque, importo una
   transcripción o grabo por voz, Then la API responde `409` con `code` `session.consent_missing` y no crea
-  filas. `[N1]`
+  filas. Una transcripción importada trae el registro en su bloque `consentimiento`; sin él, la
+  importación se rechaza completa. `[N1]`
+- **AC15.4.7** Given una transcripción sin bloque `consentimiento` y con `origen: corpus` o `guiada`, When
+  la analizo con la CLI o la biblioteca, Then termina con código ≠ 0 antes de cualquier llamada (el *fake*
+  registra 0 llamadas). Con `origen: sintetico` se analiza sin el bloque, y un bloque que no autoriza la
+  transferencia rechaza un perfil con proveedor comercial. `[N0]`
 - **AC15.4.3** Given un consentimiento sin autorización de voz, When grabo un turno, Then la API responde
   `409` con `code` `session.voice_not_authorized`, aunque el texto sí se acepte. `[N1]`
 - **AC15.4.4** Given una persona compareciente o tercero civil, When creo la sesión, Then debo registrar
@@ -132,15 +137,17 @@ testimonios más de lo debido.
   y queda registrado quién y cuándo. `[N1]`
 
 ### US15.8 — Exportar el reporte con marca de agua · MUST · P1
-Como Analista de Verdad, quiero que cada reporte exportado lleve mi usuario, para que se sepa quién lo sacó
-de la consola.
+Como Analista de Verdad, quiero que cada reporte exportado lleve el usuario que lo exportó, para que se
+sepa quién lo sacó de la consola.
 *Origen:* VE-13, A-3.
 
-- **AC15.8.1** Given un rol no autorizado para exportar, When pide la descarga, Then responde `403` y no
-  queda archivo exportado. `[N1]`
-- **AC15.8.2** Given un rol autorizado, When descarga el reporte, Then el archivo lleva una marca con su
-  usuario y la hora, y el SHA-256 del contenido consolidado. Al quitar la marca, el SHA-256 coincide con el
-  registrado (FR7.3). La exportación queda en el registro de acceso. `[N1]`
+- **AC15.8.1** Given el investigador o un analista que no es el dueño de la sesión, When pide la
+  descarga, Then responde `403` y no queda archivo exportado. El analista dueño y el administrador sí
+  pueden exportar. `[N1]`
+- **AC15.8.2** Given un rol autorizado, When descarga el reporte, Then el archivo lleva una marca visible
+  con su usuario y la hora en la cabecera y en cada página, y en la cabecera el SHA-256 de la versión
+  consolidada (FR7.3). La exportación queda en el registro de acceso con el SHA-256 del archivo exportado,
+  que coincide con `sha256sum` del archivo descargado. `[N1]`
 
 ### US15.9 — Trabajar con avisos de bienestar · MUST · P1
 Como Analista de Verdad, quiero un aviso del contenido antes de abrir una sesión y recordatorios de pausa,

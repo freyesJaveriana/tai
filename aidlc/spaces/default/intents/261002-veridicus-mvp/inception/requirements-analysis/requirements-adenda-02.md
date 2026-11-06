@@ -67,9 +67,13 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
   consentimiento de la persona entrevistada, o la constancia de la autoridad que lo exime, con la versión
   del texto. Si se usa la voz (FR10.2), también hace falta la autorización expresa de grabar. Si la persona
   es compareciente o tercero civil, la sesión exige constancia de que la entidad que despliega tiene
-  mandato y garantías legales frente a jueces.
+  mandato y garantías legales frente a jueces. El consentimiento viaja con la transcripción en un bloque
+  `consentimiento` de la entrada del contrato común (precisión **A-4**): la consola lo registra en la
+  sesión guiada; la importación y la CLI lo leen del archivo.
   *Criterio:* sin el registro, la API rechaza los turnos, el bloque pegado, la importación y la voz, y no
-  crea filas. Sin la autorización de voz, la grabación se rechaza aunque haya consentimiento `[N1]`.
+  crea filas. Sin la autorización de voz, la grabación se rechaza aunque haya consentimiento `[N1]`. La
+  biblioteca rechaza una transcripción sin el bloque antes de cualquier llamada a un modelo, salvo con
+  `origen: sintetico` `[N0]`.
 - **VE-07 — Contenido del consentimiento (MUST).** El texto del consentimiento lo redacta y versiona el TG
   (protocolo ético del TG, capítulo 5). Veridicus no lo copia: registra su versión (VE-06). El texto dice
   que un sistema de IA analiza la coherencia del relato, que una persona revisa los hallazgos y que no son
@@ -109,10 +113,12 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
   *Criterio:* con reloj simulado, la sesión, sus turnos, hallazgos, reportes y audio conservado se borran
   al vencer el plazo. El acta registra IDs, SHA-256 de los reportes borrados, cuándo y por qué regla. Un
   plazo mayor que el máximo se rechaza `[N1]`. Ver la precisión **A-2** frente a NFR11 y FR7.5.
-- **VE-13 — Exportación (MUST).** Solo los roles autorizados exportan el reporte, y cada exportación lleva
-  una marca de agua con el usuario.
-  *Criterio:* prueba de roles: un rol no autorizado recibe `403`. La exportación lleva la marca del
-  usuario que la pidió y queda en el registro de acceso `[N1]`. Ver la precisión **A-3** frente a FR7.3.
+- **VE-13 — Exportación (MUST).** Solo exportan el reporte el analista dueño de la sesión y el
+  administrador. Cada exportación lleva una marca de agua visible con el usuario y la hora, y el SHA-256
+  de la versión consolidada de la que sale (precisión **A-3**).
+  *Criterio:* prueba de roles: el investigador y un analista que no es el dueño reciben `403`. La
+  exportación lleva la marca del usuario que la pidió y queda en el registro de acceso con el SHA-256 del
+  archivo exportado, que coincide con `sha256sum` del archivo descargado `[N1]`.
 - **VE-14 — Registro de la anonimización (MUST).** Toda corrida registra modelo, versión, *prompt* y
   perfil (FR15.3) **y** si pasó por el anonimizador. Una llamada sin anonimizar a un proveedor comercial
   es un incidente que bloquea la sesión.
@@ -144,16 +150,16 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
 
 ## 5. Precisiones frente a lo aprobado
 
-Son choques entre el cambio 02 y los requisitos aprobados. **No se edita** `requirements.md`: el humano
-decide en la aprobación de Domain Design si cada precisión se lleva al original, cada una en su propio
-commit.
+Son choques entre el cambio 02 y los requisitos aprobados. **No se edita** `requirements.md`. El autor
+eligió la solución de cada uno el 2026-11-06 (columna «Decisión»); en la aprobación de Domain Design
+decide si cada precisión se lleva al original, cada una en su propio commit.
 
-| ID | Choque | Propuesta |
+| ID | Choque | Decisión (2026-11-06) |
 |---|---|---|
-| A-1 | VE-02 prohíbe «prueba» en la interfaz y el reporte, y el aviso de VE-01 dice «No son prueba». | El escáner excluye el texto versionado del aviso, igual que hoy excluye las dos citas y el texto del analista (AC5.5.1), y un control negativo comprueba que «prueba» fuera del aviso hace fallar el escaneo. |
-| A-2 | VE-12 borra automáticamente sesiones y reportes. NFR11 exige que los historiales solo admitan inserciones, y FR7.5 conserva intacta la versión anterior del reporte. | El borrado por retención es la **única** vía de borrado. Lo ejecuta un `Job` con un usuario de base de datos propio, que deja el acta de VE-12 (solo inserción). NFR11 se precisa como «solo inserción para el usuario de la aplicación». FR7.5 vale mientras dure la retención. |
-| A-3 | VE-13 marca cada exportación con el usuario, así que el archivo cambia. FR7.3 exige que el SHA-256 del archivo descargado coincida con el registrado. | El SHA-256 de FR7.3 se calcula sobre el reporte consolidado sin marca. La exportación incluye la marca y, en su cabecera, el SHA-256 del contenido, que se verifica quitando la marca. La forma exacta la fija Contract Design. |
-| A-4 | VE-06 exige consentimiento antes de capturar, pero la CLI (FR13) procesa el corpus del piloto sin sesión, y la importación (FR3) trae transcripciones ya hechas. | En la consola, VE-06 cubre también la importación: se registra la constancia con su versión. La CLI queda fuera de VE-06 porque el corpus del piloto está cubierto por el consentimiento del TG. Se procesa fuera de Git (NFR12). |
+| A-1 | VE-02 prohíbe «prueba» en la interfaz y el reporte, y el aviso de VE-01 dice «No son prueba». | **Excluir el aviso.** El escáner excluye solo la cadena versionada del aviso, leída del mismo archivo, igual que hoy excluye las dos citas y el texto del analista (AC5.5.1). Un control negativo comprueba que «prueba» fuera del aviso hace fallar el escaneo. Descartadas: cambiar el texto (viene literal del protocolo aprobado; «probatorio» también está prohibida) y admitir la palabra negada (abre huecos). Precisa FR6.4. |
+| A-2 | VE-12 borra automáticamente sesiones y reportes. NFR11 exige que los historiales solo admitan inserciones, y FR7.5 conserva intacta la versión anterior del reporte. | **`Job` de retención.** Es la **única** vía de borrado: un `Job` con un usuario de base de datos propio, el único con `DELETE`, borra en orden de dependencias y deja el acta de VE-12 (solo inserción, sin texto). Se borran también las notas del analista en el historial de estados. Sobreviven solo el acta y el registro de acceso (VE-11), que solo tienen IDs. NFR11 se precisa como «solo inserción para el usuario de la aplicación», con una prueba de que ese usuario no puede borrar y el del `Job` sí. FR7.5 vale mientras dure la retención. Descartados: borrado criptográfico (gestión de claves sin KMS; el dato cifrado queda en disco) y lápida (también es un `UPDATE`). |
+| A-3 | VE-13 marca cada exportación con el usuario, así que el archivo cambia. FR7.3 exige que el SHA-256 del archivo descargado coincida con el registrado. | **Hash por exportación.** Cada exportación es un artefacto propio con marca visible (usuario y hora en la cabecera y en cada página, junto al aviso de VE-01) y, en la cabecera, el SHA-256 de la versión consolidada. El SHA-256 del archivo exportado queda en el registro de acceso y se verifica con `sha256sum`. FR7.3 se precisa como «coincide con el registrado para esa exportación»; el SHA-256 de la versión consolidada se conserva. **Roles:** exportan el analista dueño y el administrador (no el investigador). Descartados: hash del contenido verificado quitando la marca (exige un script) y marca fuera del archivo (se pierde al descomprimir). Precisa FR7.3, FR7.4 y FR1. |
+| A-4 | VE-06 exige consentimiento antes de capturar, pero la CLI (FR13) procesa el corpus del piloto sin sesión, y la importación (FR3) trae transcripciones ya hechas. | **Consentimiento en el contrato.** La entrada del contrato común lleva un bloque `consentimiento` (tipo: persona o autoridad que exime; versión del texto; autoriza transferencia a proveedor comercial; autoriza grabar la voz). La consola lo registra en la sesión guiada; la importación y la CLI lo leen del archivo. La biblioteca rechaza una transcripción sin el bloque antes de cualquier llamada, y un perfil con proveedor comercial si el bloque no autoriza la transferencia (VE-07). `origen: sintetico` queda exento, con una prueba que impide la exención con `origen: corpus`. El corpus del piloto lleva el bloque con la versión del consentimiento del TG, que se añade al empaquetarlo fuera de Git. Lo fija Contract Design (contrato común v1.0.0, lo aprueba el autor). Descartados: exentar la CLI sin control técnico y limitar VE-06 a la consola. Precisa FR3.6, FR13.2 y FR14.3. |
 
 ## 6. Ubicación propuesta por el cambio (para Units Generation)
 

@@ -26,7 +26,7 @@ En contextos de justicia transicional e investigaciones penales complejas, los a
 
 1.  **Fatiga Analítica y Cuellos de Botella:** La transcripción y la relectura de una sola entrevista oral para localizar contradicciones entre pasajes distantes del relato puede tomar días de trabajo minucioso por parte de un analista altamente calificado, deteniendo el flujo judicial [16, 21].
 2.  **Costo Emocional y Desgaste Psicológico:** El análisis y escucha repetitiva de relatos explícitos sobre violaciones a los derechos humanos y violencia genera un severo desgaste psicológico y fatiga por trauma secundario (*burnout*) en los investigadores [11, 12].
-3.  **Sesgo Cognitivo y Falta de Consistencia:** La fatiga y la subjetividad humana provocan que diferentes analistas identifiquen o dejen pasar contradicciones lógicas de forma inconsistente, debilitando la rigurosidad probatoria y la neutralidad de los informes institucionales [16, 19].
+3.  **Sesgo Cognitivo y Falta de Consistencia:** La fatiga y la subjetividad humana provocan que diferentes analistas identifiquen o dejen pasar contradicciones lógicas de forma inconsistente, debilitando la revisión de la coherencia del relato y la neutralidad de los informes institucionales [16, 19].
 
 #### ¿Por qué ahora?
 Tres movimientos convergentes generan la ventana de oportunidad y urgencia para el nacimiento de **Veridicus**:
@@ -178,9 +178,9 @@ quadrantChart
 
 ---
 
-#### Caso de Uso 5: Generación y Auditoría del Reporte Forense Final
+#### Caso de Uso 5: Generación y Auditoría del Reporte de Revisión Final
 *   **Actor:** Analista de Verdad.
-*   **Trigger:** El analista finaliza la sesión de entrevista y solicita exportar el pliego de evidencias técnicas.
+*   **Trigger:** El analista finaliza la sesión de entrevista y solicita exportar la revisión de la coherencia del relato.
 *   **Flujo de Pasos:**
     1.  El **Analista de Verdad** hace clic en el botón "Generar Reporte Técnico de Sesión" en su panel de control.
     2.  El microservicio de consolidación de evidencias del clúster agrupa la transcripción temporal completa, las grabaciones de audio indexadas y las alertas de inconsistencias emitidas durante la sesión.
@@ -195,7 +195,7 @@ quadrantChart
 
 #### Principio 1: Límite de Autonomía de la IA (Due Process)
 *   **(a) Significado Operativo:** La inteligencia artificial actúa estrictamente como un agente consultor y de soporte del analista. Carece por completo de facultades de decisión autónoma sobre la veracidad del testimonio o sobre cualquier registro procesal real [17].
-*   **(b) Manifestación en el Producto:** Cada hallazgo de contradicción se presenta en la interfaz del analista como una "sugerencia de revisión" o "hallazgo analítico" editable. El analista es el único que puede validar, descartar o editar estos hallazgos antes de consolidarlos en el reporte forense final [16].
+*   **(b) Manifestación en el Producto:** Cada hallazgo de contradicción se presenta en la interfaz del analista como una "sugerencia de revisión" o "hallazgo analítico" editable. El analista es el único que puede validar, descartar o editar estos hallazgos antes de consolidarlos en el reporte de revisión final [16].
 *   **(c) Prohibición Explícita:** Queda **estrictamente prohibido** que el sistema etiquete a un compareciente de forma automática como "mentiroso" o "falso" en la interfaz de usuario, así como aplicar cambios en las bases de datos de producción de la rama judicial sin la aprobación explícita y registrada (quién y cuándo) de un investigador humano.
 
 #### Principio 2: Tolerancia y Resiliencia ante Limitaciones de Hardware (Eficiencia en el MVP)
@@ -513,7 +513,7 @@ Fase final de automatización de entregas y control operacional [20]:
     2.  Ingreso asíncrono del testimonio en texto en español, turno a turno.
     3.  Despliegue interactivo en pantalla de los estados de carga asíncronos para simular el control de latencia en hardware limitado.
     4.  Visualización en el panel del analista de los hallazgos de contradicción con sus dos citas verificadas, justificados en el acordeón de observaciones [9, 18].
-    5.  Descarga del informe forense Markdown final consolidado de la base de datos inmutable.
+    5.  Descarga del reporte de revisión Markdown final consolidado de la base de datos inmutable.
 
 ---
 

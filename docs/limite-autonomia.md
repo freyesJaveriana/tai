@@ -57,7 +57,7 @@ ejecutando un comando. Las formulaciones de opinión no son criterios de aceptac
 **Rule**: (PRD Segmento 6, Principio 1) El sistema actúa solo como consultor del analista.
 Ninguna historia, componente o tarea puede producir una etiqueta automática de veracidad
 sobre el compareciente («mentiroso», «falso», «miente», puntaje binario de verdad) ni
-consolidar el reporte forense final sin la validación explícita de un analista humano.
+consolidar el reporte de revisión final sin la validación explícita de un analista humano.
 
 **Verification**:
 - Todo hallazgo generado por la IA se modela como «sugerencia de revisión» con estado

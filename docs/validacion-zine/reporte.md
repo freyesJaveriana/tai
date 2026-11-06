@@ -137,13 +137,14 @@ La llena el humano después de leer M1–M6 (AC14.1.7). Decisión: exactamente u
 locales», «Diseñar con limitaciones registradas» (con «Limitaciones:») o «Repetir mediciones» (con «Repetir:»,
 que dice cuáles). Con «Repetir mediciones», Domain Design no empieza.
 
-Revisor:
-Fecha:
-Decisión:
+Revisor: Felipe Reyes
+Fecha: 2026-11-06
+Decisión: Diseñar con limitaciones registradas
+Limitaciones: (1) en CPU, el modo local es por lotes (horas por entrevista: la medición `--array=8` de la 4L tomó 54 h, con 1,36 tokens/s de generación con contexto largo), no interactivo en la consola; (2) la salida JSON se fuerza con `json_schema` y el razonamiento apagado (20/20); con el razonamiento encendido da 17/20 (3 cortadas) y la gramática GBNF 0/20, así que con razonamiento hace falta más reserva de salida y validación con rechazo; (3) el verificador gpt-oss lee a 7,8 tokens/s: solo verifica citas, nunca la entrevista entera.
 
-- (a) *Tokens*/s de generación (M1) y horas estimadas de un modo final sobre la entrevista más larga (M3):
-- (b) ¿M2 fuerza el esquema JSON (20 de 20 válidas) o hace falta reparar la salida?:
-- (c) ¿La entrevista más larga cabe en el contexto con el *prompt* (M3), o el modo fragmentado es obligatorio con modelos locales?:
-- (d) ¿M4 es repetible?:
-- (e) ¿M5 instala sin internet?:
-- (f) ¿M6 deja un verificador de otra familia con velocidad útil?:
+- (a) *Tokens*/s de generación (M1) y horas estimadas de un modo final sobre la entrevista más larga (M3): pp 32,05 y tg 6,77 tokens/s; la más larga (67 769) ≈ 0,6 h de lectura, más 16 384 de salida: 0,7 h a 6,77 tokens/s o 3,3 h a 1,36 (contexto largo), así que de 1,3 a 3,9 h.
+- (b) ¿M2 fuerza el esquema JSON (20 de 20 válidas) o hace falta reparar la salida?: sí con el razonamiento apagado (20/20 con `response_format` o `json_schema`); con el razonamiento encendido, 17/20, así que hay que validar y rechazar.
+- (c) ¿La entrevista más larga cabe en el contexto con el *prompt* (M3), o el modo fragmentado es obligatorio con modelos locales?: cabe, 98 985 de 163 840 (margen 64 855); el modo fragmentado no es obligatorio por contexto.
+- (d) ¿M4 es repetible?: sí, 4 de 4 pares con el mismo SHA-256.
+- (e) ¿M5 instala sin internet?: sí, 0 descargas y código 0.
+- (f) ¿M6 deja un verificador de otra familia con velocidad útil?: sí, gpt-oss-20b (apache-2.0) a 5,30 tokens/s de generación; su lectura es lenta (7,80 tokens/s).

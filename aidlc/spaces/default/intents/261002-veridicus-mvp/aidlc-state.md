@@ -75,7 +75,9 @@
 
 
 
-- **Parked**: 2026-11-03T16:11:15Z
+
+
+- **Parked**: 2026-11-06T20:30:53Z
 
 - **Parked At Stage**: domain-design
 
@@ -140,7 +142,7 @@ Per unit: [TBD]
 - **Current Stage**: domain-design
 - **Next Stage**: units-generation
 - **Status**: Running
-- **Last Updated**: 2026-11-03T16:11:15Z
+- **Last Updated**: 2026-11-06T20:30:53Z
 
 - **Construction Autonomy Mode**: gated
 

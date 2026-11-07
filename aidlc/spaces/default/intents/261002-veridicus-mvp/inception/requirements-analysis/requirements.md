@@ -85,6 +85,7 @@ alcance». Las decisiones del Trabajo de Grado se citan por su ID (DT…) y son 
   | Lanzar el modo final | Solo en sus propias sesiones | No | No |
   | Cambiar el estado de hallazgos y consolidar | Solo en sus propias sesiones | No | No |
   | Leer sesiones y reportes | Todas | Todas | No |
+  | Exportar el reporte (adenda 02, A-3) | Solo en sus propias sesiones | Sí | No |
   | Subir y leer reportes de corridas y evaluaciones de la CLI (FR13.5) | No | No | Sí |
   | Crear o cambiar perfiles, proveedores o *prompts* | Nadie desde la consola: solo por PR (FR9.2) | Ídem | Ídem |
 
@@ -223,9 +224,14 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
   fragmentado y su ventana, si se usó; «Tramo no evaluado» por cada tramo incremental en `error` y
   «Modo final no completado. Revisión manual requerida» si el último modo final terminó en `error`, cada
   uno con su código (User Stories, pregunta 13); y quién consolidó y cuándo.
-- **FR7.3** El sistema guarda el reporte en el volumen persistente y registra su SHA-256. *Criterio:*
-  recalcular el SHA-256 del archivo descargado coincide con el registrado.
-- **FR7.4** El analista descarga el reporte consolidado desde la interfaz.
+- **FR7.3** El sistema guarda el reporte en el volumen persistente y registra su SHA-256. Cada
+  exportación es un artefacto propio, con su SHA-256 registrado en el registro de acceso (adenda 02, A-3;
+  precisión DD-08 de Domain Design). *Criterio:* recalcular el SHA-256 del archivo descargado coincide con
+  el registrado **para esa exportación**; el SHA-256 de la versión consolidada se conserva.
+- **FR7.4** El analista dueño y el administrador descargan el reporte consolidado desde la interfaz; el
+  investigador no. Cada exportación lleva una marca visible con el usuario y la hora en la cabecera y en
+  cada página, junto al aviso de VE-01, y en la cabecera el SHA-256 de la versión consolidada (VE-13,
+  adenda 02, A-3).
 - **FR7.5** Tras consolidar, la sesión y sus hallazgos quedan **bloqueados**. Una corrección crea una
   **versión nueva** del reporte, con nuevo SHA-256 y nueva consolidación (quién y cuándo), que referencia
   a la anterior; la anterior se conserva intacta mientras dure la retención de VE-12 (pregunta 7; adenda

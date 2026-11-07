@@ -23,7 +23,7 @@ formulario de reporte (US15.3) se especifican aquí, con su ubicación en las pa
 
 ## Épica 15 — Protocolo ético (cambio 02)
 
-### US15.1 — Reconocer las reglas de uso antes de trabajar · MUST · P1
+### US15.1 — Reconocer las reglas de uso antes de trabajar · Demostración (DD-01) · P1
 Como Analista de Verdad, quiero reconocer de forma explícita cómo se usan los hallazgos, para no tratarlos
 como prueba ni confrontar a la persona.
 *Origen:* VE-04 (D10.3), DT23.
@@ -31,12 +31,13 @@ como prueba ni confrontar a la persona.
 - **AC15.1.1** Given un analista sin reconocimiento registrado, When entra a la consola, Then un diálogo
   modal muestra la versión vigente del texto con tres puntos: «Los hallazgos no son prueba», «Una
   contradicción puede venir del trauma» y «No se confronta a la persona con sus contradicciones». Ofrece
-  «Reconozco estas reglas» y «Salir». Mientras no confirma, no puede abrir ni crear sesiones. `[N0]` Vitest
+  «Reconozco estas reglas» y «Salir». Es una demostración (DD-01): el diálogo se muestra y el
+  reconocimiento se registra, pero no impide abrir ni crear sesiones. `[N0]` Vitest
 - **AC15.1.2** Given que pulso «Reconozco estas reglas», When se registra, Then queda una fila de solo
   inserción con usuario, hora UTC y versión del texto. `[N1]`
 - **AC15.1.3** Given un reconocimiento de hace 90 días, When abro una sesión, Then se acepta. Given uno de
-  hace 91 días (reloj simulado), Then la API responde `403` con `code` `ethics.acknowledgement_required` y
-  no crea filas. `[N1]`
+  hace 91 días (reloj simulado), Then la sesión también se abre y la consola vuelve a mostrar el diálogo
+  de reconocimiento con un aviso de que venció; no hay `403` (DD-01). `[N1]`
 - **AC15.1.4** Given un reconocimiento vigente de la versión 1 y un texto que pasa a la versión 2 por PR,
   When entro a la consola, Then se me pide reconocer de nuevo, aunque no hayan pasado 90 días. `[N1]`
 

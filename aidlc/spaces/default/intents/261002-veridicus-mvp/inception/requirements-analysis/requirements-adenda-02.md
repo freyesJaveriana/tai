@@ -21,7 +21,11 @@ con sus textos visibles (§3.1 del cambio).
   al profesor de TAI. Hecho en `specs/prd.md` y `docs/limite-autonomia.md` con el commit `fix(prd): …`
   (VE-03).
 
-**Prioridad.** Todos son **MUST**: el protocolo los pide como condición para desplegar. El orden y el
+**Prioridad.** Todos son **MUST**: el protocolo los pide como condición para desplegar. **Excepción
+(aprobación de Domain Design, 2026-11-07):** las VE marcadas «demostración» se construyen y se prueban,
+pero no bloquean el uso de la consola, porque tg-veridicus es un proyecto de investigación y
+demostración, no de despliegue (pregunta 10 y Seguimiento 1 = A de Domain Design; precisiones DD-xx de
+`inception/domain-design/components.md`). El orden y el
 límite del MVP los fija Delivery Planning al revisarse por los cambios 01 y 02.
 
 **Niveles de prueba.** Los mismos de `stories.md` (`[N0]` a `[N3]`, `[Manual]`). VE-02, VE-05, VE-09 y
@@ -49,12 +53,13 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
   *Criterio:* diff del PRD (commit `fix(prd): …`). **Hecho** el 2026-11-06. Las etapas siguientes nombran
   la unidad del reporte «reporte de revisión». El slug `forensic-report` de U7 se revisa en Units
   Generation.
-- **VE-04 — Reconocimiento del analista (MUST, D10.3).** Antes de abrir una sesión, el analista reconoce
+- **VE-04 — Reconocimiento del analista (demostración, D10.3; precisión DD-01).** Antes de abrir una sesión, el analista reconoce
   que los hallazgos no son prueba, que una contradicción puede venir del trauma y que no se confronta a la
   persona (DT23). Se pide en el primer uso, cuando pasaron 90 días desde el último reconocimiento y cuando
   cambia la versión del texto. Cada reconocimiento guarda quién, cuándo y la versión del texto aceptada.
-  *Criterio:* sin un reconocimiento vigente, la API rechaza abrir o crear una sesión. Con reloj simulado,
-  el día 90 sigue vigente y el día 91 no. Un texto con otra versión exige un reconocimiento nuevo `[N1]`.
+  *Criterio:* sin un reconocimiento vigente, la consola muestra el diálogo y un aviso, pero no rechaza
+  abrir ni crear una sesión (DD-01). Con reloj simulado, el día 90 sigue vigente y el día 91 no. Un texto
+  con otra versión pide un reconocimiento nuevo `[N1]`.
 - **VE-05 — Pregunta sugerida (MUST para la validación; la función sigue SHOULD, FR10.3).** Antes de
   mostrarse, la aclaración neutra se valida con la regla de DT23: nunca menciona la contradicción, nunca
   dice «antes dijo» ni sus variantes, nunca contiene una cita.

@@ -79,9 +79,7 @@
 
 
 
-- **Parked**: 2026-11-07T18:16:07Z
 
-- **Parked At Stage**: units-generation
 
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
@@ -144,7 +142,7 @@ Per unit: [TBD]
 - **Current Stage**: units-generation
 - **Next Stage**: contract-design
 - **Status**: Running
-- **Last Updated**: 2026-11-07T18:16:07Z
+- **Last Updated**: 2026-11-07T18:31:28Z
 
 - **Construction Autonomy Mode**: gated
 

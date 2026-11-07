@@ -143,11 +143,11 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
   *Criterio:* el formulario envía y el registro guarda las seis categorías. Una nota con una cita literal
   del testimonio (coincidencia con un turno de la sesión) muestra un aviso y se guarda con
   `testimony_warning` `[N1]`.
-- **VE-16 — Bienestar del analista (MUST).** Al abrir una sesión, la consola muestra un aviso de
+- **VE-16 — Bienestar del analista (demostración; precisión DD-05).** Al abrir una sesión, la consola muestra un aviso de
   contenido. Además muestra un recordatorio de pausa cada cierto intervalo, configurable por PR en el
   catálogo de límites, como cualquier otro ajuste del sistema (FR9).
   *Criterio:* el aviso aparece al abrir la sesión. Con reloj simulado, el recordatorio aparece al cumplirse
-  el intervalo `[N0]` Vitest.
+  el intervalo `[N0]` Vitest. El criterio no cambia con DD-05: ya eran avisos que no bloquean.
 - **VE-17 — Métrica de sesgo (MUST, en la validación y no en la consola).** El informe de evaluación da
   la tasa de hallazgos por tipo de hecho y por perfil de la persona. Así se detecta si el analizador marca
   más contradicciones en relatos de violencia sexual o en personas con un perfil dado.

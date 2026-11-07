@@ -152,7 +152,7 @@ sepa quién lo sacó de la consola.
   consolidada (FR7.3). La exportación queda en el registro de acceso con el SHA-256 del archivo exportado,
   que coincide con `sha256sum` del archivo descargado. `[N1]`
 
-### US15.9 — Trabajar con avisos de bienestar · MUST · P1
+### US15.9 — Trabajar con avisos de bienestar · Demostración (DD-05) · P1
 Como Analista de Verdad, quiero un aviso del contenido antes de abrir una sesión y recordatorios de pausa,
 para cuidar mi carga emocional.
 *Origen:* VE-16.

@@ -228,7 +228,8 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 - **FR7.4** El analista descarga el reporte consolidado desde la interfaz.
 - **FR7.5** Tras consolidar, la sesión y sus hallazgos quedan **bloqueados**. Una corrección crea una
   **versión nueva** del reporte, con nuevo SHA-256 y nueva consolidación (quién y cuándo), que referencia
-  a la anterior; la anterior se conserva intacta (pregunta 7). La corrección se hace con «Corregir
+  a la anterior; la anterior se conserva intacta mientras dure la retención de VE-12 (pregunta 7; adenda
+  02, A-2; precisión DD-08 de Domain Design). La corrección se hace con «Corregir
   reporte», que abre una copia de trabajo donde solo cambian estados y notas; consolidarla crea la
   versión nueva (User Stories, pregunta 7).
 
@@ -452,8 +453,11 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
   español.
 - **NFR11 — Integridad y auditoría (MUST, AUTONOMIA-03).** Los historiales de estado de hallazgos,
   consolidaciones, versiones de reporte, corridas y registro de llamadas a modelos solo admiten
-  inserciones. *Criterio:* prueba de integración que intenta modificar o borrar una fila de cada
-  historial y falla.
+  inserciones **para el usuario de la aplicación**. La única vía de borrado es el `Job` de retención de
+  VE-12, con un usuario de base de datos propio, el único con `DELETE`, que deja un acta sin texto (adenda
+  02, A-2; precisión DD-08 de Domain Design). *Criterio:* prueba de integración que intenta modificar o
+  borrar una fila de cada historial con el usuario de la aplicación y falla, y que con el usuario del
+  `Job` el borrado sí funciona.
 - **NFR12 — Datos reales fuera del repositorio (MUST, S8 WON'T, `project.md`, P7).** Ni el repositorio
   ni la CI contienen testimonios, audios, nombres ni expedientes reales, ni fragmentos o codificaciones del
   piloto; las pruebas y los *fixtures* usan transcripciones sintéticas. Las entrevistas del piloto solo se

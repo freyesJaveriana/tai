@@ -124,15 +124,17 @@ responder a una auditoría.
 - **AC15.6.2** Given el registro de acceso, When intento modificar o borrar una fila con el usuario de la
   aplicación, Then la operación falla. `[N1]`
 
-### US15.7 — Que los datos se borren al vencer la retención · MUST · P2
-Como Administrador de plataforma, quiero que cada sesión se borre sola al vencer su plazo, para no guardar
-testimonios más de lo debido.
+### US15.7 — Que los datos se borren al vencer la retención · Demostración (DD-03) · P2
+Como Administrador de plataforma, quiero borrar cada sesión vencida con un `Job` de retención que lanzo yo,
+para no guardar testimonios más de lo debido. En el clúster el `Job` es un artefacto revisable que lanza el
+humano (AUTONOMIA-01, DD-03); el sistema no lo programa.
 *Origen:* VE-12 (D10.2), A-2.
 
 - **AC15.7.1** Given el máximo de 90 días del catálogo de límites, When creo una sesión con 30 días, Then
   se acepta; Given 120 días, Then responde `422` con `code` `retention.above_maximum` y no crea filas. `[N1]`
 - **AC15.7.2** Given una sesión con plazo vencido (reloj simulado), When corre el `Job` de retención, Then
-  se borran la sesión, sus turnos, hallazgos, versiones de reporte (archivo y fila) y audio conservado.
+  se borran la sesión, sus turnos, hallazgos, versiones de reporte (archivo y fila), reportes de problemas
+  y audio conservado, en el orden inverso de las referencias (Domain Design, R-01 y R-02).
   Queda un acta con los IDs, el SHA-256 de cada reporte borrado, la hora y la regla aplicada. `[N1]`
 - **AC15.7.3** Given un plazo ya fijado, When intento ampliarlo, Then responde `422`. Reducirlo se acepta
   y queda registrado quién y cuándo. `[N1]`

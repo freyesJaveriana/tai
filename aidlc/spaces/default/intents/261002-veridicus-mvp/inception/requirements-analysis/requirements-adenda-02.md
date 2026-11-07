@@ -112,12 +112,13 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
   *Criterio:* las pruebas consultan el registro tras abrir cada recurso, y un intento de modificar o
   borrar una fila falla (como NFR11) `[N1]`. El criterio no cambia con DD-02: el registro no es una
   compuerta, y lo escribe ConsoleApi en EthicsGovernance.
-- **VE-12 — Retención (MUST, D10.2).** Cada sesión tiene un plazo de retención de **90 días** como máximo
+- **VE-12 — Retención (demostración, D10.2; precisión DD-03).** Cada sesión tiene un plazo de retención de **90 días** como máximo
   por defecto. El plazo puede reducirse y nunca ampliarse: el máximo vive en el catálogo de límites
   (`contracts/limits.v1.yaml`, solo cambia por PR) y la sesión solo admite un valor menor o igual. Al
-  vencer, el borrado es automático y deja un acta de borrado.
-  *Criterio:* con reloj simulado, la sesión, sus turnos, hallazgos, reportes y audio conservado se borran
-  al vencer el plazo. El acta registra IDs, SHA-256 de los reportes borrados, cuándo y por qué regla. Un
+  vencer, el borrado lo hace el `Job` de retención, que en el clúster lanza el humano como artefacto
+  revisable (AUTONOMIA-01); el sistema no lo programa (DD-03). Deja un acta de borrado.
+  *Criterio:* con reloj simulado, la sesión, sus turnos, hallazgos, reportes, reportes de problemas y
+  audio conservado se borran al vencer el plazo. El acta registra IDs, SHA-256 de los reportes borrados, cuándo y por qué regla. Un
   plazo mayor que el máximo se rechaza `[N1]`. Ver la precisión **A-2** frente a NFR11 y FR7.5.
 - **VE-13 — Exportación (MUST).** Solo exportan el reporte el analista dueño de la sesión y el
   administrador. Cada exportación lleva una marca de agua visible con el usuario y la hora, y el SHA-256

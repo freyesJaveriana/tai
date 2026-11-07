@@ -119,7 +119,8 @@ No hay marco de verdad documental: el contraste con documentos externos es WON'T
   empieza la medición de MTTV (NFR7).
 - **FR3.6** El analista puede **importar** una transcripción en el formato del contrato común
   (`entrevista`, `origen: corpus`, turnos con `n`, `hablante`, `pagina`, `pagina_fin`, `texto`,
-  `estado`). Un archivo que no cumple el esquema se rechaza completo, con un mensaje en español, y no se
+  `estado`, y el bloque `consentimiento` de la adenda 02, A-4). Un archivo que no cumple el esquema, o
+  que no trae el bloque `consentimiento` salvo con `origen: sintetico`, se rechaza completo, con un mensaje en español, y no se
   crea la sesión (P5). Una transcripción importada nace **cerrada a turnos nuevos** y va directo al modo
   final (User Stories, pregunta 12). *Criterio:* pruebas con un archivo válido, uno con un turno sin
   `hablante` y uno con números de turno repetidos.
@@ -322,7 +323,9 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
   formato del contrato con un perfil dado, en modo final por defecto, y escribe un archivo de salida del
   contrato por entrevista en el directorio que se le indique. Termina con código 0 solo si todas las
   corridas terminan, aunque alguna tenga `estado: error`, y con otro código ante un argumento o archivo
-  inválido.
+  inválido. Lee el bloque `consentimiento` de cada transcripción y rechaza, antes de cualquier llamada,
+  una transcripción sin el bloque, salvo `origen: sintetico` (adenda 02, A-4; precisión DD-08 de Domain
+  Design).
 - **FR13.3** La línea de comandos tiene un modo de **evaluación** que compara los hallazgos con la lista
   de contradicciones esperadas del conjunto sintético y escribe un reporte JSON con las métricas de NFR4
   (pregunta 14).
@@ -350,7 +353,9 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 - **FR14.3** Un servicio no arranca si el archivo de perfiles es inválido, si un perfil con destino
   externo no tiene el anonimizador delante (AUTONOMIA-04) o si falta la clave de API que referencia. La
   línea de comandos y la biblioteca validan el perfil igual: en esos casos terminan con código ≠ 0
-  **antes** de cualquier llamada (User Stories, pregunta 10). *Criterio:* prueba de arranque, y de la
+  **antes** de cualquier llamada (User Stories, pregunta 10). También rechazan, antes de cualquier
+  llamada, un perfil con proveedor comercial si el bloque `consentimiento` no autoriza la transferencia
+  (VE-07; adenda 02, A-4). *Criterio:* prueba de arranque, y de la
   línea de comandos, con un control negativo por cada caso.
 - **FR14.4** Juez y verificador son de familias de modelos distintas. Es obligatorio en los perfiles de
   evaluación, cuya validación rechaza la misma familia. Un perfil de demostración puede usar la misma

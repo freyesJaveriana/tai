@@ -44,7 +44,9 @@ como prueba ni confrontar a la persona.
 ### US15.2 — Pausar o terminar el análisis al instante · MUST · P1
 Como Analista de Verdad, quiero detener el análisis cuando la persona lo necesite o retire su
 consentimiento, para que nada de lo que diga después se analice.
-*Origen:* VE-10. Ubicación: barra de la sesión de M2, junto a «Finalizar sesión».
+*Origen:* VE-10. Ubicación: barra de la sesión de M2, junto a «Finalizar sesión». Sigue MUST (precisión
+DD-06 de Domain Design): AC15.2.3 es el principio del analizador (A-4) y AC15.2.1, AC15.2.2 y AC15.2.4 son
+los estados de la sesión, que también se mantienen.
 
 - **AC15.2.1** Given una sesión abierta con corridas incrementales en cola, When pulso «Pausar análisis»,
   Then las corridas en cola se cancelan sin llamar a ningún modelo (el *fake* registra 0 llamadas nuevas),

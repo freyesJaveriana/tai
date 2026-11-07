@@ -104,6 +104,12 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
   *Criterio:* tras pausar o terminar, no se encola ninguna corrida nueva y las corridas en cola se cancelan
   sin llamar a ningún modelo. Tras registrar la retirada, los turnos posteriores se rechazan y ninguno
   entra en una corrida, tampoco en el modo final `[N1]`.
+  *Precisión DD-06 (aprobación de Domain Design, 2026-11-07):* VE-10 sigue MUST en InterviewSession, en
+  dos partes. (a) Principio del analizador (A-4), MUST en cualquier caso: tras la retirada del
+  consentimiento no se encola ni se analiza ninguna corrida nueva. (b) Los estados `pausada` y
+  `terminada`, con su registro de quién y cuándo, y la cancelación de lo encolado al pausar o terminar,
+  también se mantienen MUST. Si en el futuro (b) bajara a demostración, cambiaría solo el nivel de
+  exigencia, no el dueño: esos estados seguirían en InterviewSession.
 
 ## 3. Acceso, retención y auditoría (protocolo ético del TG, capítulo 8)
 

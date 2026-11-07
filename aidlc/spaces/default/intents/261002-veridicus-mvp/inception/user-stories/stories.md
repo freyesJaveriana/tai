@@ -312,6 +312,10 @@ la atención repartida o con una discapacidad.
 
 ## Épica 6 — Consolidación y reporte
 
+El reporte se llama «reporte de revisión» (D10.4, VE-03); su componente es **ReviewReport**, antes
+ForensicReport, y en el glosario es `review_report` (precisión DD-09 de Domain Design, 2026-11-07). Units
+Generation revisa el slug `forensic-report` de U7.
+
 ### US6.1 — Consolidar la sesión cuando todo está revisado · MUST · P1
 Como Analista de Verdad, quiero consolidar el reporte solo cuando revisé cada hallazgo, para que ningún
 hallazgo de la IA llegue al reporte sin validación humana.

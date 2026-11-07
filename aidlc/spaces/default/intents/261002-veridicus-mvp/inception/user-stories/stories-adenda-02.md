@@ -114,7 +114,7 @@ cada página del reporte.
 - **AC15.5.3** Given un PR que cambia el texto del aviso, When corre la prueba, Then falla si el texto nuevo
   no contiene la frase base completa. `[N0]`
 
-### US15.6 — Saber quién vio cada sesión · MUST · P2
+### US15.6 — Saber quién vio cada sesión · Demostración (DD-02) · P2
 Como Administrador de plataforma, quiero un registro de quién abrió cada sesión, hallazgo o reporte, para
 responder a una auditoría.
 *Origen:* VE-11.

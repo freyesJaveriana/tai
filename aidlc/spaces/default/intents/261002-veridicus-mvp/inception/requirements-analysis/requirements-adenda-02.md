@@ -107,10 +107,11 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
 
 ## 3. Acceso, retención y auditoría (protocolo ético del TG, capítulo 8)
 
-- **VE-11 — Registro de acceso (MUST).** Un registro de solo inserción guarda quién abrió qué sesión,
+- **VE-11 — Registro de acceso (demostración; precisión DD-02).** Un registro de solo inserción guarda quién abrió qué sesión,
   hallazgo o reporte, y cuándo. Solo lleva identificadores (NFR10).
   *Criterio:* las pruebas consultan el registro tras abrir cada recurso, y un intento de modificar o
-  borrar una fila falla (como NFR11) `[N1]`.
+  borrar una fila falla (como NFR11) `[N1]`. El criterio no cambia con DD-02: el registro no es una
+  compuerta, y lo escribe ConsoleApi en EthicsGovernance.
 - **VE-12 — Retención (MUST, D10.2).** Cada sesión tiene un plazo de retención de **90 días** como máximo
   por defecto. El plazo puede reducirse y nunca ampliarse: el máximo vive en el catálogo de límites
   (`contracts/limits.v1.yaml`, solo cambia por PR) y la sesión solo admite un valor menor o igual. Al

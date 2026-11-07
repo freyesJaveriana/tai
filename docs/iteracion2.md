@@ -190,6 +190,7 @@ deja de ser requisito; el texto aprobado queda en el historial de Git como antec
 | `ModelGateway` | CAMBIA: pasa de `judge`/`embed` a `generate(papel, mensajes, esquema)`, con adaptadores nativos y compatible con OpenAI; sale `embed` |
 | `IntegrityPolicy` | SE MANTIENE: las fuentes literales del escáner pasan a ser los turnos |
 | Nuevos | Biblioteca **IncoherenceAnalyzer** (núcleo y CLI), **ExecutionProfile**, **Provider**, **ModelCall**, **ConductorObservation** |
+| Precisión de Domain Design (DD-10, 2026-11-07) | El trabajador `semantic-agent` aparece en el catálogo como **AnalysisWorker**, envoltura de cola sin reglas propias que sustituye a `SemanticEvaluation`. La verificación de citas vive dentro de **IncoherenceAnalyzer**, no como componente aparte, y la CLI es el componente **AnalyzerCli** |
 | Frontera del clúster (AUTONOMIA-04) | SE REESCRIBE: proveedores externos solo vía el anonimizador |
 | ADR-002, 003, 004, 007, 009 | SE MANTIENEN |
 | ADR-001 | SE MANTIENE (sin TruthFrame) |

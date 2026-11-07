@@ -58,7 +58,7 @@ consentimiento, para que nada de lo que diga después se analice.
 - **AC15.2.4** Given la sesión pausada o terminada, When la miro, Then el estado se lee como «Análisis en
   pausa» o «Sesión terminada», con texto y no solo con color. `[N0]` Vitest
 
-### US15.3 — Reportar un problema sin copiar el testimonio · MUST · P1
+### US15.3 — Reportar un problema sin copiar el testimonio · Demostración (DD-04) · P1
 Como Analista de Verdad, quiero reportar un problema desde la consola, para que el equipo lo corrija sin
 que el reporte exponga el testimonio.
 *Origen:* VE-15. Ubicación: enlace «Reportar un problema» en la cabecera de la consola y en el menú de cada
@@ -68,10 +68,10 @@ tarjeta de hallazgo (que precarga el ID).
   dañino», «Vocabulario indebido», «Cita que no corresponde», «Malestar de la persona entrevistada», «Falla
   de anonimización» y «Uso indebido», y una nota opcional. Es un panel no modal. `[N0]` Vitest
 - **AC15.3.2** Given que envío un reporte, When se guarda, Then la fila tiene la categoría, los IDs de
-  sesión y de hallazgo si los hay, quién, cuándo y la nota. No tiene texto de turnos. `[N1]`
+  sesión y de hallazgo si los hay, quién, cuándo, la nota y la marca `testimony_warning`. `[N1]`
 - **AC15.3.3** Given una nota que contiene un fragmento literal de un turno de la sesión (de 8 o más
-  palabras seguidas), When la envío, Then responde `422` con `code` `problem_report.contains_testimony`,
-  «Quita el texto del testimonio de la nota», y no crea filas. `[N1]`
+  palabras seguidas), When la envío, Then la consola muestra el aviso «Quita el texto del testimonio de la
+  nota»; si la envío igual, la fila se guarda con `testimony_warning` verdadero, sin `422` (DD-04). `[N1]`
 
 ### US15.4 — Registrar el consentimiento antes de capturar · MUST · P1
 Como Analista de Verdad, quiero registrar el consentimiento de la persona entrevistada al crear la sesión,

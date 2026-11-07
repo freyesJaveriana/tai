@@ -135,12 +135,14 @@ VE-14 son pruebas de nivel 0, como guardias sin red (§3.5 del cambio).
 
 ## 4. Analista y problemas no previstos (protocolo ético del TG, capítulo 11)
 
-- **VE-15 — Reporte de problemas (MUST).** Desde la consola, el analista reporta: hallazgo dañino,
+- **VE-15 — Reporte de problemas (demostración; precisión DD-04).** Desde la consola, el analista reporta: hallazgo dañino,
   vocabulario indebido, cita que no corresponde, malestar de la persona entrevistada, falla de
   anonimización o uso indebido. El reporte guarda la categoría, IDs de sesión o hallazgo, quién y cuándo,
-  y una nota. No guarda texto del testimonio.
+  y una nota. La nota no debería traer texto del testimonio: la consola avisa, sin rechazar (DD-04), y la
+  retención la borra con la sesión.
   *Criterio:* el formulario envía y el registro guarda las seis categorías. Una nota con una cita literal
-  del testimonio se rechaza (coincidencia con un turno de la sesión) `[N1]`.
+  del testimonio (coincidencia con un turno de la sesión) muestra un aviso y se guarda con
+  `testimony_warning` `[N1]`.
 - **VE-16 — Bienestar del analista (MUST).** Al abrir una sesión, la consola muestra un aviso de
   contenido. Además muestra un recordatorio de pausa cada cierto intervalo, configurable por PR en el
   catálogo de límites, como cualquier otro ajuste del sistema (FR9).

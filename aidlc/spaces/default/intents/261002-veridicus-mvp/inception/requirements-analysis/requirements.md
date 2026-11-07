@@ -199,9 +199,11 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 - **FR6.4** Ni la salida de la IA ni la interfaz contienen etiquetas de veracidad sobre el compareciente
   («mentiroso», «falso», «miente», «verdadero», puntaje binario de verdad). El escaneo cubre las
   observaciones de los hallazgos, las observaciones al conductor y los textos de la interfaz, y solo
-  excluye las dos citas literales del testimonio y el texto que escribe el analista, que el reporte
-  muestra como suyo (User Stories, Seguimiento 4). *Criterio:* prueba automatizada que falla si aparece una
-  de esas etiquetas (AUTONOMIA-03).
+  excluye las dos citas literales del testimonio, el texto que escribe el analista, que el reporte
+  muestra como suyo (User Stories, Seguimiento 4), y la cadena versionada del aviso de VE-01, leída del
+  mismo archivo (adenda 02, A-1; precisión DD-08 de Domain Design). *Criterio:* prueba automatizada que
+  falla si aparece una de esas etiquetas (AUTONOMIA-03), y un control negativo que falla si «prueba»
+  aparece fuera del aviso.
 - **FR6.5** La interfaz recuerda, junto a cada hallazgo, que la IA es un asistente y que el criterio del
   analista prevalece (S12-R2).
 

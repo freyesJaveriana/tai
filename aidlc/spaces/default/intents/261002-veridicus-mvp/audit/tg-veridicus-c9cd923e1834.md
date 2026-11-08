@@ -4884,3 +4884,226 @@
 **Source**: orchestrator
 
 ---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4a3ad220
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4a3ad220
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 59b72b74
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 59b72b74
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6e975a5a
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6e975a5a
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: e98cae5a
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: e98cae5a
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 95d12b8f
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 95d12b8f
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: be6a96c4
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: be6a96c4
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 25e5959c
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 25e5959c
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-07T20:09:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: da28bc13
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-07T20:09:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: da28bc13
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+**Duration ms**: 50
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-07T20:09:23Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: units-generation
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-07T20:13:42Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Gate Rejected
+**Timestamp**: 2026-11-07T20:13:49Z
+**Event**: GATE_REJECTED
+**Stage**: units-generation
+**Feedback**: Corregir los hallazgos R-01 a R-07 de la revisión 2; R-01 se decide con el humano.
+
+---
+
+## Stage Revising
+**Timestamp**: 2026-11-07T20:13:49Z
+**Event**: STAGE_REVISING
+**Stage**: units-generation
+**Revision count**: 3
+**Feedback**: Corregir los hallazgos R-01 a R-07 de la revisión 2; R-01 se decide con el humano.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-08T14:22:02Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-08T14:22:17Z
+**Event**: DECISION_RECORDED
+**Stage**: units-generation
+**Decision**: R-01 de la revisión 2: US15.8 MUST frente al registro de acceso de U13
+**Options**: A. Registro por puerto,B. AC15.8.2 a U13,C. Registro de acceso en U7
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-08T14:22:17Z
+**Event**: QUESTION_ANSWERED
+**Stage**: units-generation
+**Details**: R-01 = A (Registro por puerto)
+
+---

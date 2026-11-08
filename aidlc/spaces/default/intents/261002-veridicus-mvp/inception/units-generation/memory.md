@@ -12,6 +12,8 @@
 - 2026-10-02T21:37:15Z — US10.6 (propuesta de umbral AIR) quedó en platform, pero leyendo una métrica cuyo nombre fija contracts, para que platform no dependa de human-review y no aparezca un ciclo.
 - 2026-11-07T19:50:03Z — La primera versión de P13 recomendó renombrar U7 con la premisa falsa de que Construction no había creado nada bajo `forensic-report`; ya había cuatro diseños aprobados. Se corrigió, se volvió a preguntar y U7 conserva su directorio.
 - 2026-11-07T19:50:03Z — U8 depende explícitamente de incoherence-analyzer aunque la arista es transitiva por text-flow, porque US10.3 y US10.5 tocan el código de la biblioteca; el plan aprobado solo listaba text-flow.
+- 2026-11-08T14:23:17Z — La jerarquía de excepciones de `libs/` pasó a U1 (spec) como traducción declarativa del catálogo de `code`, porque en U4 cerraba un ciclo con U10 y U11 (R-02 de la revisión 2).
+- 2026-11-08T14:23:17Z — AC15.8.2 (MUST en U7) se cumple por un puerto de ConsoleApi que implementa U13, para que ninguna unidad MUST dependa de la demostración (R-01 = A, UG-09).
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->

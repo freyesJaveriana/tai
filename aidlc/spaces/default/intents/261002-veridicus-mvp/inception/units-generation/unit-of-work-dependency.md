@@ -1,7 +1,7 @@
 # Dependencias entre unidades — Veridicus
 
 **Revisión 2 (2026-11-07), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
-revisión 1.
+revisión 1. Ajustada el 2026-11-08 con los hallazgos R-02, R-03, R-06 y R-07 de la revisión 2.
 
 **Insumos.** `unit-of-work.md` de esta etapa; dependencias entre componentes de
 `inception/domain-design/components.md` (components, revisión 2); historias de
@@ -46,10 +46,10 @@ units:
     depends_on: [text-flow, incoherence-analyzer]
   - name: voice
     kind: service
-    depends_on: [text-flow, assistant-extras]
+    depends_on: [text-flow, assistant-extras, incoherence-analyzer]
   - name: research-reports
     kind: service
-    depends_on: [contracts, identity-access]
+    depends_on: [contracts, identity-access, text-flow]
   - name: ethics-governance
     kind: service
     depends_on: [text-flow, human-review, forensic-report]
@@ -85,8 +85,10 @@ graph TD
   extras --> analyzer
   voice --> textflow
   voice --> extras
+  voice --> analyzer
   research --> contracts
   research --> identity
+  research --> textflow
   ethics --> textflow
   ethics --> review
   ethics --> report
@@ -97,9 +99,9 @@ Texto equivalente: las flechas van de la unidad que depende a la unidad de la qu
 - `incoherence-analyzer` depende de `contracts` y `anonymizer`.
 - `text-flow` depende de `contracts`, `identity-access` e `incoherence-analyzer`.
 - `human-review` y `session-lifecycle` dependen de `text-flow`; `forensic-report`, de `human-review`.
-- `assistant-extras` depende de `text-flow` e `incoherence-analyzer`; `voice`, de `text-flow` y
-  `assistant-extras`.
-- `research-reports` depende de `contracts` e `identity-access`.
+- `assistant-extras` depende de `text-flow` e `incoherence-analyzer`; `voice`, de `text-flow`,
+  `assistant-extras` e `incoherence-analyzer`.
+- `research-reports` depende de `contracts`, `identity-access` y `text-flow`.
 - `ethics-governance` depende de `text-flow`, `human-review` y `forensic-report`.
 
 El grafo no tiene ciclos.
@@ -123,8 +125,10 @@ El grafo no tiene ciclos.
 | assistant-extras | incoherence-analyzer | Valida `observaciones_conductor` y permuta el verificador dentro de la biblioteca. Es transitiva por text-flow; se hace explícita porque U8 toca el código de U11. |
 | voice | text-flow | El turno transcrito sigue el camino del turno de texto. |
 | voice | assistant-extras | El audio es de la aclaración aprobada (US10.4 depende de US10.3). |
+| voice | incoherence-analyzer | SpeechProcessing llama a Whisper y TTS por ModelGateway, que es de U11. Es transitiva por text-flow; se hace explícita como en U8 (R-07 de la revisión 2). |
 | research-reports | contracts | El reporte que se sube se valida contra el esquema del reporte de la CLI. |
 | research-reports | identity-access | Rol `investigador` y token. |
+| research-reports | text-flow | La consola del investigador (M8) se monta sobre la base de la consola y la suite `axe` de U4 (R-03 de la revisión 2). |
 | ethics-governance | text-flow | La retención borra los datos de InterviewSession; el registro de acceso necesita las sesiones. |
 | ethics-governance | human-review | La retención borra sugerencias, rondas, decisiones y vistas; ProblemReport referencia ReviewSuggestion. |
 | ethics-governance | forensic-report | La retención borra versiones y exportaciones del reporte. |
@@ -161,17 +165,14 @@ Con el grafo anterior hay varios órdenes topológicos válidos. Grupos de unida
 sí:
 
 - `platform`, `identity-access` y `anonymizer` (todas solo dependen de `contracts`).
-- `research-reports` con `anonymizer`, `incoherence-analyzer` y todo lo que depende de `text-flow`.
+- `research-reports` con `human-review`, `session-lifecycle` y `assistant-extras`.
 - `human-review`, `session-lifecycle` y `assistant-extras` (todas dependen de `text-flow`).
 - `forensic-report` con `session-lifecycle`, `assistant-extras` y `voice`.
 
 Equipo de una persona con agentes (team.md): el paralelismo aquí es una propiedad del grafo, no una
 recomendación de trabajar en varias unidades a la vez.
 
-## Nota para Delivery Planning
+## Unidades sin dependencias de producto
 
-team.md (Walking Skeleton) fija que la primera rebanada de valor es la biblioteca del analizador con su
-línea de comandos, con el anonimizador como módulo y la validación del perfil. En este grafo eso son
-`contracts`, `anonymizer` e `incoherence-analyzer`, que no dependen de ninguna otra unidad. La regla
-«flujo de texto primero» de la primera pasada queda superada por el cambio 01 (`project.md`). No hay
-ceremonia de esqueleto andante (`skeleton: off`).
+`contracts`, `anonymizer` e `incoherence-analyzer` solo dependen entre sí; ninguna necesita sesiones,
+colas, base de datos ni el clúster. El orden de entrega lo decide Delivery Planning con team.md.

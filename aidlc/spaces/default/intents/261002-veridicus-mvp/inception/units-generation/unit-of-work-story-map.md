@@ -111,6 +111,7 @@ revisión 1. Las historias retiradas conservan su fila sin unidad.
 | US5.4 Solo el dueño | U5 | U7, U6 | Consolidar, corregir, pausar y terminar también exigen ser el dueño. |
 | US15.2 Pausar o terminar | U6 | U4 | Tras la retirada del consentimiento, U4 no encola ni analiza ninguna corrida (VE-10 (a)). |
 | US15.5 Aviso | U4 | U7, U11 | El reporte y la salida de la CLI llevan el mismo aviso (VE-01). |
+| US15.8 Exportación | U7 (marca de agua y *hash*) | U13 | La exportación se registra por el puerto de ConsoleApi que implementa U13 (AC15.8.2, UG-09). |
 | US15.7 Retención | U13 | U4, U5, U7 | Cada unidad borra lo suyo cuando U13 se lo pide, en el orden inverso de las referencias. |
 
 ## Orden de historias dentro de cada unidad
@@ -142,4 +143,5 @@ El orden sigue las dependencias de datos de stories:
   US4.1–US4.3, US10.6, US11.1) y US14.1 se cumplió antes del diseño.
 - Cada unidad salvo U1 tiene al menos una historia; U1 es de tipo `spec` y respalda criterios de US3.6,
   US8.3, US12.6, US13.3 y US15.4.
-- Las MUST quedan en U2–U7, U10, U11 y U12; ninguna MUST depende de U8, U9 ni U13.
+- Las MUST quedan en U2–U7, U10, U11 y U12; ninguna unidad MUST depende de U8, U9 ni U13. El único
+  criterio MUST que necesita a U13 es AC15.8.2, que entra por un puerto y se verifica con U13 (UG-09).

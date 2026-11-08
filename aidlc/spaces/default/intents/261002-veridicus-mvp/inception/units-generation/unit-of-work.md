@@ -2,7 +2,8 @@
 
 **Revisión 2 (2026-11-07), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. U1–U10 conservan su ID y su directorio; ninguna unidad se retira; las nuevas
-toman U11–U13. Lo que sale de cada unidad se nombra en su apartado «Sale».
+toman U11–U13. Lo que sale de cada unidad se nombra en su apartado «Sale». Ajustada el 2026-11-08 con
+los hallazgos R-01 a R-07 de la revisión 2 (`reviews/review-02.md`).
 
 **Insumos.**
 - Componentes y ADR: `inception/domain-design/components.md` (components, revisión 2: 16 componentes) y
@@ -60,7 +61,7 @@ primera pasada ya dejó diseños aprobados en `construction/forensic-report/`.
 | `services/semantic-agent` | AnalysisWorker, que envuelve la biblioteca del analizador con la cola de corridas y resultados | U4 (y U8 por la biblioteca) |
 | `services/audio-worker` | SpeechProcessing (SHOULD) | U9 |
 | `services/anonymizer-proxy` | Anonymizer en el clúster, única salida a internet (MUST) | U10 |
-| `libs/` | Biblioteca del analizador (IncoherenceAnalyzer, AnalyzerCli, ModelGateway, ExecutionProfiles, reglas de IntegrityPolicy), módulo del anonimizador, jerarquía de excepciones | U11, U10, U8, U4 (excepciones y escáner) |
+| `libs/` | Jerarquía de excepciones (traducción declarativa del catálogo de `code`), biblioteca del analizador (IncoherenceAnalyzer, AnalyzerCli, ModelGateway, ExecutionProfiles, reglas de IntegrityPolicy) y módulo del anonimizador | U1 (excepciones), U10, U11, U8 |
 | `contracts/` | Contratos versionados y catálogo de límites | U1 |
 | `deploy/` | Charts y manifiestos | U2 (base), cada unidad añade lo de su proceso |
 | `evaluation/` | Conjunto sintético, arnés del nivel 2, scripts `sbatch` y paquete de entrada para ZINE | U11 |
@@ -85,11 +86,13 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   - esquema del reporte JSON de la CLI, que consume U12;
   - catálogo único de límites `contracts/limits.v1.yaml`;
   - lista versionada de vocabulario prohibido y texto del aviso de VE-01;
-  - catálogo de `code` de Problem Details, OpenAPI de ConsoleApi, nombres de métricas y formato de fecha.
+  - catálogo de `code` de Problem Details y su jerarquía de excepciones en `libs/`, una clase por `code`
+    sin lógica, que usan todas las unidades de código (R-02 de la revisión 2);
+  - OpenAPI de ConsoleApi, nombres de métricas y formato de fecha.
 - **Sale.** Mensaje de turno con la instantánea del umbral y de la versión de escenario, esquema del juez
   con tres calificaciones, esquema de pasajes y métrica AIR.
-- **Límites.** Solo contratos y sus pruebas de validación con *fixtures* positivos y negativos; ningún
-  comportamiento.
+- **Límites.** Solo contratos, la jerarquía declarativa de excepciones y sus pruebas de validación con
+  *fixtures* positivos y negativos; ningún comportamiento.
 - **Restricciones.** Cada cambio de contrato entra por su propio PR y sube la versión. Comprobar que
   `anonymizer.incident` y el código del fallo cerrado están entre los códigos del contrato v1.0.0
   (UG-02).
@@ -177,7 +180,9 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   con marca de agua, roles y *hash* por exportación (US15.8). El reporte cita los dos fragmentos de cada
   hallazgo y muestra el aviso de VE-01.
 - **Límites.** Usa las rondas y decisiones de U5; no las define. El registro de acceso lo escribe
-  ConsoleApi en EthicsGovernance (U13), no ReviewReport (ADR-016).
+  ConsoleApi en EthicsGovernance (U13), no ReviewReport (ADR-016): U7 avisa cada exportación por un puerto
+  de ConsoleApi que no hace nada hasta que U13 lo implementa, así que U7 no depende de U13 y AC15.8.2 se
+  cumple al construir U13 (UG-09).
 - **Restricciones.** Consolidación guardia de AUTONOMIA-03 con 100 % de ramas; dos consolidaciones
   simultáneas, una sola gana (AC6.1.6).
 
@@ -234,6 +239,8 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   Los scripts `sbatch` los lanza el humano (AUTONOMIA-01).
 - **Restricciones.** Contiene los módulos guardia de AUTONOMIA-05 (100 % de ramas). Se evalúa en nivel 2
   con la propia CLI. Un destino externo sin anonimizador impide arrancar, igual que en los servicios.
+  Los adaptadores externos de ModelGateway llevan las dos pruebas de AUTONOMIA-04 desde su lado: el
+  *payload* saliente pasó por el anonimizador y, si este falla, no sale ninguna llamada.
 
 ### U12 — research-reports (service)
 
@@ -250,7 +257,8 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   uso: reconocimiento de las reglas de uso (US15.1, DD-01), reporte de problemas con aviso de testimonio
   (US15.3, DD-04), registro de quién vio cada sesión (US15.6, DD-02), Job de retención con su acta y reloj
   simulado (US15.7, DD-03) y avisos de bienestar (US15.9, DD-05).
-- **Límites.** El Job de retención lo lanza el humano como artefacto revisable (AUTONOMIA-01). Borra en el
+- **Límites.** Implementa el puerto de registro de acceso de ConsoleApi que usan U7 (exportaciones,
+  AC15.8.2) y las vistas de sesión (US15.6). El Job de retención lo lanza el humano como artefacto revisable (AUTONOMIA-01). Borra en el
   orden inverso de las referencias pidiéndoselo a U7, U5 y U4.
 - **Restricciones.** Selecciona los reportes de problemas también por las sugerencias de la sesión
   (UG-01).
@@ -268,10 +276,11 @@ llevan al original, cada una en su propio commit.
 | ID | Artefacto aprobado | Precisión propuesta | Resuelve | Origen |
 |---|---|---|---|---|
 | UG-01 | `domain-design/components.md` (ProblemReport, EthicsGovernance) | `session_id` es obligatorio en ProblemReport y se deriva de la sugerencia cuando el reporte se refiere a un hallazgo; el paso (1) de la retención lo cubre y AC15.7.2 añade ese caso | U13, Functional Design | review-03 R-01, P6 |
-| UG-02 | `domain-design/components.md` (Anonymizer, IncoherenceAnalyzer, InterviewSession) | Nombrar el código del fallo cerrado (propuesta: `anonymizer.unavailable`) y decidir si solo falla la corrida o también bloquea la sesión; comprobar que `anonymizer.incident` y ese código están en el contrato v1.0.0 | U10 y U11, Functional Design; U1 | review-03 R-02, P6 |
+| UG-02 | `domain-design/components.md` (Anonymizer, IncoherenceAnalyzer, InterviewSession) | Nombrar el código del fallo cerrado (propuesta: `anonymizer.unavailable`) y decidir si solo falla la corrida o también bloquea la sesión; comprobar que `anonymizer.incident` y ese código están en el contrato v1.0.0 | U10, U11 y U4 (InterviewSession decide si bloquea la sesión), Functional Design; U1 | review-03 R-02, P6 |
 | UG-03 | `domain-design/components.md` (ConsoleApi → InterviewSession) | Añadir «registrar la retirada del consentimiento» a la interacción de ConsoleApi y a los dependientes de InterviewSession (AC15.2.3) | U6, Functional Design | review-03 R-03, P6 |
 | UG-04 | `domain-design/components.md` («Alcance ético») y `decisions.md` (ADR-016) | Una sola definición: el analizador sin rebaja son U11, U10 y el AnalysisWorker de U4; las VE de DD-07 se cumplen sin rebaja en la unidad dueña del componente que las contiene. ADR-016 remite a esta definición | Esta etapa | review-03 R-04, P6 |
 | UG-05 | `domain-design/components.md` (DD-06 (b)) | Los estados `pausada` y `terminada` y la cancelación de lo encolado siguen en InterviewSession aunque VE-10 bajara a demostración; solo cambia el nivel de exigencia, no el dueño | U6 | review-03 R-05, P6 |
 | UG-06 | `team.md` (AUTONOMIA-03) | Confirmado «reporte de revisión» en lugar de «reporte forense» (commit d1c687f); no hay nada más que cambiar | — | P7 |
 | UG-07 | `practices-discovery/team-practices.md` | Queda superado por `team.md` donde difieren (umbral del Silencio Fáctico, Golden Dataset, Paquete de Contexto de Traspaso, módulos guardia de entonces, «flujo de texto primero») | — | P8 |
 | UG-08 | `construction/forensic-report/` (primera pasada) | U7 conserva su directorio; los diseños de su segunda pasada usan ReviewReport | U7, Construction | P13 |
+| UG-09 | `stories-adenda-02.md` (AC15.8.2) | El registro de la exportación en el registro de acceso entra por un puerto de ConsoleApi que implementa U13; mientras U13 no exista no se registra, y AC15.8.2 se verifica con U13 | U7 y U13, Functional Design | Revisión 2 R-01 |

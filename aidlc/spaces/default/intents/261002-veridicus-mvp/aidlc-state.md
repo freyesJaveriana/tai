@@ -114,7 +114,7 @@
 - [x] user-stories — EXECUTE
 - [x] refined-mockups — EXECUTE
 - [x] domain-design — EXECUTE
-- [R] units-generation — EXECUTE
+- [?] units-generation — EXECUTE
 - [ ] contract-design — EXECUTE
 - [ ] delivery-planning — EXECUTE
 
@@ -142,7 +142,7 @@ Per unit: [TBD]
 - **Current Stage**: units-generation
 - **Next Stage**: contract-design
 - **Status**: Running
-- **Last Updated**: 2026-11-08T14:27:41Z
+- **Last Updated**: 2026-11-08T14:30:21Z
 
 - **Construction Autonomy Mode**: gated
 

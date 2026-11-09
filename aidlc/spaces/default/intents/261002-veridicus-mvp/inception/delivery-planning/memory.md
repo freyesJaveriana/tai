@@ -10,13 +10,19 @@
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 - 2026-10-02T22:21:26Z — Se precisa la regla «cada Bolt queda como un commit en main» como «cada PR queda como un commit»: un Bolt de varias unidades entra por varios PR cortos (≤ 2 días), y los contratos por PR propio (P9 = A, contradicción entre P1 y team-practices).
 - 2026-10-02T22:35:02Z — En el cierre, al revisar el aprendizaje que contradecía `org.md`, el autor decidió «un solo commit por Bolt; la unidad es lo suficientemente precisa»: un Bolt por unidad (P1 y P9 pasan a B). El flujo de texto se reparte en B1 contratos, B2 acceso y B3 flujo de texto; el plan queda en 9 Bolts más el anonimizador condicional.
+- 2026-11-09T17:34:16Z — Segunda pasada (cambio 01): P10 = A pone la primera rebanada como B1 → B10 → B11; el grafo obliga a construir el anonimizador antes que la biblioteca, aunque `docs/iteracion2.md` §2.7 lo listaba después.
+- 2026-11-09T17:34:16Z — B10 conserva su número aunque pasa de condicional a MUST, y los Bolts nuevos toman el número de su unidad (B11–B13) para no romper las referencias de la revisión 1.
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 - 2026-10-02T22:21:26Z — Sin WSJF formal (P4 = A): el orden ya lo fijan la regla del flujo de texto, el grafo, la demo de la sustentación y los módulos 6–8; una tabla de puntos añadiría precisión falsa.
 - 2026-10-02T22:21:26Z — Plataforma como segundo Bolt (P2 = A) en vez de dentro del primero: mantiene el primer Bolt probándose en contenedores (niveles 0–2) y alinea el despliegue y la NetworkPolicy con los módulos 6–7; las partes SHOULD/COULD de U2 quedan como sus últimas tareas para el módulo 8.
+- 2026-11-09T17:34:16Z — B12 (reportes del investigador) va después de la demo y no justo tras B3 (P11 = A): sirve al TG un poco más tarde a cambio de no retrasar la plataforma ni la sustentación.
+- 2026-11-09T17:34:16Z — P0.2 se retira (P12 = A): el conjunto sintético se construye dentro de B11, que hace a B11 todavía más grande (R8) pero lo deja en la unidad que lo usa.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 - 2026-10-02T22:21:26Z — U10 (anonimizador) queda fuera del plan hasta que se decida usar un modelo externo; si se decide, entra como Bolt condicional al final y exige revisar AUTONOMIA-04.
 - 2026-10-02T22:21:26Z — El comando de verificación de Construction se difiere: este trabajo no escribe código y no existe todavía un comando ejecutable.
+- 2026-11-09T17:34:16Z — El proveedor comercial de la primera rebanada (US13.6) no lo fija esta etapa; queda para Functional Design o NFR Requirements de U11.
+- 2026-11-09T17:34:16Z — `interaction-spec.md` (`research.upload_ok`) contradice CD-03 (rechazo con 422); registrada como DP-01 para decidir en la aprobación.

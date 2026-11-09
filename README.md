@@ -101,7 +101,7 @@ El MVP se especifica con AI-DLC (scope `classic`). Los artefactos viven en
 análisis de impacto y sus decisiones están en [`docs/iteracion2.md`](./docs/iteracion2.md); PVB, PRD
 (iteración 6), reglas AUTONOMIA y `plan-aidlc.md` ya están corregidos. El flujo volvió a
 **Requirements Analysis (2.3)** para revisar en este intent las etapas 2.3 a 3.5; la tabla de abajo
-muestra lo aprobado **antes** del cambio, que cada etapa revisada actualizará (Requirements Analysis, User Stories, Refined Mockups y Domain Design y Units Generation ya están revisadas, junto con la adenda 02 del protocolo ético; los modelos locales se validaron en el clúster Ing. Sistemas antes de Domain Design, FR16.3; sigue Delivery Planning). El plan de U1 nunca se
+muestra lo aprobado **antes** del cambio, que cada etapa revisada actualizará (Requirements Analysis, User Stories, Refined Mockups y Domain Design y Units Generation ya están revisadas, junto con la adenda 02 del protocolo ético; los modelos locales se validaron en el clúster Ing. Sistemas antes de Domain Design, FR16.3; sigue Contract Design). El plan de U1 nunca se
 aprobó y se regenerará con el contrato común; desde entonces, el autor elige `Approve Plan` y se
 construye por Bolts.
 

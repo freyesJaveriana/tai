@@ -19,7 +19,7 @@
 - **Test Strategy**: Standard
 - **Review Override**: 
 - **Guard Policy**: strict (set by you)
-- **Guards Off**: plan-approval, review-freeze (set by you)
+- **Guards Off**: plan-approval (set by you)
 - **Sensors**: on (from scope classic)
 - **Learnings**: on (from scope classic)
 - **Summary Confirmation**: off (from scope classic)
@@ -89,7 +89,9 @@
 
 
 
-- **Parked**: 2026-11-09T22:31:17Z
+
+
+- **Parked**: 2026-11-09T23:01:13Z
 
 - **Parked At Stage**: functional-design
 
@@ -154,7 +156,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-11-09T22:35:54Z
+- **Last Updated**: 2026-11-09T23:01:13Z
 
 - **Construction Autonomy Mode**: gated
 

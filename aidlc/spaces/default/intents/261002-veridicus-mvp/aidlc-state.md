@@ -83,9 +83,9 @@
 
 
 
-- **Parked**: 2026-11-09T14:31:31Z
 
-- **Parked At Stage**: delivery-planning
+
+- **Unit Ownership**: solo
 
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
@@ -148,7 +148,7 @@ Per unit: [TBD]
 - **Current Stage**: delivery-planning
 - **Next Stage**: functional-design
 - **Status**: Running
-- **Last Updated**: 2026-11-09T14:31:31Z
+- **Last Updated**: 2026-11-09T15:25:46Z
 
 - **Construction Autonomy Mode**: gated
 

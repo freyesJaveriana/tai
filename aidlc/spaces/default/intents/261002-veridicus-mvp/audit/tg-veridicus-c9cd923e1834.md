@@ -5637,3 +5637,65 @@
 **Details**: Re-entering gate after revision
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-08T14:34:43Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Gate Rejected
+**Timestamp**: 2026-11-08T14:34:50Z
+**Event**: GATE_REJECTED
+**Stage**: units-generation
+**Feedback**: Corregir los tres Minor R-01 a R-03 de la revisión 4.
+
+---
+
+## Stage Revising
+**Timestamp**: 2026-11-08T14:34:50Z
+**Event**: STAGE_REVISING
+**Stage**: units-generation
+**Revision count**: 5
+**Feedback**: Corregir los tres Minor R-01 a R-03 de la revisión 4.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T10:55:05Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T10:56:16Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T10:56:51Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T10:56:57Z
+**Event**: DECISION_RECORDED
+**Stage**: units-generation
+**Decision**: R-02 de la revisión 4: exportación sin U13
+**Options**: A. Exportar y avisar,B. Exportar en silencio,C. No exportar sin U13
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T10:56:57Z
+**Event**: QUESTION_ANSWERED
+**Stage**: units-generation
+**Details**: R-02 = A (Exportar y avisar)
+
+---

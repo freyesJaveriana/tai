@@ -3,7 +3,7 @@
 **Revisión 2 (2026-11-07), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. U1–U10 conservan su ID y su directorio; ninguna unidad se retira; las nuevas
 toman U11–U13. Lo que sale de cada unidad se nombra en su apartado «Sale». Ajustada el 2026-11-08 con
-los hallazgos R-01 a R-07 de la revisión 2 (`reviews/review-02.md`) y R-01 a R-04 de la revisión 3.
+los hallazgos R-01 a R-07 de la revisión 2 (`reviews/review-02.md`) R-01 a R-04 de la revisión 3 y R-01 a R-03 de la revisión 4.
 
 **Insumos.**
 - Componentes y ADR: `inception/domain-design/components.md` (components, revisión 2: 16 componentes) y
@@ -130,9 +130,11 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   la aplicación y la prueba compartida de nivel 1.
 - **Límites.** No incluye la autorización por dueño de sesión de cada acción; cada unidad la aplica en sus
   rutas con la base que deja U3 (ADR-009).
-- **Manejador de errores.** U3 entrega también el manejador único de ConsoleApi que traduce la
-  jerarquía de excepciones de U1 a Problem Details (RFC 9457) con `code` estable y `detail` en español; los
-  demás procesos lo reutilizan.
+- **Manejador de errores.** U3 entrega también el manejador único de Problem Details (RFC 9457) de
+  ConsoleApi, que traduce la jerarquía de excepciones de U1 con `code` estable y `detail` en español. Vive
+  en `services/session-api` y solo lo usa ConsoleApi; los demás procesos (`semantic-agent`,
+  `audio-worker`, `anonymizer-proxy`) no exponen REST a la consola y solo comparten la jerarquía de U1, así
+  que no dependen de U3.
 - **Restricciones.** Contraseñas con hash adaptativo y sal; mismo cuerpo de error para usuario
   inexistente y contraseña errónea.
 
@@ -156,8 +158,8 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   terminar y reanudar, de U6. Las reglas del analizador son de U11.
 - **Restricciones.** Bloquea toda corrida tras la retirada del consentimiento (VE-10 (a), A-4). Decide
   si el fallo cerrado del anonimizador solo falla la corrida o también bloquea la sesión, y bloquea la
-  sesión ante `anonymizer.incident` (UG-02). Se verifica en nivel 1 con *fakes* del `ModelGateway`. Al no tener tipo, recibe todos los documentos de
-  diseño de Construction.
+  sesión ante `anonymizer.incident` (UG-02). Se verifica en nivel 1 con *fakes* del `ModelGateway`. Al
+  no tener tipo, recibe todos los documentos de diseño de Construction.
 
 ### U5 — human-review (service)
 
@@ -186,8 +188,10 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   hallazgo y muestra el aviso de VE-01.
 - **Límites.** Usa las rondas y decisiones de U5; no las define. El registro de acceso lo escribe
   ConsoleApi en EthicsGovernance (U13), no ReviewReport (ADR-016). La ruta de exportación de ConsoleApi,
-  después de que ReviewReport entrega el archivo, llama al puerto `AccessLog` de ConsoleApi, que no hace
-  nada hasta que U13 lo implementa; ReviewReport no conoce el puerto. U7 define la interfaz del puerto y
+  después de que ReviewReport entrega el archivo, llama al puerto `AccessLog` de ConsoleApi; ReviewReport no
+  conoce el puerto. Mientras U13 no exista, el adaptador por defecto no registra, pero deja un aviso en el
+  log (solo IDs) al arrancar y en cada exportación, y el estado de salud de session-api informa «registro
+  de acceso no configurado» (revisión 4 R-02 = A). U7 define la interfaz del puerto y
   prueba con un doble que la ruta lo llama con usuario, versión y `export_sha256` (UG-09).
 - **Restricciones.** Consolidación guardia de AUTONOMIA-03 con 100 % de ramas; dos consolidaciones
   simultáneas, una sola gana (AC6.1.6).
@@ -263,10 +267,13 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   uso: reconocimiento de las reglas de uso (US15.1, DD-01), reporte de problemas con aviso de testimonio
   (US15.3, DD-04), registro de quién vio cada sesión (US15.6, DD-02), Job de retención con su acta y reloj
   simulado (US15.7, DD-03) y avisos de bienestar (US15.9, DD-05).
-- **Límites.** Implementa el puerto `AccessLog` de ConsoleApi que define U7 y que llaman la ruta de
-  exportación (AC15.8.2) y las vistas de sesión (US15.6), con una prueba de nivel 1 de que el puerto real
-  está conectado y la exportación queda registrada. El Job de retención lo lanza el humano como artefacto revisable (AUTONOMIA-01). Borra en el
-  orden inverso de las referencias pidiéndoselo a U7, U5 y U4.
+- **Límites.** Aporta el registro de acceso que sustituye al adaptador por defecto del puerto
+  `AccessLog` (interfaz de U7). El adaptador se cablea dentro de ConsoleApi y llama a EthicsGovernance, que
+  no importa nada de ConsoleApi, así que no hay ciclo. Lo usan la ruta de exportación (AC15.8.2) y las
+  vistas de sesión (US15.6), con una prueba de nivel 1 de que el puerto real está conectado y la exportación
+  queda registrada.
+- **Retención.** El Job de retención lo lanza el humano como artefacto revisable (AUTONOMIA-01). Borra en
+  el orden inverso de las referencias pidiéndoselo a U7, U5 y U4.
 - **Restricciones.** Selecciona los reportes de problemas también por las sugerencias de la sesión
   (UG-01).
 
@@ -290,4 +297,4 @@ llevan al original, cada una en su propio commit.
 | UG-06 | `team.md` (AUTONOMIA-03) | Confirmado «reporte de revisión» en lugar de «reporte forense» (commit d1c687f); no hay nada más que cambiar | — | P7 |
 | UG-07 | `practices-discovery/team-practices.md` | Queda superado por `team.md` donde difieren (umbral del Silencio Fáctico, Golden Dataset, Paquete de Contexto de Traspaso, módulos guardia de entonces, «flujo de texto primero») | — | P8 |
 | UG-08 | `construction/forensic-report/` (primera pasada) | U7 conserva su directorio; los diseños de su segunda pasada usan ReviewReport | U7, Construction | P13 |
-| UG-09 | `stories-adenda-02.md` (AC15.8.2) | Partir la verificación de AC15.8.2: la marca de agua y el `export_sha256` se verifican en U7, que además prueba con un doble que la ruta de exportación de ConsoleApi llama al puerto `AccessLog` (interfaz definida por U7); el registro real se verifica en U13, con una prueba de que el puerto real está conectado. Mientras U13 no exista, la exportación no se registra | U7 y U13, Functional Design | Revisión 2 R-01; revisión 3 R-01 y R-02 |
+| UG-09 | `stories-adenda-02.md` (AC15.8.2) | Partir la verificación de AC15.8.2: la marca de agua y el `export_sha256` se verifican en U7, que además prueba con un doble que la ruta de exportación de ConsoleApi llama al puerto `AccessLog` (interfaz definida por U7); el registro real se verifica en U13, con una prueba de que el puerto real está conectado. Mientras U13 no exista, la exportación no se registra, pero queda un aviso en el log y en el estado de salud | U7 y U13, Functional Design | Revisión 2 R-01; revisión 3 R-01 y R-02; revisión 4 R-02 = A |

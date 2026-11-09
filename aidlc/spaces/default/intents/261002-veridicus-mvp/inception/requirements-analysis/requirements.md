@@ -139,7 +139,7 @@ No hay marco de verdad documental: el contraste con documentos externos es WON'T
   versionado del contrato (prueba de contrato en nivel 0).
 - **FR4.2** `estado: error` implica `hallazgos` vacío: nunca un resultado parcial. El error lleva un
   `codigo` estable (`salida_invalida`, `bloqueo_contenido`, `tiempo_agotado`, `proveedor` y uno propio
-  para el fallo del anonimizador, propuesto `anonimizador`, cuyo nombre definitivo fija Contract Design),
+  para el fallo del anonimizador, `anonimizador_no_disponible`, nombre que fijó Contract Design en CD-02),
   y la consola muestra «El analizador no pudo procesar este tramo. Revisión manual requerida» con ese
   código (S7-J4); ante el fallo del anonimizador añade «No se envió ningún dato fuera del clúster» (User
   Stories, revisión de calidad y diseño).

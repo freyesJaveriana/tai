@@ -104,7 +104,7 @@ components:
         interaction: Listar los perfiles aprobados y su indicación de proveedor comercial (FR14.5)
         style: sync
       - component: InterviewSession
-        interaction: Crear sesiones con consentimiento y perfil, enviar o importar turnos, lanzar corridas, pausar, terminar, finalizar, latido, reanudar
+        interaction: Crear sesiones con consentimiento y perfil, enviar o importar turnos, lanzar corridas, pausar, terminar, registrar la retirada del consentimiento (AC15.2.3), finalizar, latido, reanudar
         style: sync
       - component: HumanReview
         interaction: Registrar «observaciones desplegadas» y decisiones sobre sugerencias
@@ -257,7 +257,7 @@ components:
         style: sync
     dependents:
       - component: ConsoleApi
-        interaction: Crear sesiones con consentimiento y perfil, enviar o importar turnos, lanzar corridas, pausar, terminar, finalizar, latido, reanudar
+        interaction: Crear sesiones con consentimiento y perfil, enviar o importar turnos, lanzar corridas, pausar, terminar, registrar la retirada del consentimiento (AC15.2.3), finalizar, latido, reanudar
       - component: ReviewReport
         interaction: Leer transcripción, corridas, registro de modelos y estado de la sesión
       - component: EthicsGovernance

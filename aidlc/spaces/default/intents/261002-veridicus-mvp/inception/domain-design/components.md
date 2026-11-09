@@ -177,7 +177,9 @@ components:
       cuando el bloque de consentimiento no autoriza la transferencia (A-4, VE-07). Calcula
       `config_sha256` de la configuración efectiva: misma configuración, misma huella (FR14.2). Los
       perfiles locales en CPU solo admiten el modo por lotes (validación en ZINE). Nunca escribe los
-      archivos: solo cambian por PR.
+      archivos: solo cambian por PR. Los esquemas de perfiles (`contracts/profiles/`) son de U1; este
+      componente los aplica, y `anonymizer-proxy` valida perfiles con esos esquemas sin depender de él
+      (CD-09).
     responsibilities:
       - Carga y validación de perfiles y de la tabla de precios
       - Huella config_sha256 de la configuración efectiva
@@ -448,7 +450,8 @@ components:
       llamada no sale (FR11.3). Traduce el bloqueo de contenido, el tiempo agotado y el error del
       proveedor a errores tipados (FR15.2). Toda llamada lleva timeout explícito y devuelve su registro,
       con el campo `anonimizado` (FR15.3, VE-14). Los fakes deterministas de los niveles 0 y 1 se enchufan
-      aquí (team-practices).
+      aquí (team-practices). Los tipos de la llamada (`contracts/python/model_calls.py`) y el esquema del
+      registro de llamadas (`contracts/model_calls/`) son de U1, no de este componente (CD-09).
     responsibilities:
       - Contrato estable de llamada a modelos, errores tipados y timeouts
       - Adaptador del servidor local; los comerciales se alcanzan solo por Anonymizer (CD-04)
@@ -482,7 +485,9 @@ components:
       cualquier otro destino (FR11.4). Si falla, no sale ninguna llamada y la corrida termina con
       `codigo: anonimizador_no_disponible` (en Problem Details, `analysis.anonymizer_unavailable`; CD-01). Es el único componente con salida a internet (FR12.3). Un perfil todo
       local no lo usa. Contiene los adaptadores nativos de Anthropic, Google y OpenAI (módulo en `libs/` y
-      pod `anonymizer-proxy`); las claves de API se montan solo en `anonymizer-proxy` (CD-04).
+      pod `anonymizer-proxy`); las claves de API se montan solo en `anonymizer-proxy` (CD-04). Usa los tipos
+      de la llamada, el registro de llamadas y los esquemas de perfiles de U1 (`contracts/`), así que solo
+      depende de `contracts` y valida perfiles sin ExecutionProfiles (CD-09).
     responsibilities:
       - Seudonimización, tabla en memoria y restauración de citas
       - Adaptadores nativos de los proveedores comerciales y sus claves (CD-04)

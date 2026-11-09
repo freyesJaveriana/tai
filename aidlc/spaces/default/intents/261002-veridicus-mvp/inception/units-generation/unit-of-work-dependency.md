@@ -148,8 +148,8 @@ ZINE.
 | semantic-agent → session-api (U4, U8) | Cola Redis de resultados, consumo idempotente por corrida | Mensaje de resultado con el contrato común (U1) |
 | semantic-agent → biblioteca (U4, U11) | Llamada en proceso | API pública de la biblioteca y contrato común (U1) |
 | biblioteca → modelos locales (U11) | Puerto ModelGateway | Contrato del puerto; destino interno verificado al arrancar |
-| biblioteca → `anonymizer-proxy` (U11, U10) | HTTP dentro del clúster | Contrato del puerto; con perfil externo, sin anonimizador no arranca |
-| CLI → módulo del anonimizador (U11, U10) | Llamada en el mismo proceso | API del módulo en `libs/` |
+| biblioteca → `anonymizer-proxy` (U11, U10) | HTTP dentro del clúster | Tipos de la llamada (`contracts/python/model_calls.py`), registro de llamadas (`contracts/model_calls/`) y esquemas de perfiles (`contracts/profiles/`), todos de U1 (CD-09); con perfil externo, sin anonimizador no arranca |
+| CLI → módulo del anonimizador (U11, U10) | Llamada en el mismo proceso | API del módulo en `libs/`, con los tipos de la llamada y los esquemas de perfiles de U1 (CD-09); U10 solo depende de `contracts`, sin aristas nuevas |
 | `anonymizer-proxy` → proveedores comerciales (U10) | HTTPS por 443, solo dominios de la lista | Texto seudonimizado; `NetworkPolicy` y CoreDNS (U2) |
 | session-api → audio-worker → session-api (U9) | Colas Redis de audio y de transcripción | Mensajes de audio y texto (U1) |
 | HumanReview ↔ ReviewReport ↔ EthicsGovernance (U5, U7, U13) | Llamada en proceso dentro de session-api | Interfaces de módulo vigiladas por import-linter |

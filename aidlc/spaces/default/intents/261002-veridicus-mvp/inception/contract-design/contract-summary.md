@@ -63,14 +63,14 @@ sus contratos C17–C24. Por primera vez un contrato **cruza la frontera del cl�
 | C10 | U5 (HumanReview) | U4 (InterviewSession), U5 (ConsoleApi) | Interfaz en proceso (`Protocol`) | U5 |
 | C11 | U5 (HumanReview), U4 y U6 (InterviewSession) | U7 (ReviewReport) | Interfaces en proceso (`Protocol`) | U5, U4 |
 | C12 | U3 (IdentityAccess) | U3 (ConsoleApi) | Interfaz en proceso (`Protocol`) | U3 |
-| C13 | U11 (ModelGateway, `libs/`) | U11 (IncoherenceAnalyzer), U9 (SpeechProcessing) | Interfaz en proceso (`Protocol`) | U11 |
+| C13 | U11 (ModelGateway, `libs/`); tipos compartidos en U1 (`contracts/python/model_calls.py`) | U11 (IncoherenceAnalyzer), U9 (SpeechProcessing); los tipos, también U10 | Interfaz en proceso (`Protocol`) | U11 (puerto), U1 (tipos) |
 | C14 | External: servidores de modelos locales (juez y verificador locales, Whisper, TTS) | U11, U9 (adaptadores locales de ModelGateway) | REST síncrono compatible con OpenAI | U2 despliega los servidores; U11 fija el subconjunto usado |
 | C15 | U5 (HumanReview vía `session-api`) | U2 (regla de Prometheus y panel de Grafana) | Métricas Prometheus (`/metrics`) | U5 |
 | C16 | `session-api`, `semantic-agent`, `audio-worker`, `anonymizer-proxy` | U2 (sondas de Kubernetes, `scripts/smoke.sh`) | REST síncrono: `/healthz` y `/readyz` | U2 |
 | C17 | U11 (IncoherenceAnalyzer, AnalyzerCli) | U4 (AnalysisWorker), U8 | Interfaz en proceso (`Protocol`): API pública de la biblioteca | U11 |
-| C18 | U11 (ExecutionProfiles) | U4, U11, `anonymizer-proxy` (U10); el humano por PR | Esquema compartido (YAML versionado): perfiles de ejecución y tabla de precios | U11 |
-| C19 | U11 (AnalyzerCli) | U12 (ResearchReports); External: investigador y repositorio principal del TG | Esquema compartido (JSON Schema): reporte de corrida y de evaluación de la CLI; códigos de salida | U11 |
-| C20 | U10 (módulo Anonymizer en `libs/`) | U11 (ModelGateway en la CLI) | Interfaz en proceso (`Protocol`) | U10 |
+| C18 | U11 (ExecutionProfiles); esquemas en U1 (`contracts/profiles/`) | U4, U11; `anonymizer-proxy` (U10) solo el esquema, sin ExecutionProfiles; el humano por PR | Esquema compartido (YAML versionado): perfiles, configuración efectiva y tabla de precios | U11 |
+| C19 | U11 (AnalyzerCli); registro de llamadas en U1 (`contracts/model_calls/`) | U12 (ResearchReports); External: investigador y repositorio principal del TG | Esquema compartido (JSON Schema): reporte de corrida y de evaluación de la CLI; códigos de salida | U11 |
+| C20 | U10 (módulo Anonymizer en `libs/`; solo importa `contracts/`) | U11 (ModelGateway en la CLI) | Interfaz en proceso (`Protocol`) | U10 |
 | C21 | U10 (`anonymizer-proxy`) | U11 (ModelGateway en `semantic-agent`) | REST síncrono dentro del clúster: `POST /v1/generate` | U10 |
 | C22 | External: APIs de Anthropic, Google y OpenAI | U10 (adaptadores nativos del Anonymizer) | HTTPS por 443, solo dominios de la lista, solo texto seudonimizado | U10 (lista de dominios y subconjunto usado) |
 | C23 | U13 (EthicsGovernance) | U3 (ConsoleApi); interfaz definida por U7 | Interfaz en proceso (`Protocol`): puerto `AccessLog` | U7 (interfaz), U13 (adaptador) |
@@ -175,14 +175,15 @@ components:
         - session.finalized
         - session.not_suspended
         - session.closed_to_new_turns      # importada, terminada o con consentimiento retirado
-        - session.paused
+        - session.paused                   # la sesión está en pausa: los turnos se guardan sin encolar
         - session.terminated
         - session.blocked                  # bloqueada por anonymizer.incident (VE-14)
         - session.consent_missing
         - session.consent_withdrawn
         - session.voice_not_authorized
         - import.invalid_type
-        - import.invalid_transcript        # no cumple C6 (entrada)
+        - import.invalid_transcript        # no cumple C6 (entrada) o su modo no es final
+        - import.profile_mismatch          # el perfil del archivo no es el elegido en el formulario
         - run.not_in_error
         - run.final_in_progress            # segundo lanzamiento simultáneo del modo final (409)
         - analysis.invalid_output          # contrato: salida_invalida
@@ -191,6 +192,8 @@ components:
         - analysis.provider                # contrato: proveedor
         - analysis.anonymizer_unavailable  # contrato: anonimizador_no_disponible
         - anonymizer.incident              # contrato: incidente_anonimizacion
+        - anonymizer.profile_mismatch      # C21 (409); la corrida termina en analysis.anonymizer_unavailable
+        - anonymizer.destination_rejected  # C21 (422); la corrida termina en analysis.anonymizer_unavailable
         - analysis.system                  # la corrida no volvió a tiempo o agotó sus entregas (C2)
         - review.observations_not_viewed
         - review.note_required
@@ -238,7 +241,7 @@ components:
       required: [profile_name, purpose, roles, config_sha256]
       properties:
         profile_name: { type: string }
-        purpose: { type: string, enum: [evaluacion, demostracion, produccion] }
+        purpose: { type: string, enum: [evaluation, demonstration, production] }
         config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
         roles:
           type: array
@@ -246,26 +249,37 @@ components:
             type: object
             required: [role, commercial, via_anonymizer]
             properties:
-              role: { type: string, enum: [juez, verificador] }
+              role: { type: string, enum: [judge, verifier] }
               commercial: { type: boolean }
               via_anonymizer: { type: boolean, description: true siempre que commercial es true (FR14.5) }
-        fragmented: { type: boolean }
+        chunking_enabled: { type: boolean, description: chunking.enabled del perfil (C18) }
         same_family_warning: { type: boolean, description: Perfil de demostración que declara la misma familia (FR14.4) }
     Consent:
       type: object
-      description: Bloque `consentimiento` de C6 (P11); sin datos personales
-      required: [tipo, version_texto, autoriza_transferencia, autoriza_voz, autoriza_conservar_audio]
+      description: >
+        Bloque `consentimiento` de C6 (P11); sin datos personales. `registrado_en` lo completa el servidor
+        con la hora del registro; si la petición lo trae, se ignora.
+      required: [tipo, version_texto, autoriza_transferencia, autoriza_voz, autoriza_conservar_audio, requiere_mandato]
       additionalProperties: false
       properties:
         tipo: { type: string, enum: [persona, autoridad] }
-        version_texto: { type: string }
+        version_texto: { type: string, minLength: 1 }
         autoriza_transferencia: { type: boolean }
         autoriza_voz: { type: boolean }
         autoriza_conservar_audio: { type: boolean }
-        constancia: { type: string, description: Solo un identificador de la constancia; obligatorio si tipo es autoridad }
+        constancia: { type: string, description: Solo un identificador de la constancia de la autoridad }
+        requiere_mandato: { type: boolean, description: La persona es compareciente o tercero civil (VE-06) }
+        constancia_mandato: { type: string, description: Identificador de la constancia de mandato y garantías de la entidad; nunca un nombre }
+        registrado_en: { type: string, format: date-time, readOnly: true }
+      allOf:
+        - if: { properties: { tipo: { const: autoridad } } }
+          then: { required: [constancia] }
+        - if: { properties: { requiere_mandato: { const: true } } }
+          then: { required: [constancia_mandato] }
     SessionStatus:
       type: string
       enum: [open, paused, suspended, finalized, terminated, blocked, consolidated]
+      description: Única representación de la pausa; PATCH /sessions/{id}/analysis pasa de open a paused y de vuelta (components, InterviewSession)
     Turn:
       type: object
       required: [turn_id, n, hablante, texto, origin, submitted_at]
@@ -293,12 +307,12 @@ components:
         attempt: { type: integer, minimum: 1 }
         profile_name: { type: string }
         config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
-        fragmented: { type: object, properties: { activo: { type: boolean }, ventana: { type: integer }, solapamiento: { type: integer } } }
+        fragmentado: { $ref: 'contracts/analyzer/v1/salida.schema.json#/$defs/registro/properties/fragmentado', description: Copia tal cual de registro.fragmentado de C6 (regla 8) }
         requested_at: { type: string, format: date-time }
         finished_at: { type: string, format: date-time }
     ModelCall:
       type: object
-      description: Una fila del registro de modelos de la corrida (FR15.3), de solo lectura (AC12.5.3)
+      description: Una fila de registro.llamadas de C6, copiada tal cual (regla 8); de solo lectura (FR15.3, AC12.5.3)
       required: [papel, proveedor, modelo, tokens_entrada, tokens_salida, proveedor_alterno, anonimizado, fecha]
       properties:
         papel: { type: string, enum: [juez, verificador, verificador_permutado] }
@@ -341,12 +355,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/SessionSummary'
         - type: object
-          required: [config_sha256, cursor, closed_to_new_turns, analysis_paused, turns, runs, suggestions, can_consolidate]
+          required: [config_sha256, cursor, closed_to_new_turns, turns, runs, suggestions, can_consolidate]
           properties:
             config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
             cursor: { type: string, description: Opaco; se devuelve en el siguiente sondeo }
             closed_to_new_turns: { type: boolean }
-            analysis_paused: { type: boolean }
             consent_withdrawn_at: { type: string, format: date-time }
             blocked_code: { $ref: '#/components/schemas/ErrorCode' }
             turns: { type: array, items: { $ref: '#/components/schemas/Turn' } }
@@ -372,7 +385,7 @@ components:
       required: [research_report_id, kind, profile_name, config_sha256, prompt_sha256, analyzer_version, source_sha256, uploaded_at]
       properties:
         research_report_id: { type: string, format: uuid }
-        kind: { type: string, enum: [corrida, evaluacion] }
+        kind: { type: string, enum: [run, evaluation] }
         profile_name: { type: string }
         config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
         prompt_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
@@ -387,12 +400,10 @@ components:
         - type: object
           description: Solo cifras de C19; ningún texto de transcripciones, hallazgos ni citas (NFR12)
           properties:
-            model_log: { type: array, items: { $ref: '#/components/schemas/ModelCall' } }
-            tokens_in: { type: integer }
-            tokens_out: { type: integer }
-            estimated_cost: { type: number }
-            metrics: { type: object }
-            bias_table: { type: array, items: { type: object } }
+            calls: { type: array, items: { $ref: 'contracts/model_calls/model-call.v1.yaml' } }
+            totals: { $ref: 'contracts/cli/report.schema.v1.yaml#/properties/totals' }
+            metrics: { $ref: 'contracts/cli/report.schema.v1.yaml#/properties/metrics' }
+            bias_table: { $ref: 'contracts/cli/report.schema.v1.yaml#/properties/bias_table' }
     AcknowledgementStatus:
       type: object
       required: [status]
@@ -512,8 +523,11 @@ paths:
     post:
       description: >
         Importa una transcripción en el formato de entrada de C6 con su bloque `consentimiento`. Sin el
-        bloque se rechaza completa (salvo origen sintetico). La sesión nace cerrada a turnos nuevos
-        (FR3.6) y el modo final se puede lanzar enseguida.
+        bloque se rechaza completa (salvo origen sintetico). El archivo debe cumplir C6 completo:
+        `modo` debe ser `final` (si no, `import.invalid_transcript`) y `perfil` debe ser igual a
+        `profile_name` del formulario (si no, `422` `import.profile_mismatch`); `hasta_turno` y
+        `desde_turno`, si vienen, se ignoran. La sesión nace cerrada a turnos nuevos (FR3.6) y sus
+        corridas son siempre de modo final, que se puede lanzar enseguida.
       x-veridicus-roles: [analista]
       parameters: [{ $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
@@ -626,7 +640,11 @@ paths:
         '200': { description: Registro de modelos de la corrida, solo lectura (US12.5), content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ModelCall' } } } } }
   /sessions/{session_id}/analysis:
     patch:
-      description: Pausar o reanudar el análisis. En pausa los turnos se guardan sin encolar y las corridas en cola se cancelan sin llamar a modelos (DD-06).
+      description: >
+        Pausar o reanudar el análisis. Con `paused` en true la sesión pasa de `open` a `paused`, y con
+        false vuelve a `open`, con actor y hora (SessionStatusChange); desde cualquier otro estado
+        responde 409. En pausa los turnos se guardan sin encolar y las corridas en cola se cancelan sin
+        llamar a modelos (DD-06).
       x-veridicus-roles: [analista]
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
@@ -845,7 +863,7 @@ paths:
                 note: { type: string, minLength: 1 }
       responses:
         '201':
-          description: Reporte guardado; avisa, sin rechazar, si la nota trae 8 o más palabras seguidas de un turno (VE-15)
+          description: Reporte guardado; avisa, sin rechazar, si la nota trae testimony_warning_words (C25) o más palabras seguidas de un turno (VE-15)
           content:
             application/json:
               schema: { type: object, required: [problem_report_id, testimony_warning], properties: { problem_report_id: { type: string, format: uuid }, testimony_warning: { type: boolean } } }
@@ -865,8 +883,20 @@ paths:
 | U12 | `/research-reports*` |
 | U13 | `/acknowledgements`, `/problem-reports`, el estado del reconocimiento en `/auth/me` y el adaptador real de C23 |
 
-El catálogo `ErrorCode` es uno solo (regla 6). Los seis códigos `analysis.*` y `anonymizer.incident`
-traducen uno a uno los `error.codigo` de C6 (P8).
+El catálogo `ErrorCode` es uno solo (regla 6). Los seis valores de `error.codigo` de C6 se traducen
+uno a uno (P8):
+
+| `error.codigo` (C6) | `code` (Problem Details) |
+|---|---|
+| `salida_invalida` | `analysis.invalid_output` |
+| `bloqueo_contenido` | `analysis.content_blocked` |
+| `tiempo_agotado` | `analysis.timeout` |
+| `proveedor` | `analysis.provider` |
+| `anonimizador_no_disponible` | `analysis.anonymizer_unavailable` |
+| `incidente_anonimizacion` | `anonymizer.incident` |
+
+`analysis.system` no viene de C6: lo pone InterviewSession cuando la corrida no vuelve a tiempo o agota
+sus entregas (C2).
 
 ---
 
@@ -912,7 +942,7 @@ components:
           session_id: { type: string, format: uuid }
           attempt: { type: integer, minimum: 1 }
           effective_config:
-            $ref: 'contracts/profiles/effective-config.v1.json'
+            $ref: 'contracts/profiles/effective-config.v1.yaml'
             description: Configuración efectiva fijada al crear la sesión (ADR-006, C18); el trabajador no lee el archivo de perfiles vigente para correr
           config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
           entrada:
@@ -923,19 +953,40 @@ components:
 ```
 
 **Entrega y fallos.** Al menos una vez. Si el trabajador muere, el mensaje queda pendiente y otro lo
-reclama con `XAUTOCLAIM` tras el plazo de inactividad; tras 3 entregas sin confirmar va a
-`veridicus:runs:failed` y la corrida pasa a `error` con `analysis.system`. Un mensaje que no cumple el
-esquema o trae una versión mayor desconocida va directo a fallidos, sin analizar. InterviewSession nunca
-publica una corrida de una sesión en pausa, terminada, bloqueada o con el consentimiento retirado.
+reclama con `XAUTOCLAIM` tras `claim_idle_ms` (C25). Después de `run_max_deliveries` entregas sin
+confirmar, el mensaje va a `veridicus:runs:failed` y la corrida pasa a `error` con `analysis.system`. Un
+mensaje que no cumple el esquema o trae una versión mayor desconocida va directo a fallidos, sin
+analizar. InterviewSession nunca publica una corrida de una sesión con el análisis en pausa, terminada,
+bloqueada o con el consentimiento retirado.
 
-**Cancelación.** Al pausar, terminar, retirar el consentimiento o bloquear la sesión, InterviewSession
-marca `cancelled` las corridas en cola o en proceso y escribe en Redis la clave
-`veridicus:run-cancelled:{run_id}` con vencimiento en `deadline_at`. El trabajador la consulta antes de
-empezar la corrida y antes de cada llamada a un modelo; si existe, no llama a nada más, no publica
-resultado y confirma el mensaje. Así ninguna llamada nueva sale después de la retirada (VE-10 (a)), y un
-resultado que llegue igual se descarta en la ingesta (C3). El trabajador no escribe en la base
-(ADR-002); la clave es la única escritura que hace InterviewSession fuera de la cola, y el trabajador
-solo la lee. El tamaño máximo del mensaje lo acota C25.
+**Plazo vencido.** El trabajador compara `deadline_at` con su reloj antes de empezar la corrida y antes
+de cada llamada a un modelo. Si el plazo pasó, no llama a nada más, no publica resultado y confirma el
+mensaje. Así un mensaje reclamado tarde nunca produce llamadas. InterviewSession, que vigila el plazo,
+ya dejó esa corrida en `error` con `analysis.system` (P3).
+
+**Cancelación.** Al pausar el análisis, terminar, retirar el consentimiento o bloquear la sesión,
+InterviewSession hace dos cosas:
+- marca `cancelled` las corridas en cola o en proceso;
+- escribe en Redis la clave `veridicus:run-cancelled:{run_id}`, que vence en
+  `deadline_at + cancel_key_margin_s` (C25), un margen que cubre el desfase de relojes.
+
+El trabajador consulta la clave antes de empezar la corrida y antes de cada llamada. Si existe, no llama
+a nada más, no publica resultado y confirma el mensaje.
+
+Entre la clave (hasta el plazo más el margen) y la regla del plazo vencido (después del plazo), ninguna
+llamada nueva sale después de la retirada (VE-10 (a)). Un resultado que llegue igual se descarta en la
+ingesta (C3).
+
+El trabajador no escribe en la base (ADR-002). La clave es la única escritura que hace InterviewSession
+fuera de la cola, y el trabajador solo la lee.
+
+**Persistencia de Redis.** Las claves de cancelación y los *streams* comparten la misma persistencia
+(AOF, que configura U2). Si Redis pierde los datos, pierde también los mensajes pendientes, y una clave
+no puede faltar sin que falte su mensaje. Aun así, al reconectar después de un reinicio de Redis,
+InterviewSession vuelve a escribir la clave de cada corrida `cancelled` cuyo plazo no haya pasado. La
+ingesta (C3) descarta en todo caso el resultado de una corrida `cancelled`.
+
+El tamaño máximo del mensaje lo acota C25.
 
 ## C3 — Cola de resultados · se reescribe
 
@@ -1068,6 +1119,7 @@ y la copia versionada vive en `contracts/analyzer/v1/` con una comprobación de 
 | 5 | El bloque `registro` reemplaza el campo `modelo` | FR15.3, FR15.4, FR4.5, FR4.8, P10 |
 | 6 | Cada cita lleva `avisos` (turno del entrevistador o plegado) | FR4.4 |
 | 7 | `estado: error` implica también `observaciones_conductor` vacío | FR4.2, AUTONOMIA-05 |
+| 8 | `consentimiento` suma `requiere_mandato` y, si es verdadero, `constancia_mandato` (compareciente o tercero civil) | VE-06 |
 
 **Entrada** (`contracts/analyzer/v1/entrada.schema.json`, mostrada en YAML):
 
@@ -1090,18 +1142,22 @@ properties:
       consentimiento:
         type: object
         additionalProperties: false
-        required: [tipo, version_texto, autoriza_transferencia, autoriza_voz, autoriza_conservar_audio, registrado_en]
+        required: [tipo, version_texto, autoriza_transferencia, autoriza_voz, autoriza_conservar_audio, requiere_mandato, registrado_en]
         properties:
           tipo: { enum: [persona, autoridad] }
           version_texto: { type: string, minLength: 1 }
           autoriza_transferencia: { type: boolean, description: Transferencia a un proveedor comercial, siempre seudonimizada }
           autoriza_voz: { type: boolean }
           autoriza_conservar_audio: { type: boolean }
-          constancia: { type: string, description: Identificador de la constancia; nunca un nombre }
+          constancia: { type: string, description: Identificador de la constancia de la autoridad; nunca un nombre }
+          requiere_mandato: { type: boolean, description: La persona es compareciente o tercero civil (VE-06) }
+          constancia_mandato: { type: string, description: Identificador de la constancia de mandato y garantías legales de la entidad; nunca un nombre }
           registrado_en: { type: string, format: date-time }
         allOf:
           - if: { properties: { tipo: { const: autoridad } } }
             then: { required: [constancia] }
+          - if: { properties: { requiere_mandato: { const: true } } }
+            then: { required: [constancia_mandato] }
       turnos:
         type: array
         minItems: 1
@@ -1456,49 +1512,87 @@ class UserAdmin(Protocol):
 ## C13 — Puerto ModelGateway · se reescribe
 
 **Antes:** `judge`, `embed`, `transcribe` y `synthesize`, con destino siempre interno. **Ahora:** una
-operación genérica `generate(papel, mensajes, esquema)` (FR15.1, DT21); sale `embed`. Vive en
-`libs/model_gateway/` (U11).
+operación genérica `generate(role, messages, schema)` (FR15.1, DT21); sale `embed`. El puerto vive en
+`libs/model_gateway/` (U11), pero **los tipos que cruzan hacia el anonimizador** (petición, resultado,
+registro de la llamada, destino y errores) viven en un módulo neutral de U1, `contracts/python/model_calls.py`,
+para que U10 no importe nada de U11 (el grafo aprobado: `anonymizer` solo depende de `contracts`).
 
 ```python
-# libs/model_gateway/port.py  — contrato v2.0.0
+# contracts/python/model_calls.py  — v1.0.0 (U1); lo importan U10 y U11, no importa a ninguno
 from typing import Protocol, Literal, Any
 from datetime import datetime
 
-Papel = Literal["juez", "verificador", "verificador_permutado"]
+Role = Literal["judge", "verifier", "verifier_permuted"]
 
-class Mensaje(Protocol):
-    rol: Literal["system", "user", "assistant"]
-    contenido: str                       # el testimonio va como JSON dentro del mensaje user (FR4.6)
+class Destination(Protocol):             # un destino ya resuelto de C18; nunca lleva el valor de una clave
+    provider: Literal["anthropic", "google", "openai", "local"]
+    model: str; version: str | None; family: str | None
+    scope: Literal["local", "external"]
+    base_url: str | None                 # solo local
+    api_key_ref: str | None              # nombre de la variable o del Secret
+    parameters: dict[str, Any]           # effort, temperature, quantization, engine, seed
+
+class Message(Protocol):
+    role: Literal["system", "user", "assistant"]
+    content: str                         # el testimonio va como JSON dentro del mensaje user (FR4.6)
 
 class GenerateRequest(Protocol):
-    papel: Papel
-    destino: "Destino"                   # proveedor, modelo, versión y parámetros del papel, de C18
-    mensajes: list[Mensaje]
-    esquema: dict[str, Any]              # JSON Schema de la respuesta; salida JSON forzada
-    semilla: int | None
+    role: Role
+    profile_name: str
+    profile_sha256: str                  # huella de la entrada del perfil (C18); el proxy la comprueba (C21)
+    destination: Destination
+    messages: list[Message]
+    schema: dict[str, Any]               # JSON Schema de la respuesta; salida JSON forzada
+    seed: int | None
     timeout_s: float                     # explícito siempre (C25)
 
-class LlamadaRegistrada(Protocol):       # una fila de salida.registro.llamadas (C6)
-    papel: Papel; proveedor: str; modelo: str; version: str | None
-    esfuerzo_o_cuantizacion: str | None; motor: str | None; semilla: int | None
-    tokens_entrada: int; tokens_salida: int; proveedor_alterno: bool; anonimizado: bool
-    fecha: datetime
+class ModelCall(Protocol):               # misma forma que contracts/model_calls/model-call.v1.yaml
+    role: Role; provider: str; model: str; version: str | None
+    effort_or_quantization: str | None; engine: str | None; seed: int | None
+    input_tokens: int; output_tokens: int; fallback_provider: bool; anonymized: bool
+    at: datetime
 
 class GenerateResult(Protocol):
-    contenido: dict[str, Any]            # ya parseado; quien llama lo valida contra su esquema
-    llamada: LlamadaRegistrada
+    content: dict[str, Any]              # ya parseado; quien llama lo valida contra su esquema
+    altered_markers: list[str]           # rutas JSON de las partes cuya marca alteró el modelo (C20)
+    call: ModelCall
+
+class ModelCallError(Exception): ...
+class ContentBlocked(ModelCallError): ...
+class Timeout(ModelCallError): ...
+class ProviderError(ModelCallError): ...
+class InvalidOutput(ModelCallError): ...
+class AnonymizerUnavailable(ModelCallError):
+    """Fallo cerrado: no salió ninguna llamada fuera del clúster o de la máquina."""
+```
+
+```python
+# libs/model_gateway/port.py  — contrato v2.0.0 (U11)
+from typing import Protocol
+from contracts.python.model_calls import GenerateRequest, GenerateResult
 
 class ModelGateway(Protocol):
     def generate(self, req: GenerateRequest) -> GenerateResult:
-        """Errores tipados (FR15.2): ContentBlocked, Timeout, ProviderError, InvalidOutput,
-        AnonymizerUnavailable (fallo cerrado: no salió ninguna llamada).
+        """Lanza solo los errores de contracts.python.model_calls (FR15.2).
         Un destino externo pasa siempre por el anonimizador: C20 en la CLI, C21 en el clúster."""
     def transcribe(self, audio: bytes, audio_format: str, timeout_s: float) -> "Transcript": ...  # SHOULD, solo local
     def synthesize(self, text: str, timeout_s: float) -> bytes: ...                              # SHOULD, solo local
 ```
 
+**Del registro de la llamada al contrato común.** El núcleo (U11) copia cada `ModelCall` a
+`salida.registro.llamadas` de C6 con esta correspondencia fija, que es la única traducción entre los dos
+idiomas (regla 8):
+
+| `ModelCall` (Veridicus) | `registro.llamadas` (C6) |
+|---|---|
+| `role`: `judge` / `verifier` / `verifier_permuted` | `papel`: `juez` / `verificador` / `verificador_permutado` |
+| `provider`, `model`, `version` | `proveedor`, `modelo`, `version` |
+| `effort_or_quantization`, `engine`, `seed` | `esfuerzo_o_cuantizacion`, `motor`, `semilla` |
+| `input_tokens`, `output_tokens` | `tokens_entrada`, `tokens_salida` |
+| `fallback_provider`, `anonymized`, `at` | `proveedor_alterno`, `anonimizado`, `fecha` |
+
 **Adaptadores.**
-- `local`: servidor compatible con OpenAI (C14); `anonimizado: false` es correcto.
+- `local`: servidor compatible con OpenAI (C14); `anonymized: false` es correcto.
 - `anonymizer`: todo destino externo. En la CLI llama al módulo en proceso (C20); en `semantic-agent`,
   al proxy por HTTP (C21). No hay otro camino a un destino externo: los adaptadores nativos de los
   proveedores no se instalan en `semantic-agent` (P13), y una comprobación de import-linter lo impide.
@@ -1508,8 +1602,22 @@ class ModelGateway(Protocol):
 todo papel con destino externo tenga el adaptador `anonymizer` configurado (en el clúster, la URL de
 `anonymizer-proxy`, que debe responder en `/readyz`), que todo destino local sea interno del clúster o
 de la máquina, y que el perfil sea válido según C18. Si algo falla, el servicio no arranca o la CLI
-termina con código ≠ 0. Los reintentos solo ante conexión rechazada o `502`/`503`/`504`, dentro del
-plazo de la corrida (regla de `project.md`).
+termina con código ≠ 0.
+
+**Reintentos** (cada fila con su prueba de nivel 0; ningún reintento pasa del plazo de la corrida):
+
+| Adaptador | Respuesta | Qué hace |
+|---|---|---|
+| `local` | Conexión rechazada, `502`, `503` o `504` del servidor de modelos | Hasta 2 reintentos (2 s y 6 s), solo si el plazo lo permite (regla de `project.md`); luego `ProviderError` o `Timeout` |
+| `local` | *Timeout* de la llamada o salida que no cumple el esquema | Sin reintento: `Timeout` o `InvalidOutput` |
+| `anonymizer` | No puede conectar con el proxy, o `503` | Sin reintento: `AnonymizerUnavailable` (fallo cerrado) |
+| `anonymizer` | `422` o `409` del proxy | Sin reintento: `AnonymizerUnavailable` (no salió ninguna llamada) |
+| `anonymizer` | `504` | Sin reintento: `Timeout` |
+| `anonymizer` | `451` | Sin reintento: `ContentBlocked`; el núcleo usa el `fallback_provider` del perfil si lo hay (FR15.2) |
+| `anonymizer` | `502` | Sin reintento: `ProviderError`. La llamada ya salió del clúster; repetirla duplicaría la salida externa y el costo. El reintento es humano (`/runs/{id}/retry`) |
+
+`anonymizer-proxy` tampoco reintenta hacia el proveedor: cada petición de C21 produce como mucho una
+llamada externa.
 
 ## C14 — Servidores de modelos locales (API compatible con OpenAI) · cambia
 
@@ -1575,7 +1683,8 @@ metrics:
     labels: [session_id]
     description: >
       Fracción de sugerencias descartadas entre las últimas W decididas de la sesión (W en C25). La
-      regla de U2 alerta por encima de 0.25 (AC10.8.1); nunca cambia un perfil ni un prompt (AC10.8.2).
+      regla de U2 alerta por encima de 0.25 (AC10.8.1): es el umbral de esa alerta, no un límite, y
+      vive en la regla de U2, no en C25. Nunca cambia un perfil ni un prompt (AC10.8.2).
   - name: veridicus_run_duration_seconds
     type: histogram
     labels: [mode, outcome]              # incremental | final ; ok | error
@@ -1658,8 +1767,11 @@ eso no debería ocurrir (InterviewSession ya validó); si ocurre, la corrida pas
 
 ## C18 — Perfiles de ejecución y tabla de precios · nuevo
 
-Archivos versionados que solo cambian por PR (FR9.2, ADR-012). ExecutionProfiles los valida igual en la
-biblioteca, la CLI, el trabajador, `session-api` y `anonymizer-proxy`.
+Archivos versionados que solo cambian por PR (FR9.2, ADR-012). Los esquemas viven en
+`contracts/profiles/` (U1) y los decide U11. ExecutionProfiles (U11) los valida con todas sus reglas en
+la biblioteca, la CLI, el trabajador y `session-api`. `anonymizer-proxy` (U10) **no importa
+ExecutionProfiles**: valida su copia del archivo directamente contra este esquema y aplica solo las
+reglas que le tocan (abajo), para no depender de U11.
 
 ```yaml
 # contracts/profiles/profiles.schema.v1.yaml — esquema de config/profiles.yaml
@@ -1671,168 +1783,249 @@ properties:
   schema_version: { const: "1.0.0" }
   profiles:
     type: object
+    propertyNames: { pattern: '^[a-z0-9-]{1,48}$' }
     additionalProperties: { $ref: '#/$defs/profile' }
 $defs:
-  destino:
+  token: { type: string, pattern: '^[A-Za-z0-9._:/@+-]{1,128}$', description: Sin espacios; nombres de modelo, versiones y motores }
+  destination:
     type: object
     additionalProperties: false
-    required: [proveedor, modelo, alcance]
+    required: [provider, model, scope]
     properties:
-      proveedor: { enum: [anthropic, google, openai, local] }
-      modelo: { type: string }
-      version: { type: string }
-      familia: { type: string, description: Para la regla de familias distintas (FR14.4) }
-      alcance: { enum: [local, externo] }
-      base_url: { type: string, description: Solo local; interno del clúster o de la máquina }
-      api_key_ref: { type: string, description: 'Nombre de la variable o del Secret, p. ej. VERIDICUS_ANTHROPIC_API_KEY; nunca el valor' }
-      parametros:
+      provider: { enum: [anthropic, google, openai, local] }
+      model: { $ref: '#/$defs/token' }
+      version: { $ref: '#/$defs/token' }
+      family: { $ref: '#/$defs/token', description: Para la regla de familias distintas (FR14.4) }
+      scope: { enum: [local, external] }
+      base_url: { type: string, format: uri, description: Solo local; interno del clúster o de la máquina }
+      api_key_ref: { type: string, pattern: '^VERIDICUS_[A-Z0-9_]+$', description: 'Nombre de la variable o de la clave del Secret; nunca el valor' }
+      parameters:
         type: object
         additionalProperties: false
         properties:
-          esfuerzo: { type: string }
-          temperatura: { type: number }
-          cuantizacion: { type: string }
-          motor: { type: string }
-          semilla: { type: integer }
+          effort: { $ref: '#/$defs/token' }
+          temperature: { type: number, minimum: 0 }
+          quantization: { $ref: '#/$defs/token' }
+          engine: { $ref: '#/$defs/token' }
+          seed: { type: integer }
   profile:
     type: object
     additionalProperties: false
-    required: [proposito, juez, verificador, permutacion]
+    required: [purpose, judge, verifier, permutation]
     properties:
-      proposito: { enum: [evaluacion, demostracion, produccion] }
-      juez: { $ref: '#/$defs/destino' }
-      verificador: { $ref: '#/$defs/destino' }
-      permutacion: { type: boolean, description: FR10.5 }
-      proveedor_alterno: { $ref: '#/$defs/destino' }
-      fragmentado:
+      purpose: { enum: [evaluation, demonstration, production] }
+      judge: { $ref: '#/$defs/destination' }
+      verifier: { $ref: '#/$defs/destination' }
+      permutation: { type: boolean, description: FR10.5 }
+      fallback_provider: { $ref: '#/$defs/destination' }
+      chunking:
         type: object
         additionalProperties: false
-        required: [activo]
+        required: [enabled]
         properties:
-          activo: { type: boolean }
-          ventana: { type: integer, minimum: 1 }
-          solapamiento: { type: integer, minimum: 0 }
-      misma_familia_declarada: { type: boolean, default: false }
-      solo_lotes: { type: boolean, description: Perfiles locales en CPU (validación en ZINE) }
+          enabled: { type: boolean }
+          window: { type: integer, minimum: 1, description: En turnos; no sube el tope de C25 }
+          overlap: { type: integer, minimum: 0 }
+      same_family_declared: { type: boolean, default: false }
+      batch_only: { type: boolean, description: Perfiles locales en CPU (validación en ZINE) }
 ```
 
-**Configuración efectiva** (`contracts/profiles/effective-config.v1.json`): el perfil resuelto con las
-cifras de C25 que aplica, sin `api_key_ref` resueltas, y `prompt_sha256`. Es lo que viaja en C2 y lo que
-se guarda en la sesión. `config_sha256` es el SHA-256 de su serialización JSON canónica (claves
-ordenadas, sin espacios, UTF-8): misma configuración, misma huella (FR14.2).
+`chunking` es la configuración; lo que pasó en una corrida queda en `registro.fragmentado` de C6
+(`enabled` → `activo`, `window` → `ventana`, `overlap` → `solapamiento`; regla 8).
 
-**Reglas de validación** (cada una con su control negativo; FR14.3, FR14.4, A-4): archivo inválido;
-destino `externo` sin anonimizador delante; `api_key_ref` sin valor en el entorno; `proposito:
-evaluacion` con la misma `familia` en juez y verificador; `misma_familia_declarada` fuera de
-`demostracion`; destino `local` con `base_url` externa; y, al correr, destino `externo` sin
-`autoriza_transferencia` en el consentimiento.
+**Configuración efectiva.** Es lo que viaja en C2, lo que se guarda en la sesión y de lo que
+salen sus dos huellas.
+
+```yaml
+# contracts/profiles/effective-config.v1.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+type: object
+additionalProperties: false
+required: [schema_version, analyzer_version, profile_name, profile, profile_sha256, prompt_sha256, limits]
+properties:
+  schema_version: { const: "1.0.0" }
+  analyzer_version: { type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$' }
+  profile_name: { type: string, pattern: '^[a-z0-9-]{1,48}$' }
+  profile:
+    $ref: 'profiles.schema.v1.yaml#/$defs/profile'
+    description: La entrada del perfil tal como está en config/profiles.yaml, sin resolver claves
+  profile_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: SHA-256 de la forma canónica de profile }
+  prompt_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+  limits:
+    type: object
+    additionalProperties: false
+    description: Las cifras de C25 que cambian el resultado del análisis, ya bajadas por el entorno si aplica
+    required: [model_call_timeout_s, run_deadline_incremental_s, run_deadline_final_s, fragment_window_turns, fragment_overlap_turns]
+    properties:
+      model_call_timeout_s: { type: number, exclusiveMinimum: 0 }
+      run_deadline_incremental_s: { type: number, exclusiveMinimum: 0 }
+      run_deadline_final_s: { type: number, exclusiveMinimum: 0 }
+      fragment_window_turns: { type: integer, minimum: 1 }
+      fragment_overlap_turns: { type: integer, minimum: 0 }
+```
+
+**Forma canónica.** JSON según RFC 8785 (JCS): claves ordenadas, sin espacios, UTF-8, números en su
+forma mínima. `profile_sha256` es el SHA-256 de la forma canónica de `profile`, y `config_sha256` el de
+todo el objeto. Misma configuración, misma huella (FR14.2). Ejemplo: el objeto
+`{ "permutation": true, "purpose": "evaluation" }` se serializa como
+`{"permutation":true,"purpose":"evaluation"}` y su huella es el SHA-256 de esos bytes. El *fixture*
+`contracts/profiles/fixtures/effective-config.valid.json` trae su huella esperada, y la prueba de nivel 0
+la recalcula en Python y en TypeScript.
+
+**Reglas de validación de ExecutionProfiles** (cada una con su control negativo; FR14.3, FR14.4, A-4):
+- archivo inválido;
+- destino `external` sin anonimizador delante;
+- `api_key_ref` sin valor en el entorno;
+- `purpose: evaluation` con la misma `family` en `judge` y `verifier`;
+- `same_family_declared` fuera de `demonstration`;
+- destino `local` con `base_url` externa;
+- y, al correr, destino `external` sin `autoriza_transferencia` en el consentimiento.
+
+**Reglas que aplica `anonymizer-proxy`** al arrancar y en cada petición (C21):
+- el archivo cumple este esquema;
+- cada destino `external` tiene un dominio de la lista de C22 y su `api_key_ref` con valor;
+- la petición nombra un perfil y un papel que existen, cuyo destino es `external`, y trae el mismo
+  `profile_sha256` que el proxy calcula sobre su copia.
 
 ```yaml
 # contracts/profiles/prices.schema.v1.yaml — esquema de config/prices.yaml
 type: object
 additionalProperties: false
-required: [schema_version, version, moneda, precios]
+required: [schema_version, version, currency, prices]
 properties:
   schema_version: { const: "1.0.0" }
-  version: { type: string }
-  moneda: { const: USD }
-  precios:
+  version: { type: string, pattern: '^[A-Za-z0-9._-]{1,32}$' }
+  currency: { const: USD }
+  prices:
     type: array
     items:
       type: object
       additionalProperties: false
-      required: [proveedor, modelo, entrada_por_millon, salida_por_millon]
+      required: [provider, model, input_per_million, output_per_million]
       properties:
-        proveedor: { type: string }
-        modelo: { type: string }
-        entrada_por_millon: { type: number, minimum: 0 }
-        salida_por_millon: { type: number, minimum: 0 }
+        provider: { enum: [anthropic, google, openai, local] }
+        model: { $ref: 'profiles.schema.v1.yaml#/$defs/token' }
+        input_per_million: { type: number, minimum: 0 }
+        output_per_million: { type: number, minimum: 0 }
 ```
 
-`config/profiles.yaml` trae al menos `comercial-piloto` y `todo-local` (FR14.1). Los modelos concretos
-los fija NFR Requirements.
+`config/profiles.yaml` trae al menos `comercial-piloto` y `todo-local` (FR14.1). Los nombres de perfil
+son valores, no campos, y no se traducen. Los modelos concretos los fija NFR Requirements.
 
 ## C19 — Reporte de la CLI y códigos de salida · nuevo
 
 El reporte que escribe la CLI (corrida por lotes o evaluación) y que el investigador sube a la consola
-(C1 `/research-reports`) o copia al repositorio principal. **No tiene campos de texto libre** (P12): los
-hallazgos con sus citas van en los archivos de salida de C6, uno por entrevista, nunca dentro del
-reporte.
+(C1 `/research-reports`) o copia al repositorio principal. Los hallazgos con sus citas van en los
+archivos de salida de C6, uno por entrevista, nunca dentro del reporte (P12).
+
+El registro de cada llamada usa un esquema propio de U1, cerrado, que comparten este reporte, la
+respuesta de C21 y `ModelCall` de C13:
+
+```yaml
+# contracts/model_calls/model-call.v1.yaml
+$schema: https://json-schema.org/draft/2020-12/schema
+type: object
+additionalProperties: false
+required: [role, provider, model, input_tokens, output_tokens, fallback_provider, anonymized, at]
+properties:
+  role: { enum: [judge, verifier, verifier_permuted] }
+  provider: { enum: [anthropic, google, openai, local] }
+  model: { $ref: 'contracts/profiles/profiles.schema.v1.yaml#/$defs/token' }
+  version: { $ref: 'contracts/profiles/profiles.schema.v1.yaml#/$defs/token' }
+  effort_or_quantization: { type: string, pattern: '^[A-Za-z0-9._-]{1,32}$' }
+  engine: { $ref: 'contracts/profiles/profiles.schema.v1.yaml#/$defs/token' }
+  seed: { type: integer }
+  input_tokens: { type: integer, minimum: 0 }
+  output_tokens: { type: integer, minimum: 0 }
+  fallback_provider: { type: boolean }
+  anonymized: { type: boolean }
+  at: { type: string, format: date-time }
+```
 
 ```yaml
 # contracts/cli/report.schema.v1.yaml
 $schema: https://json-schema.org/draft/2020-12/schema
 type: object
 additionalProperties: false
-required: [schema_version, tipo, analizador_version, contrato, perfil, config_sha256, prompt_sha256, fecha, corridas, totales]
+required: [schema_version, kind, analyzer_version, contract_version, profile_name, config_sha256, prompt_sha256, created_at, runs, totals]
 properties:
   schema_version: { const: "1.0.0" }
-  tipo: { enum: [corrida, evaluacion] }
-  analizador_version: { type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$' }
-  contrato: { const: "1.0.0" }
-  perfil: { type: string, pattern: '^[a-z0-9-]+$' }
+  kind: { enum: [run, evaluation] }
+  analyzer_version: { type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$' }
+  contract_version: { const: "1.0.0" }
+  profile_name: { type: string, pattern: '^[a-z0-9-]{1,48}$' }
   config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
   prompt_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
-  dataset_version: { type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$', description: Solo evaluacion }
-  fecha: { type: string, format: date-time }
-  corridas:
+  dataset_version: { type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$', description: Solo evaluation }
+  created_at: { type: string, format: date-time }
+  runs:
     type: array
     items:
       type: object
       additionalProperties: false
-      required: [entrevista_sha256, estado, hallazgos, descartes, llamadas]
+      required: [interview_sha256, status, findings, discards, calls]
       properties:
-        entrevista_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: Hash del archivo de entrada, nunca su id ni su texto }
-        estado: { enum: [ok, error] }
-        codigo: { enum: [salida_invalida, bloqueo_contenido, tiempo_agotado, proveedor, anonimizador_no_disponible, incidente_anonimizacion] }
-        hallazgos: { type: integer, minimum: 0, description: Cuántos, no cuáles }
-        descartes: { type: object, additionalProperties: { type: integer, minimum: 0 }, propertyNames: { enum: [cita_no_verificada, cita_en_otro_turno, marca_alterada, campo_faltante, rechazado_verificador, rechazado_permutacion, fuera_de_tramo, vocabulario_prohibido] } }
-        llamadas: { type: array, items: { $ref: 'contracts/analyzer/v1/salida.schema.json#/$defs/registro/properties/llamadas/items' } }
-  totales:
+        interview_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: Hash del archivo de entrada, nunca su id ni su texto }
+        status: { enum: [ok, error], description: Valores de estado de C6 }
+        error_code: { enum: [salida_invalida, bloqueo_contenido, tiempo_agotado, proveedor, anonimizador_no_disponible, incidente_anonimizacion], description: Valores de error.codigo de C6 }
+        findings: { type: integer, minimum: 0, description: Cuántos, no cuáles }
+        discards:
+          type: object
+          description: Conteo por motivo; las claves son los valores de registro.descartes[].motivo de C6
+          propertyNames: { enum: [cita_no_verificada, cita_en_otro_turno, marca_alterada, campo_faltante, rechazado_verificador, rechazado_permutacion, fuera_de_tramo, vocabulario_prohibido] }
+          additionalProperties: { type: integer, minimum: 0 }
+        calls: { type: array, items: { $ref: 'contracts/model_calls/model-call.v1.yaml' } }
+  totals:
     type: object
     additionalProperties: false
-    required: [tokens_entrada, tokens_salida]
+    required: [input_tokens, output_tokens]
     properties:
-      tokens_entrada: { type: integer, minimum: 0 }
-      tokens_salida: { type: integer, minimum: 0 }
-      costo_estimado: { type: number, minimum: 0 }
-      tabla_precios: { type: string }
-  metricas:
+      input_tokens: { type: integer, minimum: 0 }
+      output_tokens: { type: integer, minimum: 0 }
+      estimated_cost: { type: number, minimum: 0 }
+      price_table_version: { type: string, pattern: '^[A-Za-z0-9._-]{1,32}$' }
+  metrics:
     type: object
     additionalProperties: false
-    description: Solo evaluacion (NFR4); los umbrales los fija NFR Requirements
+    description: Solo evaluation (NFR4); los umbrales los fija NFR Requirements
     properties:
       precision: { type: number, minimum: 0, maximum: 1 }
-      sensibilidad: { type: number, minimum: 0, maximum: 1 }
-      citas_verificadas: { type: number, minimum: 0, maximum: 1 }
-      error_formato_json: { type: number, minimum: 0, maximum: 1 }
-      consistencia_orden_inverso: { type: number, minimum: 0, maximum: 1 }
-      acuerdo_3_corridas: { type: number, minimum: 0, maximum: 1 }
-      fuga_anonimizador: { type: integer, minimum: 0 }
-  tabla_sesgo:
+      recall: { type: number, minimum: 0, maximum: 1 }
+      verified_quotes: { type: number, minimum: 0, maximum: 1 }
+      json_format_errors: { type: number, minimum: 0, maximum: 1 }
+      reversed_order_consistency: { type: number, minimum: 0, maximum: 1 }
+      three_run_agreement: { type: number, minimum: 0, maximum: 1 }
+      anonymizer_leaks: { type: integer, minimum: 0 }
+  bias_table:
     type: array
-    description: VE-17; por tipo de hecho y por perfil
+    description: VE-17; por tipo de hecho y por conjunto sintético
     items:
       type: object
       additionalProperties: false
-      required: [tipo, perfil_conjunto, esperadas, encontradas]
+      required: [fact_type, synthetic_set, expected, found]
       properties:
-        tipo: { enum: [fecha, numero, lugar, persona, negacion, secuencia, otro] }
-        perfil_conjunto: { type: string, pattern: '^[a-z0-9_-]+$', description: Etiqueta del conjunto sintético, no texto }
-        esperadas: { type: integer, minimum: 0 }
-        encontradas: { type: integer, minimum: 0 }
+        fact_type: { enum: [fecha, numero, lugar, persona, negacion, secuencia, otro], description: Valores de hallazgo.tipo de C6 }
+        synthetic_set: { type: string, pattern: '^[a-z0-9_-]{1,48}$', description: Etiqueta del conjunto sintético, no texto }
+        expected: { type: integer, minimum: 0 }
+        found: { type: integer, minimum: 0 }
 ```
 
-Los `pattern` cierran las cadenas que sí existen (versiones, hashes, nombres de perfil y etiquetas): una
-cadena con espacios o testimonio no valida. La consola rechaza con `422` `research.invalid_report` y no
-guarda nada; la prueba del *canary* de FR13.5 comprueba que el texto no aparece en ninguna columna ni
-log.
+**Lo que garantiza el esquema.** Todas las cadenas del reporte son `enum` o tienen `pattern` sin
+espacios y con tope de longitud (128 caracteres como mucho). No cabe una frase del testimonio. Sí podría
+caber una palabra suelta (por ejemplo, un nombre puesto como `model`). Eso lo cubren dos pruebas:
+- los *fixtures* inválidos `report.testimony-in-model.json` y `report.testimony-in-price-table.json`,
+  que traen una frase en `model` y en `price_table_version`, y que deben fallar;
+- la prueba del *canary* de FR13.5, que comprueba que una palabra sembrada no aparece en ninguna columna
+  ni log de la consola.
 
-**Códigos de salida de la CLI** (FR13.2, FR14.3, R-04):
+La consola rechaza con `422` `research.invalid_report` todo lo que no cumple el esquema, y no guarda
+nada.
+
+**Códigos de salida de la CLI** (FR13.2, FR14.3):
 
 | Código | Cuándo |
 |---|---|
-| 0 | Todas las corridas terminaron, aunque alguna tenga `estado: error` |
+| 0 | Todas las corridas terminaron, aunque alguna tenga `status: error` |
 | 2 | Argumento inválido, archivo de entrada que no cumple C6 o transcripción sin consentimiento (antes de cualquier llamada) |
 | 3 | Perfil inválido, destino externo sin anonimizador, clave ausente o transferencia no autorizada (antes de cualquier llamada) |
 | 4 | Una corrida terminó con `incidente_anonimizacion`: el lote se detiene sin lanzar más corridas |
@@ -1841,35 +2034,49 @@ log.
 ## C20 — Módulo del anonimizador (en proceso) · nuevo
 
 Lo que la CLI usa en el mismo proceso, y lo que `anonymizer-proxy` envuelve por HTTP (C21). Vive en
-`libs/anonymizer/` (U10). Es un módulo guardia con 100 % de ramas.
+`libs/anonymizer/` (U10). Es un módulo guardia con 100 % de ramas. **Solo importa `contracts/`**: los
+tipos vienen de `contracts.python.model_calls` (C13), y un contrato de import-linter
+(`anonymizer-independent`) falla si `libs/anonymizer/` o `services/anonymizer-proxy/` importan
+`libs.model_gateway`, `libs.execution_profiles` o `libs.incoherence_analyzer`.
 
 ```python
 # libs/anonymizer/api.py  — contrato v1.0.0
 from typing import Protocol
-from libs.model_gateway.port import GenerateRequest, GenerateResult
+from contracts.python.model_calls import GenerateRequest, GenerateResult
 
 class AnonymizingProvider(Protocol):
     def generate(self, req: GenerateRequest) -> GenerateResult:
         """Para un destino externo:
-        1. comprueba que el dominio del proveedor está en la lista (FR11.4); si no, AnonymizerUnavailable;
+        1. comprueba que req.destination.scope es "external" y que el dominio del proveedor está en
+           la lista (FR11.4); si no, AnonymizerUnavailable;
         2. seudonimiza los mensajes con marcas coherentes en toda la llamada ([PERSONA_3]) y guarda la
            tabla solo en memoria, durante la llamada, nunca en logs ni en disco (FR11.3);
-        3. llama con el adaptador nativo del proveedor (C22) usando la clave de api_key_ref;
-        4. restaura las marcas en la respuesta y marca como inválida la parte cuya marca alteró el
-           modelo (el núcleo la descarta con motivo marca_alterada);
-        5. devuelve llamada.anonimizado = True.
+        3. llama una sola vez con el adaptador nativo del proveedor (C22) usando la clave de api_key_ref;
+        4. restaura las marcas en la respuesta y devuelve en altered_markers las partes cuya marca
+           alteró el modelo (el núcleo las descarta con motivo marca_alterada);
+        5. devuelve call.anonymized = True.
         Si cualquier paso antes del 3 falla, lanza AnonymizerUnavailable y no sale ninguna llamada
         (falla cerrado). Un destino local nunca llega aquí."""
 ```
 
-La tabla de correspondencia no sale del módulo. Las pruebas de AUTONOMIA-04 se hacen aquí: el
-*payload* que llega al adaptador nativo no contiene ninguna entidad sembrada del conjunto sintético, y con
-el módulo en fallo el doble del adaptador nativo no recibe ninguna llamada.
+La tabla de correspondencia no sale del módulo. Las pruebas de AUTONOMIA-04 se hacen aquí:
+- el *payload* que llega al adaptador nativo no contiene ninguna entidad sembrada del conjunto sintético;
+- con el módulo en fallo, el doble del adaptador nativo no recibe ninguna llamada;
+- un destino `local` se rechaza.
 
 ## C21 — `anonymizer-proxy` por HTTP dentro del clúster · nuevo
 
 La misma operación de C20 por la red (P13). Solo la llama `semantic-agent`; la `NetworkPolicy` de U2
 admite la entrada solo desde ese pod.
+
+**El proxy no confía en el destino de quien llama.** La petición nombra el perfil, su huella y el papel.
+El proxy los resuelve en su propia copia validada de `config/profiles.yaml`, que U2 monta desde el mismo
+commit que la de `semantic-agent`, y de ahí toma proveedor, modelo y `api_key_ref`. Quien llame al proxy
+no puede elegir clave, proveedor ni modelo.
+
+Consecuencia: si un PR cambia la entrada de un perfil, las sesiones creadas con la versión anterior
+reciben `409` en sus llamadas externas y sus corridas terminan en `anonimizador_no_disponible`. Es el
+comportamiento buscado: el destino externo es siempre el aprobado y vigente.
 
 ```yaml
 openapi: 3.1.0
@@ -1888,15 +2095,25 @@ paths:
             schema:
               type: object
               additionalProperties: false
-              required: [schema_version, run_id, papel, destino, mensajes, esquema, timeout_s]
+              required: [schema_version, run_id, profile_name, profile_sha256, role, messages, schema, timeout_s]
               properties:
                 schema_version: { type: string, pattern: '^1\.[0-9]+\.[0-9]+$' }
                 run_id: { type: string, format: uuid, description: Solo para logs con IDs }
-                papel: { enum: [juez, verificador, verificador_permutado] }
-                destino: { $ref: 'contracts/profiles/profiles.schema.v1.yaml#/$defs/destino' }
-                mensajes: { type: array, items: { type: object, required: [rol, contenido], properties: { rol: { enum: [system, user, assistant] }, contenido: { type: string } } } }
-                esquema: { type: object }
-                semilla: { type: integer }
+                profile_name: { type: string, pattern: '^[a-z0-9-]{1,48}$' }
+                profile_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: Huella de la entrada del perfil (C18) }
+                role: { enum: [judge, verifier, verifier_permuted] }
+                messages:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required: [role, content]
+                    properties:
+                      role: { enum: [system, user, assistant] }
+                      content: { type: string }
+                schema: { type: object }
+                seed: { type: integer }
                 timeout_s: { type: number, exclusiveMinimum: 0 }
       responses:
         '200':
@@ -1905,21 +2122,32 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [contenido, llamada]
+                additionalProperties: false
+                required: [content, altered_markers, call]
                 properties:
-                  contenido: { type: object }
-                  marcas_alteradas: { type: array, items: { type: string }, description: Rutas JSON de las partes invalidadas }
-                  llamada: { $ref: 'contracts/analyzer/v1/salida.schema.json#/$defs/registro/properties/llamadas/items' }
-        '422': { description: 'Petición inválida o destino fuera de la lista: { "code": "analysis.anonymizer_unavailable" }' }
-        '502': { description: 'Error del proveedor: { "code": "analysis.provider" }' }
+                  content: { type: object }
+                  altered_markers: { type: array, items: { type: string }, description: Rutas JSON de las partes invalidadas }
+                  call: { $ref: 'contracts/model_calls/model-call.v1.yaml' }
+        '409': { description: 'profile_sha256 no coincide con la copia del proxy; no salió ninguna llamada: { "code": "anonymizer.profile_mismatch" }' }
+        '422': { description: 'Petición inválida, perfil o papel inexistente, destino local o dominio fuera de la lista; no salió ninguna llamada: { "code": "anonymizer.destination_rejected" }' }
+        '451': { description: 'Bloqueo de contenido del proveedor: { "code": "analysis.content_blocked" }' }
+        '502': { description: 'Error del proveedor; la llamada ya salió: { "code": "analysis.provider" }' }
         '503': { description: 'Anonimizador no disponible; no salió ninguna llamada: { "code": "analysis.anonymizer_unavailable" }' }
         '504': { description: 'Tiempo agotado: { "code": "analysis.timeout" }' }
-        '451': { description: 'Bloqueo de contenido del proveedor: { "code": "analysis.content_blocked" }' }
 ```
 
-El adaptador `anonymizer` de C13 traduce cada respuesta a los errores tipados del puerto. Un `503` del
-proxy, o no poder conectarse a él, es `AnonymizerUnavailable` y la corrida termina en
-`anonimizador_no_disponible`. Los logs del proxy solo llevan `run_id`, papel, proveedor y códigos.
+El adaptador `anonymizer` de C13 traduce cada respuesta a los errores tipados del puerto según la tabla
+de reintentos de C13. `409`, `422`, `503` y no poder conectar terminan en `AnonymizerUnavailable` y la
+corrida en `anonimizador_no_disponible`. Los logs del proxy solo llevan `run_id`, perfil, papel,
+proveedor y códigos.
+
+**Pruebas negativas de AUTONOMIA-04** (nivel 0, con el doble del adaptador nativo):
+- `profile_sha256` alterado da `409`;
+- un perfil cuyo papel es `local` da `422`;
+- un perfil inexistente da `422`;
+- un campo `destination` o `api_key_ref` en el cuerpo da `422` (`additionalProperties: false`).
+
+En los cuatro casos el doble no recibe ninguna llamada.
 
 ## C22 — Proveedores comerciales (externo) · nuevo
 
@@ -1937,7 +2165,7 @@ de dominios la impone el módulo (FR11.4, P10 de iteracion2), junto con la lista
 viaja texto seudonimizado. Las claves viven en un `Secret` que crea el humano y que se monta solo en el
 pod `anonymizer-proxy` (FR12.4, P13); en la CLI, en variables de entorno de la máquina, nunca en el
 repositorio. El bloqueo de contenido del proveedor se traduce a `bloqueo_contenido`, y el núcleo usa el
-`proveedor_alterno` del perfil si lo hay (FR15.2).
+`fallback_provider` del perfil si lo hay (FR15.2).
 
 ## C23 — Puerto `AccessLog` (en proceso) · nuevo
 
@@ -2000,6 +2228,8 @@ limits:
   run_deadline_final_s: { value: null, unit: s }
   model_call_timeout_s: { value: null, unit: s }
   claim_idle_ms: { value: null, unit: ms }
+  run_max_deliveries: { value: null, unit: deliveries }
+  cancel_key_margin_s: { value: null, unit: s }
   poll_interval_s: { value: null, unit: s }
   heartbeat_timeout_s: { value: null, unit: s }
   web_session_max_s: { value: null, unit: s }
@@ -2007,6 +2237,7 @@ limits:
   fragment_overlap_turns: { value: null, unit: turns }
   dismissal_window_w: { value: null, unit: suggestions }
   research_report_max_bytes: { value: null, unit: bytes }
+  testimony_warning_words: { value: null, unit: words }
 ```
 
 Una prueba de nivel 0 falla si un servicio usa una cifra de límite que no viene de este archivo, o si
@@ -2028,8 +2259,8 @@ una variable de entorno intenta subir una.
    esta etapa (ADR-017).
 4. **Cambio aditivo (versión menor).** Un campo nuevo opcional o una ruta nueva. Los consumidores
    ignoran campos que no conocen en los sobres de cola (C2, C3, C5) y en las respuestas de C1.
-   **Excepción:** C6, C7, C18, C19 y C21 son estrictos (`additionalProperties: false`); en ellos todo
-   cambio de forma es mayor.
+   **Excepción:** C6, C7, C18 (con la configuración efectiva), C19 (con el registro de llamadas) y C21
+   son estrictos (`additionalProperties: false`); en ellos todo cambio de forma es mayor.
 5. **Cambio incompatible (versión mayor).** Entra en **un solo PR** que actualiza el productor y todos
    los consumidores del monorepo. Un consumidor que recibe una versión mayor que no conoce manda el
    mensaje a `<cola>:failed` sin crear filas. Esta revisión sube C1, C2, C3, C10–C16 a su versión 2.
@@ -2039,8 +2270,20 @@ una variable de entorno intenta subir una.
    catálogo de mensajes de la consola.
 7. **Configuración.** Ningún contrato permite escribir perfiles, precios, *prompts* ni límites desde la
    consola; solo cambian por PR (FR9.2).
-8. **Idioma de los campos.** Los del contrato común (C6, y lo que de él copian C7 y C19) en español;
-   todo lo demás en inglés (P14).
+8. **Idioma de los campos.** Solo los nombres de campo del contrato común (C6) van en español, y
+   también donde otro contrato copia un bloque de C6 tal cual: la entrada y la salida en C2 y C3,
+   `Consent`, `Turn`, `desde_turno`, `hasta_turno`, `fragmentado` y `ModelCall` en C1, y lo que C7 toma
+   del hallazgo. Los **valores** de los `enum` de C6 (`tipo`, `estado`, `error.codigo`, `motivo`,
+   `origen`) conservan su forma donde aparezcan, incluso en contratos en inglés como C19. Todo lo demás
+   va en inglés (P14): C13, C18, C19, C21, los sobres de cola, C1 y C25. Cuando un concepto existe en los
+   dos lados, la correspondencia es una sola y está escrita:
+
+   | Veridicus (inglés) | Contrato común (C6) | Dónde se traduce |
+   |---|---|---|
+   | `ModelCall` y sus campos | `registro.llamadas` | Tabla de C13 (núcleo de U11) |
+   | `chunking.enabled` / `window` / `overlap` | `registro.fragmentado.activo` / `ventana` / `solapamiento` | C18 |
+   | `Role`: `judge` / `verifier` / `verifier_permuted` | `papel`: `juez` / `verificador` / `verificador_permutado` | Tabla de C13 |
+   | `code` de Problem Details | `error.codigo` | Tabla al final de C1 |
 
 ## Decisiones que precisan artefactos ya aprobados
 
@@ -2054,9 +2297,11 @@ original, cada uno en su propio commit.
 | CD-03 | `domain-design/components.md` (ResearchReports) | «Descarta antes de guardar todo texto» pasa a «rechaza con `422` el reporte que trae texto o no cumple el esquema»; el reporte de la CLI no tiene campos de texto libre | P12 |
 | CD-04 | `requirements-analysis/requirements.md` (FR15.1) y `domain-design/components.md` (ModelGateway) | Los adaptadores nativos de Anthropic, Google y OpenAI viven en el Anonymizer (módulo en `libs/` y pod `anonymizer-proxy`), no en `semantic-agent`; ModelGateway los alcanza solo a través de él. Las claves se montan solo en `anonymizer-proxy` | P13 |
 | CD-05 | `aidlc/spaces/default/memory/team.md` (Code Style, «Idioma») | Excepción al glosario: los campos del contrato común del TG conservan su nombre en español en JSON y en Python, sin alias | P14 |
-| CD-06 | `domain-design/components.md` (InterviewSession, ConsoleApi) | La cancelación de corridas usa la clave `veridicus:run-cancelled:{run_id}` que InterviewSession escribe y el trabajador solo lee (C2) | Esta etapa (VE-10 (a)) |
+| CD-06 | `domain-design/components.md` (InterviewSession, ConsoleApi) | La cancelación de corridas usa la clave `veridicus:run-cancelled:{run_id}` que InterviewSession escribe (vence en `deadline_at` más un margen, y se reescribe tras un reinicio de Redis) y el trabajador solo lee; además, el trabajador no llama a nada después de `deadline_at` (C2) | Esta etapa (VE-10 (a)) |
 | CD-07 | `units-generation/unit-of-work-dependency.md` (puntos de integración) | La métrica de descartes la emite HumanReview (U5) desde `session-api`, no U4 | Revisión 1 R-03, C15 |
 | CD-08 | `refined-mockups/interaction-spec.md` | Los errores de análisis se muestran por corrida con los códigos `analysis.*` y `anonymizer.incident` de C1 | P8 |
+| CD-09 | `units-generation/unit-of-work-dependency.md` (puntos de integración U10–U11) y `domain-design/components.md` (ModelGateway, ExecutionProfiles, Anonymizer) | Los tipos de la llamada a un modelo (`contracts/python/model_calls.py`), el registro de llamadas (`contracts/model_calls/`) y los esquemas de perfiles (`contracts/profiles/`) viven en U1. Así U10 solo depende de `contracts`, como dice el grafo, y `anonymizer-proxy` valida perfiles sin ExecutionProfiles. No cambia ninguna arista | Esta etapa (C13, C18, C20) |
+| CD-10 | `requirements-analysis/requirements-adenda-02.md` (A-4) | El bloque `consentimiento` suma `requiere_mandato` y `constancia_mandato` (VE-06: compareciente o tercero civil) | Esta etapa (C6, cambio 8) |
 
 ## Preguntas abiertas
 

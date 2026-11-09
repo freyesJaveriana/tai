@@ -6009,3 +6009,38 @@
 **Feedback**: Corregir R-01 de la revisión 5: salud en 200 y prueba del aviso.
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-09T11:39:20Z
+**Event**: REVIEW_REQUESTED
+**Stage**: units-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:58be276000e4a4a771179b114b05d8c442ffd8a2b388807633b7be0d6173c450
+**Request Id**: review:446f6aadba612e72d41263096b976bd5
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T11:43:14Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T11:43:14Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: adaab2b02abe64909
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-09T11:43:22Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --stage units-generation --reviewer aidlc-architecture-reviewer-agent --iteration 1 --verdict READY --project-dir <project-dir>
+**Error**: Refusing REVIEW_COMPLETED for "units-generation": inception/units-generation/unit-of-work.md: invalid finding ID "—".
+
+---

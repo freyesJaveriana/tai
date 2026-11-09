@@ -211,3 +211,100 @@ X. Other (please specify)
 > Cambiada de A a B en el cierre de la etapa, al revisar el aprendizaje que contradecía `org.md`
 > («Each Bolt becomes one commit on the trunk»). Respuesta del autor, literal: «Dejémoslo como un solo
 > commit por Bolt. La unidad es lo suficientemente precisa.» Confirmado: un Bolt por unidad.
+
+---
+
+## Segunda pasada (cambio 01, DT27, y adenda 02) — 2026-11-09
+
+Las respuestas P1–P9 siguen vigentes salvo donde el cambio las supera: la regla «la primera unidad del
+plan es el flujo de texto» quedó superada (`project.md`, cambio 01), U10 pasó a MUST, entraron U11
+(analizador), U12 (reportes del investigador) y U13 (ética, demostración), y la tarea previa P0.2
+(Golden Dataset con escenario) ya no tiene objeto en su forma anterior. Se mantiene un Bolt por unidad
+(P9 = B) y etapa por etapa (P8 = A).
+
+Un **Bolt** es una pasada de construcción sobre una unidad que termina en algo que corre y se puede
+demostrar. Los ID B1–B9 conservan su número; B10 (antes condicional) pasa a ser el anonimizador MUST y
+los Bolts nuevos toman el número de su unidad (B11–B13).
+
+Solo se pregunta lo que el cambio, el grafo (`unit-of-work-dependency.md`) y `team.md` no deciden ya.
+
+### Pregunta 10 — Orden de la primera rebanada de valor
+
+`team.md` fija que la primera rebanada es la biblioteca del analizador con su CLI, el anonimizador como
+módulo y un proveedor comercial. El grafo obliga a que U10 vaya antes que U11 (ModelGateway pasa por el
+anonimizador ante todo destino externo).
+
+A. **B1 Contratos (U1) → B10 Anonimizador (U10: módulo de `libs/` y proceso `anonymizer-proxy`) → B11
+Analizador (U11: biblioteca, CLI, proveedor comercial y uno local)**; un Bolt por unidad
+**(Recomendada)**
+B. Igual, pero U10 en dos Bolts: el módulo de `libs/` antes de B11 y el proceso `anonymizer-proxy` junto
+a la plataforma (B4), cuando ya hay clúster (rompe «un Bolt por unidad»)
+C. B1 → B11 solo con perfil local y B10 después (el analizador no admite destino externo hasta que
+exista el anonimizador; la primera rebanada queda sin proveedor comercial)
+X. Other (please specify)
+
+[Answer]:
+
+### Pregunta 11 — Orden después de la primera rebanada
+
+La demo de la sesión 16 (PRD S13: cargar una transcripción sintética, elegir el perfil, ver los
+hallazgos con sus dos citas, consolidar y descargar el reporte) necesita U3, U4, U2, U5 y U7.
+
+A. **B2 Acceso (U3) → B3 Flujo de texto (U4) → B4 Plataforma (U2) → B5 Revisión humana (U5) → B6
+Reporte (U7) → B12 Reportes del investigador (U12) → B7 Ciclo de vida (U6) → B13 Ética (U13)**: la demo
+queda completa en B6, U12 sirve después al TG y U13 (demostración) cierra las MUST
+**(Recomendada)**
+B. Igual, pero B12 justo después de B3: la consola del investigador solo necesita U3 y U4 y sirve antes
+al TG, a costa de retrasar la plataforma y la demo
+C. B4 Plataforma justo después de B11, antes de la consola: `anonymizer-proxy`, `NetworkPolicy` y
+Secrets (módulo 7) quedan en el clúster desde el principio, a costa de retrasar la consola
+X. Other (please specify)
+
+[Answer]:
+
+### Pregunta 12 — Tareas previas al primer Bolt
+
+P0.1 (configuración de GitHub) sigue igual. P0.2 era el Golden Dataset con escenario y Hecho No
+Documentado, que salieron con el cambio 01. El conjunto sintético de contradicciones internas
+(US12.3) es de U11.
+
+A. **Retirar P0.2**: el conjunto sintético y su arnés se construyen dentro de B11, como tareas del plan
+de U11 (generado con un modelo comercial de otra familia que el juez, solo datos sintéticos)
+**(Recomendada)**
+B. Mantener P0.2 reescrita como «conjunto sintético de contradicciones internas», antes de B11, para que
+B11 mida desde su primera tarea
+X. Other (please specify)
+
+[Answer]:
+
+### Pregunta 13 — Línea de corte y qué se recorta primero si falta tiempo
+
+U8 y U9 son SHOULD y van después del corte (P5). Ninguna prueba ni umbral se rebaja en ningún caso.
+
+A. **El corte va después de B13. Si el calendario no alcanza, se recorta en este orden: B13
+(demostración) → las partes SHOULD/COULD de B4 y B7 → el alcance de B7**; nunca B1, B10, B11 ni la demo
+(B2–B6) **(Recomendada)**
+B. El corte va después de B6 (la demo): B12, B7 y B13 son MUST, pero se construyen después de la
+sustentación si hace falta
+C. Igual que A, pero B12 se recorta antes que B13
+X. Other (please specify)
+
+[Answer]:
+
+### Pregunta 14 — Dependencias externas a las que hacer seguimiento
+
+Varias letras separadas por comas.
+
+A. Calendario del curso (módulos 6–8 y sesión 16)
+B. Cuenta y clave de API del proveedor comercial de la primera rebanada (Secret que crea el humano y
+costo por corrida)
+C. Clúster ZINE (cola SLURM y nodos `ingsistemas`; los `sbatch` los lanza el humano)
+D. Descarga de modelos locales con revisión y `sha256` fijados (juez, verificador de otra familia,
+Whisper y TTS)
+E. Configuración de GitHub (P0.1)
+F. Máquina GPU opcional
+X. Other (please specify)
+
+**(Recomendada: A, B, C, D, E)**
+
+[Answer]:

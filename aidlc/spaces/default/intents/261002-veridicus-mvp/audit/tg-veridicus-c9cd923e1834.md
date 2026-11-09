@@ -7809,3 +7809,10 @@
 **Agent**: aidlc-architect-agent
 
 ---
+
+## Workflow Parked
+**Timestamp**: 2026-11-09T18:55:32Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
+
+---

@@ -5699,3 +5699,56 @@
 **Details**: R-02 = A (Exportar y avisar)
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-09T10:57:31Z
+**Event**: REVIEW_REQUESTED
+**Stage**: units-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:62e026b56bf24c1e173f49764ea237cc7a3ec3ebf88da8b6b4d2247bef931d1a
+**Request Id**: review:d50a3f95901847322e6271680472599f
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T10:57:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a235387f42eb0158d
+**Message**: Ok, espero la revisión
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T10:58:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9032cea700e7a24b
+**Message**: Reading unit-of-work.md restrictions
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T10:58:19Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T10:58:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a284ba76bcb0f4312
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-09T10:58:27Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --stage units-generation --reviewer aidlc-architecture-reviewer-agent --iteration 1 --verdict READY --project-dir <project-dir>
+**Error**: Cannot record review for "units-generation": no review was written for iteration 1. The reviewer writes its review to aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/units-generation/stage/348bba0b371b9cab/1.review.md (or pass --review-file <path>); a retried incomplete attempt records --verdict NOT-READY without a review.
+
+---

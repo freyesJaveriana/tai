@@ -243,7 +243,7 @@ C. B1 → B11 solo con perfil local y B10 después (el analizador no admite dest
 exista el anonimizador; la primera rebanada queda sin proveedor comercial)
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 11 — Orden después de la primera rebanada
 
@@ -260,7 +260,7 @@ C. B4 Plataforma justo después de B11, antes de la consola: `anonymizer-proxy`,
 Secrets (módulo 7) quedan en el clúster desde el principio, a costa de retrasar la consola
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 12 — Tareas previas al primer Bolt
 
@@ -275,7 +275,7 @@ B. Mantener P0.2 reescrita como «conjunto sintético de contradicciones interna
 B11 mida desde su primera tarea
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 13 — Línea de corte y qué se recorta primero si falta tiempo
 
@@ -289,7 +289,7 @@ sustentación si hace falta
 C. Igual que A, pero B12 se recorta antes que B13
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 14 — Dependencias externas a las que hacer seguimiento
 
@@ -307,4 +307,4 @@ X. Other (please specify)
 
 **(Recomendada: A, B, C, D, E)**
 
-[Answer]:
+[Answer]: A, B, C, D

@@ -36,7 +36,7 @@
 - **In Progress**: contract-design
 
 ## Runtime State
-- **Revision Count**: 7
+- **Revision Count**: 8
 - **Construction Checkpoints**: enabled
 - **Construction Iteration**: stage-major
 - **Construction Execution**: serial
@@ -117,7 +117,7 @@
 - [x] refined-mockups — EXECUTE
 - [x] domain-design — EXECUTE
 - [x] units-generation — EXECUTE
-- [R] contract-design — EXECUTE
+- [?] contract-design — EXECUTE
 - [ ] delivery-planning — EXECUTE
 
 ### CONSTRUCTION PHASE
@@ -144,7 +144,7 @@ Per unit: [TBD]
 - **Current Stage**: contract-design
 - **Next Stage**: delivery-planning
 - **Status**: Running
-- **Last Updated**: 2026-11-09T14:01:00Z
+- **Last Updated**: 2026-11-09T14:29:34Z
 
 - **Construction Autonomy Mode**: gated
 

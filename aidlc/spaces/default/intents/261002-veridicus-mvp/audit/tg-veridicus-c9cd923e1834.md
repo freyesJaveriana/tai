@@ -6882,3 +6882,270 @@
 **Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
 
 ---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:08:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: bd95d6e2
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:08:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: bd95d6e2
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:08:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6a61cbd4
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:08:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6a61cbd4
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 51
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-09T14:08:40Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: contract-design
+**Details**: Re-entering gate after revision
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:08:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0472f55b
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:08:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0472f55b
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:08:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: 54a37e43
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:08:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: 54a37e43
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 54
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T14:27:09Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Gate Rejected
+**Timestamp**: 2026-11-09T14:27:13Z
+**Event**: GATE_REJECTED
+**Stage**: contract-design
+**Feedback**: Corregir R-12 (selector de destino primario o respaldo en C21, con su prueba negativa y su fila en la tabla de reintentos) y R-13 (entrecomillar las description con comas en los mapas de flujo y prueba de carga estricta en U1); de paso, fijar qué manda entre limits.fragment_window_turns y chunking.window.
+
+---
+
+## Stage Revising
+**Timestamp**: 2026-11-09T14:27:13Z
+**Event**: STAGE_REVISING
+**Stage**: contract-design
+**Revision count**: 8
+**Feedback**: Corregir R-12 (selector de destino primario o respaldo en C21, con su prueba negativa y su fila en la tabla de reintentos) y R-13 (entrecomillar las description con comas en los mapas de flujo y prueba de carga estricta en U1); de paso, fijar qué manda entre limits.fragment_window_turns y chunking.window.
+
+---
+
+## Review Requested
+**Timestamp**: 2026-11-09T14:28:22Z
+**Event**: REVIEW_REQUESTED
+**Stage**: contract-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:9873be2621249bfe53db225c5c99c243e200e09a4357d0d8b897c1e6003ba056
+**Request Id**: review:24f075d2de98f83c3bcabf76ebedadf3
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T14:29:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a347c7b9108203cdd
+**Message**: Checking contract-summary.md schema nulls
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-09T14:29:22Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/contract-design/stage/97cd5a4356974250/1.review.md
+**Context**: .aidlc-engine > reviews > contract-design > stage > 97cd5a4356974250 > 1.review.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T14:29:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: ab707f8416ec269f7
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T14:29:28Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-09T14:29:33Z
+**Event**: REVIEW_COMPLETED
+**Stage**: contract-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:9873be2621249bfe53db225c5c99c243e200e09a4357d0d8b897c1e6003ba056
+**Artifact Fingerprint**: sha256:9873be2621249bfe53db225c5c99c243e200e09a4357d0d8b897c1e6003ba056
+**Request Id**: review:24f075d2de98f83c3bcabf76ebedadf3
+**Review Record**: .aidlc-engine/reviews/contract-design/stage/97cd5a4356974250/1.json
+**Review Record Digest**: sha256:4678afc394dd95dbf6375b8f99a6980b3fa0e7ed2b22d6ad6520bc4a22c2ae35
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:29:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8354fe40
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:29:33Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8354fe40
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:29:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2b8f0f70
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:29:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2b8f0f70
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 50
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-09T14:29:34Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: contract-design
+**Details**: Re-entering gate after revision
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:29:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: 31a28d06
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:29:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: 31a28d06
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T14:29:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: 34737a4d
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T14:29:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: 34737a4d
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 50
+
+---

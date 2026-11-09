@@ -158,7 +158,7 @@ components:
         title: { type: string }
         status: { type: integer }
         code: { $ref: '#/components/schemas/ErrorCode' }
-        detail: { type: string, description: Texto en español, sin datos sensibles }
+        detail: { type: string, description: 'Texto en español, sin datos sensibles' }
         instance: { type: string }
     ErrorCode:
       type: string
@@ -408,7 +408,7 @@ components:
       type: object
       required: [status]
       properties:
-        status: { type: string, enum: [valid, missing, expired, text_changed], description: Solo avisa; nunca impide abrir sesiones (VE-04, demostración) }
+        status: { type: string, enum: [valid, missing, expired, text_changed], description: 'Solo avisa; nunca impide abrir sesiones (VE-04, demostración)' }
         text_version: { type: string }
         at: { type: string, format: date-time }
 paths:
@@ -427,7 +427,7 @@ paths:
                 username: { type: string, minLength: 1 }
                 password: { type: string, minLength: 1 }
       responses:
-        '204': { description: Sesión creada; responde Set-Cookie veridicus_session (HttpOnly, Secure, SameSite=Strict) }
+        '204': { description: 'Sesión creada; responde Set-Cookie veridicus_session (HttpOnly, Secure, SameSite=Strict)' }
         '401': { $ref: '#/components/responses/Problem' }
   /auth/logout:
     post:
@@ -437,13 +437,13 @@ paths:
   /auth/me:
     get:
       responses:
-        '200': { description: Usuario actual, token anti-CSRF y estado del reconocimiento, content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } } }
+        '200': { description: 'Usuario actual, token anti-CSRF y estado del reconocimiento', content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } } }
         '401': { $ref: '#/components/responses/Problem' }
   /users:
     get:
       x-veridicus-roles: [admin]
       responses:
-        '200': { description: Usuarios, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/User' } } } } }
+        '200': { description: 'Usuarios', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/User' } } } } }
         '403': { $ref: '#/components/responses/Problem' }
     post:
       x-veridicus-roles: [admin]
@@ -461,7 +461,7 @@ paths:
                 password: { type: string, minLength: 1 }
                 role: { $ref: '#/components/schemas/Role' }
       responses:
-        '201': { description: Usuario creado, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '201': { description: 'Usuario creado', content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
         '403': { $ref: '#/components/responses/Problem' }
   /users/{user_id}:
     patch:
@@ -481,25 +481,25 @@ paths:
                 active: { type: boolean }
                 role: { $ref: '#/components/schemas/Role' }
       responses:
-        '200': { description: Usuario actualizado; deja fila en el historial de usuario, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '200': { description: 'Usuario actualizado; deja fila en el historial de usuario', content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
         '403': { $ref: '#/components/responses/Problem' }
         '409': { description: Cambio de rol con sesiones pendientes (validation.invalid_request) }
   /notice:
     get:
       responses:
-        '200': { description: Texto y versión del aviso de VE-01, content: { application/json: { schema: { $ref: '#/components/schemas/Notice' } } } }
+        '200': { description: 'Texto y versión del aviso de VE-01', content: { application/json: { schema: { $ref: '#/components/schemas/Notice' } } } }
   /profiles:
     get:
       x-veridicus-roles: [analista, admin, investigador]
       responses:
-        '200': { description: Solo los perfiles aprobados (C18), con su indicación de proveedor comercial (FR14.5), content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ProfileSummary' } } } } }
+        '200': { description: 'Solo los perfiles aprobados (C18), con su indicación de proveedor comercial (FR14.5)', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ProfileSummary' } } } } }
   /sessions:
     get:
       x-veridicus-roles: [analista, admin]
       parameters:
         - { name: status, in: query, schema: { $ref: '#/components/schemas/SessionStatus' } }
       responses:
-        '200': { description: Lista de sesiones, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/SessionSummary' } } } } }
+        '200': { description: 'Lista de sesiones', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/SessionSummary' } } } } }
     post:
       description: Sesión guiada. Exige consentimiento y un perfil aprobado; un perfil con proveedor comercial sin autoriza_transferencia da 422 profile.transfer_not_authorized antes de crear filas.
       x-veridicus-roles: [analista]
@@ -517,7 +517,7 @@ paths:
                 profile_name: { type: string }
                 consentimiento: { $ref: '#/components/schemas/Consent' }
       responses:
-        '201': { description: Sesión abierta y ligada al perfil y a su config_sha256 (FR3.1), content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '201': { description: 'Sesión abierta y ligada al perfil y a su config_sha256 (FR3.1)', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
         '422': { $ref: '#/components/responses/Problem' }
   /sessions/import:
     post:
@@ -541,7 +541,7 @@ paths:
                 file: { type: string, format: binary, description: JSON o YAML de la entrada de C6 }
                 profile_name: { type: string }
       responses:
-        '201': { description: Sesión importada, content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '201': { description: 'Sesión importada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
         '413': { $ref: '#/components/responses/Problem' }
         '415': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
@@ -555,7 +555,7 @@ paths:
         - { $ref: '#/components/parameters/SessionId' }
         - { name: since, in: query, schema: { type: string } }
       responses:
-        '200': { description: Vista de la sesión, content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '200': { description: 'Vista de la sesión', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
   /sessions/{session_id}/heartbeat:
     post:
       x-veridicus-roles: [analista]
@@ -612,7 +612,7 @@ paths:
                 text: { type: string, minLength: 1 }
                 client_request_id: { type: string, format: uuid }
       responses:
-        '202': { description: Turnos numerados en orden y una corrida en cola, content: { application/json: { schema: { type: object, required: [turns], properties: { turns: { type: array, items: { $ref: '#/components/schemas/Turn' } }, run: { $ref: '#/components/schemas/Run' } } } } } }
+        '202': { description: 'Turnos numerados en orden y una corrida en cola', content: { application/json: { schema: { type: object, required: [turns], properties: { turns: { type: array, items: { $ref: '#/components/schemas/Turn' } }, run: { $ref: '#/components/schemas/Run' } } } } } }
         '409': { $ref: '#/components/responses/Problem' }
         '413': { $ref: '#/components/responses/Problem' }
   /sessions/{session_id}/final-runs:
@@ -622,7 +622,7 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '202': { description: Corrida final en cola, content: { application/json: { schema: { $ref: '#/components/schemas/Run' } } } }
+        '202': { description: 'Corrida final en cola', content: { application/json: { schema: { $ref: '#/components/schemas/Run' } } } }
         '409': { $ref: '#/components/responses/Problem' }
   /sessions/{session_id}/runs/{run_id}/retry:
     post:
@@ -630,14 +630,14 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/RunId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '202': { description: Misma corrida, mismo tramo, attempt + 1, content: { application/json: { schema: { $ref: '#/components/schemas/Run' } } } }
-        '409': { description: La corrida no está en error (run.not_in_error) o la sesión no admite corridas (session.blocked, session.consent_withdrawn, session.terminated) }
+        '202': { description: 'Misma corrida, mismo tramo, attempt + 1', content: { application/json: { schema: { $ref: '#/components/schemas/Run' } } } }
+        '409': { description: 'La corrida no está en error (run.not_in_error) o la sesión no admite corridas (session.blocked, session.consent_withdrawn, session.terminated)' }
   /sessions/{session_id}/runs/{run_id}/model-calls:
     get:
       x-veridicus-roles: [analista, admin]
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/RunId' }]
       responses:
-        '200': { description: Registro de modelos de la corrida, solo lectura (US12.5), content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ModelCall' } } } } }
+        '200': { description: 'Registro de modelos de la corrida, solo lectura (US12.5)', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ModelCall' } } } } }
   /sessions/{session_id}/analysis:
     patch:
       description: >
@@ -654,7 +654,7 @@ paths:
           application/json:
             schema: { type: object, required: [paused], additionalProperties: false, properties: { paused: { type: boolean } } }
       responses:
-        '200': { description: Sesión actualizada, content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '200': { description: 'Sesión actualizada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
   /sessions/{session_id}/terminate:
     post:
       description: Terminar sesión. Cancela lo encolado y cierra la sesión a turnos nuevos; se puede consolidar después.
@@ -662,7 +662,7 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '200': { description: Sesión terminada, content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '200': { description: 'Sesión terminada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
   /sessions/{session_id}/consent-withdrawal:
     post:
       description: Registra la retirada del consentimiento con actor y hora (AC15.2.3). Desde ese momento no se encola ni se analiza ninguna corrida (VE-10 (a)).
@@ -670,14 +670,14 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '200': { description: Retirada registrada, content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '200': { description: 'Retirada registrada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
   /sessions/{session_id}/resume:
     post:
       x-veridicus-roles: [analista]
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '200': { description: Sesión suspendida vuelve a abierta desde el último turno registrado, content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '200': { description: 'Sesión suspendida vuelve a abierta desde el último turno registrado', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
         '409': { $ref: '#/components/responses/Problem' }
   /sessions/{session_id}/finalize:
     post:
@@ -685,7 +685,7 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '200': { description: Sesión finalizada (también desde suspendida); empieza la medición de MTTV, content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '200': { description: 'Sesión finalizada (también desde suspendida); empieza la medición de MTTV', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
   /suggestions/{suggestion_id}/observation-views:
     post:
       x-veridicus-roles: [analista, admin]
@@ -708,23 +708,23 @@ paths:
               properties:
                 state: { type: string, enum: [accepted, edited, dismissed] }
                 note: { type: string, description: Obligatoria y no vacía si state es dismissed }
-                reformulation: { type: string, description: Obligatoria si state es edited; nunca cambia hecho, tipo, citas ni observaciones }
+                reformulation: { type: string, description: 'Obligatoria si state es edited; nunca cambia hecho, tipo, citas ni observaciones' }
       responses:
-        '201': { description: Decisión registrada en la ronda abierta, content: { application/json: { schema: { $ref: '#/components/schemas/ReviewSuggestion' } } } }
-        '409': { description: Ronda bloqueada, observaciones no desplegadas, nota faltante o transición inválida }
+        '201': { description: 'Decisión registrada en la ronda abierta', content: { application/json: { schema: { $ref: '#/components/schemas/ReviewSuggestion' } } } }
+        '409': { description: 'Ronda bloqueada, observaciones no desplegadas, nota faltante o transición inválida' }
   /sessions/{session_id}/reports:
     get:
       x-veridicus-roles: [analista, admin]
       parameters: [{ $ref: '#/components/parameters/SessionId' }]
       responses:
-        '200': { description: Versiones del reporte, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ReportVersion' } } } } }
+        '200': { description: 'Versiones del reporte', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ReportVersion' } } } } }
     post:
       description: Consolidar. De dos consolidaciones simultáneas solo una gana; la otra recibe 409 report.conflict.
       x-veridicus-roles: [analista]
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '201': { description: Reporte consolidado, guardado y con su SHA-256, content: { application/json: { schema: { $ref: '#/components/schemas/ReportVersion' } } } }
+        '201': { description: 'Reporte consolidado, guardado y con su SHA-256', content: { application/json: { schema: { $ref: '#/components/schemas/ReportVersion' } } } }
         '409': { $ref: '#/components/responses/Problem' }
   /sessions/{session_id}/correction-rounds:
     post:
@@ -732,7 +732,7 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
-        '201': { description: Abre o retoma la única ronda de corrección, que parte de la versión vigente }
+        '201': { description: 'Abre o retoma la única ronda de corrección, que parte de la versión vigente' }
   /reports/{report_version_id}/download:
     get:
       x-veridicus-roles: [analista, admin]
@@ -772,7 +772,7 @@ paths:
           application/json:
             schema: { type: object, required: [status], additionalProperties: false, properties: { status: { type: string, enum: [approved, discarded] } } }
       responses:
-        '200': { description: Decisión del analista sobre la aclaración, content: { application/json: { schema: { $ref: '#/components/schemas/ConductorObservation' } } } }
+        '200': { description: 'Decisión del analista sobre la aclaración', content: { application/json: { schema: { $ref: '#/components/schemas/ConductorObservation' } } } }
   /conductor-observations/{observation_id}/audio:
     get:
       x-veridicus-priority: SHOULD
@@ -780,7 +780,7 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ name: observation_id, in: path, required: true, schema: { type: string, format: uuid } }]
       responses:
-        '200': { description: Audio sintetizado en el clúster solo para una aclaración aprobada que cumple DT23, content: { audio/wav: { schema: { type: string, format: binary } } } }
+        '200': { description: 'Audio sintetizado en el clúster solo para una aclaración aprobada que cumple DT23', content: { audio/wav: { schema: { type: string, format: binary } } } }
         '409': { description: La aclaración no está aprobada (conductor_observation.not_approved) }
   /sessions/{session_id}/voice-turns:
     post:
@@ -794,13 +794,13 @@ paths:
           multipart/form-data:
             schema: { type: object, required: [audio, hablante, client_request_id], properties: { audio: { type: string, format: binary, description: WAV mono de 16 kHz o MP3 }, hablante: { type: string, enum: [ENT, TEST] }, client_request_id: { type: string, format: uuid } } }
       responses:
-        '202': { description: Turno de voz numerado en transcribing, content: { application/json: { schema: { $ref: '#/components/schemas/Turn' } } } }
+        '202': { description: 'Turno de voz numerado en transcribing', content: { application/json: { schema: { $ref: '#/components/schemas/Turn' } } } }
         '409': { description: Sin autorización de voz (session.voice_not_authorized) }
   /research-reports:
     get:
       x-veridicus-roles: [investigador]
       responses:
-        '200': { description: Reportes subidos, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ResearchReportSummary' } } } } }
+        '200': { description: 'Reportes subidos', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ResearchReportSummary' } } } } }
     post:
       description: Sube un reporte de la CLI (C19). Lo que no cumple el esquema se rechaza con 422 research.invalid_report sin guardar nada (P12).
       x-veridicus-roles: [investigador]
@@ -811,7 +811,7 @@ paths:
           multipart/form-data:
             schema: { type: object, required: [file], properties: { file: { type: string, format: binary, description: JSON de C19 } } }
       responses:
-        '201': { description: Reporte guardado (solo cifras), content: { application/json: { schema: { $ref: '#/components/schemas/ResearchReportDetail' } } } }
+        '201': { description: 'Reporte guardado (solo cifras)', content: { application/json: { schema: { $ref: '#/components/schemas/ResearchReportDetail' } } } }
         '409': { description: El mismo archivo ya se subió (research.duplicate) }
         '413': { $ref: '#/components/responses/Problem' }
         '422': { $ref: '#/components/responses/Problem' }
@@ -820,7 +820,7 @@ paths:
       x-veridicus-roles: [investigador]
       parameters: [{ name: research_report_id, in: path, required: true, schema: { type: string, format: uuid } }]
       responses:
-        '200': { description: Detalle, content: { application/json: { schema: { $ref: '#/components/schemas/ResearchReportDetail' } } } }
+        '200': { description: 'Detalle', content: { application/json: { schema: { $ref: '#/components/schemas/ResearchReportDetail' } } } }
   /research-reports/compare:
     get:
       x-veridicus-priority: SHOULD
@@ -829,7 +829,7 @@ paths:
         - { name: a, in: query, required: true, schema: { type: string, format: uuid } }
         - { name: b, in: query, required: true, schema: { type: string, format: uuid } }
       responses:
-        '200': { description: Las cifras de los dos reportes lado a lado, content: { application/json: { schema: { type: array, minItems: 2, maxItems: 2, items: { $ref: '#/components/schemas/ResearchReportDetail' } } } } }
+        '200': { description: 'Las cifras de los dos reportes lado a lado', content: { application/json: { schema: { type: array, minItems: 2, maxItems: 2, items: { $ref: '#/components/schemas/ResearchReportDetail' } } } } }
         '409': { description: Reportes de tipo distinto (research.not_comparable) }
   /acknowledgements:
     post:
@@ -842,7 +842,7 @@ paths:
           application/json:
             schema: { type: object, required: [text_version], additionalProperties: false, properties: { text_version: { type: string } } }
       responses:
-        '201': { description: Reconocimiento registrado (VE-04), content: { application/json: { schema: { $ref: '#/components/schemas/AcknowledgementStatus' } } } }
+        '201': { description: 'Reconocimiento registrado (VE-04)', content: { application/json: { schema: { $ref: '#/components/schemas/AcknowledgementStatus' } } } }
   /problem-reports:
     post:
       x-veridicus-demo: true
@@ -859,7 +859,7 @@ paths:
               properties:
                 category: { type: string, description: Catálogo de categorías de VE-15 }
                 session_id: { type: string, format: uuid }
-                suggestion_id: { type: string, format: uuid, description: Si viene, session_id se deriva de la sugerencia (UG-01) }
+                suggestion_id: { type: string, format: uuid, description: 'Si viene, session_id se deriva de la sugerencia (UG-01)' }
                 note: { type: string, minLength: 1 }
       responses:
         '201':
@@ -949,7 +949,7 @@ components:
             $ref: 'contracts/analyzer/v1/entrada.schema.json'
             description: Entrada de C6 con la transcripción hasta hasta_turno y el bloque consentimiento
           enqueued_at: { type: string, format: date-time }
-          deadline_at: { type: string, format: date-time, description: Plazo de la corrida (C25, valor de NFR Requirements) }
+          deadline_at: { type: string, format: date-time, description: 'Plazo de la corrida (C25, valor de NFR Requirements)' }
 ```
 
 **Entrega y fallos.** Al menos una vez. Si el trabajador muere, el mensaje queda pendiente y otro lo
@@ -1069,7 +1069,7 @@ channels:
             attempt: { type: integer, minimum: 1 }
             audio_format: { type: string, enum: [wav, mp3] }
             audio_base64: { type: string, description: Tamaño máximo en C25 (ver pregunta abierta) }
-            retain_audio: { type: boolean, description: Copia de autoriza_conservar_audio (VE-08); el trabajador nunca guarda audio, solo lo indica a InterviewSession }
+            retain_audio: { type: boolean, description: 'Copia de autoriza_conservar_audio (VE-08); el trabajador nunca guarda audio, solo lo indica a InterviewSession' }
             deadline_at: { type: string, format: date-time }
   transcripts:
     address: 'veridicus:transcripts'
@@ -1146,7 +1146,7 @@ properties:
         properties:
           tipo: { enum: [persona, autoridad] }
           version_texto: { type: string, minLength: 1 }
-          autoriza_transferencia: { type: boolean, description: Transferencia a un proveedor comercial, siempre seudonimizada }
+          autoriza_transferencia: { type: boolean, description: 'Transferencia a un proveedor comercial, siempre seudonimizada' }
           autoriza_voz: { type: boolean }
           autoriza_conservar_audio: { type: boolean }
           constancia: { type: string, description: Identificador de la constancia de la autoridad; nunca un nombre }
@@ -1347,7 +1347,7 @@ properties:
   observaciones: { type: string, minLength: 1 }
   state: { enum: [pending, accepted, edited, dismissed] }
   note: { type: string }
-  reformulation: { type: string, description: Del analista; nunca reemplaza hecho, tipo, citas ni observaciones }
+  reformulation: { type: string, description: 'Del analista; nunca reemplaza hecho, tipo, citas ni observaciones' }
   observations_viewed: { type: boolean, description: El usuario actual desplegó las observaciones (FR6.2) }
   decided_by: { type: string, format: uuid }
   decided_at: { type: string, format: date-time }
@@ -1523,6 +1523,7 @@ from typing import Protocol, Literal, Any
 from datetime import datetime
 
 Role = Literal["judge", "verifier", "verifier_permuted"]
+DestinationSlot = Literal["primary", "fallback"]   # primary: el destino del papel; fallback: fallback_provider del perfil
 
 class Destination(Protocol):             # un destino ya resuelto de C18; nunca lleva el valor de una clave
     provider: Literal["anthropic", "google", "openai", "local"]
@@ -1538,6 +1539,7 @@ class Message(Protocol):
 
 class GenerateRequest(Protocol):
     role: Role
+    destination_slot: DestinationSlot     # fallback solo tras ContentBlocked y si el perfil lo tiene (FR15.2)
     profile_name: str
     profile_sha256: str                  # huella de la entrada del perfil (C18); el proxy la comprueba (C21)
     destination: Destination
@@ -1613,7 +1615,8 @@ termina con código ≠ 0.
 | `anonymizer` | No puede conectar con el proxy, o `503` | Sin reintento: `AnonymizerUnavailable` (fallo cerrado) |
 | `anonymizer` | `422` o `409` del proxy | Sin reintento: `AnonymizerUnavailable` (no salió ninguna llamada) |
 | `anonymizer` | `504` | Sin reintento: `Timeout` |
-| `anonymizer` | `451` | Sin reintento: `ContentBlocked`; el núcleo usa el `fallback_provider` del perfil si lo hay (FR15.2) |
+| `anonymizer` | `451` con `destination_slot: primary` | Sin reintento del mismo destino: `ContentBlocked`. Si el perfil tiene `fallback_provider`, el núcleo hace una sola llamada nueva con el mismo `role` y `destination_slot: fallback`, y la registra con `fallback_provider: true` (FR15.2); si no, la corrida termina en `bloqueo_contenido` |
+| `anonymizer` | `451` con `destination_slot: fallback` | Sin reintento: `ContentBlocked` y la corrida termina en `bloqueo_contenido` |
 | `anonymizer` | `502` | Sin reintento: `ProviderError`. La llamada ya salió del clúster; repetirla duplicaría la salida externa y el costo. El reintento es humano (`/runs/{id}/retry`) |
 
 `anonymizer-proxy` tampoco reintenta hacia el proveedor: cada petición de C21 produce como mucho una
@@ -1786,7 +1789,7 @@ properties:
     propertyNames: { pattern: '^[a-z0-9-]{1,48}$' }
     additionalProperties: { $ref: '#/$defs/profile' }
 $defs:
-  token: { type: string, pattern: '^[A-Za-z0-9._:/@+-]{1,128}$', description: Sin espacios; nombres de modelo, versiones y motores }
+  token: { type: string, pattern: '^[A-Za-z0-9._:/@+-]{1,128}$', description: 'Sin espacios; nombres de modelo, versiones y motores' }
   destination:
     type: object
     additionalProperties: false
@@ -1824,11 +1827,15 @@ $defs:
         required: [enabled]
         properties:
           enabled: { type: boolean }
-          window: { type: integer, minimum: 1, description: En turnos; no sube el tope de C25 }
-          overlap: { type: integer, minimum: 0 }
+          window: { type: integer, minimum: 1, description: 'En turnos; es el valor elegido, y limits.fragment_window_turns de C25 es su tope' }
+          overlap: { type: integer, minimum: 0, description: 'En turnos; limits.fragment_overlap_turns es su tope' }
       same_family_declared: { type: boolean, default: false }
       batch_only: { type: boolean, description: Perfiles locales en CPU (validación en ZINE) }
 ```
+
+**Ventana del modo fragmentado.** Manda `chunking.window` del perfil, y `limits.fragment_window_turns`
+de C25 es su tope (lo mismo con `overlap`). ExecutionProfiles rechaza un perfil cuya ventana pase del
+tope. Sin `window` en el perfil, se usa el tope. La ventana usada queda en `registro.fragmentado.ventana`.
 
 `chunking` es la configuración; lo que pasó en una corrida queda en `registro.fragmentado` de C6
 (`enabled` → `activo`, `window` → `ventana`, `overlap` → `solapamiento`; regla 8).
@@ -1884,8 +1891,9 @@ la recalcula en Python y en TypeScript.
 **Reglas que aplica `anonymizer-proxy`** al arrancar y en cada petición (C21):
 - el archivo cumple este esquema;
 - cada destino `external` tiene un dominio de la lista de C22 y su `api_key_ref` con valor;
-- la petición nombra un perfil y un papel que existen, cuyo destino es `external`, y trae el mismo
-  `profile_sha256` que el proxy calcula sobre su copia.
+- la petición nombra un perfil y un papel que existen;
+- el destino de su ranura (`primary` o `fallback`) existe y es `external`;
+- la petición trae el mismo `profile_sha256` que el proxy calcula sobre su copia.
 
 ```yaml
 # contracts/profiles/prices.schema.v1.yaml — esquema de config/prices.yaml
@@ -1965,10 +1973,10 @@ properties:
       additionalProperties: false
       required: [interview_sha256, status, findings, discards, calls]
       properties:
-        interview_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: Hash del archivo de entrada, nunca su id ni su texto }
+        interview_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: 'Hash del archivo de entrada, nunca su id ni su texto' }
         status: { enum: [ok, error], description: Valores de estado de C6 }
         error_code: { enum: [salida_invalida, bloqueo_contenido, tiempo_agotado, proveedor, anonimizador_no_disponible, incidente_anonimizacion], description: Valores de error.codigo de C6 }
-        findings: { type: integer, minimum: 0, description: Cuántos, no cuáles }
+        findings: { type: integer, minimum: 0, description: 'Cuántos, no cuáles' }
         discards:
           type: object
           description: Conteo por motivo; las claves son los valores de registro.descartes[].motivo de C6
@@ -2005,7 +2013,7 @@ properties:
       required: [fact_type, synthetic_set, expected, found]
       properties:
         fact_type: { enum: [fecha, numero, lugar, persona, negacion, secuencia, otro], description: Valores de hallazgo.tipo de C6 }
-        synthetic_set: { type: string, pattern: '^[a-z0-9_-]{1,48}$', description: Etiqueta del conjunto sintético, no texto }
+        synthetic_set: { type: string, pattern: '^[a-z0-9_-]{1,48}$', description: 'Etiqueta del conjunto sintético, no texto' }
         expected: { type: integer, minimum: 0 }
         found: { type: integer, minimum: 0 }
 ```
@@ -2048,7 +2056,8 @@ class AnonymizingProvider(Protocol):
     def generate(self, req: GenerateRequest) -> GenerateResult:
         """Para un destino externo:
         1. comprueba que req.destination.scope es "external" y que el dominio del proveedor está en
-           la lista (FR11.4); si no, AnonymizerUnavailable;
+           la lista (FR11.4); si no, AnonymizerUnavailable. En la CLI, req.destination ya es el destino
+           de req.destination_slot (el del papel o el fallback_provider del perfil);
         2. seudonimiza los mensajes con marcas coherentes en toda la llamada ([PERSONA_3]) y guarda la
            tabla solo en memoria, durante la llamada, nunca en logs ni en disco (FR11.3);
         3. llama una sola vez con el adaptador nativo del proveedor (C22) usando la clave de api_key_ref;
@@ -2069,7 +2078,8 @@ La tabla de correspondencia no sale del módulo. Las pruebas de AUTONOMIA-04 se 
 La misma operación de C20 por la red (P13). Solo la llama `semantic-agent`; la `NetworkPolicy` de U2
 admite la entrada solo desde ese pod.
 
-**El proxy no confía en el destino de quien llama.** La petición nombra el perfil, su huella y el papel.
+**El proxy no confía en el destino de quien llama.** La petición nombra el perfil, su huella, el papel y
+la ranura de destino (`primary`: el destino del papel; `fallback`: el `fallback_provider` del perfil).
 El proxy los resuelve en su propia copia validada de `config/profiles.yaml`, que U2 monta desde el mismo
 commit que la de `semantic-agent`, y de ahí toma proveedor, modelo y `api_key_ref`. Quien llame al proxy
 no puede elegir clave, proveedor ni modelo.
@@ -2095,13 +2105,14 @@ paths:
             schema:
               type: object
               additionalProperties: false
-              required: [schema_version, run_id, profile_name, profile_sha256, role, messages, schema, timeout_s]
+              required: [schema_version, run_id, profile_name, profile_sha256, role, destination_slot, messages, schema, timeout_s]
               properties:
                 schema_version: { type: string, pattern: '^1\.[0-9]+\.[0-9]+$' }
                 run_id: { type: string, format: uuid, description: Solo para logs con IDs }
                 profile_name: { type: string, pattern: '^[a-z0-9-]{1,48}$' }
                 profile_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: Huella de la entrada del perfil (C18) }
                 role: { enum: [judge, verifier, verifier_permuted] }
+                destination_slot: { enum: [primary, fallback] }
                 messages:
                   type: array
                   minItems: 1
@@ -2129,7 +2140,7 @@ paths:
                   altered_markers: { type: array, items: { type: string }, description: Rutas JSON de las partes invalidadas }
                   call: { $ref: 'contracts/model_calls/model-call.v1.yaml' }
         '409': { description: 'profile_sha256 no coincide con la copia del proxy; no salió ninguna llamada: { "code": "anonymizer.profile_mismatch" }' }
-        '422': { description: 'Petición inválida, perfil o papel inexistente, destino local o dominio fuera de la lista; no salió ninguna llamada: { "code": "anonymizer.destination_rejected" }' }
+        '422': { description: 'Petición inválida, perfil o papel inexistente, ranura fallback sin fallback_provider, destino local o dominio fuera de la lista; no salió ninguna llamada: { "code": "anonymizer.destination_rejected" }' }
         '451': { description: 'Bloqueo de contenido del proveedor: { "code": "analysis.content_blocked" }' }
         '502': { description: 'Error del proveedor; la llamada ya salió: { "code": "analysis.provider" }' }
         '503': { description: 'Anonimizador no disponible; no salió ninguna llamada: { "code": "analysis.anonymizer_unavailable" }' }
@@ -2145,9 +2156,13 @@ proveedor y códigos.
 - `profile_sha256` alterado da `409`;
 - un perfil cuyo papel es `local` da `422`;
 - un perfil inexistente da `422`;
+- `destination_slot: fallback` en un perfil sin `fallback_provider`, o con un `fallback_provider` local,
+  da `422`;
+- `destination_slot: fallback` en un perfil con `fallback_provider` externo llama a ese destino y no al
+  del papel;
 - un campo `destination` o `api_key_ref` en el cuerpo da `422` (`additionalProperties: false`).
 
-En los cuatro casos el doble no recibe ninguna llamada.
+En los casos de rechazo, el doble no recibe ninguna llamada.
 
 ## C22 — Proveedores comerciales (externo) · nuevo
 
@@ -2250,7 +2265,10 @@ una variable de entorno intenta subir una.
 1. **Dónde vive cada contrato.** Todo contrato está en `contracts/` (U1) con su versión semántica y sus
    *fixtures* válidos e inválidos, todos sintéticos. Las interfaces en proceso (C10–C13, C17, C20, C23,
    C24) viven en `contracts/python/` y `libs/`, y se verifican con mypy estricto e import-linter: un
-   módulo solo importa la interfaz pública del otro.
+   módulo solo importa la interfaz pública del otro. Una prueba de nivel 0 de U1 carga cada esquema de
+   `contracts/` con un validador estricto (palabras clave desconocidas = error; en Python,
+   `jsonschema` con comprobación de metaesquema, y en TypeScript, ajv en modo `strict`), y falla si una
+   `description` mal escrita deja una clave suelta.
 2. **Quién decide.** La unidad dueña (columna Owner) propone el cambio; el PR lleva la prueba de
    contrato del productor y de cada consumidor. Revisa y aprueba el autor, como cualquier PR (team.md).
 3. **El contrato común (C6) es externo.** Su fuente de verdad es el repositorio principal del TG. Un

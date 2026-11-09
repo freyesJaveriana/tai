@@ -27,12 +27,14 @@ flowchart LR
     INC --> CON["Construction por unidad<br/>diseño 3.1 a 3.4"]
     CON --> CG["3.5 Parte 1: plan de tareas"]
     CG --> OK{{"Approve Plan<br/>solo el humano, tras revisar"}}
-    OK --> B["Parte 2: Bolts<br/>Review each checkpoint"]
+    OK --> L["Parte 2: loop de agentes<br/>tareas, codificador, revisor<br/>PR por tarea, fusiona el humano"]
+    L --> B["Cierre de la unidad<br/>Review each checkpoint<br/>PR del Bolt a main"]
 ```
 
 Texto alternativo: los insumos corregidos alimentan la Inception revisada y el diseño por unidad.
-Cada plan de tareas lo revisa el humano y, cuando lo aprueba con `Approve Plan`, se construye por
-Bolts con una compuerta en cada punto de control.
+Cada plan de tareas lo revisa el humano y, cuando lo aprueba con `Approve Plan`, la unidad se construye
+con el loop de agentes (un PR por tarea hacia la rama del Bolt, que fusiona el humano) y se cierra con
+una compuerta en cada punto de control y el PR del Bolt hacia `main` (cambio 04).
 
 > **Ojo:** en AI-DLC v2 no hay una aprobación aparte para la Parte 2. La Parte 1 termina con la
 > pregunta *Plan Approval* (`Approve Plan` / `Request Changes`), y elegir `Approve Plan` es lo que
@@ -173,10 +175,15 @@ compuerta puede ceder en trabajo no dirigido, y es justo la que detiene el flujo
 - Los scripts `sbatch` para el clúster ZINE (evaluación de modelos locales por lotes, DT26) y su
   paquete de entrada son artefactos revisables: los lanza el autor, nunca el agente (AUTONOMIA-01).
 
-### Paso 5 — (retirado por el cambio 01)
+### Paso 5 — Parte 2 con el loop de agentes
 
-La consolidación manual en `unidades-y-tareas.md` era la entrada del loop de los módulos 6 y 7. Con el
-alto levantado, la construcción la hace AI-DLC por Bolts y ese archivo ya no se genera.
+Cambio 04 (DT30). Tras `Approve Plan`, la Parte 2 de Code Generation de cada unidad no la hace el
+`aidlc-developer-agent`: la sesión principal actúa como orquestador (`docs/loop/orquestador.md`) y
+construye la unidad por tareas, con los subagentes `codificador` y `revisor`. Las tareas salen de los
+pasos del `code-generation-plan.md` aprobado; `unidades-y-tareas.md` sigue sin generarse. Cada tarea
+entra por su PR hacia la rama del Bolt y el Bolt entra a `main` con su propio PR (*squash*); el humano
+fusiona los dos. La guía completa, el encargo de la sesión y los puntos H1–H5 que se comprueban con
+la primera tarea están en `docs/loop/README.md`.
 
 ## 6. Higiene de contexto y de cuota
 
@@ -200,6 +207,8 @@ y 7 d (son de la cuenta, compartidas con todas mis sesiones de Claude):
 - [ ] Ningún *fixture* ni prueba contiene datos del piloto del TG; todo es sintético.
 - [ ] Están los pasos de prueba de cada capa.
 - [ ] Las rutas de código apuntan a la raíz del proyecto, nunca a `aidlc/`.
+- [ ] Cada paso, o grupo de pasos, puede ser una tarea con alcance dentro y fuera y con comandos
+  (loop de agentes, cambio 04).
 
 ## 8. Ruta corta (retirada por el cambio 01)
 

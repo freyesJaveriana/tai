@@ -107,7 +107,7 @@ components:
         interaction: Listar los perfiles aprobados y su indicación de proveedor comercial (FR14.5)
         style: sync
       - component: InterviewSession
-        interaction: Crear sesiones con consentimiento y perfil, enviar o importar turnos, lanzar corridas, pausar, terminar, registrar la retirada del consentimiento (AC15.2.3), finalizar, latido, reanudar
+        interaction: Crear sesiones con consentimiento y perfil, enviar o importar turnos, lanzar corridas, pausar, terminar, registrar la retirada del consentimiento (AC15.2.3), finalizar, latido, reanudar; al pausar, terminar o retirar el consentimiento, InterviewSession cancela las corridas con su clave de Redis (CD-06)
         style: sync
       - component: HumanReview
         interaction: Registrar «observaciones desplegadas» y decisiones sobre sugerencias
@@ -231,6 +231,9 @@ components:
       y registra el incidente (VE-14). «Pausar análisis» guarda los turnos sin encolar y cancela las
       corridas en cola sin llamar a modelos. «Terminar sesión» cancela y cierra la sesión a turnos
       nuevos. Tras la retirada del consentimiento, ningún turno posterior entra en una corrida (VE-10).
+      Cancela una corrida escribiendo en Redis la clave `veridicus:run-cancelled:{run_id}`, que vence en
+      `deadline_at` más un margen y que reescribe tras un reinicio de Redis; el trabajador solo la lee y no
+      llama a nada después de `deadline_at` (C2, CD-06).
       Pasa la sesión a `suspendida` cuando falta el latido y conserva todo lo procesado (FR8). Borra lo
       suyo solo cuando se lo pide la retención (A-2). Conserva el audio de un turno solo con la
       autorización de voz (VE-08).
@@ -238,7 +241,7 @@ components:
       - Ciclo de vida de la sesión (abierta, pausada, suspendida, finalizada, terminada, bloqueada, consolidada) e inicio de MTTV
       - Registro del consentimiento, su retirada y su paso al contrato (A-4)
       - Turnos, su numeración, división, importación y estado
-      - Encolado de corridas incrementales y del modo final, y su cancelación
+      - Encolado de corridas incrementales y del modo final, y su cancelación con la clave `veridicus:run-cancelled:{run_id}` (CD-06)
       - Ingesta idempotente de resultados; corridas y registro de llamadas de solo inserción (FR15.3)
       - Detección del incidente de anonimización y bloqueo de la sesión (VE-14)
       - Aclaraciones neutras recibidas y su decisión (SHOULD, FR10.3)
@@ -272,7 +275,7 @@ components:
         purpose: Sesiones, consentimiento, turnos, corridas, llamadas e incidentes
       - name: Redis
         kind: queue
-        purpose: Colas de corridas a analizar y de resultados
+        purpose: Colas de corridas a analizar y de resultados; claves de cancelación de corridas (CD-06)
       - name: Volumen persistente
         kind: object-store
         purpose: Audio conservado con autorización (VE-08)

@@ -366,9 +366,12 @@ Su lugar lo toma la verificación determinista de las dos citas (FR4.4, AUTONOMI
 
 ### FR15 — Interfaz de modelos (MUST) · S9-D, S12-R8, S12-R10; DT21; P15, pregunta 16
 
-- **FR15.1** El puerto `ModelGateway` genera con papel, mensajes y esquema de salida. Tiene adaptadores
+- **FR15.1** El puerto `ModelGateway` genera con papel, mensajes y esquema de salida. Hay adaptadores
   nativos para Anthropic, Google y OpenAI (salida JSON forzada, esfuerzo y caché de *prompts* del
-  proveedor) y uno compatible con la API de OpenAI para modelos locales (vLLM, llama.cpp, Ollama).
+  proveedor) y uno compatible con la API de OpenAI para modelos locales (vLLM, llama.cpp, Ollama). Los
+  nativos viven en el anonimizador (módulo en `libs/` y pod `anonymizer-proxy`), no en `semantic-agent`:
+  `ModelGateway` los alcanza solo a través de él, y las claves se montan solo en `anonymizer-proxy`
+  (Contract Design, CD-04).
 - **FR15.2** El bloqueo de contenido, el tiempo agotado y el error del proveedor son errores tipados.
   Si el perfil prevé un proveedor alterno, el analizador lo usa y lo registra; si no, la corrida termina
   en `estado: error` (FR4.2).

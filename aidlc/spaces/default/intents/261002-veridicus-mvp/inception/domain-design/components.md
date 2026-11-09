@@ -438,8 +438,9 @@ components:
     summary: Puerto único hacia los modelos (juez, verificador, Whisper, TTS).
     behaviour: >
       Todas las llamadas a modelos pasan por este puerto (ADR-005). Expone `generate(papel, mensajes,
-      esquema)` con adaptadores nativos para Anthropic, Google y OpenAI y uno compatible con OpenAI para
-      modelos locales (FR15.1). Fuerza la salida JSON con `json_schema` y el razonamiento apagado en los
+      esquema)` con un adaptador compatible con OpenAI para modelos locales; los adaptadores nativos de
+      Anthropic, Google y OpenAI viven en el Anonymizer y ModelGateway los alcanza solo a través de él
+      (FR15.1, CD-04). Fuerza la salida JSON con `json_schema` y el razonamiento apagado en los
       locales (validación en ZINE). Antes de todo destino externo llama a Anonymizer, y si este falla la
       llamada no sale (FR11.3). Traduce el bloqueo de contenido, el tiempo agotado y el error del
       proveedor a errores tipados (FR15.2). Toda llamada lleva timeout explícito y devuelve su registro,
@@ -447,7 +448,7 @@ components:
       aquí (team-practices).
     responsibilities:
       - Contrato estable de llamada a modelos, errores tipados y timeouts
-      - Adaptadores de proveedores comerciales y del servidor local
+      - Adaptador del servidor local; los comerciales se alcanzan solo por Anonymizer (CD-04)
       - Paso obligado por Anonymizer ante un destino externo (AUTONOMIA-04)
     depends_on:
       - component: Anonymizer
@@ -477,9 +478,11 @@ components:
       cuya marca alteró el modelo. Impone la lista de dominios de los proveedores configurados y rechaza
       cualquier otro destino (FR11.4). Si falla, no sale ninguna llamada y la corrida termina con
       `codigo: anonimizador_no_disponible` (en Problem Details, `analysis.anonymizer_unavailable`; CD-01). Es el único componente con salida a internet (FR12.3). Un perfil todo
-      local no lo usa.
+      local no lo usa. Contiene los adaptadores nativos de Anthropic, Google y OpenAI (módulo en `libs/` y
+      pod `anonymizer-proxy`); las claves de API se montan solo en `anonymizer-proxy` (CD-04).
     responsibilities:
       - Seudonimización, tabla en memoria y restauración de citas
+      - Adaptadores nativos de los proveedores comerciales y sus claves (CD-04)
       - Detección de marcas alteradas
       - Lista de dominios permitidos y fallo cerrado
     depends_on: []

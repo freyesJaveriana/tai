@@ -702,8 +702,9 @@ components:
     behaviour: >
       Valida el JSON subido contra su esquema. Guarda solo esta información: perfil, `config_sha256`,
       `prompt_sha256`, versiones del analizador y del conjunto, registro de modelos, tokens, costo,
-      métricas y la tabla de sesgo de VE-17 (FR13.5). Descarta antes de guardar todo texto de
-      transcripciones, hallazgos o citas, y nunca lo escribe en una columna ni en un log (NFR12). Lista
+      métricas y la tabla de sesgo de VE-17 (FR13.5). Rechaza con `422` el reporte que trae texto o no
+      cumple el esquema: el reporte de la CLI no tiene campos de texto libre, así que nunca se escribe
+      texto de transcripciones, hallazgos o citas en una columna ni en un log (NFR12, CD-03). Lista
       los reportes, muestra el detalle y compara dos (US12.7). No lanza análisis. Sus datos no tienen
       testimonio, así que la retención no los toca.
     responsibilities:

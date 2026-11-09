@@ -151,8 +151,11 @@ sepa quién lo sacó de la consola.
   pueden exportar. `[N1]`
 - **AC15.8.2** Given un rol autorizado, When descarga el reporte, Then el archivo lleva una marca visible
   con su usuario y la hora en la cabecera y en cada página, y en la cabecera el SHA-256 de la versión
-  consolidada (FR7.3). La exportación queda en el registro de acceso con el SHA-256 del archivo exportado,
-  que coincide con `sha256sum` del archivo descargado. `[N1]`
+  consolidada (FR7.3); el SHA-256 del archivo exportado coincide con `sha256sum` del archivo descargado
+  `[N1]`. La ruta de exportación llama al puerto del registro de acceso con el usuario, la versión y ese
+  SHA-256 (prueba con un doble) `[N0]`; con el registro de acceso construido, la exportación queda
+  registrada `[N1]`. Mientras el registro no esté construido, la exportación funciona igual, el log avisa
+  «registro de acceso no configurado» solo con IDs y la salud sigue respondiendo 200 `[N0]` (UG-09).
 
 ### US15.9 — Trabajar con avisos de bienestar · Demostración (DD-05) · P1
 Como Analista de Verdad, quiero un aviso del contenido antes de abrir una sesión y recordatorios de pausa,

@@ -7930,3 +7930,155 @@
 **Message**: <analysis>\n**Where the session started.** After the earlier compaction, the workflow was parked at Functional Design.\n\n**User request 1.** The user pasted a request, written in Spanish:\n- Read the req
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-09T21:39:41Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: contracts
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:c573d2c89c667a649df422898796acffc0ac2c73ac4ce962e734758b4eea90ae
+**Request Id**: review:8d4f348a64a897041c3f9d051f75a056
+
+---
+
+## Review Requested
+**Timestamp**: 2026-11-09T21:40:43Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: contracts
+**Iteration**: 1
+**Retry**: pending-request
+**Artifact Fingerprint**: sha256:c573d2c89c667a649df422898796acffc0ac2c73ac4ce962e734758b4eea90ae
+**Request Id**: review:8d4f348a64a897041c3f9d051f75a056
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T21:44:03Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab087197629f6bbc4
+**Message**: El Functional Design de U1 (contracts) está escrito y subido, pero falta la revisión del arquitecto porque el modo automático bloquea esa llamada. Desactiva el hook o sal del modo automático y dime «s
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:24:19Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T22:24:59Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3bb1e2e74549caad
+**Message**: sigue
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:26:02Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-09T22:26:07Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviewer-dispatch.json
+**Context**: .aidlc-engine > reviewer-dispatch.json
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T22:26:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a37f1ebe048d07eb5
+**Message**: sigue
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-11-09T22:27:11Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp
+**Stage**: functional-design
+**Unit**: contracts
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:27:25Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-09T22:30:29Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/functional-design/units/contracts/84070504f0a37fb2/1.review.md
+**Context**: .aidlc-engine > reviews > functional-design > units > contracts > 84070504f0a37fb2 > 1.review.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T22:30:39Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a877a720c1ccbd74d
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Veredicto: NOT-READY.** Hay tres hallazgos Major (más de dos) y ninguno Critical. La revisión es asesora y de una sola pasada. La escribí en:\n`/works
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:30:42Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-09T22:30:47Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: contracts
+**Iteration**: 1
+**Verdict**: NOT-READY
+**Request Fingerprint**: sha256:c573d2c89c667a649df422898796acffc0ac2c73ac4ce962e734758b4eea90ae
+**Artifact Fingerprint**: sha256:c573d2c89c667a649df422898796acffc0ac2c73ac4ce962e734758b4eea90ae
+**Request Id**: review:8d4f348a64a897041c3f9d051f75a056
+**Review Record**: .aidlc-engine/reviews/functional-design/units/contracts/84070504f0a37fb2/1.json
+**Review Record Digest**: sha256:a3800b32f7ed334cc111c499a0306fe84e6125e8c987778facb8f5da8640359c
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-11-09T22:30:51Z
+**Event**: UNIT_COMPLETED
+**Stage**: functional-design
+**Unit**: contracts
+**Run floor**: STAGE_JUMPED:2026-11-02T22:13:39Z#2
+**Mode**: wave
+**Wave memory entries**: 4
+**Artifact Fingerprint**: sha256:c573d2c89c667a649df422898796acffc0ac2c73ac4ce962e734758b4eea90ae
+
+---
+
+## Workflow Parked
+**Timestamp**: 2026-11-09T22:31:17Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
+
+---

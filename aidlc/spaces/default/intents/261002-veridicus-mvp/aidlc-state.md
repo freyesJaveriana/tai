@@ -89,6 +89,10 @@
 
 
 
+- **Parked**: 2026-11-09T22:31:17Z
+
+- **Parked At Stage**: functional-design
+
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -150,7 +154,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-11-09T21:27:38Z
+- **Last Updated**: 2026-11-09T22:31:17Z
 
 - **Construction Autonomy Mode**: gated
 

@@ -44,6 +44,10 @@
 - 2026-10-03T00:21:01Z — La consola codifica a WAV mono de 16 kHz porque el navegador graba en su formato nativo y el contrato solo admite WAV o MP3.
 <!-- aidlc-wave-memory:voice:d90eaa1d8643277289d67b1f108e384af03dfcf5c4540b9527ab7be70752ce95 -->
 
+
+- 2026-11-09T21:39:32Z — V-1 = A: el papel es texto con patrón en C13, C19 (registro) y C21; un perfil genérico (papeles, alias, un fallback) que el analizador especializa con exactamente judge y verifier; C6 no cambia y una tabla fija traduce los tres papeles del analizador.
+<!-- aidlc-wave-memory:contracts:9b217c5ad8d8b17d00156c8432f032424e8434638ff1c7333f7d28601746d962 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -82,6 +86,10 @@
 
 - 2026-10-03T00:21:01Z — Ninguna desviación del texto de la etapa; los huecos de contrato (X1–X5) quedan en una tabla del spec.
 <!-- aidlc-wave-memory:voice:9a7f21f345e5a20283760a86db1adb0d8aa95e2a7c3d00926ce4944df7ff81b6 -->
+
+
+- 2026-11-09T21:39:32Z — Las precisiones de la segunda pasada (papeles abiertos, perfil genérico, prefijo de api_key_ref, importaciones veridicus_contracts, rótulos de los 7 tipos, comparación por contenido de la copia de C6) se registraron como FD-U1-01..09 en functional-spec.md §9 sin editar contract-summary, components ni stories aprobados.
+<!-- aidlc-wave-memory:contracts:84b8b561681625a1e93a6195d2fd748aa91a3066d4423f587434235dceda0b84 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -126,6 +134,10 @@
 - 2026-10-03T00:21:01Z — Sin audio guardado para reintentar (P2 = A): se pierde el reintento sobre el mismo turno a cambio de no conservar nunca audio crudo.
 <!-- aidlc-wave-memory:voice:5b31c38f2052ea2be97c8520b3176b07a94738efdb694ac0b3af904fe80f6920 -->
 
+
+- 2026-11-09T21:39:32Z — El prefijo VERIDICUS_ de api_key_ref pasa del esquema a un argumento de la función de validación: sistema reutiliza el mismo esquema con su prefijo, a costa de que el esquema solo ya no impida una clave de otro producto.
+<!-- aidlc-wave-memory:contracts:46f8a4ab15f2b577441a89b953aec056bb6f14c8289b359155a2396f28134cb2 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -155,3 +167,6 @@
 
 - 2026-10-03T00:21:01Z — El tamaño máximo en bytes (propuesto 6 MB) lo confirma NFR Requirements.
 <!-- aidlc-wave-memory:voice:80bd535350bdfa50b0767c9b824286ec95693fcf93faf328dfcdbb3ee94a1338 -->
+
+- 2026-11-09T21:39:32Z — AC12.6.1 espera 201 con el texto descartado y CD-03 rechaza con 422; BR10.1 cubre ambos y la diferencia (FD-U1-05, misma que DP-01) se cierra en el Functional Design de U12.
+<!-- aidlc-wave-memory:contracts:a3a4e9e0f87c70cec727e4a528e642cd91b532a95d4302f874d30d04c2e8c4ea -->

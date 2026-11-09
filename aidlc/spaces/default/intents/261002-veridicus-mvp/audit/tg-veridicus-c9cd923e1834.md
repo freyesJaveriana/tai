@@ -6244,3 +6244,93 @@
 **Details**: Re-entering gate after revision
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-09T11:44:27Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T12:13:21Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T12:13:43Z
+**Event**: DECISION_RECORDED
+**Stage**: units-generation
+**Decision**: Gate de Units Generation
+**Options**: Approve,Request Changes
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T12:13:43Z
+**Event**: QUESTION_ANSWERED
+**Stage**: units-generation
+**Details**: Approve; precisiones UG-03, UG-04, UG-05 y UG-09 a sus originales
+
+---
+
+## Review Freeze Blocked
+**Timestamp**: 2026-11-09T12:14:18Z
+**Event**: REVIEW_FREEZE_BLOCKED
+**Tool**: Bash
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Stage**: units-generation
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-09T12:14:29Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state approve units-generation --user-input Approve --project-dir <project-dir>
+**Error**: Cannot approve "units-generation" because no new human reply has been received for this approval question. Wait for the human to type their choice, then retry the approval. This needs a fresh human turn: wait for the person to reply, then record it again.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T12:24:46Z
+**Event**: HUMAN_TURN
+**Session**: c9efd306-8337-417e-bbc9-a07a6f2f8376
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-11-09T12:24:51Z
+**Event**: GATE_APPROVED
+**Stage**: units-generation
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-11-09T12:24:51Z
+**Event**: STAGE_COMPLETED
+**Stage**: units-generation
+**Validation Basis**: {"graphContract":"sha256:baf39a0a351356930786ca985bbb7c5893e8db3e93715525a8e909b629765ee7","inputs":[{"artifact":"components","contentHash":"sha256:9a4db90300a4c385e3b103feee513086be64e5fee808aabea9eef039bd6f0dd0","instanceCount":1,"presentCount":1,"producer":"domain-design","required":true,"structureHash":"sha256:cd3677f334aeb73a32eb1b3af048e8fb8c33e42ccdb1d3a6075f83ef6db5cfe0"},{"artifact":"decisions","contentHash":"sha256:c61d308a1ca3eba16607c8a3be1ee0b7eba012a1683cdaf185a5dfe90a7b571d","instanceCount":1,"presentCount":1,"producer":"domain-design","required":false,"structureHash":"sha256:0d4a70441c53b3048d68bd981e729de55e1db5eaf68398187753006626c1811a"},{"artifact":"requirements","contentHash":"sha256:107240cb392942055778f50dacbb960ba2854c8aefadfff1736792f6be8cf700","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:6a7de19ce3ecefefb7d8bf5838bb61ed5aa4b238b53809e7a88bbfc1f481bb9f"},{"artifact":"stories","contentHash":"sha256:bb4261681884ed8164018ea4f3f043f6fe2e586826b57f18ca27e433d016edfe","instanceCount":1,"presentCount":1,"producer":"user-stories","required":false,"structureHash":"sha256:79c297d698525d9b33feebcf5a0ab5270531050f2335f8a6e5fc0e9f52b01e33"}],"outputs":[{"artifact":"traceability","contentHash":"sha256:ee82b3d03ed3fb647e59cfa9f96948300e997e3e13575329a9e7ab630b2919d6","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:4883cee60149bade5345d6168f0c8d34937df2fcf194812c7c692b3351884ca9"},{"artifact":"unit-of-work-dependency","contentHash":"sha256:e12b330157fc1354a5d3f3e9cd9dfd833877d6446240e0e5c32a7bb57ec9de27","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:d6ad92275c895e990d36337f61fe9a3cf57dd9e49303027a2ca123b99d8377d2"},{"artifact":"unit-of-work-story-map","contentHash":"sha256:a9ccc8db524213c12eeab7ef135cbe7d5d9ba7b36aae26949ff2dbacfe84171c","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:f3ceaec4e0e564497b9a1d87652a2bb14cc76a951a88ec49dedc1e8ebef5c1d9"},{"artifact":"unit-of-work","contentHash":"sha256:a78f8540fbd2c796e57abdb7deaa407761f0daba097fc0756078b95fdd3aa735","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:30b83745862cbad365814d36d84395d52c6ee8f0edf8cd143b1f1a7a0be579d5"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Units Generation approved by gate
+**Tokens In**: 414
+**Tokens Out**: 160282
+**Cache Read**: 36086962
+**Cache Write**: 1547295
+**Cost USD**: 32.63
+**By Model**: opus-5=28.62; sonnet-5=4.01; <synthetic>=null
+**By Agent**: main=28.62; aidlc-architecture-reviewer-agent=4.01
+**Tokens By Model**: opus-5=340/119.6k/32.2M/954.7k; sonnet-5=74/40.7k/3.9M/592.6k
+**Tokens By Agent**: main=340/119.6k/32.2M/954.7k; aidlc-architecture-reviewer-agent=74/40.7k/3.9M/592.6k
+
+---
+
+## Stage Start
+**Timestamp**: 2026-11-09T12:24:51Z
+**Event**: STAGE_STARTED
+**Stage**: contract-design
+**Agent**: aidlc-architect-agent
+
+---

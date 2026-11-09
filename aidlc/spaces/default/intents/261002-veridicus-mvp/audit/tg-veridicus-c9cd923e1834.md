@@ -6499,3 +6499,269 @@
 **Details**: P12=A, P13=A, P14=A
 
 ---
+
+## Session Compacted
+**Timestamp**: 2026-11-09T13:41:07Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: contract-design
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T13:41:46Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a4398eb2293e64411
+**Message**: <analysis>\nThe session resumed the AI-DLC workflow for intent 261002-veridicus-mvp (scope classic) on the Contract Design stage, second pass after change 01 (DT27) and addendum 02. All conversation wi
+
+---
+
+## Review Requested
+**Timestamp**: 2026-11-09T13:41:49Z
+**Event**: REVIEW_REQUESTED
+**Stage**: contract-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:10638c6b826b085bd99cd1213c9dd9ff896e6244a0c73bc5010336435ace97ec
+**Request Id**: review:fd91cb5ec9b38087fe3111b809bce919
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T13:42:56Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a27dbb634a56e5b23
+**Message**: Validating contract-summary.md blocks
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T13:43:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac8a20053d8aa6fd5
+**Message**: Reading contract-design-questions.md answers
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T13:44:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a106311e504627c13
+**Message**: Grepping components.md for paused
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T13:45:03Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aef257bbd28ff1578
+**Message**: Reading requirements-adenda-02.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-09T13:45:10Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/contract-design/stage/14fe21493ad9fa40/1.review.md
+**Context**: .aidlc-engine > reviews > contract-design > stage > 14fe21493ad9fa40 > 1.review.md
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-09T13:45:14Z
+**Event**: REVIEW_COMPLETED
+**Stage**: contract-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Verdict**: NOT-READY
+**Request Fingerprint**: sha256:10638c6b826b085bd99cd1213c9dd9ff896e6244a0c73bc5010336435ace97ec
+**Artifact Fingerprint**: sha256:10638c6b826b085bd99cd1213c9dd9ff896e6244a0c73bc5010336435ace97ec
+**Request Id**: review:fd91cb5ec9b38087fe3111b809bce919
+**Review Record**: .aidlc-engine/reviews/contract-design/stage/14fe21493ad9fa40/1.json
+**Review Record Digest**: sha256:eea0dd21c1f7d655e477880d3eb435c0a111682d2aebd281267fc47c669c66c3
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-09T13:45:21Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --help
+**Error**: --help expects a value, got end of arguments.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-09T13:45:21Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --help
+**Error**: --help expects a value, got end of arguments.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T13:45:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: ad169f06b80f3245b
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T13:45:23Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T13:45:27Z
+**Event**: DECISION_RECORDED
+**Stage**: contract-design
+**Decision**: ¿Qué aprendizajes de Contract Design (segunda pasada) se guardan en project.md?
+**Options**: c2,c4,c6,c7
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T13:51:49Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T13:51:52Z
+**Event**: QUESTION_ANSWERED
+**Stage**: contract-design
+**Details**: c2, c4, c6, c7
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T13:51:52Z
+**Event**: DECISION_RECORDED
+**Stage**: contract-design
+**Decision**: ¿Algo que añadir a los aprendizajes?
+**Options**: Nothing to add,Add a note
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T13:52:21Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T13:52:24Z
+**Event**: QUESTION_ANSWERED
+**Stage**: contract-design
+**Details**: Nothing to add
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-09T13:52:43Z
+**Event**: RULE_LEARNED
+**Stage**: contract-design
+**Candidate-ID**: c2
+**Content-Hash**: c3cd7c7a38bb4ffc1abadc6a7cadcd9c77c80c0e72bed9347c563665e8a28187
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-09T13:52:43Z
+**Event**: RULE_LEARNED
+**Stage**: contract-design
+**Candidate-ID**: c4
+**Content-Hash**: d89c41bbb104fe2ed7d7769aea897e13d80969161326bb02c04e80c90f9d5014
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-09T13:52:43Z
+**Event**: RULE_LEARNED
+**Stage**: contract-design
+**Candidate-ID**: c6
+**Content-Hash**: 8a70800a8d27228fafe33ad06cbd643769a09e6e467c240580cb2c851583d02b
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-09T13:52:43Z
+**Event**: RULE_LEARNED
+**Stage**: contract-design
+**Candidate-ID**: c7
+**Content-Hash**: f95059e1d5f74d5a749abba8127c03ea21184a43f3925b2d7305233ee60eb6a0
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T13:52:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4afddec8
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T13:52:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4afddec8
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 55
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T13:52:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: da6a3ae8
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T13:52:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: da6a3ae8
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 55
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-09T13:52:47Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: contract-design
+
+---

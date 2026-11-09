@@ -6044,3 +6044,203 @@
 **Error**: Refusing REVIEW_COMPLETED for "units-generation": inception/units-generation/unit-of-work.md: invalid finding ID "—".
 
 ---
+
+## Error Logged
+**Timestamp**: 2026-11-09T11:43:28Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --stage units-generation --reviewer aidlc-architecture-reviewer-agent --iteration 1 --verdict READY --project-dir <project-dir>
+**Error**: Refusing REVIEW_COMPLETED for "units-generation": inception/units-generation/unit-of-work.md: invalid finding ID "—".
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-09T11:43:42Z
+**Event**: REVIEW_COMPLETED
+**Stage**: units-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:58be276000e4a4a771179b114b05d8c442ffd8a2b388807633b7be0d6173c450
+**Artifact Fingerprint**: sha256:58be276000e4a4a771179b114b05d8c442ffd8a2b388807633b7be0d6173c450
+**Request Id**: review:446f6aadba612e72d41263096b976bd5
+**Review Record**: .aidlc-engine/reviews/units-generation/stage/8b979779a968213b/1.json
+**Review Record Digest**: sha256:748459cddf9e07d734c432acee5e0b82a548db8cbc29d67119d5de41beb552d5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 84d66694
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: 84d66694
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: ab423f73
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: ab423f73
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: cd35d88f
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: cd35d88f
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: a73a99cc
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: a73a99cc
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+**Duration ms**: 55
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 145d07ee
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: 145d07ee
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3755ca80
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3755ca80
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5da81cef
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:51Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5da81cef
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-09T11:43:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: 625dd3f6
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-09T11:43:51Z
+**Event**: SENSOR_PASSED
+**Fire id**: 625dd3f6
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+**Duration ms**: 51
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-09T11:43:51Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: units-generation
+**Details**: Re-entering gate after revision
+
+---

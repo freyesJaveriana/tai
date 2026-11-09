@@ -94,9 +94,9 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
 - **Límites.** Solo contratos, la jerarquía declarativa de excepciones y sus pruebas de validación con
   *fixtures* positivos y negativos; ninguna lógica de ejecución. Una prueba de nivel 0 falla si un `code`
   del catálogo no tiene su clase o una clase no tiene su `code`.
-- **Restricciones.** Cada cambio de contrato entra por su propio PR y sube la versión. Comprobar que
-  `anonymizer.incident` y el código del fallo cerrado están entre los códigos del contrato v1.0.0
-  (UG-02).
+- **Restricciones.** Cada cambio de contrato entra por su propio PR y sube la versión. El contrato común
+  v1.0.0 incluye `incidente_anonimizacion` y el fallo cerrado `anonimizador_no_disponible`; en Problem
+  Details son `anonymizer.incident` y `analysis.anonymizer_unavailable` (UG-02, cerrado por CD-01).
 
 ### U2 — platform (packaging)
 
@@ -157,8 +157,9 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
 - **Límites.** Las decisiones humanas son de U5; la consolidación, de U7; importar, modo final, pausar,
   terminar y reanudar, de U6. Las reglas del analizador son de U11.
 - **Restricciones.** Bloquea toda corrida tras la retirada del consentimiento (VE-10 (a), A-4). Decide
-  si el fallo cerrado del anonimizador solo falla la corrida o también bloquea la sesión, y bloquea la
-  sesión ante `anonymizer.incident` (UG-02). Se verifica en nivel 1 con *fakes* del `ModelGateway`. Al
+  si el fallo cerrado del anonimizador (`anonimizador_no_disponible`) solo falla la corrida o también
+  bloquea la sesión, y bloquea la sesión ante `incidente_anonimizacion` (`anonymizer.incident` en Problem
+  Details) (UG-02, CD-01). Se verifica en nivel 1 con *fakes* del `ModelGateway`. Al
   no tener tipo, recibe todos los documentos de diseño de Construction.
 
 ### U5 — human-review (service)
@@ -228,8 +229,8 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   saliente y la del fallo cerrado (US11.3).
 - **Límites.** La `NetworkPolicy` y la lista blanca de CoreDNS son de U2 (US11.6). Con un perfil local no
   interviene (iteracion2 P9 = A).
-- **Restricciones.** Módulo guardia con 100 % de ramas. Nombrar el código del fallo cerrado y su efecto en
-  la sesión (UG-02).
+- **Restricciones.** Módulo guardia con 100 % de ramas. El fallo cerrado termina la corrida con
+  `anonimizador_no_disponible` (CD-01); su efecto en la sesión lo decide U4 (UG-02).
 
 ### U11 — incoherence-analyzer (library)
 
@@ -293,7 +294,7 @@ llevan al original, cada una en su propio commit.
 | ID | Artefacto aprobado | Precisión propuesta | Resuelve | Origen |
 |---|---|---|---|---|
 | UG-01 | `domain-design/components.md` (ProblemReport, EthicsGovernance) | `session_id` es obligatorio en ProblemReport y se deriva de la sugerencia cuando el reporte se refiere a un hallazgo; el paso (1) de la retención lo cubre y AC15.7.2 añade ese caso | U13, Functional Design | review-03 R-01, P6 |
-| UG-02 | `domain-design/components.md` (Anonymizer, IncoherenceAnalyzer, InterviewSession) | Nombrar el código del fallo cerrado (propuesta: `anonymizer.unavailable`) y decidir si solo falla la corrida o también bloquea la sesión; comprobar que `anonymizer.incident` y ese código están en el contrato v1.0.0 | U10, U11 y U4 (InterviewSession decide si bloquea la sesión), Functional Design; U1 | review-03 R-02, P6 |
+| UG-02 | `domain-design/components.md` (Anonymizer, IncoherenceAnalyzer, InterviewSession) | Nombrar el código del fallo cerrado (propuesta: `anonymizer.unavailable`) y decidir si solo falla la corrida o también bloquea la sesión; comprobar que `anonymizer.incident` y ese código están en el contrato v1.0.0. **Resuelto en Contract Design (CD-01):** el código es `anonimizador_no_disponible` en el contrato común (`analysis.anonymizer_unavailable` en Problem Details) y el incidente `incidente_anonimizacion` (`anonymizer.incident`); queda abierto solo si bloquea la sesión (U4) | U10, U11 y U4 (InterviewSession decide si bloquea la sesión), Functional Design; U1 | review-03 R-02, P6 |
 | UG-03 | `domain-design/components.md` (ConsoleApi → InterviewSession) | Añadir «registrar la retirada del consentimiento» a la interacción de ConsoleApi y a los dependientes de InterviewSession (AC15.2.3) | U6, Functional Design | review-03 R-03, P6 |
 | UG-04 | `domain-design/components.md` («Alcance ético») y `decisions.md` (ADR-016) | Una sola definición: el analizador sin rebaja son U11, U10 y el AnalysisWorker de U4; las VE de DD-07 se cumplen sin rebaja en la unidad dueña del componente que las contiene. ADR-016 remite a esta definición | Esta etapa | review-03 R-04, P6 |
 | UG-05 | `domain-design/components.md` (DD-06 (b)) | Los estados `pausada` y `terminada` y la cancelación de lo encolado siguen en InterviewSession aunque VE-10 bajara a demostración; solo cambia el nivel de exigencia, no el dueño | U6 | review-03 R-05, P6 |

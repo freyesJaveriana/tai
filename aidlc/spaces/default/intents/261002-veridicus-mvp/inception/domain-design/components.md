@@ -225,8 +225,9 @@ components:
       lanzamientos simultáneos del modo final dan 202 y 409. Consume el mensaje de resultado de forma
       idempotente por ID de corrida (ADR-002) y lo valida contra el contrato. Guarda la corrida y sus
       llamadas, y pasa los hallazgos a HumanReview. Si la corrida vuelve con `codigo:
-      anonymizer.incident` (lo decide IncoherenceAnalyzer, R-04), o una llamada a un proveedor comercial
-      llega con `anonimizado: false`, bloquea la sesión con `anonymizer.incident`, rechaza corridas nuevas
+      incidente_anonimizacion` (lo decide IncoherenceAnalyzer, R-04), o una llamada a un proveedor comercial
+      llega con `anonimizado: false`, bloquea la sesión con `anonymizer.incident` (código de Problem
+      Details del incidente; CD-01), rechaza corridas nuevas
       y registra el incidente (VE-14). «Pausar análisis» guarda los turnos sin encolar y cancela las
       corridas en cola sin llamar a modelos. «Terminar sesión» cancela y cierra la sesión a turnos
       nuevos. Tras la retirada del consentimiento, ningún turno posterior entra en una corrida (VE-10).
@@ -366,7 +367,7 @@ components:
       observaciones con el vocabulario prohibido. Usa el proveedor alterno del perfil ante un bloqueo de
       contenido (FR15.2). Devuelve el registro de modelos de cada llamada (FR15.3). Si una respuesta de
       un destino externo trae `anonimizado: false`, aborta la corrida en ese punto: no hace más llamadas,
-      deja `estado: error` con `codigo: anonymizer.incident` y `hallazgos` vacío (AUTONOMIA-05), y anota
+      deja `estado: error` con `codigo: incidente_anonimizacion` y `hallazgos` vacío (AUTONOMIA-05), y anota
       el incidente en el registro de la corrida solo con IDs, sin texto (VE-14, R-04). La regla vive aquí
       una sola vez para la CLI y el producto, con su prueba de nivel 0 sobre un fake del ModelGateway.
     responsibilities:
@@ -402,7 +403,7 @@ components:
       final por defecto. Escribe un archivo de salida del contrato por entrevista en el directorio
       indicado (FR13.2). Termina con 0 si todas las corridas terminan, aunque alguna tenga `estado:
       error`, y con otro código ante un argumento, un archivo o un perfil inválido, antes de cualquier
-      llamada (FR14.3). Si una corrida termina con `codigo: anonymizer.incident`, detiene el lote sin
+      llamada (FR14.3). Si una corrida termina con `codigo: incidente_anonimizacion`, detiene el lote sin
       lanzar más corridas y termina con un código de salida propio, distinto de 0 y de los de argumentos
       inválidos (VE-14, R-04). El modo evaluación compara los hallazgos con las contradicciones esperadas del
       conjunto sintético y escribe un reporte JSON por secciones (FR13.3, NFR4). El reporte trae la
@@ -474,8 +475,8 @@ components:
       marcas coherentes en toda la entrevista y guarda la tabla de correspondencia solo en memoria, nunca
       en logs ni en disco (FR11.3). Restaura las citas de la respuesta y marca como inválido el hallazgo
       cuya marca alteró el modelo. Impone la lista de dominios de los proveedores configurados y rechaza
-      cualquier otro destino (FR11.4). Si falla, no sale ninguna llamada y la corrida termina con el
-      código del anonimizador. Es el único componente con salida a internet (FR12.3). Un perfil todo
+      cualquier otro destino (FR11.4). Si falla, no sale ninguna llamada y la corrida termina con
+      `codigo: anonimizador_no_disponible` (en Problem Details, `analysis.anonymizer_unavailable`; CD-01). Es el único componente con salida a internet (FR12.3). Un perfil todo
       local no lo usa.
     responsibilities:
       - Seudonimización, tabla en memoria y restauración de citas

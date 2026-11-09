@@ -312,7 +312,7 @@ se revisan otra vez en sus etapas.
 | K3 | Regla del curso: «toda cifra lleva fuente con enlace y fecha». Las decisiones DT y los resultados del piloto están en un repositorio privado. | Citarlas por ID con `[INTERNO]`. Las cifras que pierden sustento se retiran o se marcan `[VERIFICAR]`, sin inventar fuentes. |
 | K4 | El repositorio del curso es público y el PRD apoyaba la soberanía en «ningún dato sale del clúster» (veto del CISO del ICP). | La nueva AUTONOMIA-04 sigue protegiendo el veto («nada sin seudonimizar sale») y el perfil `todo-local` conserva la opción sin salida. Se declara en el PRD que el riesgo de reidentificación por el relato no desaparece (DT18). |
 | K5 | Costo: los proveedores comerciales en el producto y en la evaluación no estaban en el presupuesto del curso. El tope de DT12 es del piloto del TG. | Que cada corrida registre los *tokens* y que la evaluación de nivel 2 declare su costo; el tope sale de DT12 [INTERNO]. |
-| K6 | Los módulos 6–8 del curso piden el loop orquestador–codificador–revisor sobre `unidades-y-tareas.md` (Paso 5 de `plan-aidlc.md`), que nunca se generó. | Se reemplaza: con el alto levantado, la construcción la hace AI-DLC por Bolts; el Paso 5 sale del plan (ver sección 5.6). |
+| K6 | Los módulos 6–8 del curso piden el loop orquestador–codificador–revisor sobre `unidades-y-tareas.md` (Paso 5 de `plan-aidlc.md`), que nunca se generó. | Se reemplaza: con el alto levantado, la construcción la hace AI-DLC por Bolts; el Paso 5 sale del plan (ver sección 5.6). **Nota:** revertido por el cambio 04 (DT30): el loop vuelve, con las tareas sacadas del plan aprobado de cada unidad. |
 
 ---
 

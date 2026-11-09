@@ -8082,3 +8082,68 @@
 **Stage**: functional-design
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:32:42Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-09T22:32:48Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state unit
+**Error**: Usage: aidlc-state.ts unit <start|pause|resume|complete> --stage <slug> --unit <name> [--reason <text>] [--next-action <text>] [--wave]
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-11-09T22:35:54Z
+**Event**: GUARD_DISABLED
+**Guard**: review-freeze
+**Scope**: classic
+**Source**: you
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:35:54Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:36:10Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T22:38:25Z
+**Event**: HUMAN_TURN
+**Session**: 690d921d-59c1-4276-a5d2-bd024a46d9eb
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T22:38:38Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: P9-P11: R-01 funciones en U1, R-02 escenarios como datos, menores incluidos
+**Options**: A,B
+**Unit**: contracts
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T22:38:38Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: P9=A, P10=A, P11=A
+**Unit**: contracts
+
+---

@@ -140,3 +140,38 @@ B. Más descriptivos: «Fecha», «Cantidad», «Lugar», «Persona», «Afirmac
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+# Hallazgos de la revisión 1 de la segunda pasada — 2026-11-09
+
+Opción B del humano: resolver R-01 a R-03 en U1 antes del lote de U10 e identity-access.
+
+## P9 — Funciones ejecutables de U1 (R-01)
+
+F8 y BR11.1 piden validar perfiles con un prefijo y leer límites que el entorno solo puede bajar,
+pero U1 es «sin lógica».
+
+A. U1 publica dos funciones puras en `veridicus_contracts` (`profiles.validate` y `limits.load`),
+   declaradas con módulo, firma y excepción; FD-U1-10 enmienda el «sin lógica». (Recomendada)
+B. U1 solo esquemas y fixtures; U10, U11 y `sistema` validan cada uno por su cuenta.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided
+
+## P10 — Quién ejecuta los escenarios de vocabulario (R-02)
+
+El escáner `scan(text, literal_sources)` es de U11, que se construye después de U1.
+
+A. Los escenarios pasan a ser datos (`scan_case`) que U1 valida por forma y U11 ejecuta en B11;
+   BR6.3 y BR3.3 usan una comparación trivial documentada. (Recomendada)
+B. U1 incluye un escáner de referencia mínimo que U11 importa.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided
+
+## P11 — Hallazgos menores R-04 a R-09
+
+A. Corregirlos todos en esta pasada; R-05 queda como riesgo residual en §9 para decidir. (Recomendada)
+B. Solo R-01 a R-03.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided

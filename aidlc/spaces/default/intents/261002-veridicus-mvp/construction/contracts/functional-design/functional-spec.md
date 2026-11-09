@@ -2,7 +2,8 @@
 
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27), la adenda 02 y el cambio 03.**
 Sustituye a la revisión 1 del 2026-10-03. Los flujos F1–F6 y los escenarios E1–E17 conservan su número;
-lo que sale queda «Retirado». Lo nuevo empieza en F7 y E18.
+lo que sale queda «Retirado». Lo nuevo empieza en F7 y E18. Incluye las correcciones de los hallazgos
+R-01 a R-09 de la revisión asesora (respuestas P9–P11).
 
 **Insumos.**
 - Unidad U1 de `inception/units-generation/unit-of-work.md` (unit-of-work, revisión 2) y su mapa de
@@ -13,7 +14,7 @@ lo que sale queda «Retirado». Lo nuevo empieza en F7 y E18.
   (components).
 - Contrato común v1.0.0 aprobado en el principal (`/insumos/app/contratos/analizador/v1/`) y el cambio 03
   (`/insumos/app/cambios/veridicus-03_reutilizacion_en_sistema.md`).
-- Respuestas P1–P8 y V-1 = A de `functional-design-questions.md`.
+- Respuestas P1–P11 y V-1 = A de `functional-design-questions.md`.
 
 Las entidades están en `entities.md` y las reglas en `rules.md` (fuentes de verdad). Este documento es la
 fuente de verdad de los **flujos**.
@@ -22,7 +23,15 @@ fuente de verdad de los **flujos**.
 
 U1 entrega los contratos versionados de `contracts/`, la jerarquía declarativa de excepciones de `libs/` y
 la **suite de validación de nivel 0** que los ejercita con *fixtures* positivos y negativos. No tiene
-comportamiento en ejecución. Los servicios, la biblioteca y el proxy importan los contratos y los validan
+comportamiento en ejecución, salvo **tres funciones puras** que publica en el paquete para que nadie las
+reimplemente (P9 = A, precisión FD-U1-10):
+- `veridicus_contracts.profiles.validate`, la validación de perfiles con el prefijo como argumento (F8);
+- `veridicus_contracts.limits.load`, la carga de límites que el entorno solo puede bajar (BR11.1);
+- `veridicus_contracts.registry`, el registro que resuelve sin red las referencias entre esquemas
+  (BR12.3).
+
+U1 no contiene el escáner de vocabulario: es de U11. U1 publica los escenarios del escaneo como datos
+(`scan_case`) que U11 ejecuta en B11 (P10 = A). Los servicios, la biblioteca y el proxy importan los contratos y los validan
 en sus fronteras. U1 guarda, versiona y prueba los contratos; la unidad dueña de cada uno (columna Owner
 de contract-summary) decide sus cambios.
 
@@ -53,6 +62,7 @@ suite que corre en CI con datos sintéticos (BR1.6). No transporta datos.
 | `integrity/forbidden-vocabulary.v2.yaml` | C8 | Lista | BR5.1–BR5.5 |
 | `integrity/neutral-clarification.v1.yaml` | C8 (VE-05) | Reglas | BR5.6 |
 | `integrity/notice.v1.yaml` | C8 (VE-01) | Texto versionado | BR5.7 |
+| `integrity/scan-cases.v1.yaml` | Casos de escaneo (P10) | Datos que ejecuta U11 | BR5.8 |
 | `ui/result-labels.v2.yaml` | Catálogo de rótulos (P3, P8) | Catálogo | BR6.1–BR6.3 |
 | `db/truthframe-read.v1.yaml` | C9 | **Retirado** (no se entrega) | — |
 | `python/human_review.py`, `report_ports.py`, `identity.py`, `access_log.py`, `retention.py` | C10–C12, C23, C24 | `Protocol` | Verificación de tipos |
@@ -61,6 +71,9 @@ suite que corre en CI con datos sintéticos (BR1.6). No transporta datos.
 | `profiles/profile-base.schema.v1.yaml` | Perfil genérico (V-1) | Esquema | BR9.2, BR9.4, BR9.5 |
 | `profiles/profiles.schema.v1.yaml` | Perfil del analizador (V-1) | Esquema estricto | BR9.3 |
 | `profiles/effective-config.v1.yaml`, `prices.schema.v1.yaml` | C18 | Esquemas estrictos | BR9.7 |
+| `python/profiles.py` | Validación de perfiles (P9) | Función pura | BR9.2, BR9.4, BR9.5, BR9.8 |
+| `python/limits.py` | Carga de límites (P9) | Función pura | BR11.1 |
+| `python/registry.py` | Registro de esquemas (R-03) | Función pura | BR4.3, BR12.3 |
 | `cli/report.schema.v1.yaml` | C19 | Esquema estricto | BR10.1, BR10.2 |
 | `metrics/review.v2.yaml` | C15 | Métricas | BR8.2 |
 | `health/health.v2.yaml` | C16 | OpenAPI | BR1.1 |
@@ -70,6 +83,28 @@ suite que corre en CI con datos sintéticos (BR1.6). No transporta datos.
 
 C13, C17 y C20 son `Protocol` que viven en `libs/` y pertenecen a U11 y U10; U1 solo entrega los tipos
 compartidos (`model_calls.py`). C14 y C22 son API externas; U1 no guarda copia de ellas.
+
+### Rutas del repositorio en el paquete (R-03, P6 = A)
+
+El paquete `veridicus_contracts` se construye desde `contracts/`. El subdirectorio `python/` desaparece
+en el paquete: sus módulos quedan en la raíz. Los esquemas y catálogos van como datos, con la misma ruta
+relativa.
+
+| Ruta en `contracts/` | En `veridicus_contracts` | Tipo |
+|---|---|---|
+| `python/<módulo>.py` (`model_calls`, `human_review`, `report_ports`, `identity`, `access_log`, `retention`, `profiles`, `limits`, `registry`) | `veridicus_contracts.<módulo>` | Módulo |
+| `errors/error-codes.v2.yaml` | `veridicus_contracts.errors` (catálogo como dato y sus excepciones) | Módulo y dato |
+| `analyzer/v1/*.schema.json` y `SHA256SUMS` | `veridicus_contracts/analyzer/v1/` (`importlib.resources`) | Dato, sin módulo |
+| `api/`, `queues/`, `integrity/`, `ui/`, `profiles/`, `model_calls/`, `cli/`, `metrics/`, `health/`, `format/`, `limits.v1.yaml` | `veridicus_contracts/<misma ruta>` | Dato |
+| `*/fixtures/` | No se empaquetan | Solo suite |
+
+**Referencias entre esquemas.** Toda referencia usa el `$id` del esquema de destino como ruta absoluta
+más el puntero, por ejemplo `/veridicus/contracts/analyzer/v1/salida#/$defs/cita` (BR12.3).
+`veridicus_contracts.registry` carga cada esquema bajo `https://veridicus.invalid/` más su `$id`, sin
+tocar el archivo. Con esa base, la referencia de C7 se resuelve contra la copia sin editar de C6, y la
+forma `contracts/analyzer/v1/salida.schema.json#/$defs/cita` de contract-summary no se resuelve: lo
+comprobé con `jsonschema` 4 y la copia aprobada (precisión FD-U1-11). El dominio `.invalid` está
+reservado y nunca se consulta por red.
 
 ## 2. Flujos
 
@@ -91,8 +126,12 @@ compartidos (`model_calls.py`). C14 y C22 son API externas; U1 no guarda copia d
    - fechas en la forma única (BR8.1) y métricas con prefijo y etiquetas seguras (BR8.2);
    - rótulos exactos (BR6.1–BR6.3);
    - papeles abiertos donde corresponde y cerrados en C6 y C19 (BR9.1, BR9.6, BR10.2);
-   - reporte de la CLI sin texto libre (BR10.1) y catálogo de límites completo (BR11.1).
-6. Corre F8 sobre los *fixtures* de perfiles y F9 sobre el paquete construido.
+   - reporte de la CLI sin texto libre (BR10.1) y catálogo de límites completo (BR11.1);
+   - sugerencia decidida con quién y cuándo (BR4.4);
+   - casos de escaneo bien formados y uno por término y por frase (BR5.8). U1 **no** los ejecuta;
+   - nombres de propiedad y rótulos sin términos de C8, por igualdad de palabras (BR3.3, BR6.3).
+6. Corre F8 sobre los *fixtures* de perfiles, `limits.load` sobre los suyos y F9 sobre el paquete
+   construido.
 7. Comprueba que ningún *fixture* contiene datos reales ni nombres de `sistema` (BR1.6).
 8. Termina en verde solo si todos los pasos pasan. La salida del comando es la evidencia del PR.
 
@@ -118,10 +157,14 @@ emitir, y U4 en la ingesta, con lo que publica U1.
    excluyen los tramos entre «…» que aparecen literales en un turno de la entrada (BR5.3). Las citas
    (`cita_a`, `cita_b`) se excluyen enteras (BR5.5).
 3. Si el escaneo encuentra un término de la lista, se aplica BR5.4: el candidato no llega al analista.
+   - En U11, el candidato se descarta con `vocabulario_prohibido` o la salida es `salida_invalida`.
+   - En la ingesta de U4, la corrida queda en `error` con `analysis.invalid_output` y no se guarda
+     ninguna sugerencia de ella. U4 no quita un hallazgo en silencio (R-09).
 4. Para cada aclaración, aplicar la regla de VE-05 (BR5.6).
 5. Las reglas que el esquema no puede expresar (verificación de las citas contra su turno, tramo
-   incremental, huella de la configuración) son de U11. U1 solo publica las listas y la tabla de
-   traducción que usan.
+   incremental, huella de la configuración) son de U11. El escáner `scan(text, literal_sources)` también
+   es de U11, que lo prueba con todos los casos de `scan-cases.v1.yaml` (BR5.8). U1 solo publica las
+   listas, los casos y la tabla de traducción.
 
 ### F4 — Validar una sugerencia de revisión · cambia
 
@@ -130,8 +173,10 @@ HumanReview la guarda y cuando la consola la muestra.
 
 1. Validar contra C7: los cinco campos del hallazgo obligatorios y no vacíos (BR4.1), sin campos
    adicionales (BR4.2).
-2. Las citas son las de la copia de C6, por referencia (BR4.3).
-3. Si falla, se rechaza. Ninguna sugerencia parcial llega a la consola.
+2. Las citas son las de la copia de C6, por referencia canónica (BR4.3, BR12.3).
+3. Si el estado no es `pending`, exigir `decided_by` y `decided_at`. `dismissed` exige `note` y `edited`
+   exige `reformulation` (BR4.4).
+4. Si falla, se rechaza. Ninguna sugerencia parcial llega a la consola.
 
 ### F5 — Cambiar un contrato (flujo de PR) · cambia
 
@@ -160,17 +205,26 @@ La ejecuta la consola con el catálogo de U1.
 
 1. Leer `contracts/analyzer/v1/SHA256SUMS`. Debe tener exactamente dos líneas, `entrada.schema.json` y
    `salida.schema.json` (BR1.7).
+   - **Qué garantiza:** que nadie cambió la copia sin cambiar también sus huellas.
+   - **Qué no garantiza:** que las huellas sean las del principal, porque el principal no las publica
+     (R-04). El ancla es el paso 5.
 2. Recalcular el SHA-256 de los bytes de cada archivo y compararlo con su línea.
 3. Comprobar que los dos esquemas declaran `contrato: { const: "1.0.0" }`.
 4. Si algo no coincide, la suite falla y lo dice: «La copia del contrato común no es la aprobada; los
    cambios se proponen en el repositorio principal».
-5. **Cómo entra una versión nueva:** el humano copia los archivos aprobados desde `/insumos` y pega las
-   huellas que publica el principal, en su propio PR (BR1.8). El agente no edita la copia.
+5. **Cómo entra una versión nueva:** en su propio PR, el humano copia los archivos aprobados desde
+   `/insumos/app/contratos/analizador/` y anota en la descripción la ruta de origen y las huellas que
+   recalculó allí con `sha256sum`. Antes de fusionar, compara esas huellas con `SHA256SUMS` (BR1.8). El
+   agente no edita la copia.
 
 ### F8 — Validar un archivo de perfiles · nuevo (V-1)
 
-U1 publica el esquema y una función de validación pura. Los cargadores de U11 (ExecutionProfiles) y de
-U10 (proxy) la usan; `sistema` la usa con su propio prefijo.
+U1 publica el esquema y la función pura
+`veridicus_contracts.profiles.validate(data, *, key_prefix, kind)` (BR9.8). Los cargadores de U11
+(ExecutionProfiles) y de U10 (módulo y proxy) la llaman. `sistema` la usa con su propio prefijo.
+
+0. Quien llama lee el archivo; la función no lee archivos, ni el entorno, ni la red. Valida el sobre:
+   `schema_version: 1.0.0` y nombres de perfil con el patrón `^[a-z0-9-]{1,48}$` (ProfilesFile).
 
 1. Validar el archivo contra `profile-base.schema.v1.yaml`: al menos un papel, nombres con el patrón de
    RoleName, `api_key_ref` con la forma genérica y como mucho un `fallback_provider` (BR9.1, BR9.2, BR9.4,
@@ -179,9 +233,11 @@ U10 (proxy) la usan; `sistema` la usa con su propio prefijo.
    un alias no apunta a otro alias, y un alias no tiene el nombre de un papel (BR9.2).
 3. Comprobar que cada `api_key_ref` empieza por el prefijo que recibe la función como argumento (BR9.4).
    Veridicus pasa `VERIDICUS_`.
-4. Si quien llama es el analizador, validar además contra `profiles.schema.v1.yaml`: exactamente `judge`
-   y `verifier`, y el alias `verifier_permuted → verifier` (BR9.3).
-5. Cualquier fallo es un perfil inválido. El servicio no arranca, y la CLI termina con código 3 antes de
+4. Con `kind: analyzer`, validar además contra `profiles.schema.v1.yaml`: `purpose` en su enum,
+   exactamente `judge` y `verifier`, y el alias `verifier_permuted → verifier` (BR9.3). La
+   especialización se cierra con `unevaluatedProperties: false`; `profile-base` queda abierto para que
+   otra especialización, como la de `sistema`, añada sus campos (R-08).
+5. Cualquier fallo lanza `ProfileValidationError` (`config.invalid_profile`) y el perfil es inválido. El servicio no arranca, y la CLI termina con código 3 antes de
    cualquier llamada (AC13.3.1 y AC13.3.2; las reglas de anonimizador y de claves presentes son de U11).
    Los mensajes nombran el ajuste, nunca su valor.
 
@@ -192,7 +248,10 @@ U10 (proxy) la usan; `sistema` la usa con su propio prefijo.
    `veridicus_contracts` se importa y que cada esquema y catálogo se lee como dato del paquete (BR12.1).
 3. Comprobar que ningún módulo del repositorio importa `contracts.` como nombre de primer nivel
    (BR12.1).
-4. Al cerrar B1, el autor etiqueta `vX.Y.Z` (BR12.2). `sistema` fija esa etiqueta y no copia ni edita el
+4. Desde el paquete instalado y sin red, validar con `veridicus_contracts.registry` los *fixtures* de C7,
+   C1 y C19, que referencian otros esquemas. Comprobar que la forma antigua de referencia no se resuelve
+   (BR12.3).
+5. Al cerrar B1, el autor etiqueta `vX.Y.Z` (BR12.2). `sistema` fija esa etiqueta y no copia ni edita el
    código.
 
 ## 3. Máquinas de estado
@@ -250,9 +309,13 @@ erDiagram
   CliReport ||--o{ ModelCall : "calls"
   ErrorCodeCatalog ||--|| ExceptionClass : "uno a uno"
   ResultLabelCatalog }o--|| FindingType : "rotula"
+  ProfilesFile ||--|{ ProfileBase : "contiene"
+  ProfileValidator ||--|| ProfilesFile : "valida"
+  SchemaRegistry ||--|{ ContractDocument : "resuelve"
+  ScanCase }o--|| ForbiddenVocabularyList : "ejercita"
 ```
 
-<!-- Texto alternativo: cada contrato tiene fixtures, y C6 además un manifiesto de huellas. La corrida lleva la entrada de C6 y la configuración efectiva, y el resultado lleva la salida de C6. La entrada trae el consentimiento; la salida trae hallazgos con dos citas y el registro de llamadas. La sugerencia referencia la cita de C6. La configuración efectiva contiene un perfil del analizador, que extiende el perfil genérico, que asocia papeles a destinos. Solo tres papeles se traducen a la fila de llamadas de C6. El reporte de la CLI lleva registros de llamadas. Cada código tiene una excepción y cada tipo de hallazgo un rótulo. -->
+<!-- Texto alternativo: cada contrato tiene fixtures, y C6 además un manifiesto de huellas. La corrida lleva la entrada de C6 y la configuración efectiva, y el resultado lleva la salida de C6. La entrada trae el consentimiento; la salida trae hallazgos con dos citas y el registro de llamadas. La sugerencia referencia la cita de C6. La configuración efectiva contiene un perfil del analizador, que extiende el perfil genérico, que asocia papeles a destinos. Solo tres papeles se traducen a la fila de llamadas de C6. El reporte de la CLI lleva registros de llamadas. Cada código tiene una excepción y cada tipo de hallazgo un rótulo. El archivo de perfiles contiene perfiles genéricos y lo valida la función de validación; el registro resuelve las referencias entre contratos; los casos de escaneo ejercitan la lista de vocabulario. -->
 
 ## 5. Vista derivada: reglas
 
@@ -263,19 +326,21 @@ Derivada de `rules.md`; manda el YAML de allá.
 | Versión y cambio | BR1.1–BR1.9 | — | F1, F2, F5, F7 |
 | Mensajes de cola | BR2.1, BR2.3 | BR2.2, BR2.4, BR2.5 | F2 |
 | Contrato común | BR3.1–BR3.6 | — | F1, F2, F3 |
-| Sugerencia | BR4.1–BR4.3 | — | F4 |
-| Vocabulario, aclaraciones y aviso | BR5.1–BR5.7 | — | F1, F3, F5 |
+| Sugerencia | BR4.1–BR4.4 | — | F4 |
+| Vocabulario, aclaraciones y aviso | BR5.1–BR5.8 | — | F1, F3, F5 |
 | Rótulos | BR6.1–BR6.3 | — | F1, F6 |
 | API y errores | BR7.1–BR7.4 | — | F1 |
 | Fecha y métricas | BR8.1–BR8.2 | — | F1, F2 |
-| Papeles y perfiles | BR9.1–BR9.7 | — | F1, F2, F8 |
+| Papeles y perfiles | BR9.1–BR9.8 | — | F1, F2, F8 |
 | Reporte de la CLI | BR10.1–BR10.2 | — | F1 |
 | Límites | BR11.1 | — | F1 |
-| Paquete | BR12.1–BR12.2 | — | F9 |
+| Paquete | BR12.1–BR12.3 | — | F9 |
 
 ## 6. Escenarios de negocio y casos límite
 
-Cada escenario es un *fixture* o una prueba de nivel 0. Todos los datos son sintéticos.
+Cada escenario es un *fixture* o una prueba de nivel 0 de U1, salvo los marcados **«caso de escaneo»**:
+esos van en `integrity/scan-cases.v1.yaml`, U1 valida su forma y U11 los ejecuta en B11 (P10 = A). Todos
+los datos son sintéticos.
 
 | # | Caso | Resultado esperado | Regla |
 |---|---|---|---|
@@ -288,11 +353,11 @@ Cada escenario es un *fixture* o una prueba de nivel 0. Todos los datos son sint
 | E7 | Salida con `is_truthful` en un hallazgo | Inválida | BR3.1, BR3.3 |
 | E8 | Hallazgo con `tipo: falso` | Inválido: fuera del enum | BR3.2 |
 | E9 | Sugerencia sin `observaciones` (y una por cada uno de los 5 campos) | Rechazada | BR4.1 |
-| E10 | `observaciones`: «el compareciente miente» | El candidato no llega al analista | BR5.4 |
-| E11 | `observaciones` con «falso» dentro de «…» que aparece literal en un turno | Válida | BR5.3 |
-| E12 | `observaciones` con «miente» dentro de «…» que no aparece en ningún turno | El candidato no llega al analista | BR5.3, BR5.4 |
-| E13 | `hecho` con «MIENTE» o «mintio» (sin tilde) | El candidato no llega al analista | BR5.2 |
-| E14 | `hecho` con «falsete» o «mienten» | Pasa: palabra completa y lista de 9 términos (limitación conocida) | BR5.1, BR5.2 |
+| E10 | `observaciones`: «el compareciente miente» | Caso de escaneo: el candidato no llega al analista | BR5.4 |
+| E11 | `observaciones` con «falso» dentro de «…» que aparece literal en un turno | Caso de escaneo: válida | BR5.3 |
+| E12 | `observaciones` con «miente» dentro de «…» que no aparece en ningún turno | Caso de escaneo: el candidato no llega al analista | BR5.3, BR5.4 |
+| E13 | `hecho` con «MIENTE» o «mintio» (sin tilde) | Caso de escaneo: el candidato no llega al analista | BR5.2 |
+| E14 | `hecho` con «falsete» o «mienten» | Caso de escaneo: pasa: palabra completa y lista de 9 términos (limitación conocida) | BR5.1, BR5.2 |
 | E15 | Copia del OpenAPI con `PUT /profiles` | Suite en rojo | BR7.1 |
 | E16 | Fecha `2026-10-02T21:40:00.123Z` o `2026-10-02T16:40:00-05:00` en un contrato propio | Rechazada | BR8.1 |
 | E17 | Catálogo de rótulos con un décimo rótulo | Suite en rojo | BR6.1 |
@@ -308,25 +373,32 @@ Cada escenario es un *fixture* o una prueba de nivel 0. Todos los datos son sint
 | E27 | Registro de llamada con `role: "Prueba A"` | Rechazado | BR9.1 |
 | E28 | Reporte de la CLI con una llamada de papel `prueba_a` | Rechazado | BR10.2 |
 | E29 | Reporte de la CLI con una frase en `model` o en `price_table_version` | Rechazado | BR10.1 |
-| E30 | Aclaración con `tema` «lo que antes dijo en T3» | Inválida | BR5.6 |
+| E30 | Aclaración con `tema` «lo que antes dijo en T3» | Caso de escaneo: inválida | BR5.6 |
 | E31 | `code` del catálogo sin clase de excepción | Suite en rojo | BR7.4 |
 | E32 | Módulo que importa `contracts.model_calls` | Suite en rojo | BR12.1 |
 | E33 | Variable de entorno que sube `turn_max_chars` por encima del catálogo | Rechazada | BR11.1 |
 | E34 | `error.codigo: proveedor` sin traducción a `analysis.provider` | Suite en rojo | BR3.4 |
+| E35 | Sugerencia `accepted` sin `decided_by`, `dismissed` sin `note`, `edited` sin `reformulation`, o `pending` con `decided_at` | Rechazada (un *fixture* por condición) | BR4.4 |
+| E36 | C7 con `$ref: contracts/analyzer/v1/salida.schema.json#/$defs/cita` | Suite en rojo: no se resuelve | BR4.3, BR12.3 |
+| E37 | `VERIDICUS_LIMIT_TURN_MAX_CHARS=abc` o un límite que no existe | `LimitsConfigError` | BR11.1 |
+| E38 | Perfil del analizador con un campo `prueba_extra` / perfil genérico con el mismo campo | Inválido / válido (base abierta) | BR9.3 |
+| E39 | `validate(data, kind="base")` sin `key_prefix` | Error de tipo: el argumento es obligatorio | BR9.8 |
+| E40 | Término de la lista sin caso de escaneo que espere su coincidencia | Suite en rojo | BR5.8 |
+| E41 | Salida válida para C6 con «miente» en `observaciones`, recibida por U4 | Corrida en `error` con `analysis.invalid_output`, sin sugerencias | BR5.4 |
 
 ## 7. Integración con otras unidades
 
 | Consumidor | Qué usa de U1 | Cómo lo verifica |
 |---|---|---|
 | U3 identity-access | C1 (`/auth/*`, `/users*`), C12, catálogo de `code` | Pruebas de contrato del productor |
-| U4 text-flow | C1, C2, C3, C6, C7, C8, C25, rótulos, fecha | Valida en sus fronteras con los mismos esquemas |
+| U4 text-flow | C1, C2, C3, C6, C7, C8, C25, rótulos, fecha, `registry`, `limits.load` | Valida en sus fronteras con los mismos esquemas; ante vocabulario prohibido en la ingesta aplica BR5.4 (R-09) |
 | U5, U6, U7 | C1, C7, C10, C11, C15, C23, C24, C8 (reporte), fecha | Pruebas de contrato |
 | U8, U9 | C1, C5, C8 (VE-05) | Pruebas de contrato cuando se construyan |
-| U10 anonymizer | `model_calls`, `profile-base`, función de validación de perfiles con su prefijo, `model-call.v1.yaml` | Pruebas de contrato del módulo y del proxy (C20, C21) |
-| U11 incoherence-analyzer | C6, `model_calls`, perfiles (genérico y del analizador), configuración efectiva, tabla de papeles, C8, C19, C25 | Valida su salida y su reporte con estos esquemas |
+| U10 anonymizer | `model_calls`, `profile-base`, `profiles.validate` con `kind: base` y `key_prefix="VERIDICUS_"`, `registry`, `model-call.v1.yaml` | Pruebas de contrato del módulo y del proxy (C20, C21) |
+| U11 incoherence-analyzer | C6, `model_calls`, `profiles.validate` con `kind: analyzer`, `limits.load`, `registry`, configuración efectiva, tabla de papeles, C8 y sus casos de escaneo, C19, C25 | Valida su salida y su reporte con estos esquemas, y ejecuta todos los casos de escaneo con su `scan` (BR5.8) |
 | U12 research-reports | C19 | Rechaza con `422` lo que no cumple el esquema |
 | U2 platform | C15, C16 | Regla de Prometheus y `scripts/smoke.sh` |
-| `sistema` (externo) | Paquete `veridicus-contracts` en una etiqueta: `model_calls`, `profile-base` y su función de validación con prefijo propio | Fija la etiqueta; no copia ni edita (cambio 03 V-3) |
+| `sistema` (externo) | Paquete `veridicus-contracts` en una etiqueta: `model_calls`, `profile-base` y `profiles.validate` con prefijo propio | Fija la etiqueta; no copia ni edita (cambio 03 V-3) |
 
 ## 8. Errores y bordes
 
@@ -351,8 +423,13 @@ original, cada una en su propio commit.
 | FD-U1-02 | `contract-design/contract-summary.md` (C18) y `domain-design/components.md` (ExecutionProfiles) | El esquema de perfiles se parte en `profile-base.schema.v1.yaml` (`roles`, `role_aliases`, un `fallback_provider`) y `profiles.schema.v1.yaml`, la especialización del analizador (exactamente `judge`, `verifier` y el alias `verifier_permuted → verifier`). `api_key_ref` pasa de `^VERIDICUS_[A-Z0-9_]+$` a `^[A-Z][A-Z0-9_]{2,63}$`, y el prefijo es un argumento de la función de validación (Veridicus: `VERIDICUS_`). Las reglas del proxy «la petición nombra un perfil y un papel que existen» se leen sobre `roles` y `role_aliases` | Cambio 03 V-1; V-1 = A; P7 = A |
 | FD-U1-03 | `contract-design/contract-summary.md` (C19 `model-call.v1.yaml`, C21 petición) | `role` pasa de `enum` a `pattern`; el reporte de la CLI (C19) restringe sus llamadas a los tres papeles del analizador con un `allOf` | Cambio 03 V-1; V-1 = A |
 | FD-U1-04 | `contract-design/contract-summary.md` (C10–C13, C17, C20, C23, C24) | Las importaciones `contracts.python.<módulo>` y `contracts.analyzer.v1` pasan a `veridicus_contracts.<módulo>` y `veridicus_contracts.analyzer.v1`, de la distribución `veridicus-contracts`; la carpeta del repositorio sigue siendo `contracts/` | Cambio 03 V-3; P6 = A |
-| FD-U1-05 | `user-stories/stories.md` (AC12.6.1) | AC12.6.1 espera `201` y que el texto «se descartó», pero CD-03 decidió rechazar con `422 research.invalid_report` un reporte que trae texto o no cumple C19. Propuesta: el *canary* en un reporte da `422`, 0 filas, y no aparece en ningún log. Es la misma diferencia que DP-01 (`interaction-spec.md`); U1 la cubre con BR10.1 en cualquier caso, y se cierra en el Functional Design de U12 | CD-03; DP-01 |
+| FD-U1-05 | `user-stories/stories.md` (AC12.6.1) | AC12.6.1 espera `201` y que el texto «se descartó», pero CD-03 decidió rechazar con `422 research.invalid_report` un reporte que trae texto o no cumple C19. Propuesta: el *canary* en un reporte da `422`, 0 filas, y no aparece en ningún log. Es la misma diferencia que DP-01 (`interaction-spec.md`). **U1 la cubre solo en parte** (R-06): BR10.1 rechaza frases y campos desconocidos, pero un *canary* de una palabra sin espacios, como `CANARIO-7f3a` en `model`, cumple el patrón y pasa el esquema. El resto, el *canary* que no aparece en filas ni en logs, es de U12 y se cierra en su Functional Design | CD-03; DP-01; R-06 |
 | FD-U1-06 | `contract-design/contract-summary.md` (C6 y regla 3) | La prueba de nivel 0 compara el **contenido** de la copia con `SHA256SUMS`, no solo la versión; solo se copian los dos esquemas, sin el `README.md` del principal | Cambio 03 §1; P5 = A |
 | FD-U1-07 | `contract-design/contract-summary.md` (Preguntas abiertas, C6) | La pregunta «aprobación de la v1.0.0 en el repositorio principal» queda cerrada: se aprobó el 2026-11-09 sin cambios frente a C6 | Cambio 03 §1 |
 | FD-U1-08 | `refined-mockups/interaction-spec.md` (catálogo de mensajes) | Los rótulos de los 7 tipos son «Fecha», «Número», «Lugar», «Persona», «Negación», «Secuencia» y «Otro», y viven en `ui/result-labels.v2.yaml` | P8 = A; AC5.5.4 |
-| FD-U1-09 | `contract-design/contract-summary.md` (C8 y tabla de contratos) | Siguen abiertas las precisiones de la primera pasada: `quote_delimiters: [«, »]` con la regla de cita literal (ahora sobre `hecho`, `observaciones` y `tema`), el catálogo de rótulos y el formato de fecha como contratos de U1 | P1, P3 y P4 de la primera pasada |
+| FD-U1-09 | `contract-design/contract-summary.md` (C8 y tabla de contratos) | Siguen abiertas las precisiones de la primera pasada: `quote_delimiters: [«, »]` con la regla de cita literal (ahora sobre `hecho`, `observaciones` y `tema`), el catálogo de rótulos y el formato de fecha como contratos de U1. El escáner `scan(text, literal_sources)` que la primera pasada ubicó en U4 (`libs/integrity_policy`) es ahora de U11, según unit-of-work revisión 2 | P1, P3 y P4 de la primera pasada; R-02 |
+| FD-U1-10 | `units-generation/unit-of-work.md` (U1, Límites: «sin lógica de ejecución») | U1 publica tres funciones puras, sin E/S: `profiles.validate(data, *, key_prefix, kind)`, `limits.load(environ)` y `registry`. Así U10, U11 y `sistema` usan la misma validación sin depender unos de otros. El catálogo de errores gana dos `code` de arranque, `config.invalid_profile` y `config.invalid_limit`: no llegan a una respuesta HTTP, se usan en el log de arranque y en el código 3 de la CLI | P9 = A; R-01 |
+| FD-U1-11 | `contract-design/contract-summary.md` (C1, C7, C19 y regla 1) | Las referencias `contracts/<ruta>.schema.json#…` y `contracts/<ruta>.yaml#…` pasan a la forma canónica por `$id` (`/veridicus/contracts/analyzer/v1/salida#/$defs/cita`), que resuelve `veridicus_contracts.registry` con base `https://veridicus.invalid/` sin tocar la copia de C6. Se añade la tabla de rutas de `contracts/` al paquete (§1) | R-03; BR12.3 |
+| FD-U1-12 | `contract-design/contract-summary.md` (C18) | `profile-base` es abierto y cada especialización se cierra con `unevaluatedProperties: false`. `purpose` es texto con patrón en la base y enum en el analizador. El sobre del archivo (`schema_version`, `profiles` con nombres `^[a-z0-9-]{1,48}$`) es el mismo para todos | R-08 |
+| FD-U1-13 | `contract-design/contract-summary.md` (C7) | El esquema añade condiciones `if/then`: `decided_by` y `decided_at` obligatorios fuera de `pending` y ausentes en `pending`; `note` en `dismissed`; `reformulation` en `edited` | R-07; AUTONOMIA-03 |
+| FD-U1-14 | `contract-design/contract-summary.md` (C8 `excluded_spans`) | **Riesgo residual, a decidir.** Con P1 = A, una sola palabra citada que aparece en un turno queda fuera del escaneo: «El compareciente es «mentiroso»» pasa si un turno dice «mentiroso». Opciones: (a) aceptarlo como riesgo residual, porque la cita literal es un derecho del testimonio; (b) no excluir un tramo cuyo contenido completo es un término de la lista, con su caso de escaneo negativo. Si eliges (b), entra como BR5.3 revisada en el PR de B1 | R-05 |

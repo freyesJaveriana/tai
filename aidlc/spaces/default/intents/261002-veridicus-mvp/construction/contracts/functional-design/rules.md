@@ -1,17 +1,24 @@
 # Reglas de negocio — U1 contracts
 
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27), la adenda 02 y el cambio 03.**
-Sustituye a la revisión 1 del 2026-10-03.
+Sustituye a la revisión 1 del 2026-10-03. Incluye las correcciones de los hallazgos R-01 a R-09 de la
+revisión asesora (respuestas P9–P11).
 - Las reglas conservan su ID. Las que salen quedan con `status: Retirado` y no se renumeran (regla de
   `project.md`).
 - Las nuevas siguen la numeración de su grupo (BR1.7 en adelante) o abren los grupos BR9–BR12.
 
 **Insumos.** Los mismos de `entities.md`: unit-of-work, contract-summary, requirements, components, la
-copia aprobada del contrato común, el cambio 03 y las respuestas P1–P8 y V-1 = A de
+copia aprobada del contrato común, el cambio 03 y las respuestas P1–P11 y V-1 = A de
 `functional-design-questions.md`.
 
 **Cómo se prueban.** Salvo que la regla diga otra cosa, cada una se prueba en **nivel 0** con un
 *fixture* positivo y uno negativo (control negativo).
+
+**Reglas que necesitan el escáner (P10 = A).** BR5.2, BR5.3, BR5.4, BR5.5 y BR5.6 dependen del escáner
+`scan(text, literal_sources)`, que es de U11 y se construye en B11. U1 las publica como **casos de
+escaneo** (`scan_case`, BR5.8): datos que U1 valida solo por su forma en nivel 0 y que U11 ejecuta todos
+en B11. U1 no contiene lógica de escaneo. BR3.3 y BR6.3 usan una comparación trivial documentada que no
+es el escáner.
 
 ```yaml
 rules:
@@ -72,12 +79,12 @@ rules:
     source: NFR12; project.md Forbidden; cambio 03 §3
   - id: BR1.7
     status: nuevo
-    statement: La copia del contrato común en contracts/analyzer/v1/ es idéntica byte a byte a lo aprobado en el principal.
+    statement: Los bytes de la copia del contrato común en contracts/analyzer/v1/ coinciden con las huellas de SHA256SUMS; la prueba detecta cualquier cambio local, y la aprobación frente al principal la da la revisión humana del PR de copia.
     category: validation
     applies_to: [ApprovedCopyManifest, AnalyzerInput, AnalyzerOutput]
     trigger: En cada PR (nivel 0)
     logic: SI el SHA-256 de entrada.schema.json o de salida.schema.json difiere de su línea en SHA256SUMS, o SHA256SUMS no tiene exactamente esas dos líneas, o contrato no es const "1.0.0" en los dos esquemas ENTONCES la suite falla.
-    violation: Suite en rojo. El control negativo es una copia con un byte cambiado en una descripción.
+    violation: Suite en rojo. El control negativo es una copia con un byte cambiado en una descripción. Límite declarado (R-04): el principal no publica huellas, así que un PR que cambie un esquema y recalcule SHA256SUMS pasa esta prueba; lo detiene BR1.8.
     source: cambio 03 §1; P5 = A; AC3.6.2
   - id: BR1.8
     status: nuevo
@@ -85,8 +92,8 @@ rules:
     category: policy
     applies_to: [ContractDocument, ApprovedCopyManifest]
     trigger: Al cambiar C6
-    logic: SI un PR cambia un esquema de contracts/analyzer/ sin cambiar SHA256SUMS a las huellas publicadas por el principal ENTONCES BR1.7 lo rechaza; SI cambia la forma ENTONCES llega como v2/ con contrato "2.0.0" y la v1 se conserva.
-    violation: Suite en rojo; revisión del PR.
+    logic: SI un PR toca contracts/analyzer/ ENTONCES solo copia archivos de /insumos/app/contratos/analizador/ y la descripción del PR anota la ruta de origen y las huellas recalculadas allí con sha256sum; el humano las compara antes de fusionar. SI un PR cambia un esquema sin cambiar SHA256SUMS ENTONCES BR1.7 lo rechaza. SI cambia la forma ENTONCES llega como v2/ con contrato "2.0.0" y la v1 se conserva.
+    violation: Revisión humana del PR (ancla de la aprobación); suite en rojo si las huellas no cuadran.
     source: cambio 03 §1; README del contrato v1.0.0 («Cómo se cambia»); ADR-017
   - id: BR1.9
     status: nuevo
@@ -155,7 +162,7 @@ rules:
     category: constraint
     applies_to: [ContractDocument, AnalyzerOutput, ReviewSuggestion]
     trigger: Al validar todos los esquemas
-    logic: SI algún nombre de propiedad coincide con categories_forbidden_in_schemas o con un término de C8 ENTONCES la suite falla.
+    logic: SI algún nombre de propiedad coincide con categories_forbidden_in_schemas, o alguno de sus segmentos (el nombre partido por _, en minúsculas y sin tildes) es igual a un término de C8 ENTONCES la suite falla. Es una comparación de igualdad entre palabras, no el escáner de U11 (P10 = A).
     violation: Suite en rojo.
     source: AC5.5.3; AUTONOMIA-03
   - id: BR3.4
@@ -211,9 +218,18 @@ rules:
     category: constraint
     applies_to: [ReviewSuggestion, Quote]
     trigger: Al validar C7
-    logic: SI cita_a o cita_b de C7 no es un $ref a salida.schema.json#/$defs/cita ENTONCES la suite falla.
+    logic: SI cita_a o cita_b de C7 no es exactamente $ref '/veridicus/contracts/analyzer/v1/salida#/$defs/cita' (forma canónica por $id de BR12.3) ENTONCES la suite falla.
     violation: Suite en rojo.
-    source: contract-summary C7 y regla 8
+    source: contract-summary C7 y regla 8; R-03 (ver precisión FD-U1-11)
+  - id: BR4.4
+    status: nuevo
+    statement: Una sugerencia que no está pendiente lleva quién y cuándo decidió; descartada lleva nota y editada lleva reformulación.
+    category: validation
+    applies_to: [ReviewSuggestion]
+    trigger: Al validar C7
+    logic: SI state no es pending y falta decided_by o decided_at, SI state es dismissed y note falta o está vacía, o SI state es edited y reformulation falta o está vacía ENTONCES la sugerencia es inválida; SI state es pending y trae decided_by o decided_at ENTONCES es inválida. Un fixture negativo por cada condición (if/then en el esquema).
+    violation: Rechazo.
+    source: AUTONOMIA-03 (estado cambiado por un humano que registra quién y cuándo); contract-summary C1 (note y reformulation); R-07 (ver precisión FD-U1-13)
 
   # BR5 — Vocabulario prohibido, aclaraciones y aviso (C8)
   - id: BR5.1
@@ -232,7 +248,7 @@ rules:
     applies_to: [ForbiddenVocabularyList]
     trigger: Al escanear un texto
     logic: SI tras quitar mayúsculas y tildes un término aparece como palabra completa ENTONCES hay coincidencia; SI solo aparece dentro de otra palabra («falsete») ENTONCES no.
-    violation: Fixture de control en rojo.
+    violation: Caso de escaneo en rojo cuando U11 lo ejecuta (B11); en U1 solo se valida su forma (BR5.8).
     source: AC5.5.1; components IntegrityPolicy
   - id: BR5.3
     status: cambia
@@ -241,15 +257,15 @@ rules:
     applies_to: [ForbiddenVocabularyList, Finding]
     trigger: Al escanear la salida
     logic: SI un tramo está entre «…» Y su contenido aparece carácter a carácter (salvo espacios, regla del piloto) en un turno de la entrada ENTONCES se excluye; SI no ENTONCES se escanea como texto normal.
-    violation: Fixture de control en rojo.
+    violation: Caso de escaneo en rojo cuando U11 lo ejecuta (B11). Riesgo residual (R-05): una sola palabra citada que aparece en un turno, como «mentiroso», queda excluida; ver precisión FD-U1-14.
     source: Respuesta P1 = A; AC3.2.4; C8 excluded_spans cita_literal
   - id: BR5.4
     status: cambia
     statement: Una salida con vocabulario prohibido en hecho, observaciones o tema fuera de las citas literales es salida inválida.
     category: validation
     applies_to: [AnalyzerOutput, Finding]
-    trigger: Al validar una salida (lo aplica U11 con la lista de U1)
-    logic: SI el escaneo encuentra una coincidencia fuera de los tramos excluidos ENTONCES el candidato se descarta con motivo vocabulario_prohibido o la salida es salida_invalida, según la regla de U11.
+    trigger: Al validar una salida (U11 antes de emitir; U4 en la ingesta, con la lista de U1)
+    logic: SI U11 encuentra una coincidencia fuera de los tramos excluidos ENTONCES descarta el candidato con motivo vocabulario_prohibido o emite salida_invalida, según su regla. SI U4 la encuentra en la ingesta de una salida ya válida para C6 ENTONCES no quita el hallazgo en silencio: la corrida queda en error con analysis.invalid_output y no se guarda ninguna sugerencia de esa corrida, igual que en BR2.3 (R-09).
     violation: Ninguna etiqueta de veracidad llega al analista.
     source: AC3.2.4; AUTONOMIA-03; C6 regla 3
   - id: BR5.5
@@ -259,7 +275,7 @@ rules:
     applies_to: [Quote, ReviewSuggestion, NoticeText, ForbiddenVocabularyList]
     trigger: Al escanear una salida, una sugerencia o un reporte
     logic: SI el texto es una cita, una nota, una reformulación o el aviso ENTONCES no se escanea.
-    violation: Fixture de control en rojo.
+    violation: Caso de escaneo en rojo cuando U11 lo ejecuta (B11).
     source: AC5.5.1; AC5.5.2; C8 (VE-02)
   - id: BR5.6
     status: nuevo
@@ -268,7 +284,7 @@ rules:
     applies_to: [NeutralClarificationRule, AnalyzerOutput]
     trigger: Al validar observaciones_conductor (lo aplica U11; U8 lo muestra)
     logic: SI tema contiene «contradicción», «contradice», «incoherencia», una frase de phrases, «T<n>» o «turno <n>» ENTONCES la aclaración es inválida.
-    violation: Fixture de control en rojo.
+    violation: Caso de escaneo en rojo cuando U11 lo ejecuta (B11).
     source: VE-05; DT23; contract-summary C8
   - id: BR5.7
     status: nuevo
@@ -279,8 +295,15 @@ rules:
     logic: SI notice.v1.yaml no tiene version semántica o su texto no contiene la frase base de VE-01 ENTONCES la suite falla.
     violation: Suite en rojo.
     source: VE-01; contract-summary C8
-
-  # BR6 — Rótulos de resultado
+  - id: BR5.8
+    status: nuevo
+    statement: Los escenarios del escaneo se publican como casos de escaneo que U1 valida por forma y U11 ejecuta.
+    category: constraint
+    applies_to: [ScanCase, ForbiddenVocabularyList, NeutralClarificationRule]
+    trigger: En cada PR (nivel 0 de U1); en B11 y en cada PR que toque la IA (U11)
+    logic: SI un caso de integrity/scan-cases.v1.yaml no cumple su esquema, su id se repite, sus literal_sources no son sintéticas, o algún término de la lista de BR5.1 o alguna frase de phrases no tiene al menos un caso que espere su coincidencia ENTONCES la suite de U1 falla. U11 ejecuta todos los casos con scan(text, literal_sources) y su suite falla si una coincidencia o un tramo excluido difiere del esperado.
+    violation: Suite en rojo (U1 por forma; U11 por resultado).
+    source: Respuesta P10 = A; R-02 — Rótulos de resultado
   - id: BR6.1
     status: cambia
     statement: El catálogo tiene exactamente los rótulos «Sugerencia de revisión», «Contradicción en el relato» y los 7 de tipo, y la consola no define otros.
@@ -305,7 +328,7 @@ rules:
     category: validation
     applies_to: [ResultLabelCatalog]
     trigger: Al validar el catálogo
-    logic: SI un rótulo contiene un término de C8 ENTONCES la suite falla.
+    logic: SI alguna palabra de un rótulo, en minúsculas y sin tildes, es igual a un término de C8 ENTONCES la suite falla. Es la misma comparación trivial de BR3.3, no el escáner de U11 (P10 = A).
     violation: Suite en rojo.
     source: AC5.5.1
 
@@ -383,7 +406,7 @@ rules:
     category: validation
     applies_to: [ProfileBase]
     trigger: Al validar un archivo de perfiles contra profile-base
-    logic: SI roles está vacío, un alias apunta a un papel que no está en roles, el destino de un alias es otro alias, o un alias tiene el mismo nombre que un papel ENTONCES el perfil es inválido. El esquema cubre la forma; la referencia cruzada la comprueba la función de validación que U1 publica junto al esquema.
+    logic: SI roles está vacío, un alias apunta a un papel que no está en roles, el destino de un alias es otro alias, o un alias tiene el mismo nombre que un papel ENTONCES el perfil es inválido. El esquema cubre la forma; la referencia cruzada la comprueba veridicus_contracts.profiles.validate (BR9.8).
     violation: El perfil no se carga (el servicio no arranca, la CLI termina antes de llamar).
     source: cambio 03 V-1; AC13.3.1
   - id: BR9.3
@@ -401,7 +424,7 @@ rules:
     category: constraint
     applies_to: [Destination, KeyPrefix]
     trigger: Al validar un perfil y al cargarlo
-    logic: SI api_key_ref no cumple ^[A-Z][A-Z0-9_]{2,63}$ ENTONCES el perfil es inválido. SI el esquema de un perfil fija un prefijo ENTONCES la suite falla, porque el prefijo no va en el archivo. La función de validación de U1 recibe el prefijo como argumento, y el esquema no fija un valor por omisión. Los cargadores de Veridicus (U10, U11) le pasan la constante VERIDICUS_.
+    logic: SI api_key_ref no cumple ^[A-Z][A-Z0-9_]{2,63}$ ENTONCES el perfil es inválido. SI el esquema de un perfil fija un prefijo ENTONCES la suite falla, porque el prefijo no va en el archivo. veridicus_contracts.profiles.validate recibe el prefijo como argumento obligatorio key_prefix, sin valor por omisión (BR9.8). Los cargadores de Veridicus (U10, U11) le pasan la constante VERIDICUS_.
     violation: Suite en rojo; el perfil no se carga.
     source: cambio 03 V-1; decisión V-1 = A
   - id: BR9.5
@@ -431,6 +454,15 @@ rules:
     logic: SI profile no cumple AnalyzerProfile, o el SHA-256 recalculado de la forma canónica del fixture effective-config.valid.json difiere del esperado ENTONCES la suite falla.
     violation: Suite en rojo.
     source: contract-summary C18; FR14.2; AC8.3.3
+  - id: BR9.8
+    status: nuevo
+    statement: U1 publica una función pura de validación de archivos de perfiles, con el prefijo de las claves como argumento.
+    category: validation
+    applies_to: [ProfilesFile, ProfileBase, AnalyzerProfile, KeyPrefix, ProfileValidator]
+    trigger: Al cargar un archivo de perfiles (U10, U11 y sistema la llaman)
+    logic: veridicus_contracts.profiles.validate(data, *, key_prefix, kind) valida data contra el sobre del archivo y profile-base (kind "base") o además contra profiles.schema.v1.yaml (kind "analyzer"), comprueba BR9.2, BR9.4 y BR9.5, y devuelve los perfiles como valores inmutables. SI algo falla ENTONCES lanza ProfileValidationError (code config.invalid_profile) con el nombre del perfil, el papel y el ajuste, nunca un valor. No lee archivos, ni el entorno, ni la red.
+    violation: El perfil no se carga; suite en rojo si la función acepta un fixture negativo.
+    source: Respuesta P9 = A; R-01; cambio 03 V-1 (ver precisión FD-U1-10)
 
   # BR10 — Reporte de la CLI (C19)
   - id: BR10.1
@@ -459,9 +491,9 @@ rules:
     category: constraint
     applies_to: [LimitsCatalog]
     trigger: Al validar C25 y al leerlo
-    logic: SI falta un nombre de C25, un nombre se repite o una cifra no tiene unidad ENTONCES la suite falla; la función de lectura que publica U1 rechaza un valor de entorno mayor que el del catálogo.
+    logic: SI falta un nombre de C25, un nombre se repite o una cifra no tiene unidad ENTONCES la suite falla. veridicus_contracts.limits.load(environ) parte del catálogo empaquetado y aplica solo las variables VERIDICUS_LIMIT_<NOMBRE> presentes en environ; SI una es mayor que la cifra del catálogo, no es un entero o nombra un límite que no existe ENTONCES lanza LimitsConfigError (code config.invalid_limit) y no devuelve nada. Función pura: environ se le pasa, no lo lee ella.
     violation: Suite en rojo; el servicio no arranca.
-    source: contract-summary C25; regla de project.md (límites)
+    source: contract-summary C25; regla de project.md (límites); respuesta P9 = A (ver precisión FD-U1-10)
 
   # BR12 — Paquete instalable (V-3, P6 = A)
   - id: BR12.1
@@ -470,7 +502,7 @@ rules:
     category: constraint
     applies_to: [ContractsPackage]
     trigger: En cada PR (nivel 0)
-    logic: SI el paquete construido no se instala en un entorno limpio sin Redis, Kubernetes ni base de datos, o no trae cada esquema y catálogo de contracts/ como dato, o algún módulo se importa como contracts ENTONCES la suite falla.
+    logic: SI el paquete construido no se instala en un entorno limpio sin Redis, Kubernetes ni base de datos, no trae cada esquema y catálogo de contracts/ como dato en la ruta que fija la tabla de rutas de functional-spec.md §1, o algún módulo se importa como contracts ENTONCES la suite falla.
     violation: Suite en rojo.
     source: cambio 03 V-3; respuesta P6 = A
   - id: BR12.2
@@ -482,6 +514,15 @@ rules:
     logic: SI B1 cierra sin etiqueta ENTONCES la entrega no está completa.
     violation: Revisión del PR del autor (manual).
     source: cambio 03 V-3
+  - id: BR12.3
+    status: nuevo
+    statement: Toda referencia entre esquemas usa el $id del esquema de destino como ruta absoluta y se resuelve sin red desde el paquete instalado.
+    category: constraint
+    applies_to: [ContractDocument, SchemaRegistry, ContractsPackage]
+    trigger: En cada PR (nivel 0, Python y TypeScript)
+    logic: veridicus_contracts.registry carga cada esquema del paquete bajo https://veridicus.invalid/ más su $id, sin modificar el archivo, y es el único resolvedor (referencing en Python, addSchema de ajv en TypeScript). SI un $ref entre esquemas no es una ruta absoluta del $id de destino, como '/veridicus/contracts/analyzer/v1/salida#/$defs/cita', o SI C7, C1 o C19 no validan sus fixtures desde el paquete instalado sin red ENTONCES la suite falla. Control negativo: la forma 'contracts/analyzer/v1/salida.schema.json#/$defs/cita' no se resuelve.
+    violation: Suite en rojo.
+    source: R-03; contract-summary regla 1 (ver precisión FD-U1-11)
 ```
 
 ## Resumen
@@ -491,12 +532,12 @@ rules:
 | BR1 Versión y cambio | BR1.1–BR1.9 | — | Contratos que cambian sin aviso, datos reales en *fixtures*, una copia de C6 editada aquí (P5) |
 | BR2 Mensajes de cola | BR2.1, BR2.3 | BR2.2, BR2.4, BR2.5 | Corridas mal formadas (AC2.2.3) y resultados que no cumplen C6 |
 | BR3 Contrato común | BR3.1–BR3.6 | — | Campos extra o de veracidad, enum distintos entre contratos, error con hallazgos, entradas sin consentimiento (AC15.4.7) |
-| BR4 Sugerencia | BR4.1–BR4.3 | — | Sugerencia sin sus cinco campos (AUTONOMIA-05) o con `is_truthful` (AUTONOMIA-03) |
-| BR5 Vocabulario, aclaraciones y aviso | BR5.1–BR5.7 | — | Etiquetas de veracidad en la salida, aclaraciones que delatan la contradicción (VE-05), aviso sin versión (VE-01) |
+| BR4 Sugerencia | BR4.1–BR4.4 | — | Sugerencia sin sus cinco campos (AUTONOMIA-05), con `is_truthful`, o decidida sin quién y cuándo (AUTONOMIA-03) |
+| BR5 Vocabulario, aclaraciones y aviso | BR5.1–BR5.8 | — | Etiquetas de veracidad en la salida, aclaraciones que delatan la contradicción (VE-05), aviso sin versión (VE-01), escenarios sin ejecutar |
 | BR6 Rótulos | BR6.1–BR6.3 | — | Rótulos distintos de los nueve permitidos (AC5.5.4, P8) |
 | BR7 API y errores | BR7.1–BR7.4 | — | Una ruta que escriba configuración (AC8.3.1), errores fuera del catálogo, códigos sin excepción |
 | BR8 Fecha y métricas | BR8.1–BR8.2 | — | Fechas ambiguas en las huellas, texto sensible en métricas |
-| BR9 Papeles y perfiles | BR9.1–BR9.7 | — | Papeles cerrados que impiden reutilizar a `sistema`, perfiles del analizador incompletos, claves fuera del prefijo |
+| BR9 Papeles y perfiles | BR9.1–BR9.8 | — | Papeles cerrados que impiden reutilizar a `sistema`, perfiles del analizador incompletos, claves fuera del prefijo, tres validaciones distintas |
 | BR10 Reporte de la CLI | BR10.1–BR10.2 | — | Testimonio dentro del reporte (P12) |
 | BR11 Límites | BR11.1 | — | Cifras sueltas o subidas por entorno |
-| BR12 Paquete | BR12.1–BR12.2 | — | Choque de nombres en `sistema` y una entrega sin etiqueta (V-3) |
+| BR12 Paquete | BR12.1–BR12.3 | — | Choque de nombres en `sistema`, una entrega sin etiqueta (V-3) y referencias entre esquemas que no resuelven |

@@ -14,10 +14,13 @@ van al final del bloque.
   (components).
 - Contrato común v1.0.0 aprobado en el repositorio principal del TG (`/insumos/app/contratos/analizador/v1/`)
   y cambio 03 (`/insumos/app/cambios/veridicus-03_reutilizacion_en_sistema.md`): V-1 y V-3.
-- Respuestas P1–P4 (primera pasada), P5–P8 (segunda pasada) y la opción A de V-1, que el autor eligió el
-  2026-11-09. Todo está en `functional-design-questions.md`.
+- Respuestas P1–P4 (primera pasada), P5–P8 (segunda pasada), la opción A de V-1 y P9–P11 (hallazgos
+  R-01 a R-09 de la revisión asesora), que el autor eligió el 2026-11-09. Todo está en
+  `functional-design-questions.md`.
 
-**Qué modela este documento.** U1 no tiene comportamiento en ejecución. Sus «entidades» son los
+**Qué modela este documento.** U1 no tiene comportamiento en ejecución, salvo tres funciones puras que
+publica en el paquete (P9 = A, precisión FD-U1-10): la validación de perfiles, la carga de límites y el
+registro que resuelve las referencias entre esquemas. Sus «entidades» son los
 documentos de contrato que guarda `contracts/` y los datos que esos documentos describen. El bloque YAML
 es la fuente de verdad. La forma campo a campo de cada contrato sigue en `contract-summary.md` (y, para
 C6, en la copia aprobada), y aquí solo se repite lo que esta etapa decide o precisa.
@@ -49,8 +52,9 @@ entities:
     attributes:
       - { name: fixture_id, type: identifier, required: true, unique: true }
       - { name: contract_id, type: reference, references: ContractDocument, required: true }
-      - { name: expectation, type: enum, required: true, allowed: [accept, reject] }
+      - { name: expectation, type: enum, required: true, allowed: [accept, reject, scan_case] }
       - { name: reject_reason, type: text, required: false, description: "Obligatorio si expectation es reject; nombra la regla BR que lo rechaza" }
+      - { name: executed_by, type: identifier, required: false, description: "Solo con scan_case: U11 (B11). U1 valida su forma (BR5.8, P10 = A)" }
       - { name: payload, type: document, required: true, constraints: "Solo datos sintéticos (NFR12); ningún nombre, testimonio ni expediente real; papeles de prueba como prueba_a, sin nombres de sistema (cambio 03)" }
     constraints:
       - "Los fixtures de C6 viven en contracts/analyzer/v1/fixtures/, fuera de la lista de SHA256SUMS: la copia sin editar son solo los dos esquemas."
@@ -249,6 +253,10 @@ entities:
       - { name: tokens_entrada, type: integer, required: true, min: 0 }
       - { name: tokens_salida, type: integer, required: true, min: 0 }
       - { name: fecha, type: date-time, required: true }
+      - { name: version, type: text, required: false }
+      - { name: esfuerzo_o_cuantizacion, type: text, required: false }
+      - { name: motor, type: text, required: false }
+      - { name: semilla, type: integer, required: false }
 
   - name: RunRequest
     status: nuevo
@@ -279,15 +287,19 @@ entities:
       - { name: suggestion_id, type: uuid, required: true }
       - { name: session_id, type: uuid, required: true }
       - { name: first_run_id, type: uuid, required: true }
+      - { name: hallazgo_id, type: identifier, required: false, description: "id del hallazgo en C6 de la corrida que lo propuso" }
       - { name: hecho, type: text, required: true }
       - { name: tipo, type: FindingType, required: true }
-      - { name: cita_a, type: Quote, required: true, description: "$ref a la copia de C6" }
-      - { name: cita_b, type: Quote, required: true, description: "$ref a la copia de C6" }
+      - { name: actos, type: list, required: false }
+      - { name: cita_a, type: Quote, required: true, description: "$ref '/veridicus/contracts/analyzer/v1/salida#/$defs/cita' (BR4.3, BR12.3)" }
+      - { name: cita_b, type: Quote, required: true, description: "La misma referencia que cita_a" }
       - { name: observaciones, type: text, required: true }
       - { name: state, type: enum, required: true, allowed: [pending, accepted, edited, dismissed] }
       - { name: observations_viewed, type: boolean, required: true }
-      - { name: note, type: text, required: false }
-      - { name: reformulation, type: text, required: false }
+      - { name: note, type: text, required: false, description: "Obligatoria y no vacía si state es dismissed (BR4.4)" }
+      - { name: reformulation, type: text, required: false, description: "Obligatoria y no vacía si state es edited (BR4.4)" }
+      - { name: decided_by, type: uuid, required: false, description: "Obligatorio si state no es pending; ausente si es pending (BR4.4)" }
+      - { name: decided_at, type: UtcTimestamp, required: false, description: "Obligatorio si state no es pending; ausente si es pending (BR4.4)" }
 
   - name: RoleName
     status: nuevo
@@ -315,9 +327,11 @@ entities:
     status: nuevo
     description: >
       Esquema genérico de perfil (V-1, opción A): contracts/profiles/profile-base.schema.v1.yaml. Lo usan
-      el analizador y sistema; el anonimizador y su proxy validan contra él.
+      el analizador y sistema; el anonimizador y su proxy validan contra él. Es abierto: no declara
+      additionalProperties false, para que una especialización añada sus campos; cada especialización se
+      cierra con unevaluatedProperties false (R-08).
     attributes:
-      - { name: purpose, type: enum, required: true, allowed: [evaluation, demonstration, production] }
+      - { name: purpose, type: text, required: true, constraints: "patrón ^[a-z][a-z0-9_]{0,31}$; cada especialización fija su enum (el analizador: evaluation, demonstration, production)" }
       - { name: roles, type: map, required: true, constraints: "clave RoleName -> Destination; al menos un papel" }
       - { name: role_aliases, type: map, required: false, constraints: "clave RoleName -> RoleName existente en roles; sin cadenas ni alias que pisen un papel" }
       - { name: fallback_provider, type: Destination, required: false, description: "Uno por perfil y sirve a cualquier papel (P7 = A)" }
@@ -328,6 +342,7 @@ entities:
       Especialización del analizador (contracts/profiles/profiles.schema.v1.yaml, que sustituye la forma
       de campos fijos judge y verifier de C18). Extiende ProfileBase con unevaluatedProperties false.
     attributes:
+      - { name: purpose, type: enum, required: true, allowed: [evaluation, demonstration, production] }
       - { name: roles, type: map, required: true, constraints: "exactamente judge y verifier" }
       - { name: role_aliases, type: map, required: true, constraints: "exactamente { verifier_permuted: verifier }" }
       - { name: permutation, type: boolean, required: true }
@@ -377,6 +392,10 @@ entities:
       - { name: fallback_provider, type: boolean, required: true }
       - { name: anonymized, type: boolean, required: true }
       - { name: at, type: UtcTimestamp, required: true }
+      - { name: version, type: token, required: false }
+      - { name: effort_or_quantization, type: token, required: false }
+      - { name: engine, type: token, required: false }
+      - { name: seed, type: integer, required: false }
 
   - name: RoleTranslation
     status: nuevo
@@ -440,8 +459,69 @@ entities:
       - { name: import_name, type: identifier, required: true, default: veridicus_contracts }
       - { name: version, type: semver, required: true, description: "Etiqueta vX.Y.Z al cerrar B1 (cambio 03, V-3)" }
       - { name: package_data, type: list, required: true, description: "todos los esquemas y catálogos de contracts/, para que se lean sin el repositorio" }
+      - { name: path_map, type: map, required: true, description: "ruta en contracts/ -> módulo o dato en veridicus_contracts; la fija functional-spec.md §1 (R-03)" }
     constraints:
       - "No depende de Redis, Kubernetes, bases de datos ni de la consola."
+
+  - name: ProfilesFile
+    status: nuevo
+    description: >
+      Sobre del archivo de perfiles (config/profiles.yaml en Veridicus; el de sistema tiene la misma
+      forma). Lo valida ProfileValidator (R-08).
+    attributes:
+      - { name: schema_version, type: semver, required: true, constraints: "const 1.0.0" }
+      - { name: profiles, type: map, required: true, constraints: "nombre con patrón ^[a-z0-9-]{1,48}$ -> ProfileBase o AnalyzerProfile, según kind" }
+    relationships:
+      - { to: ProfileBase, cardinality: "1..*", direction: "ProfilesFile -> ProfileBase" }
+
+  - name: ProfileValidator
+    status: nuevo
+    description: >
+      Función pura veridicus_contracts.profiles.validate (P9 = A, BR9.8). La llaman U10 (módulo y proxy),
+      U11 (ExecutionProfiles) y sistema, cada uno con su prefijo.
+    attributes:
+      - { name: signature, type: text, required: true, default: "validate(data: Mapping[str, object], *, key_prefix: str, kind: Literal['base', 'analyzer']) -> Mapping[str, Profile]" }
+      - { name: error, type: identifier, required: true, default: "ProfileValidationError (code config.invalid_profile)" }
+    constraints:
+      - "No lee archivos, entorno ni red; key_prefix no tiene valor por omisión y debe cumplir ^[A-Z][A-Z0-9_]{1,31}_$."
+      - "El mensaje de error nombra el perfil, el papel y el ajuste, nunca un valor."
+
+  - name: LimitsLoader
+    status: nuevo
+    description: Función pura veridicus_contracts.limits.load (P9 = A, BR11.1).
+    attributes:
+      - { name: signature, type: text, required: true, default: "load(environ: Mapping[str, str]) -> Limits" }
+      - { name: env_name, type: text, required: true, default: "VERIDICUS_LIMIT_<NOMBRE en mayúsculas>" }
+      - { name: error, type: identifier, required: true, default: "LimitsConfigError (code config.invalid_limit)" }
+    constraints:
+      - "Solo baja una cifra del catálogo; un valor mayor, no entero o de un límite inexistente falla."
+
+  - name: SchemaRegistry
+    status: nuevo
+    description: >
+      Registro veridicus_contracts.registry que resuelve las referencias entre esquemas sin red (BR12.3,
+      R-03). Carga cada esquema del paquete bajo https://veridicus.invalid/ más su $id, sin modificar el
+      archivo (la copia de C6 queda intacta).
+    attributes:
+      - { name: base_uri, type: uri, required: true, default: "https://veridicus.invalid/" }
+      - { name: ref_form, type: text, required: true, default: "ruta absoluta del $id de destino más el puntero, p. ej. /veridicus/contracts/analyzer/v1/salida#/$defs/cita" }
+    constraints:
+      - "Es el único resolvedor; ningún servicio resuelve una referencia por ruta de archivo."
+      - "En TypeScript se usa el mismo base_uri con addSchema de ajv."
+
+  - name: ScanCase
+    status: nuevo
+    description: >
+      Caso de escaneo de vocabulario o de aclaración neutra (integrity/scan-cases.v1.yaml, BR5.8,
+      P10 = A). U1 valida su forma; U11 lo ejecuta en B11 con scan(text, literal_sources).
+    attributes:
+      - { name: case_id, type: identifier, required: true, unique: true, constraints: "E<n> del escenario de functional-spec.md o un id propio" }
+      - { name: field, type: enum, required: true, allowed: [hecho, observaciones, tema, cita, note, reformulation, notice] }
+      - { name: text, type: text, required: true, constraints: "sintético" }
+      - { name: literal_sources, type: list, required: true, description: "turnos sintéticos de la entrada; puede ir vacía" }
+      - { name: expected_matches, type: list, required: true, description: "términos o frases que deben coincidir; vacía si no debe haber coincidencia" }
+      - { name: expected_excluded_spans, type: list, required: false, description: "tramos entre «…» que deben quedar fuera del escaneo" }
+      - { name: rule, type: reference, required: true, description: "BR5.2, BR5.3, BR5.5 o BR5.6" }
 ```
 
 ## Resumen
@@ -457,5 +537,9 @@ entities:
   y **AnalyzerProfile** la especialización que exige `judge` y `verifier`. **KeyPrefix** saca el prefijo
   de la clave del archivo y lo pasa al código. **RoleTranslation** deja fija la traducción de los tres
   papeles del analizador a C6, que no cambia.
+- **Correcciones de la revisión asesora (P9–P11):** **ProfileValidator**, **LimitsLoader** y
+  **SchemaRegistry** son las tres funciones puras que U1 publica; **ProfilesFile** modela el sobre del
+  archivo; **ScanCase** convierte los escenarios del escaneo en datos que ejecuta U11. ReviewSuggestion,
+  CallRecord y ModelCall quedan completos.
 - **ResultLabelCatalog** pasa a nueve rótulos: dos de resultado y los 7 tipos (P8). **ContractsPackage**
   hace instalables los contratos con un nombre que no choca en `sistema` (P6).

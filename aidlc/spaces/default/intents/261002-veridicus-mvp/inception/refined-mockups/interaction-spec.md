@@ -771,6 +771,14 @@ diferencias; si los conjuntos difieren, solo metadatos y el aviso.
 Los `code` de Problem Details se muestran como «Código: <code>», en tamaño secundario, nunca como único
 mensaje. Las claves `turn.error.*` y `undocumented.notice` de la primera pasada se retiran.
 
+**Errores de análisis por corrida (CD-08).** Cada corrida en error (tramo o modo final) muestra su causa y
+el código de C1: `error.cause.invalid_output` ↔ `analysis.invalid_output`, `error.cause.content_block` ↔
+`analysis.content_blocked`, `error.cause.timeout` ↔ `analysis.timeout`, `error.cause.provider` ↔
+`analysis.provider`, `error.cause.anonymizer` ↔ `analysis.anonymizer_unavailable`, más
+`analysis.system` (la corrida no volvió a tiempo o agotó sus entregas) y `anonymizer.incident` (incidente
+de anonimización, que además bloquea la sesión). El texto visible de estas dos últimas causas sale del
+catálogo y lo fija Functional Design.
+
 **Regla del catálogo.** Toda cadena visible de la consola sale del catálogo, sin excepciones: además de
 las claves de esta tabla, cada texto entre «» de `mockups.md` (estados vacíos, motivos, diálogos, avisos
 y rótulos de M0–M8) entra con su clave. Una prueba `[N0]` falla si un componente renderiza texto literal

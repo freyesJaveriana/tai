@@ -71,3 +71,72 @@ C. RFC 3339 con cualquier desfase horario (`-05:00` incluido); el consumidor nor
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada (cambio 01, adenda 02 y cambio 03) — 2026-11-09
+
+**Qué cambió para U1.** U1 ahora guarda también el contrato común v1.0.0 (C6, aprobado en el principal
+el 2026-11-09), los tipos de `model_calls` (C13), los esquemas de perfiles y precios (C18), el registro de
+llamadas y el reporte de la CLI (C19), el catálogo de límites (C25), el aviso de VE-01 (C8) y la
+jerarquía de excepciones (`unit-of-work.md` U1, revisión 2). El cambio 03
+(`/insumos/app/cambios/veridicus-03_reutilizacion_en_sistema.md`) pide que esas piezas sirvan también a
+`sistema`.
+
+**Ya decidido y no se vuelve a preguntar.** V-1 con la opción A (el autor, 2026-11-09): papel como
+cadena con patrón en C13, C19 y C21; esquema de perfil genérico con `roles` y `role_aliases`, y el del
+analizador como especialización que exige `judge` y `verifier`; prefijo de `api_key_ref` como parámetro
+del código (Veridicus fija `VERIDICUS_`); C6 sin cambios. `contracts/analyzer/v1/` es una copia sin
+editar de los esquemas del principal y la prueba de nivel 0 compara su contenido (cambio 03 §1). Las
+precisiones a artefactos aprobados van en una tabla y el autor decide.
+
+## P5 — Cómo compara la prueba de nivel 0 la copia del contrato común
+
+La CI no ve `/insumos`, así que necesita una referencia versionada de lo aprobado.
+
+A. `contracts/analyzer/v1/SHA256SUMS` con las huellas de los dos esquemas tal como llegan del principal;
+   la prueba recalcula el SHA-256 de los bytes de la copia, compara y además valida `contrato: "1.0.0"`.
+   Solo se copian los dos esquemas, sin el `README.md`. (Recomendada)
+B. Como A, pero también se copia el `README.md` del principal, con su huella.
+C. La prueba compara contra `/insumos` en la máquina local y se omite en la CI.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided
+
+## P6 — Nombre de importación del paquete de contratos (V-3)
+
+Hoy los contratos se importan como `contracts.python.model_calls` y `contracts.analyzer.v1`. `sistema`
+los instalará como dependencia, y un paquete de primer nivel llamado `contracts` choca con facilidad.
+
+A. Distribución `veridicus-contracts` con el paquete `veridicus_contracts` (por ejemplo,
+   `veridicus_contracts.model_calls` y `veridicus_contracts.analyzer.v1`), con los esquemas como datos
+   del paquete; la carpeta del repositorio sigue siendo `contracts/`. Cambian las rutas de importación
+   de C10–C13, C17, C20, C23 y C24 (precisión para la aprobación). (Recomendada)
+B. Conservar `contracts` como nombre de importación y aceptar el riesgo de choque en `sistema`.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided
+
+## P7 — Proveedor alterno en el perfil genérico
+
+El perfil actual tiene un solo `fallback_provider`, que usa el núcleo ante un bloqueo de contenido.
+
+A. Uno por perfil, como hoy, y sirve a cualquier papel. (Recomendada)
+B. Opcional por papel (`roles.<papel>.fallback`), además del de perfil.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided
+
+## P8 — Rótulos de los 7 tipos de hallazgo (AC5.5.4)
+
+AC5.5.4 dice que los únicos rótulos de resultado son «Sugerencia de revisión», «Contradicción en el
+relato» y los rótulos de los 7 tipos, pero ningún artefacto fija el texto de esos 7. El catálogo de
+rótulos de U1 (P3 = A) los publica.
+
+A. `fecha` «Fecha», `numero` «Número», `lugar` «Lugar», `persona` «Persona», `negacion` «Negación»,
+   `secuencia` «Secuencia», `otro` «Otro». (Recomendada)
+B. Más descriptivos: «Fecha», «Cantidad», «Lugar», «Persona», «Afirmación y negación», «Orden de los
+   hechos», «Otro».
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided

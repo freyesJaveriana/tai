@@ -3,7 +3,7 @@
 **Revisión 2 (2026-11-07), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. U1–U10 conservan su ID y su directorio; ninguna unidad se retira; las nuevas
 toman U11–U13. Lo que sale de cada unidad se nombra en su apartado «Sale». Ajustada el 2026-11-08 con
-los hallazgos R-01 a R-07 de la revisión 2 (`reviews/review-02.md`) R-01 a R-04 de la revisión 3 y R-01 a R-03 de la revisión 4.
+los hallazgos R-01 a R-07 de la revisión 2 (`reviews/review-02.md`) R-01 a R-04 de la revisión 3 R-01 a R-03 de la revisión 4 y R-01 de la revisión 5.
 
 **Insumos.**
 - Componentes y ADR: `inception/domain-design/components.md` (components, revisión 2: 16 componentes) y
@@ -191,7 +191,10 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   después de que ReviewReport entrega el archivo, llama al puerto `AccessLog` de ConsoleApi; ReviewReport no
   conoce el puerto. Mientras U13 no exista, el adaptador por defecto no registra, pero deja un aviso en el
   log (solo IDs) al arrancar y en cada exportación, y el estado de salud de session-api informa «registro
-  de acceso no configurado» (revisión 4 R-02 = A). U7 define la interfaz del puerto y
+  de acceso no configurado» como dato informativo, **sin dejar de responder 200**, para no romper
+  `scripts/smoke.sh` (revisión 4 R-02 = A). Una prueba de nivel 0 de U7 verifica, con el adaptador por
+  defecto, que la exportación responde bien, que el log trae el aviso solo con IDs y que la salud
+  responde 200 con ese estado (revisión 5 R-01). U7 define la interfaz del puerto y
   prueba con un doble que la ruta lo llama con usuario, versión y `export_sha256` (UG-09).
 - **Restricciones.** Consolidación guardia de AUTONOMIA-03 con 100 % de ramas; dos consolidaciones
   simultáneas, una sola gana (AC6.1.6).
@@ -297,4 +300,4 @@ llevan al original, cada una en su propio commit.
 | UG-06 | `team.md` (AUTONOMIA-03) | Confirmado «reporte de revisión» en lugar de «reporte forense» (commit d1c687f); no hay nada más que cambiar | — | P7 |
 | UG-07 | `practices-discovery/team-practices.md` | Queda superado por `team.md` donde difieren (umbral del Silencio Fáctico, Golden Dataset, Paquete de Contexto de Traspaso, módulos guardia de entonces, «flujo de texto primero») | — | P8 |
 | UG-08 | `construction/forensic-report/` (primera pasada) | U7 conserva su directorio; los diseños de su segunda pasada usan ReviewReport | U7, Construction | P13 |
-| UG-09 | `stories-adenda-02.md` (AC15.8.2) | Partir la verificación de AC15.8.2: la marca de agua y el `export_sha256` se verifican en U7, que además prueba con un doble que la ruta de exportación de ConsoleApi llama al puerto `AccessLog` (interfaz definida por U7); el registro real se verifica en U13, con una prueba de que el puerto real está conectado. Mientras U13 no exista, la exportación no se registra, pero queda un aviso en el log y en el estado de salud | U7 y U13, Functional Design | Revisión 2 R-01; revisión 3 R-01 y R-02; revisión 4 R-02 = A |
+| UG-09 | `stories-adenda-02.md` (AC15.8.2) | Partir la verificación de AC15.8.2: la marca de agua y el `export_sha256` se verifican en U7, que además prueba con un doble que la ruta de exportación de ConsoleApi llama al puerto `AccessLog` (interfaz definida por U7); el registro real se verifica en U13, con una prueba de que el puerto real está conectado. Mientras U13 no exista, la exportación no se registra, pero queda un aviso en el log y en el estado de salud, que sigue respondiendo 200; una prueba de nivel 0 de U7 lo verifica | U7 y U13, Functional Design | Revisión 2 R-01; revisión 3 R-01 y R-02; revisión 4 R-02 = A; revisión 5 R-01 |

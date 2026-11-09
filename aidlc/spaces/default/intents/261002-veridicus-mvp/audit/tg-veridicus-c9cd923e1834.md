@@ -7149,3 +7149,58 @@
 **Duration ms**: 50
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-09T14:31:03Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-11-09T14:31:07Z
+**Event**: GATE_APPROVED
+**Stage**: contract-design
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-11-09T14:31:07Z
+**Event**: STAGE_COMPLETED
+**Stage**: contract-design
+**Validation Basis**: {"graphContract":"sha256:ad5599bf4da38de3dec2bfb4bf705de33d27113e18b6a160549a97c4b694fea3","inputs":[{"artifact":"components","contentHash":"sha256:9a4db90300a4c385e3b103feee513086be64e5fee808aabea9eef039bd6f0dd0","instanceCount":1,"presentCount":1,"producer":"domain-design","required":false,"structureHash":"sha256:cd3677f334aeb73a32eb1b3af048e8fb8c33e42ccdb1d3a6075f83ef6db5cfe0"},{"artifact":"requirements","contentHash":"sha256:107240cb392942055778f50dacbb960ba2854c8aefadfff1736792f6be8cf700","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":false,"structureHash":"sha256:6a7de19ce3ecefefb7d8bf5838bb61ed5aa4b238b53809e7a88bbfc1f481bb9f"},{"artifact":"unit-of-work-dependency","contentHash":"sha256:e12b330157fc1354a5d3f3e9cd9dfd833877d6446240e0e5c32a7bb57ec9de27","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:d6ad92275c895e990d36337f61fe9a3cf57dd9e49303027a2ca123b99d8377d2"},{"artifact":"unit-of-work","contentHash":"sha256:a78f8540fbd2c796e57abdb7deaa407761f0daba097fc0756078b95fdd3aa735","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:30b83745862cbad365814d36d84395d52c6ee8f0edf8cd143b1f1a7a0be579d5"}],"outputs":[{"artifact":"contract-summary","contentHash":"sha256:110832fc8def05449b8addd15dcb501d02cd903f73ef620571b67bf4621bca41","instanceCount":1,"presentCount":1,"producer":"contract-design","required":true,"structureHash":"sha256:8041781712773965520b7af8f254e4cf15144012b4b1c037fe33deb650af9f1a"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Contract Design approved by gate
+**Tokens In**: 356
+**Tokens Out**: 188972
+**Cache Read**: 33580176
+**Cache Write**: 1012948
+**Cost USD**: 27.71
+**By Model**: opus-5=24.42; sonnet-5=3.30
+**By Agent**: main=24.42; aidlc-architecture-reviewer-agent=3.30
+**Tokens By Model**: opus-5=308/149.7k/30.3M/549.7k; sonnet-5=48/39.3k/3.2M/463.3k
+**Tokens By Agent**: main=308/149.7k/30.3M/549.7k; aidlc-architecture-reviewer-agent=48/39.3k/3.2M/463.3k
+
+---
+
+## Stage Start
+**Timestamp**: 2026-11-09T14:31:07Z
+**Event**: STAGE_STARTED
+**Stage**: delivery-planning
+**Agent**: aidlc-delivery-agent
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T14:31:25Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Workflow Parked
+**Timestamp**: 2026-11-09T14:31:31Z
+**Event**: WORKFLOW_PARKED
+**Stage**: delivery-planning
+
+---

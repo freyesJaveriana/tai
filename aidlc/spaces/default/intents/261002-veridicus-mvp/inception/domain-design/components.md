@@ -34,8 +34,11 @@ Lo demás se decide en otras etapas:
 Bases de datos, colas, proveedores y modelos son dependencias externas, no componentes.
 
 **Alcance ético (P10 y Seguimiento 1 = A).** El protocolo ético se aplica en dos niveles:
-- **El analizador cumple las reglas éticas del TG sin rebaja.** El analizador es la biblioteca, la CLI y
-  el trabajador que la envuelve. Las reglas son: el vocabulario prohibido; el aviso de que los hallazgos
+- **El analizador cumple las reglas éticas del TG sin rebaja.** Esta es la única definición (UG-04): el
+  analizador son IncoherenceAnalyzer y AnalyzerCli (la biblioteca y la CLI), el Anonymizer y el
+  AnalysisWorker que la envuelve. Las VE que siguen MUST (DD-07) se cumplen sin rebaja en el componente que
+  las contiene, aunque no sea parte del analizador (p. ej., VE-08 en SpeechProcessing, VE-13 en
+  ReviewReport). Las reglas del analizador son: el vocabulario prohibido; el aviso de que los hallazgos
   son para revisar la coherencia y no son prueba; el bloqueo sin consentimiento (A-4); el anonimizador
   con su incidente (VE-14); la validación de las aclaraciones neutras (VE-05); y la métrica de sesgo
   (VE-17).

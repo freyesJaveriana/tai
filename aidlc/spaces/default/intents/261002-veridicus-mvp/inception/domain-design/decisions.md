@@ -466,8 +466,10 @@ el analizador cumple sin rebaja y la consola demuestra el resto en un solo compo
 bloqueen el uso.
 
 **Decision.**
-- **El analizador, sin rebaja.** Comprende IncoherenceAnalyzer, AnalyzerCli, AnalysisWorker, Anonymizer,
-  IntegrityPolicy y la ingesta de InterviewSession. Aplica:
+- **El analizador, sin rebaja.** La definición única está en `components.md`, «Alcance ético» (UG-04):
+  IncoherenceAnalyzer, AnalyzerCli, Anonymizer y AnalysisWorker. Las VE que siguen MUST se cumplen sin
+  rebaja en el componente que las contiene (IntegrityPolicy, la ingesta de InterviewSession,
+  SpeechProcessing, ConsoleApi o ReviewReport). Son:
   - el vocabulario prohibido (VE-02) y el aviso de VE-01;
   - el bloqueo sin consentimiento y el control de la transferencia (A-4, VE-06, VE-07);
   - la validación de aclaraciones neutras (VE-05);

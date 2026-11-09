@@ -7886,3 +7886,47 @@
 **Details**: P5 A, P6 A, P7 A, P8 A (modo guiado)
 
 ---
+
+## Artifact Created
+**Timestamp**: 2026-11-09T21:34:20Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+**Context**: construction > contracts > functional-design > entities.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-09T21:35:56Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+**Context**: construction > contracts > functional-design > rules.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-09T21:37:48Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-11-09T21:37:48Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: functional-design
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-09T21:38:52Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a29a493b5f690be5d
+**Message**: <analysis>\n**Where the session started.** After the earlier compaction, the workflow was parked at Functional Design.\n\n**User request 1.** The user pasted a request, written in Spanish:\n- Read the req
+
+---

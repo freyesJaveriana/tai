@@ -6427,3 +6427,75 @@
 **Artifacts**: contract-summary.md,contract-design-questions.md,memory.md,reviews/
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T13:18:51Z
+**Event**: DECISION_RECORDED
+**Stage**: contract-design
+**Decision**: Modo de respuesta para las preguntas 8 a 14 de la segunda pasada
+**Options**: Guide me,I'll edit the file,Chat
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T13:19:38Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T13:19:42Z
+**Event**: QUESTION_ANSWERED
+**Stage**: contract-design
+**Details**: Guide me
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T13:19:42Z
+**Event**: DECISION_RECORDED
+**Stage**: contract-design
+**Decision**: Tanda 1: preguntas 8 a 11
+**Options**: A,B,C,X
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T13:23:14Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T13:23:20Z
+**Event**: QUESTION_ANSWERED
+**Stage**: contract-design
+**Details**: P8=A, P9=A, P10=A, P11=A
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-09T13:23:20Z
+**Event**: DECISION_RECORDED
+**Stage**: contract-design
+**Decision**: Tanda 2: preguntas 12 a 14
+**Options**: A,B,C,X
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-09T13:32:56Z
+**Event**: HUMAN_TURN
+**Session**: 6127cb15-2095-4ed1-84cc-3a596a0c7396
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-09T13:33:04Z
+**Event**: QUESTION_ANSWERED
+**Stage**: contract-design
+**Details**: P12=A, P13=A, P14=A
+
+---

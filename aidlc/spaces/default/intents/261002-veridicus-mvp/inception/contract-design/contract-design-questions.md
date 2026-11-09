@@ -174,7 +174,7 @@ B. Inglés con puntos en todas partes, también en el contrato común (`analysis
 C. Mezcla: se conservan los cuatro de la v0.1 y los dos nuevos se escriben en inglés con puntos.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 9 — ¿Dónde viajan el ID de corrida y la versión del mensaje en las colas?
 
@@ -190,7 +190,7 @@ común. Así el contrato queda igual al del TG y la CLI escribe la misma `salida
 B. Se añaden `run_id` e `intento` como campos opcionales del contrato común.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 10 — ¿Dónde queda el registro de la corrida (llamadas, descartes, modo fragmentado, tokens y costo)?
 
@@ -208,7 +208,7 @@ B. En el sobre de Veridicus (pregunta 9): el contrato común solo lleva `modelo`
 registro en un archivo aparte.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 11 — ¿Qué lleva el bloque `consentimiento` de la entrada?
 
@@ -226,7 +226,7 @@ B. Como A, más un campo `retirado_en`, para que la biblioteca rechace por sí m
 después de la retirada.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 12 — ¿El reporte JSON de la CLI puede traer texto?
 
@@ -241,7 +241,7 @@ campos permitidos, sin guardar nada. La prueba del *canary* de FR13.5 queda igua
 B. El reporte puede incluir los hallazgos, y la consola quita el texto antes de guardar las cifras.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 13 — ¿Qué recibe `anonymizer-proxy` por la red y dónde viven las claves de API?
 
@@ -260,7 +260,7 @@ HTTP de cada proveedor, buscando el texto en el formato de cada API para seudoni
 montan en `semantic-agent`.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ### Pregunta 14 — ¿En qué idioma van los nombres de campo?
 
@@ -275,4 +275,4 @@ B. Modelos de Python en inglés con alias al español solo en la serialización 
 C. Todo en español, también lo propio de Veridicus.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A

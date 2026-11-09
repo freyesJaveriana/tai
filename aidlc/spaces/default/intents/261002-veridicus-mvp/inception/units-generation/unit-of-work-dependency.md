@@ -154,7 +154,7 @@ ZINE.
 | session-api → audio-worker → session-api (U9) | Colas Redis de audio y de transcripción | Mensajes de audio y texto (U1) |
 | HumanReview ↔ ReviewReport ↔ EthicsGovernance (U5, U7, U13) | Llamada en proceso dentro de session-api | Interfaces de módulo vigiladas por import-linter |
 | CLI → consola del investigador (U11, U12) | El humano sube el reporte JSON | Esquema del reporte de la CLI (U1) |
-| Prometheus → métrica de descartes (U2, U4) | Métrica expuesta por session-api | Nombre de métrica (U1) |
+| Prometheus → métrica de descartes (U2, U5) | Métrica que emite HumanReview (U5) desde session-api, no U4 (CD-07) | Nombre de métrica (U1) |
 
 Retirado de la revisión 1: la lectura de `pgvector` desde semantic-agent y el esquema de pasajes de
 TruthFrame.

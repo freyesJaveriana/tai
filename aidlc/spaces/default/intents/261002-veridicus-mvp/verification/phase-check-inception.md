@@ -56,4 +56,4 @@ se ejecutan). Ninguno queda en una etapa omitida.
 
 ## Aprobación humana
 
-- [ ] Revisado por el autor en la compuerta de Delivery Planning.
+- [x] Revisado por el autor en la compuerta de Delivery Planning.

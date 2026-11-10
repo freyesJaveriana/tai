@@ -17,6 +17,7 @@
 - 2026-11-02T21:22:41Z — US14.1 se reescribió para no depender del código del producto: la instalación sin internet se mide con una wheelhouse mínima y la de la CLI real pasó a AC14.2.5, porque la CLI se construye después del alto de Domain Design que US14.1 libera.
 - 2026-11-02T22:18:25Z — Reapertura tras una aprobación involuntaria: el humano llevó la tabla de decisiones y FR16.3 a requirements.md aprobado (commit a6b60c2) y corrigió el orden de entrega de team.md (commit ddb549f), cada uno en su propio commit, en vez de dejarlos en la tabla.
 - 2026-11-10T01:33:55Z — Tercera pasada (revalidación): el desfase venía de precisiones ya aprobadas en Domain Design (A-1..A-4) y Contract Design (CD-02, CD-04); solo se preguntó cómo registrar la revisión 3 (preguntas 17–19).
+- 2026-11-10T01:47:08Z — Además del código CD-02 (pregunta 17), se corrigieron los criterios AC3.2.5, AC11.3.3, AC11.3.7, AC11.6.2 y AC13.3.1 y se añadió AC11.6.4, por objeciones de conocimiento de diseño, desarrollo y calidad sobre CD-04 (integradas sin ronda 2); ninguna historia cambió de enunciado.
 
 
 ## Tradeoffs

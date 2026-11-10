@@ -31,8 +31,16 @@ historia salvo el código del anonimizador:
 - *Contract Design (2026-11-09):* el fallo del anonimizador usa el código `anonimizador_no_disponible`
   (CD-02), que sustituye a «el código del anonimizador» en la tabla de decisiones y en AC3.2.1, AC3.2.5,
   AC11.3.3 y AC11.6.2 (pregunta 17); los adaptadores nativos de los proveedores comerciales viven en el
-  anonimizador, con las claves solo en `anonymizer-proxy` (CD-04), lo que AC11.3.7 ya prueba sobre el
-  transporte HTTP de cada adaptador.
+  anonimizador, con las claves solo en `anonymizer-proxy` (CD-04). AC11.3.7 prueba el *payload* saliente
+  sobre el transporte HTTP de cada adaptador.
+- *Integración de diseño, desarrollo y calidad (2026-11-09):* sus objeciones a CD-04 eran de conocimiento y
+  se integraron sin ronda 2 corrigiendo criterios, no historias: AC3.2.5 (causa neutra, que también cubre
+  los rechazos `409`/`422` del proxy, y causa de `incidente_anonimizacion`, sexto código de C6 por P8 y
+  CD-01), AC11.3.3 (el punto de observación es el doble del adaptador nativo, no el `ModelGateway`),
+  AC11.3.7 (se puentea el paso de enmascarado), AC11.6.2 (el proveedor *fake* solo se alcanza por
+  `anonymizer-proxy`), AC13.3.1 (cada caso nombra su servicio) y el nuevo AC11.6.4 (las claves solo en
+  `anonymizer-proxy`). El *Origen* de US11.6 recoge lo que decidió CD-04/P13, y FR15.1 suma US11.3 en la
+  trazabilidad.
 
 ## Convenciones de los criterios
 
@@ -201,7 +209,7 @@ resultados incompletos.
 - **AC3.2.2** Given un tramo en error, When lo veo, Then leo «El analizador no pudo procesar este tramo. Revisión manual requerida» y el `codigo` como referencia secundaria. `[N0]` Vitest
 - **AC3.2.3** Given un tramo incremental en error, también en una sesión finalizada, When pulso «Reintentar», Then se repite la corrida con el mismo `desde_turno` y `hasta_turno`; reintentado dos veces, no hay hallazgos duplicados. `[N1]`
 - **AC3.2.4** Given observaciones que contienen vocabulario prohibido fuera de las dos citas, When se valida la salida, Then se trata como `salida_invalida`. `[N0]`
-- **AC3.2.5** Given cada código de error, When se muestra, Then lleva una causa en español que no culpa al testimonio, encima del mensaje de FR4.2: `proveedor` «El servicio de modelos no respondió»; `tiempo_agotado` «El análisis superó el tiempo máximo»; `salida_invalida` «La respuesta del modelo no tuvo el formato esperado»; `bloqueo_contenido` «El filtro de contenido del proveedor rechazó la petición»; `anonimizador_no_disponible` «El anonimizador no respondió. No se envió ningún dato fuera del clúster». `[N0]` Vitest
+- **AC3.2.5** Given cada código de `error.codigo` de C6, When se muestra, Then lleva una causa en español que no culpa al testimonio, encima del mensaje de FR4.2: `proveedor` «El servicio de modelos no respondió»; `tiempo_agotado` «El análisis superó el tiempo máximo»; `salida_invalida` «La respuesta del modelo no tuvo el formato esperado»; `bloqueo_contenido` «El filtro de contenido del proveedor rechazó la petición»; `anonimizador_no_disponible` «El anonimizador no estaba disponible o rechazó la petición. No se envió ningún dato fuera del clúster» (también ante los rechazos `409`/`422` del proxy, CD-04); `incidente_anonimizacion` con la causa que fija Functional Design (AC11.3.8 de la adenda 02), que nunca dice «No se envió ningún dato fuera del clúster». La prueba recorre el enum completo y falla si un código no tiene causa. `[N0]` Vitest
 
 ### US3.3 — Que el testimonio no cambie las reglas del analizador · MUST · P3
 Como Oficial de Cumplimiento Ético, quiero que las instrucciones escritas dentro de un testimonio se traten
@@ -523,11 +531,11 @@ biblioteca; cubre la CLI y el servicio a la vez). La frontera en el clúster est
 
 - **AC11.3.1** Given el conjunto sintético con entidades sembradas (nombres, lugares y números de expediente, con y sin tilde), When pasa por el anonimizador, Then el 100 % sale seudonimizado; una sola fuga hace fallar la prueba. `[N0]`
 - **AC11.3.2** Given una misma persona mencionada en varios turnos, When se seudonimiza la entrevista, Then recibe la misma marca en todos (p. ej., `[PERSONA_3]`). `[N0]`
-- **AC11.3.3** Given el anonimizador (a) caído, (b) lanzando una excepción o (c) sin responder antes de su *timeout*, When el analizador va a llamar a un proveedor externo, Then el `ModelGateway` *fake* registra 0 llamadas y el tramo termina en `estado: error` con `codigo` `anonimizador_no_disponible`. `[N0]` con 100 % de ramas
+- **AC11.3.3** Given el anonimizador (a) caído, (b) lanzando una excepción o (c) sin responder antes de su *timeout*, When el analizador va a llamar a un proveedor externo con el `ModelGateway` real y su adaptador `anonymizer`, Then el doble del adaptador nativo del proveedor (el transporte HTTP *fake* de AC11.3.7, dentro del módulo `Anonymizer`, C20) registra 0 llamadas y el tramo termina en `estado: error` con `codigo` `anonimizador_no_disponible`. `[N0]` con 100 % de ramas
 - **AC11.3.4** Given en la salida del juez (a) una cita seudonimizada válida, (b) una marca alterada, (c) una marca inventada (`[PERSONA_9]` inexistente), (d) una cita que perdió una marca, When se verifica, Then en (a) se restaura y se verifica contra el turno **original**, y (b), (c) y (d) invalidan el hallazgo. `[N0]`
 - **AC11.3.5** Given un *canary* sembrado como nombre, When termina una corrida de la CLI, Then no aparece en ningún log capturado ni en ningún archivo que escribe la CLI (la tabla de correspondencia vive solo en memoria). `[N0]`
 - **AC11.3.6** Given un perfil todo local, When corre una corrida, Then el anonimizador no interviene y no hay llamadas fuera del clúster. `[N0]`
-- **AC11.3.7** Given un perfil comercial y una transcripción sintética con entidades sembradas, When corre el analizador (juez y verificador), Then el transporte HTTP *fake* de cada adaptador comercial captura cada cuerpo saliente y ninguno contiene una entidad sembrada (0 fugas), y todos contienen marcas `[PERSONA_n]`; control negativo: con el anonimizador puenteado en un *fixture*, la prueba falla. `[N0]`
+- **AC11.3.7** Given un perfil comercial y una transcripción sintética con entidades sembradas, When corre el analizador (juez y verificador), Then el transporte HTTP *fake* de cada adaptador comercial captura cada cuerpo saliente y ninguno contiene una entidad sembrada (0 fugas), y todos contienen marcas `[PERSONA_n]`; control negativo: con el paso de enmascarado puenteado en un *fixture* (los adaptadores siguen dentro del anonimizador, CD-04), la prueba falla. `[N0]`
 
 ### US11.4 — Escalar los trabajadores según la cola · COULD · P2
 *Origen:* FR12.7. Como Administrador de plataforma, quiero que KEDA escale los pods de análisis con la longitud de la cola, para liberar CPU cuando no hay entrevistas.
@@ -544,13 +552,14 @@ de proveedores, para que la única salida a internet no sirva para otra cosa.
 ### US11.6 — Que el anonimizador sea la única salida del clúster · MUST · P2
 Como Administrador de plataforma, quiero que dentro del clúster toda llamada a un proveedor externo pase
 por el anonimizador desplegado, para que la `NetworkPolicy` y el fallo cerrado se refuercen entre sí.
-*Origen:* FR11.3, FR14.3, NFR1, AUTONOMIA-04. Dónde se seudonimiza (la biblioteca dentro de
-`semantic-agent` o el servicio `anonymizer-proxy`) lo decide Domain Design; esta historia solo fija la
-frontera.
+*Origen:* FR11.3, FR14.3, NFR1, AUTONOMIA-04. Se seudonimiza en el anonimizador, desplegado como el pod
+`anonymizer-proxy`, que también contiene los adaptadores nativos y las claves (Contract Design, CD-04 y
+P13); `semantic-agent` no tiene adaptador nativo ni claves.
 
 - **AC11.6.1** Given `semantic-agent` con un perfil de destino externo y sin la dirección del anonimizador configurada, When arranca, Then termina con código ≠ 0 y no pasa la sonda de salud. `[N0]` + `[N1]`
-- **AC11.6.2** Given `semantic-agent` con el anonimizador detenido y un servidor de proveedor *fake* en contenedor, When se analiza un turno, Then el servidor registra 0 peticiones y el tramo queda en `error` con `codigo` `anonimizador_no_disponible`. `[N1]`
+- **AC11.6.2** Given `semantic-agent` con el anonimizador detenido y un servidor de proveedor *fake* en contenedor que solo se alcanza a través de `anonymizer-proxy`, When se analiza un turno, Then el servidor registra 0 peticiones y el tramo queda en `error` con `codigo` `anonimizador_no_disponible`. `[N1]`
 - **AC11.6.3** Given una corrida con un *canary* sembrado, When termina, Then el *canary* no aparece en los logs de ningún servicio ni en PostgreSQL ni en Redis: la tabla de correspondencia vive solo en la memoria del proceso que restaura. `[N1]`
+- **AC11.6.4** Given los manifiestos renderizados (`helm template`), When corre la comprobación estática, Then falla si un pod distinto de `anonymizer-proxy` referencia el Secret de las claves de los proveedores o si la imagen de `semantic-agent` incluye un adaptador nativo comercial (import-linter, C13); control negativo con un manifiesto que monta el Secret en `semantic-agent`. `[N0]` (CD-04)
 
 ---
 
@@ -646,7 +655,7 @@ Como Administrador de plataforma, quiero que ni los servicios ni la CLI arranque
 para que nunca se llame a un proveedor externo sin el anonimizador.
 *Origen:* FR14.3, NFR10, AUTONOMIA-04 (pregunta 10).
 
-- **AC13.3.1** Given (a) un archivo de perfiles inválido, (b) un perfil con destino externo sin anonimizador, (c) una clave de API referenciada que falta, When arranca un servicio, Then el proceso termina con código ≠ 0, no pasa la sonda de salud y el log nombra el ajuste sin su valor (un valor *canary* no aparece en el log); control positivo por caso: el mismo archivo corregido arranca y pasa la sonda. `[N0]` + `[N1]`
+- **AC13.3.1** Given (a) un archivo de perfiles inválido, (b) en `semantic-agent` y en la CLI, un perfil con destino externo sin anonimizador, (c) en `anonymizer-proxy` y en la CLI (que usa el módulo en proceso), una clave de API referenciada que falta (CD-04: `semantic-agent` no resuelve claves), When arranca ese servicio, Then el proceso termina con código ≠ 0, no pasa la sonda de salud y el log nombra el ajuste sin su valor (un valor *canary* no aparece en el log); control positivo por caso: el mismo archivo corregido arranca y pasa la sonda. `[N0]` + `[N1]`
 - **AC13.3.2** Given los mismos tres casos, When corro la CLI, Then termina con código ≠ 0 **antes** de cualquier llamada (el *fake* registra 0 llamadas). `[N0]`
 
 ### US13.4 — Juez y verificador de familias distintas · MUST · P4
@@ -800,8 +809,8 @@ US8.1 → US13.1 → US2.1 → US2.2 → US3.1 → US5.1 → US2.4 → US2.7 →
 | 02 | Cada tarea nombra su verificación | Todos los criterios llevan nivel y comando o prueba |
 | 03 | Máquina de estados con actor y hora | AC5.1.2–AC5.1.4, AC5.2.1, AC5.3.2, AC8.4.1, AC8.4.2 |
 | 03 | Consolidación explícita con SHA-256 | AC6.1.1–AC6.1.7, AC6.3.3 |
-| 03 | Esquema sin campos de veracidad y escaneo de vocabulario | AC5.5.1–AC5.5.4, AC3.2.4, AC3.3.2 |
-| 04 | *Payload* saliente de cada adaptador y fallo cerrado (niveles 0 y 1) | AC11.3.1–AC11.3.7, AC11.6.1–AC11.6.3, AC13.3.1, AC13.3.2 |
+| 03 | Esquema sin campos de veracidad y escaneo de vocabulario | AC5.5.1–AC5.5.4, AC3.2.4, AC3.3.2; adenda 02: AC5.5.6 |
+| 04 | *Payload* saliente de cada adaptador y fallo cerrado (niveles 0 y 1) | AC11.3.1–AC11.3.7, AC11.6.1–AC11.6.4, AC13.3.1, AC13.3.2; adenda 02: AC11.3.8 |
 | 04 | `NetworkPolicy` estática y manual; dominios de salida | AC9.1.1–AC9.1.4, AC11.5.1, AC11.5.2 |
 | 05 | Hallazgo rechazado sin cada campo; cita alterada o en otro turno no sale | AC3.4.1–AC3.4.5 |
 | 05 | `error` ⇒ hallazgos vacíos; cita restaurada antes de verificarse | AC3.2.1, AC13.5.2, AC11.3.4, AC3.4.5 |

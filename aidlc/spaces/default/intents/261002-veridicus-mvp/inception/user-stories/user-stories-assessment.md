@@ -2,6 +2,9 @@
 
 **Revisión 2 — cambio 01 (DT27, 2026-11-02).**
 
+**Revisión 3 — revalidación (2026-11-09).** La decisión no cambia: se ratifican en bloque las precisiones de
+Domain Design y Contract Design (preguntas 17–19 de `user-stories-questions.md`).
+
 ## Decisión
 
 **Ejecutar.**

@@ -16,6 +16,7 @@
 - 2026-11-02T21:11:25Z — La validación de modelos locales en ZINE (respuesta 14) entró como historia MUST US14.1 con criterios `[ZINE]` que registran cifras sin umbral, y como FR16.3 propuesto en la tabla de decisiones, sin editar requirements.md aprobado.
 - 2026-11-02T21:22:41Z — US14.1 se reescribió para no depender del código del producto: la instalación sin internet se mide con una wheelhouse mínima y la de la CLI real pasó a AC14.2.5, porque la CLI se construye después del alto de Domain Design que US14.1 libera.
 - 2026-11-02T22:18:25Z — Reapertura tras una aprobación involuntaria: el humano llevó la tabla de decisiones y FR16.3 a requirements.md aprobado (commit a6b60c2) y corrigió el orden de entrega de team.md (commit ddb549f), cada uno en su propio commit, en vez de dejarlos en la tabla.
+- 2026-11-10T01:33:55Z — Tercera pasada (revalidación): el desfase venía de precisiones ya aprobadas en Domain Design (A-1..A-4) y Contract Design (CD-02, CD-04); solo se preguntó cómo registrar la revisión 3 (preguntas 17–19).
 
 
 ## Tradeoffs
@@ -26,6 +27,7 @@
 - 2026-11-02T21:11:25Z — El anonimizador (US11.3) conservó su ID en la épica 11 aunque sube a MUST, en vez de moverlo a una épica nueva: se prefirió la estabilidad de los ID sobre el orden por prioridad.
 - 2026-11-02T21:11:25Z — La verificación de citas (US3.4) se separó de la presentación del hallazgo (US3.1), y el verificador (US3.5) del incremental (US3.6), para que Units Generation dimensione con historias pequeñas.
 - 2026-11-02T21:22:41Z — La inyección del Escenario A se mide con una salida reconocible y frente al desacuerdo entre 3 corridas, en vez de exigir el mismo conjunto de hallazgos, porque los modelos comerciales no son deterministas.
+- 2026-11-10T01:33:55Z — Se ratificó en bloque como revisión 3 y solo se sustituyó el código `anonimizador_no_disponible` en cuatro criterios, en vez de reescribir historias: la adenda 02 sigue aparte y la trazabilidad no cambia de ID.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

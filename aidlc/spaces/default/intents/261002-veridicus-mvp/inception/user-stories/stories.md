@@ -4,10 +4,11 @@
 anterior queda en el historial de Git. Las historias que siguen conservan su ID; las que salen quedan
 como **Retirada** sin renumerar, y las nuevas toman ID nuevos (`docs/iteracion2.md` §2.2).
 
-**Insumos.** `inception/requirements-analysis/requirements.md` (revisión 2: FR1–FR16, NFR1–NFR15), las
+**Insumos.** `inception/requirements-analysis/requirements.md` (revisión 3: FR1–FR16, NFR1–NFR15), las
 prácticas de team-practices (`inception/practices-discovery/team-practices.md`, corregidas por el cambio
 01 en `team.md`), las personas de `personas.md` y las respuestas de `user-stories-questions.md`
-(preguntas 1–8 y Seguimientos 1–6 de la primera pasada; preguntas 9–14 de la segunda).
+(preguntas 1–8 y Seguimientos 1–6 de la primera pasada; preguntas 9–16 de la segunda; preguntas 17–19
+de la tercera).
 
 **Formato.** «Como [persona], quiero [acción], para [beneficio]». Criterios Given/When/Then con ID
 `ACx.y.z`. Prioridad MoSCoW heredada del requisito de origen; el límite final del MVP lo fija Delivery
@@ -20,6 +21,18 @@ P4 Investigador del TG (respuesta 9).
 **Precisiones de Refined Mockups (2026-11-03).** Al aprobar la revisión 2 de Refined Mockups, el humano
 decidió traer aquí el rol `investigador` (AC2.1.4, AC8.1.1, AC8.2.4) y las historias nuevas US12.6 y
 US12.7 (tabla de precisiones de `inception/refined-mockups/mockups.md`).
+
+**Revisión 3 — revalidación (2026-11-09).** Tras la revisión 3 de Requirements Analysis, se ratifican en
+bloque las precisiones que el humano ya aprobó en etapas posteriores (pregunta 19), sin cambiar ninguna
+historia salvo el código del anonimizador:
+- *Domain Design (2026-11-07):* A-1..A-4 (aviso de VE-01, Job de retención, SHA-256 por exportación,
+  consentimiento y retirada dentro del contrato común) viven en `stories-adenda-02.md`, que sigue como
+  archivo aparte (pregunta 18) y se lee junto con este.
+- *Contract Design (2026-11-09):* el fallo del anonimizador usa el código `anonimizador_no_disponible`
+  (CD-02), que sustituye a «el código del anonimizador» en la tabla de decisiones y en AC3.2.1, AC3.2.5,
+  AC11.3.3 y AC11.6.2 (pregunta 17); los adaptadores nativos de los proveedores comerciales viven en el
+  anonimizador, con las claves solo en `anonymizer-proxy` (CD-04), lo que AC11.3.7 ya prueba sobre el
+  transporte HTTP de cada adaptador.
 
 ## Convenciones de los criterios
 
@@ -60,7 +73,7 @@ otro commit (`fix(team): …`). La tabla se conserva como registro de dónde sal
 | **Una corrida incremental por envío**: un turno escrito o dictado da `desde_turno = hasta_turno = n`; un bloque pegado da una sola corrida desde su primer turno. Una transcripción **importada** nace cerrada a turnos nuevos y va directo al modo final. | FR4.9, FR3.6 | Pregunta 12 (R-03) |
 | El modo final se puede **relanzar** mientras la sesión no esté consolidada. Un modo final en error **no bloquea** la consolidación: el diálogo lo avisa y el reporte lo rotula «Modo final no completado. Revisión manual requerida» con su código. Cuenta el **último** modo final lanzado; dos lanzamientos simultáneos dan un `202` y un `409`. | FR7.1 («exige el modo final terminado»), FR7.2 | Pregunta 13; revisión de diseño y calidad |
 | Un hallazgo es el mismo cuando coincide el **par no ordenado** de (turno, cita normalizada en espacios). Si el modo final repite un hallazgo ya decidido, este conserva su estado y su historial. | FR4.9 | Revisión de desarrollo y calidad |
-| **Código de error del anonimizador:** un fallo del anonimizador termina en `estado: error` con un código estable propio (propuesta: `anonimizador`), y la consola añade «No se envió ningún dato fuera del clúster». El nombre definitivo lo fija Contract Design. | FR4.2 (lista cerrada de códigos), FR11.3 | Revisión de calidad y diseño |
+| **Código de error del anonimizador:** un fallo del anonimizador termina en `estado: error` con el código estable `anonimizador_no_disponible` (Contract Design, CD-02), y la consola añade «No se envió ningún dato fuera del clúster». | FR4.2 (lista cerrada de códigos), FR11.3 | Revisión de calidad y diseño; pregunta 17 |
 | El botón visible de FR7.1 se llama **«Consolidar reporte»**, para no confundirlo con «Finalizar sesión»; «Finalizar y Consolidar» queda como nombre de la acción en los requisitos. | FR7.1 | Revisión de diseño |
 | Los tramos incrementales en `error` no bloquean la consolidación; el reporte los rotula «Tramo no evaluado» con su código. | FR7.1, FR7.2 | Seguimiento 1, extendido por la pregunta 13 |
 | **FR16.3 (MUST, ya en `requirements.md`):** antes de Domain Design se validan los modelos locales en el clúster Ing. Sistemas con seis mediciones (velocidad, API del servidor local, *tokens* frente al contexto, repetibilidad en CPU, instalación sin internet, verificador de otra familia). Se hacen mientras la tarea 4L corre en segundo plano, y **Domain Design no empieza** hasta que el humano revise el reporte (US14.1). Si la medición `--array=8` de la 4L no termina en el plazo que fija el humano, el reporte se revisa con sus cifras parciales. Los `.sbatch` de validación y el reporte (solo cifras) viven en `docs/validacion-zine/` por commit directo; los `.sbatch` de producción (US14.2) entran por PR. | FR16 | Preguntas 14, 15 y 16 |
@@ -184,11 +197,11 @@ Como Analista de Verdad, quiero que un fallo del analizador no produzca hallazgo
 resultados incompletos.
 *Origen:* FR4.2, FR15.2.
 
-- **AC3.2.1** Given un `ModelGateway` *fake* que devuelve (a) texto no JSON, (b) JSON sin un campo obligatorio, (c) un `tipo` fuera del enum, (d) tres hallazgos con uno mal formado, (e) *timeout*, (f) bloqueo de contenido sin proveedor alterno, (g) error del proveedor, o (h) un anonimizador caído, When corre el analizador, Then `estado: error`, `hallazgos` vacío y `codigo` `salida_invalida` en (a)–(d), `tiempo_agotado`, `bloqueo_contenido`, `proveedor` y el código del anonimizador (tabla de decisiones), respectivamente. `[N0]` una prueba por código
+- **AC3.2.1** Given un `ModelGateway` *fake* que devuelve (a) texto no JSON, (b) JSON sin un campo obligatorio, (c) un `tipo` fuera del enum, (d) tres hallazgos con uno mal formado, (e) *timeout*, (f) bloqueo de contenido sin proveedor alterno, (g) error del proveedor, o (h) un anonimizador caído, When corre el analizador, Then `estado: error`, `hallazgos` vacío y `codigo` `salida_invalida` en (a)–(d), `tiempo_agotado`, `bloqueo_contenido`, `proveedor` y `anonimizador_no_disponible` (CD-02), respectivamente. `[N0]` una prueba por código
 - **AC3.2.2** Given un tramo en error, When lo veo, Then leo «El analizador no pudo procesar este tramo. Revisión manual requerida» y el `codigo` como referencia secundaria. `[N0]` Vitest
 - **AC3.2.3** Given un tramo incremental en error, también en una sesión finalizada, When pulso «Reintentar», Then se repite la corrida con el mismo `desde_turno` y `hasta_turno`; reintentado dos veces, no hay hallazgos duplicados. `[N1]`
 - **AC3.2.4** Given observaciones que contienen vocabulario prohibido fuera de las dos citas, When se valida la salida, Then se trata como `salida_invalida`. `[N0]`
-- **AC3.2.5** Given cada código de error, When se muestra, Then lleva una causa en español que no culpa al testimonio, encima del mensaje de FR4.2: `proveedor` «El servicio de modelos no respondió»; `tiempo_agotado` «El análisis superó el tiempo máximo»; `salida_invalida` «La respuesta del modelo no tuvo el formato esperado»; `bloqueo_contenido` «El filtro de contenido del proveedor rechazó la petición»; caída del anonimizador «El anonimizador no respondió. No se envió ningún dato fuera del clúster». `[N0]` Vitest
+- **AC3.2.5** Given cada código de error, When se muestra, Then lleva una causa en español que no culpa al testimonio, encima del mensaje de FR4.2: `proveedor` «El servicio de modelos no respondió»; `tiempo_agotado` «El análisis superó el tiempo máximo»; `salida_invalida` «La respuesta del modelo no tuvo el formato esperado»; `bloqueo_contenido` «El filtro de contenido del proveedor rechazó la petición»; `anonimizador_no_disponible` «El anonimizador no respondió. No se envió ningún dato fuera del clúster». `[N0]` Vitest
 
 ### US3.3 — Que el testimonio no cambie las reglas del analizador · MUST · P3
 Como Oficial de Cumplimiento Ético, quiero que las instrucciones escritas dentro de un testimonio se traten
@@ -510,7 +523,7 @@ biblioteca; cubre la CLI y el servicio a la vez). La frontera en el clúster est
 
 - **AC11.3.1** Given el conjunto sintético con entidades sembradas (nombres, lugares y números de expediente, con y sin tilde), When pasa por el anonimizador, Then el 100 % sale seudonimizado; una sola fuga hace fallar la prueba. `[N0]`
 - **AC11.3.2** Given una misma persona mencionada en varios turnos, When se seudonimiza la entrevista, Then recibe la misma marca en todos (p. ej., `[PERSONA_3]`). `[N0]`
-- **AC11.3.3** Given el anonimizador (a) caído, (b) lanzando una excepción o (c) sin responder antes de su *timeout*, When el analizador va a llamar a un proveedor externo, Then el `ModelGateway` *fake* registra 0 llamadas y el tramo termina en `estado: error` con el código del anonimizador. `[N0]` con 100 % de ramas
+- **AC11.3.3** Given el anonimizador (a) caído, (b) lanzando una excepción o (c) sin responder antes de su *timeout*, When el analizador va a llamar a un proveedor externo, Then el `ModelGateway` *fake* registra 0 llamadas y el tramo termina en `estado: error` con `codigo` `anonimizador_no_disponible`. `[N0]` con 100 % de ramas
 - **AC11.3.4** Given en la salida del juez (a) una cita seudonimizada válida, (b) una marca alterada, (c) una marca inventada (`[PERSONA_9]` inexistente), (d) una cita que perdió una marca, When se verifica, Then en (a) se restaura y se verifica contra el turno **original**, y (b), (c) y (d) invalidan el hallazgo. `[N0]`
 - **AC11.3.5** Given un *canary* sembrado como nombre, When termina una corrida de la CLI, Then no aparece en ningún log capturado ni en ningún archivo que escribe la CLI (la tabla de correspondencia vive solo en memoria). `[N0]`
 - **AC11.3.6** Given un perfil todo local, When corre una corrida, Then el anonimizador no interviene y no hay llamadas fuera del clúster. `[N0]`
@@ -536,7 +549,7 @@ por el anonimizador desplegado, para que la `NetworkPolicy` y el fallo cerrado s
 frontera.
 
 - **AC11.6.1** Given `semantic-agent` con un perfil de destino externo y sin la dirección del anonimizador configurada, When arranca, Then termina con código ≠ 0 y no pasa la sonda de salud. `[N0]` + `[N1]`
-- **AC11.6.2** Given `semantic-agent` con el anonimizador detenido y un servidor de proveedor *fake* en contenedor, When se analiza un turno, Then el servidor registra 0 peticiones y el tramo queda en `error` con el código del anonimizador. `[N1]`
+- **AC11.6.2** Given `semantic-agent` con el anonimizador detenido y un servidor de proveedor *fake* en contenedor, When se analiza un turno, Then el servidor registra 0 peticiones y el tramo queda en `error` con `codigo` `anonimizador_no_disponible`. `[N1]`
 - **AC11.6.3** Given una corrida con un *canary* sembrado, When termina, Then el *canary* no aparece en los logs de ningún servicio ni en PostgreSQL ni en Redis: la tabla de correspondencia vive solo en la memoria del proceso que restaura. `[N1]`
 
 ---

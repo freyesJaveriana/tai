@@ -309,3 +309,42 @@ C. Los `.sbatch` de validación quedan fuera del repositorio (como los de la 4L 
 X. Other (please specify)
 
 [Answer]: A
+
+# Tercera pasada — revalidación (2026-11-09)
+
+Tras volver a Requirements Analysis (revisión 3, aprobada el 2026-11-09), User Stories quedó desfasada
+por precisiones que el humano ya aprobó en etapas posteriores: Domain Design (A-1..A-4, 2026-11-07, hoy
+en `stories-adenda-02.md`) y Contract Design (CD-02: código `anonimizador_no_disponible`; CD-04:
+adaptadores nativos de los proveedores comerciales en el anonimizador, 2026-11-09). Solo se pregunta
+cómo registrar la nueva revisión; lo demás ya lo deciden las fuentes.
+
+## Pregunta 17 — ¿Cómo se registra el código CD-02 del anonimizador en stories.md?
+
+La tabla de decisiones (fila «Código de error del anonimizador») dice «propuesta: `anonimizador`… El nombre
+definitivo lo fija Contract Design», y AC3.2.1, AC3.2.5, AC11.3.3 y AC11.6.2 dicen «el código del
+anonimizador».
+
+A. Se sustituye por `anonimizador_no_disponible` en la fila de la tabla y en esos criterios, citando CD-02 (Recomendada)
+B. Solo se añade una nota en la cabecera de la revisión 3; los criterios siguen remitiendo a la tabla
+X. Other (please specify)
+
+[Answer]: A
+
+## Pregunta 18 — ¿Sigue la adenda 02 como archivo aparte?
+
+`stories-adenda-02.md` (épica 15 y criterios que se suman, con A-1..A-4) está aprobada y aparte, igual que
+la adenda de requisitos (pregunta 17 de Requirements Analysis).
+
+A. Sí, sigue aparte; la cabecera de stories.md la cita y nombra las precisiones A-1..A-4 que viven en ella (Recomendada)
+B. Se integra en stories.md como épica 15
+X. Other (please specify)
+
+[Answer]: A
+
+## Pregunta 19 — ¿Cómo se registran las precisiones posteriores?
+
+A. Se ratifican en bloque como revisión 3, listando cada grupo con su origen y fecha, sin cambiar ninguna historia más allá del código de la pregunta 17 (Recomendada)
+B. Se repasa historia por historia y se reescriben las afectadas
+X. Other (please specify)
+
+[Answer]: A

@@ -1,0 +1,21 @@
+## Review
+
+**Verdict:** READY
+**Reviewer:** aidlc-product-lead-agent
+**Date:** 2026-11-10T01:13:45Z
+**Iteration:** 1
+
+### Findings
+
+| ID | Severity | Location | Finding | Required action | Status |
+|---|---|---|---|---|---|
+| R-01 | Major | aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/requirements.md > cabecera, «Revisión 3», frase final (pregunta 19) | La cabecera dice que el proceso del cambio 04 (DT30, loop orquestador-codificador-revisor) «queda en `team.md` y en el plan». `grep` de «DT30» y «orquestador» sobre `aidlc/spaces/default/memory/team.md` no da ninguna coincidencia; su Mandated solo dice «se construye por Bolts» y habla de DT27. La respuesta 19 = A se apoyó en esa premisa, que no se cumple. | Antes de aprobar, registrar el loop de DT30 en `team.md` (Way of Working o Mandated) por el ritual de aprendizajes, o corregir la cabecera para decir que está solo en `plan-aidlc.md` y `docs/loop/`. | New |
+| R-02 | Major | requirements.md > NFR11 y FR7.5 frente a requirements-adenda-02.md > prioridad, VE-12 y A-2 | Dos requisitos MUST de requirements.md (NFR11 y FR7.5) llevan criterios que dependen del `Job` de retención y de su usuario con `DELETE`. Ese `Job` pertenece a VE-12, que la adenda marca «demostración» (DD-03) y que, por la excepción de prioridad, no bloquea el uso. La revisión 3 no dice si ese criterio de NFR11 (el usuario del `Job` sí puede borrar) es MUST o demostración. Un desarrollador no sabe si debe construirlo para cerrar NFR11. | Declarar en NFR11 y FR7.5 el nivel de exigencia de la parte del `Job` (MUST o demostración, por DD-03), o aclarar que esa parte hereda el nivel de VE-12 y que la prueba de que la aplicación no puede borrar sigue siendo MUST. | New |
+| R-03 | Minor | requirements.md > cabecera, «Revisión 3» («sin cambiar ningún requisito») | La frase es inexacta. Las precisiones ratificadas añaden FR13.5 y FR16.3, el rol `investigador` en FR1.2, y nuevos rechazos y criterios: FR3.6 y FR14.3 rechazan sin el bloque `consentimiento`, FR7.5 limita la conservación de la versión anterior, NFR11 se acota al usuario de la aplicación. La pregunta 18 = A fue «no se cambia ningún requisito». | Reformular como «sin cambiar ningún requisito más allá de las precisiones listadas», o enumerar los requisitos nuevos y los criterios modificados para que la ratificación sea fiel. | New |
+| R-04 | Minor | requirements.md > sección 8 Trazabilidad (columnas «Estado en la revisión 2» y «Origen») | La tabla no se actualizó con las precisiones posteriores. FR1 (A-3), FR3 (A-4), FR4 (CD-02), FR6 (A-1), FR7 (A-2, A-3), FR14 (A-4), FR15 (CD-04) y NFR11 (A-2) siguen con el origen anterior. Solo FR13 y FR16 citan su origen. El encabezado de la columna dice «revisión 2». | Añadir a cada fila afectada el origen de la precisión (A-1 a A-4, CD-02, CD-04) y renombrar la columna a «revisión 3», para que la trazabilidad no dependa solo de la cabecera. | New |
+| R-05 | Minor | requirements.md > cabecera «Insumos» (último párrafo) | El párrafo de trazabilidad sigue diciendo «una respuesta de este análisis (preguntas 1–16)». La lista de insumos ya incluye las preguntas 17–19, el cambio 02 (VE-xx) y DT30, pero no se citan como origen válido de un requisito. | Cambiar a «preguntas 1–19» y añadir los ID `VE-xx` de la adenda 02 y DT30 como orígenes admitidos. | New |
+| R-06 | Minor | aidlc/spaces/default/intents/261002-veridicus-mvp/inception/requirements-analysis/requirements-adenda-02.md > «Vía» y sección 5 | La adenda forma parte de la revisión 3, pero su texto sigue diciendo que se suma a `requirements.md` «revisión 2, aprobada» «sin modificarlo» y que el humano «decide» si lleva A-1 a A-4 al original. Ya se llevaron (DD-08) y requirements.md fue modificado. El lector de la adenda no ve que A-1 a A-4 ya están integradas. | Añadir una nota en la adenda con el estado de A-1 a A-4 («integradas en requirements.md, revisión 3») sin cambiar los ID. | New |
+
+### Summary
+
+Las precisiones A-1 a A-4, CD-02 y CD-04 son coherentes con la adenda 02 y con el PRD; los criterios siguen siendo medibles y no encontré contradicciones entre requisitos. Antes de aprobar conviene resolver R-01 (la premisa de la pregunta 19 sobre `team.md` es falsa) y R-02 (el nivel de exigencia del `Job` de retención en NFR11 y FR7.5). Los demás hallazgos son de registro.

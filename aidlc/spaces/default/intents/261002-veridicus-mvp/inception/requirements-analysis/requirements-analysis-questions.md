@@ -291,3 +291,47 @@ C. Solo registrar *tokens*, sin costo estimado.
 X. Other (please specify)
 
 [Answer]: A
+
+---
+
+# Tercera pasada — revalidación (2026-11-09)
+
+**Por qué se reabre.** `requirements.md` cambió después de su aprobación del 2026-10-30, siempre por
+decisión del humano en etapas posteriores: precisiones de User Stories (2026-11-02), de Refined Mockups
+(rol `investigador` en FR1.2 y FR13.5, 2026-11-03), de Domain Design (A-1 a A-4 por DD-08: FR6.4,
+NFR11, FR7.3–FR7.5, FR1, FR3.6, FR13.2, FR14.3, 2026-11-07) y de Contract Design (CD-02 en FR4.2 y
+CD-04, 2026-11-09). Aparte quedó `requirements-adenda-02.md` (VE-01 a VE-17, cambio 02). Después llegó
+el cambio 04 (DT30), que revierte K6 de `docs/iteracion2.md`: la construcción vuelve al loop
+orquestador–codificador–revisor, con las tareas sacadas del plan aprobado de cada unidad.
+
+Lo que esas fuentes ya deciden no se vuelve a preguntar. Solo queda decidir cómo se registra todo en la
+revisión 3.
+
+### Pregunta 17 — ¿Cómo queda la adenda 02 (VE-01 a VE-17) respecto de `requirements.md`?
+
+El §3 del cambio 02 pidió un archivo nuevo, sin modificar lo aprobado, y las etapas siguientes ya citan
+`requirements-adenda-02.md` y sus ID `VE-xx`.
+
+A. **Sigue como archivo aparte**, con sus ID `VE-xx`; la cabecera de `requirements.md` la nombra como parte de la revisión 3 **(Recomendada)**
+B. Se integra en `requirements.md` como requisitos FR/NFR nuevos, conservando los `VE-xx` como alias.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 18 — ¿Cómo se ratifican las precisiones que entraron después de la aprobación?
+
+A. **Se ratifican en bloque como revisión 3**: la cabecera lista cada grupo con su origen y fecha, y no se cambia ningún requisito **(Recomendada)**
+B. Se revisan una por una antes de ratificarlas.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 19 — ¿El cambio 04 (DT30, loop de agentes) cambia algún requisito?
+
+El loop cambia cómo se construye (Code Generation), no lo que hace el producto.
+
+A. **Ningún requisito cambia**; el cambio 04 se nombra entre los insumos y el proceso queda en `team.md` y en el plan **(Recomendada)**
+B. Se añade una restricción en §4: la construcción sigue el loop con las tareas del plan aprobado de cada unidad (DT30).
+X. Other (please specify)
+
+[Answer]: A

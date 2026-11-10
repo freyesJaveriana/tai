@@ -13,15 +13,31 @@ FR7.2, FR7.5, FR11.3, FR14.3, FR16.1, NFR12 y el nuevo **FR16.3**. Cada cambio c
 decidió traer aquí el tercer rol `investigador` de FR1.2 (seguimiento 8 de `refined-mockups-questions.md`)
 y el nuevo **FR13.5**, la consola de reportes del investigador (respuesta 10 y seguimiento 7).
 
+**Precisiones de Domain Design (2026-11-07).** Al aprobar la segunda pasada de Domain Design (DD-08), el
+humano decidió traer aquí las precisiones A-1 a A-4 de `requirements-adenda-02.md`: FR6.4 excluye el
+aviso de VE-01 del escáner (A-1); NFR11 y FR7.5 con el `Job` de retención (A-2); FR1, FR7.3 y FR7.4 con
+el *hash* por exportación (A-3); FR3.6, FR13.2 y FR14.3 con el consentimiento en el contrato (A-4).
+
+**Precisiones de Contract Design (2026-11-09).** FR4.2 usa el código `anonimizador_no_disponible`
+(CD-02) y FR15.1 ubica los adaptadores nativos de los proveedores comerciales en el anonimizador, con
+las claves montadas solo en `anonymizer-proxy` (CD-04).
+
+**Revisión 3 — revalidación (2026-11-09).** El humano ratificó en bloque las cuatro precisiones de
+arriba como revisión 3, sin cambiar ningún requisito (pregunta 18). `requirements-adenda-02.md`
+(VE-01 a VE-17, cambio 02) sigue como archivo aparte con sus ID `VE-xx` y forma parte de esta revisión
+(pregunta 17). El cambio 04 (DT30, que revierte K6 de `docs/iteracion2.md`) solo cambia cómo se
+construye (el loop orquestador–codificador–revisor con las tareas del plan aprobado de cada unidad), no
+ningún requisito; ese proceso queda en `team.md` y en el plan (pregunta 19).
+
 **Insumos.** `specs/prd.md` (iteración 6, fuente única de requisitos), `pvb.md` (cede ante el PRD,
 nota H6), `docs/limite-autonomia.md` (AUTONOMIA-01..05, con 04 y 05 reescritas), `docs/iteracion2.md`
 (análisis de impacto del cambio 01 y decisiones P1–P18), el cambio 01 con su **contrato común del
 analizador v0.1** (sección 4 del cambio; fuera del repositorio hasta que Contract Design lo copie), las
 prácticas afirmadas en
 `aidlc/spaces/default/intents/261002-veridicus-mvp/inception/practices-discovery/team-practices.md`
-(team-practices), corregidas por el cambio 01 en `team.md`, y las respuestas de
-`requirements-analysis-questions.md` (preguntas 1–8 y Seguimiento 1 de la primera pasada; preguntas
-9–16 de la segunda).
+(team-practices), corregidas por el cambio 01 en `team.md`, el cambio 02 (adenda 02), el cambio 04
+(DT30) y las respuestas de `requirements-analysis-questions.md` (preguntas 1–8 y Seguimiento 1 de la
+primera pasada; preguntas 9–16 de la segunda; preguntas 17–19 de la tercera).
 
 El scope `classic` omite Ideation, así que no hay intent-statement ni scope-document; el proyecto es
 greenfield, así que no hay business-overview, architecture ni code-structure. Cada requisito se traza a

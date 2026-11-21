@@ -1,5 +1,14 @@
 # Decisiones de arquitectura — Diseño del dominio (Veridicus)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque las precisiones aprobadas después de la
+revisión 2 (preguntas 13 y 14 = A) y no cambia ninguna decisión:
+- **Contract Design (2026-11-09):** CD-01 (códigos del anonimizador en el contrato frente a Problem
+  Details), CD-03 (ResearchReports rechaza con `422`), CD-04 (adaptadores comerciales en el Anonymizer) y
+  CD-06 (cancelación por clave de Redis). Alinean el texto de ADR-005, ADR-006, ADR-011, ADR-013 y
+  ADR-014, que llevan la marca **Revisada 2026-11-21** con su versión anterior en «Antes».
+- **User Stories, revisión 3, y Refined Mockups, revisión 3 (2026-11-21):** nombran los componentes según
+  CD-04 y suman el estado bloqueado de M4; no tocan ninguna ADR.
+
 **Revisión 2 (2026-11-06), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Ajustada el mismo
 día con los hallazgos R-01 a R-05 de la revisión de arquitectura (ADR-003, ADR-007, ADR-008, ADR-013 y
 ADR-016).
@@ -11,7 +20,8 @@ ADR-016).
 - Historias: `inception/user-stories/stories.md` (stories) y `stories-adenda-02.md`.
 - Prácticas: `inception/practices-discovery/team-practices.md` (team-practices).
 - Otros documentos: `docs/iteracion2.md` §2.4 y `docs/validacion-zine/reporte.md`.
-- Respuestas P1–P12 y Seguimiento 1 de `domain-design-questions.md`.
+- Respuestas P1–P12 y Seguimiento 1 de `domain-design-questions.md`, y P13–P14 de la tercera pasada.
+- Precisiones CD-01, CD-03, CD-04 y CD-06 de `inception/contract-design/contract-summary.md`.
 
 **Fechas.** ADR-001 a ADR-009 son del 02/10/2026; ADR-010 a ADR-017, del 06/11/2026. Las ADR que cambian
 en esta pasada llevan la marca **Revisada 2026-11-06**, y su versión anterior queda resumida en
@@ -23,16 +33,16 @@ en esta pasada llevan la marca **Revisada 2026-11-06**, y su versión anterior q
 | ADR-002 | El resultado de la corrida vuelve por la cola de resultados | P2 | Revisada 2026-11-06 |
 | ADR-003 | Cada componente es dueño de su historial de solo inserción | P3, A-2, R-01, R-02 | Revisada 2026-11-06 |
 | ADR-004 | Una sola fachada (ConsoleApi) para la consola | P4 | Vigente |
-| ADR-005 | Toda llamada a un modelo pasa por ModelGateway; un destino externo, solo detrás del anonimizador | P5, P7, DT18 | Revisada 2026-11-06 |
-| ADR-006 | El trabajador no tiene estado: la instantánea del perfil viaja en el mensaje | FR3.1, FR14.2, FR13.1 | Revisada 2026-11-06 |
+| ADR-005 | Toda llamada a un modelo pasa por ModelGateway; un destino externo, solo detrás del anonimizador | P5, P7, DT18, CD-01, CD-04 | Revisada 2026-11-06 y 2026-11-21 |
+| ADR-006 | El trabajador no tiene estado: la instantánea del perfil viaja en el mensaje | FR3.1, FR14.2, FR13.1, CD-06 | Revisada 2026-11-06 y 2026-11-21 |
 | ADR-007 | Las decisiones de revisión pertenecen a una ronda de revisión | FR6.1, FR7.5, R-01 | Revisada 2026-11-06 |
 | ADR-008 | IntegrityPolicy como biblioteca compartida de reglas puras | FR6.4, VE-01, VE-02, VE-05, R-03 | Revisada 2026-11-06 |
 | ADR-009 | La autorización por dueño de sesión se aplica en ConsoleApi | FR1.2, ADR-004 | Vigente (tres roles) |
 | ADR-010 | Biblioteca sin infraestructura, partida en IncoherenceAnalyzer y AnalyzerCli | DT26, P6 | Nueva |
-| ADR-011 | Anonymizer es un componente propio, único con salida a internet | P7, DT18 | Nueva |
+| ADR-011 | Anonymizer es un componente propio, único con salida a internet | P7, DT18, CD-04 | Nueva; revisada 2026-11-21 |
 | ADR-012 | ExecutionProfiles sin estado; los perfiles solo cambian por PR | DT21, P8 | Nueva |
-| ADR-013 | InterviewSession guarda corridas y llamadas, y bloquea la sesión ante un incidente | P9, VE-14, R-04 | Nueva |
-| ADR-014 | ResearchReports propio, que guarda solo cifras | P11, FR13.5 | Nueva |
+| ADR-013 | InterviewSession guarda corridas y llamadas, y bloquea la sesión ante un incidente | P9, VE-14, R-04, CD-01 | Nueva; revisada 2026-11-21 |
+| ADR-014 | ResearchReports propio, que guarda solo cifras | P11, FR13.5, CD-03 | Nueva; revisada 2026-11-21 |
 | ADR-015 | ForensicReport pasa a ReviewReport, con hash por exportación | P12, VE-03, VE-13, A-3 | Nueva |
 | ADR-016 | Protocolo ético en dos niveles: el analizador sin rebaja y la consola como demostración | P10, Seguimiento 1, A-2 | Nueva |
 | ADR-017 | El contrato común es una fuente externa, con el consentimiento dentro | DT17, A-4 | Nueva |
@@ -163,14 +173,22 @@ navegador nunca llama al trabajador, al transcriptor ni al anonimizador. Respues
 anonimizador (COULD) sería otro adaptador. *Ahora:* se admiten destinos externos, solo detrás de
 `Anonymizer` (DT18, FR11.3). Sale `embed`.
 
+**Revisada 2026-11-21 (CD-01, CD-04).** *Antes:* ModelGateway tenía los adaptadores nativos de los
+proveedores comerciales y la corrida terminaba «con el código del anonimizador». *Ahora:* ModelGateway
+solo tiene el adaptador compatible con OpenAI para los modelos locales; los nativos viven en `Anonymizer`
+(ADR-011), y el fallo cerrado deja `codigo: anonimizador_no_disponible` en el contrato
+(`analysis.anonymizer_unavailable` en Problem Details).
+
 **Context.** AUTONOMIA-04 prohíbe que salga del clúster testimonio sin seudonimizar y exige probar el
 *payload* saliente. Desde el cambio 01, la primera rebanada usa un proveedor comercial (team.md, orden de
 entrega). FR15.1 fija `generate(papel, mensajes, esquema)` con adaptadores nativos y uno compatible con
 OpenAI.
 
 **Decision.** `ModelGateway` es el único camino hacia el juez, el verificador, Whisper y el TTS. Antes de
-todo destino externo llama a `Anonymizer` (ADR-011). Si este falla, la llamada no sale y la corrida
-termina con el código del anonimizador. Cada llamada devuelve su registro, con el campo `anonimizado`
+todo destino externo llama a `Anonymizer` (ADR-011), que contiene los adaptadores nativos de Anthropic,
+Google y OpenAI; ModelGateway solo tiene el adaptador compatible con OpenAI para los modelos locales
+(CD-04). Si el anonimizador falla, la llamada no sale y la corrida termina con `codigo:
+anonimizador_no_disponible` (CD-01). Cada llamada devuelve su registro, con el campo `anonimizado`
 (FR15.3, VE-14). En los modelos locales, la salida JSON se fuerza con `json_schema` y el razonamiento
 apagado, como fijó la validación en ZINE.
 
@@ -192,13 +210,18 @@ apagado, como fijó la validación en ZINE.
 con un usuario de solo lectura. *Ahora:* sale el umbral (cambio 01). El mensaje lleva la configuración
 efectiva del perfil y el trabajador no tiene usuario de base de datos.
 
+**Revisada 2026-11-21 (CD-06).** *Antes:* no se decía cómo se entera el trabajador de una cancelación.
+*Ahora:* InterviewSession escribe la clave de Redis `veridicus:run-cancelled:{run_id}` (vence en
+`deadline_at` más un margen y se reescribe tras un reinicio de Redis) y el trabajador solo la lee; además,
+no llama a nada después de `deadline_at` (C2). El trabajador sigue sin estado y sin base de datos.
+
 **Context.** Cada sesión queda ligada a su perfil y a su `config_sha256` durante toda su vida (FR3.1),
 aunque el archivo de perfiles cambie después por PR. La biblioteca no debe depender de la base (FR13.1).
 
 **Decision.** `InterviewSession` fija la configuración efectiva al crear la sesión. Cada mensaje de
 corrida lleva esa configuración, la transcripción hasta `hasta_turno`, el tramo y el bloque de
 consentimiento. `AnalysisWorker` no guarda datos ni lee la base: arma la entrada del contrato y llama al
-núcleo.
+núcleo. Lee, sin escribirla, la clave de cancelación de la corrida que escribe InterviewSession, y no llama a nada después de `deadline_at` (CD-06, VE-10 (a)).
 
 **Consequences.**
 - Positivas: FR3.1 se cumple por construcción tras un reinicio o un PR de perfiles. El trabajador escala
@@ -329,14 +352,21 @@ unidad desplegable propia lo decide Units Generation.
 
 ## ADR-011: Anonymizer es un componente propio, único con salida a internet
 
+**Revisada 2026-11-21 (CD-04).** *Antes:* Anonymizer seudonimizaba y reenviaba la llamada, y los
+adaptadores de los proveedores comerciales estaban en ModelGateway. *Ahora:* Anonymizer contiene los
+adaptadores nativos de Anthropic, Google y OpenAI, y las claves de API se montan solo en
+`anonymizer-proxy`.
+
 **Context.** Desde el cambio 01, el anonimizador es MUST y tiene reglas propias: NER local más reglas,
 marcas coherentes en toda la entrevista, tabla de correspondencia solo en memoria, detección de marcas
 alteradas y lista de dominios. En el clúster es el único pod con salida a internet (FR12.3). En la CLI
 corre en el mismo proceso.
 
 **Decision.** `Anonymizer` es un componente propio. `ModelGateway` lo llama antes de todo destino externo.
-`Anonymizer` seudonimiza lo que sale, envía la llamada al proveedor de la lista, restaura la respuesta y
-marca los hallazgos con marcas alteradas. El núcleo recibe el texto restaurado y verifica las citas contra
+`Anonymizer` seudonimiza lo que sale, envía la llamada al proveedor de la lista con su adaptador nativo
+(Anthropic, Google u OpenAI), restaura la respuesta y marca los hallazgos con marcas alteradas. Los
+adaptadores nativos y las claves de API viven solo aquí: en el clúster, las claves se montan solo en
+`anonymizer-proxy` y la imagen de `semantic-agent` no incluye ningún adaptador comercial (CD-04). El núcleo recibe el texto restaurado y verifica las citas contra
 los turnos originales (FR4.4). En el clúster, ese mismo código es el pod `anonymizer-proxy`. Respuesta
 P7 = A.
 
@@ -345,13 +375,16 @@ P7 = A.
   lista de dominios y la fuga cero sobre el conjunto sintético. La `NetworkPolicy` se escribe para un
   solo pod.
 - Negativas: en el clúster cada llamada externa da un salto de red más. La tabla en memoria obliga a que
-  la restauración ocurra en la misma llamada.
+  la restauración ocurra en la misma llamada. Cada proveedor comercial nuevo cambia el Anonymizer, el
+  componente de más riesgo (CD-04).
 - Seguridad y cumplimiento: ningún otro componente tiene salida a internet, y ningún log ni disco guarda
   la correspondencia.
 
 **Alternatives Rejected.**
 - Un adaptador dentro de ModelGateway (ADR-005 de la revisión 1): mezcla reglas de privacidad con el
-  transporte, y el pod con salida tendría todo el código de los proveedores.
+  transporte, y el pod con salida tendría todo ModelGateway, incluido el camino a los modelos locales.
+  (Desde CD-04 el pod con salida sí tiene los adaptadores comerciales, pero solo esos: es el único que
+  los necesita y el único que ve las claves.)
 - Que lo orqueste el núcleo: la biblioteca tendría que conocer el transporte, y un camino que olvidara
   llamarlo dejaría salir texto sin seudonimizar.
 
@@ -381,6 +414,10 @@ transferencia (A-4). Respuesta P8 = A.
 
 ## ADR-013: InterviewSession guarda corridas y llamadas, y bloquea la sesión ante un incidente
 
+**Revisada 2026-11-21 (CD-01).** *Antes:* la corrida abortada llevaba `codigo: anonymizer.incident`.
+*Ahora:* dentro del contrato común el código es `incidente_anonimizacion`; `anonymizer.incident` es solo
+el código de Problem Details con que InterviewSession bloquea la sesión.
+
 **Context.** La biblioteca no persiste nada. En el producto hay que guardar cada corrida y sus llamadas,
 de solo inserción (FR15.3, NFR11). También hay que detectar el incidente de VE-14: una llamada a un
 proveedor comercial con `anonimizado: false` bloquea la sesión. La CLI usa la misma biblioteca sin
@@ -389,7 +426,7 @@ sesión, así que la regla no puede vivir solo en el producto (R-04).
 **Decision.** `InterviewSession`, al consumir el resultado (ADR-002), guarda `AnalysisRun`, `ModelCall` y
 `DiscardedCandidate`, y pasa los hallazgos a `HumanReview`. El corte lo decide la biblioteca:
 `IncoherenceAnalyzer` aborta la corrida ante una respuesta externa con `anonimizado: false` y la deja en
-`estado: error`, `codigo: anonymizer.incident` y hallazgos vacíos. La CLI detiene el lote y termina con
+`estado: error`, `codigo: incidente_anonimizacion` y hallazgos vacíos. La CLI detiene el lote y termina con
 un código de salida propio. InterviewSession, al recibir ese código (o una llamada sin anonimizar en el
 registro), bloquea la sesión con `anonymizer.incident`, rechaza corridas nuevas y registra un
 `AnonymizationIncident`. Respuesta P9 = A y hallazgo R-04.
@@ -411,11 +448,16 @@ registro), bloquea la sesión con `anonymizer.incident`, rechaza corridas nuevas
 
 ## ADR-014: ResearchReports propio, que guarda solo cifras
 
+**Revisada 2026-11-21 (CD-03).** *Antes:* ResearchReports descartaba el texto antes de guardar. *Ahora:*
+rechaza con `422` el reporte que trae texto o no cumple el esquema, porque el reporte de la CLI no tiene
+campos de texto libre.
+
 **Context.** El rol `investigador` sube los reportes JSON de la CLI, los lista, los ve y los compara
 (FR13.5, US12.6, US12.7). Nunca se guarda texto de transcripciones, hallazgos ni citas (NFR12).
 
 **Decision.** `ResearchReports` es un componente propio, con su entidad `ResearchReport`. Valida el esquema
-del reporte subido, descarta el texto antes de guardar y no lanza análisis. Respuesta P11 = A.
+del reporte subido y rechaza con `422` el que trae texto o no cumple el esquema (CD-03); no lanza
+análisis. Respuesta P11 = A.
 
 **Consequences.**
 - Positivas: la regla de no guardar texto tiene un solo dueño y su prueba *canary*. Otro rol tiene otro

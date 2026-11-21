@@ -1,5 +1,20 @@
 # Componentes del dominio — Veridicus (MVP)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque las precisiones aprobadas después de la
+revisión 2 (preguntas 13 y 14 = A). No cambia ningún componente, entidad ni arista, y la trazabilidad
+conserva sus ID:
+- **Contract Design (2026-11-09).** El catálogo ya lleva desde esa aprobación CD-01 (`codigo:
+  incidente_anonimizacion` y `anonimizador_no_disponible` dentro del contrato; `anonymizer.incident` y
+  `analysis.anonymizer_unavailable` en Problem Details), CD-03 (ResearchReports rechaza con `422`), CD-04
+  (adaptadores comerciales y claves en el Anonymizer), CD-06 (cancelación por la clave
+  `veridicus:run-cancelled:{run_id}`) y CD-09 (tipos de llamada y esquemas de perfiles en U1). Esta
+  revisión las ratifica y alinea con ellas ADR-005, ADR-006, ADR-011, ADR-013 y ADR-014.
+- **User Stories, revisión 3 (2026-11-21).** AC11.3.3, AC11.3.7, AC11.6.2, AC11.6.4 y AC13.3.1 nombran
+  los componentes según CD-04, y AC3.2.5 fija la causa de los dos códigos del anonimizador.
+- **Refined Mockups, revisión 3 (2026-11-21).** M4 suma el estado «Sesión bloqueada por un incidente de
+  anonimización». AnalystConsole lo muestra; el bloqueo es de InterviewSession (ADR-013), y el texto es
+  propuesta de Refined Mockups.
+
 **Revisión 2 (2026-11-06), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. Los componentes que salen quedan en la tabla «Componentes retirados» con su
 nombre, sin renumerar nada. Ajustada el mismo día con los hallazgos R-01 a R-05 de la revisión de
@@ -16,8 +31,8 @@ ConsoleApi, incidente de anonimización en la biblioteca y DD-06 separada.
 - Pantallas: `inception/refined-mockups/` (M0–M8).
 - Otros documentos: `docs/iteracion2.md` §2.4 y el reporte de `docs/validacion-zine/`, cuya decisión es
   «Diseñar con limitaciones registradas».
-- Respuestas: P1–P5 (primera pasada) y P6–P12 con el Seguimiento 1 (segunda pasada) de
-  `domain-design-questions.md`.
+- Respuestas: P1–P5 (primera pasada), P6–P12 con el Seguimiento 1 (segunda pasada) y P13–P14 (tercera
+  pasada) de `domain-design-questions.md`.
 - Proyecto greenfield: no hay arquitectura previa.
 
 **Alcance.** Esta etapa fija tres cosas:
@@ -63,7 +78,9 @@ components:
       especificación y los mismos ejemplos que el servidor, solo como vista previa (FR3.3). Codifica la
       voz a WAV mono de 16 kHz. Muestra, como demostración del protocolo, el diálogo de reconocimiento,
       el aviso de contenido al abrir una sesión y el recordatorio de pausa no modal (VE-04, VE-16), sin
-      impedir el trabajo. Envía el latido de la sesión abierta y formatea fechas en hora de Colombia.
+      impedir el trabajo. Muestra el estado de sesión bloqueada por un incidente de anonimización que le
+      devuelve ConsoleApi (`anonymizer.incident`), con las acciones de análisis deshabilitadas (texto
+      propuesto en Refined Mockups, revisión 3). Envía el latido de la sesión abierta y formatea fechas en hora de Colombia.
       Sus textos salen del catálogo de mensajes que pasa el escaneo de vocabulario prohibido.
     responsibilities:
       - Pantallas, estados visuales y accesibilidad WCAG 2.1 AA (US5.6)
@@ -1023,6 +1040,9 @@ aprobación, el humano decide cuáles se llevan al original, cada una en su prop
 DD-06, DD-08 (un commit por cada decisión A-1 a A-4), DD-09 y DD-10, cada una en su propio commit. DD-07 no
 cambia nada. La tabla queda como registro del origen. Los cinco hallazgos Minor de la revisión 3
 (`reviews/review-03.md`) quedan anotados para las etapas siguientes.
+
+**Revisión 3 (2026-11-21).** No propone precisiones nuevas a artefactos aprobados: solo ratifica las de
+Contract Design (CD-01, CD-03, CD-04, CD-06, CD-09), que ya están en el catálogo, y las alinea en las ADR.
 
 ## Justificación
 

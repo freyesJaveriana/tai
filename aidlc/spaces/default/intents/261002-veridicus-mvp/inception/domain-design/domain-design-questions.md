@@ -213,3 +213,44 @@ C. La adenda 02 se aplica solo al analizador; la consola no lleva ningún compon
 X. Other (please specify)
 
 [Answer]: A
+
+---
+
+## Tercera pasada — revalidación (2026-11-21)
+
+El diseño del dominio (revisión 2, aprobada el 07/11/2026) quedó desfasado por precisiones que ya
+aprobaste en etapas posteriores:
+
+- **Contract Design (2026-11-09):** CD-01 (dentro del contrato el incidente es `codigo:
+  incidente_anonimizacion` y el fallo cerrado `anonimizador_no_disponible`; `anonymizer.incident` y
+  `analysis.anonymizer_unavailable` son códigos de Problem Details), CD-03 (ResearchReports rechaza con
+  `422` el reporte con texto), CD-04 (los adaptadores nativos comerciales viven en el Anonymizer y sus
+  claves solo en `anonymizer-proxy`), CD-06 (cancelación de corridas por una clave de Redis que el
+  trabajador solo lee) y CD-09 (tipos de llamada y esquemas de perfiles en U1). El catálogo de
+  `components.md` ya las lleva desde su aprobación, pero **las ADR no**: ADR-005, ADR-006, ADR-011,
+  ADR-013 (que usa `anonymizer.incident` como código de la corrida) y ADR-014 (que dice «descarta el
+  texto») siguen con el texto de la revisión 2, y las cabeceras dicen «Revisión 2».
+- **User Stories, revisión 3 (2026-11-21):** AC11.3.3, AC11.3.7, AC11.6.2, AC11.6.4 y AC13.3.1 nombran
+  los componentes según CD-04; AC3.2.5 fija la causa de los dos códigos del anonimizador. No cambia
+  ningún componente ni ninguna arista.
+- **Refined Mockups, revisión 3 (2026-11-21):** M4 suma el estado «Sesión bloqueada por un incidente de
+  anonimización», cuyo texto es propuesta de esa etapa; el bloqueo ya lo tiene InterviewSession
+  (ADR-013).
+
+Lo demás ya lo deciden las fuentes. Solo se pregunta cómo registrar la revisión 3.
+
+### Pregunta 13 — ¿Cómo se ponen al día las ADR?
+
+A. **Se revisan ADR-005, ADR-006, ADR-011, ADR-013 y ADR-014** con la marca «Revisada 2026-11-21» y su versión anterior en «Antes», citando CD-01, CD-03, CD-04 y CD-06. No cambia ninguna decisión: solo se alinea su texto con el catálogo ya aprobado **(Recomendada)**
+B. Solo una nota en la cabecera de `decisions.md` que remite a las precisiones de Contract Design, sin tocar el texto de las ADR.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 14 — ¿Cómo se registra la revisión 3?
+
+A. **Se ratifican en bloque como revisión 3** en las cabeceras de `components.md` y `decisions.md`, listando cada grupo con su origen y fecha (Contract Design, revisión 3 de historias y de maquetas). No cambia ningún componente, entidad ni arista, la trazabilidad conserva sus ID, y el estado bloqueado de M4 se cita en AnalystConsole como propuesta de Refined Mockups **(Recomendada)**
+B. Se repasa componente por componente y se rehacen los afectados, incluido el diagrama.
+X. Other (please specify)
+
+[Answer]: A

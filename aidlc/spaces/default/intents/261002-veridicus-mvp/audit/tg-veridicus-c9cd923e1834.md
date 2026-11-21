@@ -13978,3 +13978,265 @@
 **Context**: inception > contract-design > memory.md
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T19:17:51Z
+**Event**: REVIEW_REQUESTED
+**Stage**: contract-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:815977ec0bf2ef36bef635e9ed1360e1ecdb42b7c25ba1a9fd704df9690c2123
+**Request Id**: review:932b9b4eff12480d517892478003628e
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T19:27:28Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/contract-design/stage/9c87613163c1fc3c/1.review.md
+**Context**: .aidlc-engine > reviews > contract-design > stage > 9c87613163c1fc3c > 1.review.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T19:27:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: ab510279334822122
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Veredicto: NOT-READY.** Hay un Major abierto, R-14.\n\nRevisión escrita en `<project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T19:27:33Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T19:28:53Z
+**Event**: REVIEW_COMPLETED
+**Stage**: contract-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Verdict**: NOT-READY
+**Request Fingerprint**: sha256:815977ec0bf2ef36bef635e9ed1360e1ecdb42b7c25ba1a9fd704df9690c2123
+**Artifact Fingerprint**: sha256:815977ec0bf2ef36bef635e9ed1360e1ecdb42b7c25ba1a9fd704df9690c2123
+**Request Id**: review:932b9b4eff12480d517892478003628e
+**Review Record**: .aidlc-engine/reviews/contract-design/stage/9c87613163c1fc3c/1.json
+**Review Record Digest**: sha256:9e32c64d7bed14c280745a8013d18965bdcadd453a2be4b049e663bf9f307730
+
+---
+
+## Review Freeze Blocked
+**Timestamp**: 2026-11-21T19:30:12Z
+**Event**: REVIEW_FREEZE_BLOCKED
+**Tool**: Edit
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Stage**: contract-design
+
+---
+
+## Review Freeze Blocked
+**Timestamp**: 2026-11-21T19:30:18Z
+**Event**: REVIEW_FREEZE_BLOCKED
+**Tool**: Edit
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Stage**: contract-design
+
+---
+
+## Review Freeze Blocked
+**Timestamp**: 2026-11-21T19:30:20Z
+**Event**: REVIEW_FREEZE_BLOCKED
+**Tool**: Edit
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Stage**: contract-design
+
+---
+
+## Review Freeze Blocked
+**Timestamp**: 2026-11-21T19:30:24Z
+**Event**: REVIEW_FREEZE_BLOCKED
+**Tool**: Edit
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Stage**: contract-design
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T19:30:34Z
+**Event**: DECISION_RECORDED
+**Stage**: contract-design
+**Decision**: ¿Qué aprendizajes de Contract Design (revisión 3) guardo en project.md?
+**Options**: P15 session.blocked,P16 subpaquete,Ninguno
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T19:32:15Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T19:33:20Z
+**Event**: QUESTION_ANSWERED
+**Stage**: contract-design
+**Details**: P15 session.blocked, P16 subpaquete; Nothing to add
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-21T19:33:20Z
+**Event**: RULE_LEARNED
+**Stage**: contract-design
+**Candidate-ID**: c8
+**Content-Hash**: e342d7af5e35219206d07941a78e1c7269a8d6e572b93cdc368556bbe852362b
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-21T19:33:20Z
+**Event**: RULE_LEARNED
+**Stage**: contract-design
+**Candidate-ID**: c9
+**Content-Hash**: 968c2fe80444ffc9f3f5999bce1cc748163d2897b17f3a9d8382d7dd112eeb76
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T19:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8451b7ca
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T19:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8451b7ca
+**Sensor ID**: required-sections
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T19:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: d483b653
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T19:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: d483b653
+**Sensor ID**: upstream-coverage
+**Stage slug**: contract-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Duration ms**: 51
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-21T19:33:21Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: contract-design
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T19:35:36Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Gate Rejected
+**Timestamp**: 2026-11-21T19:35:39Z
+**Event**: GATE_REJECTED
+**Stage**: contract-design
+**Feedback**: Aplicar la corrección de R-14 y R-15 (inyección del AnonymizingProvider, cliente HTTP en model_gateway, import-linter y fake de U10) y volver a revisar
+
+---
+
+## Stage Revising
+**Timestamp**: 2026-11-21T19:35:39Z
+**Event**: STAGE_REVISING
+**Stage**: contract-design
+**Revision count**: 14
+**Feedback**: Aplicar la corrección de R-14 y R-15 (inyección del AnonymizingProvider, cliente HTTP en model_gateway, import-linter y fake de U10) y volver a revisar
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T19:35:44Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T19:35:49Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T19:35:51Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T19:35:54Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T19:36:02Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T19:36:06Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/contract-design/contract-design-questions.md
+**Context**: inception > contract-design > contract-design-questions.md
+
+---

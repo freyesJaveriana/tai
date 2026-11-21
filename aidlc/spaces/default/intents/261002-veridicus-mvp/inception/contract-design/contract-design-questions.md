@@ -323,3 +323,8 @@ B. Se repasa contrato por contrato.
 X. Other (please specify)
 
 [Answer]: A
+
+### Cambios pedidos en la aprobación de la revisión 3 (2026-11-21)
+
+Request Changes: «Aplicar la corrección de R-14 y R-15 (inyección del AnonymizingProvider, cliente HTTP
+en model_gateway, import-linter y fake de U10) y volver a revisar». Se aplicó en C13 y C20.

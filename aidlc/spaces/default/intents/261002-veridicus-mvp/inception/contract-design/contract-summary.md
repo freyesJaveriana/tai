@@ -12,6 +12,11 @@ etapas anteriores (preguntas 15 a 17 = A). Ningún contrato cambia de número ni
 - **Units Generation, revisión 3:** C20 separa los adaptadores nativos en un subpaquete que
   `semantic-agent` no puede importar, y lleva las pruebas del lado de U10. C13 suma la prueba compuesta
   de U11 (pregunta 16).
+- **Cambios pedidos en la aprobación (R-14 y R-15 de la revisión 05):** `AnonymizingProvider` pasa a
+  `contracts/python/model_calls.py`; el ModelGateway lo recibe por inyección y no importa
+  `libs.anonymizer`; `semantic-agent` usa un cliente HTTP de C21 en `libs/model_gateway/adapters/`; tres
+  contratos de import-linter y una prueba de `sys.modules` cierran la costura (C13). El transporte *fake*
+  es una utilería de pruebas de U10 (C20).
 
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. Los contratos conservan su número: los que salen quedan «Retirado» sin
@@ -1581,6 +1586,11 @@ class ProviderError(ModelCallError): ...
 class InvalidOutput(ModelCallError): ...
 class AnonymizerUnavailable(ModelCallError):
     """Fallo cerrado: no salió ninguna llamada fuera del clúster o de la máquina."""
+
+class AnonymizingProvider(Protocol):     # revisión 3 (R-14): vive aquí para que ModelGateway no importe libs.anonymizer
+    def generate(self, req: GenerateRequest) -> GenerateResult:
+        """Única puerta a un destino externo. La implementan el módulo de C20 (U10) y el cliente
+        HTTP de C21 (U11, libs/model_gateway/adapters/anonymizer_http.py). Semántica en C20."""
 ```
 
 ```python
@@ -1610,9 +1620,18 @@ idiomas (regla 8):
 
 **Adaptadores.**
 - `local`: servidor compatible con OpenAI (C14); `anonymized: false` es correcto.
-- `anonymizer`: todo destino externo. En la CLI llama al módulo en proceso (C20); en `semantic-agent`,
-  al proxy por HTTP (C21). No hay otro camino a un destino externo: los adaptadores nativos de los
-  proveedores no se instalan en `semantic-agent` (P13), y una comprobación de import-linter lo impide.
+- `anonymizer`: todo destino externo. Recibe por inyección un `AnonymizingProvider` (tipo de
+  `contracts.python.model_calls`) y no importa `libs.anonymizer` (revisión 3, R-14). Quien arma el
+  gateway elige la implementación: la raíz de composición de la CLI (U11) le pasa el módulo en proceso
+  de C20; `semantic-agent` (U4) le pasa el cliente HTTP de C21, que vive en
+  `libs/model_gateway/adapters/anonymizer_http.py` y solo importa `contracts/`. No hay otro camino a un
+  destino externo.
+- **Costura con import-linter (AC11.6.4).** Tres contratos `forbidden`, que cubren también las cadenas
+  indirectas: `libs.model_gateway` no importa `libs.anonymizer`; el paquete de `semantic-agent` no
+  importa `libs.anonymizer` (ni la API ni el subpaquete de adaptadores nativos); `libs.incoherence_analyzer`
+  solo lo importa desde su raíz de composición de la CLI, que `semantic-agent` no importa. La imagen de
+  `semantic-agent` no instala `libs/anonymizer`, y una prueba de nivel 0 importa el punto de entrada de
+  `semantic-agent` y comprueba que `libs.anonymizer` no está en `sys.modules`.
 - *fakes* deterministas para los niveles 0 y 1, con este mismo `Protocol`.
 
 **Arranque.** Al construir el gateway con el perfil se valida, antes de cualquier llamada (FR14.3): que
@@ -2069,11 +2088,10 @@ tipos vienen de `contracts.python.model_calls` (C13), y un contrato de import-li
 `libs.model_gateway`, `libs.execution_profiles` o `libs.incoherence_analyzer`.
 
 ```python
-# libs/anonymizer/api.py  — contrato v1.0.0
-from typing import Protocol
-from contracts.python.model_calls import GenerateRequest, GenerateResult
+# libs/anonymizer/api.py  — contrato v1.0.0; implementa contracts.python.model_calls.AnonymizingProvider
+from contracts.python.model_calls import AnonymizingProvider, GenerateRequest, GenerateResult
 
-class AnonymizingProvider(Protocol):
+class Anonymizer(AnonymizingProvider):
     def generate(self, req: GenerateRequest) -> GenerateResult:
         """Para un destino externo:
         1. comprueba que req.destination.scope es "external" y que el dominio del proveedor está en
@@ -2091,9 +2109,15 @@ class AnonymizingProvider(Protocol):
 
 **Adaptadores nativos en un subpaquete propio (revisión 3, pregunta 16 = A).** Los adaptadores de
 Anthropic, Google y OpenAI (C22) viven en un subpaquete de `libs/anonymizer/`, separado de la
-seudonimización y de la API de arriba; su nombre lo fija Functional Design de U10. Un contrato de
-import-linter falla si el paquete de `semantic-agent` importa ese subpaquete, y la imagen de
-`semantic-agent` no lo instala (AC11.6.4); `semantic-agent` solo llega a un destino externo por C21.
+seudonimización y de la API de arriba; su nombre lo fija Functional Design de U10. `semantic-agent` no
+importa ni instala nada de `libs/anonymizer/` y solo llega a un destino externo por C21; la costura
+(inyección del `AnonymizingProvider` y los contratos de import-linter de AC11.6.4) está en C13. El
+subpaquete separa además los adaptadores, que llevan las claves, de la seudonimización, que no las
+necesita.
+
+**Transporte *fake* (R-15).** El transporte HTTP *fake* de los adaptadores nativos es una utilería de
+pruebas de U10, publicada en `libs/anonymizer/testing/` y versionada con C20. U11 la reutiliza en su
+prueba compuesta (arista U11 → U10 ya existente); U10 no importa nada de U11.
 
 La tabla de correspondencia no sale del módulo. Las pruebas del lado de U10 de AUTONOMIA-04 se hacen
 aquí, con un doble del puerto de llamada en vez del ModelGateway y del analizador, y con el transporte

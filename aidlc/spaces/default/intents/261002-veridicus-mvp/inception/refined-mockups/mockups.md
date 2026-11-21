@@ -70,6 +70,7 @@ la aprobación si se actualiza cada original, cada uno en su propio commit.
 | *(Revisión 3)* «Pausar análisis», «Reanudar análisis» y «Terminar sesión» van en la barra de la sesión de **M4**, junto a «Finalizar sesión». US15.2 dice «la barra de la sesión de M2», pero M2 (Escenarios de control) está retirada desde el cambio 01. | `stories-adenda-02.md` US15.2 (*Ubicación*) | Pregunta 13 |
 | *(Revisión 3)* En M4, la sesión bloqueada por incidente muestra en la cabecera «Sesión bloqueada por un incidente de anonimización. No se lanzan corridas nuevas», y «Reintentar tramo» y «Lanzar modo final» quedan deshabilitados (enfocables, AC5.6.4) con ese motivo. Es una propuesta de esta etapa: AC11.3.8 solo fija el bloqueo, el `code` `anonymizer.incident` y el rechazo de corridas nuevas. | `stories-adenda-02.md` AC11.3.8; `stories.md` AC5.6.4 (lista de botones deshabilitados con motivo) | Pregunta 12; revisión 05, R-01 |
 | *(Revisión 3)* El diálogo de reconocimiento de US15.1 se abre justo después de iniciar sesión (M0), antes de la pantalla de destino. El estado «Análisis en pausa» / «Sesión terminada» de US15.2 se lee también en la fila de la sesión de M1, además de en la cabecera de M4. La adenda solo fija «al entrar a la consola» (AC15.1.1) y que el estado se lea con texto (AC15.2.4). | `stories-adenda-02.md` AC15.1.1, AC15.2.4 | Revisión 05, R-04 |
+| *(Revisión 3)* En M8 §10.2, la tabla de AC15.10.2 se muestra solo como conteos por tipo de hecho y por perfil. Al subir el reporte se descartan el texto de los hallazgos y las citas por transcripción, como cualquier otro texto del reporte. AC15.10.2 solo fija que la tabla viaja en el JSON del reporte. | `stories-adenda-02.md` AC15.10.2; precisión «Consola de solo consulta del investigador» (FR13.5 propuesto) | Revisión 06, R-07 |
 
 **Criterios propuestos para US12.6 y US12.7** (si el humano las aprueba, entran a `stories.md` en su propio commit):
 
@@ -775,7 +776,7 @@ Las filas marcadas *(adenda 02)* indican solo la pantalla donde va cada elemento
 | US10.7, US10.8 | Sin interfaz de la consola (Argo CD, Grafana) |
 | US11.1 | **Retirada** |
 | US11.2 | Historial lateral (M1 §3) |
-| US11.3–US11.6 | Sin interfaz propia; su efecto visible es la causa de `anonimizador_no_disponible` y, con AC11.3.8, el estado «Sesión bloqueada por incidente» (§6.4) |
+| US11.3–US11.6 | Sin interfaz propia; su efecto visible es la causa de `anonimizador_no_disponible` y el bloqueo de la sesión de AC11.3.8, que M4 rotula «Sesión bloqueada por incidente» (§6.4; rótulo propuesto, ver la tabla de precisiones) |
 | US12.1–US12.4 | Línea de comandos: su experiencia se diseña en Functional Design (P10) |
 | US12.5 | M4 §6.8 (registro de modelos de cada corrida, AC12.5.3); M8 §10.2 (reporte subido); en la CLI, Functional Design |
 | US13.1 | M3, M7, cabecera de M4, M5 |
@@ -792,6 +793,6 @@ Las filas marcadas *(adenda 02)* indican solo la pantalla donde va cada elemento
 | US15.5 *(adenda 02)* | Franja fija bajo la cabecera de M0–M8; en el reporte de M5, el aviso va en la cabecera y al final de cada sección de página (AC15.5.2) |
 | US15.6 *(adenda 02)* | Sin interfaz (registro de acceso; demostración, DD-02) |
 | US15.7 *(adenda 02)* | M3 y M7: el plazo de retención en días al crear la sesión; el borrado es un `Job` sin interfaz. Reducir un plazo ya fijado (AC15.7.3) no tiene ubicación en estas maquetas; queda para Functional Design |
-| US15.8 *(adenda 02)* | M5 «Descargar reporte»: marca de agua y SHA-256 en el archivo (AC15.8.2); al investigador y al analista que no es dueño de la sesión la API responde `403` (AC15.8.1) |
+| US15.8 *(adenda 02)* | M5 «Descargar reporte»: marca de agua y SHA-256 en el archivo (AC15.8.2); al investigador y al analista que no es dueño de la sesión la API responde `403` (AC15.8.1). Cómo ve la consola el botón para esos roles (deshabilitado con motivo, como AC5.6.4, o mensaje ante el `403`) queda para Functional Design |
 | US15.9 *(adenda 02)* | Aviso antes de la transcripción al abrir M4, y recordatorio no modal en M4 (demostración, DD-05) |
-| US15.10 *(adenda 02)* | M8 §10.2: el reporte de evaluación muestra la tabla de hallazgos agrupada por tipo de hecho y por perfil que trae su JSON (AC15.10.2), sin dibujar; ver la nota de esta sección |
+| US15.10 *(adenda 02)* | M8 §10.2: del reporte de evaluación, solo los conteos de la tabla de AC15.10.2 (transcripciones y hallazgos agrupados por tipo de hecho y por perfil), sin texto de hallazgos ni citas (NFR12, AC12.6.1); sin dibujar, ver la nota de esta sección y la tabla de precisiones |

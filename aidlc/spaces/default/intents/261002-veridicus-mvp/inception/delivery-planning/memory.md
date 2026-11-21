@@ -6,6 +6,8 @@
 - 2026-10-02T22:21:26Z — «La primera unidad del plan es el flujo de texto» se cumplió con un primer Bolt que agrupa U1 + U3 + U4 (P1 = A); el grafo obliga a construir contratos y acceso antes del flujo, y agruparlos deja al primer Bolt como la única prueba de que la arquitectura funciona de punta a punta.
 - 2026-10-02T22:21:26Z — El Golden Dataset y la configuración de GitHub se tratan como tareas previas al primer Bolt, no como Bolts: no pertenecen a ninguna unidad del grafo aprobado y no cambian el orden de unidades.
 
+- 2026-11-21T20:10:00Z — Tercera pasada (revalidación): el desfase viene de la revisión 3 de Requirements Analysis, User Stories, Refined Mockups, Domain Design, Units Generation y Contract Design; ninguna toca el grafo ni el orden, solo reparte pruebas y piezas entre B1, B10, B11, B3 y B4, así que solo se pregunta cómo registrar la revisión 3 (pregunta 15).
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 - 2026-10-02T22:21:26Z — Se precisa la regla «cada Bolt queda como un commit en main» como «cada PR queda como un commit»: un Bolt de varias unidades entra por varios PR cortos (≤ 2 días), y los contratos por PR propio (P9 = A, contradicción entre P1 y team-practices).
@@ -19,6 +21,8 @@
 - 2026-10-02T22:21:26Z — Plataforma como segundo Bolt (P2 = A) en vez de dentro del primero: mantiene el primer Bolt probándose en contenedores (niveles 0–2) y alinea el despliegue y la NetworkPolicy con los módulos 6–7; las partes SHOULD/COULD de U2 quedan como sus últimas tareas para el módulo 8.
 - 2026-11-09T17:34:16Z — B12 (reportes del investigador) va después de la demo y no justo tras B3 (P11 = A): sirve al TG un poco más tarde a cambio de no retrasar la plataforma ni la sustentación.
 - 2026-11-09T17:34:16Z — P0.2 se retira (P12 = A): el conjunto sintético se construye dentro de B11, que hace a B11 todavía más grande (R8) pero lo deja en la unidad que lo usa.
+
+- 2026-11-21T20:25:00Z — R14 (U10 pasa de M a L) se mitiga ordenando el plan de tareas de U10 (módulo, transporte *fake* y adaptador de la primera rebanada antes que los otros dos adaptadores) en vez de partir B10 en dos Bolts, para no romper «un Bolt por unidad» (P9 = B).
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

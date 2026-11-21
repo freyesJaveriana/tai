@@ -5,6 +5,11 @@ cubrir y ningún ID que no esté en su origen, en las tres trazabilidades de Inc
 `Deferred` tienen etapa de destino explícita en Construction, y los `N/A` son requisitos o historias
 «Retirado» por el cambio 01 o US14.1, cumplida antes del diseño.
 
+**Revisión 3 (2026-11-21)**, revalidación de Delivery Planning. Se volvieron a leer las tres
+trazabilidades tras la revisión 3 de las etapas de Inception: los mismos conteos de la tabla de abajo
+(99, 80 y 80 IDs de origen; 0 `GAP`, 0 `ORPHAN`, 0 sin cubrir, 0 destinos vacíos). Las revisiones 3 no
+cambiaron ningún ID ni ninguna asignación de historia a componente o unidad. El veredicto se mantiene.
+
 **Revisión 2 (2026-11-09)**, segunda pasada por el cambio 01 (DT27) y la adenda 02. Sustituye a la
 revisión del 2026-10-02. Etapa que la ejecuta: Delivery Planning.
 

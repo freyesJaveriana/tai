@@ -1,5 +1,9 @@
 # Dependencias externas — Veridicus (MVP)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratificada sin cambios (pregunta 15 = A). Las claves de los
+proveedores comerciales (D6) siguen montándose solo en `anonymizer-proxy` (CD-04, AC11.6.4), que es lo
+que ya decía esta revisión.
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1. Conserva D1–D4 (D3 cambia de modelos), marca D5 «Retirado» y añade D6 y D7 (P14 = A, B, C,
 D).

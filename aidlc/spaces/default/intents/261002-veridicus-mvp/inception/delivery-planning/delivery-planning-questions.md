@@ -308,3 +308,42 @@ X. Other (please specify)
 **(Recomendada: A, B, C, D, E)**
 
 [Answer]: A, B, C, D
+
+---
+
+## Tercera pasada — revalidación (2026-11-21)
+
+El plan de Bolts (revisión 2, aprobada el 09/11/2026) quedó desfasado por lo que aprobaste el
+21/11/2026 en las etapas anteriores. Ningún cambio toca el grafo, el orden de las unidades ni sus
+historias, pero sí mueve pruebas y piezas entre Bolts:
+
+- **Requirements Analysis y User Stories, revisión 3:** FR4.2 suma `incidente_anonimizacion`; CD-02 y
+  CD-04 entran en AC3.2.5, AC11.3.3, AC11.3.7, AC11.6.2, AC11.6.4 (nuevo) y AC13.3.1.
+- **Refined Mockups, revisión 3:** M4 suma el estado «Sesión bloqueada por un incidente de
+  anonimización» (lo atiende U4, en B3).
+- **Domain Design y Contract Design, revisión 3:** una corrida nueva sobre una sesión bloqueada se rechaza
+  con `409` `session.blocked` (CD-11). El tipo `AnonymizingProvider` pasa a
+  `contracts/python/model_calls.py` (U1, B1). Los adaptadores nativos de Anthropic, Google y OpenAI van
+  en un subpaquete de `libs/anonymizer/`, y el transporte *fake* es una utilería de pruebas de U10 (B10).
+  La CLI tiene su raíz de composición con la única excepción del import-linter, el cliente HTTP de C21
+  vive en `libs/model_gateway/adapters/` y `libs-anonymizer` es un *extra* `cli` (U11, B11).
+  `semantic-agent` no puede importar ni instalar `libs-anonymizer`: import-linter, lockfile, imagen y
+  `sys.modules` (U4, B3).
+- **Units Generation, revisión 3:** U10 pasa de tamaño M a L. US11.3 sigue en U10 (su lado de AC11.3.3 y
+  AC11.3.7, con un doble del puerto); la prueba compuesta con el ModelGateway real es de U11. AC11.6.4 se
+  reparte entre U2 (Secret solo en `anonymizer-proxy`, B4) y U4 (import-linter, B3).
+
+La precisión DP-01 (`research.upload_ok` frente a CD-03) sigue pendiente para Functional Design de U12,
+y el comando de verificación de Construction sigue diferido porque aún no hay código. Lo demás ya lo
+deciden las fuentes. Solo se pregunta cómo registrar la revisión.
+
+### Pregunta 15 — ¿Cómo se registra la revisión 3 del plan de Bolts?
+
+A. **Se ratifica en bloque como revisión 3** en la cabecera de `bolt-plan.md`, con cada grupo, su origen
+y su fecha. Solo cambian las definiciones de terminado de B1, B10, B11, B3 y B4 y el riesgo de tamaño de
+B10 en `risk-and-sequencing-rationale.md`. Ningún Bolt cambia de número, de unidad ni de orden
+**(Recomendada)**
+B. Se repasa Bolt por Bolt contigo antes de escribir la revisión.
+X. Other (please specify)
+
+[Answer]: A

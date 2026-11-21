@@ -1,5 +1,12 @@
 # Razones del orden y riesgos — Veridicus (MVP)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque la revisión 3 de las etapas anteriores
+(pregunta 15 = A). El orden, la heurística y R1–R13 no cambian; entra R14 (U10 pasa de M a L por CD-04).
+La pregunta abierta sobre el fallo cerrado (UG-02) ya la cerraron Contract Design y User Stories: el
+fallo cerrado solo termina la corrida con `anonimizador_no_disponible`, y solo una llamada externa con
+`anonimizado: false` bloquea la sesión con `anonymizer.incident`; desde ahí una corrida nueva se rechaza
+con `409` `session.blocked` (CD-01, CD-11, AC3.2.5).
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1. Los riesgos R1–R9 conservan su número; los que el cambio vuelve obsoletos quedan «Retirado» y
 los nuevos son R10–R13.
@@ -107,6 +114,7 @@ diseño, no afecta al orden de construcción, que es el que sigue el autor al im
 | R11 | Falta la clave de API o el costo del proveedor comercial se dispara | Media | Medio | B10, B11 | Niveles 0 y 1 con respuestas grabadas sin red; costo estimado por corrida en el registro de US12.5; dependencia D6 con seguimiento. |
 | R12 | La seudonimización deja pasar un nombre o identificador que el NER no reconoce | Media | Crítico | B10 | Prueba del *payload* sobre el conjunto sintético con nombres sembrados; marcas consistentes y detección de marcas alteradas; 100 % de ramas. |
 | R13 | La cola de ZINE no tiene cupo para las mediciones de modelos locales grandes | Media | Bajo | B11 | No bloquea: B11 entrega los `sbatch` como artefactos y mide en la máquina local; ZINE completa las cifras cuando haya cupo (D7). |
+| R14 | B10 crece de M a L al sumar los adaptadores nativos de tres proveedores con sus claves y pruebas (CD-04, revisión 3 de Units Generation), y retrasa B11, que necesita su transporte *fake* | Media | Medio | B10 | Se acepta un solo PR por unidad (P9 = B). El plan de tareas de U10 construye primero el módulo en proceso, el transporte *fake* y el adaptador del proveedor de la primera rebanada, y deja los otros dos adaptadores al final del Bolt; la rama se actualiza desde `main` a diario. No cambia el orden: B11 sigue después de B10. |
 
 Retirado de la revisión 1: la versión de R1 sobre un juez de ≤ 8B con escenario y umbral, y la versión de
 R4 sobre el Paquete de Contexto de Traspaso; ambas quedan sustituidas por las filas actuales con el mismo
@@ -120,7 +128,7 @@ Ninguna cambia el orden, pero sí la definición de terminado de algún Bolt:
 |---|---|---|
 | Umbrales de precisión, sensibilidad y acuerdo; composición del conjunto sintético | NFR Requirements (segunda pasada) | B11 |
 | Latencia por turno y por modo final, y *N* de la prueba de humo, con juez, verificador, anonimizador y red | NFR Requirements | B3, B4 |
-| Si el fallo cerrado del anonimizador solo falla la corrida o también bloquea la sesión (UG-02) | Functional Design de U4 | B3 |
+| ~~Si el fallo cerrado del anonimizador solo falla la corrida o también bloquea la sesión (UG-02)~~ · **Cerrada en la revisión 3** (CD-01, CD-11, AC3.2.5) | Contract Design y User Stories | B3 |
 | Texto visible de `analysis.system` y `anonymizer.incident` (CD-08) | Functional Design | B3 |
 | Proveedor comercial de la primera rebanada (US13.6) | Functional Design o NFR Requirements de U11 | B10, B11 |
 | Servidor de cada modelo local; distribución de Kubernetes, CNI y namespaces | Infrastructure Design (segunda pasada) | B4, B9 |

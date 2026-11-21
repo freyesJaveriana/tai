@@ -1,5 +1,8 @@
 # Asignación de Bolts — Veridicus (MVP)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratificada sin cambios (pregunta 15 = A): ningún Bolt cambia
+de número, de unidad ni de orden, y quien ejecuta y aprueba cada uno sigue igual.
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1: B10 pasa a MUST y entran B11–B13; el orden es el de `bolt-plan.md` (P10, P11).
 

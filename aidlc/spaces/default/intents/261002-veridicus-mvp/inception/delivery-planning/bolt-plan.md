@@ -1,5 +1,23 @@
 # Plan de Bolts — Veridicus (MVP)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque lo que aprobaste el 21/11/2026 en las
+etapas anteriores (pregunta 15 = A). Ningún Bolt cambia de número, de unidad ni de orden, y el grafo no
+cambia. Solo se actualizan las definiciones de terminado que reparten pruebas y piezas entre Bolts:
+- **Requirements Analysis y User Stories, revisión 3:** FR4.2 suma `incidente_anonimizacion`; CD-02 y
+  CD-04 entran en AC3.2.5, AC11.3.3, AC11.3.7, AC11.6.2, AC11.6.4 (nuevo) y AC13.3.1 (B10, B11, B3, B4).
+- **Refined Mockups, revisión 3:** estado «Sesión bloqueada por un incidente de anonimización» en M4 (B3).
+- **Domain Design y Contract Design, revisión 3:** `409` `session.blocked` para una corrida nueva sobre
+  una sesión bloqueada (CD-11, B3); `AnonymizingProvider` en `contracts/python/model_calls.py` (C13, B1);
+  subpaquete de adaptadores nativos y transporte *fake* de U10 (C20, B10); raíz de composición de la
+  CLI, cliente HTTP de C21 en `libs/model_gateway/adapters/` y *extra* `cli` (C13, B11); costura de
+  `semantic-agent` sin `libs-anonymizer` (C13, B3).
+- **Units Generation, revisión 3:** U10 pasa de M a L (riesgo R14 en
+  `risk-and-sequencing-rationale.md`); la prueba compuesta de AC11.3.3 y AC11.3.7 es de U11; AC11.6.4 se
+  reparte entre U2 (B4) y U4 (B3).
+
+La precisión DP-01 sigue pendiente para Functional Design de U12, y el comando de verificación de
+Construction sigue diferido hasta que haya código.
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1. Los ID B1–B9 conservan su número y su unidad; B10 deja de ser condicional y pasa a MUST;
 B11–B13 son nuevos y toman el número de su unidad. La tarea previa P0.2 queda «Retirado».
@@ -112,6 +130,8 @@ No pertenecen a ninguna unidad del grafo y bloquean el primer Bolt.
      en el catálogo de Problem Details (CD-01).
   5. El esquema del reporte de la CLI cierra con `pattern` cada cadena permitida, y un *fixture* con texto
      de testimonio se rechaza (CD-03, P12 de Contract Design).
+  6. `contracts/python/model_calls.py` define el `Protocol` `AnonymizingProvider` y los errores tipados de
+     la llamada, sin importar nada fuera de `contracts/` (C13, revisión 3, R-14).
 - **Hipótesis de confianza:** los contratos bastan para que la biblioteca, el anonimizador y los
   servicios se construyan por separado sin renegociar formas de datos, y el contrato común es el mismo
   que usa la app `sistema` del TG.
@@ -121,20 +141,25 @@ No pertenecen a ninguna unidad del grafo y bloquean el primer Bolt.
 
 ## B10 — Anonimizador
 
-- **Unidad:** U10 anonymizer (service). Antes era condicional (COULD); pasa a MUST con el cambio 01
-  (DT18) y va antes de B11 porque el grafo lo exige (P10 = A).
+- **Unidad:** U10 anonymizer (service, tamaño L desde la revisión 3 de Units Generation). Antes era
+  condicional (COULD); pasa a MUST con el cambio 01 (DT18) y va antes de B11 porque el grafo lo exige
+  (P10 = A).
 - **Historias:** US11.3 → US11.5.
 - **Definición de terminado:**
   1. Módulo de `libs/` (C20) con NER local, marcadores consistentes por llamada y restauración en
      memoria; 100 % de ramas (módulo guardia, NFR13).
   2. Prueba del *payload* saliente: ningún nombre ni identificador del conjunto sintético llega al
-     adaptador del proveedor (AUTONOMIA-04).
+     adaptador del proveedor (AUTONOMIA-04). Es el lado de U10 de AC11.3.7, con un doble del puerto y el
+     transporte *fake*; la prueba compuesta con el ModelGateway real va en B11.
   3. Prueba de fallo cerrado: si el anonimizador falla, no sale ninguna llamada y la corrida termina con
-     `anonimizador_no_disponible`; una respuesta con `anonimizado: false` produce
-     `incidente_anonimizacion` (CD-01).
-  4. Proceso `anonymizer-proxy` (C21) con sus adaptadores nativos de los proveedores comerciales (C22,
-     CD-04) y la lista de dominios con su prueba (US11.5); las claves solo se montan en este proceso.
-  5. Niveles 0 y 1 en verde con cobertura ≥ 80 % de líneas.
+     `anonimizador_no_disponible` (CD-02, AC11.3.3, lado de U10); una respuesta con `anonimizado: false`
+     produce `incidente_anonimizacion` (CD-01).
+  4. Los adaptadores nativos de Anthropic, Google y OpenAI (C22, CD-04) viven en un subpaquete propio de
+     `libs/anonymizer/` (C20; el nombre lo fija Functional Design de U10), y el transporte HTTP *fake* es
+     una utilería de pruebas de U10 que B11 reutiliza.
+  5. Proceso `anonymizer-proxy` (C21) con esos adaptadores, su `/readyz` y la lista de dominios con su
+     prueba (US11.5); las claves solo se montan en este proceso.
+  6. Niveles 0 y 1 en verde con cobertura ≥ 80 % de líneas.
 - **Hipótesis de confianza:** se puede seudonimizar un testimonio sintético de forma que el proveedor
   externo razone sobre quién y dónde sin recibir ningún dato real, y fallar cerrado sin dejar escapar
   nada.
@@ -158,14 +183,20 @@ No pertenecen a ninguna unidad del grafo y bloquean el primer Bolt.
      cobertura ≥ 80 % de líneas y 100 % de ramas en la verificación de citas (módulo guardia).
   2. Pruebas AUTONOMIA-05 citadas por ID: una cita alterada o en otro turno no sale; `estado: error`
      implica hallazgos vacíos; la cita seudonimizada se restaura antes de verificarse.
-  3. Pruebas AUTONOMIA-04 desde el lado de ModelGateway: el *payload* saliente pasó por el anonimizador y,
-     si este falla, no sale ninguna llamada; un perfil con destino externo sin anonimizador no arranca
-     (US13.3).
-  4. Evaluación de nivel 2 con la propia CLI sobre el conjunto sintético, con el perfil de la primera
+  3. Pruebas AUTONOMIA-04 desde el lado de ModelGateway: la prueba compuesta de AC11.3.3 y AC11.3.7 con
+     el ModelGateway real, el analizador y el transporte *fake* de U10 muestra que el *payload* saliente
+     pasó por el anonimizador y que, si este falla, no sale ninguna llamada (C13); un perfil con destino
+     externo sin `AnonymizingProvider` inyectado no arranca (US13.3, AC13.3.1).
+  4. Costura con el anonimizador (C13, revisión 3): el ModelGateway recibe el `AnonymizingProvider` por
+     inyección y no importa `libs.anonymizer`; la CLI lo inyecta desde su raíz de composición
+     (`libs.incoherence_analyzer.cli.composition`), la única excepción declarada del import-linter;
+     `libs-anonymizer` es una dependencia del *extra* `cli`; el cliente HTTP de C21 vive en
+     `libs/model_gateway/adapters/anonymizer_http.py` y solo importa `contracts/`.
+  5. Evaluación de nivel 2 con la propia CLI sobre el conjunto sintético, con el perfil de la primera
      rebanada (un proveedor comercial y uno local, US13.6): 100 % de citas verificadas en lo emitido, 0 %
      de error de formato JSON, acuerdo entre 3 corridas, precisión y sensibilidad con los umbrales de NFR
      Requirements (NFR4) y Escenario A de NFR5; el reporte JSON va adjunto al PR.
-  5. Los scripts `sbatch` y el paquete de entrada para ZINE (US14.2, US14.3) existen como artefactos
+  6. Los scripts `sbatch` y el paquete de entrada para ZINE (US14.2, US14.3) existen como artefactos
      revisables; los lanza el humano (AUTONOMIA-01). La corrida sobre las 10 entrevistas del piloto es
      prueba de humo fuera de Git, no medición.
 - **Hipótesis de confianza:** con dos citas verificadas de forma determinista, el analizador encuentra
@@ -206,6 +237,13 @@ No pertenecen a ninguna unidad del grafo y bloquean el primer Bolt.
      retirada del consentimiento, no encola ni analiza ninguna corrida (VE-10 (a), CD-06).
   3. AUTONOMIA-03: escaneo de vocabulario prohibido en salida e interfaz que excluye las citas literales.
   4. Suite `axe` de la consola sin violaciones en las pantallas del Bolt (US5.6).
+  5. `semantic-agent` no puede importar ni instalar `libs-anonymizer` (AC11.6.4, mitad de U4; C13): los
+     contratos de import-linter sobre su paquete, la comprobación del lockfile, la de la imagen construida
+     (`import libs.anonymizer` termina en `ModuleNotFoundError`) y la de `sys.modules` en nivel 0; su raíz
+     de composición llama a `check_ready()` del cliente HTTP de C21 antes de construir el gateway.
+  6. Una sesión bloqueada por un incidente de anonimización se muestra en M4 con su estado y rechaza toda
+     corrida nueva con `409` `session.blocked`; `anonymizer.incident` es el código del bloqueo (CD-11,
+     AC3.2.5).
 - **Hipótesis de confianza:** la biblioteca de B11 funciona igual envuelta en el trabajador de cola, y
   la consola sigue respondiendo mientras un análisis se procesa (NFR3).
 - **Demo esperada:** el analista inicia sesión, registra el consentimiento, crea una sesión con el perfil
@@ -225,8 +263,10 @@ No pertenecen a ninguna unidad del grafo y bloquean el primer Bolt.
      trabajos a ZINE (AUTONOMIA-01, US9.5).
   3. `NetworkPolicy` que niega la salida a internet a todos los pods salvo a `anonymizer-proxy`, que solo
      sale por 443 y DNS, con la lista blanca de CoreDNS (AUTONOMIA-04, US11.6), como artefacto revisable.
-  4. `Secret` de las claves de los proveedores referenciado solo por `anonymizer-proxy`; los valores los
-     crea el humano con un script revisable.
+  4. `Secret` de las claves de los proveedores referenciado solo por `anonymizer-proxy`, con una política
+     de manifiestos sobre `helm template` que falla si otro pod lo referencia, con su control negativo (un
+     manifiesto que lo monta en `semantic-agent`) (AC11.6.4, mitad de U2); los valores los crea el humano
+     con un script revisable.
   5. El humano aplica a mano los artefactos ya fusionados (antes del módulo 8 no hay Argo CD) y
      `scripts/smoke.sh <url-base>` termina con código 0: salud 200 de cada servicio, una contradicción
      sembrada produce ≥ 1 hallazgo con dos citas en ≤ *N* s y un relato coherente produce 0 hallazgos

@@ -20,7 +20,9 @@ el *hash* por exportación (A-3); FR3.6, FR13.2 y FR14.3 con el consentimiento e
 
 **Precisiones de Contract Design (2026-11-09).** FR4.2 usa el código `anonimizador_no_disponible`
 (CD-02) y FR15.1 ubica los adaptadores nativos de los proveedores comerciales en el anonimizador, con
-las claves montadas solo en `anonymizer-proxy` (CD-04).
+las claves montadas solo en `anonymizer-proxy` (CD-04). FR4.2 suma como sexto código
+`incidente_anonimizacion` (P8, CD-01), llevado aquí el 2026-11-21 por el hallazgo R-01 de la revisión 3
+de User Stories.
 
 **Revisión 3 — revalidación (2026-11-09).** El humano ratificó en bloque las cuatro precisiones de
 arriba como revisión 3, sin cambiar ningún requisito (pregunta 18). `requirements-adenda-02.md`
@@ -154,10 +156,12 @@ No hay marco de verdad documental: el contraste con documentos externos es WON'T
   está en un turno igual o posterior a `desde_turno`. *Criterio:* toda salida valida contra el esquema
   versionado del contrato (prueba de contrato en nivel 0).
 - **FR4.2** `estado: error` implica `hallazgos` vacío: nunca un resultado parcial. El error lleva un
-  `codigo` estable (`salida_invalida`, `bloqueo_contenido`, `tiempo_agotado`, `proveedor` y uno propio
-  para el fallo del anonimizador, `anonimizador_no_disponible`, nombre que fijó Contract Design en CD-02),
-  y la consola muestra «El analizador no pudo procesar este tramo. Revisión manual requerida» con ese
-  código (S7-J4); ante el fallo del anonimizador añade «No se envió ningún dato fuera del clúster» (User
+  `codigo` estable de una lista cerrada de seis: `salida_invalida`, `bloqueo_contenido`, `tiempo_agotado`,
+  `proveedor`, `anonimizador_no_disponible` para el fallo cerrado del anonimizador (nombre que fijó
+  Contract Design en CD-02) e `incidente_anonimizacion` cuando una llamada a un destino externo vuelve con
+  `anonimizado: false` (P8, CD-01; en la consola y la API se traduce a `anonymizer.incident` de C1). La
+  consola muestra «El analizador no pudo procesar este tramo. Revisión manual requerida» con ese código
+  (S7-J4); solo ante `anonimizador_no_disponible` añade «No se envió ningún dato fuera del clúster» (User
   Stories, revisión de calidad y diseño).
   *Criterio:* una prueba por código verifica la lista vacía (AUTONOMIA-05).
 - **FR4.3** Un hallazgo tiene como campos obligatorios `hecho`, `tipo` (uno de los 7 valores), `cita_a`,

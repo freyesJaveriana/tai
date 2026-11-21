@@ -1,5 +1,18 @@
 # Contratos — Veridicus (MVP)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque lo que aprobaste el 21/11/2026 en las
+etapas anteriores (preguntas 15 a 17 = A). Ningún contrato cambia de número ni de dueño:
+- **User Stories, revisión 3:** CD-02 y CD-04 en AC3.2.5, AC11.3.3, AC11.3.7, AC11.6.2, AC11.6.4 y
+  AC13.3.1; coincide con C13, C20, C21 y C22.
+- **Refined Mockups, revisión 3:** CD-08 en las maquetas y el estado «Sesión bloqueada por un incidente
+  de anonimización» en M4 (texto propuesto allí).
+- **Domain Design, revisión 3:** sus ADR ya siguen CD-01, CD-03, CD-04 y CD-06. Su frase de ConsoleApi
+  sobre el rechazo de corridas en una sesión bloqueada contradecía C1: vale `409` `session.blocked`, y
+  `anonymizer.incident` es el código del bloqueo (pregunta 15; precisión CD-11).
+- **Units Generation, revisión 3:** C20 separa los adaptadores nativos en un subpaquete que
+  `semantic-agent` no puede importar, y lleva las pruebas del lado de U10. C13 suma la prueba compuesta
+  de U11 (pregunta 16).
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. Los contratos conservan su número: los que salen quedan «Retirado» sin
 renumerar, y los nuevos toman C17–C25 (regla de `project.md`). Cada contrato dice al principio si
@@ -1033,8 +1046,10 @@ components:
 se descarta sin crear filas. Una `salida` que no cumple C6 deja la corrida en `error` con
 `analysis.invalid_output`. Con `estado: error`, InterviewSession guarda la corrida y su `registro`, sin
 hallazgos. Con `error.codigo: incidente_anonimizacion`, o con una llamada del `registro` a un destino
-externo que traiga `anonimizado: false`, bloquea la sesión con `anonymizer.incident`, rechaza corridas
-nuevas y registra el incidente solo con IDs (VE-14, ADR-013). Las `observaciones_conductor` se guardan
+externo que traiga `anonimizado: false`, bloquea la sesión con `anonymizer.incident` (el código del
+bloqueo, que la consola muestra como causa del estado `bloqueada`) y registra el incidente solo con IDs
+(VE-14, ADR-013). Desde ahí rechaza toda corrida nueva con `409` `session.blocked` (C1; revisión 3,
+pregunta 15 = A). Las `observaciones_conductor` se guardan
 como ConductorObservation (U8).
 
 ## C4 — Cola de indexación de escenarios · Retirado
@@ -1622,6 +1637,12 @@ termina con código ≠ 0.
 `anonymizer-proxy` tampoco reintenta hacia el proveedor: cada petición de C21 produce como mucho una
 llamada externa.
 
+**Prueba compuesta de AUTONOMIA-04 (U11; revisión 3, pregunta 16 = A).** Con el ModelGateway real, su
+adaptador `anonymizer` sobre el módulo de C20 y el analizador, U11 verifica AC11.3.3 (anonimizador
+caído, con excepción o sin responder: 0 llamadas al transporte *fake* del adaptador nativo y el tramo en
+`error` con `anonimizador_no_disponible`) y AC11.3.7 (ninguna entidad sembrada en los cuerpos salientes
+de juez y verificador). Las pruebas del lado de U10 están en C20.
+
 ## C14 — Servidores de modelos locales (API compatible con OpenAI) · cambia
 
 **Se mantiene** el protocolo (P7); **cambia** el alcance: solo modelos locales (juez y verificador
@@ -2068,10 +2089,20 @@ class AnonymizingProvider(Protocol):
         (falla cerrado). Un destino local nunca llega aquí."""
 ```
 
-La tabla de correspondencia no sale del módulo. Las pruebas de AUTONOMIA-04 se hacen aquí:
+**Adaptadores nativos en un subpaquete propio (revisión 3, pregunta 16 = A).** Los adaptadores de
+Anthropic, Google y OpenAI (C22) viven en un subpaquete de `libs/anonymizer/`, separado de la
+seudonimización y de la API de arriba; su nombre lo fija Functional Design de U10. Un contrato de
+import-linter falla si el paquete de `semantic-agent` importa ese subpaquete, y la imagen de
+`semantic-agent` no lo instala (AC11.6.4); `semantic-agent` solo llega a un destino externo por C21.
+
+La tabla de correspondencia no sale del módulo. Las pruebas del lado de U10 de AUTONOMIA-04 se hacen
+aquí, con un doble del puerto de llamada en vez del ModelGateway y del analizador, y con el transporte
+HTTP *fake* de cada adaptador nativo (US11.3):
 - el *payload* que llega al adaptador nativo no contiene ninguna entidad sembrada del conjunto sintético;
 - con el módulo en fallo, el doble del adaptador nativo no recibe ninguna llamada;
 - un destino `local` se rechaza.
+
+La prueba compuesta con el ModelGateway real y el analizador (AC11.3.3, AC11.3.7) es de U11 (C13).
 
 ## C21 — `anonymizer-proxy` por HTTP dentro del clúster · nuevo
 
@@ -2320,6 +2351,7 @@ original, cada uno en su propio commit.
 | CD-08 | `refined-mockups/interaction-spec.md` | Los errores de análisis se muestran por corrida con los códigos `analysis.*` y `anonymizer.incident` de C1 | P8 |
 | CD-09 | `units-generation/unit-of-work-dependency.md` (puntos de integración U10–U11) y `domain-design/components.md` (ModelGateway, ExecutionProfiles, Anonymizer) | Los tipos de la llamada a un modelo (`contracts/python/model_calls.py`), el registro de llamadas (`contracts/model_calls/`) y los esquemas de perfiles (`contracts/profiles/`) viven en U1. Así U10 solo depende de `contracts`, como dice el grafo, y `anonymizer-proxy` valida perfiles sin ExecutionProfiles. No cambia ninguna arista | Esta etapa (C13, C18, C20) |
 | CD-10 | `requirements-analysis/requirements-adenda-02.md` (A-4) | El bloque `consentimiento` suma `requiere_mandato` y `constancia_mandato` (VE-06: compareciente o tercero civil) | Esta etapa (C6, cambio 8) |
+| CD-11 | `domain-design/components.md` (ConsoleApi, revisión 3) | «Rechaza las corridas nuevas con `anonymizer.incident`» pasa a «rechaza las corridas nuevas con `409` `session.blocked`; `anonymizer.incident` es el código del bloqueo, que la consola muestra como causa» | Revisión 3, pregunta 15 = A; Domain Design revisión 05, R-08 |
 
 ## Preguntas abiertas
 
@@ -2330,5 +2362,6 @@ original, cada uno en su propio commit.
 | C5 | Tamaño máximo del audio en el mensaje; si supera lo razonable para Redis, cambiar a una referencia a un volumen temporal con borrado tras transcribir. | U9 |
 | C18 | Modelos concretos de `comercial-piloto` y `todo-local`, y modelo local de demostración. | U11 (NFR Requirements) |
 | C22 | Forma exacta de forzar la salida JSON y el esfuerzo en cada proveedor, y si Responses o Chat Completions con OpenAI. | U10 (Functional Design) |
+| C20 | Nombre del subpaquete de los adaptadores nativos dentro de `libs/anonymizer/` y del contrato de import-linter que lo excluye de `semantic-agent`. | U10, U4 (Functional Design) |
 | C14 | Servidor concreto de cada modelo local y adaptador del TTS. | U9, U2 (Infrastructure Design) |
 | C8 | Texto exacto del aviso de VE-01 (lo redacta el TG). | U1 |

@@ -16,6 +16,8 @@
 - 2026-10-02T22:05:00Z — El audio viaja en base64 dentro del Redis Stream (C5) para no compartir un volumen entre pods; queda como pregunta abierta cambiar a una referencia a volumen si el tamaño máximo lo hace inviable.
 - 2026-11-09T13:41:01Z — La cancelación de corridas usa una clave de Redis que InterviewSession escribe y el trabajador solo lee, en vez de darle al trabajador acceso a la base: así ninguna llamada nueva sale tras la retirada del consentimiento (VE-10 (a)) sin romper ADR-002 ni ADR-006 (CD-06).
 - 2026-11-09T13:41:01Z — El reporte de la CLI cierra con `pattern` cada cadena permitida (versiones, hashes, nombres de perfil y etiquetas) para que no quepa testimonio, en vez de filtrar el texto en la consola (P12 = A).
+- 2026-11-21T19:17:39Z — Una corrida nueva sobre una sesión bloqueada se rechaza con `409` `session.blocked` y no con `anonymizer.incident` (P15 = A): así C1 tiene un código por situación (la corrida rechazada frente al bloqueo y su causa), a costa de una precisión (CD-11) a la frase de ConsoleApi de Domain Design revisión 3.
+- 2026-11-21T19:17:39Z — Los adaptadores nativos se separan en un subpaquete de `libs/anonymizer/` en vez de un paquete aparte (P16 = A): la CLI sigue usando el módulo en proceso y el import-linter puede excluirlos de `semantic-agent` (AC11.6.4) sin crear una unidad nueva.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

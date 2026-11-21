@@ -276,3 +276,50 @@ C. Todo en español, también lo propio de Veridicus.
 X. Other (please specify)
 
 [Answer]: A
+
+---
+
+## Tercera pasada — revalidación (2026-11-21)
+
+Los contratos (revisión 2, aprobada el 09/11/2026) quedaron desfasados por lo que aprobaste el
+21/11/2026 en las etapas anteriores:
+
+- **User Stories, revisión 3:** llevó CD-02 y CD-04 a los criterios (AC3.2.5, AC11.3.3, AC11.3.7,
+  AC11.6.2, AC11.6.4, AC13.3.1). Coincide con C13, C20, C21 y C22.
+- **Refined Mockups, revisión 3:** llevó CD-08 a las maquetas y añadió en M4 el estado «Sesión bloqueada
+  por un incidente de anonimización» (texto propuesto).
+- **Domain Design, revisión 3:** dice que ConsoleApi «rechaza las corridas nuevas con
+  `anonymizer.incident`» (hallazgo R-08 de su revisión 05). C1 dice otra cosa: el `409` de una corrida
+  sobre una sesión bloqueada es `session.blocked`, y la ingesta de C3 «bloquea la sesión con
+  `anonymizer.incident`». Hay que decidir cuál vale.
+- **Units Generation, revisión 3:** U10 prueba su lado de AC11.3.3 y AC11.3.7 con un doble del puerto,
+  y la prueba compuesta con el ModelGateway real y el analizador pasa a U11 (R-01). Los adaptadores
+  nativos van en un subpaquete propio de `libs/` para que el import-linter de `semantic-agent` lo pueda
+  excluir (R-02). C20 aún dice que todas las pruebas de AUTONOMIA-04 «se hacen aquí» y no separa los
+  adaptadores del resto del módulo.
+
+Lo demás ya lo deciden las fuentes. Solo se pregunta lo que falta.
+
+### Pregunta 15 — ¿Con qué código se rechaza una corrida nueva sobre una sesión bloqueada?
+
+A. **`409` `session.blocked`, como ya dice C1.** `anonymizer.incident` es el código del bloqueo de la sesión, que la ingesta registra y la consola muestra como causa del estado `bloqueada`. No es la respuesta a una corrida nueva. Se aclara la ingesta de C3, y la frase de ConsoleApi en `domain-design/components.md` entra en la tabla de precisiones (CD-11) para que decidas en la aprobación **(Recomendada)**
+B. `409` `anonymizer.incident`: se cambia C1 para que la corrida nueva lleve el código del incidente, y `session.blocked` queda solo para otros bloqueos.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 16 — ¿Cómo entran en C20 y C13 el reparto de las pruebas y el subpaquete de adaptadores?
+
+A. **C20 separa los adaptadores nativos en un subpaquete propio de `libs/anonymizer/`** (nombre en Functional Design de U10). Un contrato de import-linter impide que `semantic-agent` lo importe o lo instale (AC11.6.4). Las pruebas de C20 son el lado de U10 (doble del puerto y del transporte), y C13 suma la prueba compuesta de AC11.3.3 y AC11.3.7 a cargo de U11 **(Recomendada)**
+B. Solo una pregunta abierta para Functional Design de U10 y U11, sin tocar C20 ni C13.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 17 — ¿Cómo se registra la revisión 3?
+
+A. **Se ratifican en bloque como revisión 3** en la cabecera de `contract-summary.md`, listando cada grupo con su origen y fecha y cambiando solo lo que piden las preguntas 15 y 16. Ningún contrato cambia de número ni de dueño **(Recomendada)**
+B. Se repasa contrato por contrato.
+X. Other (please specify)
+
+[Answer]: A

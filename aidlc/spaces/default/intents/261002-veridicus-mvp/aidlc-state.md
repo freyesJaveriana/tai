@@ -105,6 +105,10 @@
 
 
 
+- **Parked**: 2026-11-21T15:01:14Z
+
+- **Parked At Stage**: refined-mockups
+
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -166,7 +170,7 @@ Per unit: [TBD]
 - **Current Stage**: refined-mockups
 - **Next Stage**: domain-design
 - **Status**: Running
-- **Last Updated**: 2026-11-21T15:00:52Z
+- **Last Updated**: 2026-11-21T15:01:14Z
 
 - **Construction Autonomy Mode**: gated
 

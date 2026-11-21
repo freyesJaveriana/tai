@@ -9621,3 +9621,10 @@
 **Agent**: aidlc-design-agent
 
 ---
+
+## Workflow Parked
+**Timestamp**: 2026-11-21T15:01:14Z
+**Event**: WORKFLOW_PARKED
+**Stage**: refined-mockups
+
+---

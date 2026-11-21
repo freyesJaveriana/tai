@@ -70,7 +70,7 @@ la aprobación si se actualiza cada original, cada uno en su propio commit.
 | *(Revisión 3)* «Pausar análisis», «Reanudar análisis» y «Terminar sesión» van en la barra de la sesión de **M4**, junto a «Finalizar sesión». US15.2 dice «la barra de la sesión de M2», pero M2 (Escenarios de control) está retirada desde el cambio 01. | `stories-adenda-02.md` US15.2 (*Ubicación*) | Pregunta 13 |
 | *(Revisión 3)* En M4, la sesión bloqueada por incidente muestra en la cabecera «Sesión bloqueada por un incidente de anonimización. No se lanzan corridas nuevas», y «Reintentar tramo» y «Lanzar modo final» quedan deshabilitados (enfocables, AC5.6.4) con ese motivo. Es una propuesta de esta etapa: AC11.3.8 solo fija el bloqueo, el `code` `anonymizer.incident` y el rechazo de corridas nuevas. | `stories-adenda-02.md` AC11.3.8; `stories.md` AC5.6.4 (lista de botones deshabilitados con motivo) | Pregunta 12; revisión 05, R-01 |
 | *(Revisión 3)* El diálogo de reconocimiento de US15.1 se abre justo después de iniciar sesión (M0), antes de la pantalla de destino. El estado «Análisis en pausa» / «Sesión terminada» de US15.2 se lee también en la fila de la sesión de M1, además de en la cabecera de M4. La adenda solo fija «al entrar a la consola» (AC15.1.1) y que el estado se lea con texto (AC15.2.4). | `stories-adenda-02.md` AC15.1.1, AC15.2.4 | Revisión 05, R-04 |
-| *(Revisión 3)* En M8 §10.2, la tabla de AC15.10.2 se muestra solo como conteos por tipo de hecho y por perfil. Al subir el reporte se descartan el texto de los hallazgos y las citas por transcripción, como cualquier otro texto del reporte. AC15.10.2 solo fija que la tabla viaja en el JSON del reporte. | `stories-adenda-02.md` AC15.10.2; precisión «Consola de solo consulta del investigador» (FR13.5 propuesto) | Revisión 06, R-07 |
+| *(Revisión 3)* En M8 §10.2, la tabla de AC15.10.2 se muestra solo como conteos por tipo de hecho y por perfil. Al subir el reporte se descartan el texto de los hallazgos y las citas por transcripción, como cualquier otro texto del reporte. Un grupo que el reporte no trae se muestra como «No informado», igual que las métricas de §10.2 (revisión 07, R-10). AC15.10.2 solo fija que la tabla viaja en el JSON del reporte. | `stories-adenda-02.md` AC15.10.2; precisión «Consola de solo consulta del investigador» (FR13.5 propuesto) | Revisión 06, R-07 |
 
 **Criterios propuestos para US12.6 y US12.7** (si el humano las aprueba, entran a `stories.md` en su propio commit):
 
@@ -716,6 +716,10 @@ línea de comandos». Resultados:
 - Las métricas que el reporte no trae se muestran como «No informado», nunca como 0. Las que tienen
   umbral de NFR Requirements llevan «cumple» o «no cumple» en texto junto a la cifra.
 - Un modelo sin precio en la tabla aparece como «sin precio» (AC12.5.2).
+- Una evaluación muestra además, sin dibujar, los conteos de la tabla de AC15.10.2: transcripciones y
+  hallazgos agrupados por tipo de hecho y por perfil, solo cifras y sin texto de hallazgos ni citas. Un
+  grupo que el reporte no trae se muestra como «No informado», nunca como 0 (propuesta de esta etapa;
+  ver la tabla de precisiones).
 - Una corrida (no evaluación) muestra su estado, su código si falló, el modo y el número de hallazgos y
   de citas rechazadas, sin su texto.
 

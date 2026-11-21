@@ -11153,3 +11153,330 @@
 **Context**: inception > refined-mockups > mockups.md
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T15:31:55Z
+**Event**: REVIEW_REQUESTED
+**Stage**: refined-mockups
+**Reviewer**: aidlc-product-lead-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:aaf8c81cd3f62e28f9efcb75ea5da9d34e53de2560f2f30c05e11b566051ac85
+**Request Id**: review:4082951957e057ecf2ff7d52b118504f
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T15:32:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aeeb19aab53821005
+**Message**: Silence.
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T15:32:47Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/refined-mockups/stage/6f39b46804fbf927/1.review.md
+**Context**: .aidlc-engine > reviews > refined-mockups > stage > 6f39b46804fbf927 > 1.review.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T15:32:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-product-lead-agent
+**Agent ID**: a85c0d28fd9184873
+**Message**: **Reviewer:** aidlc-product-lead-agent\n\n**Verdict:** READY\n\nLas tres correcciones resuelven R-07, R-08 y R-09. Escribí la revisión en `<project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aid
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T15:32:54Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: REVIEW_COMPLETED
+**Stage**: refined-mockups
+**Reviewer**: aidlc-product-lead-agent
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:aaf8c81cd3f62e28f9efcb75ea5da9d34e53de2560f2f30c05e11b566051ac85
+**Artifact Fingerprint**: sha256:aaf8c81cd3f62e28f9efcb75ea5da9d34e53de2560f2f30c05e11b566051ac85
+**Request Id**: review:4082951957e057ecf2ff7d52b118504f
+**Review Record**: .aidlc-engine/reviews/refined-mockups/stage/6f39b46804fbf927/1.json
+**Review Record Digest**: sha256:18a37d7be097513e3578828a72d2ec3081b643d361fe2817f4b01cd9b81e1c3e
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: a5069c37
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_PASSED
+**Fire id**: a5069c37
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 05f29cb9
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_PASSED
+**Fire id**: 05f29cb9
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4c763c0a
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4c763c0a
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+**Duration ms**: 49
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3deb58c1
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3deb58c1
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7f469797
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7f469797
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 46df9d12
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_PASSED
+**Fire id**: 46df9d12
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: bc438cce
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_PASSED
+**Fire id**: bc438cce
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: d5079034
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: d5079034
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3d8aed16
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3d8aed16
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:33:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9ebdf337
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:33:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9ebdf337
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Duration ms**: 50
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-21T15:33:01Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: refined-mockups
+**Details**: Re-entering gate after revision
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T15:33:23Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T15:33:40Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Gate Rejected
+**Timestamp**: 2026-11-21T15:33:45Z
+**Event**: GATE_REJECTED
+**Stage**: refined-mockups
+**Feedback**: R-10: añadir en M8 §10.2 una viñeta que describa los conteos de AC15.10.2 por tipo de hecho y perfil, sin texto, con «No informado» si falta un grupo, remitiendo a la tabla de precisiones
+
+---
+
+## Stage Revising
+**Timestamp**: 2026-11-21T15:33:45Z
+**Event**: STAGE_REVISING
+**Stage**: refined-mockups
+**Revision count**: 11
+**Feedback**: R-10: añadir en M8 §10.2 una viñeta que describa los conteos de AC15.10.2 por tipo de hecho y perfil, sin texto, con «No informado» si falta un grupo, remitiendo a la tabla de precisiones
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:33:49Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Context**: inception > refined-mockups > mockups.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:33:55Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Context**: inception > refined-mockups > mockups.md
+
+---

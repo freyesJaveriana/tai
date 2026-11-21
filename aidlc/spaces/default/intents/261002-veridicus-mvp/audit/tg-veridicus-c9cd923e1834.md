@@ -16511,3 +16511,151 @@
 **Artifact Fingerprint**: sha256:70d07cad5bfb659eee19321a6e5a1aed8edf8b89782e04db8bd8e9a45f998d5f
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T23:32:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7ccc560d95e173f2
+**Message**: ok, avísame cuando estén las preguntas
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T23:41:56Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:42:09Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/memory.md
+**Context**: construction > incoherence-analyzer > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T23:42:30Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: a4fcf0032516d9df3
+**Message**: Escribí el archivo de preguntas de U11 con 8 preguntas de criterio. Todas las líneas `[Answer]:` están vacías y no generé ningún otro artefacto, como pide el modo QUESTION-ONLY.\n\nEl diario `memory.md`
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T23:42:32Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T23:42:37Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U11 P1-P8 (modo guiado)
+**Options**: A,B,C,D,X
+**Unit**: incoherence-analyzer
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T23:50:48Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T23:52:34Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:44Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:45Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:47Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:48Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:49Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:51Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T23:52:52Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-design-questions.md
+**Context**: construction > incoherence-analyzer > functional-design > functional-design-questions.md
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T23:52:57Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: U11 P1=A, P2=A, P3=A, P4=A, P5=A, P6=A, P7=A, P8=A
+**Unit**: incoherence-analyzer
+
+---

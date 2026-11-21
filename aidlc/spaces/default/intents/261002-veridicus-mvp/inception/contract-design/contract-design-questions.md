@@ -328,3 +328,6 @@ X. Other (please specify)
 
 Request Changes: «Aplicar la corrección de R-14 y R-15 (inyección del AnonymizingProvider, cliente HTTP
 en model_gateway, import-linter y fake de U10) y volver a revisar». Se aplicó en C13 y C20.
+
+Segundo Request Changes: «Corregir ahora R-17 a R-19 y pedir otra revisión». Se aplicó en la tabla de
+contratos, C13 («Adaptadores», «Arranque», «Reintentos») y C21.

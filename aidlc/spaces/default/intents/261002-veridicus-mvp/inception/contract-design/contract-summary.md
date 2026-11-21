@@ -17,6 +17,10 @@ etapas anteriores (preguntas 15 a 17 = A). Ningún contrato cambia de número ni
   `libs.anonymizer`; `semantic-agent` usa un cliente HTTP de C21 en `libs/model_gateway/adapters/`; tres
   contratos de import-linter y una prueba de `sys.modules` cierran la costura (C13). El transporte *fake*
   es una utilería de pruebas de U10 (C20).
+- **Segundos cambios pedidos (R-17 a R-19 de la revisión 06):** se corrigieron los restos de la
+  redacción anterior (fila de C20, traducción de códigos en C21 y C13, `/readyz` fuera del `Protocol`),
+  se nombró la raíz de composición de la CLI con su excepción de import-linter y se fijó cómo
+  `semantic-agent` queda sin `libs-anonymizer` (*extra* `cli` y comprobaciones de lockfile e imagen).
 
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. Los contratos conservan su número: los que salen quedan «Retirado» sin
@@ -88,7 +92,7 @@ sus contratos C17–C24. Por primera vez un contrato **cruza la frontera del cl�
 | C17 | U11 (IncoherenceAnalyzer, AnalyzerCli) | U4 (AnalysisWorker), U8 | Interfaz en proceso (`Protocol`): API pública de la biblioteca | U11 |
 | C18 | U11 (ExecutionProfiles); esquemas en U1 (`contracts/profiles/`) | U4, U11; `anonymizer-proxy` (U10) solo el esquema, sin ExecutionProfiles; el humano por PR | Esquema compartido (YAML versionado): perfiles, configuración efectiva y tabla de precios | U11 |
 | C19 | U11 (AnalyzerCli); registro de llamadas en U1 (`contracts/model_calls/`) | U12 (ResearchReports); External: investigador y repositorio principal del TG | Esquema compartido (JSON Schema): reporte de corrida y de evaluación de la CLI; códigos de salida | U11 |
-| C20 | U10 (módulo Anonymizer en `libs/`; solo importa `contracts/`) | U11 (ModelGateway en la CLI) | Interfaz en proceso (`Protocol`) | U10 |
+| C20 | U10 (módulo Anonymizer en `libs/`; solo importa `contracts/`) | U11 (raíz de composición de la CLI, que lo inyecta en el ModelGateway) | Interfaz en proceso (`Protocol`) | U10 |
 | C21 | U10 (`anonymizer-proxy`) | U11 (ModelGateway en `semantic-agent`) | REST síncrono dentro del clúster: `POST /v1/generate` | U10 |
 | C22 | External: APIs de Anthropic, Google y OpenAI | U10 (adaptadores nativos del Anonymizer) | HTTPS por 443, solo dominios de la lista, solo texto seudonimizado | U10 (lista de dominios y subconjunto usado) |
 | C23 | U13 (EthicsGovernance) | U3 (ConsoleApi); interfaz definida por U7 | Interfaz en proceso (`Protocol`): puerto `AccessLog` | U7 (interfaz), U13 (adaptador) |
@@ -1629,18 +1633,30 @@ idiomas (regla 8):
 - **Costura con import-linter (AC11.6.4).** Tres contratos `forbidden`, que cubren también las cadenas
   indirectas: `libs.model_gateway` no importa `libs.anonymizer`; el paquete de `semantic-agent` no
   importa `libs.anonymizer` (ni la API ni el subpaquete de adaptadores nativos); `libs.incoherence_analyzer`
-  solo lo importa desde su raíz de composición de la CLI, que `semantic-agent` no importa. La imagen de
-  `semantic-agent` no instala `libs/anonymizer`, y una prueba de nivel 0 importa el punto de entrada de
-  `semantic-agent` y comprueba que `libs.anonymizer` no está en `sys.modules`.
+  no importa `libs.anonymizer`, con una sola excepción declarada en `ignore_imports`:
+  `libs.incoherence_analyzer.cli.composition -> libs.anonymizer` (R-18). Ese módulo es la raíz de
+  composición de la CLI; ni `libs/incoherence_analyzer/__init__.py` ni `cli/__init__.py` lo reexportan,
+  y `semantic-agent` no lo importa (el segundo contrato lo detectaría por la cadena indirecta).
+- **Instalación (R-19).** `libs/incoherence_analyzer` declara `libs-anonymizer` como dependencia
+  opcional del *extra* `cli`; el punto de entrada de la CLI exige ese *extra*. `semantic-agent` instala
+  `libs-incoherence-analyzer` sin él, así que su lockfile no contiene `libs-anonymizer`. Tres
+  comprobaciones de nivel 0: una sobre el lockfile de `semantic-agent` (falla si aparece
+  `libs-anonymizer`), una sobre la imagen construida (`python -c "import libs.anonymizer"` debe terminar en
+  `ModuleNotFoundError`) y una prueba que importa el punto de entrada de `semantic-agent` y comprueba que
+  `libs.anonymizer` no está en `sys.modules`.
 - *fakes* deterministas para los niveles 0 y 1, con este mismo `Protocol`.
 
 **Arranque.** Al construir el gateway con el perfil se valida, antes de cualquier llamada (FR14.3): que
-todo papel con destino externo tenga el adaptador `anonymizer` configurado (en el clúster, la URL de
-`anonymizer-proxy`, que debe responder en `/readyz`), que todo destino local sea interno del clúster o
-de la máquina, y que el perfil sea válido según C18. Si algo falla, el servicio no arranca o la CLI
+todo papel con destino externo tenga un `AnonymizingProvider` inyectado, que todo destino local sea
+interno del clúster o de la máquina, y que el perfil sea válido según C18. La disponibilidad del proxy no
+es parte del `Protocol` (solo tiene `generate`): en `semantic-agent`, la raíz de composición llama a
+`AnonymizerHttpClient.check_ready()`, un método propio del cliente HTTP que consulta `/readyz` de
+`anonymizer-proxy`, antes de construir el gateway (R-17). Si algo falla, el servicio no arranca o la CLI
 termina con código ≠ 0.
 
-**Reintentos** (cada fila con su prueba de nivel 0; ningún reintento pasa del plazo de la corrida):
+**Reintentos** (cada fila con su prueba de nivel 0; ningún reintento pasa del plazo de la corrida). Las
+filas `anonymizer` las aplica el cliente HTTP de C21; el módulo en proceso de la CLI (C20) lanza
+directamente los errores tipados de `contracts.python.model_calls`, sin códigos HTTP:
 
 | Adaptador | Respuesta | Qué hace |
 |---|---|---|
@@ -2202,8 +2218,8 @@ paths:
         '504': { description: 'Tiempo agotado: { "code": "analysis.timeout" }' }
 ```
 
-El adaptador `anonymizer` de C13 traduce cada respuesta a los errores tipados del puerto según la tabla
-de reintentos de C13. `409`, `422`, `503` y no poder conectar terminan en `AnonymizerUnavailable` y la
+El cliente HTTP de C21 (`libs/model_gateway/adapters/anonymizer_http.py`, U11) traduce cada respuesta
+a los errores tipados del puerto según las filas `anonymizer` de la tabla de reintentos de C13. `409`, `422`, `503` y no poder conectar terminan en `AnonymizerUnavailable` y la
 corrida en `anonimizador_no_disponible`. Los logs del proxy solo llevan `run_id`, perfil, papel,
 proveedor y códigos.
 

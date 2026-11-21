@@ -311,3 +311,22 @@ Plan presentado: **13 unidades sin cambios de ID, directorio, tipo, prioridad ni
 - Revise Plan
 
 [Answer]: Approve Plan
+
+### Pendiente — salir del modo automático para la revisión de arquitectura
+
+A. listo
+X. Other (please specify)
+
+[Answer]: A
+
+### Cambios pedidos en la aprobación de la revisión 3 — R-01 y R-02 de la revisión 07
+
+R-01 (Major): AC11.3.3 y AC11.3.7 usan el ModelGateway real y el analizador (código de U11), pero
+quedaron en U10, que no depende de U11. R-02 (Minor): el import-linter de U4 exige que los adaptadores
+comerciales vivan en un subpaquete propio de `libs/`.
+
+A. **R-01:** U10 prueba su lado (Anonymizer y adaptadores con transporte *fake*, con un doble del puerto); la prueba compuesta de AC11.3.3 y AC11.3.7 con el ModelGateway real y el analizador queda en U11, que ya depende de U10. **R-02:** se anota en U10 y U4 que los adaptadores nativos van en un subpaquete propio de `libs/` (el nombre lo fija Functional Design) **(Recomendada)**
+B. Solo R-01 como en A; R-02 queda para Functional Design.
+X. Other (please specify)
+
+[Answer]: A

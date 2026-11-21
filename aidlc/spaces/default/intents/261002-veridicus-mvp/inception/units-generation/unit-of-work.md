@@ -7,7 +7,9 @@ prioridad, y el grafo no cambia:
   aprobación. CD-04 entra ahora: U10 suma los adaptadores nativos de Anthropic, Google y OpenAI con sus
   claves (solo en `anonymizer-proxy`) y las pruebas del *payload* y del fallo cerrado, y pasa de M a L;
   en U11, ModelGateway queda con el puerto y el adaptador compatible con OpenAI.
-- **User Stories, revisión 3 (2026-11-21).** AC11.3.3 y AC11.3.7 quedan en U10 (US11.3). El nuevo
+- **User Stories, revisión 3 (2026-11-21).** US11.3 sigue en U10, que prueba su lado de AC11.3.3 y AC11.3.7 con un
+  doble del puerto; la prueba compuesta con el ModelGateway real y el analizador es de U11, que ya
+  depende de U10 (revisión 07, R-01). El nuevo
   AC11.6.4 se reparte entre U2 (Secret solo en `anonymizer-proxy`, con US11.6) y U4 (import-linter sobre
   `semantic-agent`). Ninguna historia cambia de ID ni de unidad.
 - **Refined Mockups y Domain Design, revisión 3 (2026-11-21).** No cambian componentes ni aristas; el
@@ -165,7 +167,8 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   - aviso de propósito limitado servido por ConsoleApi desde IntegrityPolicy (US15.5);
   - escaneo de vocabulario prohibido en la salida y en la interfaz (US5.5), con el escáner de U11;
   - contrato de import-linter sobre el paquete de `semantic-agent`: su imagen no incluye ningún adaptador
-    nativo comercial ni resuelve claves (AC11.6.4, CD-04);
+    nativo comercial ni resuelve claves (AC11.6.4, CD-04); prohíbe importar el subpaquete de adaptadores
+    nativos de U10 (revisión 07, R-02);
   - **base de accesibilidad** de la consola con la suite `axe` (US5.6).
 - **Sale.** Escenarios, indexación y catálogo (US1.1, US1.3), guardia del umbral, CoT interrumpida y
   Paquete de Contexto de Traspaso (US4.1–US4.3), ModelGateway (pasa a U11) y la propiedad del escáner
@@ -243,8 +246,11 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   `anonimizado: false`), que la CLI usa en el mismo proceso, y el proceso `anonymizer-proxy` que lo expone
   en el clúster; los adaptadores nativos de Anthropic, Google y OpenAI, con sus claves montadas solo en
   `anonymizer-proxy` (CD-04); la lista de dominios de los proveedores con su prueba (US11.5); la prueba
-  del *payload* saliente y la del fallo cerrado sobre el transporte HTTP *fake* de cada adaptador nativo
-  (US11.3; AC11.3.3, AC11.3.7).
+  del *payload* saliente y la del fallo cerrado sobre el transporte HTTP *fake* de cada adaptador nativo,
+  con un doble del puerto de llamada en lugar del ModelGateway y del analizador (US11.3; su lado de
+  AC11.3.3 y AC11.3.7). Los adaptadores nativos van en un subpaquete propio de `libs/`, separado del
+  módulo de seudonimización, para que el import-linter de U4 (AC11.6.4) lo pueda excluir; el nombre lo
+  fija Functional Design (revisión 07, R-02).
 - **Límites.** La `NetworkPolicy` y la lista blanca de CoreDNS son de U2 (US11.6). Con un perfil local no
   interviene (iteracion2 P9 = A).
 - **Restricciones.** Módulo guardia con 100 % de ramas. El fallo cerrado termina la corrida con
@@ -272,9 +278,11 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   Los scripts `sbatch` los lanza el humano (AUTONOMIA-01).
 - **Restricciones.** Contiene los módulos guardia de AUTONOMIA-05 (100 % de ramas). Se evalúa en nivel 2
   con la propia CLI. Un destino externo sin anonimizador impide arrancar, igual que en los servicios.
-  Las pruebas del *payload* saliente y del fallo cerrado de AUTONOMIA-04 son de U10, sobre el transporte
-  *fake* de sus adaptadores nativos (AC11.3.3, AC11.3.7); U11 conserva la de no arrancar con un destino
-  externo sin anonimizador (US13.3) (CD-04).
+  Las pruebas del *payload* saliente y del fallo cerrado de AUTONOMIA-04 sobre el transporte *fake* de
+  los adaptadores nativos son de U10 (CD-04). U11 lleva la prueba compuesta de AC11.3.3 y AC11.3.7, con
+  el ModelGateway real, su adaptador `anonymizer` y el analizador, sobre el módulo de U10 del que ya
+  depende (revisión 07, R-01), y conserva la de no arrancar con un destino externo sin anonimizador
+  (US13.3).
 
 ### U12 — research-reports (service)
 

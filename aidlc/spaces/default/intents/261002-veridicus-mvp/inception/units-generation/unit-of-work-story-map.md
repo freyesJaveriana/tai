@@ -1,7 +1,8 @@
 # Mapa de historias por unidad — Veridicus
 
 **Revisión 3 (2026-11-21), revalidación.** Ninguna historia cambia de ID ni de unidad. Por CD-04 y la
-revisión 3 de historias, AC11.3.3 y AC11.3.7 se prueban en U10 (US11.3), y AC11.6.4 se reparte entre U2
+revisión 3 de historias, US11.3 sigue en U10, que prueba su lado de AC11.3.3 y AC11.3.7; la prueba
+compuesta con el ModelGateway real y el analizador es de U11 (revisión 07, R-01). AC11.6.4 se reparte entre U2
 (US11.6, Secret solo en `anonymizer-proxy`) y U4 (import-linter sobre `semantic-agent`).
 
 **Revisión 2 (2026-11-07), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la

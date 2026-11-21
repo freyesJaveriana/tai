@@ -13004,3 +13004,418 @@
 **Context**: inception > units-generation > memory.md
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T18:24:07Z
+**Event**: REVIEW_REQUESTED
+**Stage**: units-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:b450cd4c08f12acb0759170e9ecf6a5c9e42049392cf0e79d7803ce3d1fdef13
+**Request Id**: review:b24aacac59a234cee5a49b26261426b9
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:24:12Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/units-generation-questions.md
+**Context**: inception > units-generation > units-generation-questions.md
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T18:26:29Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:26:33Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/units-generation-questions.md
+**Context**: inception > units-generation > units-generation-questions.md
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T18:27:16Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T18:27:40Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8740bb2d4d5033ca
+**Message**: sí, fija acceptEdits por defecto
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T18:28:30Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T18:28:59Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a5b757341b7119a78
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Veredicto: READY** (0 Critical, 1 Major, 1 Minor)\n\nRevisión escrita en `<project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/re
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T18:30:09Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T18:30:21Z
+**Event**: REVIEW_COMPLETED
+**Stage**: units-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:b450cd4c08f12acb0759170e9ecf6a5c9e42049392cf0e79d7803ce3d1fdef13
+**Artifact Fingerprint**: sha256:b450cd4c08f12acb0759170e9ecf6a5c9e42049392cf0e79d7803ce3d1fdef13
+**Request Id**: review:b24aacac59a234cee5a49b26261426b9
+**Review Record**: .aidlc-engine/reviews/units-generation/stage/922d0cf87fd16100/1.json
+**Review Record Digest**: sha256:6fad7c7dffb1d2b8c496fd86b06e00d078d51ea9f1e546c0f4d71204a58112e0
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T18:30:24Z
+**Event**: DECISION_RECORDED
+**Stage**: units-generation
+**Decision**: Aprendizajes de Units Generation (revalidación): c11, c12; ¿algo que añadir?
+**Options**: c11,c12,Nothing to add,Add a note
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T18:32:43Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T18:32:52Z
+**Event**: QUESTION_ANSWERED
+**Stage**: units-generation
+**Details**: c11, c12; Nothing to add
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-21T18:32:52Z
+**Event**: RULE_LEARNED
+**Stage**: units-generation
+**Candidate-ID**: c11
+**Content-Hash**: b455af0bd315aeb137ac3c52ad6572885067d8ec5c747f9d5c5bf96e34753bf1
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-21T18:32:52Z
+**Event**: RULE_LEARNED
+**Stage**: units-generation
+**Candidate-ID**: c12
+**Content-Hash**: e6e85b4ceb15db3162a275f8f16a1cd9b09c24e954d2befccbfea299726b9227
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1fa8e9ba
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1fa8e9ba
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1b5a5151
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1b5a5151
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: a866716c
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: a866716c
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: c6407984
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: c6407984
+**Sensor ID**: required-sections
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: 46f72642
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: 46f72642
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: b2dbeb77
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: b2dbeb77
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-dependency.md
+**Duration ms**: 59
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: afe52f18
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: afe52f18
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T18:32:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: cf7e5a38
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T18:32:54Z
+**Event**: SENSOR_PASSED
+**Fire id**: cf7e5a38
+**Sensor ID**: upstream-coverage
+**Stage slug**: units-generation
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/traceability.json
+**Duration ms**: 53
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-21T18:32:54Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: units-generation
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T18:58:00Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Gate Rejected
+**Timestamp**: 2026-11-21T18:58:05Z
+**Event**: GATE_REJECTED
+**Stage**: units-generation
+**Feedback**: Corregir R-01 de la revisión 07 (AC11.3.3 y AC11.3.7 usan código de U11 pero se asignan a U10); R-02 a confirmar con el humano
+
+---
+
+## Stage Revising
+**Timestamp**: 2026-11-21T18:58:05Z
+**Event**: STAGE_REVISING
+**Stage**: units-generation
+**Revision count**: 13
+**Feedback**: Corregir R-01 de la revisión 07 (AC11.3.3 y AC11.3.7 usan código de U11 pero se asignan a U10); R-02 a confirmar con el humano
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T18:58:11Z
+**Event**: DECISION_RECORDED
+**Stage**: units-generation
+**Decision**: Cambios por R-01 y R-02 de la revisión 07
+**Options**: A,B,X
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T18:58:17Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T18:58:27Z
+**Event**: QUESTION_ANSWERED
+**Stage**: units-generation
+**Details**: A. R-01 y R-02 (Recomendada)
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:58:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/units-generation-questions.md
+**Context**: inception > units-generation > units-generation-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:58:33Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Context**: inception > units-generation > unit-of-work.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:58:39Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Context**: inception > units-generation > unit-of-work.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:58:41Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Context**: inception > units-generation > unit-of-work.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:58:43Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Context**: inception > units-generation > unit-of-work-story-map.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:58:51Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work.md
+**Context**: inception > units-generation > unit-of-work.md
+
+---

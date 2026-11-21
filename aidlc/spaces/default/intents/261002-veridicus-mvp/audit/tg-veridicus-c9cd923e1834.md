@@ -15163,3 +15163,298 @@
 **Agent**: aidlc-architect-agent
 
 ---
+
+## Workflow Parked
+**Timestamp**: 2026-11-21T21:57:09Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:00:48Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae3e42c79cb02a9c1
+**Message**: /aidlc --resume
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:01:28Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Workflow Unparked
+**Timestamp**: 2026-11-21T22:04:00Z
+**Event**: WORKFLOW_UNPARKED
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:05:43Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:07:58Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-design-questions.md
+**Context**: construction > contracts > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T22:07:59Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Pregunta 12: cómo se registra la revisión 3 de U1
+**Options**: A,B,X
+**Unit**: contracts
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:08:30Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:08:34Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-design-questions.md
+**Context**: construction > contracts > functional-design > functional-design-questions.md
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T22:08:36Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Pregunta 12: A (Recomendada)
+**Unit**: contracts
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:00Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+**Context**: construction > contracts > functional-design > rules.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:06Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+**Context**: construction > contracts > functional-design > rules.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+**Context**: construction > contracts > functional-design > rules.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:10Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+**Context**: construction > contracts > functional-design > entities.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:15Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+**Context**: construction > contracts > functional-design > entities.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:34Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:38Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:40Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:41Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:45Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:46Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:48Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:53Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Context**: construction > contracts > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:09:58Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+**Context**: construction > contracts > functional-design > entities.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:10:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+**Context**: construction > contracts > functional-design > traceability.json
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T22:10:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: b90d3745
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-21T22:10:08Z
+**Event**: SENSOR_FAILED
+**Fire id**: b90d3745
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/traceability-b90d3745.md
+**Findings count**: 2
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:10:10Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+**Context**: construction > contracts > functional-design > traceability.json
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T22:10:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: f5316a15
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-21T22:10:10Z
+**Event**: SENSOR_FAILED
+**Fire id**: f5316a15
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/traceability-f5316a15.md
+**Findings count**: 1
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:10:30Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/memory.md
+**Context**: construction > contracts > functional-design > memory.md
+
+---

@@ -1,5 +1,14 @@
 # Reglas de negocio — U1 contracts
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque las revisiones 3 de Inception (pregunta 12
+= A). Ninguna regla cambia de ID ni de sentido:
+- **C13, revisión 3 (R-14, R-17 de Contract Design):** entra **BR9.9**, el `Protocol`
+  `AnonymizingProvider` de `model_calls`, con un solo método y sin importar nada fuera del paquete de
+  contratos.
+- **CD-11 (C1):** `session.blocked` es un `code` más de C1. Entra al catálogo único por BR7.2 y recibe su
+  clase de excepción por BR7.4, sin regla nueva.
+- **CD-02:** `anonimizador_no_disponible` ya estaba en BR3 y en el enum de C6; no cambia.
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27), la adenda 02 y el cambio 03.**
 Sustituye a la revisión 1 del 2026-10-03. Incluye las correcciones de los hallazgos R-01 a R-09 de la
 revisión asesora (respuestas P9–P11).
@@ -463,6 +472,15 @@ rules:
     logic: veridicus_contracts.profiles.validate(data, *, key_prefix, kind) valida data contra el sobre del archivo y profile-base (kind "base") o además contra profiles.schema.v1.yaml (kind "analyzer"), comprueba BR9.2, BR9.4 y BR9.5, y devuelve los perfiles como valores inmutables. SI algo falla ENTONCES lanza ProfileValidationError (code config.invalid_profile) con el nombre del perfil, el papel y el ajuste, nunca un valor. No lee archivos, ni el entorno, ni la red.
     violation: El perfil no se carga; suite en rojo si la función acepta un fixture negativo.
     source: Respuesta P9 = A; R-01; cambio 03 V-1 (ver precisión FD-U1-10)
+  - id: BR9.9
+    status: nuevo
+    statement: model_calls declara el Protocol AnonymizingProvider, la única puerta a un destino externo, con un solo método generate(req) que recibe un GenerateRequest y devuelve un GenerateResult, sin importar nada fuera del paquete de contratos.
+    category: constraint
+    applies_to: [AnonymizingProvider, ModelCall, Destination]
+    trigger: En cada PR (nivel 0)
+    logic: SI el Protocol declara otro método o atributo (la disponibilidad del proxy, /readyz o check_ready, queda fuera), generate no tipa su entrada como GenerateRequest y su salida como GenerateResult, el módulo importa algo fuera del paquete de contratos, o falta alguno de los errores tipados (ModelCallError y sus subclases ContentBlocked, Timeout, ProviderError, InvalidOutput y AnonymizerUnavailable) ENTONCES la suite falla. Un doble mínimo que implementa solo generate pasa mypy estricto como AnonymizingProvider, y un doble sin generate no pasa (control negativo).
+    violation: Suite en rojo.
+    source: contract-summary C13 revisión 3 (R-14, R-17); AC13.3.1; FR15.2
 
   # BR10 — Reporte de la CLI (C19)
   - id: BR10.1
@@ -537,7 +555,7 @@ rules:
 | BR6 Rótulos | BR6.1–BR6.3 | — | Rótulos distintos de los nueve permitidos (AC5.5.4, P8) |
 | BR7 API y errores | BR7.1–BR7.4 | — | Una ruta que escriba configuración (AC8.3.1), errores fuera del catálogo, códigos sin excepción |
 | BR8 Fecha y métricas | BR8.1–BR8.2 | — | Fechas ambiguas en las huellas, texto sensible en métricas |
-| BR9 Papeles y perfiles | BR9.1–BR9.8 | — | Papeles cerrados que impiden reutilizar a `sistema`, perfiles del analizador incompletos, claves fuera del prefijo, tres validaciones distintas |
+| BR9 Papeles y perfiles | BR9.1–BR9.9 | — | Papeles cerrados que impiden reutilizar a `sistema`, perfiles del analizador incompletos, claves fuera del prefijo, tres validaciones distintas, un ModelGateway que importa el anonimizador para llegar a un destino externo (BR9.9) |
 | BR10 Reporte de la CLI | BR10.1–BR10.2 | — | Testimonio dentro del reporte (P12) |
 | BR11 Límites | BR11.1 | — | Cifras sueltas o subidas por entorno |
 | BR12 Paquete | BR12.1–BR12.3 | — | Choque de nombres en `sistema`, una entrega sin etiqueta (V-3) y referencias entre esquemas que no resuelven |

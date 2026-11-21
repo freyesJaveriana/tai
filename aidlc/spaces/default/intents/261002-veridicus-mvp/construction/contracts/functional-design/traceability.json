@@ -1,7 +1,7 @@
 {
   "stage": "functional-design",
   "unit": "contracts",
-  "revision": 2,
+  "revision": 3,
   "upstream_ids": [
     "AC2.2.3",
     "AC3.2.1",
@@ -58,7 +58,7 @@
     {
       "id": "AC13.3.1",
       "status": "OK",
-      "target": "BR9.2, BR9.3, BR9.8, BR1.9"
+      "target": "BR9.2, BR9.3, BR9.8, BR9.9, BR1.9"
     },
     {
       "id": "AC15.4.7",

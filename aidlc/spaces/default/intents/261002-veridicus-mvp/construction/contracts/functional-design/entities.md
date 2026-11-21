@@ -1,5 +1,10 @@
 # Entidades — U1 contracts
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque las revisiones 3 de Inception (pregunta 12
+= A). Ninguna entidad cambia de nombre ni de forma. Entra **AnonymizingProvider**, el `Protocol` de
+`model_calls` que la revisión 3 de C13 sacó de U10 (R-14, R-17 de Contract Design; regla BR9.9).
+**ErrorCodeCatalog** gana el `code` `session.blocked` de C1 (CD-11) sin cambiar su forma.
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27), la adenda 02 y el cambio 03.**
 Sustituye a la revisión 1 del 2026-10-03. Las entidades que siguen conservan su nombre. Las que salen
 quedan con `status: Retirado` y nombran a su reemplazo, sin borrarlas (regla de `project.md`). Las nuevas
@@ -522,6 +527,21 @@ entities:
       - { name: expected_matches, type: list, required: true, description: "términos o frases que deben coincidir; vacía si no debe haber coincidencia" }
       - { name: expected_excluded_spans, type: list, required: false, description: "tramos entre «…» que deben quedar fuera del escaneo" }
       - { name: rule, type: reference, required: true, description: "BR5.2, BR5.3, BR5.5 o BR5.6" }
+
+  - name: AnonymizingProvider
+    status: nuevo (revisión 3)
+    description: >
+      Protocol de contracts/python/model_calls.py (C13, revisión 3): la única puerta a un destino externo.
+      Lo implementan el módulo de C20 (U10) y el cliente HTTP de C21 (U11); el ModelGateway lo recibe por
+      inyección. U1 solo declara su forma (BR9.9).
+    attributes:
+      - { name: generate, type: operation, required: true, constraints: "único miembro; entrada GenerateRequest, salida GenerateResult; lanza solo ModelCallError y sus subclases" }
+    constraints:
+      - "Sin otros miembros: la disponibilidad del proxy (/readyz, check_ready) es del cliente HTTP, no del Protocol (R-17)."
+      - "El módulo que lo declara no importa nada fuera del paquete de contratos."
+    relationships:
+      - { to: ModelCall, cardinality: "1:1 por llamada", direction: "GenerateResult.call lleva un ModelCall" }
+      - { to: Destination, cardinality: "1:1 por llamada", direction: "GenerateRequest.destination" }
 ```
 
 ## Resumen
@@ -543,3 +563,5 @@ entities:
   CallRecord y ModelCall quedan completos.
 - **ResultLabelCatalog** pasa a nueve rótulos: dos de resultado y los 7 tipos (P8). **ContractsPackage**
   hace instalables los contratos con un nombre que no choca en `sistema` (P6).
+- **Revisión 3:** **AnonymizingProvider** es la puerta tipada al anonimizador, que U10 y U11 implementan
+  sin depender uno del otro (BR9.9).

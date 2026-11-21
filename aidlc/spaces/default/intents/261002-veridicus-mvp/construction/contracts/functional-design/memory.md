@@ -6,6 +6,7 @@
 - 2026-10-02T23:01:33Z — En una unidad de tipo spec, las «entidades» son los documentos de contrato y los datos que describen; U1 no tiene comportamiento en ejecución, así que functional-spec.md documenta los flujos de validación y de cambio de contrato (F1–F6) en lugar de casos de uso.
 - 2026-11-09T21:39:32Z — V-1 = A: el papel es texto con patrón en C13, C19 (registro) y C21; un perfil genérico (papeles, alias, un fallback) que el analizador especializa con exactamente judge y verifier; C6 no cambia y una tabla fija traduce los tres papeles del analizador.
 - 2026-11-09T22:43:59Z — P9 = A: U1 publica tres funciones puras (profiles.validate, limits.load, registry) para que U10, U11 y sistema no reimplementen la validación; FD-U1-10 enmienda el «sin lógica» de unit-of-work.
+- 2026-11-21T22:15:00Z — Tercera pasada (revalidación): de las revisiones 3 de Inception solo tocan a U1 el `Protocol` `AnonymizingProvider` en `model_calls` (C13, R-14) y el código `session.blocked` (CD-11); se registró como revisión 3 con BR9.9, sin cambiar otras entidades, reglas ni flujos (pregunta 12 = A).
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->

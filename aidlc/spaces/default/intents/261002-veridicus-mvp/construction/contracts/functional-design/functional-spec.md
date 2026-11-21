@@ -1,5 +1,20 @@
 # Especificación funcional — U1 contracts
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque las revisiones 3 de Inception (pregunta 12
+= A). Los flujos F1–F9 no cambian. Lo que entra, cada cosa con su origen:
+- **C13, revisión 3 (R-14, R-17 de Contract Design):** `model_calls` declara el `Protocol`
+  `AnonymizingProvider` (un solo `generate`). Lo implementan U10 (módulo de C20) y U11 (cliente HTTP de
+  C21), y el ModelGateway lo recibe por inyección (BR9.9, escenarios E42 y E43).
+- **CD-11 (C1):** `session.blocked` entra al catálogo único con su excepción (BR7.2, BR7.4).
+- **Precisiones:** FD-U1-01 y FD-U1-04 se amplían para nombrar el texto de la revisión 3 de C13
+  (§9). Siguen pendientes, con el resto de FD-U1-01 a FD-U1-14, para tu decisión en la aprobación.
+
+Insumos de esta revisión: `inception/contract-design/contract-summary.md` (contract-summary, revisión 3),
+`inception/units-generation/unit-of-work.md` y `unit-of-work-story-map.md` (unit-of-work y
+unit-of-work-story-map, revisión 3, sin cambios para U1), `inception/requirements-analysis/requirements.md`
+(requirements, revisión 3: FR4.2 con `incidente_anonimizacion`, ya cubierto) e
+`inception/domain-design/components.md` (components, revisión 3).
+
 **Revisión 2 (2026-11-09), segunda pasada por el cambio 01 (DT27), la adenda 02 y el cambio 03.**
 Sustituye a la revisión 1 del 2026-10-03. Los flujos F1–F6 y los escenarios E1–E17 conservan su número;
 lo que sale queda «Retirado». Lo nuevo empieza en F7 y E18. Incluye las correcciones de los hallazgos
@@ -66,7 +81,7 @@ suite que corre en CI con datos sintéticos (BR1.6). No transporta datos.
 | `ui/result-labels.v2.yaml` | Catálogo de rótulos (P3, P8) | Catálogo | BR6.1–BR6.3 |
 | `db/truthframe-read.v1.yaml` | C9 | **Retirado** (no se entrega) | — |
 | `python/human_review.py`, `report_ports.py`, `identity.py`, `access_log.py`, `retention.py` | C10–C12, C23, C24 | `Protocol` | Verificación de tipos |
-| `python/model_calls.py` | Tipos de C13 | Tipos | BR9.1 |
+| `python/model_calls.py` | Tipos de C13, errores tipados y `Protocol` `AnonymizingProvider` (revisión 3) | Tipos, `Protocol` | BR9.1, BR9.9 |
 | `model_calls/model-call.v1.yaml`, `model_calls/role-translation.v1.yaml` | Registro de llamadas y tabla de papeles | JSON Schema estricto, tabla | BR9.1, BR9.6 |
 | `profiles/profile-base.schema.v1.yaml` | Perfil genérico (V-1) | Esquema | BR9.2, BR9.4, BR9.5 |
 | `profiles/profiles.schema.v1.yaml` | Perfil del analizador (V-1) | Esquema estricto | BR9.3 |
@@ -313,9 +328,11 @@ erDiagram
   ProfileValidator ||--|| ProfilesFile : "valida"
   SchemaRegistry ||--|{ ContractDocument : "resuelve"
   ScanCase }o--|| ForbiddenVocabularyList : "ejercita"
+  AnonymizingProvider ||--|| ModelCall : "devuelve en cada llamada"
+  AnonymizingProvider ||--|| Destination : "recibe en la petición"
 ```
 
-<!-- Texto alternativo: cada contrato tiene fixtures, y C6 además un manifiesto de huellas. La corrida lleva la entrada de C6 y la configuración efectiva, y el resultado lleva la salida de C6. La entrada trae el consentimiento; la salida trae hallazgos con dos citas y el registro de llamadas. La sugerencia referencia la cita de C6. La configuración efectiva contiene un perfil del analizador, que extiende el perfil genérico, que asocia papeles a destinos. Solo tres papeles se traducen a la fila de llamadas de C6. El reporte de la CLI lleva registros de llamadas. Cada código tiene una excepción y cada tipo de hallazgo un rótulo. El archivo de perfiles contiene perfiles genéricos y lo valida la función de validación; el registro resuelve las referencias entre contratos; los casos de escaneo ejercitan la lista de vocabulario. -->
+<!-- Texto alternativo: cada contrato tiene fixtures, y C6 además un manifiesto de huellas. La corrida lleva la entrada de C6 y la configuración efectiva, y el resultado lleva la salida de C6. La entrada trae el consentimiento; la salida trae hallazgos con dos citas y el registro de llamadas. La sugerencia referencia la cita de C6. La configuración efectiva contiene un perfil del analizador, que extiende el perfil genérico, que asocia papeles a destinos. Solo tres papeles se traducen a la fila de llamadas de C6. El reporte de la CLI lleva registros de llamadas. Cada código tiene una excepción y cada tipo de hallazgo un rótulo. El archivo de perfiles contiene perfiles genéricos y lo valida la función de validación; el registro resuelve las referencias entre contratos; los casos de escaneo ejercitan la lista de vocabulario. La puerta al anonimizador (AnonymizingProvider) recibe un destino en cada petición y devuelve un registro de llamada. -->
 
 ## 5. Vista derivada: reglas
 
@@ -331,7 +348,7 @@ Derivada de `rules.md`; manda el YAML de allá.
 | Rótulos | BR6.1–BR6.3 | — | F1, F6 |
 | API y errores | BR7.1–BR7.4 | — | F1 |
 | Fecha y métricas | BR8.1–BR8.2 | — | F1, F2 |
-| Papeles y perfiles | BR9.1–BR9.8 | — | F1, F2, F8 |
+| Papeles y perfiles | BR9.1–BR9.9 | — | F1, F2, F8 |
 | Reporte de la CLI | BR10.1–BR10.2 | — | F1 |
 | Límites | BR11.1 | — | F1 |
 | Paquete | BR12.1–BR12.3 | — | F9 |
@@ -385,6 +402,9 @@ los datos son sintéticos.
 | E39 | `validate(data, kind="base")` sin `key_prefix` | Error de tipo: el argumento es obligatorio | BR9.8 |
 | E40 | Término de la lista sin caso de escaneo que espere su coincidencia | Suite en rojo | BR5.8 |
 | E41 | Salida válida para C6 con «miente» en `observaciones`, recibida por U4 | Corrida en `error` con `analysis.invalid_output`, sin sugerencias | BR5.4 |
+| E42 | Doble que implementa solo `generate(GenerateRequest) -> GenerateResult`, tipado como `AnonymizingProvider`; y un doble sin `generate` (control negativo) | El primero pasa mypy estricto; el segundo no | BR9.9 |
+| E43 | `model_calls` con un `check_ready()` en el `Protocol`, o importando un módulo fuera del paquete de contratos | Suite en rojo | BR9.9 |
+| E44 | `session.blocked` usado en C1 sin fila en el catálogo o sin su clase de excepción | Suite en rojo | BR7.2, BR7.4 |
 
 ## 7. Integración con otras unidades
 
@@ -394,8 +414,8 @@ los datos son sintéticos.
 | U4 text-flow | C1, C2, C3, C6, C7, C8, C25, rótulos, fecha, `registry`, `limits.load` | Valida en sus fronteras con los mismos esquemas; ante vocabulario prohibido en la ingesta aplica BR5.4 (R-09) |
 | U5, U6, U7 | C1, C7, C10, C11, C15, C23, C24, C8 (reporte), fecha | Pruebas de contrato |
 | U8, U9 | C1, C5, C8 (VE-05) | Pruebas de contrato cuando se construyan |
-| U10 anonymizer | `model_calls`, `profile-base`, `profiles.validate` con `kind: base` y `key_prefix="VERIDICUS_"`, `registry`, `model-call.v1.yaml` | Pruebas de contrato del módulo y del proxy (C20, C21) |
-| U11 incoherence-analyzer | C6, `model_calls`, `profiles.validate` con `kind: analyzer`, `limits.load`, `registry`, configuración efectiva, tabla de papeles, C8 y sus casos de escaneo, C19, C25 | Valida su salida y su reporte con estos esquemas, y ejecuta todos los casos de escaneo con su `scan` (BR5.8) |
+| U10 anonymizer | `model_calls` (implementa `AnonymizingProvider` con el módulo de C20), `profile-base`, `profiles.validate` con `kind: base` y `key_prefix="VERIDICUS_"`, `registry`, `model-call.v1.yaml` | Pruebas de contrato del módulo y del proxy (C20, C21) |
+| U11 incoherence-analyzer | C6, `model_calls` (el ModelGateway recibe un `AnonymizingProvider` por inyección; el cliente HTTP de C21 lo implementa), `profiles.validate` con `kind: analyzer`, `limits.load`, `registry`, configuración efectiva, tabla de papeles, C8 y sus casos de escaneo, C19, C25 | Valida su salida y su reporte con estos esquemas, y ejecuta todos los casos de escaneo con su `scan` (BR5.8) |
 | U12 research-reports | C19 | Rechaza con `422` lo que no cumple el esquema |
 | U2 platform | C15, C16 | Regla de Prometheus y `scripts/smoke.sh` |
 | `sistema` (externo) | Paquete `veridicus-contracts` en una etiqueta: `model_calls`, `profile-base` y `profiles.validate` con prefijo propio | Fija la etiqueta; no copia ni edita (cambio 03 V-3) |
@@ -419,10 +439,10 @@ original, cada una en su propio commit.
 
 | ID | Artefacto aprobado | Precisión propuesta | Origen |
 |---|---|---|---|
-| FD-U1-01 | `contract-design/contract-summary.md` (C13) y `domain-design/components.md` (ModelGateway) | `Role` deja de ser `Literal["judge", "verifier", "verifier_permuted"]` y pasa a ser `str` con el patrón `^[a-z][a-z0-9_]{0,31}$`; quien valida el papel contra el perfil es el que carga el perfil | Cambio 03 V-1; V-1 = A |
+| FD-U1-01 | `contract-design/contract-summary.md` (C13) y `domain-design/components.md` (ModelGateway) | `Role` deja de ser `Literal["judge", "verifier", "verifier_permuted"]` y pasa a ser `str` con el patrón `^[a-z][a-z0-9_]{0,31}$`; quien valida el papel contra el perfil es el que carga el perfil. **Revisión 3:** la revisión 3 de C13 (aprobada el 2026-11-21) sigue con `Role = Literal[...]`; si apruebas esta precisión, cambia también allí | Cambio 03 V-1; V-1 = A |
 | FD-U1-02 | `contract-design/contract-summary.md` (C18) y `domain-design/components.md` (ExecutionProfiles) | El esquema de perfiles se parte en `profile-base.schema.v1.yaml` (`roles`, `role_aliases`, un `fallback_provider`) y `profiles.schema.v1.yaml`, la especialización del analizador (exactamente `judge`, `verifier` y el alias `verifier_permuted → verifier`). `api_key_ref` pasa de `^VERIDICUS_[A-Z0-9_]+$` a `^[A-Z][A-Z0-9_]{2,63}$`, y el prefijo es un argumento de la función de validación (Veridicus: `VERIDICUS_`). Las reglas del proxy «la petición nombra un perfil y un papel que existen» se leen sobre `roles` y `role_aliases` | Cambio 03 V-1; V-1 = A; P7 = A |
 | FD-U1-03 | `contract-design/contract-summary.md` (C19 `model-call.v1.yaml`, C21 petición) | `role` pasa de `enum` a `pattern`; el reporte de la CLI (C19) restringe sus llamadas a los tres papeles del analizador con un `allOf` | Cambio 03 V-1; V-1 = A |
-| FD-U1-04 | `contract-design/contract-summary.md` (C10–C13, C17, C20, C23, C24) | Las importaciones `contracts.python.<módulo>` y `contracts.analyzer.v1` pasan a `veridicus_contracts.<módulo>` y `veridicus_contracts.analyzer.v1`, de la distribución `veridicus-contracts`; la carpeta del repositorio sigue siendo `contracts/` | Cambio 03 V-3; P6 = A |
+| FD-U1-04 | `contract-design/contract-summary.md` (C10–C13, C17, C20, C23, C24) | Las importaciones `contracts.python.<módulo>` y `contracts.analyzer.v1` pasan a `veridicus_contracts.<módulo>` y `veridicus_contracts.analyzer.v1`, de la distribución `veridicus-contracts`; la carpeta del repositorio sigue siendo `contracts/`. **Revisión 3:** la revisión 3 de C13 nombra `contracts.python.model_calls` en el `Protocol` `AnonymizingProvider`, en el cliente HTTP de C21 («solo importa `contracts/`») y en los tres contratos de import-linter; con esta precisión pasan a `veridicus_contracts.model_calls` y a «solo importa `veridicus_contracts`» | Cambio 03 V-3; P6 = A |
 | FD-U1-05 | `user-stories/stories.md` (AC12.6.1) | AC12.6.1 espera `201` y que el texto «se descartó», pero CD-03 decidió rechazar con `422 research.invalid_report` un reporte que trae texto o no cumple C19. Propuesta: el *canary* en un reporte da `422`, 0 filas, y no aparece en ningún log. Es la misma diferencia que DP-01 (`interaction-spec.md`). **U1 la cubre solo en parte** (R-06): BR10.1 rechaza frases y campos desconocidos, pero un *canary* de una palabra sin espacios, como `CANARIO-7f3a` en `model`, cumple el patrón y pasa el esquema. El resto, el *canary* que no aparece en filas ni en logs, es de U12 y se cierra en su Functional Design | CD-03; DP-01; R-06 |
 | FD-U1-06 | `contract-design/contract-summary.md` (C6 y regla 3) | La prueba de nivel 0 compara el **contenido** de la copia con `SHA256SUMS`, no solo la versión; solo se copian los dos esquemas, sin el `README.md` del principal | Cambio 03 §1; P5 = A |
 | FD-U1-07 | `contract-design/contract-summary.md` (Preguntas abiertas, C6) | La pregunta «aprobación de la v1.0.0 en el repositorio principal» queda cerrada: se aprobó el 2026-11-09 sin cambios frente a C6 | Cambio 03 §1 |

@@ -175,3 +175,34 @@ B. Solo R-01 a R-03.
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+# Tercera pasada — revalidación (2026-11-21)
+
+Desde la segunda pasada se aprobaron hoy las revisiones 3 de Inception. Lo que toca a U1 ya lo deciden
+esas fuentes y no se vuelve a preguntar:
+- **C13, revisión 3 (R-14, R-17):** `contracts/python/model_calls.py` suma el `Protocol`
+  `AnonymizingProvider`, con un solo método `generate(req) -> GenerateResult`. La disponibilidad del proxy
+  (`/readyz`) queda fuera del `Protocol`. Lo implementan el módulo de C20 (U10) y el cliente HTTP de C21
+  (U11). El módulo sigue sin importar nada de U10 ni de U11, y conserva sus errores tipados
+  (`ModelCallError` y sus cinco subclases).
+- **CD-11 (C1):** el código `session.blocked` (`409`, la sesión no admite corridas tras
+  `anonymizer.incident`) entra al catálogo único de `code`, con su clase de excepción (BR7.2, BR7.4).
+- **CD-02:** `anonimizador_no_disponible` ya está en el enum de C6 de U1; no cambia.
+- **AC11.6.4** (import-linter, lockfile, imagen y Secret) es de U2 y U4, no de U1.
+- **Precisión que sigue abierta:** la revisión 3 de C13 sigue usando `contracts.python.model_calls`,
+  también en sus contratos de import-linter, y `Role` como `Literal`. FD-U1-04 (`veridicus_contracts`) y
+  FD-U1-01 (papel con patrón) siguen pendientes de tu decisión en la aprobación, junto con el resto de
+  FD-U1-01 a FD-U1-14.
+
+## P12 — Cómo se registra la revisión 3 de U1
+
+A. Se ratifica en bloque como revisión 3, en la cabecera de los cuatro artefactos, con cada grupo, su
+   origen y la fecha. `model_calls` suma el `Protocol` y la regla nueva BR9.9 (un solo método, sin
+   importar nada fuera del paquete de contratos, comprobado con mypy estricto y un doble).
+   `session.blocked` entra al catálogo por BR7.2 y BR7.4, sin regla nueva. FD-U1-04 y FD-U1-01 se amplían
+   para nombrar el texto de la revisión 3 de C13. No cambian otras entidades, reglas ni flujos.
+   (Recomendada)
+B. Se repasa artefacto por artefacto contigo antes de escribir la revisión.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided

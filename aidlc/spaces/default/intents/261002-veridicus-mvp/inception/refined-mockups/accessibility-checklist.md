@@ -1,5 +1,11 @@
 # Lista de accesibilidad — Veridicus (WCAG 2.1 AA)
 
+**Revisión 3 — revalidación (2026-11-21).** Se ratifica en bloque (preguntas 12–14). El estado «Sesión
+bloqueada por incidente» de M4 §6.4 se anuncia con la regla de corrida de AC5.6.5 (el error de la
+corrida), con icono y texto. Sus botones deshabilitados siguen enfocables con su motivo (AC5.6.4). La
+accesibilidad de los elementos de la adenda 02 (épica 15) está en sus criterios: AC15.1.1, AC15.2.4,
+AC15.3.1 y AC15.9.2.
+
 **Revisión 2 — cambio 01 (DT27, 2026-11-03).** Reemplaza la aprobada el 02/10/2026. Cambios:
 
 - Se retiran las filas del Paquete de Traspaso y del Hecho No Documentado (antes V-3).

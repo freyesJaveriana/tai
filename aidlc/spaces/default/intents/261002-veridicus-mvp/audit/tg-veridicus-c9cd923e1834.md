@@ -9714,3 +9714,210 @@
 **Context**: inception > user-stories > stories.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T15:04:30Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a81aa8ca9ab7bc72b
+**Message**: /aidlc --resume
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T15:05:49Z
+**Event**: HUMAN_TURN
+**Session**: 56bb4f48-f3a9-4d15-bcea-cec2f5c9e113
+
+---
+
+## Workflow Unparked
+**Timestamp**: 2026-11-21T15:05:56Z
+**Event**: WORKFLOW_UNPARKED
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-11-21T15:06:27Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: refined-mockups
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T15:07:16Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7b462401e9474a71
+**Message**: <analysis>\nThe session runs in Spanish. The project is Veridicus (TG "Diálogos para la Memoria"), managed with the AI-DLC workflow (intent `261002-veridicus-mvp`, scope classic).\n\n1. `/aidlc doctor` w
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:08:44Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Context**: inception > refined-mockups > refined-mockups-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T15:08:45Z
+**Event**: DECISION_RECORDED
+**Stage**: refined-mockups
+**Decision**: Tercera pasada: preguntas 12-14 de refined-mockups-questions.md
+**Options**: P12 A/B/X,P13 A/B/X,P14 A/B/X
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T15:09:34Z
+**Event**: HUMAN_TURN
+**Session**: 56bb4f48-f3a9-4d15-bcea-cec2f5c9e113
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T15:09:40Z
+**Event**: QUESTION_ANSWERED
+**Stage**: refined-mockups
+**Details**: P12: Actualizar catálogo (Recommended) = A; P13: Adenda como especificación (Recommended) = A; P14: Ratificar en bloque (Recommended) = A
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:09:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+**Context**: inception > refined-mockups > interaction-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:09:53Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+**Context**: inception > refined-mockups > interaction-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:09:57Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+**Context**: inception > refined-mockups > interaction-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:00Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Context**: inception > refined-mockups > mockups.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:09Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Context**: inception > refined-mockups > mockups.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:15Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Context**: inception > refined-mockups > mockups.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:17Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Context**: inception > refined-mockups > mockups.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:23Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Context**: inception > refined-mockups > mockups.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:29Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Context**: inception > refined-mockups > refined-mockups-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Context**: inception > refined-mockups > refined-mockups-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:32Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Context**: inception > refined-mockups > refined-mockups-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:45Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+**Context**: inception > refined-mockups > design-system-mapping.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:48Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+**Context**: inception > refined-mockups > accessibility-checklist.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:10:59Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/memory.md
+**Context**: inception > refined-mockups > memory.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T15:11:01Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/memory.md
+**Context**: inception > refined-mockups > memory.md
+
+---

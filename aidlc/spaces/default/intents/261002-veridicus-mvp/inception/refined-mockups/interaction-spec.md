@@ -1,5 +1,11 @@
 # Especificación de interacción — Veridicus (consola del analizador de incoherencias)
 
+**Revisión 3 — revalidación (2026-11-21).** Ratifica en bloque la revisión 2 (preguntas 12–14). Solo
+cambia el catálogo (§6): `error.cause.anonymizer` toma el texto de AC3.2.5 (`anonimizador_no_disponible`,
+CD-02) y se suman `error.cause.anonymizer_incident` y `session.blocked_incident` (`anonymizer.incident`,
+CD-08, AC11.3.8). Los elementos de la adenda 02 (épica 15) se especifican en
+`inception/user-stories/stories-adenda-02.md`, ubicados en las pantallas de `mockups.md` §11.
+
 **Revisión 2 — cambio 01 (DT27, 2026-11-03).** Reemplaza la aprobada el 02/10/2026. Los componentes
 que siguen conservan su número; los que salen quedan marcados **Retirado** y los nuevos toman 4.11 en
 adelante.
@@ -737,7 +743,9 @@ diferencias; si los conjuntos difieren, solo metadatos y el aviso.
 | `error.cause.timeout` | «El análisis superó el tiempo máximo» | Causa |
 | `error.cause.invalid_output` | «La respuesta del modelo no tuvo el formato esperado» | Causa |
 | `error.cause.content_block` | «El filtro de contenido del proveedor rechazó la petición» | Causa |
-| `error.cause.anonymizer` | «El anonimizador no respondió. No se envió ningún dato fuera del clúster» | Causa |
+| `error.cause.anonymizer` | «El anonimizador no estaba disponible o rechazó la petición. No se envió ningún dato fuera del clúster» | Causa (`anonimizador_no_disponible`, CD-02; también ante los rechazos `409`/`422` del proxy, CD-04; AC3.2.5) |
+| `error.cause.anonymizer_incident` | «Una llamada a un proveedor externo salió sin anonimizar. La sesión quedó bloqueada y se registró un incidente» | Causa (`incidente_anonimizacion`, visto como `anonymizer.incident` de C1; AC3.2.5, AC11.3.8) |
+| `session.blocked_incident` | «Sesión bloqueada por un incidente de anonimización. No se lanzan corridas nuevas» | Error del sistema (AC11.3.8) |
 | `final.error` | «El analizador no pudo procesar la transcripción completa. Revisión manual requerida» | Error del sistema |
 | `final.in_progress` | «El modo final ya está en proceso» | Motivo de deshabilitado |
 | `final.not_completed` | «Modo final no completado. Revisión manual requerida» | Reporte |
@@ -776,8 +784,9 @@ el código de C1: `error.cause.invalid_output` ↔ `analysis.invalid_output`, `e
 `analysis.content_blocked`, `error.cause.timeout` ↔ `analysis.timeout`, `error.cause.provider` ↔
 `analysis.provider`, `error.cause.anonymizer` ↔ `analysis.anonymizer_unavailable`, más
 `analysis.system` (la corrida no volvió a tiempo o agotó sus entregas) y `anonymizer.incident` (incidente
-de anonimización, que además bloquea la sesión). El texto visible de estas dos últimas causas sale del
-catálogo y lo fija Functional Design.
+de anonimización, que además bloquea la sesión). El texto visible de `analysis.system` sale del catálogo
+y lo fija Functional Design. *(Revisión 3: el de `anonymizer.incident` ya lo fija AC3.2.5 y es
+`error.cause.anonymizer_incident`.)*
 
 **Regla del catálogo.** Toda cadena visible de la consola sale del catálogo, sin excepciones: además de
 las claves de esta tabla, cada texto entre «» de `mockups.md` (estados vacíos, motivos, diálogos, avisos

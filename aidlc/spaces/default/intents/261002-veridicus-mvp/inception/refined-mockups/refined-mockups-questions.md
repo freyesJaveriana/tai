@@ -188,3 +188,47 @@ C. El rol `admin`.
 X. Other (please specify)
 
 [Answer]: A
+
+---
+
+## Tercera pasada — revalidación (2026-11-21)
+
+Las maquetas (revisión 2, aprobada el 03/11/2026) quedaron desfasadas por precisiones que ya aprobaste en
+etapas posteriores:
+
+- **Contract Design (2026-11-09):** CD-02 fija el código `anonimizador_no_disponible` y CD-08 conecta cada
+  causa con su código de C1, incluido `anonymizer.incident`, que bloquea la sesión.
+- **User Stories, revisión 3 (2026-11-21):** AC3.2.5 fija en español la causa de los dos códigos del
+  anonimizador (R-01 y R-02). El catálogo de `interaction-spec.md` §6 aún dice «El anonimizador no
+  respondió…» y deja a Functional Design el texto del incidente.
+- **Adenda 02 (épica 15, Domain Design, 2026-11-07):** el aviso fijo de VE-01, el reconocimiento de las
+  reglas, «Pausar análisis» y «Terminar sesión», «Reportar un problema», el consentimiento y el plazo de
+  retención al crear la sesión, la marca de agua y los avisos de bienestar. La adenda dice que Refined
+  Mockups no se reabre y ubica cada elemento en las pantallas aprobadas. Hay un desliz: US15.2 ubica los
+  botones en «la barra de la sesión de M2», y M2 está retirada; la sesión es M4.
+
+Lo demás ya lo deciden las fuentes. Solo se pregunta cómo registrar la revisión 3.
+
+### Pregunta 12 — ¿Cómo entran las causas del anonimizador?
+
+A. **Se actualizan el catálogo de `interaction-spec.md` §6 y el estado del tramo en `mockups.md` §6.4.** `error.cause.anonymizer` toma el texto de AC3.2.5, se añade `error.cause.anonymizer_incident` con el suyo, y M4 suma el estado «Sesión bloqueada por un incidente de anonimización» (sin corridas nuevas). Se cita CD-02, CD-08 y AC3.2.5 **(Recomendada)**
+B. Solo se añade una nota en la cabecera de la revisión 3, y los textos quedan para Functional Design.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 13 — ¿Cómo se registran los elementos de la adenda 02 en las maquetas?
+
+A. **La adenda sigue como especificación.** La cabecera de `mockups.md` la cita, la cobertura (§11) suma US15.1–US15.10 con su pantalla, y el desliz «M2 → M4» de US15.2 entra en la tabla de precisiones para que decidas en la aprobación. No se redibujan los wireframes **(Recomendada)**
+B. Se dibujan en los wireframes de M3, M4, M5 y M7 como parte de la revisión 3.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 14 — ¿Cómo se registra la revisión 3?
+
+A. **Se ratifican en bloque como revisión 3**, listando cada grupo con su origen y fecha y cambiando solo lo que piden las preguntas 12 y 13. El lienzo visual no cambia, porque no se redibuja ninguna pantalla **(Recomendada)**
+B. Se repasa pantalla por pantalla y se rehacen las afectadas, incluido el lienzo.
+X. Other (please specify)
+
+[Answer]: A

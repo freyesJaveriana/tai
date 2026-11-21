@@ -1,5 +1,9 @@
 # Mapa del sistema de diseño — Veridicus
 
+**Revisión 3 — revalidación (2026-11-21).** Se ratifica en bloque (preguntas 12–14) y no hay *tokens*
+nuevos. El estado «Sesión bloqueada por incidente» de M4 §6.4 (AC11.3.8) usa `--state-system-error-*`,
+igual que el tramo no evaluado.
+
 **Revisión 2 — cambio 01 (DT27, 2026-11-03).** Reemplaza la aprobada el 02/10/2026. Se retiran el
 *token* rojo del Hecho No Documentado y el panel del Paquete de Traspaso. Se añaden las marcas de cita A
 y B, el tratamiento informativo de los avisos de perfil y las primitivas de M3, M7 y M8.

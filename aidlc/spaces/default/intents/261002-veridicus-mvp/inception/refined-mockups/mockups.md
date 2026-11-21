@@ -1,5 +1,23 @@
 # Maquetas refinadas — Veridicus (consola del analizador de incoherencias, MVP)
 
+**Revisión 3 — revalidación (2026-11-21).** Se ratifica en bloque la revisión 2 (pregunta 14). No se
+redibuja ninguna pantalla y el lienzo visual no cambia. Solo se registran las precisiones que el humano ya
+aprobó en etapas posteriores:
+
+- *Contract Design (2026-11-09).* CD-02 fija el código `anonimizador_no_disponible`. CD-08 conecta cada
+  causa de error con su código de C1, incluido `anonymizer.incident`, que bloquea la sesión.
+- *User Stories, revisión 3 (2026-11-21).* AC3.2.5 fija en español la causa de los dos códigos del
+  anonimizador (R-01, R-02). Esas causas entran en el catálogo de `interaction-spec.md` §6, y M4 §6.4 suma
+  el estado «Sesión bloqueada por incidente» (pregunta 12).
+- *Adenda 02 de historias (épica 15, Domain Design, 2026-11-07).* El aviso fijo de VE-01, el reconocimiento
+  de las reglas, la pausa y el fin del análisis, «Reportar un problema», el consentimiento y la retención
+  al crear la sesión, la marca de agua y los avisos de bienestar se especifican en
+  `inception/user-stories/stories-adenda-02.md`. La adenda los ubica en estas pantallas, que no se reabren
+  (pregunta 13). La cobertura (§11) los asigna a su pantalla, y la tabla de precisiones corrige
+  «M2 → M4» en US15.2.
+- *Domain Design (DD-09).* El reporte se llama «reporte de revisión». Estas maquetas ya no usaban «reporte
+  forense», así que no cambia ningún texto.
+
 **Revisión 2 — cambio 01 (DT27, 2026-11-03).** Esta versión reemplaza la aprobada el 02/10/2026; la
 anterior queda en el historial de Git. Las pantallas que siguen conservan su ID; la que sale (M2,
 Escenarios de control) queda marcada **Retirada** y las nuevas toman M7 y M8, para no romper referencias.
@@ -49,6 +67,7 @@ la aprobación si se actualiza cada original, cada uno en su propio commit.
 | El botón de importación vive en la lista de sesiones y abre una pantalla propia (M7), no en «Nueva sesión». | Ninguno: US2.6 no fija dónde se importa. Se anota para trazabilidad. | Respuesta 6 |
 | Regla única de anuncios en vivo: `aria-live` anuncia cambios de **corrida** (inicio, etapa, fin o error de una corrida incremental o del modo final, con el progreso «ventana N de M» como mucho una vez cada 30 s), el contador de pendientes y la sesión suspendida; nunca el estado de cada turno, que se lee al enfocarlo. Así AC10.1.1 («cada cambio se anuncia») se lee por corrida y no por turno, y no choca con AC5.6.5. Además de la lista de AC5.6.5 se anuncian el resultado de validar un archivo (M7, M8) y «SHA-256 copiado», porque son respuesta directa a una acción del usuario. | `stories.md` AC10.1.1 y AC5.6.5 (precisión de lectura, sin cambiar su texto) | Revisión 02, R-09 |
 | Por debajo de 1024 px no hay diseño propio (P3, decisión del humano en la primera pasada): se muestra el aviso. Esto es una excepción declarada a WCAG 1.4.10 (reajuste a 320 px CSS) y limita P-6 (zoom al 200 %) a 1280 px con zoom ≤ 150 % sin pérdida de funciones; al 200 % el contenido sigue legible pero cae al aviso. La accesibilidad es SHOULD (US5.6). | `stories.md` US5.6 (alcance de AA) | P3; revisión 02, R-12 |
+| *(Revisión 3)* «Pausar análisis», «Reanudar análisis» y «Terminar sesión» van en la barra de la sesión de **M4**, junto a «Finalizar sesión». US15.2 dice «la barra de la sesión de M2», pero M2 (Escenarios de control) está retirada desde el cambio 01. | `stories-adenda-02.md` US15.2 (*Ubicación*) | Pregunta 13 |
 
 **Criterios propuestos para US12.6 y US12.7** (si el humano las aprueba, entran a `stories.md` en su propio commit):
 
@@ -342,6 +361,10 @@ está diseñado para pantallas de escritorio (1024 px o más)», sin bloquear el
 | Analizado con hallazgos | ✓ «Analizado» + enlace «N hallazgos» | Filtra el panel por ese turno. |
 | Tramo no evaluado | ⚠ «Tramo no evaluado» sobre el grupo de turnos + causa + mensaje de FR4.2 + «Código: …» + «Reintentar tramo» | Tratamiento de error del sistema; disponible también en sesión finalizada (AC3.2.2, AC3.2.3, AC3.2.5). |
 | Turno del entrevistador | Sin estado | Se muestra como contexto. |
+| Sesión bloqueada por incidente *(revisión 3)* | ⚠ «Sesión bloqueada por un incidente de anonimización. No se lanzan corridas nuevas» en la cabecera de M4, y en la corrida la causa «Una llamada a un proveedor externo salió sin anonimizar. La sesión quedó bloqueada y se registró un incidente» + «Código: anonymizer.incident» | Tratamiento de error del sistema. «Reintentar tramo» y «Lanzar modo final» quedan deshabilitados (enfocables) con ese motivo (AC3.2.5, AC11.3.8; CD-08). |
+
+La causa de `anonimizador_no_disponible` es «El anonimizador no estaba disponible o rechazó la petición.
+No se envió ningún dato fuera del clúster» (AC3.2.5, CD-02). *(Revisión 3.)*
 
 ### 6.5 Panel de hallazgos: orden, resumen y filtros (P9)
 
@@ -747,7 +770,7 @@ línea de comandos». Resultados:
 | US10.7, US10.8 | Sin interfaz de la consola (Argo CD, Grafana) |
 | US11.1 | **Retirada** |
 | US11.2 | Historial lateral (M1 §3) |
-| US11.3–US11.6 | Sin interfaz propia; su efecto visible es la causa del código del anonimizador (§6.4) |
+| US11.3–US11.6 | Sin interfaz propia; su efecto visible es la causa de `anonimizador_no_disponible` y, con AC11.3.8, el estado «Sesión bloqueada por incidente» (§6.4) |
 | US12.1–US12.4 | Línea de comandos: su experiencia se diseña en Functional Design (P10) |
 | US12.5 | M4 §6.8 (registro de modelos de cada corrida, AC12.5.3); M8 §10.2 (reporte subido); en la CLI, Functional Design |
 | US13.1 | M3, M7, cabecera de M4, M5 |
@@ -757,3 +780,13 @@ línea de comandos». Resultados:
 | US14.2 | Sin interfaz (paquete de entrada) |
 | US14.3 | M8 §10.1 (rechazo de un reporte sin modelo, cuantización, motor o versión) y §10.2 (aviso de cuantización) |
 | US12.6, US12.7 (propuestas) | M8 §10.1–§10.3 |
+| US15.1 *(adenda 02)* | Diálogo modal de reconocimiento al entrar a la consola, después de M0; demostración que no bloquea (DD-01) |
+| US15.2 *(adenda 02)* | Barra de la sesión de M4: «Pausar análisis» / «Reanudar análisis» y «Terminar sesión», junto a «Finalizar sesión»; estado en la cabecera de M4 y en M1 (ver la tabla de precisiones) |
+| US15.3 *(adenda 02)* | Enlace «Reportar un problema» en la cabecera de todas las pantallas y en el menú de cada tarjeta de M4 §6.6; panel no modal |
+| US15.4 *(adenda 02)* | M3 (consentimiento o constancia, versión y voz); M7 (el bloque `consentimiento` del archivo, en la vista previa); el selector de perfil de M3 y M7 solo ofrece perfiles locales cuando no se autoriza la transferencia |
+| US15.5 *(adenda 02)* | Franja fija bajo la cabecera de M0–M8 y pie de cada página del reporte de M5 |
+| US15.6 *(adenda 02)* | Sin interfaz (registro de acceso; demostración, DD-02) |
+| US15.7 *(adenda 02)* | M3 y M7: el plazo de retención en días al crear la sesión; el borrado es un `Job` sin interfaz |
+| US15.8 *(adenda 02)* | M5 «Descargar reporte»: marca de agua y SHA-256 en el archivo; los roles sin permiso no ven el botón |
+| US15.9 *(adenda 02)* | Aviso antes de la transcripción al abrir M4, y recordatorio no modal en M4 (demostración, DD-05) |
+| US15.10 *(adenda 02)* | M8 §10.2 (tabla por tipo de hecho y perfil del reporte de evaluación) |

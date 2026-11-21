@@ -275,3 +275,10 @@ C. Solo R-07
 X. Other (please specify)
 
 [Answer]: A
+
+### Pendiente — salir del modo automático para repetir la revisión de arquitectura
+
+A. listo
+X. Other (please specify)
+
+[Answer]: A

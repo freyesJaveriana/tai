@@ -12516,3 +12516,255 @@
 **Context**: inception > domain-design > decisions.md
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T16:40:43Z
+**Event**: REVIEW_REQUESTED
+**Stage**: domain-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:c243b765925dde2da9ed21886891d15ab0e50dea27a0fb32720f4841076982de
+**Request Id**: review:aa656e8765af2953dbb5d4cb841355f3
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T16:40:58Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/domain-design-questions.md
+**Context**: inception > domain-design > domain-design-questions.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T16:41:06Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7db5d262d00b7019
+**Message**: listo
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T16:41:13Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T16:41:17Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/domain-design-questions.md
+**Context**: inception > domain-design > domain-design-questions.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T16:43:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a96a7f74d3e5cb278
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Veredicto: READY.** No hay hallazgos Critical ni Major abiertos. Escribí la revisión en `<project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T16:43:47Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T16:43:54Z
+**Event**: REVIEW_COMPLETED
+**Stage**: domain-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:c243b765925dde2da9ed21886891d15ab0e50dea27a0fb32720f4841076982de
+**Artifact Fingerprint**: sha256:c243b765925dde2da9ed21886891d15ab0e50dea27a0fb32720f4841076982de
+**Request Id**: review:aa656e8765af2953dbb5d4cb841355f3
+**Review Record**: .aidlc-engine/reviews/domain-design/stage/39cfd5e87edd305e/1.json
+**Review Record Digest**: sha256:623a39e4074f3f5913b42e1c9dd42ce73b655289df3ec50ec8c4c1182aa1c990
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 21b9195f
+**Sensor ID**: required-sections
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: 21b9195f
+**Sensor ID**: required-sections
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4b4e2997
+**Sensor ID**: required-sections
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/decisions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4b4e2997
+**Sensor ID**: required-sections
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/decisions.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: ae05e3ef
+**Sensor ID**: required-sections
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: ae05e3ef
+**Sensor ID**: required-sections
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: db6391fb
+**Sensor ID**: upstream-coverage
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: db6391fb
+**Sensor ID**: upstream-coverage
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: be624eef
+**Sensor ID**: upstream-coverage
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/decisions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: be624eef
+**Sensor ID**: upstream-coverage
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/decisions.md
+**Duration ms**: 57
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8b6a1250
+**Sensor ID**: upstream-coverage
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8b6a1250
+**Sensor ID**: upstream-coverage
+**Stage slug**: domain-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-21T16:43:55Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: domain-design
+**Details**: Re-entering gate after revision
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T16:44:10Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-11-21T16:44:13Z
+**Event**: GATE_APPROVED
+**Stage**: domain-design
+**User Input**: Approve
+**Review Finding Dispositions**: {"version":1,"dispositions":[{"artifact":"aidlc/spaces/default/intents/261002-veridicus-mvp/inception/domain-design/components.md","id":"R-08","fingerprint":"sha256:14e1b98721c571a958fdffca42aafcdf810cea9db9921f5802376a2633976987","status":"Accepted risk"}]}
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-11-21T16:44:13Z
+**Event**: STAGE_COMPLETED
+**Stage**: domain-design
+**Validation Basis**: {"graphContract":"sha256:4e5ba0b6334a8c25f8dea5929cee93c113f34e58b422ef110b998ef5ff29e179","inputs":[{"artifact":"requirements","contentHash":"sha256:4aef96f35affbf793c4dc7443d68fcc688b35bdb58c7623850eeb63aa2ea001c","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:6a7de19ce3ecefefb7d8bf5838bb61ed5aa4b238b53809e7a88bbfc1f481bb9f"},{"artifact":"stories","contentHash":"sha256:c633486511095af7cb5e727e15c64b8a595a64d8c66b9e184f112d47b2b54c0a","instanceCount":1,"presentCount":1,"producer":"user-stories","required":false,"structureHash":"sha256:79c297d698525d9b33feebcf5a0ab5270531050f2335f8a6e5fc0e9f52b01e33"},{"artifact":"team-practices","contentHash":"sha256:ff35309cca0e6c23471068b32bbe9f3a8859f3dc73da69ad0cf8670cc4f1f7b1","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":false,"structureHash":"sha256:f25e15e7fbc58d19ec0f555f5ba8a30688b4b0626e08481aa2e823c2f98aa797"}],"outputs":[{"artifact":"components","contentHash":"sha256:ee5eadcccc93c8742308365bde528a87db201765bd7daf224f5b65cc1ad852f6","instanceCount":1,"presentCount":1,"producer":"domain-design","required":true,"structureHash":"sha256:cd3677f334aeb73a32eb1b3af048e8fb8c33e42ccdb1d3a6075f83ef6db5cfe0"},{"artifact":"decisions","contentHash":"sha256:683f640d9d750c10d85a1bb4a7df82783853d364e26124cfcaf2252c28feeff5","instanceCount":1,"presentCount":1,"producer":"domain-design","required":true,"structureHash":"sha256:0d4a70441c53b3048d68bd981e729de55e1db5eaf68398187753006626c1811a"},{"artifact":"traceability","contentHash":"sha256:b6c05aac0aac4da8c6f7ba274747a90d9a8f4b91c935d9328039d33386bed066","instanceCount":1,"presentCount":1,"producer":"domain-design","required":true,"structureHash":"sha256:90a95c50f5a42cc009546881de6ede1c4c92a05be957cb2fb2b2cea753c73b37"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Domain Design approved by gate
+**Tokens In**: 726
+**Tokens Out**: 360400
+**Cache Read**: 64442859
+**Cache Write**: 2815057
+**Cost USD**: 63.96
+**By Model**: opus-5=60.55; claude-haiku-5-5=null; sonnet-5=3.41
+**By Agent**: main=60.55; aidlc-architecture-reviewer-agent=3.41
+**Tokens By Model**: opus-5=656/324.4k/60.9M/2.2M; claude-haiku-5-5=12/3.7k/382.3k/87.2k; sonnet-5=58/32.3k/3.1M/530.7k
+**Tokens By Agent**: main=656/324.4k/60.9M/2.2M; claude-code-guide=12/3.7k/382.3k/87.2k; aidlc-architecture-reviewer-agent=58/32.3k/3.1M/530.7k
+
+---
+
+## Stage Start
+**Timestamp**: 2026-11-21T16:44:13Z
+**Event**: STAGE_STARTED
+**Stage**: units-generation
+**Agent**: aidlc-architect-agent
+
+---

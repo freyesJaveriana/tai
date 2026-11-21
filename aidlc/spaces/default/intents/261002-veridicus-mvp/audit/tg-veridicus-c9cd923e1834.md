@@ -14833,3 +14833,333 @@
 **Context**: inception > delivery-planning > memory.md
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T21:53:17Z
+**Event**: DECISION_RECORDED
+**Stage**: delivery-planning
+**Decision**: Aprendizajes de Delivery Planning (tercera pasada): qué conservar y si hay algo que añadir
+**Options**: c3,c12,Nothing to add,Add a note
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T21:53:55Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T21:54:16Z
+**Event**: QUESTION_ANSWERED
+**Stage**: delivery-planning
+**Details**: Conservar: Revalidación sin cambio de orden, R14 sin partir B10; Algo más: Nothing to add
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-21T21:55:43Z
+**Event**: RULE_LEARNED
+**Stage**: delivery-planning
+**Candidate-ID**: c3
+**Content-Hash**: 435605d42ca3d8668775f5e0dad098431ccd925c9a525957bf96dc7ee885cac1
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-21T21:55:43Z
+**Event**: RULE_LEARNED
+**Stage**: delivery-planning
+**Candidate-ID**: c12
+**Content-Hash**: 3d6e756b52d92d7fd80abe36e1b50dd73e5cb9456b890271696f8d3771933b58
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: afb6789a
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/bolt-plan.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: afb6789a
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/bolt-plan.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 85ab66da
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/team-allocation.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 85ab66da
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/team-allocation.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: cef2f9cb
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/risk-and-sequencing-rationale.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: cef2f9cb
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/risk-and-sequencing-rationale.md
+**Duration ms**: 49
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5f6c8020
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/external-dependency-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5f6c8020
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/external-dependency-map.md
+**Duration ms**: 49
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2a68bbd7
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/delivery-planning-questions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2a68bbd7
+**Sensor ID**: required-sections
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/delivery-planning-questions.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: bcfa4bb3
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/bolt-plan.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: bcfa4bb3
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/bolt-plan.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 28508f6f
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/team-allocation.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 28508f6f
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/team-allocation.md
+**Duration ms**: 56
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2e5e4b23
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/risk-and-sequencing-rationale.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:48Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2e5e4b23
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/risk-and-sequencing-rationale.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:48Z
+**Event**: SENSOR_FIRED
+**Fire id**: f557a3ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/external-dependency-map.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:48Z
+**Event**: SENSOR_PASSED
+**Fire id**: f557a3ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/external-dependency-map.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T21:55:48Z
+**Event**: SENSOR_FIRED
+**Fire id**: 17006217
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/delivery-planning-questions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T21:55:48Z
+**Event**: SENSOR_PASSED
+**Fire id**: 17006217
+**Sensor ID**: upstream-coverage
+**Stage slug**: delivery-planning
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/delivery-planning-questions.md
+**Duration ms**: 49
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-21T21:55:48Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: delivery-planning
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T21:56:13Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-11-21T21:56:39Z
+**Event**: GATE_APPROVED
+**Stage**: delivery-planning
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-11-21T21:56:39Z
+**Event**: STAGE_COMPLETED
+**Stage**: delivery-planning
+**Validation Basis**: {"graphContract":"sha256:a107b7327c50c8716649b92e85898e6621eb07b7364abb8cf88794d8672f5550","inputs":[{"artifact":"components","contentHash":"sha256:ee5eadcccc93c8742308365bde528a87db201765bd7daf224f5b65cc1ad852f6","instanceCount":1,"presentCount":1,"producer":"domain-design","required":true,"structureHash":"sha256:cd3677f334aeb73a32eb1b3af048e8fb8c33e42ccdb1d3a6075f83ef6db5cfe0"},{"artifact":"contract-summary","contentHash":"sha256:934d2caf72a8d31cb38ac58b3eee5a1ed8b389fd86e9e8b45b75463a6339b8fd","instanceCount":1,"presentCount":1,"producer":"contract-design","required":false,"structureHash":"sha256:8041781712773965520b7af8f254e4cf15144012b4b1c037fe33deb650af9f1a"},{"artifact":"mockups","contentHash":"sha256:1c8d728c199bab47a2359e2b8e28745480b0038689cde8641177b8c61b636654","instanceCount":1,"presentCount":1,"producer":"refined-mockups","required":false,"structureHash":"sha256:c54de2bdc5028005432976af457cd227e7234b8866a52fd96bee2eb26e8af5db"},{"artifact":"requirements","contentHash":"sha256:4aef96f35affbf793c4dc7443d68fcc688b35bdb58c7623850eeb63aa2ea001c","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:6a7de19ce3ecefefb7d8bf5838bb61ed5aa4b238b53809e7a88bbfc1f481bb9f"},{"artifact":"stories","contentHash":"sha256:c633486511095af7cb5e727e15c64b8a595a64d8c66b9e184f112d47b2b54c0a","instanceCount":1,"presentCount":1,"producer":"user-stories","required":false,"structureHash":"sha256:79c297d698525d9b33feebcf5a0ab5270531050f2335f8a6e5fc0e9f52b01e33"},{"artifact":"team-practices","contentHash":"sha256:ff35309cca0e6c23471068b32bbe9f3a8859f3dc73da69ad0cf8670cc4f1f7b1","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":false,"structureHash":"sha256:f25e15e7fbc58d19ec0f555f5ba8a30688b4b0626e08481aa2e823c2f98aa797"},{"artifact":"unit-of-work-dependency","contentHash":"sha256:07825ec09939e1f724f6219d3bd500a58c55f785b06320c5c264f46ae26dc503","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:d6ad92275c895e990d36337f61fe9a3cf57dd9e49303027a2ca123b99d8377d2"},{"artifact":"unit-of-work-story-map","contentHash":"sha256:8fdae12c2234cbedc4b21fb591ede5ee88b4c9baf4e88041b80b2278ee19c44c","instanceCount":1,"presentCount":1,"producer":"units-generation","required":false,"structureHash":"sha256:f3ceaec4e0e564497b9a1d87652a2bb14cc76a951a88ec49dedc1e8ebef5c1d9"},{"artifact":"unit-of-work","contentHash":"sha256:f64f7a22dbef076c10507fbda0b37996d636a5849baa9f0935bd38151fd688a6","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:30b83745862cbad365814d36d84395d52c6ee8f0edf8cd143b1f1a7a0be579d5"}],"outputs":[{"artifact":"bolt-plan","contentHash":"sha256:b076867a653e993ed6502ea22b72a372e94440adb2f4e57b08c4a3187c5628c7","instanceCount":1,"presentCount":1,"producer":"delivery-planning","required":true,"structureHash":"sha256:4c1ce1e4c3ecf6f59e2012d319b19b2cdf325ae3fb15b40ef4fa1630c6fb80ab"},{"artifact":"delivery-planning-questions","contentHash":"sha256:768c80315edd2b4b0aacfed1e0ffbce45977713a78f05c3c06c3d85e47e26cd4","instanceCount":1,"presentCount":1,"producer":"delivery-planning","required":true,"structureHash":"sha256:40e541e74f69502d0dbb316e0d35755154c14478c0b48b6f12074a0c7c812318"},{"artifact":"external-dependency-map","contentHash":"sha256:a58e5f4f857ba6f4163a59fe929afaad91790293bd7eb74196198af195b46190","instanceCount":1,"presentCount":1,"producer":"delivery-planning","required":true,"structureHash":"sha256:a550df4dbb370bc0d77b148d24d2fe4fba2322dc8880cf9a7ddc045163260897"},{"artifact":"risk-and-sequencing-rationale","contentHash":"sha256:422d6b5875bbcc6f158fe0ea6a1a938847e59e59172395b8f9ff7a1b6774de0a","instanceCount":1,"presentCount":1,"producer":"delivery-planning","required":true,"structureHash":"sha256:50d5850f0e81f0d5b7e01baa8933e776a0c0a1ad4d285b8859c116beb42407ff"},{"artifact":"team-allocation","contentHash":"sha256:cf8f68c3fedbdc10d0ae7aac32454adffd0184092801ccbe48b0310a51c0e696","instanceCount":1,"presentCount":1,"producer":"delivery-planning","required":true,"structureHash":"sha256:c902988d409fceb90498b929aa4efae4a6d4797d1a2d4636bd39d2329a002e13"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Delivery Planning approved by gate
+**Tokens In**: 330
+**Tokens Out**: 105799
+**Cache Read**: 33623934
+**Cache Write**: 1639960
+**Cost USD**: 35.86
+**By Model**: opus-5=35.86
+**By Agent**: main=35.86
+**Tokens By Model**: opus-5=330/105.8k/33.6M/1.6M
+**Tokens By Agent**: main=330/105.8k/33.6M/1.6M
+
+---
+
+## Phase Completion
+**Timestamp**: 2026-11-21T21:56:39Z
+**Event**: PHASE_COMPLETED
+**From phase**: inception
+**To phase**: construction
+**Stages completed**: 11
+
+---
+
+## Phase Verification
+**Timestamp**: 2026-11-21T21:56:39Z
+**Event**: PHASE_VERIFIED
+**Phase boundary**: inception → construction
+
+---
+
+## Phase Start
+**Timestamp**: 2026-11-21T21:56:39Z
+**Event**: PHASE_STARTED
+**Phase**: construction
+**Scope**: classic
+
+---
+
+## Stage Start
+**Timestamp**: 2026-11-21T21:56:39Z
+**Event**: STAGE_STARTED
+**Stage**: functional-design
+**Agent**: aidlc-architect-agent
+
+---

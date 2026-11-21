@@ -13419,3 +13419,23 @@
 **Context**: inception > units-generation > unit-of-work.md
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T18:58:54Z
+**Event**: REVIEW_REQUESTED
+**Stage**: units-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:7ceabbe77168486513094b5bf1e79cc8fc16e5ad7b10766059b8a20942036ad5
+**Request Id**: review:ed4879d03bf3e421fb42d1fb4fbf737f
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T18:59:06Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/unit-of-work-story-map.md
+**Context**: inception > units-generation > unit-of-work-story-map.md
+
+---

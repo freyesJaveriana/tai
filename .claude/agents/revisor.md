@@ -1,5 +1,6 @@
 ---
 name: revisor
+display_name: Revisor
 description: Revisión adversarial de evidencia sobre el diff de UNA tarea del loop de agentes (Parte 2 de Code Generation de AI-DLC). Solo lectura sobre el código; corre los criterios de aceptación él mismo y nunca edita. Emite hallazgos con severidad (ROJO, NARANJA, AMARILLO) y un veredicto VERDE o NO-VERDE. Lo despacha el orquestador en cada ronda; nunca fusiona.
 tools: Bash, Read, Grep, Glob
 model: opus

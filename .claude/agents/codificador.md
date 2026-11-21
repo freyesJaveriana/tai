@@ -1,5 +1,6 @@
 ---
 name: codificador
+display_name: Codificador
 description: Implementa UNA tarea del loop de agentes (Parte 2 de Code Generation de AI-DLC), en su propio worktree de git. Trabaja desde el archivo de la tarea, el plan aprobado de la unidad y su Testing Contract, no desde una conversación. Lo despacha el orquestador; vuelve a despacharse con los hallazgos del revisor cuando la ronda sale NO-VERDE. Nunca fusiona, nunca escribe fuera de su worktree.
 tools: Bash, Read, Edit, Write, Grep, Glob
 model: sonnet

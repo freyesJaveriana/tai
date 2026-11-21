@@ -15458,3 +15458,364 @@
 **Context**: construction > contracts > functional-design > memory.md
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T22:10:50Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: contracts
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:05774ffa174eef3c086542c8ee766c5f60e686e0b2ee1866f7c527873aa76120
+**Request Id**: review:4422d5162e658d99b91f305495c674b9
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:10:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a29730a0a70cf613d
+**Message**: listo
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T22:10:57Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviewer-dispatch.json
+**Context**: .aidlc-engine > reviewer-dispatch.json
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:12:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a860d50842d8e423b
+**Message**: listo
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:12:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a4d6ab0199b6385b4
+**Message**: listo
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:14:51Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Review Requested
+**Timestamp**: 2026-11-21T22:14:54Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: contracts
+**Iteration**: 1
+**Retry**: pending-request
+**Artifact Fingerprint**: sha256:05774ffa174eef3c086542c8ee766c5f60e686e0b2ee1866f7c527873aa76120
+**Request Id**: review:4422d5162e658d99b91f305495c674b9
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T22:15:04Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviewer-dispatch.json
+**Context**: .aidlc-engine > reviewer-dispatch.json
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:15:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a63396750b7a126a8
+**Message**: ¿Cómo va la revisión?
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-11-21T22:29:01Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/
+**Stage**: functional-design
+**Unit**: contracts
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:31:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: ac20ac7dce4aa530a
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Veredicto:** READY. No encontré hallazgos Critical ni Major. Escribí el informe en `<project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aid
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:31:23Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T22:31:27Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: contracts
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:05774ffa174eef3c086542c8ee766c5f60e686e0b2ee1866f7c527873aa76120
+**Artifact Fingerprint**: sha256:05774ffa174eef3c086542c8ee766c5f60e686e0b2ee1866f7c527873aa76120
+**Request Id**: review:4422d5162e658d99b91f305495c674b9
+**Review Record**: .aidlc-engine/reviews/functional-design/units/contracts/5d993a50eb046c4b/1.json
+**Review Record Digest**: sha256:7271ce93728362f7843f92037dbfead1ac8235e1de12eea4d9bb1d6f4bde7243
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-11-21T22:32:30Z
+**Event**: UNIT_COMPLETED
+**Stage**: functional-design
+**Unit**: contracts
+**Run floor**: STAGE_JUMPED:2026-11-09T23:06:58Z#3
+**Mode**: wave
+**Wave memory entries**: 5
+**Artifact Fingerprint**: sha256:05774ffa174eef3c086542c8ee766c5f60e686e0b2ee1866f7c527873aa76120
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:35:10Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a252791a2c0be12f1
+**Message**: ok, espero las preguntas
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:35:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad5cc9b9e09aac35d
+**Message**: ok, espero
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:44:06Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/functional-design-questions.md
+**Context**: construction > anonymizer > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:44:13Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/memory.md
+**Context**: construction > anonymizer > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:44:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: aba9e847884d41594
+**Message**: Añadí seis preguntas de criterio (P3–P8) al final del archivo de preguntas de U10, en la sección `# Segunda pasada — cambio 01, adenda 02 y revisiones 3 (2026-11-21)`. Empieza con un párrafo de lo ya 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:44:33Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:44:40Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5f51af023139ef67
+**Message**: ok, espero las de U3
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:45:49Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-design-questions.md
+**Context**: construction > identity-access > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T22:45:54Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/memory.md
+**Context**: construction > identity-access > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:46:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: a540dcd588fbb4801
+**Message**: Añadí al archivo de preguntas de U3 la sección «Segunda pasada — cambio 01, adenda 02 y revisiones 3 (2026-11-21)», con cinco preguntas de criterio (P4–P8). En el diario de la unidad dejé una entrada 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:46:12Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T22:46:17Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Modo de respuesta para las preguntas de U10 (P3-P8) y U3 (P4-P8)
+**Options**: Guíame,Edito los archivos,Charlemos
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:47:30Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T22:47:34Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Guíame (Recomendada)
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T22:49:17Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U10 P3-P6: categorías, misma entidad, alcance de marcas, marcas alteradas
+**Options**: A,B,C,D,X
+**Unit**: anonymizer
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:51:11Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T22:51:16Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: U10 P3=A, P4=A, P5=A, P6=A
+**Unit**: anonymizer
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T22:51:16Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U10 P7-P8: llamadas fallidas, salida JSON por proveedor
+**Options**: A,B,C,D,X
+**Unit**: anonymizer
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-11-21T22:51:16Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: functional-design
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T22:52:05Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac2fedf6839c75ada
+**Message**: <analysis>\nThe session continues the AI-DLC workflow for intent 261002-veridicus-mvp in Spanish. Delivery-planning revision 3 was finished and approved in the earlier part. Then `/aidlc --resume` was 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:52:12Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T22:52:16Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: U10 P7=A, P8=A
+**Unit**: anonymizer
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T22:52:16Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U3 P4-P8: lectura de hallazgos, registro de accesos, actor de sistema, usuario de retención, sesiones pendientes
+**Options**: A,B,C,X
+**Unit**: identity-access
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:53:59Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T22:55:07Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T22:55:13Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: U3 P4=A, P5=A, P6=A, P7=A, P8=A
+**Unit**: identity-access
+
+---

@@ -48,6 +48,14 @@
 - 2026-11-09T21:39:32Z — V-1 = A: el papel es texto con patrón en C13, C19 (registro) y C21; un perfil genérico (papeles, alias, un fallback) que el analizador especializa con exactamente judge y verifier; C6 no cambia y una tabla fija traduce los tres papeles del analizador.
 <!-- aidlc-wave-memory:contracts:9b217c5ad8d8b17d00156c8432f032424e8434638ff1c7333f7d28601746d962 -->
 
+
+- 2026-11-09T22:43:59Z — P9 = A: U1 publica tres funciones puras (profiles.validate, limits.load, registry) para que U10, U11 y sistema no reimplementen la validación; FD-U1-10 enmienda el «sin lógica» de unit-of-work.
+<!-- aidlc-wave-memory:contracts:a609342ef41375884905af5d614aafdd2bc07f02dba4dec93eaaa517f7d6a346 -->
+
+
+- 2026-11-21T22:15:00Z — Tercera pasada (revalidación): de las revisiones 3 de Inception solo tocan a U1 el `Protocol` `AnonymizingProvider` en `model_calls` (C13, R-14) y el código `session.blocked` (CD-11); se registró como revisión 3 con BR9.9, sin cambiar otras entidades, reglas ni flujos (pregunta 12 = A).
+<!-- aidlc-wave-memory:contracts:91be35c4dc088b73447e530c0c2cff08a0e431c4513f5965d34c6b75e1af651d -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -90,6 +98,10 @@
 
 - 2026-11-09T21:39:32Z — Las precisiones de la segunda pasada (papeles abiertos, perfil genérico, prefijo de api_key_ref, importaciones veridicus_contracts, rótulos de los 7 tipos, comparación por contenido de la copia de C6) se registraron como FD-U1-01..09 en functional-spec.md §9 sin editar contract-summary, components ni stories aprobados.
 <!-- aidlc-wave-memory:contracts:84b8b561681625a1e93a6195d2fd748aa91a3066d4423f587434235dceda0b84 -->
+
+
+- 2026-11-09T22:43:59Z — Tras la revisión asesora, y con review-freeze bajado por el humano (opción B), U1 se corrigió después de la revisión: R-01 a R-09 resueltos y FD-U1-10..14 añadidas, sin editar contract-summary ni unit-of-work aprobados.
+<!-- aidlc-wave-memory:contracts:d048a1aa6edd04bc62b6f901511432d14563dfe2f4d87060bfc44b05e0b0b55e -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -138,6 +150,10 @@
 - 2026-11-09T21:39:32Z — El prefijo VERIDICUS_ de api_key_ref pasa del esquema a un argumento de la función de validación: sistema reutiliza el mismo esquema con su prefijo, a costa de que el esquema solo ya no impida una clave de otro producto.
 <!-- aidlc-wave-memory:contracts:46f8a4ab15f2b577441a89b953aec056bb6f14c8289b359155a2396f28134cb2 -->
 
+
+- 2026-11-09T22:43:59Z — P10 = A: los escenarios de vocabulario pasan a casos de escaneo que ejecuta U11 en B11; U1 queda sin lógica de escaneo a cambio de que esas pruebas no corran hasta B11.
+<!-- aidlc-wave-memory:contracts:c96f86d2aab72ac786ab30d20c86cc7e1a44028cabf5352f978150fbc0a2b321 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -170,3 +186,6 @@
 
 - 2026-11-09T21:39:32Z — AC12.6.1 espera 201 con el texto descartado y CD-03 rechaza con 422; BR10.1 cubre ambos y la diferencia (FD-U1-05, misma que DP-01) se cierra en el Functional Design de U12.
 <!-- aidlc-wave-memory:contracts:a3a4e9e0f87c70cec727e4a528e642cd91b532a95d4302f874d30d04c2e8c4ea -->
+
+- 2026-11-09T22:43:59Z — FD-U1-14: si un tramo «…» que es solo un término de la lista debe seguir excluido del escaneo (R-05), queda para que el humano decida en la aprobación.
+<!-- aidlc-wave-memory:contracts:02f570e4daa768fb5fddee3e0b1b3ef2ff637a17486a01ce5e08437b083fac6c -->

@@ -147,7 +147,7 @@
 - [x] refined-mockups — EXECUTE
 - [x] domain-design — EXECUTE
 - [x] units-generation — EXECUTE
-- [R] contract-design — EXECUTE
+- [?] contract-design — EXECUTE
 - [ ] delivery-planning — EXECUTE
 
 ### CONSTRUCTION PHASE
@@ -174,7 +174,7 @@ Per unit: [TBD]
 - **Current Stage**: contract-design
 - **Next Stage**: delivery-planning
 - **Status**: Running
-- **Last Updated**: 2026-11-21T19:48:25Z
+- **Last Updated**: 2026-11-21T19:52:00Z
 
 - **Construction Autonomy Mode**: gated
 

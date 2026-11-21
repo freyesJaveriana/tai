@@ -11480,3 +11480,338 @@
 **Context**: inception > refined-mockups > mockups.md
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T15:34:02Z
+**Event**: REVIEW_REQUESTED
+**Stage**: refined-mockups
+**Reviewer**: aidlc-product-lead-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:adcf22436953beb5e6a769fefbb18c9d00ceb3348f75d65b20db785c04fc1109
+**Request Id**: review:c18a1085ae971bb81736175e00c13f97
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T15:34:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a11a04f49fcde60b5
+**Message**: listo
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T15:34:42Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T15:35:59Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/refined-mockups/stage/b57f1411f004ace1/1.review.md
+**Context**: .aidlc-engine > reviews > refined-mockups > stage > b57f1411f004ace1 > 1.review.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T15:36:03Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-product-lead-agent
+**Agent ID**: ae14c6a05f4ac8139
+**Message**: **Reviewer:** aidlc-product-lead-agent\n\n**Veredicto: READY.** R-10 queda resuelto y la viñeta nueva no introduce problemas.\n\n- **R-10:** la viñeta de M8 §10.2 dice qué se muestra: los conteos de la ta
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T15:36:03Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: REVIEW_COMPLETED
+**Stage**: refined-mockups
+**Reviewer**: aidlc-product-lead-agent
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:adcf22436953beb5e6a769fefbb18c9d00ceb3348f75d65b20db785c04fc1109
+**Artifact Fingerprint**: sha256:adcf22436953beb5e6a769fefbb18c9d00ceb3348f75d65b20db785c04fc1109
+**Request Id**: review:c18a1085ae971bb81736175e00c13f97
+**Review Record**: .aidlc-engine/reviews/refined-mockups/stage/b57f1411f004ace1/1.json
+**Review Record Digest**: sha256:52ae663f67cb2a080f8cf20f1018cc223f68ef971e0e8a91b792d4346eeba1f9
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8c249ac5
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8c249ac5
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: cf5a72ba
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: cf5a72ba
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: cab4e7fb
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: cab4e7fb
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5bbc28d9
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5bbc28d9
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 749da8bc
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 749da8bc
+**Sensor ID**: required-sections
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: d9f56021
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: d9f56021
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/mockups.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6aa35d43
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6aa35d43
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/interaction-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7a4f4227
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7a4f4227
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/design-system-mapping.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: dbc3ee95
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: dbc3ee95
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/accessibility-checklist.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T15:36:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 548e13ae
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T15:36:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 548e13ae
+**Sensor ID**: upstream-coverage
+**Stage slug**: refined-mockups
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/inception/refined-mockups/refined-mockups-questions.md
+**Duration ms**: 52
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-21T15:36:22Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: refined-mockups
+**Details**: Re-entering gate after revision
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T15:38:30Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: adf7cc5b85fcf212c
+**Message**: ¿ya terminó el revisor?
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T16:10:49Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-11-21T16:10:56Z
+**Event**: GATE_APPROVED
+**Stage**: refined-mockups
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-11-21T16:10:56Z
+**Event**: STAGE_COMPLETED
+**Stage**: refined-mockups
+**Validation Basis**: {"graphContract":"sha256:a24fe5e76e30a54250dff6f40ed7dd073597cbf8edbc2b452e33e3c0f0dcfd03","inputs":[{"artifact":"requirements","contentHash":"sha256:4aef96f35affbf793c4dc7443d68fcc688b35bdb58c7623850eeb63aa2ea001c","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:6a7de19ce3ecefefb7d8bf5838bb61ed5aa4b238b53809e7a88bbfc1f481bb9f"},{"artifact":"stories","contentHash":"sha256:c633486511095af7cb5e727e15c64b8a595a64d8c66b9e184f112d47b2b54c0a","instanceCount":1,"presentCount":1,"producer":"user-stories","required":false,"structureHash":"sha256:79c297d698525d9b33feebcf5a0ab5270531050f2335f8a6e5fc0e9f52b01e33"},{"artifact":"team-practices","contentHash":"sha256:ff35309cca0e6c23471068b32bbe9f3a8859f3dc73da69ad0cf8670cc4f1f7b1","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":false,"structureHash":"sha256:f25e15e7fbc58d19ec0f555f5ba8a30688b4b0626e08481aa2e823c2f98aa797"},{"artifact":"user-flow","contentHash":"sha256:e486fd947a86ada4d72b379b9c9e74c6fb2b3db86d3942421b20d0a6b67310af","instanceCount":1,"presentCount":0,"producer":"rough-mockups","required":true,"structureHash":"sha256:fbffe4a99b02340f54d516b46a057e36708170c80ec2e8cf480f85386643e6c2"},{"artifact":"wireframes","contentHash":"sha256:b8ee8f67869dd94c5c51d0363a5ae187860ec4b6aaa6c76c60c5cdd0f7dcb444","instanceCount":1,"presentCount":0,"producer":"rough-mockups","required":true,"structureHash":"sha256:f25ec3e33a808ba1ae122419b46adc6ccf0f7beeb43bb18e7b36d51d591becca"}],"outputs":[{"artifact":"accessibility-checklist","contentHash":"sha256:a88987ebbbd8d737af40d972760b182ccd6438558b55bc56221e291ceffc2c60","instanceCount":1,"presentCount":1,"producer":"refined-mockups","required":true,"structureHash":"sha256:8b6a2647f1385cb2b4d179c7f845c78a071781dcce90915faada0b6705595faa"},{"artifact":"design-system-mapping","contentHash":"sha256:120b7aa2f36377470921cf430863f3fd0d3f80b075b7b9dd87b2ac99f7c4001a","instanceCount":1,"presentCount":1,"producer":"refined-mockups","required":true,"structureHash":"sha256:f01cc5041eff53ea7edac4c1ae843339d369436d6f0d018baa016ca3d2bdde85"},{"artifact":"interaction-spec","contentHash":"sha256:a49a11dc717cf4b9b5192934da2237bfc5133aabf848ef611b91431bb0b0c65a","instanceCount":1,"presentCount":1,"producer":"refined-mockups","required":true,"structureHash":"sha256:b9d39db8dd8060c5443f3d9853b5458415ea0b78f856ef7b80b4dc703a6780f8"},{"artifact":"mockups","contentHash":"sha256:1c8d728c199bab47a2359e2b8e28745480b0038689cde8641177b8c61b636654","instanceCount":1,"presentCount":1,"producer":"refined-mockups","required":true,"structureHash":"sha256:c54de2bdc5028005432976af457cd227e7234b8866a52fd96bee2eb26e8af5db"},{"artifact":"refined-mockups-questions","contentHash":"sha256:a211d95f4cef1b87ac092baf5c3eefc4174bebf822b8555994482684697fbd64","instanceCount":1,"presentCount":1,"producer":"refined-mockups","required":true,"structureHash":"sha256:132e21647178acbe8eb3ae862cd92139398dd5d1f64d6b14a66b1739a273ba57"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Refined Mockups approved by gate
+**Tokens In**: 626
+**Tokens Out**: 262243
+**Cache Read**: 59928247
+**Cache Write**: 2948814
+**Cost USD**: 56.40
+**By Model**: opus-5=48.81; sonnet-5=7.59
+**By Agent**: main=48.81; aidlc-product-lead-agent=7.59
+**Tokens By Model**: opus-5=514/209.6k/52.4M/1.7M; sonnet-5=112/52.6k/7.5M/1.2M
+**Tokens By Agent**: main=514/209.6k/52.4M/1.7M; aidlc-product-lead-agent=112/52.6k/7.5M/1.2M
+
+---
+
+## Stage Start
+**Timestamp**: 2026-11-21T16:10:56Z
+**Event**: STAGE_STARTED
+**Stage**: domain-design
+**Agent**: aidlc-architect-agent
+
+---

@@ -13482,3 +13482,45 @@
 **Context**: inception > units-generation > unit-of-work-story-map.md
 
 ---
+
+## Error Logged
+**Timestamp**: 2026-11-21T19:02:12Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --stage units-generation --reviewer aidlc-architecture-reviewer-agent --iteration 1
+**Error**: Cannot request review pass 2 for "units-generation" because this stage allows 1 review pass. Do not ask the reviewer again; include the findings in the approval summary for the human.\n{"kind":"ask","ask_type":"guard-recovery","response_route":"execute-remedy","question":"The next action for \"units-generation\" would be refused. Choose one authority-preserving recovery action.","stage":"units-generation","reason_codes":["REVIEW_BUDGET_EXHAUSTED"],"remedies":[{"op":"redo-jump","action":"Restart the stage from the top with /aidlc --stage units-generation. This costs more than finishing the current revision: your recorded answers survive, but you re-confirm the summary once and then save every output document again, so each one descends from the new confirmation.","operation":{"kind":"restart-stage","stage":"units-generation"},"command":"aidlc engine orchestrate next --stage units-generation","requiresHuman":true,"executableNow":true,"interaction":"command"}]}
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-21T19:02:35Z
+**Event**: DECISION_RECORDED
+**Stage**: units-generation
+**Decision**: Cómo cerrar la revisión tras R-01 y R-02
+**Options**: A,B,X
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T19:03:09Z
+**Event**: HUMAN_TURN
+**Session**: 33701a53-e566-49f1-ad30-d82070dabde9
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-21T19:03:54Z
+**Event**: QUESTION_ANSWERED
+**Stage**: units-generation
+**Details**: A. Volver a lo revisado (Recomendada)
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-21T19:03:59Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/units-generation/units-generation-questions.md
+**Context**: inception > units-generation > units-generation-questions.md
+
+---

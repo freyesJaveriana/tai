@@ -110,9 +110,8 @@ revisión 1. Las historias retiradas conservan su fila sin unidad.
 | US12.5 Registro de modelos | U11 (registro y costo) | U4 | La consola muestra el registro de la corrida en solo lectura (AC12.5.3). |
 | US13.3 Perfil inválido | U11 (validación) | U4, U10 | Ningún proceso arranca con un perfil inválido ni con un destino externo sin anonimizador. |
 | US13.6 Primera rebanada | U11 | U10 | El proveedor comercial va por el módulo del anonimizador. |
-| US11.3 Seudonimizar antes de un proveedor externo | U10 (Anonymizer y adaptadores nativos con transporte *fake*) | U11 | U11 lleva la prueba compuesta de AC11.3.3 y AC11.3.7 con el ModelGateway real y el analizador (revisión 07, R-01). |
 | US8.3 Solo por PR | U3 (ninguna ruta que escriba) | U11 | Los perfiles, *prompts* y precios son archivos versionados que lee U11. |
-| US9.1 y US11.6 Salida denegada | U2 (política y manifiestos: Secret solo en `anonymizer-proxy`) | U4, U9, U10 | Todos los pods entran en la política; solo `anonymizer-proxy` tiene salida. U4 lleva el import-linter sobre `semantic-agent` de AC11.6.4 (CD-04; revisión 08, R-03). |
+| US9.1 y US11.6 Salida denegada | U2 | U9, U10 | Todos los pods entran en la política; solo `anonymizer-proxy` tiene salida. |
 | US10.5 Ambos órdenes | U8 | U11 | La permutación vive en el código de la biblioteca, detrás de la opción del perfil. |
 | US5.4 Solo el dueño | U5 | U7, U6 | Consolidar, corregir, pausar y terminar también exigen ser el dueño. |
 | US15.2 Pausar o terminar | U6 | U4 | Tras la retirada del consentimiento, U4 no encola ni analiza ninguna corrida (VE-10 (a)). |

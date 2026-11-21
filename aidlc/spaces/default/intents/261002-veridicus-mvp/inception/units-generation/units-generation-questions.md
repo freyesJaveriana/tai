@@ -330,3 +330,15 @@ B. Solo R-01 como en A; R-02 queda para Functional Design.
 X. Other (please specify)
 
 [Answer]: A
+
+### Cómo cerrar la revisión tras R-01 y R-02
+
+El revisor dio READY a las correcciones de R-01 y R-02 (commit 953fb36). Pero yo cambié el mapa de
+historias mientras revisaba (filas de US11.3 y US11.6 en «Historias que cumplen varias unidades»,
+97ea418 y bee3cf2), y esta etapa no admite otra revisión.
+
+A. **Devolver el mapa de historias a la versión revisada (953fb36)** y repetir esa misma revisión sobre ella. Las dos filas no se pierden: quedan anotadas en el resumen de la aprobación como precisión para Functional Design, porque U10, U11, U2 y U4 ya lo dicen en `unit-of-work.md` **(Recomendada)**
+B. Reiniciar la etapa desde el principio (`/aidlc --stage units-generation`): se conservan tus respuestas, pero hay que volver a guardar todos los documentos y revisarlos.
+X. Other (please specify)
+
+[Answer]: A

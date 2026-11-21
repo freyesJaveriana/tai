@@ -1,5 +1,18 @@
 # Unidades de trabajo — Veridicus (MVP)
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque las precisiones aprobadas después de la
+revisión 2 (preguntas 15 y 16 = A, plan aprobado). Las 13 unidades conservan su ID, directorio, tipo y
+prioridad, y el grafo no cambia:
+- **Contract Design (2026-11-09).** CD-01, CD-07 y CD-09 ya estaban en estos artefactos desde esa
+  aprobación. CD-04 entra ahora: U10 suma los adaptadores nativos de Anthropic, Google y OpenAI con sus
+  claves (solo en `anonymizer-proxy`) y las pruebas del *payload* y del fallo cerrado, y pasa de M a L;
+  en U11, ModelGateway queda con el puerto y el adaptador compatible con OpenAI.
+- **User Stories, revisión 3 (2026-11-21).** AC11.3.3 y AC11.3.7 quedan en U10 (US11.3). El nuevo
+  AC11.6.4 se reparte entre U2 (Secret solo en `anonymizer-proxy`, con US11.6) y U4 (import-linter sobre
+  `semantic-agent`). Ninguna historia cambia de ID ni de unidad.
+- **Refined Mockups y Domain Design, revisión 3 (2026-11-21).** No cambian componentes ni aristas; el
+  estado de sesión bloqueada de M4 lo atiende U4 con el bloqueo que ya tenía.
+
 **Revisión 2 (2026-11-07), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1 del 2026-10-02. U1–U10 conservan su ID y su directorio; ninguna unidad se retira; las nuevas
 toman U11–U13. Lo que sale de cada unidad se nombra en su apartado «Sale». Ajustada el 2026-11-08 con
@@ -44,7 +57,7 @@ Este documento describe **qué** es cada unidad. El orden de entrega lo decide D
 | U7 | u7-forensic-report | forensic-report | service | MUST | L | ReviewReport, InterviewSession (finalizar), HumanReview (rondas), ConsoleApi, AnalystConsole |
 | U8 | u8-assistant-extras | assistant-extras | service | SHOULD | S | IncoherenceAnalyzer (aclaraciones y permutación), InterviewSession (ConductorObservation), AnalystConsole |
 | U9 | u9-voice | voice | service | SHOULD | M | SpeechProcessing, ModelGateway, InterviewSession, ConsoleApi, AnalystConsole |
-| U10 | u10-anonymizer | anonymizer | service | MUST | M | Anonymizer |
+| U10 | u10-anonymizer | anonymizer | service | MUST | L | Anonymizer (con los adaptadores nativos comerciales, CD-04) |
 | U11 | u11-incoherence-analyzer | incoherence-analyzer | library | MUST | XL | IncoherenceAnalyzer, AnalyzerCli, ModelGateway, ExecutionProfiles, IntegrityPolicy (reglas del analizador) |
 | U12 | u12-research-reports | research-reports | service | MUST (con US12.7 SHOULD) | M | ResearchReports, ConsoleApi, AnalystConsole (M8) |
 | U13 | u13-ethics-governance | ethics-governance | service | Demostración | M | EthicsGovernance, ConsoleApi, AnalystConsole |
@@ -104,7 +117,8 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   - Cluster de CloudNativePG y Redis dentro del clúster (US9.4);
   - servidores locales del juez y del verificador, Whisper y TTS, con artefactos de modelo fijados por
     `sha256`;
-  - `Secret` referenciado de las claves de los proveedores (lo crea el humano);
+  - `Secret` referenciado de las claves de los proveedores (lo crea el humano), montado solo en
+    `anonymizer-proxy`, con la comprobación estática de AC11.6.4 sobre los manifiestos renderizados (CD-04);
   - `NetworkPolicy` que niega la salida a todos los pods salvo al anonimizador, por 443 y DNS, y la
     lista blanca de CoreDNS (US9.1, US11.6);
   - sondas de salud, `requests`/`limits` y credenciales (US9.2, US9.3);
@@ -150,6 +164,8 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
     (US12.5, AC12.5.3);
   - aviso de propósito limitado servido por ConsoleApi desde IntegrityPolicy (US15.5);
   - escaneo de vocabulario prohibido en la salida y en la interfaz (US5.5), con el escáner de U11;
+  - contrato de import-linter sobre el paquete de `semantic-agent`: su imagen no incluye ningún adaptador
+    nativo comercial ni resuelve claves (AC11.6.4, CD-04);
   - **base de accesibilidad** de la consola con la suite `axe` (US5.6).
 - **Sale.** Escenarios, indexación y catálogo (US1.1, US1.3), guardia del umbral, CoT interrumpida y
   Paquete de Contexto de Traspaso (US4.1–US4.3), ModelGateway (pasa a U11) y la propiedad del escáner
@@ -225,8 +241,10 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
 - **Qué entrega.** El módulo de seudonimización en `libs/` (NER local, marcadores consistentes por
   llamada con restauración en memoria, fallo cerrado e incidente cuando una respuesta llega con
   `anonimizado: false`), que la CLI usa en el mismo proceso, y el proceso `anonymizer-proxy` que lo expone
-  en el clúster; la lista de dominios de los proveedores con su prueba (US11.5); la prueba del *payload*
-  saliente y la del fallo cerrado (US11.3).
+  en el clúster; los adaptadores nativos de Anthropic, Google y OpenAI, con sus claves montadas solo en
+  `anonymizer-proxy` (CD-04); la lista de dominios de los proveedores con su prueba (US11.5); la prueba
+  del *payload* saliente y la del fallo cerrado sobre el transporte HTTP *fake* de cada adaptador nativo
+  (US11.3; AC11.3.3, AC11.3.7).
 - **Límites.** La `NetworkPolicy` y la lista blanca de CoreDNS son de U2 (US11.6). Con un perfil local no
   interviene (iteracion2 P9 = A).
 - **Restricciones.** Módulo guardia con 100 % de ramas. El fallo cerrado termina la corrida con
@@ -242,8 +260,9 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
     (US3.2) e incidente de anonimización que aborta la corrida;
   - AnalyzerCli: lotes (US12.1), evaluación sobre el conjunto sintético (US12.3), corpus del piloto con
     resultados fuera de Git (US12.4), registro de modelos y costo (US12.5) y tabla de sesgo (US15.10);
-  - ModelGateway: puerto, adaptadores nativo y compatible con OpenAI, errores tipados, bloqueo de
-    contenido y proveedor alterno (US13.5);
+  - ModelGateway: puerto, adaptador compatible con OpenAI para los modelos locales, errores tipados,
+    bloqueo de contenido y proveedor alterno (US13.5); los adaptadores nativos comerciales son de U10 y
+    ModelGateway los alcanza solo a través del Anonymizer (CD-04);
   - ExecutionProfiles: carga, validación, huella y configuración efectiva (US13.2, US13.3), familias
     distintas (US13.4), primera rebanada con un proveedor comercial y uno local (US13.6) y comparación de
     proveedores (US13.7);
@@ -253,8 +272,9 @@ artefactos propios (contratos, manifiestos y la biblioteca con su CLI).
   Los scripts `sbatch` los lanza el humano (AUTONOMIA-01).
 - **Restricciones.** Contiene los módulos guardia de AUTONOMIA-05 (100 % de ramas). Se evalúa en nivel 2
   con la propia CLI. Un destino externo sin anonimizador impide arrancar, igual que en los servicios.
-  Los adaptadores externos de ModelGateway llevan las dos pruebas de AUTONOMIA-04 desde su lado: el
-  *payload* saliente pasó por el anonimizador y, si este falla, no sale ninguna llamada.
+  Las pruebas del *payload* saliente y del fallo cerrado de AUTONOMIA-04 son de U10, sobre el transporte
+  *fake* de sus adaptadores nativos (AC11.3.3, AC11.3.7); U11 conserva la de no arrancar con un destino
+  externo sin anonimizador (US13.3) (CD-04).
 
 ### U12 — research-reports (service)
 

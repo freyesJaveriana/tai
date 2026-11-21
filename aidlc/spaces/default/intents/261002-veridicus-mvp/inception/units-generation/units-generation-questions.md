@@ -254,3 +254,60 @@ y anonimizador), `contracts/`, `deploy/`, `evaluation/`. Las precisiones R-01..R
 - Revise Plan
 
 [Answer]: Approve Plan
+
+---
+
+## Tercera pasada — revalidación (2026-11-21)
+
+Las unidades (revisión 2, aprobada el 09/11/2026) quedaron desfasadas por precisiones que ya aprobaste
+después:
+
+- **Contract Design (2026-11-09).** CD-01, CD-07 y CD-09 ya se llevaron a estos artefactos en su
+  aprobación. **CD-04 no:** los adaptadores nativos de Anthropic, Google y OpenAI viven en el
+  anonimizador (módulo en `libs/` y pod `anonymizer-proxy`), y las claves se montan solo en
+  `anonymizer-proxy`. U11 todavía dice que ModelGateway tiene «adaptadores nativo y compatible con
+  OpenAI» y que sus adaptadores externos llevan las pruebas de AUTONOMIA-04, y U10 no menciona los
+  adaptadores ni las claves. Además, `unit-of-work-dependency.md` resume los códigos del anonimizador
+  como «`anonymizer.incident` y del fallo cerrado», sin la separación de CD-01 entre contrato y Problem
+  Details.
+- **User Stories, revisión 3 (2026-11-21).** AC11.3.3 y AC11.3.7 prueban el *payload* y el fallo cerrado
+  sobre el transporte *fake* del adaptador nativo, dentro del Anonymizer. El nuevo AC11.6.4 falla si un
+  pod distinto de `anonymizer-proxy` referencia el Secret de las claves o si la imagen de `semantic-agent`
+  incluye un adaptador comercial. Ninguna historia cambia de ID ni de unidad.
+- **Refined Mockups y Domain Design, revisión 3 (2026-11-21).** Suman el estado de sesión bloqueada en M4
+  (texto propuesto) y alinean cinco ADR. No cambia ningún componente ni ninguna arista.
+
+Lo demás ya lo deciden las fuentes. Solo se pregunta cómo registrar la revisión 3.
+
+### Pregunta 15 — ¿Cómo entra CD-04 en las unidades?
+
+A. **U10 suma los adaptadores nativos comerciales y sus claves** (solo en `anonymizer-proxy`), con las pruebas del *payload* saliente y del fallo cerrado sobre su transporte *fake* (AC11.3.3, AC11.3.7), y su tamaño pasa de M a L. En U11, ModelGateway queda con el puerto, el adaptador compatible con OpenAI y los errores tipados, y conserva solo la prueba de que no arranca con un destino externo sin anonimizador. AC11.6.4 queda con US11.6 en U2 (comprobación de manifiestos), con import-linter sobre `semantic-agent` en U4. El grafo no cambia: U11 ya depende de U10 **(Recomendada)**
+B. Solo una nota en la cabecera de `unit-of-work.md` que remite a CD-04, sin tocar U10 ni U11; el reparto se fija en Functional Design.
+X. Other (please specify)
+
+[Answer]: A
+
+### Pregunta 16 — ¿Cómo se registra la revisión 3?
+
+A. **Se ratifican en bloque como revisión 3** en las cabeceras de `unit-of-work.md`, `unit-of-work-dependency.md` y `unit-of-work-story-map.md`, listando cada grupo con su origen y fecha (CD-01, CD-04, CD-07 y CD-09; revisiones 3 de historias, maquetas y diseño del dominio), y se corrige la fila de los códigos del anonimizador en `unit-of-work-dependency.md` según CD-01. Sin cambios en el grafo, los ID, los directorios ni el mapa de historias **(Recomendada)**
+B. Se repasa unidad por unidad y se rehacen las afectadas.
+X. Other (please specify)
+
+[Answer]: A
+
+### Aprobación del plan de descomposición (tercera pasada)
+
+Plan presentado: **13 unidades sin cambios de ID, directorio, tipo, prioridad ni grafo**. Cambian solo:
+
+| Unidad | Cambio |
+|---|---|
+| U10 anonymizer | Suma los adaptadores nativos de Anthropic, Google y OpenAI y sus claves (solo en `anonymizer-proxy`), con las pruebas del *payload* y del fallo cerrado sobre su transporte *fake* (AC11.3.3, AC11.3.7); tamaño M → L (CD-04) |
+| U11 incoherence-analyzer | ModelGateway queda con el puerto, el adaptador compatible con OpenAI, los errores tipados, el bloqueo de contenido y el proveedor alterno; conserva la prueba de no arrancar con un destino externo sin anonimizador (CD-04) |
+| U2 platform | AC11.6.4 (Secret solo en `anonymizer-proxy`) junto a US11.6 |
+| U4 text-flow | import-linter: la imagen de `semantic-agent` no incluye ningún adaptador comercial (AC11.6.4) |
+| Dependencias | La fila de códigos anonymizer → contracts se alinea con CD-01 |
+
+- Approve Plan
+- Revise Plan
+
+[Answer]: Approve Plan

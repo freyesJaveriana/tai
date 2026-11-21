@@ -1,5 +1,10 @@
 # Dependencias entre unidades — Veridicus
 
+**Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque CD-01, CD-04, CD-07 y CD-09 (Contract
+Design, 2026-11-09) y las revisiones 3 de historias, maquetas y diseño del dominio (2026-11-21). El grafo
+y el bloque `yaml` no cambian; solo se alinea con CD-01 y CD-04 el motivo de la arista anonymizer →
+contracts.
+
 **Revisión 2 (2026-11-07), segunda pasada por el cambio 01 (DT27) y la adenda 02.** Sustituye a la
 revisión 1. Ajustada el 2026-11-08 con los hallazgos R-02, R-03, R-06 y R-07 de la revisión 2.
 
@@ -112,7 +117,7 @@ El grafo no tiene ciclos.
 |---|---|---|
 | platform | contracts | Las etiquetas de clasificación, la regla de descartes (US10.8) y el catálogo de límites leen nombres fijados en contratos. |
 | identity-access | contracts | Catálogo de `code` de Problem Details y OpenAPI. |
-| anonymizer | contracts | Códigos `anonymizer.incident` y del fallo cerrado, y el campo `anonimizado` del contrato común. |
+| anonymizer | contracts | Códigos del contrato común `incidente_anonimizacion` y `anonimizador_no_disponible` (en Problem Details, `anonymizer.incident` y `analysis.anonymizer_unavailable`; CD-01), el campo `anonimizado` y los tipos de la llamada que usan sus adaptadores nativos (CD-04, CD-09). |
 | incoherence-analyzer | contracts | Contrato común v1.0.0, esquema del perfil, vocabulario prohibido, aviso y esquema del reporte de la CLI. |
 | incoherence-analyzer | anonymizer | ModelGateway pasa por el Anonymizer ante todo destino externo (components); un perfil con destino externo no arranca sin él. |
 | text-flow | contracts | Mensajes de corrida y resultado y OpenAPI. |

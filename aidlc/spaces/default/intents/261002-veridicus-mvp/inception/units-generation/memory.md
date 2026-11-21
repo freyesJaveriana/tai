@@ -19,6 +19,8 @@
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 - 2026-10-02T21:37:15Z — La indexación de escenarios corre en session-api y no en semantic-agent: así el evaluador conserva su usuario de base de datos de solo lectura (AC3.3.2) aunque los embeddings se calculen en dos procesos.
 - 2026-11-07T19:50:03Z — incoherence-analyzer depende de anonymizer (ModelGateway pasa por Anonymizer) en vez de al revés: la CLI no arranca con destino externo sin el módulo, a costa de que el anonimizador se construya antes que la biblioteca.
+- 2026-11-21T18:23:55Z — En la revalidación, CD-04 pasó los adaptadores comerciales de U11 a U10 sin tocar el grafo (U11 ya dependía de U10); U10 sube de M a L y U11 sigue XL, a cambio de concentrar en el anonimizador, la unidad de más riesgo, todo el código que habla con proveedores externos.
+- 2026-11-21T18:23:55Z — AC11.6.4 se partió entre U2 (manifiestos: Secret solo en anonymizer-proxy) y U4 (import-linter sobre semantic-agent) en vez de asignarlo entero a una unidad, porque cada mitad comprueba un artefacto distinto que solo esa unidad produce.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

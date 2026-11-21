@@ -16264,3 +16264,250 @@
 **Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-11-21T23:13:31Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: anonymizer
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:c2ed7f088ef047526554ea2410e860cb0aab1a44f2b43d61e438f0570fbb5afb
+**Request Id**: review:e2c6003bfa2e73c2ce87ada4ef9fc65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T23:13:38Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviewer-dispatch.json
+**Context**: .aidlc-engine > reviewer-dispatch.json
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T23:15:03Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T23:15:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a07ad88bd26b3d1e5
+**Message**: listo
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-11-21T23:17:50Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design
+**Stage**: functional-design
+**Unit**: anonymizer
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T23:19:23Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/functional-design/units/anonymizer/5d993a50eb046c4b/1.review.md
+**Context**: .aidlc-engine > reviews > functional-design > units > anonymizer > 5d993a50eb046c4b > 1.review.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T23:21:16Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a1c885c2fbcce891d
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Veredicto: READY.** Hay 2 hallazgos Major (el máximo admitido para READY) y 6 Minor. La revisión es asesora y no deja ciclo de corrección. No ejecuté
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T23:21:17Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T23:21:21Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: anonymizer
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:c2ed7f088ef047526554ea2410e860cb0aab1a44f2b43d61e438f0570fbb5afb
+**Artifact Fingerprint**: sha256:c2ed7f088ef047526554ea2410e860cb0aab1a44f2b43d61e438f0570fbb5afb
+**Request Id**: review:e2c6003bfa2e73c2ce87ada4ef9fc65d
+**Review Record**: .aidlc-engine/reviews/functional-design/units/anonymizer/5d993a50eb046c4b/1.json
+**Review Record Digest**: sha256:c26869f9dbe9fea1d1663da626d3a5f2f47afaf6c58daeb61b26a74e8ac9f340
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-11-21T23:21:21Z
+**Event**: UNIT_COMPLETED
+**Stage**: functional-design
+**Unit**: anonymizer
+**Run floor**: STAGE_JUMPED:2026-11-09T23:06:58Z#3
+**Mode**: wave
+**Wave memory entries**: 13
+**Artifact Fingerprint**: sha256:c2ed7f088ef047526554ea2410e860cb0aab1a44f2b43d61e438f0570fbb5afb
+
+---
+
+## Review Requested
+**Timestamp**: 2026-11-21T23:21:22Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: identity-access
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:70d07cad5bfb659eee19321a6e5a1aed8edf8b89782e04db8bd8e9a45f998d5f
+**Request Id**: review:addeb402c14316e59dbf72441d1a4aa3
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T23:21:27Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviewer-dispatch.json
+**Context**: .aidlc-engine > reviewer-dispatch.json
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-11-21T23:22:42Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp
+**Stage**: functional-design
+**Unit**: identity-access
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T23:28:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 67904aec
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T23:28:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 67904aec
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/traceability.json
+**Duration ms**: 58
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T23:28:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: 49b38d68
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T23:28:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 49b38d68
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-21T23:28:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: 099bae2d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-21T23:28:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 099bae2d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+**Duration ms**: 50
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-21T23:29:24Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/reviews/functional-design/units/identity-access/5d993a50eb046c4b/1.review.md
+**Context**: .aidlc-engine > reviews > functional-design > units > identity-access > 5d993a50eb046c4b > 1.review.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-21T23:29:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a54212a91ae976844
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Veredicto: NOT-READY.** Hay 5 hallazgos Major y 6 Minor. La revisión es asesora: informa al humano en la compuerta y no bloquea.\n\nReview escrito en `
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-21T23:29:32Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Review Completed
+**Timestamp**: 2026-11-21T23:31:51Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: identity-access
+**Iteration**: 1
+**Verdict**: NOT-READY
+**Request Fingerprint**: sha256:70d07cad5bfb659eee19321a6e5a1aed8edf8b89782e04db8bd8e9a45f998d5f
+**Artifact Fingerprint**: sha256:70d07cad5bfb659eee19321a6e5a1aed8edf8b89782e04db8bd8e9a45f998d5f
+**Request Id**: review:addeb402c14316e59dbf72441d1a4aa3
+**Review Record**: .aidlc-engine/reviews/functional-design/units/identity-access/5d993a50eb046c4b/1.json
+**Review Record Digest**: sha256:5b064f2deae9b23b29bc25d5e798b82c6e4450a9dad2b1aa03691d244f6e7a57
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-11-21T23:31:52Z
+**Event**: UNIT_COMPLETED
+**Stage**: functional-design
+**Unit**: identity-access
+**Run floor**: STAGE_JUMPED:2026-11-09T23:06:58Z#3
+**Mode**: wave
+**Wave memory entries**: 13
+**Artifact Fingerprint**: sha256:70d07cad5bfb659eee19321a6e5a1aed8edf8b89782e04db8bd8e9a45f998d5f
+
+---

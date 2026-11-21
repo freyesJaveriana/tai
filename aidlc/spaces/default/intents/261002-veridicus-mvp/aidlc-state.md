@@ -36,7 +36,7 @@
 - **In Progress**: refined-mockups
 
 ## Runtime State
-- **Revision Count**: 8
+- **Revision Count**: 9
 - **Construction Checkpoints**: enabled
 - **Construction Iteration**: stage-major
 - **Construction Execution**: serial
@@ -138,7 +138,7 @@
 - [x] practices-discovery — EXECUTE
 - [x] requirements-analysis — EXECUTE
 - [x] user-stories — EXECUTE
-- [-] refined-mockups — EXECUTE
+- [R] refined-mockups — EXECUTE
 - [ ] domain-design — EXECUTE
 - [ ] units-generation — EXECUTE
 - [ ] contract-design — EXECUTE
@@ -168,7 +168,7 @@ Per unit: [TBD]
 - **Current Stage**: refined-mockups
 - **Next Stage**: domain-design
 - **Status**: Running
-- **Last Updated**: 2026-11-21T15:05:56Z
+- **Last Updated**: 2026-11-21T15:21:26Z
 
 - **Construction Autonomy Mode**: gated
 

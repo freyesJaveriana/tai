@@ -745,7 +745,7 @@ diferencias; si los conjuntos difieren, solo metadatos y el aviso.
 | `error.cause.content_block` | «El filtro de contenido del proveedor rechazó la petición» | Causa |
 | `error.cause.anonymizer` | «El anonimizador no estaba disponible o rechazó la petición. No se envió ningún dato fuera del clúster» | Causa (`anonimizador_no_disponible`, CD-02; también ante los rechazos `409`/`422` del proxy, CD-04; AC3.2.5) |
 | `error.cause.anonymizer_incident` | «Una llamada a un proveedor externo salió sin anonimizar. La sesión quedó bloqueada y se registró un incidente» | Causa (`incidente_anonimizacion`, visto como `anonymizer.incident` de C1; AC3.2.5, AC11.3.8) |
-| `session.blocked_incident` | «Sesión bloqueada por un incidente de anonimización. No se lanzan corridas nuevas» | Error del sistema (AC11.3.8) |
+| `session.blocked_incident` | «Sesión bloqueada por un incidente de anonimización. No se lanzan corridas nuevas» | Error del sistema; texto propuesto en esta etapa (origen AC11.3.8; tabla de precisiones de `mockups.md`) |
 | `final.error` | «El analizador no pudo procesar la transcripción completa. Revisión manual requerida» | Error del sistema |
 | `final.in_progress` | «El modo final ya está en proceso» | Motivo de deshabilitado |
 | `final.not_completed` | «Modo final no completado. Revisión manual requerida» | Reporte |

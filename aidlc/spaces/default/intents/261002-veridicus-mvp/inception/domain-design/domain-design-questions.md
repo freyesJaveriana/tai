@@ -254,3 +254,24 @@ B. Se repasa componente por componente y se rehacen los afectados, incluido el d
 X. Other (please specify)
 
 [Answer]: A
+
+### Pendiente — salir del modo automático para la revisión de arquitectura
+
+El revisor de arquitectura no puede despacharse en modo automático. Sal del modo automático (Shift+Tab)
+y responde «listo».
+
+A. listo
+X. Other (please specify)
+
+[Answer]: A
+
+### Cambios pedidos en la aprobación de la revisión 3
+
+¿Qué se cambia?
+
+A. Corregir R-06 (ConsoleApi traduce el bloqueo a `anonymizer.incident`, CD-08) y R-07 (consecuencia de ADR-005: el destino se prueba en ModelGateway y el *payload* en Anonymizer)
+B. Solo R-06
+C. Solo R-07
+X. Other (please specify)
+
+[Answer]: A

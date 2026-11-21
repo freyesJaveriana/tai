@@ -36,7 +36,7 @@
 - **In Progress**: domain-design
 
 ## Runtime State
-- **Revision Count**: 11
+- **Revision Count**: 12
 - **Construction Checkpoints**: enabled
 - **Construction Iteration**: stage-major
 - **Construction Execution**: serial
@@ -141,7 +141,7 @@
 - [x] requirements-analysis — EXECUTE
 - [x] user-stories — EXECUTE
 - [x] refined-mockups — EXECUTE
-- [-] domain-design — EXECUTE
+- [R] domain-design — EXECUTE
 - [ ] units-generation — EXECUTE
 - [ ] contract-design — EXECUTE
 - [ ] delivery-planning — EXECUTE
@@ -170,7 +170,7 @@ Per unit: [TBD]
 - **Current Stage**: domain-design
 - **Next Stage**: units-generation
 - **Status**: Running
-- **Last Updated**: 2026-11-21T16:13:25Z
+- **Last Updated**: 2026-11-21T16:40:27Z
 
 - **Construction Autonomy Mode**: gated
 

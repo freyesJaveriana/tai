@@ -193,9 +193,13 @@ anonimizador_no_disponible` (CD-01). Cada llamada devuelve su registro, con el c
 apagado, como fijó la validación en ZINE.
 
 **Consequences.**
-- Positivas: hay un solo punto donde probar el destino y el *payload*. Los *fakes* deterministas de los
-  niveles 0 y 1 se enchufan aquí. El dominio no cambia al añadir un proveedor.
-- Negativas: cada proveedor nuevo exige su adaptador y su prueba de errores tipados.
+- Positivas: el destino de cada llamada se prueba en un solo punto, ModelGateway; el *payload* saliente
+  se prueba en Anonymizer, que tiene los adaptadores nativos (ADR-011, CD-04). Los *fakes* deterministas
+  de los niveles 0 y 1 se enchufan en ModelGateway, y el transporte HTTP *fake* de cada adaptador
+  comercial, en Anonymizer (AC11.3.3, AC11.3.7). El dominio no cambia al añadir un proveedor.
+- Negativas: cada proveedor comercial nuevo exige su adaptador nativo en Anonymizer, y cada servidor
+  local, su configuración en el adaptador compatible con OpenAI de ModelGateway, cada uno con su prueba
+  de errores tipados.
 - Seguridad y cumplimiento: AUTONOMIA-04 se verifica por diseño. Ninguna llamada externa existe sin
   pasar por el anonimizador, y la `NetworkPolicy` lo refuerza.
 

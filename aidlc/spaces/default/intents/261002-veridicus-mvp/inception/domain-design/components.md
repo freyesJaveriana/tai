@@ -109,7 +109,10 @@ components:
       perfiles, proveedores, prompts, precios ni límites (FR9.2). Sirve a la consola el texto versionado
       del aviso de VE-01 y su versión, leídos de IntegrityPolicy en ejecución: la consola y el reporte
       muestran la misma versión, y una prueba lo comprueba (R-03). Traduce la jerarquía única de
-      excepciones a Problem Details (RFC 9457) con `code` estable y `detail` en español.
+      excepciones a Problem Details (RFC 9457) con `code` estable y `detail` en español. Cuando
+      InterviewSession tiene la sesión `bloqueada` por un incidente de anonimización, devuelve a la consola
+      ese estado y rechaza las corridas nuevas con `anonymizer.incident`; los errores de cada corrida
+      salen con los códigos `analysis.*` de C1 (CD-08).
     responsibilities:
       - Autenticación por token y autorización por rol y por dueño de sesión
       - Entrega a la consola del texto versionado del aviso de VE-01 (R-03)

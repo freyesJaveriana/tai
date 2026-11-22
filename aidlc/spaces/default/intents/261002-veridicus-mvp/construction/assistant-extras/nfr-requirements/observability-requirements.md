@@ -1,52 +1,51 @@
 # Requisitos de observabilidad — U8 assistant-extras
 
-**Insumos.** Flujos F1–F3 y §8 de `functional-design/functional-spec.md` (functional-spec); reglas
-BR1.2, BR1.3, BR2.3, BR2.4 y BR3.1 de `functional-design/rules.md` (rules); NFR3, NFR10 y NFR15 de
-`inception/requirements-analysis/requirements.md` (requirements); C3, C15 y C16 de
-`inception/contract-design/contract-summary.md` (contract-summary); respuesta P1 de
-`nfr-requirements-questions.md`.
+**Revisión 2 (2026-11-22), segunda pasada por el cambio 01 (DT27), la adenda 02 y el Functional Design
+revisión 2 de U8.** Sustituye a la revisión 1 del 2026-10-03. Los IDs se conservan; las métricas de los
+extras de la revisión 1 salen con ellos.
+
+**Insumos.**
+- Flujos F4–F9 y §9 de `functional-design/functional-spec.md` (functional-spec); reglas BR5.7, BR5.10,
+  BR5.13, BR5.17 y BR6.3 de `functional-design/rules.md` (rules).
+- NFR10 y NFR15 de `inception/requirements-analysis/requirements.md` (requirements).
+- C15, C16 y C19 de `inception/contract-design/contract-summary.md` (contract-summary).
+- Lo que fijaron hoy U1 (etiquetas permitidas), U4 (métricas de la cola y del registro), U11 (la biblioteca
+  no exporta métricas) y U2 (sin Alertmanager).
 
 ## 1. Logs
 
-| ID | Requisito | Criterio medible |
-|---|---|---|
-| NFR15.2 | Logs estructurados sin datos sensibles. | El formato de U4 (NFR15.2 de U4) con estos identificadores adicionales: `claim_index`, `sustained`, `question_id`, `status` de la pregunta y `reason` (enum de NFR15.4). Nunca el texto de la pregunta, de las afirmaciones, de los pasajes, de la CoT de la segunda lectura ni la palabra afectiva encontrada (NFR10.8). |
-| NFR15.3 | Cada extra deja rastro correlacionable. | En `semantic-agent`: `turn.permutation` (`turn_id`, `attempt`, número de candidatas y de sostenidas), `turn.question` (`turn_id`, `attempt`, `outcome`, `reason`) y `turn.affective` (`turn_id`, `attempt`, `matched` booleano). En `session-api`: `question.decided` (`question_id`, `turn_id`, `status`, `user_id`). Prueba de nivel 1 que sigue un turno con los tres extras por sus logs. |
-| NFR15.4 | Los fallos de la pregunta se distinguen por motivo. | Una línea `WARNING` por pregunta omitida con `reason` ∈ {`invalid_schema`, `forbidden_vocabulary`, `timeout`, `unavailable`, `too_long`}; la supresión por afirmación «no documentada» (BR2.1) es `INFO` con `reason = undocumented`, porque es un resultado normal. |
+| ID | Estado | Requisito | Criterio medible |
+|---|---|---|---|
+| NFR15.2 | cambia | Logs estructurados sin datos sensibles. | El formato de U4 con estos identificadores: `session_id`, `run_id`, `observation_id`, `source_finding_id`, `rule`, `state` y `code`. Nunca el tema, las citas, el `hecho` ni texto de turnos (NFR10.8) |
+| NFR15.3 | cambia | Cada aclaración deja rastro correlacionable. | Biblioteca (CLI y `semantic-agent`): `clarification.discarded` (`run_id`, `source_finding_id`, `rule`) por descarte y `clarification.summary` (`run_id`, emitidas, descartadas) por corrida. `session-api`: `conductor_observation.ingested` (`run_id`, `session_id`, insertadas, ya existentes) y `conductor_observation.decided` (`observation_id`, `session_id`, `state`, `user_id`). Prueba de nivel 1 que sigue una aclaración desde la corrida hasta la decisión por sus logs |
+| NFR15.4 | cambia | Los descartes se distinguen por regla y no son errores. | Cada evento de descarte es `INFO` con `rule` ∈ {`schema`, `mentions_contradiction`, `phrases`, `cites_turn`, `quote_text`, `quote_overlap`, `forbidden_vocabulary`}, porque es un resultado normal (functional-spec §9). Una aclaración inválida en la ingesta es `WARNING` con `code` `analysis.invalid_output`; una excepción del módulo es `ERROR` con su tipo, nunca su mensaje |
 
-## 2. Métricas (Prometheus, en `/metrics` del puerto interno)
+## 2. Métricas (Prometheus, en `/metrics` del puerto interno de `session-api`)
 
-| ID | Métrica | Tipo | Etiquetas | Servicio |
+| ID | Estado | Métrica | Tipo | Etiquetas |
 |---|---|---|---|---|
-| NFR15.1 | `veridicus_extras_enabled` | gauge (0/1) | `extra` (`permutation`, `suggest_question`, `affective`) | `session-api` |
-| NFR15.1 | `veridicus_extra_judge_duration_seconds` | histogram (cubetas 5, 10, 20, 30, 45, 60, 90, 120, 180) | `call` (`second_read`, `question`), `result` (`ok`, `timeout`, `invalid_output`, `unavailable`) | `semantic-agent` |
-| NFR15.1 | `veridicus_permutation_claims_total` | counter | `sustained` (`true`, `false`) | `semantic-agent` |
-| NFR15.1 | `veridicus_suggested_questions_total` | counter | `outcome` (`published`, `omitted`), `reason` (`none`, `undocumented`, `invalid_schema`, `forbidden_vocabulary`, `timeout`, `unavailable`, `too_long`) | `semantic-agent` |
-| NFR15.1 | `veridicus_affective_notes_total` | counter | ninguna | `semantic-agent` |
-| NFR15.1 | `veridicus_question_decisions_total` | counter | `status` (`approved`, `discarded`) | `session-api` |
+| NFR15.1 | cambia | `veridicus_conductor_observations_ingested_total` | counter | ninguna |
+| NFR15.1 | cambia | `veridicus_conductor_observation_decisions_total` | counter | `state` (`approved`, `discarded`) |
 
-Las etiquetas solo llevan valores de enum, nunca identificadores ni texto. La latencia del turno sigue
-siendo `veridicus_turn_latency_seconds` de C15 (U4); como no distingue extras, el p95 de NFR3.1 se
-calcula en el reporte de nivel 2 agrupando por las opciones de cada sesión, y `veridicus_extras_enabled`
-permite leer el panel. Estas métricas se añaden a C15 por un PR de U1, como las de U3 y U4 (precisión
-en `security-requirements.md` §6).
+- Las etiquetas salen de la lista permitida de U1 y solo llevan valores de enum (NFR-U8-05).
+- Los descartes por regla no van a Prometheus, porque la biblioteca no exporta métricas: se cuentan en el
+  reporte de nivel 2 (sección `clarifications` de C19 v2) y en los logs.
+- La permutación no tiene métrica propia: las métricas de *tokens* por papel y la latencia de la corrida
+  de U4 ya distinguen `verificador_permutado` (etiqueta `role`).
 
 ## 3. Indicadores (SLI) y objetivos
 
 | SLI | Cálculo | Objetivo |
 |---|---|---|
-| Latencia con extras | p95 de `evaluated_at − submitted_at` en la corrida de nivel 2 con extras | ≤ 150 s (NFR3.1) |
-| Tasa en línea de la permutación | `veridicus_permutation_claims_total{sustained="true"}` / total, en la corrida con extras | > 65 % (NFR4.4) |
-| Preguntas en el Hecho No Documentado | Preguntas publicadas en el caso del Golden Dataset | 0 (NFR4.3) |
-| Omisiones por vocabulario | `veridicus_suggested_questions_total{reason="forbidden_vocabulary"}` | Se reporta; cada caso se revisa en el reporte de nivel 2 |
+| Citas en los temas | Coincidencias de fragmentos de cita en los temas emitidos, en nivel 2 | 0 (NFR4.3, bloquea) |
+| Tasa de descarte por regla | descartadas / (emitidas + descartadas), en nivel 2 | Se reporta; > 0,50 es señal de revisión (NFR4.6) |
+| Latencia incremental con la permutación | p95 de la duración de la corrida con `comercial-piloto`, en el reporte de BR6.5 | ≤ 180 s (NFR3.1) |
+| Corridas completas con `todo-local` | Fracción sin `tiempo_agotado`, en el reporte de BR6.5 | ≥ 98 % (NFR8.7) |
+| Decisión | p95 de `POST /conductor-observations/{id}/decision` | ≤ 300 ms (NFR3.8) |
 
 ## 4. Panel y alertas
 
-- **Panel de Grafana (SHOULD, U2).** Junto al de U4: extras activos, duración de la segunda lectura y
-  de la pregunta, tasa de sostenidas, preguntas publicadas y omitidas por motivo, y decisiones del
-  analista por estado.
-- **Alertas informativas** (ninguna despierta a alguien ni cambia nada del sistema, FR9.1): con
-  `veridicus_extras_enabled` en 1, `veridicus_turn_queue_depth > 20` durante 10 minutos (se acerca al
-  tope de 24 de NFR8.2), y más de 3 omisiones por `invalid_schema` o `forbidden_vocabulary` en 15
-  minutos (indica un cambio de modelo o de *prompt* que hay que revisar).
-- **Trazas distribuidas.** No: la correlación por `turn_id`, `attempt` y `question_id` basta.
+- **Panel de Grafana (SHOULD, U2).** Junto al de U4: aclaraciones ingeridas y decisiones por estado.
+- **Sin alertas.** El MVP no tiene Alertmanager y no notifica a nadie (decisión de U2); las cifras de nivel
+  2 se revisan en el PR.
+- **Trazas distribuidas.** No: la correlación por `run_id`, `session_id` y `observation_id` basta.

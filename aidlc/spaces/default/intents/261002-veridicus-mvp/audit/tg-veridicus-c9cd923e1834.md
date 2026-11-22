@@ -21794,3 +21794,177 @@
 **Source**: user_addition
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T13:01:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a343eae14bcb7d6c5
+**Message**: sigue
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T13:01:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab84a7c4c8266828d
+**Message**: sigue
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T13:02:13Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T13:02:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a117416cfd99598fb
+**Message**: sigue
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T13:10:24Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T13:10:50Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-requirements
+**Candidate-ID**: u2
+**Content-Hash**: c5cc0e8b0be87e33efbbd65288a99c66e538a067f7df70ff0bc3100285b9709c
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: user_addition
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T13:11:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6cdcdb3cb96a5157
+**Message**: sigue
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T13:12:42Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T13:14:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a02096eeb1cf24432
+**Message**: sigue
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T13:14:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a4f7c083fdda3b3b1
+**Message**: sigue
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T13:17:52Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > contracts > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T13:17:53Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-requirements/memory.md
+**Context**: construction > contracts > nfr-requirements > memory.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T13:17:56Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-requirements/memory.md
+**Context**: construction > contracts > nfr-requirements > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T13:18:37Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: a0068e5db75fb2e2d
+**Message**: Usé el **modo preguntas**. Hay dos preguntas de criterio legítimas: las dos son contradicciones entre fuentes aprobadas, y la P8 además cambia el alcance de B1. No generé artefactos ni corrí sensores.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T13:18:37Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T13:20:11Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-requirements
+**Decision**: U1 NFR segunda pasada: P7 estado HTTP de limits.exceeded, P8 mitad TypeScript de la suite
+**Options**: A,B,C,D,X
+**Unit**: contracts
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T13:24:32Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T13:24:35Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-requirements
+**Details**: P7=A, P8=A
+**Unit**: contracts
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T13:24:46Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > contracts > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T13:24:48Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > contracts > nfr-requirements > nfr-requirements-questions.md
+
+---

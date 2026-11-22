@@ -1,38 +1,51 @@
-# Requisitos de escalado — U7 forensic-report
+# Requisitos de escalado — U7 forensic-report (módulo ReviewReport)
 
-**Insumos.** Flujos F2, F3, F6 y F7 de `functional-design/functional-spec.md` (functional-spec); reglas
-BR3.1, BR4.1–BR4.3 y BR6.5 de `functional-design/rules.md` (rules) y entidades de `entities.md`; NFR8 y
-los supuestos de `inception/requirements-analysis/requirements.md` (requirements); C1 y C11 de
-`inception/contract-design/contract-summary.md` (contract-summary); `nfr-requirements-questions.md`
-(sin preguntas nuevas).
+**Revisión 2 (2026-11-22), segunda pasada por el cambio 01, la adenda 02 y el Functional Design de U7,
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **IDs.** Los requisitos conservan su ID y cada fila dice si **se mantiene**, **cambia** o es **nuevo**.
+  Entra NFR8.10 (exportaciones). Ninguno se retira.
+- **Qué cambia.** La cota del reporte pasa de 2 MiB a `report_max_bytes` = 8 MiB (NFR-U7-01), el PVC es
+  de 2 GiB con cuota propia (Infrastructure Design de U7) y la retención de U13 ya purga (VE-12), así que
+  los reportes dejan de crecer sin límite.
+
+**Insumos.**
+- Flujos F2, F3, F6, F8 y F10 de `functional-design/functional-spec.md` (functional-spec, revisión 2).
+- Reglas BR3.1, BR4.1–BR4.3, BR6.5, BR9.5 y BR10.1 de `functional-design/rules.md` (rules) y entidades
+  de `entities.md` (ReportVersion, ReportExport).
+- NFR8 y los supuestos de `inception/requirements-analysis/requirements.md` (requirements, revisión 3),
+  con VE-12 de la adenda 02.
+- C1, C11, C24 y C25 de `inception/contract-design/contract-summary.md` (contract-summary).
+- `nfr-requirements-questions.md`, segunda pasada, sin preguntas.
 
 ## 1. Carga esperada del MVP
 
 | Dimensión | Valor | Origen |
 |---|---|---|
 | Analistas a la vez | 1 (uso real y sustentación); 3 sesiones concurrentes en la prueba de carga | Supuestos de requirements; NFR8 |
-| Turnos por sesión | ≤ 15 esperados; las pruebas llegan a 100 | Golden Dataset; caso de `performance-requirements.md` §1 |
-| Versiones por sesión | ≤ 3 esperadas (la inicial y una o dos correcciones); las pruebas llegan a 10 | Supuesto del MVP (igual que las rondas de U5) |
-| Sesiones consolidadas en total | ≤ 100 en el MVP (incluidas las de prueba) | Supuesto del MVP (NFR8.5 de U5) |
-| Tamaño de un reporte | ≈ 30–60 KB para un caso del Golden Dataset; ≈ 470 KB para el caso de 100 turnos; **≤ 2 MiB** como cota (turnos ≤ 2 000 caracteres, pasajes ≤ 1 000, notas y reformulaciones ≤ 2 000, NFR10.5 de U5) | Cálculo; medido en NFR8.5 |
-| Volumen ocupado | Esperado ≤ 100 × 3 × 60 KB ≈ 18 MB; peor caso 100 × 3 × 2 MiB = 600 MiB | Cálculo |
-| Filas de `ReportVersion` | ≤ 300 esperadas; ≤ 1 000 en las pruebas | Cálculo |
+| Turnos por sesión | ≤ 60 esperados; las pruebas llegan a 2 000 (`transcript_max_turns`) | Conjunto sintético; C25 de U4 |
+| Versiones por sesión | ≤ 3 esperadas; las pruebas llegan a 10 | Supuesto del MVP |
+| Exportaciones por sesión | ≤ 10 esperadas; las pruebas llegan a 100 | Supuesto del MVP; NFR3.14 |
+| Sesiones con reporte | ≤ 100 a la vez en el MVP, con la retención de 90 días de U13 | Supuesto del MVP; VE-12 |
+| Tamaño de un reporte | ≈ 30–60 KB para un caso del conjunto sintético; ≈ 400 KB para el caso de 100 turnos; **≤ 8 MiB** como cota (`report_max_bytes`) | `performance-requirements.md` §1; NFR8.5 |
+| Volumen ocupado | Esperado ≤ 100 × 3 × 60 KB ≈ 18 MB. Cuota de 2 GiB = 256 reportes del caso máximo | Cálculo; Infrastructure Design de U7 |
+| Filas | ≤ 300 `ReportVersion` y ≤ 1 000 `ReportExport` esperadas; las pruebas llegan a 1 000 y 10 000 | Cálculo |
 
 ## 2. Requisitos
 
-| ID | Requisito | Criterio medible |
-|---|---|---|
-| NFR8.2 | Tres consolidaciones de sesiones distintas a la vez no se estorban. | Prueba `perf` de nivel 1 con 3 hilos y una barrera, cada uno consolidando el caso de 100 turnos de **otra** sesión, 20 repeticiones: 3 respuestas `201` en cada repetición, p95 ≤ 2 000 ms y 0 `503`. El bloqueo es por ronda (por sesión), así que sesiones distintas nunca se esperan entre sí. |
-| NFR8.3 | Las metas aguantan 10 veces el número de versiones. | Variante de NFR3.2 y NFR3.5 con 10 versiones previas en la sesión y 1 000 filas de `ReportVersion` en la tabla: consolidación p95 ≤ 1 500 ms y lista de versiones p95 ≤ 100 ms. |
-| NFR8.4 | Las consultas de U7 usan índices. | Índices únicos `ReportVersion (session_id, version_number)`, `(round_id)` y `(storage_path)`, y la clave primaria `report_version_id`. Prueba de nivel 1 que consulta `pg_indexes` y que, con 1 000 filas, `EXPLAIN` de la lista de versiones y de la versión vigente no hace `Seq Scan` sobre `ReportVersion`. |
-| NFR8.5 | El tamaño de los reportes y del volumen está medido y acotado. | Prueba de nivel 1 que renderiza el caso de 100 turnos y un caso de peor caso con todos los textos en su máximo (100 turnos de 2 000 caracteres, 100 sugerencias con notas y reformulaciones de 2 000, 100 paquetes con 3 pasajes de 1 000): registra `byte_size` y falla si el peor caso supera **2 MiB**. El PVC se pide de **1 GiB** (cubre el peor caso de §1 con margen); los archivos y filas son evidencia de auditoría (NFR11) y no se purgan en el MVP. |
-| NFR8.6 | La API de `session-api` corre una sola réplica mientras el volumen sea `ReadWriteOnce`. | El chart declara `replicas: 1` y `strategy: Recreate` para el `Deployment` de la API (un pod nuevo no arranca mientras el viejo tiene el volumen); política estática de nivel 0 sobre el render de `helm template` que falla con `replicas > 1` o `RollingUpdate` mientras el PVC de reportes sea `ReadWriteOnce`. **Límite conocido:** la coordinación de la consolidación ya está en la base (bloqueo de la ronda e índices únicos, NFR10.13) y funcionaría con varias réplicas; lo que impide escalar es el volumen y el barrido (NFR10.16). |
+| ID | Estado | Requisito | Criterio medible |
+|---|---|---|---|
+| NFR8.2 | se mantiene | Tres consolidaciones de sesiones distintas a la vez no se estorban. | `perf` de nivel 1 con 3 hilos y una barrera, cada uno consolidando el caso de 100 turnos de **otra** sesión, 20 repeticiones: 3 `201` por repetición, p95 ≤ 2 000 ms y 0 `503`. El bloqueo es por sesión y ronda, así que sesiones distintas nunca se esperan. |
+| NFR8.3 | cambia | Las metas aguantan 10 veces las versiones y las exportaciones. | Variante de NFR3.2, NFR3.5 y NFR3.12 con 10 versiones previas, 100 exportaciones en la sesión, 1 000 filas de `ReportVersion` y 10 000 de `ReportExport`: consolidación p95 ≤ 1 500 ms, lista p95 ≤ 100 ms y exportación p95 ≤ 500 ms. |
+| NFR8.4 | cambia | Las consultas de U7 usan índices. | Índices únicos `ReportVersion (session_id, version_number)`, `(round_id)` y `(storage_path)`; `ReportExport (report_version_id)` para la purga y la consulta de U13. Nivel 1 que consulta `pg_indexes` y que, con las filas de NFR8.3, `EXPLAIN` de la lista, de la versión vigente y de la selección de la purga no hace `Seq Scan` sobre las dos tablas. |
+| NFR8.5 | cambia | El tamaño de los reportes y del volumen está medido y acotado. | Nivel 1 que renderiza el caso de 100 turnos y el caso máximo (`performance-requirements.md` §1.2): registra `byte_size` y falla si el caso máximo supera `report_max_bytes` = **8 MiB**, o si los puntos de página suman ≥ 2 % de sus bytes. El PVC es de **2 GiB** con la cuota `VERIDICUS_REPORT_VOLUME_QUOTA_BYTES` (Infrastructure Design). El peor caso teórico de 100 sesiones × 3 versiones del caso máximo (2,4 GiB) **no** cabe: es un riesgo aceptado porque el esperado es 18 MB, la regla de NFR15.3 lo muestra al 80 % y una consolidación que no cabe falla con `500 system.internal` y 0 filas (NFR10.15). La retención de U13 libera el espacio de las sesiones vencidas (NFR11.8). |
+| NFR8.6 | cambia | La API de `session-api` corre una sola réplica mientras el volumen sea `ReadWriteOnce`. | El chart `deploy/veridicus` declara `replicas: 1` y `strategy: Recreate` para el `Deployment` de la API; política estática de nivel 0 sobre el render que falla con `replicas > 1` o `RollingUpdate` mientras el PVC de reportes sea `ReadWriteOnce`. **Límite conocido:** la coordinación de la consolidación está en la base (bloqueos e índices únicos) y funcionaría con varias réplicas; lo que impide escalar es el volumen y el barrido (NFR10.16). El `Job` de retención no se lanza mientras otra purga corre (U13) y comparte el nodo único de Minikube. |
+| NFR8.10 | nuevo | Las exportaciones no ocupan el volumen. | La exportación solo añade una fila de `ReportExport` (≈ 200 B); tras 100 exportaciones el uso del volumen no cambia (NFR10.25). |
 
 ## 3. Señal para escalar
 
-No hay autoescalado. Las señales son: p95 de NFR3.2 por encima de 1 500 ms en la prueba `perf`, o el
-volumen por encima del 80 % (alerta de NFR15.3). Las opciones, en este orden, son: ampliar el PVC por PR
-(Infrastructure Design); revisar el render si el tamaño de los reportes crece; y, si alguna vez hace
-falta más de una réplica de la API, pasar a un volumen `ReadWriteMany` o a un almacén de objetos dentro
-del clúster y cambiar el barrido por uno con bloqueo consultivo de la base. Cada cambio entra por PR con
-su medición y no cambia el contrato de C1.
+No hay autoescalado. Las señales son: p95 de NFR3.2 sobre 1 500 ms o de NFR3.13 sobre 6 s en la prueba
+`perf`, o el volumen sobre el 80 % de la cuota (NFR15.3). Las opciones, en este orden: acortar la retención
+por PR (U13); ampliar el PVC y la cuota por PR (Infrastructure Design); revisar el render si los reportes
+crecen; y, si alguna vez hace falta más de una réplica de la API, pasar a un volumen `ReadWriteMany` o a
+un almacén de objetos dentro del clúster con el barrido bajo un bloqueo asesor de la base. Cada cambio
+entra por PR con su medición y no cambia C1.

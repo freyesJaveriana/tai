@@ -15,7 +15,7 @@ revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
 - C20, C21 y C25 de `inception/contract-design/contract-summary.md` (contract-summary).
 - FD-U10-13 y la respuesta P2 = A de `nfr-requirements-questions.md`.
 
-Las mediciones de nivel 0 corren en la máquina de desarrollo (CPU, sin GPU; NFR2), con el
+Las mediciones corren en la máquina de desarrollo (CPU, sin GPU; NFR2), con el
 `FakeTransport` y transcripciones sintéticas de tres tamaños: 10 000, 50 000 y 186 000 caracteres. La
 mayor reproduce el tamaño de la entrevista más larga del piloto. Cada medición hace 3 corridas de
 calentamiento y 20 medidas, y la prueba usa el p95. El reporte queda en `out/anonymizer-perf.json`.
@@ -24,7 +24,7 @@ calentamiento y 20 medidas, y la prueba usa el p95. El reporte queda en `out/ano
 
 | ID | Estado | Requisito | Criterio medible | Verificación |
 |---|---|---|---|---|
-| NFR3.1 | cambia | La seudonimización crece de forma lineal con el texto (F4: NER, reglas, palabras permitidas y red de seguridad). | p95 de `masking_ms` ≤ **0,8 s por cada 10 000 caracteres** en los tres tamaños, y ≤ **15 s** con 186 000 caracteres. La razón entre el p95 de 186 000 y el de 10 000 es ≤ 25: no hay crecimiento cuadrático. El NER ya está cargado; no cuenta el arranque. | Nivel 0 (`-m perf`) |
+| NFR3.1 | cambia | La seudonimización crece de forma lineal con el texto (F4: NER, reglas, palabras permitidas y red de seguridad). | p95 de `masking_ms` ≤ **0,8 s por cada 10 000 caracteres** en los tres tamaños, y ≤ **15 s** con 186 000 caracteres. La razón entre el p95 de 186 000 y el de 10 000 es ≤ 25: no hay crecimiento cuadrático. El NER real ya está cargado; no cuenta el arranque. | Nivel 1 (`-m perf`, NER real sin red) |
 | NFR3.2 | cambia | El proxy agrega poco a la llamada, sin contar la seudonimización ni el proveedor (F8). | p95 de (tiempo total de `POST /v1/generate`) − `masking_ms` − `upstream_ms` ≤ **50 ms**, con un cuerpo de 186 000 caracteres y el `FakeTransport` respondiendo al instante. Incluye leer y validar el cuerpo, resolver el perfil, restaurar y serializar. | Nivel 0 |
 | NFR3.3 | cambia | El arranque termina en un tiempo acotado (F3). | Desde que empieza el proceso hasta que `/readyz` responde 200 (NER cargado y archivos de NFR10.11 comprobados) pasan ≤ **60 s** en CPU. En la CLI, construir el módulo tarda lo mismo como máximo. La sonda de arranque que declara U2 debe tolerar ese tiempo. | Nivel 1 |
 | NFR3.4 | cambia | La detección por reglas corre en tiempo lineal. | Con `google-re2`, una entrada adversaria de 100 000 caracteres (repeticiones que harían retroceder a `re`) termina la detección por reglas en < **1 s**. Una prueba confirma que ninguna regla de `DetectionRuleSet` compila con `re`. | Nivel 0 |

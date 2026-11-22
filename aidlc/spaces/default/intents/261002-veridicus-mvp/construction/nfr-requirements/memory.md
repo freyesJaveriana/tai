@@ -84,6 +84,10 @@
 - 2026-11-22T13:38:45Z — Los Jobs de retención y create-admin van en un chart que Argo CD no sincroniza, porque VE-12 dice que el sistema no programa el borrado y U13 F7 pide que lo lance el humano.
 <!-- aidlc-wave-memory:platform:cb29e910947bd769f1edf0cccbf341f877d7e0f560ef6edda6362784c6d2a794 -->
 
+
+- 2026-11-22T13:37:41Z — Segunda pasada: el cambio 01 supera la parte de P1 = A que dejaba el proxy apagado y con un solo destino (FR11.3 MUST, FR14.1 y C13); se conserva el ADR del proveedor como condición para que un modelo entre a ProviderCapabilityTable, sin preguntar.
+<!-- aidlc-wave-memory:anonymizer:bd933289da590e89a01b1c0240799449d0622b8fd9508217ffc5bcc9ae81a10c -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -222,6 +226,18 @@
 - 2026-11-22T13:44:22Z — P5 = A: Argo CD conserva la sincronización desde GitHub a cambio de una segunda salida sin datos, y queda como riesgo residual una conexión por IP literal desde el proxy o desde argocd-repo-server.
 <!-- aidlc-wave-memory:platform:e596adab8b97fd20b6ba7944975dd768b275de93d3d2a4ecf8a577407c04c5a4 -->
 
+
+- 2026-11-22T13:37:41Z — Las cifras de C25 de U10 (2 MiB y 0,15) se atan con comprobaciones de nivel 0 a transcript_max_chars y model_call_timeout_s de otras unidades, en vez de esperar a que U11 fije su plazo.
+<!-- aidlc-wave-memory:anonymizer:f2f9cd8d3ff917848091d2d26b0c568854053ceff0bcee83609c7f814e2228fc -->
+
+
+- 2026-11-22T13:51:20Z — La prueba de 0 fugas corre en nivel 1 con el NER real montado sin red, y el nivel 0 usa un NER diminuto de prueba: el nivel 0 no carga modelos, a costa de que la fuga por el NER solo se detecte en nivel 1 (también bloqueante).
+<!-- aidlc-wave-memory:anonymizer:ef31dd5ed4e13a5508dae8ecce1e13f7238cc638c07e1481f42eb6e7390315e3 -->
+
+
+- 2026-11-22T13:51:20Z — Los adaptadores usan httpx directo y no los SDK de los proveedores: los SDK reintentan, fijan su URL base y añaden cabeceras propias, y eso contradice NFR1.8 y NFR10.4.
+<!-- aidlc-wave-memory:anonymizer:5e3b754d9ef36ee9772881a9f78e1d6f8aab5edef1fe21ca8a2456c84648b417 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -254,3 +270,9 @@
 
 - 2026-11-22T13:38:45Z — P5: Argo CD necesita github.com, lo que contradice FR12.3 y la igualdad de AC11.5.2; se pregunta al humano antes de generar la revisión 2 (recomendada A, excepción declarada solo para argocd-repo-server).
 <!-- aidlc-wave-memory:platform:04cb8310c7f7577d77f03baeeeb74f76cfcc5ad765ce24f3247308c605872324 -->
+
+- 2026-11-22T13:37:41Z — Se preguntó solo el proveedor comercial de la primera rebanada (P2): ninguna fuente aprobada lo fija y decide qué tercero recibe primero el testimonio seudonimizado, incluido el piloto; no se generaron artefactos.
+<!-- aidlc-wave-memory:anonymizer:35162a2146b1f131b153addc23e212b5d2b268ced79a27e03581d05221e556e5 -->
+
+- 2026-11-22T13:51:20Z — P2 = A (Anthropic primero) obliga a que el generador del conjunto sintético sea de Google u OpenAI y distinto del verificador (NFR5.2, NFR-U10-07); lo decide U11 al fijar sus perfiles de evaluación.
+<!-- aidlc-wave-memory:anonymizer:492da4d14682f31f5a86422534e68088f494449bb829bc6208ab5f6e6d16aa7e -->

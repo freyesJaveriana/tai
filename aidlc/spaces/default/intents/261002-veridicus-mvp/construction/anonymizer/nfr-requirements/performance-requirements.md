@@ -1,45 +1,43 @@
 # Requisitos de rendimiento — U10 anonymizer
 
-**Insumos.** Flujos F1–F3 y la máquina de estados de una llamada de `functional-design/functional-spec.md`
-(functional-spec); reglas BR1.1–BR1.4 y BR2.1 de `functional-design/rules.md` (rules); FR11.3, NFR3,
-NFR8 y NFR9 de `inception/requirements-analysis/requirements.md` (requirements); C13 y C14 de
-`inception/contract-design/contract-summary.md` (contract-summary); respuesta P1 = A de
-`nfr-requirements-questions.md`; las metas de U4 (`../../text-flow/nfr-requirements/performance-requirements.md`).
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01, la adenda 02 y el Functional Design
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **IDs.** Se conservan los IDs. Lo retirado queda «Retirado» y lo nuevo toma el número siguiente
+  (NFR3.6).
+- **Cambio principal.** La revisión 1 medía un proxy apagado delante del juez interno. Ahora U10 está
+  en el camino de **toda** llamada a un proveedor comercial, tanto en la CLI como en el clúster. NFR3
+  pide recalcular las latencias con el anonimizador en el camino.
 
-**El proxy se entrega apagado (P1 = A).** Con el valor por defecto no se despliega y no afecta ninguna
-latencia del MVP: el juez y los *embeddings* son los internos de U2 y U4. Las metas de este documento
-se verifican en nivel 0 y nivel 1 siempre que exista el código, y las de §2 solo en el PR que lo
-habilite. Todo se mide en la **máquina de desarrollo con el perfil CPU** (NFR2); ninguna meta depende
-de la GPU. Una prueba de rendimiento inestable se arregla o se pone en cuarentena con un *issue*, nunca
-se reintenta ni se baja su umbral (team-practices).
+**Insumos.**
+- F1, F3, F4, F5 y F8 y los escenarios de `functional-design/functional-spec.md` (functional-spec).
+- BR1.1, BR1.5, BR2.4, BR5.2 y BR6.1 de `functional-design/rules.md` (rules).
+- NFR3 y NFR8 de `inception/requirements-analysis/requirements.md` (requirements).
+- C20, C21 y C25 de `inception/contract-design/contract-summary.md` (contract-summary).
+- FD-U10-13 y la respuesta P2 = A de `nfr-requirements-questions.md`.
 
-## 1. Costo del enmascarado
+Las mediciones de nivel 0 corren en la máquina de desarrollo (CPU, sin GPU; NFR2), con el
+`FakeTransport` y transcripciones sintéticas de tres tamaños: 10 000, 50 000 y 186 000 caracteres. La
+mayor reproduce el tamaño de la entrevista más larga del piloto. Cada medición hace 3 corridas de
+calentamiento y 20 medidas, y la prueba usa el p95. El reporte queda en `out/anonymizer-perf.json`.
 
-El enmascarado es código puro (expresiones regulares de tiempo lineal y lista de nombres propios,
-`tech-stack-decisions.md` D2). Su costo se mide en proceso, sin red, con un destino *fake*.
+## 1. Requisitos
 
-| ID | Qué se mide | Objetivo | Carga | Cómo se mide |
+| ID | Estado | Requisito | Criterio medible | Verificación |
 |---|---|---|---|---|
-| NFR3.1 | Enmascarar un texto (detección + reemplazo + tabla en memoria, BR1.1, BR1.2) | **p95 ≤ 50 ms por cada 10 000 caracteres**; crecimiento lineal: el p95 con 100 000 caracteres ≤ 10 veces el de 10 000 + 20 ms | Textos sintéticos de 10 000 y 100 000 caracteres con 1 mención cada 200 caracteres (nombres, lugares y expedientes del catálogo de U1); lista de **2 000** nombres propios (tope de NFR10.8); 200 repeticiones | Prueba `perf` de nivel 1 en proceso con `time.perf_counter`; el reporte registra p50, p95 y máximo |
-| NFR3.2 | Restaurar una respuesta (BR1.3) | p95 ≤ 10 ms por cada 10 000 caracteres | Respuesta de 10 000 caracteres con 100 marcadores conocidos y 5 desconocidos | Ídem |
-| NFR3.3 | Sobrecosto del proxy en una llamada `judge` (todo menos la espera al destino) | **p95 ≤ 250 ms** por llamada | Bloque de datos de 24 000 caracteres (≈ el tope de 6 000 *tokens* de U4, NFR3.11 de U4) + instrucciones de 4 000 caracteres + respuesta de 16 000 caracteres; lista de 2 000 nombres; destino *fake* que responde en 0 ms | Prueba `perf` de nivel 1 con el servicio HTTP real en proceso y `httpx.MockTransport` como destino |
-| NFR3.4 | Tiempo máximo del enmascarado antes de fallar cerrado | Si enmascarar una llamada pasa de **2 s** (`VERIDICUS_ANONYMIZER_MASKING_TIMEOUT_SECONDS`), no se envía nada y la llamada termina en `failed_closed` (BR2.1) | Detector *fake* que tarda 3 s | Prueba de nivel 0; ver NFR10.1 en `reliability-requirements.md` |
+| NFR3.1 | cambia | La seudonimización crece de forma lineal con el texto (F4: NER, reglas, palabras permitidas y red de seguridad). | p95 de `masking_ms` ≤ **0,8 s por cada 10 000 caracteres** en los tres tamaños, y ≤ **15 s** con 186 000 caracteres. La razón entre el p95 de 186 000 y el de 10 000 es ≤ 25: no hay crecimiento cuadrático. El NER ya está cargado; no cuenta el arranque. | Nivel 0 (`-m perf`) |
+| NFR3.2 | cambia | El proxy agrega poco a la llamada, sin contar la seudonimización ni el proveedor (F8). | p95 de (tiempo total de `POST /v1/generate`) − `masking_ms` − `upstream_ms` ≤ **50 ms**, con un cuerpo de 186 000 caracteres y el `FakeTransport` respondiendo al instante. Incluye leer y validar el cuerpo, resolver el perfil, restaurar y serializar. | Nivel 0 |
+| NFR3.3 | cambia | El arranque termina en un tiempo acotado (F3). | Desde que empieza el proceso hasta que `/readyz` responde 200 (NER cargado y archivos de NFR10.11 comprobados) pasan ≤ **60 s** en CPU. En la CLI, construir el módulo tarda lo mismo como máximo. La sonda de arranque que declara U2 debe tolerar ese tiempo. | Nivel 1 |
+| NFR3.4 | cambia | La detección por reglas corre en tiempo lineal. | Con `google-re2`, una entrada adversaria de 100 000 caracteres (repeticiones que harían retroceder a `re`) termina la detección por reglas en < **1 s**. Una prueba confirma que ninguna regla de `DetectionRuleSet` compila con `re`. | Nivel 0 |
+| NFR3.5 | cambia | La seudonimización tiene un presupuesto, y pasarlo falla cerrado (FD-U10-13). | El presupuesto es `anonymizer_masking_budget_ratio` (0,15; NFR-U10-02) × `timeout_s` de la petición. Si `masking_ms` lo supera, `generate` termina en `AnonymizerUnavailable` con **0 peticiones** al transporte (F7). Prueba con un NER *fake* lento. El valor sale de C25 y una variable de entorno solo puede bajarlo. | Nivel 0 |
+| NFR3.6 | nuevo | U10 da los datos con los que U11 recalcula las latencias por turno y por modo final (NFR3). | Cada llamada deja en el log `masking_ms` y `upstream_ms` (NFR10.3), y el histograma de NFR15.1. Las comprobaciones de NFR-U10-04 atan `model_call_timeout_s` al costo de NFR3.1: con 186 000 caracteres, ese plazo debe ser ≥ 200 s. Las latencias por turno, por modo final y el *N* de la prueba de humo los fija U11 con el perfil de la primera rebanada (juez de Anthropic, P2 = A), contando la red. | Nivel 0 (comprobación); el recálculo es de U11 |
+| NFR9.1 | Retirado | Latencia de los *embeddings* enmascarados. | Retirado con NFR9 y con `embed` (cambio 01). | — |
+| NFR8.1 | cambia | El proxy no frena la prueba de carga de NFR8. | Durante la prueba de NFR8 (50 sesiones de texto en tandas de 3 concurrentes, con un perfil comercial), el proxy responde **0** veces `503` por saturación (NFR8.2) y su contenedor tiene **0** `OOMKilled`. Ningún fallo de la prueba tiene a U10 como causa, salvo uno que devuelva el proveedor. Lo comprueban `veridicus_anonymizer_requests_total` y los eventos del pod. | Prueba de carga de NFR8 (la corre su unidad dueña; reporte en el PR de entrega) |
 
-**Efecto en la latencia de U4.** Con NFR3.3, el proxy añade como máximo 0,25 s a un turno: **≤ 0,5 %
-del p95 de 60 s** de NFR3.1 de U4. El presupuesto que manda en un juez externo es la espera al destino,
-que no controla Veridicus; por eso §2 exige medir el turno completo con el proxy antes de habilitarlo.
+## 2. Lo que este documento no fija
 
-## 2. Metas que se miden al habilitar el proxy
-
-| ID | Requisito | Criterio medible | Verificación |
-|---|---|---|---|
-| NFR3.5 | Con el proxy en el camino, el turno de texto sigue cumpliendo la meta de U4. | El reporte de nivel 2 del PR que habilita el proxy (corrido con `--profile cpu --model-gateway anonymizer`) da **p95 ≤ 60 s** para `evaluated_at − submitted_at` (NFR3.1 de U4) y la prueba de humo pasa en ≤ 120 s por caso (NFR3.10 de U4). Si no se cumple, el proxy no se habilita; la meta no se sube. | Nivel 2 y nivel 3, en el PR de habilitación |
-| NFR9.1 | La indexación con *embeddings* externos cabe en la meta de 3 minutos. | Enmascarar los pasajes de un documento de 1 048 576 bytes (≈ 1 100 pasajes, en lotes de 32) cuesta **≤ 6 s** en total (NFR3.1 aplicado a 1 MB); el tiempo total desde el 202 hasta `ready_at` con el proxy sigue en **< 180 s** (NFR9.1 de U4). | Nivel 1 (costo del enmascarado) y nivel 2 en el PR de habilitación (tiempo total) |
-
-## 3. Recursos
-
-| ID | Pod | Tope medido | Cómo se mide |
-|---|---|---|---|
-| NFR8.1 | `anonymizer-proxy` | Pico de RSS **≤ 256 MiB** con 4 llamadas simultáneas (NFR8.2) de 24 000 caracteres y listas de 2 000 nombres | Prueba `perf` de nivel 1 que mide el RSS del proceso; Infrastructure Design fija `limits.memory` con al menos un 20 % sobre el pico, y CPU `requests` de 100m y `limits` de 1 núcleo |
-
-Si un pico supera su tope, es un hallazgo que se corrige por PR; el tope no se sube en silencio.
+- **Latencia del proveedor.** Depende de la red y del modelo. La mide `upstream_ms`, y el plazo lo
+  limita `timeout_s` del perfil (NFR10.4).
+- **Latencias por turno, por modo final y *N* de la prueba de humo.** Son de U11 (NFR3), con los datos
+  de NFR3.6.
+- **Recursos (`requests`/`limits`) del pod.** Los declara U2 con el pico de memoria de NFR8.3 (ver
+  `scalability-requirements.md`).

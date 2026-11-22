@@ -4,6 +4,8 @@
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-03T01:38:15Z — U2 es de tipo packaging y no tuvo Functional Design: los requisitos se derivan de unit-of-work, requirements, contract-summary y team.md; solo aplican seguridad, pila y trazabilidad.
+- 2026-11-22T13:38:45Z — Segunda pasada: FR12.3 dice «todos los pods», así que la negación de salida se extiende a ingress-nginx, cnpg-system, monitoring y keda; semantic-agent ya no alcanza PostgreSQL (C9 Retirado, CD-06).
+- 2026-11-22T13:38:45Z — Los Jobs de retención y create-admin van en un chart que Argo CD no sincroniza, porque VE-12 dice que el sistema no programa el borrado y U13 F7 pide que lo lance el humano.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
@@ -16,3 +18,4 @@
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 - 2026-10-03T01:38:15Z — Confirmar en Infrastructure Design que el CNI elegido hace cumplir políticas de salida y que la imagen de CloudNativePG trae pgvector.
+- 2026-11-22T13:38:45Z — P5: Argo CD necesita github.com, lo que contradice FR12.3 y la igualdad de AC11.5.2; se pregunta al humano antes de generar la revisión 2 (recomendada A, excepción declarada solo para argocd-repo-server).

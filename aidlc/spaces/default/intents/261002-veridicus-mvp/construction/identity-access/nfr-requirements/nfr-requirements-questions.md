@@ -64,3 +64,45 @@ C. Retardo creciente (1 s, 2 s, 4 s… hasta 30 s) por usuario, sin bloqueo.
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y Functional Design revisión vigente (2026-11-22)
+
+**Sin preguntas: todo lo fijan las fuentes.** Ninguna decisión de esta pasada enfrenta dos fuentes
+aprobadas ni cambia el alcance, el riesgo aceptado o un dato que sale del clúster (regla de `project.md`
+del 2026-11-22). Lo que se aplica sin preguntar queda en la tabla NFR-U3-xx de
+`security-requirements.md` §7 y se presenta en la aprobación.
+
+## Lo que ya está decidido
+
+- Las respuestas P1–P4 de la revisión 1 siguen: Argon2id, política «8 con composición y lista común»,
+  30 minutos de inactividad y 12 horas en total, y 5 fallos en 15 minutos por usuario y por origen.
+- El Functional Design de U3, revisión 2 (aprobado hoy), fija tres roles con el `investigador`, la
+  negación por defecto, `x-veridicus-owner-only-for-role`, el manejador único de Problem Details
+  (BR8.1–BR8.4), el registro de acceso por marca (BR9.1–BR9.5), la convención de auditoría con actor
+  nunca nulo y los dos usuarios de base de datos (BR6.1–BR6.6), y la configuración solo por PR
+  (BR5.1–BR5.3).
+- El NFR de U1, revisión 2: `limits.exceeded` responde siempre `413` (P7 = A), el catálogo C25 no admite
+  nulos y todo tope de un cuerpo de C1 lleva el nombre de su cifra de C25 (NFR10.7 y NFR10.14 de U1).
+- `project.md`: toda cifra de límite de sesión vive en C25; `VERIDICUS_TRUSTED_PROXY` toma el pod CIDR.
+
+## Cómo se registra la revisión 2
+
+- Los requisitos conservan su ID y cada fila dice si **se mantiene**, **cambia** o es **nuevo**.
+- NFR11.1 queda **precisado** por BR6.1 y NFR11.2 queda **Retirado** (el umbral salió con el cambio 01),
+  tal como pide FD-U3-12. Lo nuevo toma el número siguiente de su grupo.
+- Se cierran los hallazgos R-01 a R-06 de `reviews/review-01.md`.
+
+## Lo que el diseño resolverá sin preguntar
+
+- Cifras de C25 de U3: `web_session_max_s` = 43 200 s; entran `web_session_idle_s` = 1 800 s,
+  `username_max_chars` = 32 y `password_max_chars` = 128 (NFR-U3-01).
+- Plazo del registro de una lectura en `AccessLog.record`: 500 ms, en un punto de guardado, sin revertir
+  el manejador (responde a la pregunta 3 de U13; la exportación la decide U7).
+- Las métricas de U3 son internas de `session-api` y no van a C15 (cierra R-05).
+- Clases de caracteres y fuente de la lista de contraseñas comunes (cierra R-04).
+- El bloqueo inducido por el limitador queda como riesgo aceptado con su espera de 15 minutos (cierra
+  R-02); el proxy de confianza se fija al pod CIDR.
+- `ttlSecondsAfterFinished` de `create-admin` y el barrido de sesiones web con una sola réplica activa
+  por bloqueo asesor (cierra R-06).

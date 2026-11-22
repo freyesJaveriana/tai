@@ -68,6 +68,14 @@
 - 2026-11-22T13:16:31Z — Revisión 2 generada con P7 = A y P8 = A: el catálogo de errores declara un estado por code (limits.exceeded = 413) y U1 suma contracts/ts/; la sección clarifications de U8 (FD-U8-09) entra en C19 v2 como cambio mayor, porque C19 es estricto (BR1.4).
 <!-- aidlc-wave-memory:contracts:6ee6f89cc91c109a25462f5ba4f8c3225b6f4941f19302cb823fac9863cf24db -->
 
+
+- 2026-11-22T13:40:27Z — Segunda pasada sin preguntas: el tope de 128 de la contraseña pasa a ser cifra de C25 validada por el esquema (422 validation.invalid_request), y la política (8, composición, lista común) sigue con user.weak_password, para no chocar con BR8.4.
+<!-- aidlc-wave-memory:identity-access:eb766e79afe36a94ec2e43a1d7766b38ae99715bda63046ee74a06f01526866f -->
+
+
+- 2026-11-22T13:40:27Z — «El único con DELETE» de NFR11 se leyó como sobre historiales y tablas purgables, porque entities.md aprobado ya hace que session-api barra WebSession a los 7 días; quedó como NFR-U3-02.
+<!-- aidlc-wave-memory:identity-access:231c13a83dac2c1d54cd3050a71d7a10baa7a80dba3d63be476e6c8e7582570a -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -189,6 +197,14 @@
 
 - 2026-10-03T02:38:33Z — Un Whisper caído deja el turno de voz en error en segundos en vez de devolver el mensaje a la cola como el juez de U4: respeta BR3.4 y da respuesta inmediata, a costa de perder el audio y grabar de nuevo.
 <!-- aidlc-wave-memory:voice:35403d74880254ae6748c76e99305b51099c0dedd8dae7143dfa574bba4e35ca -->
+
+
+- 2026-11-22T13:40:27Z — AccessLog.record en un SAVEPOINT de 500 ms: un fallo del registro no revierte las escrituras del manejador (BR9.3), a costa de un punto de guardado por lectura marcada.
+<!-- aidlc-wave-memory:identity-access:a7288ba7fcd2d74d68e0d960f19d009c564a34e69fcf243835ead3c3d14fb587 -->
+
+
+- 2026-11-22T13:40:27Z — Las métricas de U3 quedan internas de session-api y no en C15 (R-05); la etiqueta code pasa a error_code para seguir la lista de U1 sin pedirle un cambio.
+<!-- aidlc-wave-memory:identity-access:51409cca30c073936fd48dc3ea32e7634c1801c803daf9590617c28db9bfb1b3 -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

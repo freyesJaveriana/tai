@@ -5,6 +5,8 @@
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-03T01:38:15Z — P2 se respondió con texto propio («8 con composición y lista común»); se leyó como mínimo 8 con mayúscula, minúscula, número y símbolo más la lista de contraseñas comunes, y se añadió un máximo de 128 caracteres para acotar el costo de Argon2id.
 - 2026-10-03T01:38:15Z — U3 es el primer Bolt que construye session-api (B2), así que sus decisiones de pila fijan la base del proceso para U4–U7: FastAPI, Pydantic v2, SQLAlchemy 2 con psycopg 3, Alembic en un Job y redis-py.
+- 2026-11-22T13:40:27Z — Segunda pasada sin preguntas: el tope de 128 de la contraseña pasa a ser cifra de C25 validada por el esquema (422 validation.invalid_request), y la política (8, composición, lista común) sigue con user.weak_password, para no chocar con BR8.4.
+- 2026-11-22T13:40:27Z — «El único con DELETE» de NFR11 se leyó como sobre historiales y tablas purgables, porque entities.md aprobado ya hace que session-api barra WebSession a los 7 días; quedó como NFR-U3-02.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
@@ -14,6 +16,8 @@
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 - 2026-10-03T01:38:15Z — El limitador de intentos falla cerrado (503) si Redis no responde: se prefiere no dejar entrar a nadie antes que permitir probar contraseñas sin límite, a costa de que una caída de Redis bloquee el inicio de sesión.
 - 2026-10-03T01:38:15Z — last_seen_at se escribe como máximo una vez por minuto aunque la consola sondee más seguido: evita una escritura por sondeo a costa de que la caducidad por inactividad tenga hasta 60 s de holgura.
+- 2026-11-22T13:40:27Z — AccessLog.record en un SAVEPOINT de 500 ms: un fallo del registro no revierte las escrituras del manejador (BR9.3), a costa de un punto de guardado por lectura marcada.
+- 2026-11-22T13:40:27Z — Las métricas de U3 quedan internas de session-api y no en C15 (R-05); la etiqueta code pasa a error_code para seguir la lista de U1 sin pedirle un cambio.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

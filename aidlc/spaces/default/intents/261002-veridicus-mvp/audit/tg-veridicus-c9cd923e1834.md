@@ -19519,3 +19519,2243 @@
 **Artifact Fingerprint**: sha256:82c37c7dd67e667c0b1eb0870460b67b4d9948192ac152b2d9f405e09ac7680e
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T12:32:22Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Aprendizajes de Functional Design: ¿qué se guarda en project.md?
+**Options**: Guardar los 8 recomendados,Nada que añadir,Añadir una nota
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T12:32:42Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T12:32:46Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Guardar los 8 recomendados
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c36
+**Content-Hash**: b0a7bbcfb7161a853b9213228830ac0e1a641263576cb8b65b4a58674d35ff02
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c41
+**Content-Hash**: e848667c651681efbc910349a6358e1dd620628513c5f3b9508d1b713e077ac1
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c46
+**Content-Hash**: 0255f6f44c3827f85e620e6a3bff159ea4596e13803fb8df469f105ea9d32ee0
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c67
+**Content-Hash**: f238d1bac209ff35c49c17980c1ffa597e19dba18a0b5cf1d89b7de5941b0f95
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c68
+**Content-Hash**: ab279df176f33cbbc20ac8266c9c387822471f3f97ccd950e3c9ba070d0ea90a
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c102
+**Content-Hash**: c9fb0f0e395c7cd777c13b834cac44ce9c99c46f51e88cc49b2d871d53922a6a
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c104
+**Content-Hash**: 5819d2fcf5861baff1fd3916231c5dfd129a0d40c47cbea3456d338ce1d4c1ed
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-22T12:33:12Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c71
+**Content-Hash**: b34efa1c024054ac22375e64b87d9923f3c7953987714bb76a1064f912950bb0
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0690aac9
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FAILED
+**Fire id**: 0690aac9
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-0690aac9.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 25ae4bce
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FAILED
+**Fire id**: 25ae4bce
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-25ae4bce.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: ff465982
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: ff465982
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 566b0185
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 566b0185
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 93ab06a9
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FAILED
+**Fire id**: 93ab06a9
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-93ab06a9.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: d2fe95d3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FAILED
+**Fire id**: d2fe95d3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-d2fe95d3.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4868f066
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4868f066
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/functional-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2e00cb09
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2e00cb09
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: cf2aaebd
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FAILED
+**Fire id**: cf2aaebd
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-cf2aaebd.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4f2f174a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4f2f174a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-4f2f174a.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: c2742a69
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: c2742a69
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/functional-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0f93f27f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0f93f27f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/traceability.json
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1b033b46
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/frontend-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1b033b46
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/frontend-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: d34b399e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FAILED
+**Fire id**: d34b399e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-d34b399e.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: a54d0c03
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: a54d0c03
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-a54d0c03.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 086106c6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 086106c6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/functional-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4534687c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4534687c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: e65d8e21
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: e65d8e21
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-e65d8e21.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 67171678
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: 67171678
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-67171678.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 714b161e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 714b161e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: fa69d5be
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: fa69d5be
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: af9cb589
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: af9cb589
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/entities.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6dc80ff6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6dc80ff6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/rules.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7318cf9c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7318cf9c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/functional-spec.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 07ef294b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 07ef294b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 169a4227
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 169a4227
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/entities.md
+**Duration ms**: 49
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 71164516
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 71164516
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/rules.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: a9fe188a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: a9fe188a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 088dd01a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 088dd01a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/traceability.json
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: fab0926a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FAILED
+**Fire id**: fab0926a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-fab0926a.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0ad32aed
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FAILED
+**Fire id**: 0ad32aed
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-0ad32aed.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: d2a4b583
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: d2a4b583
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: c64d58b2
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: c64d58b2
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9a3fa91e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FAILED
+**Fire id**: 9a3fa91e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-9a3fa91e.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 508e4adf
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FAILED
+**Fire id**: 508e4adf
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/261002-veridicus-mvp/.aidlc-engine/sensors/functional-design/required-sections-508e4adf.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: eb4f315a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: eb4f315a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: fb1bb21e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: fb1bb21e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5a3392ce
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5a3392ce
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/entities.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: fc0e1b4e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: fc0e1b4e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/rules.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7522f3a3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7522f3a3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-spec.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 14a773dc
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 14a773dc
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0ec3d559
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0ec3d559
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/entities.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2533b9e1
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2533b9e1
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/rules.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0f4598b1
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0f4598b1
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/functional-spec.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 63c32d41
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 63c32d41
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 77ffc996
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 77ffc996
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/entities.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0c527754
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0c527754
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/rules.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: af212ee4
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: af212ee4
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3426001c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3426001c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/traceability.json
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 293c54fe
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 293c54fe
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/entities.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 92aa4015
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 92aa4015
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 31df56e8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 31df56e8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/functional-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 353c5fb7
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 353c5fb7
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: e73fb91b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: e73fb91b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/entities.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 79d8dd22
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 79d8dd22
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/rules.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: bf16b961
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: bf16b961
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: cf992afb
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: cf992afb
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9c4cd193
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9c4cd193
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/entities.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: bcbc4620
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: bcbc4620
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/rules.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 906dd762
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 906dd762
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 18bdf7db
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 18bdf7db
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/traceability.json
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: f5055484
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/frontend-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: f5055484
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/frontend-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3279ff40
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3279ff40
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/entities.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0004e9e9
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0004e9e9
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/rules.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 23f62a8a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 23f62a8a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: ab891b15
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: ab891b15
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/traceability.json
+**Duration ms**: 57
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8d4a72e3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8d4a72e3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/entities.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 96c860b9
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 96c860b9
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/rules.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 30472072
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 30472072
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: c6b9c9fb
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: c6b9c9fb
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3b84743b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3b84743b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/entities.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 07094f5d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 07094f5d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/rules.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9ffa1a3f
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9ffa1a3f
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4ba72a64
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4ba72a64
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: b3437539
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: b3437539
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/entities.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: b9a3a45c
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: b9a3a45c
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/rules.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 09a3eef8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 09a3eef8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-spec.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5e71bf53
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5e71bf53
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/traceability.json
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: e60c3381
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: e60c3381
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/entities.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6a3637a2
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6a3637a2
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/rules.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 015de224
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 015de224
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/functional-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: ffbb99a1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: ffbb99a1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/functional-design/traceability.json
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 95bf18e8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 95bf18e8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/entities.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8fa887f3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8fa887f3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/rules.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8b8a7298
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8b8a7298
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/functional-spec.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 053b0df3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 053b0df3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5c127c67
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5c127c67
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/entities.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: d6891c0a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: d6891c0a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/rules.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: adb5139e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: adb5139e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-spec.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2dcd96f3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2dcd96f3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 418ec779
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 418ec779
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/entities.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 340d855a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 340d855a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/rules.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 97eb9dd1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 97eb9dd1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/functional-spec.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: e619326d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: e619326d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 21ae2877
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 21ae2877
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/entities.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 53566dfd
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 53566dfd
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/rules.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2635874c
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:29Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2635874c
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/functional-spec.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-22T12:33:29Z
+**Event**: SENSOR_FIRED
+**Fire id**: cf4f9a24
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-22T12:33:29Z
+**Event**: SENSOR_PASSED
+**Fire id**: cf4f9a24
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/functional-design/traceability.json
+**Duration ms**: 50
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-22T12:33:29Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: functional-design
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T12:33:43Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-11-22T12:33:47Z
+**Event**: GATE_APPROVED
+**Stage**: functional-design
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-11-22T12:33:47Z
+**Event**: STAGE_COMPLETED
+**Stage**: functional-design
+**Validation Basis**: {"graphContract":"sha256:c0dd0abcf729725dd1610dbd62efc46a49c3d6e3d7efed0cf53a65f7d271fd9e","inputs":[{"artifact":"components","contentHash":"sha256:ee5eadcccc93c8742308365bde528a87db201765bd7daf224f5b65cc1ad852f6","instanceCount":1,"presentCount":1,"producer":"domain-design","required":true,"structureHash":"sha256:cd3677f334aeb73a32eb1b3af048e8fb8c33e42ccdb1d3a6075f83ef6db5cfe0"},{"artifact":"contract-summary","contentHash":"sha256:934d2caf72a8d31cb38ac58b3eee5a1ed8b389fd86e9e8b45b75463a6339b8fd","instanceCount":1,"presentCount":1,"producer":"contract-design","required":false,"structureHash":"sha256:8041781712773965520b7af8f254e4cf15144012b4b1c037fe33deb650af9f1a"},{"artifact":"requirements","contentHash":"sha256:4aef96f35affbf793c4dc7443d68fcc688b35bdb58c7623850eeb63aa2ea001c","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:6a7de19ce3ecefefb7d8bf5838bb61ed5aa4b238b53809e7a88bbfc1f481bb9f"},{"artifact":"unit-of-work-story-map","contentHash":"sha256:8fdae12c2234cbedc4b21fb591ede5ee88b4c9baf4e88041b80b2278ee19c44c","instanceCount":1,"presentCount":1,"producer":"units-generation","required":false,"structureHash":"sha256:f3ceaec4e0e564497b9a1d87652a2bb14cc76a951a88ec49dedc1e8ebef5c1d9"},{"artifact":"unit-of-work","contentHash":"sha256:f64f7a22dbef076c10507fbda0b37996d636a5849baa9f0935bd38151fd688a6","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:30b83745862cbad365814d36d84395d52c6ee8f0edf8cd143b1f1a7a0be579d5"}],"outputs":[{"artifact":"entities","contentHash":"sha256:f8d87b439062a4e5f565a65d61710635ce4f7eaead51cc0fc523a940a1f4b3c1","instanceCount":12,"presentCount":12,"producer":"functional-design","required":true,"structureHash":"sha256:b02b4652fce1e3077b15ab1067042d2b6713e8ccf5be2466454b98f46ea8be49"},{"artifact":"frontend-components","contentHash":"sha256:30e32235109465f9374dc1a04504134ca9a0ec02c973005079f3526d887642e8","instanceCount":1,"presentCount":1,"producer":"functional-design","required":false,"structureHash":"sha256:5946ba991b45ec3b1c2b2f0b70ddcb5817c55a91594d601cd8a9617250ca640b"},{"artifact":"functional-spec","contentHash":"sha256:ff799225215659225ebd13694b8b490b423a336ac1c72754c62accd58d619d0b","instanceCount":12,"presentCount":12,"producer":"functional-design","required":true,"structureHash":"sha256:ed50eab7b362a2306e9d8e7738e5e62002f540326c307760696098809bf685d6"},{"artifact":"rules","contentHash":"sha256:03bba81db3da40c12a38cd4d735d28cae90f31b43c8c8b1991c093264c624b83","instanceCount":12,"presentCount":12,"producer":"functional-design","required":true,"structureHash":"sha256:ccef3dc8c81cf255636dbd5d217b61f850c08af70849786b24cd4e6ddda99a9b"},{"artifact":"traceability","contentHash":"sha256:b50ccee79ff2db4e1ce1e75465956f2858c2530cd50cee5c6242a85505c7719a","instanceCount":12,"presentCount":12,"producer":"functional-design","required":true,"structureHash":"sha256:fc56a9910668e362b6748c457b0bfc75f08e8302dd7e21c46c4ef7c56c507f9e"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Functional Design approved by gate
+**Tokens In**: 2828
+**Tokens Out**: 1665624
+**Cache Read**: 281685943
+**Cache Write**: 10183550
+**Cost USD**: 249.18
+**By Model**: opus-5=240.31; sonnet-5=8.87
+**By Agent**: main=80.55; aidlc-architecture-reviewer-agent=8.87; aidlc-architect-agent=159.76
+**Tokens By Model**: opus-5=2.7k/1.6M/269.7M/9.2M; sonnet-5=162/93.8k/12M/1M
+**Tokens By Agent**: main=874/320k/97.3M/2.4M; aidlc-architecture-reviewer-agent=162/93.8k/12M/1M; aidlc-architect-agent=1.8k/1.3M/172.3M/6.8M
+
+---
+
+## Stage Start
+**Timestamp**: 2026-11-22T12:33:47Z
+**Event**: STAGE_STARTED
+**Stage**: nfr-requirements
+**Agent**: aidlc-architect-agent
+
+---

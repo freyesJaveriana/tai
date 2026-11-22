@@ -18641,3 +18641,127 @@
 **Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T04:12:33Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U7 segunda pasada: P5 descarga frente a exportación, P6 página en Markdown, P7 finalizar sesión importada, P8 exportar versión no vigente
+**Options**: A,B,C,X
+**Unit**: forensic-report
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T04:13:45Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T04:13:53Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: P5=A, P6=A, P7=A, P8=A
+**Unit**: forensic-report
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T04:14:01Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-design-questions.md
+**Context**: construction > forensic-report > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T04:14:03Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-design-questions.md
+**Context**: construction > forensic-report > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T04:14:04Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-design-questions.md
+**Context**: construction > forensic-report > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T04:14:05Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/functional-design/functional-design-questions.md
+**Context**: construction > forensic-report > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T04:14:09Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U9 segunda pasada: P4 audio autorizado, P5 turnos durante una transcripción, P6 transcripción al terminar o retirar, P7 texto que se convierte en voz
+**Options**: A,B,C,D,X
+**Unit**: voice
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T11:54:04Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T11:54:32Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: P4=A, P5=B, P6=C, P7=A
+**Unit**: voice
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T11:54:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-design-questions.md
+**Context**: construction > voice > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T11:54:37Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-design-questions.md
+**Context**: construction > voice > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T11:54:38Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-design-questions.md
+**Context**: construction > voice > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T11:54:40Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/functional-design/functional-design-questions.md
+**Context**: construction > voice > functional-design > functional-design-questions.md
+
+---

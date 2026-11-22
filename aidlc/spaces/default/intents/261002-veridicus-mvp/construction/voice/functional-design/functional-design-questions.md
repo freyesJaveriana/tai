@@ -177,7 +177,7 @@ D. **Como A, y además el dueño lo puede descargar.** Una ruta nueva de C1, sol
    registro de acceso (VE-11).
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ## P5 — Turnos enviados mientras uno de voz se transcribe (R-02)
 
@@ -198,7 +198,7 @@ C. **La corrida del turno de voz mira hacia adelante.** Al llegar el texto de *n
    pero cambia la regla de U4 «turnos 1..*n*» (precisión a U4 y a la regla 2 de C6).
 X. Other (please specify)
 
-[Answer]:
+[Answer]: B **Mode:** guided
 
 ## P6 — Turno de voz en transcripción cuando se termina la sesión o se retira el consentimiento
 
@@ -216,7 +216,7 @@ C. **Depende del motivo.** Con la terminación se transcribe como en A, porque l
    parar y su audio no se procesa más. (Recomendada)
 X. Other (please specify)
 
-[Answer]:
+[Answer]: C **Mode:** guided
 
 ## P7 — Qué texto se convierte en voz
 
@@ -234,4 +234,4 @@ C. **El analista redacta la frase.** Al aprobar, escribe la pregunta, que se val
    validación es la misma.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided

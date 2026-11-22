@@ -213,7 +213,7 @@ C. **Como está en C1.** `/download` sin marca para todos los analistas y el `ad
    AC15.8.1, porque contradice su `403`.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ## P6 — Qué es una «página» en un reporte Markdown
 
@@ -233,7 +233,7 @@ C. **Saltos de página marcados en el Markdown** (un separador cada N líneas qu
    salto). Las «páginas» solo existen si el lector usa ese conversor.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ## P7 — Cómo se finaliza y se consolida una sesión importada
 
@@ -254,7 +254,7 @@ C. **Una transición nueva `open → consolidated`** solo para importadas, sin p
    de MTTV. Es más simple, pero el historial de la sesión no tiene finalización.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ## P8 — Si se puede exportar una versión que ya no es la vigente
 
@@ -270,4 +270,4 @@ B. **Solo la vigente.** Las anteriores se ven en la lista con su SHA-256, pero e
 C. **Cualquier versión, sin rótulo.** La exportación es igual para todas las versiones.
 X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided

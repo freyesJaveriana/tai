@@ -5,16 +5,19 @@
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 
 - 2026-10-03T03:36:12Z — La marca del lote de P1 = A se vigila con WATCH además de MULTI/EXEC; sin WATCH, dos reenvíos simultáneos podían ver la marca ausente y publicar ambos el lote.
+- 2026-11-22T16:45:56Z — Segunda pasada sin preguntas: la contradicción sobre Redis caído (los requisitos de U6 dicen que la lista y la importación siguen; U3 deja la consola fuera de servicio por /readyz) se resolvió con la decisión de U3 y quedó como NFRD-U6-08.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
 - 2026-10-03T03:36:12Z — El conteo de pendientes de la lista pasa a una vista de solo lectura de U5 (human_review.session_pending_suggestions) en vez del LEFT JOIN a sus tablas de D9; quedó en la tabla de precisiones de reliability-design; los límites nuevos del catálogo de U1 están en la de security-design.
+- 2026-11-22T16:45:56Z — La marca de lote con WATCH (P1 = A) queda Retirada: BR2.5 de la revisión 2 no republica en el reenvío y la publicación fallida la cierra el supervisor de U4 (NFRD-U6-13).
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 
 - 2026-10-03T03:36:12Z — El latido se omite si la fila de la sesión está bloqueada (SKIP LOCKED) y no incrementa change_seq; el sondeo nunca espera un pegado, a cambio de que una escritura en curso retrase el latido hasta el siguiente sondeo.
+- 2026-11-22T16:45:56Z — El pegado divide y valida fuera del bloqueo de la sesión y solo comprueba e inserta bajo change_cursor.bump: el bloqueo dura ≤ 1 s con 2 000 turnos y no hace fallar una decisión de U5 por lock_timeout (cierra R-03), a cambio de comprobar las cifras dos veces.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

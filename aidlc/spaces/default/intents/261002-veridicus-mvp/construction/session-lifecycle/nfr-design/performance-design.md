@@ -1,18 +1,27 @@
 # Diseño de rendimiento — U6 session-lifecycle
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`security-requirements.md` (security-requirements), `scalability-requirements.md`
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01 (DT27), la adenda 02 y el NFR Requirements
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **Qué cambia.** El pegado sube de 200 turnos a 2 000 y crea una sola corrida; el plazo por turno sale
+  (lo calcula U4). §5 (versiones de escenario) queda «Retirado». Lo nuevo: importación (§8), modo final
+  (§9) y pausa, terminación y retirada (§10).
+- **Hallazgo R-02 de la revisión 1** (margen nulo del turno 60): desaparece con NFR3.10 y NFR3.11
+  «Retirado».
+
+**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements: NFR3.1–NFR3.17,
+NFR8.1), `security-requirements.md` (security-requirements), `scalability-requirements.md`
 (scalability-requirements), `reliability-requirements.md` (reliability-requirements),
 `observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
-(tech-stack-decisions, D1–D10) de esta unidad; flujos F1–F6 de `functional-design/functional-spec.md`
-(functional-spec); C1, C2, C4 y C10 de `inception/contract-design/contract-summary.md`
-(contract-summary); respuestas P1–P2 de `nfr-design-questions.md`; diseño de U4 (cursor `change_seq`,
-trabajador de `session-api`, plazos), U1 (catálogo de límites) y U3 (`authorize`).
+(tech-stack-decisions: D1–D6, D9–D12); flujos F2–F9 de `functional-design/functional-spec.md`
+(functional-spec) y BR5.3 de `functional-design/rules.md`; C1, C2, C11 y C25 de
+`inception/contract-design/contract-summary.md` (contract-summary); NFR Design de U4 (sondeo, *pool*,
+`RunEnqueuer`, carga completa) y de U1 (C25 v1).
 
-Todas las metas se diseñan para el **perfil CPU** (NFR2.2), con PostgreSQL y Redis reales. U6 no llama a
-ningún modelo: el costo de los turnos pegados en el juez es el de U4.
+Todas las metas se diseñan para el **perfil CPU** (NFR2.2) en la máquina de desarrollo, con PostgreSQL y
+Redis reales y el *fake* de C17. Las pruebas `perf` de nivel 1 miden con `time.perf_counter` alrededor de
+la llamada HTTP en proceso. U6 no llama a ningún modelo.
 
-## 1. Pegar una transcripción (NFR3.1, NFR3.10)
+## 1. Pegar un bloque (NFR3.1) · cambia
 
 ```mermaid
 sequenceDiagram
@@ -21,118 +30,138 @@ sequenceDiagram
   participant P as PostgreSQL
   participant R as Redis
   C->>A: POST transcript con text y client_request_id
-  A->>A: Lectura acotada del cuerpo y division BR2.1
-  A->>P: BEGIN y SELECT sesion FOR UPDATE
-  A->>P: COUNT de turnos en cola del sistema
-  A->>P: INSERT de varias filas de turnos y TranscriptPaste, change_seq mas 1
+  A->>A: Lectura acotada, division BR2.1 y cifras del bloque
+  A->>P: Busca el lote por client_request_id
+  A->>P: BEGIN y change_cursor.bump de la sesion
+  A->>P: INSERT de turnos en lotes de 500 y TranscriptPaste
+  A->>P: RunEnqueuer crea una corrida y serializa C2
   A->>P: COMMIT
-  A->>R: WATCH marca, MULTI, XADD por turno testimony, SET marca, EXEC
-  A-->>C: 202 con los turnos
+  A->>R: XADD veridicus runs
+  A-->>C: 202 con turns y run
 ```
 
-<!-- Texto alternativo: la consola envía el texto completo con su client_request_id. La API lee el cuerpo con un tope, lo divide con la regla BR2.1 y abre una transacción que bloquea la fila de la sesión, cuenta los turnos en cola del sistema, inserta todos los turnos en una sola sentencia junto con el TranscriptPaste e incrementa una vez el change_seq. Tras confirmar, publica en Redis los turnos de testimonio en orden y la marca del lote en una sola transacción MULTI/EXEC vigilada con WATCH, y responde 202 con los turnos. -->
+<!-- Texto alternativo: la consola envía el texto con su client_request_id. La API lee el cuerpo con tope, divide con BR2.1 y comprueba las cifras del bloque sin tocar la base. Busca si el lote ya existe. Luego abre la transacción con change_cursor.bump de la sesión, inserta los turnos en lotes de 500 y el TranscriptPaste, y RunEnqueuer crea una sola corrida y serializa su mensaje C2. Confirma, publica en veridicus:runs y responde 202 con los turnos y la corrida. -->
 
-| Tramo | Presupuesto (peor caso: 200 turnos, 100 000 caracteres) | Técnica |
+| Tramo | Presupuesto con el bloque máximo (2 000 turnos, 250 000 caracteres) | Técnica |
 |---|---|---|
-| Lectura del cuerpo | ≤ 50 ms | Lectura por bloques con corte a 524 288 bytes (security-design §2) |
-| División y validación | ≤ 100 ms | Código puro en `domain/` de InterviewSession; un recorrido lineal por líneas, sin expresiones regulares con retroceso |
-| Transacción | ≤ 1 200 ms | Una sola ida y vuelta por tipo de fila: un `INSERT … VALUES` de varias filas para los turnos (D4) y uno para `TranscriptPaste`; `change_seq` se incrementa **una vez** por pegado y todas las filas nuevas llevan ese valor |
-| Publicación | ≤ 300 ms | Un único `pipeline` de `redis-py` con `WATCH`/`MULTI`/`EXEC` (reliability-design §2): 60 `XADD` y un `SET` en una ida y vuelta |
-| Respuesta | ≤ 200 ms | Serializar los turnos creados, sin volver a leerlos de la base |
+| Lectura del cuerpo | ≤ 60 ms | Lectura por bloques con corte en `transcript_body_max_bytes` |
+| División y validación | ≤ 200 ms | Código puro en `interview/domain/transcript_split.py`; un recorrido por líneas sin expresiones con retroceso; la normalización de D6 solo sobre la cabecera candidata de cada línea |
+| Búsqueda del lote | ≤ 10 ms | Índice único (`session_id`, `client_request_id`) |
+| Bajo el bloqueo de la sesión | ≤ 1 000 ms | `bump`, comprobaciones, 4 `INSERT … VALUES` de 500 filas, `TranscriptPaste`, corrida y C2 con `orjson` (DS1) |
+| `XADD` | ≤ 150 ms | Un mensaje, *timeout* 0,5 s |
+| Respuesta | ≤ 150 ms | Turnos creados serializados desde memoria con `orjson`, sin releerlos |
 
-Con 15 turnos el mismo camino cabe holgado en 500 ms. La transacción respeta el *timeout* de 5 s de
-NFR10.9 (reliability-design §1).
+Con 60 turnos el mismo camino queda en ≤ 300 ms (meta p95 ≤ 500 ms). La prueba `perf` mide además el
+tiempo entre `bump` y `COMMIT` (p95 ≤ 1 000 ms), del que depende `reliability-design.md` §10.
 
-**Plazos de los turnos pegados (NFR3.10).** Dentro de la transacción se calcula `n₀` con
-`SELECT count(*) FROM turn WHERE status IN ('queued','processing')` (el índice parcial de U4 sobre ese
-estado) y cada turno de testimonio *k* recibe `deadline_at = enqueued_at + 300 s × (1 + n₀ + k − 1)`,
-con tope de 3 600 s, en la misma sentencia de inserción. La función es pura (`domain/deadlines.py`,
-compartida con U4) y la prueba de nivel 0 cubre `n₀ = 0` (turnos 1, 2, 12 → 300, 600, 3 600 s) y
-`n₀ = 5` (turno 1 → 1 800 s). Los turnos `interviewer` no reciben plazo.
+**Plazo (NFR3.10 Retirado).** U6 no calcula plazos: el de la corrida lo pone `RunEnqueuer` con
+`domain/deadline.py` de U4.
 
-## 2. Latido dentro del sondeo (NFR3.3, NFR3.8; P2 = A)
+## 2. Latido dentro del sondeo (NFR3.3, NFR3.8; P2 = A) · cambia
 
-El sondeo `GET /sessions/{id}?since` de U4 conserva su lectura sin cambios. El latido se escribe
-**después** de leer, en una transacción corta aparte, sin esperar ningún bloqueo:
+El sondeo `GET /sessions/{id}?since` de U4 lee en su transacción `REPEATABLE READ READ ONLY`. Después de
+leer, si quien llama es el dueño, `HeartbeatWriter` ejecuta en una transacción corta aparte:
 
 ```sql
-UPDATE interview_session s
-   SET last_heartbeat_at = veridicus_now()
+UPDATE interview_session s SET last_heartbeat_at = now()
  WHERE s.id = (SELECT id FROM interview_session
-                WHERE id = :session_id AND owner_user_id = :user_id
-                  AND status = 'open'
+                WHERE id = :session_id AND owner_user_id = :user_id AND status = 'open'
                   AND (last_heartbeat_at IS NULL
-                       OR last_heartbeat_at <= veridicus_now()
-                          - make_interval(secs => :write_min_s))
+                       OR last_heartbeat_at <= now() - make_interval(secs => :write_min_s))
                 FOR UPDATE SKIP LOCKED);
--- Sin change_seq: el latido no es un cambio que la consola muestre.
+-- Sin change_cursor: el latido no cambia nada visible (D1).
 ```
 
-- `veridicus_now()` devuelve `now()` y, solo en pruebas, la hora inyectada en la sesión de base de datos
-  (D3).
-- Si la fila está bloqueada por otra escritura de la sesión (encolar, ingerir, pegar), el latido se omite:
-  esa escritura dura ≤ 5 s y el siguiente sondeo (2 s o 15 s) vuelve a intentarlo. El sondeo nunca espera
-  un bloqueo, así que su p95 ≤ 200 ms de U4 no depende de que haya un pegado en curso.
-- Sin condición cumplida (no es el dueño, no está `open` o el valor tiene < 15 s), la sentencia no toca
-  ninguna fila: una lectura del índice primario.
+- `now()` es la hora de la base; en pruebas, la del reloj inyectable (D3).
+- Fila ocupada: el latido se omite y el sondeo responde igual; nunca espera, así que su p95 ≤ 200 ms no
+  depende de un pegado en curso. Sin condición cumplida, la sentencia lee el índice primario y no escribe.
 - `POST /sessions/{id}/heartbeat` ejecuta la misma sentencia y responde `204`; meta p95 ≤ 100 ms.
-- La prueba de nivel 1 de NFR3.3 cuenta ≤ 1 `UPDATE` efectivo por cada 15 s de reloj con 200 sondeos
-  cada 2 s, y mide el p95 del sondeo con un pegado de peor caso en paralelo.
+- Prueba `perf`: 200 sondeos del dueño cada 2 s con reloj controlado → ≤ 1 escritura cada 15 s; variante
+  con otra transacción que retiene la fila 3 s → p95 del sondeo ≤ 200 ms y ese latido omitido.
 
-## 3. Revisión de suspensión (NFR3.7, NFR3.9; P2 = A)
+## 3. Revisión de suspensión (NFR3.7, NFR3.9) · cambia
 
-La tarea `SuspensionSweeper` del trabajador de `session-api` corre cada
-`VERIDICUS_SUSPENSION_SWEEP_SECONDS` (30 s) una sola sentencia que elige, bloquea sin esperar y
-suspende (sentencia completa en reliability-design §3).
-
-- **Índice parcial de expresión**: `CREATE INDEX … ON interview_session
-  ((COALESCE(last_heartbeat_at, created_at))) WHERE status = 'open'`. Con 500 sesiones y 50 abiertas,
-  la sentencia recorre solo las abiertas; meta p95 ≤ 100 ms (prueba `perf` de nivel 1).
-- **Bordes de tiempo**: con *T* = 180 s y revisión cada 30 s, una sesión sin latido pasa a `suspended`
-  entre 180 y 210 s después de su `last_heartbeat_at`; con 179 s no. Contado desde el último sondeo
+- **Índice parcial de expresión**: `CREATE INDEX … ON interview_session ((COALESCE(last_heartbeat_at,
+  created_at)), id) WHERE status = 'open'`. La lectura de candidatos solo recorre las sesiones abiertas:
+  p95 ≤ 100 ms con 500 sesiones y 50 abiertas (prueba `perf`).
+- **Por sesión vencida**, una transacción de ≤ 20 ms (`reliability-design.md` §3). Una vuelta con 50
+  vencidas (peor caso) dura ≤ 1 s, muy por debajo del intervalo de 30 s.
+- **Bordes.** Con *T* = 180 s y revisión cada 30 s, una sesión pasa a `suspended` entre 180 y 210 s después
+  de `coalesce(last_heartbeat_at, created_at)`; con 179 s no; una `paused` nunca. Desde el último sondeo
   real, entre 165 y 210 s por la escritura acotada del latido (NFR3.8). Prueba de nivel 1 con reloj
-  controlado en ambos bordes.
+  controlado en los bordes.
 
-## 4. Lista de sesiones y reanudación (NFR3.2, NFR3.4)
+## 4. Lista de sesiones y reanudación (NFR3.2, NFR3.4) · cambia
 
 | Operación | Diseño | Meta |
 |---|---|---|
-| `GET /sessions` | Una sola consulta: sesiones con `JOIN` a versión, escenario y usuario, más `LEFT JOIN` a la vista de solo lectura `human_review.session_pending_suggestions` (precisión en reliability-design §7), ordenada por `created_at DESC`; filtro `status` opcional en `WHERE`; índice `(created_at DESC)` | p95 ≤ 300 ms con 500 sesiones; ≤ 2 sentencias (la del `authorize` de U3 y esta); respuesta ≤ 200 KB porque `SessionSummary` no lleva texto |
-| `POST /sessions/{id}/resume` | Una transacción: `UPDATE … WHERE id = :id AND status = 'suspended' RETURNING`, `INSERT` del `SessionStatusChange` y lectura de la `SessionView` completa (cursor nulo) con los índices `(session_id, change_seq)` de U4 | p95 ≤ 300 ms con 60 turnos |
+| `GET /sessions` | Sentencia 1: sesiones con `JOIN` al dueño y `LEFT JOIN` al consentimiento (retirada), filtro `status` opcional, `ORDER BY created_at DESC` sobre el índice `(created_at DESC)`. Sentencia 2: `pending_counts(uow, session_ids)` de C11 por lotes (NFRD-U6-04). `SessionSummary` cerrado, serializado con `orjson` | p95 ≤ 300 ms y ≤ 200 KB con 500 sesiones; una prueba cuenta ≤ 2 sentencias SQL en la ruta (la sesión web de U3 vive en Redis) |
+| `POST /sessions/{id}/resume` | `bump` → `UPDATE … WHERE status = 'suspended'` → historial → `COMMIT`. Responde la `SessionView` con lo que cambió desde el cursor previo a la transición: estado, la fila del historial y el cursor nuevo (NFRD-U6-19). La consola la aplica como *upsert* y luego pide la vista completa | p95 ≤ 300 ms con una sesión de 2 000 turnos, porque no serializa los turnos |
 
-La reanudación sí espera el bloqueo de la fila (es una acción del dueño y la espera máxima es la de una
-escritura en curso, acotada por el `statement_timeout` de 2 s).
+## 5. Versiones nuevas de un escenario · Retirado
 
-## 5. Versiones nuevas de un escenario (NFR3.5, NFR9.1)
+Sale US1.2 con el marco documental (cambio 01; NFR3.5 y NFR9.1 Retirado).
 
-- `POST /scenarios/{id}/versions` reutiliza el cargador de U4: lectura por bloques con corte a
-  1 048 576 bytes, SHA-256 calculado mientras se lee (sin segunda pasada), comprobación de duplicado
-  por el índice único de `source_sha256`, fila en `indexing` con `version_number` siguiente y mensaje C4
-  publicado tras confirmar. Meta p95 ≤ 2 000 ms con 1 MB.
-- El número siguiente se toma con `SELECT max(version_number) … FOR UPDATE` sobre la fila del
-  `Scenario`; la restricción única `(scenario_id, version_number)` es la red de seguridad.
-- La indexación es la de U4 sin código propio: el mensaje se valida contra C4 y la versión de 1 MB queda
-  `ready` en < 180 s, medido en la corrida de nivel 2 de U4.
+## 6. Consola: vista previa, validación del archivo y progreso (NFR3.6, NFR3.14, NFR3.12) · cambia
 
-## 6. Consola: vista previa y progreso (NFR3.6, NFR3.12)
+- **Vista previa del pegado (NFR3.6).** La división en TypeScript recorre el texto una vez por líneas con
+  `speaker-markers.v1.yaml` y las cifras de `contracts/ts/`: ≤ 300 ms para 250 000 caracteres (Vitest con
+  `performance.now()`). La lista se virtualiza a partir de 200 filas, como la de turnos de U4: 2 000
+  turnos se pintan en ≤ 1 s. 0 peticiones al pulsar «Continuar», «Volver a editar» y «Cancelar».
+- **Validación del archivo (NFR3.14, D12).** Un Web Worker comprueba `file.size` frente a
+  `import_file_max_bytes` antes de leer (un archivo mayor se rechaza sin leerlo), lo decodifica, lo analiza
+  y lo valida con ajv compilado de `contracts/ts/`, con la misma tabla de mensajes que el servidor. Con
+  2 MiB y 2 000 turnos: ≤ 1 500 ms fuera del hilo principal; un temporizador de 50 ms del hilo principal
+  no se retrasa más de 100 ms. 0 peticiones hasta «Importar».
+- **Progreso (NFR3.12).** El cronómetro mm:ss es un temporizador local de 1 s por corrida visible, sin
+  peticiones; la etapa llega con el sondeo de `poll_interval_active_s` (2 s). «N ventanas» se calcula en la
+  consola con `Run.fragmentado` (ventana y solapamiento que `session-api` fija al crear la corrida final,
+  NFRD-U6-18) y la misma función de cuenta que U11, probada con los mismos ejemplos: ninguna llamada
+  extra. Meta ≤ 3 s del cambio en el servidor a la pantalla (Vitest con temporizadores falsos y Playwright
+  de nivel 3 con el *fake* de C17).
 
-- **Vista previa.** La división en TypeScript recorre el texto una vez por líneas, con las etiquetas y
-  los límites leídos del archivo compartido de D5; no hay estado de red en el diálogo. Meta ≤ 200 ms
-  para 100 000 caracteres (Vitest con `performance.now()`) y 0 peticiones al pulsar «Continuar» y
-  «Cancelar».
-- **Lista de la vista previa.** Hasta 200 filas se pintan de una vez (sin virtualización); cada fila es
-  un componente memoizado por índice.
-- **Progreso del turno.** El cronómetro mm:ss es un temporizador local de 1 s por TurnItem visible que
-  no provoca peticiones; la etapa llega con el sondeo de 2 s de U4. Meta ≤ 3 s del cambio en el servidor
-  a la pantalla (Vitest con temporizadores falsos y Playwright de nivel 3 con el *fake* del juez).
-
-## 7. Pegado máximo y recursos (NFR3.11, NFR8.1)
+## 7. Recursos (NFR8.1) · cambia
 
 | Aspecto | Diseño | Verificación |
 |---|---|---|
-| 60 turnos de testimonio con la cola vacía | Plazos de §1 (el turno 60 recibe el tope de 3 600 s); los turnos se publican en orden en una sola transacción de Redis, así que el juez los atiende seguidos | Corrida de nivel 2 a demanda: 60 `evaluated`, 0 `turn.error.timeout` |
-| RSS de la API | El cuerpo se lee una vez (≤ 512 KiB); la división produce una lista de ≤ 200 turnos y no copia el texto entero más de una vez | Pico de RSS ≤ +50 MiB durante la prueba de NFR3.1 |
-| RSS del trabajador | La revisión de suspensión no guarda nada en memoria: solo los identificadores devueltos | El tope de 768 MiB del trabajador (U4) se mantiene en la corrida de NFR8 de U4 |
+| RSS de la API | El cuerpo se lee una vez; la división produce la lista de turnos sin copiar el texto entero más de una vez; el archivo vive en un `bytearray` que se suelta tras el `COMMIT` | Pico ≤ +100 MiB durante NFR3.1 y NFR3.13 con el máximo |
+| RSS del trabajador | `SessionSupervisor` solo guarda identificadores | El tope del trabajador que fija U4 se mantiene en la corrida de NFR8 |
 
-Si la corrida de 60 turnos falla en CPU, se resuelve por PR (perfil GPU o bajar el límite del catálogo),
-nunca subiendo el tope del plazo.
+El pegado de 60 turnos con cola vacía de la revisión 1 (NFR3.11) queda «Retirado»: un bloque es una
+corrida y la duración del modo final la mide NFR3.17.
+
+## 8. Importación (NFR3.13) · nuevo
+
+| Tramo | Presupuesto con 2 MiB y 2 000 turnos | Técnica |
+|---|---|---|
+| Rechazo por tamaño | ≤ 500 ms con un cuerpo de 10 MB | `Content-Length` frente a `import_body_max_bytes` antes de leer; sin él, corte del lector; RSS ≤ +20 MiB |
+| Lectura `multipart` | ≤ 100 ms | Lector en memoria de bajo nivel (`security-design.md` §10) |
+| UTF-8, JSON, claves y profundidad | ≤ 150 ms | `json.loads` con `object_pairs_hook` y recorrido iterativo |
+| Esquema de C6 con todos los problemas | ≤ 800 ms | Validador compilado de `veridicus_contracts`; `iter_errors` una sola vez |
+| Consentimiento y perfil | ≤ 20 ms | Registro de perfiles en memoria |
+| Transacción | ≤ 800 ms | Sesión, consentimiento, 4 `INSERT … VALUES` de 500 turnos y estado inicial |
+| Respuesta `201` | ≤ 300 ms | `SessionView` completa desde las filas en memoria con `orjson`, sin releer |
+
+Meta p95 ≤ 3 000 ms con el máximo y ≤ 1 000 ms con 312 turnos (E24); 20 importaciones de cada tamaño con
+archivos sintéticos distintos.
+
+## 9. Modo final (NFR3.15, NFR3.17) · nuevo
+
+- **Lanzar (NFR3.15).** Lectura de la transcripción en `REPEATABLE READ READ ONLY` y armado de la entrada
+  de C6 con `orjson` fuera del bloqueo (≤ 400 ms con 2 000 turnos); bajo el bloqueo, comprobaciones,
+  plazo y filas (≤ 150 ms); `XADD` de ≈ 1,35 MB (≤ 150 ms). Meta p95 ≤ 1 000 ms. No depende del
+  trabajador: la variante con el *fake* de C17 bloqueado da la misma cifra.
+- **Medir la duración (NFR3.17).** `evaluation/session_lifecycle/final_run_max.py`, que lanza el humano a
+  demanda: importa el archivo sintético máximo, lanza el modo final con `comercial-piloto` y con
+  `todo-local`, espera cada corrida hasta su fin y escribe un reporte JSON con una sección por perfil
+  (duración, ventanas, estado final y `run_deadline_final_s` efectivo). El script falla si falta una sección
+  (control negativo). La revisión humana compara duración y plazo y decide (NFR-U6-07).
+
+## 10. Pausa, terminación y retirada (NFR3.16) · nuevo
+
+- Una transacción: `bump`, tabla de transiciones, estado o retirada, y un solo `INSERT … VALUES` con los
+  `RunStatusChange` de todas las corridas vigentes (≤ 50 ms con 20).
+- Tras `COMMIT`, las claves de cancelación en **una** canalización de Redis sin `MULTI` (`CancellationKeys`
+  de U4): 20 `SET` en una ida y vuelta, ≤ 50 ms.
+- Respuesta con lo que cambió desde el cursor previo (NFRD-U6-19). Meta p95 ≤ 500 ms por ruta con 20
+  corridas; la misma prueba comprueba que las 20 claves existen al llegar la respuesta.

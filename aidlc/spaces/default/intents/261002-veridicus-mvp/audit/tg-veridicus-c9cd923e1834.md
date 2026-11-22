@@ -19205,3 +19205,62 @@
 **Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T12:20:17Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U13: P1 Salir del reconocimiento, P2 plazo por defecto, P3 desde cuándo cuenta, P4 quién reduce el plazo
+**Options**: A,B,C,D,X
+**Unit**: ethics-governance
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T12:20:43Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T12:20:48Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: P1=B, P2=A, P3=A, P4=A
+**Unit**: ethics-governance
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T12:20:48Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U13: P5 fecha de corte del Job, P6 reporte de problemas sin sesión, P7 consulta de lo registrado
+**Options**: A,B,C,D,X
+**Unit**: ethics-governance
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T12:21:03Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T12:21:12Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T12:21:19Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: P5=A, P6=A, P7=A
+**Unit**: ethics-governance
+
+---

@@ -123,7 +123,7 @@ API nunca lo rechace. Las fuentes se contradicen en este punto.
   AC15.1.1.
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: B **Mode:** guided
 
 ### P2. Plazo de retención por defecto y sesiones creadas sin plazo
 
@@ -144,7 +144,7 @@ con `retention_days` vacío hasta que llega U13 (FD-U4-22), y el Job tiene que d
   contradice el «máximo por defecto» de VE-12.
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ### P3. Desde cuándo cuenta el plazo y qué sesiones borra el Job
 
@@ -167,7 +167,7 @@ relato (VE-07).
   catálogo para las abiertas. Costo: hay dos reglas que explicar en el acta y en el consentimiento.
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ### P4. Quién reduce el plazo de una sesión y desde dónde (AC15.7.3)
 
@@ -188,7 +188,7 @@ dueño los cambios de la sesión, aunque el plazo no está en esa lista.
   puede reducir el plazo cuando la persona entrevistada lo pide.
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ### P5. Fecha de corte del Job en el clúster y cómo se demuestra
 
@@ -210,7 +210,7 @@ borraría sesiones antes de su plazo, y ese borrado no se puede deshacer.
   evidencia de la prueba de nivel 1.
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ### P6. Reporte de problemas sin sesión
 
@@ -232,7 +232,7 @@ por sesión, nunca borraría su nota, que puede traer testimonio.
   escenario visible.
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided
 
 ### P7. Cómo se consulta lo que registra la demostración
 
@@ -254,4 +254,4 @@ nuevo en el Bolt que se recorta primero, y la demo es en 8 días.
   `psql`.
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A **Mode:** guided

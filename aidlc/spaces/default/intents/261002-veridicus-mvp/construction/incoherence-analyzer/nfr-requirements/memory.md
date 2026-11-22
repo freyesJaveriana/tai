@@ -11,6 +11,7 @@
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
+- 2026-11-22T14:15:13Z — Con el verificador local de P1 = A y la permutación activa en todos los perfiles (FD-U8-08 manda sobre el punto 3 de la sección 2), el N del humo sube de 240 a 300 s y el tope incremental de C25 de 900 a 1200 s, a cambio de que solo Anthropic reciba datos.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

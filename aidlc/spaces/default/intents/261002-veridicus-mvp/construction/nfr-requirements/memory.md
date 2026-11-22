@@ -88,6 +88,14 @@
 - 2026-11-22T13:37:41Z — Segunda pasada: el cambio 01 supera la parte de P1 = A que dejaba el proxy apagado y con un solo destino (FR11.3 MUST, FR14.1 y C13); se conserva el ADR del proveedor como condición para que un modelo entre a ProviderCapabilityTable, sin preguntar.
 <!-- aidlc-wave-memory:anonymizer:bd933289da590e89a01b1c0240799449d0622b8fd9508217ffc5bcc9ae81a10c -->
 
+
+- 2026-11-22T13:58:51Z — U11 es `library`: por el archivo de etapa le tocan security, tech-stack y traceability; se añadirán performance y reliability porque NFR3, NFR8 y los plazos de C25 recaen aquí.
+<!-- aidlc-wave-memory:incoherence-analyzer:78a64f7a9d47d45ade5bfc71fa79b2afaad4eeadb415cf2668bcf876533cbba2 -->
+
+
+- 2026-11-22T13:58:51Z — Las cinco cifras de C25 de la configuración efectiva (plazos por llamada y de corrida, ventana y solapamiento) se leen como de U11, porque C18 dice que U11 decide esos esquemas y B11 es su primer consumidor; el catálogo guarda el máximo (ZINE) y cada despliegue lo baja por entorno.
+<!-- aidlc-wave-memory:incoherence-analyzer:0fd21d38a944880712c78a2a46eef25b4737b831009dccfe99987881fa43f39f -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -238,6 +246,10 @@
 - 2026-11-22T13:51:20Z — Los adaptadores usan httpx directo y no los SDK de los proveedores: los SDK reintentan, fijan su URL base y añaden cabeceras propias, y eso contradice NFR1.8 y NFR10.4.
 <!-- aidlc-wave-memory:anonymizer:5e3b754d9ef36ee9772881a9f78e1d6f8aab5edef1fe21ca8a2456c84648b417 -->
 
+
+- 2026-11-22T14:15:13Z — Con el verificador local de P1 = A y la permutación activa en todos los perfiles (FD-U8-08 manda sobre el punto 3 de la sección 2), el N del humo sube de 240 a 300 s y el tope incremental de C25 de 900 a 1200 s, a cambio de que solo Anthropic reciba datos.
+<!-- aidlc-wave-memory:incoherence-analyzer:6671b64abf902dad0b4aed79e4396e1f2ce399e861706d311098315580738cea -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -276,3 +288,6 @@
 
 - 2026-11-22T13:51:20Z — P2 = A (Anthropic primero) obliga a que el generador del conjunto sintético sea de Google u OpenAI y distinto del verificador (NFR5.2, NFR-U10-07); lo decide U11 al fijar sus perfiles de evaluación.
 <!-- aidlc-wave-memory:anonymizer:492da4d14682f31f5a86422534e68088f494449bb829bc6208ab5f6e6d16aa7e -->
+
+- 2026-11-22T13:58:51Z — Tres preguntas legítimas: verificador de `comercial-piloto` y familia del generador (cambia qué proveedor recibe datos y el alcance de B10; gpt-oss cuenta como línea de OpenAI), umbrales estadísticos del nivel 2 (riesgo de la compuerta) y composición mínima del conjunto (alcance de B11, R8).
+<!-- aidlc-wave-memory:incoherence-analyzer:d6b8120ca9f191f5970f0d233fe38375d223b743ac6594f670ad5d6ef17ffe9f -->

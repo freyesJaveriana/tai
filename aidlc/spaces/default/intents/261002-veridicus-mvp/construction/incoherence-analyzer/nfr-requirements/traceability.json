@@ -1,0 +1,22 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "incoherence-analyzer",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12", "NFR13", "NFR14", "NFR15"],
+  "coverage": [
+    {"id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2, NFR1.3, NFR1.4, NFR1.5, NFR1.6, NFR1.7, NFR1.8 (security-requirements.md)"},
+    {"id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2, NFR2.3 (performance-requirements.md); D6, D7 (tech-stack-decisions.md)"},
+    {"id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2, NFR3.3, NFR3.4, NFR3.5, NFR3.6 (performance-requirements.md)"},
+    {"id": "NFR4", "status": "OK", "target": "NFR4.1 a NFR4.14 (reliability-requirements.md)"},
+    {"id": "NFR5", "status": "OK", "target": "NFR5.1, NFR5.2, NFR5.3, NFR5.4 (security-requirements.md)"},
+    {"id": "NFR6", "status": "OK", "target": "NFR6.1 (reliability-requirements.md)"},
+    {"id": "NFR7", "status": "N/A", "target": "El MTTV es de la revisión humana y del reporte (U5, U7); U11 no tiene consola"},
+    {"id": "NFR8", "status": "OK", "target": "NFR8.1, NFR8.2, NFR8.3 (performance-requirements.md)"},
+    {"id": "NFR9", "status": "N/A", "target": "Retirado por el cambio 01 (DT27) en requirements.md revisión 3"},
+    {"id": "NFR10", "status": "OK", "target": "NFR10.1, NFR10.2, NFR10.3, NFR10.5, NFR10.6, NFR10.7, NFR10.8, NFR10.9, NFR10.14 (security-requirements.md); NFR10.4, NFR10.10, NFR10.11, NFR10.12, NFR10.13, NFR10.15 (reliability-requirements.md)"},
+    {"id": "NFR11", "status": "OK", "target": "NFR11.1, NFR11.2 (security-requirements.md)"},
+    {"id": "NFR12", "status": "OK", "target": "NFR12.1, NFR12.2 (security-requirements.md)"},
+    {"id": "NFR13", "status": "OK", "target": "NFR13.1, NFR13.2, NFR13.3 (reliability-requirements.md)"},
+    {"id": "NFR14", "status": "OK", "target": "tech-stack-decisions.md §4 (D2, glosario y CD-05)"},
+    {"id": "NFR15", "status": "OK", "target": "NFR15.1, NFR15.2 (performance-requirements.md)"}
+  ]
+}

@@ -1,186 +1,324 @@
 # Entidades — U4 text-flow
 
-**Insumos.** Unidad U4 de `inception/units-generation/unit-of-work.md` (unit-of-work) e historias
-asignadas en `unit-of-work-story-map.md` (unit-of-work-story-map); FR2–FR5, NFR10, NFR11 y NFR14 de
-`inception/requirements-analysis/requirements.md` (requirements); componentes TruthFrame,
-InterviewSession, SemanticEvaluation, HumanReview, ModelGateway, IntegrityPolicy y AnalystConsole de
-`inception/domain-design/components.md` (components); contratos C1–C4, C6–C10 y C13–C14 de
-`inception/contract-design/contract-summary.md` (contract-summary); respuestas P1–P5 de
-`functional-design-questions.md`; decisiones de Functional Design de U1 (cita literal «…», lista de 9
-términos, catálogo de rótulos, formato de fecha) y de U3 (convención de auditoría).
+**Revisión 2 (2026-11-21), segunda pasada por el cambio 01 (DT27), la adenda 02 y las revisiones 3 de
+Inception.** Sustituye a la revisión 1 del 2026-10-03. Las entidades que siguen conservan su nombre. Las
+que salen quedan con `status: Retirado` y nombran a su reemplazo, sin borrarlas (regla de `project.md`).
+Las nuevas van al final de su grupo.
 
-**Frontera AUTONOMIA-04.** Todas las entidades persistentes viven en PostgreSQL + `pgvector` dentro del
-clúster; los mensajes viajan por Redis dentro del clúster; el juez y los *embeddings* son servidores
-internos (C14). Ningún dato de esta unidad sale del clúster.
+- **Se mantienen** (cambian de forma): `InterviewSessionRecord` (perfil y huella en lugar de escenario y
+  umbral; consentimiento y bloqueo), `SessionStatusChange` y `Turn` (hablante, página y estado plegado;
+  sin estado de evaluación, que ahora se deriva de las corridas). Origen: cambio 01, C1 y components.
+- **Salen** (`Retirado`): `Scenario`, `ScenarioVersion`, `ScenarioDocument`, `Passage`, `Claim`,
+  `TurnEvaluation`, `ClaimEvaluation`, `HandoffPackage`, `ThresholdConfig` y `JudgePrompt`. Origen:
+  cambio 01 (sale el marco documental, el umbral, el Hecho No Documentado y el paquete) y unit-of-work
+  (el *prompt* y ModelGateway pasan a U11).
+- **Pasan a citarse como entidades de HumanReview** (U5): `ReviewSuggestion` y `ReviewRound`. U4 crea
+  sus tablas y la implementación de `SuggestionProposer.propose` (C10) porque B3 va antes que B5; las
+  decisiones son de U5.
+- **Entran:** `ConsentRecord` (VE-06, A-4), `AnalysisRun`, `RunAttempt` y `RunStatusChange` (corridas,
+  FD-U3-10, P9 = A), `ModelCall` (US12.5), `DiscardedCandidate` (C6 `registro.descartes`),
+  `AnonymizationIncident` (VE-14, P7 = A, P8 = A) y los mensajes `RunStarted` (P9 = A) y
+  `CancellationKey` (CD-06).
+
+**Insumos.**
+- Unidad U4 de `inception/units-generation/unit-of-work.md` (unit-of-work, revisión 3) y su mapa
+  `unit-of-work-story-map.md` (unit-of-work-story-map), con las historias US2.1, US2.2, US3.1, US5.5,
+  US5.6, US13.1, US15.4 y US15.5 y los cruces US3.2, US3.6, US3.7, US8.4, US12.5, US13.3, US15.2 y US15.7.
+- FR3, FR4, FR14, FR15 y la adenda 02 (VE-01, VE-06, VE-10, VE-14) de
+  `inception/requirements-analysis/requirements.md` (requirements) y `requirements-adenda-02.md`.
+- Componentes InterviewSession, AnalysisWorker, HumanReview, ConsoleApi, IntegrityPolicy y AnalystConsole
+  de `inception/domain-design/components.md` (components), con ADR-002, ADR-003, ADR-006 y ADR-013.
+- Contratos C1, C2, C3, C6, C7, C8, C10, C11, C17, C18, C21, C24 y C25 de
+  `inception/contract-design/contract-summary.md` (contract-summary, revisión 3), con CD-01, CD-02, CD-06
+  y CD-11.
+- Respuestas P6–P11 de la segunda pasada de `functional-design-questions.md`. P1–P4 de la primera pasada
+  quedan retiradas y P5 (largo del turno) pasa al catálogo C25 y a NFR Requirements.
+- Functional Design de U1 (F3, fixtures de C6), de U3 (FD-U3-04, FD-U3-07, FD-U3-08, FD-U3-10,
+  FD-U3-13), de U10 (FD-U10-03, FD-U10-16) y de U11 (FD-U11-01 a FD-U11-20).
+
+**Frontera AUTONOMIA-04.** Todas las entidades persistentes viven en PostgreSQL dentro del clúster; los
+mensajes y la clave de cancelación viajan por Redis dentro del clúster. Ninguna entidad de esta unidad
+sale del clúster. Lo único que cruza la frontera lo hace dentro de una llamada de U11 a través de
+`anonymizer-proxy` (C21); U4 solo guarda su registro (`ModelCall`), que no tiene texto.
+
+**Convención de auditoría (FD-U3-07).** Cada tabla declara en su comentario `veridicus-audit` con
+`kind`, `purgeable` y `owner_unit`. Las `history` suman `actor_kind` (`person` | `system`) y
+`actor_system`; el usuario `veridicus_app` no tiene `UPDATE` ni `DELETE` sobre ellas, y solo
+`veridicus_retention` (U13) borra.
 
 ```yaml
 entities:
-  # TruthFrame
+  # Retiradas (cambio 01)
   - name: Scenario
-    description: Escenario de control; agrupa sus versiones.
-    attributes:
-      - { name: scenario_id, type: uuid, required: true, unique: true }
-      - { name: name, type: text, required: true, constraints: "1–120 caracteres" }
-      - { name: created_by, type: reference, references: User, required: true }
-      - { name: created_at, type: UtcTimestamp, required: true }
-    relationships:
-      - { to: ScenarioVersion, cardinality: "1..*", direction: "Scenario -> ScenarioVersion" }
-
+    status: Retirado
+    replaced_by: "ninguno (sale el marco documental)"
+    description: "Escenario de control de la revisión 1. Sale con TruthFrame (cambio 01, DD-10)."
   - name: ScenarioVersion
-    description: Versión inmutable de un escenario, con el SHA-256 de su fuente y su estado de indexación.
-    attributes:
-      - { name: version_id, type: uuid, required: true, unique: true }
-      - { name: scenario_id, type: reference, references: Scenario, required: true }
-      - { name: version_number, type: integer, required: true, min: 1 }
-      - { name: source_text, type: text, required: true, constraints: "UTF-8, 1 a 1 048 576 bytes" }
-      - { name: source_sha256, type: hex64, required: true, unique: true }
-      - { name: status, type: enum, required: true, allowed: [indexing, ready, error], default: indexing }
-      - { name: error_code, type: text, required: false, description: "code del catálogo; solo si status es error" }
-      - { name: uploaded_by, type: reference, references: User, required: true }
-      - { name: uploaded_at, type: UtcTimestamp, required: true }
-      - { name: ready_at, type: UtcTimestamp, required: false }
-    constraints:
-      - "(scenario_id, version_number) único."
-      - "Una versión ready nunca cambia; no existe operación de modificación ni borrado (FR2.4)."
-    relationships:
-      - { to: ScenarioDocument, cardinality: "1..*", direction: "ScenarioVersion -> ScenarioDocument" }
-      - { to: Passage, cardinality: "0..*", direction: "ScenarioVersion -> Passage (≥ 1 si ready)" }
-
+    status: Retirado
+    replaced_by: "ninguno"
+    description: "Versión indexada de un escenario. Sale con TruthFrame."
   - name: ScenarioDocument
-    description: >
-      Pieza documental dentro de una versión (P3 = A). La abre un encabezado `# [DOC-…] Título`; sin
-      ninguno, el archivo entero es DOC-1.
-    attributes:
-      - { name: version_id, type: reference, references: ScenarioVersion, required: true }
-      - { name: document_id, type: text, required: true, constraints: "forma DOC-<letras, dígitos o guiones>, máximo 40 caracteres; único dentro de la versión" }
-      - { name: title, type: text, required: false }
-      - { name: position, type: integer, required: true, min: 1 }
-
+    status: Retirado
+    replaced_by: "ninguno"
+    description: "Documento de una versión (respuesta P3 de la primera pasada, retirada)."
   - name: Passage
-    description: Fragmento literal de un documento con su vector (P2 = A).
-    attributes:
-      - { name: passage_id, type: uuid, required: true, unique: true }
-      - { name: version_id, type: reference, references: ScenarioVersion, required: true }
-      - { name: document_id, type: text, required: true, constraints: "existe en ScenarioDocument de la misma versión" }
-      - { name: position, type: integer, required: true, min: 1, description: "orden dentro de la versión" }
-      - { name: text, type: text, required: true, constraints: "subcadena literal de source_text; oraciones completas; máximo de caracteres por pasaje (lo fija NFR Requirements)" }
-      - { name: embedding, type: vector, required: true, description: "dimensión del modelo de embeddings (NFR Requirements)" }
+    status: Retirado
+    replaced_by: "ninguno"
+    description: "Pasaje con embedding. Salen los embeddings (cambio 01)."
+  - name: Claim
+    status: Retirado
+    replaced_by: "Hallazgo de C6 (U11)"
+    description: "Afirmación por oración (P1 de la primera pasada, retirada)."
+  - name: TurnEvaluation
+    status: Retirado
+    replaced_by: AnalysisRun
+    description: "Evaluación de un intento de turno. La sustituye la corrida del contrato común."
+  - name: ClaimEvaluation
+    status: Retirado
+    replaced_by: "ninguno (salen las tres calificaciones)"
+    description: "Calificación por afirmación frente al marco de verdad."
+  - name: HandoffPackage
+    status: Retirado
+    replaced_by: "ninguno (sale el Hecho No Documentado)"
+    description: "Paquete de Contexto de Traspaso."
+  - name: ThresholdConfig
+    status: Retirado
+    replaced_by: "ninguno (sale el umbral)"
+    description: "Ajuste VERIDICUS_SIMILARITY_THRESHOLD."
+  - name: JudgePrompt
+    status: Retirado
+    replaced_by: "prompt de la biblioteca de U11 (C17); la corrida guarda su prompt_sha256"
+    description: "Prompt del juez montado por U4."
 
-  # InterviewSession
+  # InterviewSession — sesión
   - name: InterviewSessionRecord
-    description: Sesión de entrevista ligada a una versión lista y a la instantánea del umbral.
+    status: cambia
+    description: >
+      Sesión guiada o importada, ligada para siempre a su perfil y a su configuración efectiva (ADR-006).
+      audit: kind mutable, purgeable, owner_unit U4.
     attributes:
       - { name: session_id, type: uuid, required: true, unique: true }
       - { name: owner_user_id, type: reference, references: User, required: true }
-      - { name: scenario_version_id, type: reference, references: ScenarioVersion, required: true }
-      - { name: scenario_sha256, type: hex64, required: true }
-      - { name: similarity_threshold, type: decimal, required: true, min: 0, max: 1, description: "instantánea al crear la sesión (ADR-006)" }
-      - { name: top_k, type: integer, required: true, default: 3, description: "instantánea, P4 = A" }
-      - { name: status, type: enum, required: true, allowed: [open, suspended, finalized, consolidated], default: open }
+      - { name: entrevista, type: text, required: true, constraints: "1 a 120 caracteres; identificador, nunca un nombre real" }
+      - { name: origin, type: enum, required: true, allowed: [guiada, corpus, sintetico], description: "guiada al crear desde M3; corpus o sintetico al importar (U6)" }
+      - { name: profile_name, type: text, required: true, description: "perfil aprobado de C18 al crear" }
+      - { name: effective_config, type: json, required: true, description: "instantánea de effective-config.v1 (C18); nunca cambia" }
+      - { name: config_sha256, type: hex64, required: true, description: "nunca cambia" }
+      - { name: status, type: SessionStatus, required: true, allowed: [open, paused, suspended, finalized, terminated, blocked, consolidated] }
+      - { name: closed_to_new_turns, type: boolean, required: true, default: false }
+      - { name: blocked_code, type: ErrorCode, required: false, allowed: [anonymizer.incident], description: "una vez fijado no se borra (P7 = A)" }
+      - { name: change_cursor, type: bigint, required: true, description: "sube en cada escritura que cambia la sesión (BR19.2)" }
+      - { name: retention_days, type: integer, required: false, description: "vacío en U4; el campo y su validación llegan con U13" }
+      - { name: retention_until, type: UtcTimestamp, required: false, description: "vacío en U4" }
       - { name: created_at, type: UtcTimestamp, required: true }
       - { name: finalized_at, type: UtcTimestamp, required: false }
       - { name: last_heartbeat_at, type: UtcTimestamp, required: false }
     constraints:
-      - "scenario_sha256 es el de la versión al crearla; ninguno de los campos de instantánea cambia después."
+      - "profile_name, effective_config y config_sha256 no admiten UPDATE (disparador)."
+      - "blocked_code solo pasa de nulo a anonymizer.incident (disparador)."
+    relationships:
+      - { to: ConsentRecord, cardinality: "1..1", direction: "InterviewSessionRecord -> ConsentRecord" }
+      - { to: Turn, cardinality: "0..*", direction: "InterviewSessionRecord -> Turn" }
+      - { to: AnalysisRun, cardinality: "0..*", direction: "InterviewSessionRecord -> AnalysisRun" }
+      - { to: SessionStatusChange, cardinality: "1..*", direction: "InterviewSessionRecord -> SessionStatusChange" }
+      - { to: AnonymizationIncident, cardinality: "0..*", direction: "InterviewSessionRecord -> AnonymizationIncident" }
+
+  - name: ConsentRecord
+    description: >
+      Bloque consentimiento de C6 registrado al crear la sesión (VE-06, A-4). Sin datos personales:
+      las constancias son identificadores. audit: kind mutable (solo la retirada, de U6), purgeable.
+    attributes:
+      - { name: consent_id, type: uuid, required: true, unique: true }
+      - { name: session_id, type: reference, references: InterviewSessionRecord, required: true, unique: true }
+      - { name: kind, type: enum, required: true, allowed: [persona, autoridad], description: "C6 tipo" }
+      - { name: text_version, type: text, required: true, description: "C6 version_texto" }
+      - { name: authorizes_commercial_transfer, type: boolean, required: true, description: "C6 autoriza_transferencia" }
+      - { name: authorizes_voice, type: boolean, required: true, description: "C6 autoriza_voz" }
+      - { name: authorizes_audio_retention, type: boolean, required: true, description: "C6 autoriza_conservar_audio" }
+      - { name: authority_evidence, type: text, required: false, description: "C6 constancia; obligatoria si kind es autoridad" }
+      - { name: requires_mandate, type: boolean, required: true, description: "C6 requiere_mandato" }
+      - { name: mandate_evidence, type: text, required: false, description: "C6 constancia_mandato; obligatoria si requires_mandate" }
+      - { name: recorded_by, type: reference, references: User, required: true }
+      - { name: recorded_at, type: UtcTimestamp, required: true, description: "C6 registrado_en; lo fija el servidor" }
+      - { name: withdrawn_at, type: UtcTimestamp, required: false, description: "lo escribe U6 (VE-10)" }
+      - { name: withdrawn_by, type: reference, references: User, required: false }
+    constraints:
+      - "Ninguna columna cambia salvo withdrawn_at y withdrawn_by, y solo de nulo a un valor (disparador)."
+      - "Las constancias cumplen ^[A-Za-z0-9._:-]{1,64}$: un identificador, nunca un nombre."
 
   - name: SessionStatusChange
-    description: Historial de solo inserción del estado de la sesión (ADR-003, convención de U3).
+    status: cambia
+    description: "Historial de estados de la sesión. audit: kind history, purgeable."
     attributes:
       - { name: change_id, type: uuid, required: true, unique: true }
       - { name: session_id, type: reference, references: InterviewSessionRecord, required: true }
-      - { name: from_status, type: text, required: false }
-      - { name: to_status, type: text, required: true }
-      - { name: actor_user_id, type: reference, references: User, required: false, description: "null solo en cambios automáticos del sistema (suspensión por U6), con actor_kind system" }
-      - { name: actor_kind, type: enum, required: true, allowed: [user, system] }
+      - { name: from_status, type: SessionStatus, required: false }
+      - { name: to_status, type: SessionStatus, required: true }
+      - { name: code, type: ErrorCode, required: false, description: "anonymizer.incident al bloquear" }
+      - { name: actor_user_id, type: reference, references: User, required: false }
+      - { name: actor_kind, type: enum, required: true, allowed: [person, system] }
+      - { name: actor_system, type: ActorSystem, required: false, description: "analysis-worker al bloquear por la ingesta (FD-U3-08)" }
       - { name: at, type: UtcTimestamp, required: true }
 
   - name: Turn
-    description: Turno del testimonio, numerado en orden dentro de la sesión.
+    status: cambia
+    description: >
+      Turno de la transcripción (C1 Turn, C6 turnos). Inmutable: su estado en pantalla se deriva de las
+      corridas (BR17.1). audit: kind history, purgeable.
     attributes:
       - { name: turn_id, type: uuid, required: true, unique: true }
       - { name: session_id, type: reference, references: InterviewSessionRecord, required: true }
-      - { name: number, type: integer, required: true, min: 1 }
-      - { name: text, type: text, required: true, constraints: "1 a 2 000 caracteres tras quitar espacios de los bordes (P5 = A)" }
-      - { name: origin, type: enum, required: true, allowed: [typed, pasted, voice] }
-      - { name: client_request_id, type: uuid, required: true }
-      - { name: status, type: enum, required: true, allowed: [queued, processing, evaluated, error] }
-      - { name: processing_stage, type: enum, required: false, allowed: [transcribing, retrieving, judging] }
-      - { name: error_code, type: text, required: false }
-      - { name: attempt, type: integer, required: true, min: 1, default: 1 }
+      - { name: n, type: integer, required: true, min: 1 }
+      - { name: speaker, type: enum, required: true, allowed: [ENT, TEST], description: "C6 hablante" }
+      - { name: text, type: text, required: true, constraints: "1 a turn_max_chars (C25) tras quitar espacios de los bordes" }
+      - { name: page, type: integer, required: false, min: 1, description: "ausente en turnos guiados" }
+      - { name: page_end, type: integer, required: false, min: 1 }
+      - { name: fold_state, type: enum, required: true, allowed: [visible, plegado], default: visible }
+      - { name: origin, type: enum, required: true, allowed: [typed, pasted, voice, imported] }
+      - { name: client_request_id, type: uuid, required: false, description: "obligatorio en typed" }
+      - { name: submitted_by, type: reference, references: User, required: true }
       - { name: submitted_at, type: UtcTimestamp, required: true }
-      - { name: deadline_at, type: UtcTimestamp, required: true }
-      - { name: evaluated_at, type: UtcTimestamp, required: false }
     constraints:
-      - "(session_id, number) único y sin huecos."
-      - "(session_id, client_request_id) único: un reenvío del navegador no crea otro turno."
+      - "(session_id, n) único y sin huecos."
+      - "(session_id, client_request_id) único cuando no es nulo."
 
-  - name: Claim
-    description: Afirmación de un turno según la regla de P1 (valor, no se guarda aparte).
+  # InterviewSession — corridas
+  - name: AnalysisRun
+    description: >
+      Una corrida del contrato común sobre un tramo de la sesión (C1 Run, C2). Solo datos de la petición,
+      que no cambian; el estado vive en RunStatusChange y el resultado en RunAttempt (FD-U3-10).
+      audit: kind history, purgeable.
     attributes:
-      - { name: claim_index, type: integer, required: true, min: 0 }
-      - { name: text, type: text, required: true, constraints: "subcadena literal del turno" }
-      - { name: start, type: integer, required: true, description: "posición en el texto del turno" }
-
-  - name: TurnEvaluation
-    description: Registro de evaluación de un intento de un turno (AC3.1.6); no visible en la interfaz.
-    attributes:
-      - { name: evaluation_id, type: uuid, required: true, unique: true }
-      - { name: turn_id, type: reference, references: Turn, required: true }
-      - { name: attempt, type: integer, required: true }
-      - { name: threshold_used, type: decimal, required: true }
-      - { name: model_digest, type: text, required: false, description: "ausente si ninguna afirmación llegó al juez" }
-      - { name: prompt_sha256, type: hex64, required: false }
-      - { name: evaluated_at, type: UtcTimestamp, required: true }
+      - { name: run_id, type: uuid, required: true, unique: true }
+      - { name: session_id, type: reference, references: InterviewSessionRecord, required: true }
+      - { name: mode, type: enum, required: true, allowed: [incremental, final] }
+      - { name: from_turn, type: integer, required: true, min: 1, description: "C6 desde_turno" }
+      - { name: to_turn, type: integer, required: true, min: 1, description: "C6 hasta_turno" }
+      - { name: profile_name, type: text, required: true, description: "copia de la sesión" }
+      - { name: config_sha256, type: hex64, required: true, description: "copia de la sesión (AC2.1.2)" }
+      - { name: requested_by, type: reference, references: User, required: true }
+      - { name: requested_at, type: UtcTimestamp, required: true }
     constraints:
-      - "(turn_id, attempt) único: la ingesta es idempotente."
+      - "from_turn <= to_turn; en incremental to_turn es un turno TEST."
     relationships:
-      - { to: ClaimEvaluation, cardinality: "1..*", direction: "TurnEvaluation -> ClaimEvaluation" }
+      - { to: RunStatusChange, cardinality: "1..*", direction: "AnalysisRun -> RunStatusChange" }
+      - { to: RunAttempt, cardinality: "0..*", direction: "AnalysisRun -> RunAttempt" }
 
-  - name: ClaimEvaluation
-    description: Resultado por afirmación dentro de una evaluación.
+  - name: RunStatusChange
+    description: >
+      Historial de estados de la corrida, con actor y hora. El estado vigente y el intento vigente son
+      los de la última fila. audit: kind history, purgeable.
     attributes:
-      - { name: claim_index, type: integer, required: true }
-      - { name: text, type: text, required: true }
-      - { name: max_similarity, type: decimal, required: true, min: 0, max: 1 }
-      - { name: nearest_passage_ids, type: list, required: true, constraints: "hasta 3, por similitud descendente" }
-      - { name: guard, type: enum, required: true, allowed: [below_threshold, at_or_above_threshold] }
-      - { name: grade, type: Grade, required: true }
+      - { name: change_id, type: uuid, required: true, unique: true }
+      - { name: run_id, type: reference, references: AnalysisRun, required: true }
+      - { name: attempt, type: integer, required: true, min: 1 }
+      - { name: from_status, type: enum, required: false, allowed: [queued, processing, done, error, cancelled] }
+      - { name: to_status, type: enum, required: true, allowed: [queued, processing, done, error, cancelled] }
+      - { name: error_code, type: ErrorCode, required: false, description: "solo con to_status error" }
+      - { name: deadline_at, type: UtcTimestamp, required: false, description: "solo con to_status queued (C25)" }
+      - { name: actor_user_id, type: reference, references: User, required: false }
+      - { name: actor_kind, type: enum, required: true, allowed: [person, system] }
+      - { name: actor_system, type: ActorSystem, required: false, allowed: [analysis-worker, run-supervisor] }
+      - { name: at, type: UtcTimestamp, required: true }
+    constraints:
+      - "(run_id, attempt, to_status) único: una transición por intento."
 
-  - name: HandoffPackage
-    description: Paquete de Contexto de Traspaso; uno por intento de turno con alguna afirmación «no documentada».
+  - name: RunAttempt
+    description: >
+      Resultado de un intento ingerido (C3 salida). Una fila por (run_id, attempt) con resultado; los
+      intentos descartados no dejan fila. audit: kind history, purgeable.
     attributes:
-      - { name: package_id, type: uuid, required: true, unique: true }
-      - { name: turn_id, type: reference, references: Turn, required: true }
+      - { name: run_id, type: reference, references: AnalysisRun, required: true }
+      - { name: attempt, type: integer, required: true, min: 1 }
+      - { name: outcome, type: enum, required: true, allowed: [ok, error] }
+      - { name: error_code, type: ErrorCode, required: false }
+      - { name: prompt_sha256, type: hex64, required: false, description: "C6 prompt_sha256; ausente si la salida no cumplió C6" }
+      - { name: analyzer_version, type: text, required: false, description: "C6 version" }
+      - { name: fragmented, type: boolean, required: false, description: "C6 registro.fragmentado.activo" }
+      - { name: window, type: integer, required: false }
+      - { name: overlap, type: integer, required: false }
+      - { name: anonymized, type: boolean, required: false, description: "true si todas las llamadas externas pasaron por el anonimizador; nulo si no hubo ninguna externa (BR16.3)" }
+      - { name: tokens_in, type: integer, required: false, min: 0 }
+      - { name: tokens_out, type: integer, required: false, min: 0 }
+      - { name: estimated_cost, type: decimal, required: false, min: 0 }
+      - { name: price_table, type: text, required: false, description: "C6 tabla_precios" }
+      - { name: message_id, type: uuid, required: true, description: "C3 message_id" }
+      - { name: finished_at, type: UtcTimestamp, required: true }
+    constraints:
+      - "(run_id, attempt) único: la ingesta es idempotente (AC2.2.4)."
+
+  - name: ModelCall
+    description: >
+      Una fila de registro.llamadas de C6, copiada tal cual (C1 ModelCall). Sin texto enviado ni recibido.
+      audit: kind history, purgeable, actor analysis-worker.
+    attributes:
+      - { name: call_id, type: uuid, required: true, unique: true }
+      - { name: run_id, type: reference, references: AnalysisRun, required: true }
       - { name: attempt, type: integer, required: true }
-      - { name: fragment, type: text, required: true, description: "texto literal del turno actual" }
-      - { name: previous_turn_numbers, type: list, required: true, constraints: "0 a 3" }
-      - { name: nearest_passages, type: list, required: true, constraints: "hasta 3 pasajes distintos, coeficiente descendente" }
-      - { name: undocumented_claim_indexes, type: list, required: true, constraints: "≥ 1" }
-      - { name: threshold_used, type: decimal, required: true }
-      - { name: interrupted_cot, type: text, required: true, description: "determinista, sin LLM" }
-      - { name: affective_note, type: text, required: false, description: "solo U8 (COULD)" }
+      - { name: role, type: enum, required: true, allowed: [juez, verificador, verificador_permutado], description: "C6 papel" }
+      - { name: provider, type: text, required: true }
+      - { name: model, type: text, required: true }
+      - { name: version, type: text, required: false }
+      - { name: effort_or_quantization, type: text, required: false }
+      - { name: engine, type: text, required: false }
+      - { name: seed, type: integer, required: false }
+      - { name: tokens_in, type: integer, required: true, min: 0 }
+      - { name: tokens_out, type: integer, required: true, min: 0 }
+      - { name: used_fallback, type: boolean, required: true, description: "C6 proveedor_alterno" }
+      - { name: external, type: boolean, required: true, description: "derivado de effective_config para ese papel: commercial" }
+      - { name: anonymized, type: boolean, required: true, description: "C6 anonimizado" }
+      - { name: at, type: UtcTimestamp, required: true, description: "C6 fecha" }
 
-  # HumanReview (tablas que crea U4; las decisiones son de U5)
+  - name: DiscardedCandidate
+    description: "Una fila de registro.descartes de C6: motivo y turnos, sin texto de citas. audit: kind history, purgeable."
+    attributes:
+      - { name: run_id, type: reference, references: AnalysisRun, required: true }
+      - { name: attempt, type: integer, required: true }
+      - { name: reason, type: enum, required: true, allowed: [cita_no_verificada, cita_en_otro_turno, marca_alterada, campo_faltante, rechazado_verificador, rechazado_permutacion, fuera_de_tramo, vocabulario_prohibido] }
+      - { name: turn_a, type: text, required: false, constraints: "^T[0-9]+$" }
+      - { name: turn_b, type: text, required: false, constraints: "^T[0-9]+$" }
+
+  - name: AnonymizationIncident
+    description: >
+      Incidente de VE-14: una llamada a un destino externo sin anonimizar, o error.codigo
+      incidente_anonimizacion. Solo IDs (ADR-013). audit: kind history; sobrevive a la retención sin
+      clave foránea, como RetentionAct (propuesta FD-U4-12).
+    attributes:
+      - { name: incident_id, type: uuid, required: true, unique: true }
+      - { name: session_id, type: uuid, required: true, description: "sin clave foránea" }
+      - { name: run_id, type: uuid, required: true }
+      - { name: attempt, type: integer, required: true }
+      - { name: call_id, type: uuid, required: false, description: "la llamada con anonimizado false, si la hay" }
+      - { name: code, type: enum, required: true, allowed: [incidente_anonimizacion, llamada_externa_sin_anonimizar] }
+      - { name: detected_at, type: UtcTimestamp, required: true }
+      - { name: actor_kind, type: enum, required: true, allowed: [system] }
+      - { name: actor_system, type: ActorSystem, required: true, allowed: [analysis-worker] }
+
+  # HumanReview — tablas que crea U4 (dueño del dominio: U5)
   - name: ReviewSuggestion
-    description: Sugerencia de revisión creada desde una alerta válida (C7, C10).
+    status: cambia
+    description: >
+      Hallazgo de C6 guardado como sugerencia de revisión (C7, C10). Nace pendiente. Entidad de
+      HumanReview; U4 crea la tabla y propose. audit: kind history, purgeable, owner_unit U5.
     attributes:
       - { name: suggestion_id, type: uuid, required: true, unique: true }
       - { name: session_id, type: reference, references: InterviewSessionRecord, required: true }
-      - { name: turn_id, type: reference, references: Turn, required: true }
-      - { name: attempt, type: integer, required: true }
-      - { name: claim_index, type: integer, required: true }
-      - { name: fragment, type: text, required: true, constraints: "no vacío ni solo espacios; subcadena literal del turno" }
-      - { name: quote, type: text, required: true, constraints: "no vacío ni solo espacios; subcadena literal del pasaje" }
-      - { name: document_id, type: text, required: true, constraints: "pertenece a la versión de la sesión" }
-      - { name: passage_id, type: reference, references: Passage, required: true }
-      - { name: cot, type: text, required: true, constraints: "no vacío ni solo espacios" }
+      - { name: first_run_id, type: reference, references: AnalysisRun, required: true }
+      - { name: hecho, type: text, required: true, constraints: "no vacío ni solo espacios" }
+      - { name: tipo, type: enum, required: true, allowed: [fecha, numero, lugar, persona, negacion, secuencia, otro] }
+      - { name: cita_a, type: json, required: true, description: "C6 cita: cita, turno, pagina, avisos" }
+      - { name: cita_b, type: json, required: true }
+      - { name: observaciones, type: text, required: true, constraints: "no vacío ni solo espacios" }
+      - { name: actos, type: list, required: false }
+      - { name: pair_key, type: hex64, required: true, description: "SHA-256 del par no ordenado (turno, cita normalizada en espacios)" }
       - { name: created_at, type: UtcTimestamp, required: true }
     constraints:
-      - "(turn_id, attempt, claim_index) único (C10)."
-      - "Nace pendiente: sin fila en ReviewDecision (U5)."
+      - "(session_id, pair_key) único (AC3.6.3)."
+      - "Sin campos de veracidad ni puntaje (AC5.5.3)."
 
   - name: ReviewRound
-    description: Ronda de revisión; U4 abre la ronda 1 al proponer la primera sugerencia (C10, ADR-007).
+    status: cambia
+    description: "Ronda de revisión (ADR-007). propose abre la ronda 1. Entidad de HumanReview."
     attributes:
       - { name: round_id, type: uuid, required: true, unique: true }
       - { name: session_id, type: reference, references: InterviewSessionRecord, required: true }
@@ -188,26 +326,33 @@ entities:
       - { name: status, type: enum, required: true, allowed: [open, locked] }
       - { name: opened_at, type: UtcTimestamp, required: true }
 
-  # Configuración
-  - name: ThresholdConfig
-    description: Ajuste VERIDICUS_SIMILARITY_THRESHOLD leído por el cargador de configuración (FR5.1).
+  # Mensajes y claves (no persisten en PostgreSQL)
+  - name: RunStarted
+    description: >
+      Mensaje que AnalysisWorker publica en veridicus:results al tomar una corrida (P9 = A, cambio menor
+      de C3, FD-U4-02).
     attributes:
-      - { name: value, type: decimal, required: true, constraints: "número finito dentro del rango que fija NFR Requirements" }
+      - { name: schema_version, type: text, required: true, constraints: "^2\\.[0-9]+\\.[0-9]+$" }
+      - { name: kind, type: enum, required: true, allowed: [run_started] }
+      - { name: message_id, type: uuid, required: true }
+      - { name: run_id, type: uuid, required: true }
+      - { name: attempt, type: integer, required: true, min: 1 }
+      - { name: started_at, type: UtcTimestamp, required: true }
 
-  - name: JudgePrompt
-    description: Prompt del sistema del juez, montado de solo lectura (FR4.6).
+  - name: CancellationKey
+    description: "Clave de Redis veridicus:run-cancelled:{run_id} (C2, CD-06); la escribe InterviewSession y el trabajador solo la lee."
     attributes:
-      - { name: path, type: path, required: true }
-      - { name: expected_sha256, type: hex64, required: true, description: "el del archivo en el repositorio" }
+      - { name: run_id, type: uuid, required: true }
+      - { name: expires_at, type: UtcTimestamp, required: true, description: "deadline_at + cancel_key_margin_s (C25)" }
 ```
 
 ## Resumen
 
-- **TruthFrame:** `Scenario` → `ScenarioVersion` (inmutable, con SHA-256 y estado) → `ScenarioDocument`
-  (nuevo por P3) y `Passage` (segmentado por párrafo y oración, P2).
-- **InterviewSession:** la sesión guarda instantáneas de versión, SHA-256, umbral y `top_k` (P4); los
-  turnos se numeran sin huecos y miden hasta 2 000 caracteres (P5); cada intento evaluado deja una
-  `TurnEvaluation` con una `ClaimEvaluation` por afirmación (P1) y, si hay algo «no documentado», un
-  `HandoffPackage`.
-- **HumanReview (parte de U4):** `ReviewSuggestion` y la ronda 1; las decisiones son de U5.
-- **Configuración:** el umbral y el prompt del juez no se escriben desde la aplicación.
+- **InterviewSession:** la sesión queda ligada a su perfil, su configuración efectiva y su huella, y a un
+  único `ConsentRecord`. Los turnos son inmutables, con hablante y, si vienen del corpus, página y estado
+  plegado. El bloqueo por incidente se guarda en `blocked_code`, que nunca se borra.
+- **Corridas:** `AnalysisRun` guarda lo que se pidió; `RunStatusChange` guarda cada cambio de estado con
+  su actor; `RunAttempt`, `ModelCall` y `DiscardedCandidate` guardan lo que devolvió cada intento
+  ingerido. Así ninguna fila de corridas ni del registro de modelos necesita `UPDATE` (AC8.4.2).
+- **HumanReview:** U4 crea `ReviewSuggestion` y `ReviewRound` por C10; las decisiones son de U5.
+- **Salen** el marco documental, el umbral, las calificaciones y el paquete de traspaso (cambio 01).

@@ -17,8 +17,8 @@
 - **Stages to Skip**: 1.1 (intent-capture), 1.2 (market-research), 1.3 (feasibility), 1.4 (scope-definition), 1.5 (team-formation), 1.6 (rough-mockups), 1.7 (approval-handoff), 3.7 (ci-pipeline), 4.1 (deployment-pipeline), 4.2 (environment-provisioning), 4.3 (deployment-execution), 4.4 (observability-setup), 4.5 (incident-response), 4.6 (performance-validation), 4.7 (feedback-optimization), 2.1 (reverse-engineering — greenfield)
 - **Depth**: Standard
 - **Test Strategy**: Standard
-- **Review Override**: 
-- **Guard Policy**: strict (set by you)
+- **Review Override**: none
+- **Guard Policy**: relaxed (set by you)
 - **Guards Off**: plan-approval (set by you)
 - **Sensors**: on (from scope classic)
 - **Learnings**: on (from scope classic)
@@ -178,7 +178,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-11-22T00:44:39Z
+- **Last Updated**: 2026-11-22T03:14:57Z
 
 - **Construction Autonomy Mode**: gated
 

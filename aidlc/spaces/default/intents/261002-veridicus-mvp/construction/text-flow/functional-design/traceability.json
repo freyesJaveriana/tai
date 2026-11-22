@@ -1,346 +1,170 @@
 {
   "stage": "functional-design",
   "unit": "text-flow",
+  "revision": 2,
   "upstream_ids": [
-    "AC1.1.1",
-    "AC1.1.2",
-    "AC1.1.3",
-    "AC1.1.4",
-    "AC1.1.5",
-    "AC1.3.1",
-    "AC1.3.2",
-    "AC1.3.3",
-    "AC2.1.1",
-    "AC2.1.2",
-    "AC2.1.3",
-    "AC2.1.4",
-    "AC2.2.1",
-    "AC2.2.2",
-    "AC2.2.3",
-    "AC2.2.4",
-    "AC2.2.5",
-    "AC4.3.1",
-    "AC4.3.2",
-    "AC3.3.1",
-    "AC3.3.2",
-    "AC4.1.1",
-    "AC4.1.2",
-    "AC4.1.3",
-    "AC4.1.4",
-    "AC4.1.5",
-    "AC3.1.1",
-    "AC3.1.2",
-    "AC3.1.3",
-    "AC3.1.4",
-    "AC3.1.5",
-    "AC3.1.6",
-    "AC3.1.7",
-    "AC3.1.8",
-    "AC3.2.1",
-    "AC3.2.2",
-    "AC3.2.3",
-    "AC3.2.4",
-    "AC4.2.1",
-    "AC4.2.2",
-    "AC4.2.3",
-    "AC4.2.4",
-    "AC5.5.1",
-    "AC5.5.2",
-    "AC5.5.3",
-    "AC5.5.4",
-    "AC5.6.1",
-    "AC5.6.2",
-    "AC5.6.3",
-    "AC8.4.1",
-    "AC8.4.2"
+    "AC2.1.1", "AC2.1.2", "AC2.1.3", "AC2.1.4", "AC2.1.5",
+    "AC2.2.1", "AC2.2.2", "AC2.2.3", "AC2.2.4", "AC2.2.5", "AC2.2.6", "AC2.2.7",
+    "AC3.1.1", "AC3.1.2", "AC3.1.3", "AC3.1.4", "AC3.1.5",
+    "AC3.2.1", "AC3.2.2", "AC3.2.3", "AC3.2.4", "AC3.2.5",
+    "AC3.6.1", "AC3.6.2", "AC3.6.3",
+    "AC3.7.1", "AC3.7.2",
+    "AC5.5.1", "AC5.5.2", "AC5.5.3", "AC5.5.4", "AC5.5.5", "AC5.5.6",
+    "AC5.6.1", "AC5.6.2", "AC5.6.3", "AC5.6.4", "AC5.6.5",
+    "AC8.4.1", "AC8.4.2",
+    "AC11.3.8", "AC11.6.1", "AC11.6.4",
+    "AC12.5.1", "AC12.5.2", "AC12.5.3",
+    "AC13.1.1", "AC13.1.2", "AC13.1.3", "AC13.1.4",
+    "AC13.3.1", "AC13.3.2",
+    "AC15.2.1", "AC15.2.2", "AC15.2.3", "AC15.2.4",
+    "AC15.4.1", "AC15.4.2", "AC15.4.3", "AC15.4.4", "AC15.4.5", "AC15.4.6", "AC15.4.7",
+    "AC15.5.1", "AC15.5.2", "AC15.5.3",
+    "AC15.7.1", "AC15.7.2", "AC15.7.3",
+    "AC1.1.1", "AC1.1.2", "AC1.1.3", "AC1.1.4", "AC1.1.5",
+    "AC1.3.1", "AC1.3.2", "AC1.3.3",
+    "AC4.1.1", "AC4.1.2", "AC4.1.3", "AC4.1.4", "AC4.1.5",
+    "AC4.2.1", "AC4.2.2", "AC4.2.3", "AC4.2.4",
+    "AC4.3.1", "AC4.3.2",
+    "AC3.1.6", "AC3.1.7", "AC3.1.8",
+    "AC3.3.1", "AC3.3.2"
   ],
   "coverage": [
-    {
-      "id": "AC1.1.1",
-      "status": "OK",
-      "target": "BR1.1, BR1.4, BR2.2"
-    },
-    {
-      "id": "AC1.1.2",
-      "status": "OK",
-      "target": "BR1.1"
-    },
-    {
-      "id": "AC1.1.3",
-      "status": "OK",
-      "target": "BR2.1, BR2.4"
-    },
-    {
-      "id": "AC1.1.4",
-      "status": "OK",
-      "target": "BR2.2, BR2.3"
-    },
-    {
-      "id": "AC1.1.5",
-      "status": "OK",
-      "target": "BR2.3, BR3.2"
-    },
-    {
-      "id": "AC1.3.1",
-      "status": "OK",
-      "target": "BR3.1"
-    },
-    {
-      "id": "AC1.3.2",
-      "status": "OK",
-      "target": "BR2.3"
-    },
-    {
-      "id": "AC1.3.3",
-      "status": "OK",
-      "target": "BR3.1"
-    },
-    {
-      "id": "AC2.1.1",
-      "status": "OK",
-      "target": "BR4.1"
-    },
-    {
-      "id": "AC2.1.2",
-      "status": "OK",
-      "target": "BR4.1, BR6.2"
-    },
-    {
-      "id": "AC2.1.3",
-      "status": "OK",
-      "target": "BR4.2"
-    },
-    {
-      "id": "AC2.1.4",
-      "status": "OK",
-      "target": "BR4.3"
-    },
-    {
-      "id": "AC2.2.1",
-      "status": "OK",
-      "target": "BR5.2, BR5.3"
-    },
-    {
-      "id": "AC2.2.2",
-      "status": "OK",
-      "target": "BR5.4"
-    },
-    {
-      "id": "AC2.2.3",
-      "status": "OK",
-      "target": "BR5.6"
-    },
-    {
-      "id": "AC2.2.4",
-      "status": "OK",
-      "target": "BR5.7"
-    },
-    {
-      "id": "AC2.2.5",
-      "status": "OK",
-      "target": "BR13.6"
-    },
-    {
-      "id": "AC4.3.1",
-      "status": "OK",
-      "target": "BR6.1"
-    },
-    {
-      "id": "AC4.3.2",
-      "status": "OK",
-      "target": "BR6.1"
-    },
-    {
-      "id": "AC3.3.1",
-      "status": "OK",
-      "target": "BR9.1"
-    },
-    {
-      "id": "AC3.3.2",
-      "status": "OK",
-      "target": "BR9.2"
-    },
-    {
-      "id": "AC4.1.1",
-      "status": "OK",
-      "target": "BR7.3, BR7.6"
-    },
-    {
-      "id": "AC4.1.2",
-      "status": "OK",
-      "target": "BR7.3, BR7.4, BR10.1, BR10.5"
-    },
-    {
-      "id": "AC4.1.3",
-      "status": "OK",
-      "target": "BR7.5, BR10.5"
-    },
-    {
-      "id": "AC4.1.4",
-      "status": "OK",
-      "target": "BR7.6"
-    },
-    {
-      "id": "AC4.1.5",
-      "status": "OK",
-      "target": "BR7.6, BR10.1"
-    },
-    {
-      "id": "AC3.1.1",
-      "status": "OK",
-      "target": "BR8.5, BR8.6, BR7.6"
-    },
-    {
-      "id": "AC3.1.2",
-      "status": "OK",
-      "target": "BR8.5"
-    },
-    {
-      "id": "AC3.1.3",
-      "status": "OK",
-      "target": "BR7.6, BR13.4"
-    },
-    {
-      "id": "AC3.1.4",
-      "status": "OK",
-      "target": "BR8.3"
-    },
-    {
-      "id": "AC3.1.5",
-      "status": "OK",
-      "target": "BR7.1"
-    },
-    {
-      "id": "AC3.1.6",
-      "status": "OK",
-      "target": "BR7.7, BR7.2"
-    },
-    {
-      "id": "AC3.1.7",
-      "status": "OK",
-      "target": "BR13.1, BR12.4"
-    },
-    {
-      "id": "AC3.1.8",
-      "status": "OK",
-      "target": "BR13.2"
-    },
-    {
-      "id": "AC3.2.1",
-      "status": "OK",
-      "target": "BR8.1, BR8.2, BR11.3"
-    },
-    {
-      "id": "AC3.2.2",
-      "status": "OK",
-      "target": "BR13.3"
-    },
-    {
-      "id": "AC3.2.3",
-      "status": "OK",
-      "target": "BR5.9, BR11.2"
-    },
-    {
-      "id": "AC3.2.4",
-      "status": "OK",
-      "target": "BR8.4"
-    },
-    {
-      "id": "AC4.2.1",
-      "status": "OK",
-      "target": "BR10.2, BR10.3, BR10.4"
-    },
-    {
-      "id": "AC4.2.2",
-      "status": "OK",
-      "target": "BR13.5"
-    },
-    {
-      "id": "AC4.2.3",
-      "status": "OK",
-      "target": "BR13.5"
-    },
-    {
-      "id": "AC4.2.4",
-      "status": "OK",
-      "target": "BR10.1"
-    },
-    {
-      "id": "AC5.5.1",
-      "status": "OK",
-      "target": "BR12.1, BR12.2, BR12.3"
-    },
-    {
-      "id": "AC5.5.2",
-      "status": "OK",
-      "target": "BR8.4, BR12.1"
-    },
-    {
-      "id": "AC5.5.3",
-      "status": "OK",
-      "target": "BR8.5"
-    },
-    {
-      "id": "AC5.5.4",
-      "status": "OK",
-      "target": "BR12.4"
-    },
-    {
-      "id": "AC5.6.1",
-      "status": "OK",
-      "target": "BR13.7"
-    },
-    {
-      "id": "AC5.6.2",
-      "status": "OK",
-      "target": "BR13.7"
-    },
-    {
-      "id": "AC5.6.3",
-      "status": "OK",
-      "target": "BR13.7"
-    },
-    {
-      "id": "AC8.4.1",
-      "status": "OK",
-      "target": "BR11.4"
-    },
-    {
-      "id": "AC8.4.2",
-      "status": "OK",
-      "target": "BR11.4"
-    }
+    { "id": "AC2.1.1", "status": "OK", "target": "BR4.1, BR14.8" },
+    { "id": "AC2.1.2", "status": "OK", "target": "BR4.1, BR9.1, BR14.6" },
+    { "id": "AC2.1.3", "status": "OK", "target": "BR14.4" },
+    { "id": "AC2.1.4", "status": "OK", "target": "BR4.2" },
+    { "id": "AC2.1.5", "status": "OK", "target": "BR4.3" },
+    { "id": "AC2.2.1", "status": "OK", "target": "BR5.2, BR5.3, BR17.1" },
+    { "id": "AC2.2.2", "status": "OK", "target": "BR5.4" },
+    { "id": "AC2.2.3", "status": "OK", "target": "BR5.4, BR5.6, BR15.1 (precisión FD-U4-01: turno n del testimonio)" },
+    { "id": "AC2.2.4", "status": "OK", "target": "BR5.7, BR15.11" },
+    { "id": "AC2.2.5", "status": "OK", "target": "BR13.6" },
+    { "id": "AC2.2.6", "status": "OK", "target": "BR5.1" },
+    { "id": "AC2.2.7", "status": "OK", "target": "BR15.9" },
+    { "id": "AC3.1.1", "status": "OK", "target": "BR8.5, BR8.6" },
+    { "id": "AC3.1.2", "status": "OK", "target": "BR13.2" },
+    { "id": "AC3.1.3", "status": "OK", "target": "BR13.1, BR12.4" },
+    { "id": "AC3.1.4", "status": "OK", "target": "BR17.5 (texto del aviso de plegado propuesto en FD-U4-17)" },
+    { "id": "AC3.1.5", "status": "OK", "target": "BR13.4" },
+    { "id": "AC3.2.1", "status": "OK", "target": "BR8.1, BR8.2, BR11.3, BR16.4" },
+    { "id": "AC3.2.2", "status": "OK", "target": "BR13.3" },
+    { "id": "AC3.2.3", "status": "OK", "target": "BR5.9, BR11.2" },
+    { "id": "AC3.2.4", "status": "OK", "target": "BR8.4" },
+    { "id": "AC3.2.5", "status": "OK", "target": "BR13.3, BR16.7" },
+    { "id": "AC3.6.1", "status": "OK", "target": "BR8.1 (segunda línea en la ingesta; el filtro por desde_turno es de U11)" },
+    { "id": "AC3.6.2", "status": "OK", "target": "BR8.1" },
+    { "id": "AC3.6.3", "status": "OK", "target": "BR11.2" },
+    { "id": "AC3.7.1", "status": "OK", "target": "BR16.2, BR17.3" },
+    { "id": "AC3.7.2", "status": "Deferred", "target": "U11 incoherence-analyzer: las ventanas y las llamadas al juez las arma la biblioteca; U4 no construye llamadas" },
+    { "id": "AC5.5.1", "status": "OK", "target": "BR8.4, BR12.1, BR12.2, BR12.3" },
+    { "id": "AC5.5.2", "status": "OK", "target": "BR8.4" },
+    { "id": "AC5.5.3", "status": "OK", "target": "BR8.6, BR12.4" },
+    { "id": "AC5.5.4", "status": "OK", "target": "BR12.4" },
+    { "id": "AC5.5.5", "status": "OK", "target": "BR12.2" },
+    { "id": "AC5.5.6", "status": "OK", "target": "BR12.2" },
+    { "id": "AC5.6.1", "status": "OK", "target": "BR13.7 (base y suite; cada unidad suma sus pantallas)" },
+    { "id": "AC5.6.2", "status": "OK", "target": "BR13.7 (tramo de U4; importar, modo final, decisiones y consolidación los suman U6, U5 y U7)" },
+    { "id": "AC5.6.3", "status": "OK", "target": "BR13.7, BR13.2" },
+    { "id": "AC5.6.4", "status": "OK", "target": "BR13.6, BR13.3" },
+    { "id": "AC5.6.5", "status": "OK", "target": "BR13.1" },
+    { "id": "AC8.4.1", "status": "OK", "target": "BR11.4" },
+    { "id": "AC8.4.2", "status": "OK", "target": "BR11.4 (corridas sin UPDATE, precisión FD-U4-03)" },
+    { "id": "AC11.3.8", "status": "OK", "target": "BR16.3, BR16.4, BR16.5" },
+    { "id": "AC11.6.1", "status": "OK", "target": "BR14.9, BR15.7" },
+    { "id": "AC11.6.4", "status": "OK", "target": "BR15.8 (mitad de U4; la de los manifiestos es de U2)" },
+    { "id": "AC12.5.1", "status": "OK", "target": "BR16.2" },
+    { "id": "AC12.5.2", "status": "OK", "target": "BR16.2, BR17.4" },
+    { "id": "AC12.5.3", "status": "OK", "target": "BR17.4" },
+    { "id": "AC13.1.1", "status": "OK", "target": "BR14.7" },
+    { "id": "AC13.1.2", "status": "OK", "target": "BR14.7, BR14.8 (el aviso al consolidar es de U7)" },
+    { "id": "AC13.1.3", "status": "OK", "target": "BR14.7, BR17.3" },
+    { "id": "AC13.1.4", "status": "OK", "target": "BR14.6, BR14.7" },
+    { "id": "AC13.3.1", "status": "OK", "target": "BR14.9, BR15.7 (casos de session-api y semantic-agent; anonymizer-proxy y la CLI son de U10 y U11)" },
+    { "id": "AC13.3.2", "status": "Deferred", "target": "U11 incoherence-analyzer: la CLI termina antes de cualquier llamada" },
+    { "id": "AC15.2.1", "status": "OK", "target": "BR15.4, BR5.5 (la ruta de pausa es de U6)" },
+    { "id": "AC15.2.2", "status": "OK", "target": "BR15.4, BR5.5 (la ruta de terminación es de U6)" },
+    { "id": "AC15.2.3", "status": "OK", "target": "BR15.2" },
+    { "id": "AC15.2.4", "status": "Deferred", "target": "U6 session-lifecycle: estados «Análisis en pausa» y «Sesión terminada» en M4" },
+    { "id": "AC15.4.1", "status": "OK", "target": "BR14.1" },
+    { "id": "AC15.4.2", "status": "OK", "target": "BR14.3 (importación y voz reutilizan la guardia en U6 y U9)" },
+    { "id": "AC15.4.3", "status": "Deferred", "target": "U9 voice: la ruta de voz aplica la guardia de consentimiento de U4 con autoriza_voz" },
+    { "id": "AC15.4.4", "status": "OK", "target": "BR14.1 (precisión FD-U4-21)" },
+    { "id": "AC15.4.5", "status": "OK", "target": "BR14.5" },
+    { "id": "AC15.4.6", "status": "Deferred", "target": "Revisión manual del texto del TG frente a VE-07; la evidencia va al PR de B3 (Code Generation)" },
+    { "id": "AC15.4.7", "status": "Deferred", "target": "U11 incoherence-analyzer: la biblioteca y la CLI rechazan la transcripción sin el bloque" },
+    { "id": "AC15.5.1", "status": "OK", "target": "BR18.1 (precisión FD-U4-08)" },
+    { "id": "AC15.5.2", "status": "Deferred", "target": "U7: el aviso en la cabecera y en cada página del reporte" },
+    { "id": "AC15.5.3", "status": "OK", "target": "BR18.2" },
+    { "id": "AC15.7.1", "status": "Deferred", "target": "U13 ethics-governance: campo y validación del plazo (precisión FD-U4-22)" },
+    { "id": "AC15.7.2", "status": "OK", "target": "BR19.3 (lo de InterviewSession; el Job y el acta son de U13)" },
+    { "id": "AC15.7.3", "status": "Deferred", "target": "U13 ethics-governance" },
+    { "id": "AC1.1.1", "status": "N/A", "target": "Retirado: US1.1 sale con el marco documental (cambio 01)" },
+    { "id": "AC1.1.2", "status": "N/A", "target": "Retirado: US1.1 (cambio 01)" },
+    { "id": "AC1.1.3", "status": "N/A", "target": "Retirado: US1.1 (cambio 01)" },
+    { "id": "AC1.1.4", "status": "N/A", "target": "Retirado: US1.1 (cambio 01)" },
+    { "id": "AC1.1.5", "status": "N/A", "target": "Retirado: US1.1 (cambio 01)" },
+    { "id": "AC1.3.1", "status": "N/A", "target": "Retirado: US1.3 sale con el catálogo de escenarios (cambio 01)" },
+    { "id": "AC1.3.2", "status": "N/A", "target": "Retirado: US1.3 (cambio 01)" },
+    { "id": "AC1.3.3", "status": "N/A", "target": "Retirado: US1.3 (cambio 01)" },
+    { "id": "AC4.1.1", "status": "N/A", "target": "Retirado: épica 4 (Silencio Fáctico) retirada por el cambio 01" },
+    { "id": "AC4.1.2", "status": "N/A", "target": "Retirado: épica 4 (cambio 01)" },
+    { "id": "AC4.1.3", "status": "N/A", "target": "Retirado: épica 4 (cambio 01)" },
+    { "id": "AC4.1.4", "status": "N/A", "target": "Retirado: épica 4 (cambio 01)" },
+    { "id": "AC4.1.5", "status": "N/A", "target": "Retirado: épica 4 (cambio 01)" },
+    { "id": "AC4.2.1", "status": "N/A", "target": "Retirado: épica 4, paquete de traspaso (cambio 01)" },
+    { "id": "AC4.2.2", "status": "N/A", "target": "Retirado: épica 4 (cambio 01)" },
+    { "id": "AC4.2.3", "status": "N/A", "target": "Retirado: épica 4 (cambio 01)" },
+    { "id": "AC4.2.4", "status": "N/A", "target": "Retirado: épica 4 (cambio 01)" },
+    { "id": "AC4.3.1", "status": "N/A", "target": "Retirado: épica 4, umbral (cambio 01)" },
+    { "id": "AC4.3.2", "status": "N/A", "target": "Retirado: épica 4, umbral (cambio 01)" },
+    { "id": "AC3.1.6", "status": "N/A", "target": "Retirado: criterio de la revisión 1 de US3.1 (registro por afirmación), salió con el cambio 01" },
+    { "id": "AC3.1.7", "status": "N/A", "target": "Retirado: criterio de la revisión 1 de US3.1 (rótulo de incongruencia), salió con el cambio 01" },
+    { "id": "AC3.1.8", "status": "N/A", "target": "Retirado: criterio de la revisión 1 de US3.1 (resaltar el fragmento), sustituido por AC3.1.2" },
+    { "id": "AC3.3.1", "status": "N/A", "target": "US3.3 (prompt) pasa a U11 con el prompt de la biblioteca (unit-of-work revisión 3)" },
+    { "id": "AC3.3.2", "status": "N/A", "target": "US3.3 pasa a U11 (unit-of-work revisión 3)" }
   ],
   "reverse": [
-    {
-      "id": "BR1.2",
-      "status": "N/A",
-      "target": "FR2.4, SHA-256 repetido (C1 scenario.duplicate_sha256)"
-    },
-    {
-      "id": "BR1.3",
-      "status": "N/A",
-      "target": "respuesta P3 = A"
-    },
-    {
-      "id": "BR5.1",
-      "status": "N/A",
-      "target": "respuesta P5 = A"
-    },
-    {
-      "id": "BR5.5",
-      "status": "N/A",
-      "target": "sesión cerrada no acepta turnos (components InterviewSession)"
-    },
-    {
-      "id": "BR5.8",
-      "status": "N/A",
-      "target": "plazo del turno (C3, contract-design P3)"
-    },
-    {
-      "id": "BR11.1",
-      "status": "N/A",
-      "target": "transacción de ingesta (C3, ADR-002)"
-    }
+    { "id": "BR5.8", "status": "N/A", "target": "regla técnica de plazo de C2 (contract-summary, Plazo vencido; C25)" },
+    { "id": "BR11.1", "status": "N/A", "target": "regla técnica de atomicidad de la ingesta (C3, C10, ADR-002)" },
+    { "id": "BR14.2", "status": "N/A", "target": "C1 Consent: registrado_en es readOnly" },
+    { "id": "BR15.3", "status": "N/A", "target": "respuesta P9 = A (RunStarted); precisión FD-U4-02" },
+    { "id": "BR15.5", "status": "N/A", "target": "contrato C17 (Cancelled e InputRejected)" },
+    { "id": "BR15.6", "status": "N/A", "target": "ADR-002 y C2 (el trabajador no escribe en la base; XACK después de publicar)" },
+    { "id": "BR15.10", "status": "N/A", "target": "propuesta de esta etapa (FD-U4-09)" },
+    { "id": "BR16.1", "status": "N/A", "target": "C3 Ingesta (resultados viejos, cancelados o vencidos); precisión FD-U4-11" },
+    { "id": "BR16.6", "status": "N/A", "target": "respuesta P8 = A" },
+    { "id": "BR16.8", "status": "N/A", "target": "propuesta de esta etapa (FD-U4-06); hallazgo R-02 de la revisión 1" },
+    { "id": "BR16.9", "status": "N/A", "target": "propuesta de esta etapa (FD-U4-05); hallazgo R-02 de la revisión 1" },
+    { "id": "BR17.2", "status": "N/A", "target": "respuesta P11 = A" },
+    { "id": "BR19.1", "status": "N/A", "target": "pedido de U3 (FD-U3-04)" },
+    { "id": "BR19.2", "status": "N/A", "target": "pedido de U3 (FD-U3-13) y regla aprendida de NFR Design en project.md" },
+    { "id": "BR19.4", "status": "N/A", "target": "contrato C11 (SessionReader) y respuesta P11 = A" },
+    { "id": "BR1.1", "status": "N/A", "target": "Retirado (cambio 01: sale TruthFrame)" },
+    { "id": "BR1.2", "status": "N/A", "target": "Retirado (cambio 01: sale TruthFrame)" },
+    { "id": "BR1.3", "status": "N/A", "target": "Retirado (cambio 01: sale TruthFrame)" },
+    { "id": "BR1.4", "status": "N/A", "target": "Retirado (cambio 01: salen los embeddings)" },
+    { "id": "BR2.1", "status": "N/A", "target": "Retirado (cambio 01: sale la indexación)" },
+    { "id": "BR2.2", "status": "N/A", "target": "Retirado (cambio 01: sale la indexación)" },
+    { "id": "BR2.3", "status": "N/A", "target": "Retirado (cambio 01: sale la indexación)" },
+    { "id": "BR2.4", "status": "N/A", "target": "Retirado (cambio 01: sale la indexación)" },
+    { "id": "BR3.1", "status": "N/A", "target": "Retirado (cambio 01: sale el catálogo de escenarios)" },
+    { "id": "BR3.2", "status": "N/A", "target": "Retirado (cambio 01: sale el catálogo de escenarios)" },
+    { "id": "BR6.1", "status": "N/A", "target": "Retirado (cambio 01: sale el umbral)" },
+    { "id": "BR6.2", "status": "N/A", "target": "Retirado (cambio 01: sale el umbral)" },
+    { "id": "BR7.1", "status": "N/A", "target": "Retirado (cambio 01: sale la evaluación por afirmación)" },
+    { "id": "BR7.2", "status": "N/A", "target": "Retirado (cambio 01: sale la evaluación por afirmación)" },
+    { "id": "BR7.3", "status": "N/A", "target": "Retirado (cambio 01: sale la guardia del umbral)" },
+    { "id": "BR7.4", "status": "N/A", "target": "Retirado (cambio 01: sale la guardia del umbral)" },
+    { "id": "BR7.5", "status": "N/A", "target": "Retirado (cambio 01: salen las tres calificaciones)" },
+    { "id": "BR7.6", "status": "N/A", "target": "Retirado (cambio 01: salen las tres calificaciones)" },
+    { "id": "BR7.7", "status": "N/A", "target": "Retirado (cambio 01: sale la evaluación por afirmación)" },
+    { "id": "BR8.3", "status": "N/A", "target": "Retirado (cambio 01: sale el marco documental)" },
+    { "id": "BR9.2", "status": "N/A", "target": "Retirado (cambio 01 y unit-of-work: el prompt pasa a U11)" },
+    { "id": "BR10.1", "status": "N/A", "target": "Retirado (cambio 01: sale el paquete de traspaso)" },
+    { "id": "BR10.2", "status": "N/A", "target": "Retirado (cambio 01: sale el paquete de traspaso)" },
+    { "id": "BR10.3", "status": "N/A", "target": "Retirado (cambio 01: sale el paquete de traspaso)" },
+    { "id": "BR10.4", "status": "N/A", "target": "Retirado (cambio 01: sale el Hecho No Documentado)" },
+    { "id": "BR10.5", "status": "N/A", "target": "Retirado (cambio 01: sale el paquete de traspaso)" },
+    { "id": "BR13.5", "status": "N/A", "target": "Retirado (cambio 01: sale el aviso de Hecho No Documentado)" }
   ]
 }

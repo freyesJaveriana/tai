@@ -112,6 +112,18 @@
 - 2026-11-22T00:25:00Z — El sensor de trazabilidad sumó AC5.5.3, AC5.5.4 y AC8.3.1–AC8.3.3 por los cruces US5.5 y US8.3 del mapa; se cubrieron AC5.5.3 (BR3.4), AC8.3.2 (BR2.11) y AC8.3.3 (BR2.10), y se difirieron AC5.5.4 y AC8.3.1 a U4/U7.
 <!-- aidlc-wave-memory:incoherence-analyzer:18e6fa779a08dd8f9131f3bf822ff792da399e100ca0852bb1301027832c6fe6 -->
 
+
+- 2026-11-22T01:48:15Z — Segunda pasada (Modify por cambio 01, adenda 02 y revisiones 3): U4 deja de evaluar y pasa a orquestar. Conserva sesión, turnos, colas C2/C3, ingesta, creación de sugerencias por C10, escaneo de salida e interfaz con el escáner de U11, consola base y axe, y suma consentimiento, perfil, AnalysisWorker sobre C17, corridas con su registro de modelos, bloqueo por incidente e import-linter de semantic-agent. Lo que fijan C1–C3, C10, C17, C21, CD-01/06/11, U1 F3, FD-U3-04/08/10/13 y FD-U10-03/16 no se pregunta; solo quedan seis decisiones de criterio (P6–P11): efecto de anonimizador_no_disponible (UG-02), alcance y fin del bloqueo, incidente fuera de su sesión, quién marca processing, corrida de los turnos ENT y tramos cubiertos por el modo final.
+<!-- aidlc-wave-memory:text-flow:080958dfe7a86e139322031ed131d69c6b9162360bf6e1fd8fd1cf42b9712ae6 -->
+
+
+- 2026-11-22T03:13:39Z — El bloqueo por incidente se modela con blocked_code permanente además del estado blocked: blocked solo reemplaza a open, paused o suspended, y una sesión finalized o terminated conserva su estado con blocked_code fijo. Así P7 = A («se puede finalizar y consolidar») cabe en el enum único de SessionStatus de C1; pide precisiones a U6 (FD-U4-18) y a U7, que no puede exigir un modo final terminado en una sesión que ya no lo puede lanzar (FD-U4-19).
+<!-- aidlc-wave-memory:text-flow:b20de8e01bbdb639501f67867a7ae2a495c0f13c955e8333b9ff7ba34e59f472 -->
+
+
+- 2026-11-22T03:13:39Z — «Plegado» se explicó con D52 y D53 de la matriz del TG (pasajes poco relevantes reemplazados por «[pasaje plegado: N palabras]»), porque ni C6 ni requirements definen el término; queda como propuesta FD-U4-17.
+<!-- aidlc-wave-memory:text-flow:9d0e7cf9e171b807a5e2011389624fa5cc26976f97df08a5fb819f7543a7f74d -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -182,6 +194,14 @@
 
 - 2026-11-22T00:25:00Z — Las métricas de P6 (valores por corrida, umbrales, `passes`, `permutation_coverage`, `type_agreement`, `completed_runs`, sensibilidad por distancia, sección adversarial) no caben en C19 v1: se propone C19 v2 como cambio mayor por un PR de U1 antes del código de B11 (FD-U11-09) y un código de salida 6 (FD-U11-10).
 <!-- aidlc-wave-memory:incoherence-analyzer:eb6e49a930b17ff3f5445e000ac4f95978fa79aa2bf95b760b14cfcbf0575a5e -->
+
+
+- 2026-11-22T03:13:39Z — AnalysisRun se partió en tres tablas de solo inserción (AnalysisRun con la petición, RunStatusChange con cada estado y su actor, RunAttempt con el resultado de cada intento) en lugar de la fila con status, error_code y finished_at de components: responde a FD-U3-10 sin precisar AC8.4.2, a costa de derivar el estado vigente de la última fila (FD-U4-03).
+<!-- aidlc-wave-memory:text-flow:eb1ab8ef461bbfb8df92c35e4ffbbc7e6de096c2b3ffbbf0b15679bfce8029f0 -->
+
+
+- 2026-11-22T03:13:39Z — Se añadieron sin pregunta los code session.suspended y session.consolidated a C1 y el actor run-supervisor a la lista ActorSystem; los tres quedan en la tabla FD-U4 para decidir en la aprobación.
+<!-- aidlc-wave-memory:text-flow:ad307329f412cacfb4dfe0ac5b2b0f45bf167242162c1dc2f1bbe20216f122b4 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -270,6 +290,18 @@
 - 2026-11-22T00:25:00Z — En `estado: error`, `registro.descartes` va vacío igual que `hallazgos`: nada de una corrida fallida se interpreta como resultado, a costa de perder el diagnóstico de los descartes previos al fallo (BR7.1, FD-U11-13).
 <!-- aidlc-wave-memory:incoherence-analyzer:774914eebfda80971c1e9ac2146b26a2a994d2f5dd325ec4e2ee3e78aae13b1f -->
 
+
+- 2026-11-22T03:13:39Z — Un resultado que se va a descartar (intento viejo, corrida cancelada o vencida) se revisa igual en busca de un incidente antes de descartarlo: cuesta una lectura del registro por mensaje descartado, pero no se pierde una llamada externa sin anonimizar que ya ocurrió (FD-U4-11, AUTONOMIA-04).
+<!-- aidlc-wave-memory:text-flow:400aca5e931d8307e8a5d647496dbe1b04612cf81fde09f07b88ffbece14e1be -->
+
+
+- 2026-11-22T03:13:39Z — AnonymizationIncident sobrevive a la retención sin clave foránea, solo con IDs, en vez de borrarse con la sesión como pide el orden de C24: conserva la evidencia de VE-14 a cambio de una excepción más al borrado (FD-U4-12).
+<!-- aidlc-wave-memory:text-flow:0e0553ac2e7ae3c389e287ea95b0abfedd784532fcbf4a40ab667d013fd96d5e -->
+
+
+- 2026-11-22T03:13:39Z — En la ingesta, el vocabulario prohibido en un hallazgo invalida la corrida entera (regla de U1, F3) aunque U11 descarte solo el candidato (FD-U11-02): son dos líneas distintas, y en la segunda no se quita nada en silencio.
+<!-- aidlc-wave-memory:text-flow:2a3753c5ec923e05e9ebaef139ca763043f257d6ba5ab0ff26a4c313306595ff -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -332,3 +364,6 @@
 
 - 2026-11-22T00:25:00Z — El riesgo de una sola palabra citada en el escáner depende de FD-U1-14, aún pendiente en U1 (BR9.2).
 <!-- aidlc-wave-memory:incoherence-analyzer:c4a3f41ab3114f752542db35e38a53e95a04e14a398e018da3cf4112b91c82f7 -->
+
+- 2026-11-22T03:13:39Z — La interacción entre la pausa de U6 y la ruta de turnos (202 sin corrida en pausa) y el code para turnos sobre una sesión suspendida dependen de la segunda pasada de U6, que aún no se hace.
+<!-- aidlc-wave-memory:text-flow:bd671c315f15be8986c2e17d328c593b1ed168dfd9ac65abc327f667f38b1491 -->

@@ -124,6 +124,38 @@
 - 2026-11-22T03:13:39Z — «Plegado» se explicó con D52 y D53 de la matriz del TG (pasajes poco relevantes reemplazados por «[pasaje plegado: N palabras]»), porque ni C6 ni requirements definen el término; queda como propuesta FD-U4-17.
 <!-- aidlc-wave-memory:text-flow:9d0e7cf9e171b807a5e2011389624fa5cc26976f97df08a5fb819f7543a7f74d -->
 
+
+- 2026-11-22T03:19:24Z — Segunda pasada. La lógica de la permutación ya es de U11 (F4, BR6.1–BR6.3, FD-U11-06), así que U8 solo decide su valor en los perfiles que no son de evaluación y la prueba por el camino del producto. La aclaración neutra (US10.3) es lo único que se diseña de nuevo: biblioteca, ingesta, ConductorObservation y consola. La pregunta por pasajes, la segunda lectura del juez y el indicio afectivo quedan «Retirado» sin renumerar. Solo se preguntan P4 (origen del tema), P5 (permutación fuera de evaluación) y P6 (aclaración en el reporte).
+<!-- aidlc-wave-memory:assistant-extras:c92d4c6eb14cf6e13a2d09c04bb29302f3e5dc1f46d5e603918e1c6ec21ca0c8 -->
+
+
+- 2026-11-22T03:44:00Z — AC10.3.4 «se registra como descartada» se leyó como evento de log con run_id, id del hallazgo y regla (no una fila), y «cita de cualquier turno» como la regla cites_turn de C8 más las citas de la salida; quedó como FD-U8-06 para decidir.
+<!-- aidlc-wave-memory:assistant-extras:edbbb44964e0a8bfe0875a55ee1f771ac5a8c4476e2bb854d2d5a688b3202301 -->
+
+
+- 2026-11-22T03:19:41Z — Segunda pasada (Modify) de U5 por el cambio 01, la adenda 02 y las revisiones 3: cambio menor. Siguen la máquina de estados, las rondas, la autorización y P1 = A (ahora sobre ObservationsView). Sale lo de la alerta (CoT, fragmento, cita del documento, CotView, review.cot_not_viewed, propuesta de umbral AIR) y las columnas de ronda que referenciaban ReviewReport (R-01 de Domain Design). Entran los campos protegidos de C7 v2, la retención (C24), el registro de acceso de las observaciones (FD-U3-05), change_seq y el orden usuario → sesión → ronda, y el cierre de R-01..R-05 de la revisión 1. U4 ya crea ReviewSuggestion, ReviewRound y propose; U5 no los reescribe. Solo se preguntan P2 (reformulación en una corrección) y P3 (decidir tras terminar o retirar el consentimiento).
+<!-- aidlc-wave-memory:human-review:8f82690ec46b8e5efc3135786f4187741c537644a6b94c2b279b5738f739a97c -->
+
+
+- 2026-11-22T03:44:09Z — Volver a `pending` responde 422 por el enum del cuerpo de C1, no el 409 que dice AC5.1.4; el 409 `review.invalid_transition` queda para la decisión repetida sin cambios y se propone la precisión FD-U5-09.
+<!-- aidlc-wave-memory:human-review:a5464a98d7e52b3ab6d4831585d7b178e2a787a5768fdf5ab2e01d2ebe0ff2b9 -->
+
+
+- 2026-11-22T03:18:59Z — Leo U12 como validación y guarda de cifras de C19 más lista, detalle y comparación en M8. AC12.6.1 se cierra con FD-U1-05: el canary da 422 y 0 apariciones en filas y logs, y por eso el detail nunca repite valores ni nombres de campos desconocidos. Solo pregunto tres cosas de criterio: el canary de una palabra en un campo con patrón (residuo de R-06), qué se guarda de runs[] y de dónde sale el «Origen». C19 v2 (FD-U11-09) sigue pendiente de aprobación, así que se acepta la versión vigente que publique U1.
+<!-- aidlc-wave-memory:research-reports:2a2b5eb997216b8ec38d3b504e2a988abf600e51019e1a2ea14811e4fa1fd0dd -->
+
+
+- 2026-11-22T03:38:44Z — AC12.6.1 se cerró con CD-03 sin excepción: el canary da 422 en un hallazgo, como nombre de campo y en los campos con patrón (P1 = A); solo el nombre del archivo no rechaza, porque no se guarda ni se registra (FD-U12-01).
+<!-- aidlc-wave-memory:research-reports:0a02f4d5d2e4fae811026b45875d96032dcde3704053d4701d38cf66b496d5b4 -->
+
+
+- 2026-11-22T03:19:43Z — Segunda pasada: U6 pierde la versión de escenario (US1.2, F1 y BR1.x «Retirado») y gana importación (US2.6), modo final (US2.7) y pausa, terminación y retirada del consentimiento (US15.2, VE-10); P1–P3 de la primera pasada quedan superadas por el hablante ENT/TEST de C1 y el catálogo C25. Casi todo lo deciden C1, U4 (BR5.5, F12, FD-U4-01/07/18) y los AC, así que solo se pregunta lo que contradicen entre sí o lo que no fijan: marcas de hablante (P4), importación sintética sin consentimiento (P5), modo final tras la retirada (P6) y progreso del modo final (P7, SHOULD). Finalizar y consolidar siguen siendo de U7; U6 solo admite las transiciones en su máquina. La suspensión vale también para sesiones importadas porque la demo de B7 lo exige.
+<!-- aidlc-wave-memory:session-lifecycle:c0b4a665c7c6f903b313354ab2d8e128fae2765dd2208fedfc745275747fb9df -->
+
+
+- 2026-11-22T03:47:09Z — P7 = B: el progreso del modo final es etapa, cronómetro y total de ventanas que calcula session-api con la ventana y el solapamiento de effective_config (1 + techo((N − W)/(W − O))), con los ejemplos de U11; no hay «ventana N de M» y no cambian C3, C17 ni la biblioteca.
+<!-- aidlc-wave-memory:session-lifecycle:3ade181c5a8d883781d56bb86f7dc10092fc1fe90d5c29bda3169c66f7400411 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -202,6 +234,22 @@
 
 - 2026-11-22T03:13:39Z — Se añadieron sin pregunta los code session.suspended y session.consolidated a C1 y el actor run-supervisor a la lista ActorSystem; los tres quedan en la tabla FD-U4 para decidir en la aprobación.
 <!-- aidlc-wave-memory:text-flow:ad307329f412cacfb4dfe0ac5b2b0f45bf167242162c1dc2f1bbe20216f122b4 -->
+
+
+- 2026-11-22T03:44:00Z — Además de lo previsto en las preguntas, entraron BR4.5–BR4.7 (AC5.5.4, AC5.6.4 y AC5.6.5, nuevos o sin regla tras retirar BR4.3) y se retiró también AffectiveNote, que la lista de retiros no nombraba pero sale con US11.1.
+<!-- aidlc-wave-memory:assistant-extras:91b4f229891751414a6b6df5f99e270bf806325d2383713f6e4d922f8de20480 -->
+
+
+- 2026-11-22T03:44:09Z — Se añadió el estado `discarded` de la ronda y `discard_correction_round` (BR3.9, FD-U5-04), que la lista acordada no nombraba: AC6.3.2 lo necesita, U7 ya lo había propuesto (X1) y C11 v2 no lo trae.
+<!-- aidlc-wave-memory:human-review:b2683b4d3d4303f4ed2bb852a679039f33078545daa149b241f2da73b878e738 -->
+
+
+- 2026-11-22T03:46:40Z — El version comercial que informa el proveedor (U10) no lo declara el perfil, así que P1 = A literal rechazaría todo reporte comercial; se admite «modelo» más segmentos que empiezan por dígito (BR3.3, FD-U12-11).
+<!-- aidlc-wave-memory:research-reports:ee1c866cd8976ef4f4bde7e5b6c34a24ba37c3b23f31575baf7dfbb478077b74 -->
+
+
+- 2026-11-22T03:47:09Z — «Reanudar análisis» (punto 6 de la lista) excluye los tramos en error: solo encola desde el primer TEST cuya última corrida está cancelled o que no tiene ninguna, para no pisar el «Reintentar tramo» que esos tramos ya ofrecen (FD-U6-15).
+<!-- aidlc-wave-memory:session-lifecycle:3dca3ce774fd51426d034bf853a130382b445e7b95e312ca2291d83eacd7b474 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -302,6 +350,26 @@
 - 2026-11-22T03:13:39Z — En la ingesta, el vocabulario prohibido en un hallazgo invalida la corrida entera (regla de U1, F3) aunque U11 descarte solo el candidato (FD-U11-02): son dos líneas distintas, y en la segunda no se quita nada en silencio.
 <!-- aidlc-wave-memory:text-flow:2a3753c5ec923e05e9ebaef139ca763043f257d6ba5ab0ff26a4c313306595ff -->
 
+
+- 2026-11-22T03:44:00Z — BR5.5 compara el tema con las citas de todos los hallazgos de la salida y no solo con el de origen: la biblioteca y la ingesta aplican la misma regla, a costa de quitar algunas aclaraciones más.
+<!-- aidlc-wave-memory:assistant-extras:5a7c0710700c488744548483c059f4cd6c90cde24d120c616b7c1b9bb2d2a665 -->
+
+
+- 2026-11-22T03:44:00Z — La llegada de aclaraciones se anuncia como contador agregado y no una por una (FD-U8-10), para cumplir AC5.6.5 sin perder el anuncio del punto 8.
+<!-- aidlc-wave-memory:assistant-extras:6f478d2b4c1331631dd59c6ad304e81ef8c65287f7c679babe890a101b37f5a8 -->
+
+
+- 2026-11-22T03:44:09Z — `open_round(for_update=True)` abre la ronda 1 si la sesión no tiene ninguna (BR3.7): U7 siempre bloquea una ronda, a costa de que una lectura con bloqueo pueda crear una fila.
+<!-- aidlc-wave-memory:human-review:507887e696a0815eabc09f567555a14b83720b831a9ea1fec4beb69f0916b705 -->
+
+
+- 2026-11-22T03:46:40Z — El costo de M8 va solo en la fila Total (FD-U12-09): recalcularlo por papel duplicaría la fórmula de U11 en session-api, a cambio de perder el desglose que dibujaba §10.2.
+<!-- aidlc-wave-memory:research-reports:ef2fb720d64f2d459fb33f1239c5df9c44a3df801cd14c8db4ff3204a622e216 -->
+
+
+- 2026-11-22T03:47:09Z — El hasta_turno de un bloque pegado es su último turno TEST y no n+k−1 (FD-U6-07): respeta la restricción de U4 de que una incremental termina en TEST y la semántica del turno ENT sin corrida, a costa de una precisión a AC2.3.3.
+<!-- aidlc-wave-memory:session-lifecycle:014defda73b8187fb811f52133a8fdf97971cce8790641d28575dfa69e14cb2e -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -367,3 +435,15 @@
 
 - 2026-11-22T03:13:39Z — La interacción entre la pausa de U6 y la ruta de turnos (202 sin corrida en pausa) y el code para turnos sobre una sesión suspendida dependen de la segunda pasada de U6, que aún no se hace.
 <!-- aidlc-wave-memory:text-flow:bd671c315f15be8986c2e17d328c593b1ed168dfd9ac65abc327f667f38b1491 -->
+
+- 2026-11-22T03:44:00Z — Para NFR Requirements: el costo de verifier_permuted en todo-local frente a NFR3 y NFR8, la tasa aceptable de aclaraciones descartadas por regla y si hace falta un tope de aclaraciones o de largo del tema en C25.
+<!-- aidlc-wave-memory:assistant-extras:84656469a01527cbada161073179e207ce0707e3ed056bc766e2c13f694f1552 -->
+
+- 2026-11-22T03:44:09Z — NFR Requirements (segunda pasada) fija las cifras de `review_text_max_chars` y `review_body_max_bytes` en C25 y pasa el código de longitud a `limits.exceeded`.
+<!-- aidlc-wave-memory:human-review:54391f623533533bbd5a35c8c4764499160d523dd9545c77cdebe749b713ae3e -->
+
+- 2026-11-22T03:46:40Z — Con P1 = A, un reporte hecho antes de cambiar un perfil o la tabla de precios por PR ya no se puede subir (E18, E19); queda para decidir en la aprobación si basta con subir antes del cambio o hace falta guardar versiones anteriores en C18.
+<!-- aidlc-wave-memory:research-reports:4e3d4ecb9e00f76d2acc161793ca94d1f1301a85ec0089c1758dbe90baa2c3c7 -->
+
+- 2026-11-22T03:47:09Z — Para NFR Requirements: cifras de C25 del pegado y la importación con margen sobre la entrevista más larga del piloto, run_deadline_final_s en CPU, si el latido escribe en cada sondeo y si NFR8 exige paginar la lista en el servidor (functional-spec §11).
+<!-- aidlc-wave-memory:session-lifecycle:07e0c344ca1b5a1e1974248d337500cd21a9982f0760e5bfa6d329de0b8e3b35 -->

@@ -72,6 +72,22 @@
 - 2026-11-22T16:28:13Z — «El trabajador no reintenta por su cuenta» (BR15.6) se leyó como no repetir llamadas a modelos; republicar en Redis es idempotente y se permite (NFRD-U4-03).
 <!-- aidlc-wave-memory:text-flow:901b0f079063dd012ced04aabda5b3bd1497114261c54017fbccd7d8a6ba4946 -->
 
+
+- 2026-11-22T16:44:07Z — Segunda pasada sin preguntas: las diferencias con U1 (nombres VERIDICUS_LIMIT_*), U3 (413 por x-veridicus-limit, Redis y readyz) y U4 (sondeo tras descartar una copia) se resolvieron con las fuentes y quedaron en NFRD-U5-01 a NFRD-U5-11.
+<!-- aidlc-wave-memory:human-review:12b76560574467441e5f11a57e0a358e03f2c99c0632954e30ca06fae7dbde9f -->
+
+
+- 2026-11-22T16:46:08Z — Segunda pasada: el sondeo de U4 no leía las tablas de U8; se pidió a U4 (NFRD-U8-02) que las incluya con change_seq en las dos tablas, y la decisión de la aclaración no cambia su change_seq para respetar «solo cambia status».
+<!-- aidlc-wave-memory:assistant-extras:6f9d9d6d4a3c9489dcc954f9b6b6fa0ec6746b0170b616af732b7dea092ee329 -->
+
+
+- 2026-11-22T16:45:56Z — Segunda pasada sin preguntas: la contradicción sobre Redis caído (los requisitos de U6 dicen que la lista y la importación siguen; U3 deja la consola fuera de servicio por /readyz) se resolvió con la decisión de U3 y quedó como NFRD-U6-08.
+<!-- aidlc-wave-memory:session-lifecycle:741c7eeec6ae68460af9efd02bf7134eca1084b792f4a3e6f778194ba951a7f7 -->
+
+
+- 2026-11-22T23:43:59Z — NFR10.14 dejaba a esta etapa el plazo de las lecturas: se tomó el statement_timeout común de 2 s de U3 en vez de una cifra propia (NFRD-U12-07).
+<!-- aidlc-wave-memory:research-reports:feb9e146f28f921634824709081859cfcbc2fa6df80deaa660526f5a766c2ff0 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -118,6 +134,22 @@
 
 - 2026-11-22T15:41:51Z — El token anti-CSRF se deriva del token de sesión con HMAC-SHA256: entities.md solo guarda su hash y /auth/me debe devolverlo; la revisión 1 lo guardaba en claro contra NFR10.7 (NFRD-U3-03).
 <!-- aidlc-wave-memory:identity-access:8e1d15b3c1af138ac685f8985adad55a74480505c6686e2926a404a9e15d882f -->
+
+
+- 2026-11-22T16:44:07Z — El Job de retención corre en otro proceso, así que el remove de purge_session no alcanza la serie de la API; se añadió una reconciliación cada 60 s en la API (NFRD-U5-01) en vez de dar por buena la retirada en el after_commit.
+<!-- aidlc-wave-memory:human-review:5d1ca7615bca067bc825544dc1bd70924205dababe2e5a8fb7dc444c48cf7751 -->
+
+
+- 2026-11-22T16:46:08Z — El índice único de D12 pasa a usar el SHA-256 de tema_key (NFRD-U8-03), porque un tema largo no cabe en una entrada B-tree; quedó como precisión sin editar D12.
+<!-- aidlc-wave-memory:assistant-extras:3d58fe15c081f6511c986030238b20701748041893a244686e96db1c3c558a5e -->
+
+
+- 2026-11-22T16:45:56Z — La marca de lote con WATCH (P1 = A) queda Retirada: BR2.5 de la revisión 2 no republica en el reenvío y la publicación fallida la cierra el supervisor de U4 (NFRD-U6-13).
+<!-- aidlc-wave-memory:session-lifecycle:996a089808b5170b70c26512f57ed7f8140fdc87b47c88d48826680fadd49b43 -->
+
+
+- 2026-11-22T23:43:59Z — La subida no corre en la transacción única de GuardedRoute sino en tres cortas (T1 autoriza y confirma, T2 duplicado, T3 escritura con relectura del rol), como el inicio de sesión de U3; con el Ingress sin buffering y una validación de hasta 12 s, la conexión quedaba inactiva dentro de la transacción frente a un plazo de 5 s o 15 s (NFRD-U12-01).
+<!-- aidlc-wave-memory:research-reports:bbac5b8f0cc027e4075b664f10cd41fda849805a3f1953238145d3eb327081e7 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -197,6 +229,26 @@
 
 - 2026-11-22T16:28:13Z — Ruta mínima del incidente en la ingesta: una transacción más a cambio de que un bloqueo nunca se pierda cuando el resultado no se puede ingerir entero (NFRD-U4-04).
 <!-- aidlc-wave-memory:text-flow:9569fa2598ae17ccd8a65cb23c9689b9397a17647f5abeb1d6ff466510dbc31c -->
+
+
+- 2026-11-22T16:44:07Z — El CHECK de «en blanco» usa btrim con la lista exacta de str.isspace() (cierra R-04): aplicación y base coinciden, a cambio de mantener una lista que una prueba de nivel 0 compara con Python.
+<!-- aidlc-wave-memory:human-review:a9eee292d0aed913eb839b3d76c04989135b4fdce02261c106a70fb12ef0dd86 -->
+
+
+- 2026-11-22T16:46:08Z — Un disparador diferido exige la fila de historial al confirmar cada cambio de estado (cierra R-04 de la revisión 1), a cambio de un disparador más que probar; la prueba de humo comprueba la permutación en el registro de llamadas en vez de añadir el perfil a C1.
+<!-- aidlc-wave-memory:assistant-extras:beca0080eea8e6b30c1ca94a486795432ed0790ceeb1bef94b4bc8b7f3b07ee5 -->
+
+
+- 2026-11-22T16:45:56Z — El pegado divide y valida fuera del bloqueo de la sesión y solo comprueba e inserta bajo change_cursor.bump: el bloqueo dura ≤ 1 s con 2 000 turnos y no hace fallar una decisión de U5 por lock_timeout (cierra R-03), a cambio de comprobar las cifras dos veces.
+<!-- aidlc-wave-memory:session-lifecycle:25e0c29c8bc84159b43f9477398f81857ebad41425203785de2a6047bafabd15 -->
+
+
+- 2026-11-22T23:43:59Z — Bulkhead de 2 subidas con espera de 5 s y 503 para la tercera, a cambio de proteger la memoria de la API que comparten todas las unidades de session-api (NFRD-U12-04).
+<!-- aidlc-wave-memory:research-reports:bd163469a182c97c55d0b85474fee0c7df61518c635d5d71cde537f4b1bfaa55 -->
+
+
+- 2026-11-22T23:43:59Z — El pico estimado de memoria por subida (≈ 230 MiB) deja poco margen frente a los 256 MiB de NFR3.8; si la medición lo supera, se arman las filas de las llamadas por lotes antes de tocar el tope.
+<!-- aidlc-wave-memory:research-reports:f384c6ed0695c7a8d875a0b4dd44a87bdd7a797fddd30ed3dd01010c193163b3 -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

@@ -96,6 +96,10 @@
 - 2026-11-22T13:58:51Z — Las cinco cifras de C25 de la configuración efectiva (plazos por llamada y de corrida, ventana y solapamiento) se leen como de U11, porque C18 dice que U11 decide esos esquemas y B11 es su primer consumidor; el catálogo guarda el máximo (ZINE) y cada despliegue lo baja por entorno.
 <!-- aidlc-wave-memory:incoherence-analyzer:0fd21d38a944880712c78a2a46eef25b4737b831009dccfe99987881fa43f39f -->
 
+
+- 2026-11-22T14:22:49Z — Segunda pasada: S1 = A se conserva en su idea, pero ahora suma los plazos propios de las corridas que van por delante en la cola FIFO única, con un tope nuevo de C25 (run_queue_wait_max_s). Sin eso, una corrida incremental detrás de un modo final vencería sin fallar nada.
+<!-- aidlc-wave-memory:text-flow:bb667932fb806ec6f63ae8302feee39e1f79bf153966f6af4bc9879dc1f59319 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -138,6 +142,10 @@
 
 - 2026-11-22T13:44:22Z — F9 de U10 exige igualdad exacta con el Corefile; con P5 = A, U2 le pasa el Corefile sin la lista cerrada de infraestructura (github.com) y comprueba esa lista aparte (NFR-U2-03).
 <!-- aidlc-wave-memory:platform:71f64c3d681f327649a54cd5726edbd9638e4e9c5a86792316f41a404d3567d5 -->
+
+
+- 2026-11-22T14:36:18Z — P6 = A (250 000) contradice el 186 000 que ya aprobaron U10 y U11. No se editaron sus artefactos: NFR-U4-02 les pide repetir sus comprobaciones con 250 000 y fija model_call_timeout_s ≥ 270 s para todo despliegue con perfil comercial.
+<!-- aidlc-wave-memory:text-flow:3486deb61c285f1502ef9942072101b47e55cf58e476d177ac3678e699272caa -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -250,6 +258,10 @@
 - 2026-11-22T14:15:13Z — Con el verificador local de P1 = A y la permutación activa en todos los perfiles (FD-U8-08 manda sobre el punto 3 de la sección 2), el N del humo sube de 240 a 300 s y el tope incremental de C25 de 900 a 1200 s, a cambio de que solo Anthropic reciba datos.
 <!-- aidlc-wave-memory:incoherence-analyzer:6671b64abf902dad0b4aed79e4396e1f2ce399e861706d311098315580738cea -->
 
+
+- 2026-11-22T14:22:49Z — El trabajador renueva cada 15 s el reclamo del mensaje en curso, y por eso claim_idle_ms baja a 60 s aunque un modo final dure una hora. El precio es un hilo más en semantic-agent y una precisión a C2. A cambio, un trabajador caído se reemplaza en un minuto y no en lo que dura el plazo más largo.
+<!-- aidlc-wave-memory:text-flow:934deb711b342fef6f2cc923dce3e0ea2cc944d01e8267d577fa6f0fc381aee9 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -291,3 +303,6 @@
 
 - 2026-11-22T13:58:51Z — Tres preguntas legítimas: verificador de `comercial-piloto` y familia del generador (cambia qué proveedor recibe datos y el alcance de B10; gpt-oss cuenta como línea de OpenAI), umbrales estadísticos del nivel 2 (riesgo de la compuerta) y composición mínima del conjunto (alcance de B11, R8).
 <!-- aidlc-wave-memory:incoherence-analyzer:d6b8120ca9f191f5970f0d233fe38375d223b743ac6594f670ad5d6ef17ffe9f -->
+
+- 2026-11-22T14:22:49Z — FR3.7 pide margen sobre la entrevista más larga del piloto (unos 186 000 caracteres), pero los NFR de U10 y U11 usan 186 000 como el máximo de C25. Se pregunta como P6, porque la cifra decide cuánto testimonio seudonimizado sale en una llamada. El turno más largo y el número de turnos del piloto no están en Git, así que se pregunta como P7 y no se generan artefactos.
+<!-- aidlc-wave-memory:text-flow:bf5c3978c3608b9d7dc87ac239340bd8ad76d5d505209808997b047114a5cb2a -->

@@ -3,20 +3,20 @@
   "unit": "text-flow",
   "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12", "NFR13", "NFR14", "NFR15"],
   "coverage": [
-    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2, NFR1.3, NFR1.4, NFR1.5, NFR1.6, NFR1.7" },
     { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2" },
-    { "id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2, NFR3.3, NFR3.4, NFR3.5, NFR3.6, NFR3.7, NFR3.8, NFR3.9, NFR3.10, NFR3.11, NFR3.12" },
-    { "id": "NFR4", "status": "OK", "target": "NFR4.1, NFR4.2, NFR4.3, NFR4.4, NFR4.5" },
-    { "id": "NFR5", "status": "OK", "target": "NFR5.1, NFR5.2" },
-    { "id": "NFR6", "status": "OK", "target": "NFR6.1" },
-    { "id": "NFR7", "status": "N/A", "target": "MTTV se mide desde «Finalizar sesión» hasta la consolidación (U7); U4 solo guarda submitted_at y evaluated_at" },
-    { "id": "NFR8", "status": "OK", "target": "NFR8.1, NFR8.2, NFR8.3, NFR8.4, NFR8.5, NFR8.6, NFR8.7, NFR8.8, NFR8.9, NFR8.10, NFR8.11" },
-    { "id": "NFR9", "status": "OK", "target": "NFR9.1, NFR9.2, NFR9.3" },
-    { "id": "NFR10", "status": "OK", "target": "NFR10.1, NFR10.2, NFR10.3, NFR10.4, NFR10.5, NFR10.6, NFR10.7, NFR10.8, NFR10.9, NFR10.10, NFR10.11, NFR10.12, NFR10.13, NFR10.14, NFR10.15, NFR10.16, NFR10.17, NFR10.18, NFR10.19, NFR10.20" },
-    { "id": "NFR11", "status": "OK", "target": "NFR11.1, NFR11.2, NFR11.3" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2, NFR3.3, NFR3.5, NFR3.6, NFR3.7, NFR3.8, NFR3.9, NFR3.10, NFR3.13, NFR3.14" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.6" },
+    { "id": "NFR5", "status": "N/A", "target": "Retirado de U4 por el cambio 01: los Escenarios A, B y C los cubre U11 (NFR5.1, NFR5.2 de U11), dueña del prompt y del juez" },
+    { "id": "NFR6", "status": "N/A", "target": "Retirado de U4 por el cambio 01: la legibilidad de observaciones la cubre U11" },
+    { "id": "NFR7", "status": "N/A", "target": "MTTV se mide desde «Finalizar sesión» hasta la consolidación (U7); U4 solo guarda las horas de cada corrida" },
+    { "id": "NFR8", "status": "OK", "target": "NFR8.3, NFR8.5, NFR8.6, NFR8.7, NFR8.8, NFR8.10, NFR8.11, NFR8.12" },
+    { "id": "NFR9", "status": "N/A", "target": "Retirado en requirements.md revisión 3 (cambio 01): sale la indexación del escenario" },
+    { "id": "NFR10", "status": "OK", "target": "NFR10.1, NFR10.4, NFR10.5, NFR10.6, NFR10.7, NFR10.9, NFR10.10, NFR10.11, NFR10.13, NFR10.14, NFR10.15, NFR10.16, NFR10.17, NFR10.19, NFR10.20, NFR10.21, NFR10.22, NFR10.23, NFR10.24, NFR10.25" },
+    { "id": "NFR11", "status": "OK", "target": "NFR11.1, NFR11.2, NFR11.3, NFR11.4, NFR11.5" },
     { "id": "NFR12", "status": "OK", "target": "NFR12.1" },
     { "id": "NFR13", "status": "OK", "target": "NFR13.1, NFR13.2" },
-    { "id": "NFR14", "status": "OK", "target": "NFR14.1, NFR14.2" },
-    { "id": "NFR15", "status": "OK", "target": "NFR15.1, NFR15.2, NFR15.3, NFR15.4" }
+    { "id": "NFR14", "status": "OK", "target": "NFR14.1" },
+    { "id": "NFR15", "status": "OK", "target": "NFR15.1, NFR15.2, NFR15.3, NFR15.4, NFR15.5" }
   ]
 }

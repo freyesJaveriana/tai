@@ -10,6 +10,7 @@
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 - 2026-10-03T02:00:43Z — BR8.2 usa turn.error.timeout para el juez que no responde, pero el enum error_code de C3 no lo incluye; se registró en la tabla de precisiones sin editar contract-summary, junto con count_tokens en C13 y el XDEL de C2/C3.
+- 2026-11-22T14:36:18Z — P6 = A (250 000) contradice el 186 000 que ya aprobaron U10 y U11. No se editaron sus artefactos: NFR-U4-02 les pide repetir sus comprobaciones con 250 000 y fija model_call_timeout_s ≥ 270 s para todo despliegue con perfil comercial.
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->

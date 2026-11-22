@@ -1,57 +1,71 @@
 # Requisitos de fiabilidad — U4 text-flow
 
-**Insumos.** Flujos F2, F4–F7 y §8 «Errores y bordes» de `functional-design/functional-spec.md`
-(functional-spec); reglas BR2.2, BR5.6–BR5.9, BR6.1, BR6.2, BR7.3, BR8.1, BR8.2 y BR11.1–BR11.3 de
-`functional-design/rules.md` (rules); NFR4, NFR6, NFR8 y NFR10 de
-`inception/requirements-analysis/requirements.md` (requirements); C2, C3, C4, C14 y C16 y las reglas de
-propiedad de `inception/contract-design/contract-summary.md` (contract-summary); respuestas P1, P3,
-P4, S1 y S3 de `nfr-requirements-questions.md`.
+**Revisión 2 (2026-11-22).** Segunda pasada por el cambio 01 (DT27), la adenda 02 y el Functional Design
+revisión 2 de U4. Sustituye a la revisión 1 del 2026-10-03.
+
+**IDs.** Los requisitos que siguen conservan su número y lo retirado queda «Retirado». Los nuevos son
+NFR10.21–NFR10.23 y NFR4.6. Los de calidad de la IA (NFR4.1–NFR4.5 y NFR6.1) pasan a U11, que es dueña
+del *prompt*, del juez y del verificador.
+
+**Insumos.**
+- `functional-design/functional-spec.md` (functional-spec): flujos F5–F8, F11–F15, la máquina de
+  estados de la corrida, §8 «Errores y bordes» y los escenarios E10–E55.
+- `functional-design/rules.md` (rules): reglas BR5.6–BR5.9, BR8.1–BR8.6, BR11.1–BR11.4, BR15.1–BR15.9 y
+  BR16.1–BR16.7.
+- `inception/requirements-analysis/requirements.md` (requirements): NFR4, NFR6, NFR8 y NFR10.
+- `inception/contract-design/contract-summary.md` (contract-summary): C2, C3, C16, C17, C21 y C25, con
+  CD-06.
+- Respuestas S1 = A, P6 = A y P7 = A de `nfr-requirements-questions.md`.
 
 ## 1. Objetivos
 
-El MVP no tiene SLA: corre en la máquina de desarrollo y en la demostración. Los objetivos medibles
-son los del PRD y de team-practices:
+El MVP no tiene SLA: corre en la máquina de desarrollo y en la demostración.
 
-| ID | Objetivo | Criterio medible | Verificación |
-|---|---|---|---|
-| NFR8.5 | Éxito del *pipeline* de texto (NFR8). | ≥ 98 % de 50 sesiones de texto del Golden Dataset, en tandas de 3 concurrentes en CPU, terminan de punta a punta sin `OOMKilled` ni turnos en `error` (como máximo 1 sesión fallida). | Corrida de carga a demanda (`scalability-requirements.md` §3) |
-| NFR8.6 | La prueba de humo no falla por U4. | 0 fallos atribuibles a U4 en cada corrida de `scripts/smoke.sh` tras un despliegue (NFR3.10). | Nivel 3 |
+| ID | Estado | Objetivo | Criterio medible | Verificación |
+|---|---|---|---|---|
+| NFR8.5 | cambia | El flujo de texto termina de punta a punta (NFR8). | ≥ 98 % de 50 sesiones sintéticas con `comercial-piloto`, en tandas de 3, terminan su corrida incremental y su modo final sin corridas en `error` ni `OOMKilled`; como máximo falla 1 sesión (NFR-U4-11) | Corrida de carga a demanda (`scalability-requirements.md` §3) |
+| NFR8.6 | se mantiene | La prueba de humo no falla por U4. | 0 fallos atribuibles a U4 en cada corrida de `scripts/smoke.sh` tras un despliegue (NFR3.10) | Nivel 3 |
 
 ## 2. Requisitos
 
-| ID | Requisito | Criterio medible | Verificación |
-|---|---|---|---|
-| NFR10.14 | Toda E/S de U4 tiene *timeout* explícito, leído de la configuración validada al arrancar. | PostgreSQL ≤ 2 s por consulta (5 s para la transacción de indexación de una versión); Redis ≤ 0,5 s por operación; *embeddings* 30 s por lote; juez 180 s por llamada (3 veces el p95 de NFR3.1 y menos que el plazo base de 300 s); `count_tokens` 5 s; conexión HTTP 2 s. | Nivel 0 (configuración) y nivel 1 |
-| NFR10.15 | Las colas entregan al menos una vez y sin efectos dobles (BR5.7). | `XACK` solo después de publicar C3 (evaluador) o de confirmar la transacción (ingesta e indexador). Un mensaje pendiente se reclama con `XAUTOCLAIM` tras 240 s de inactividad (más que el peor caso de un turno: *embeddings* + juez ≈ 213 s); a la 3.ª entrega sin confirmar va a `<cola>:failed` y el turno pasa a `error` con `turn.error.system`. Prueba de nivel 1 que mata al evaluador a mitad (E8): un solo resultado por intento. | Nivel 1 |
-| NFR10.16 | Cada fallo del juez tiene su tratamiento. | *Timeout* (180 s) → `turn.error.timeout` sin reintento automático (BR8.2); salida inválida → `turn.error.invalid_output` sin reintento automático (contract-design P3); conexión rechazada o respuesta 5xx → no se confirma el mensaje y vuelve por `XAUTOCLAIM` (recuperable); *prompt* que no cabe → `turn.error.system` sin llamar al juez (NFR3.12). Una prueba de nivel 0 por caso con el *fake* del juez. | Nivel 0 |
-| NFR10.17 | Ningún turno queda «en curso» para siempre. | La revisión de plazos (NFR3.6) cubre turnos huérfanos (mensaje perdido, Redis reiniciado); todo turno `queued` o `processing` termina `evaluated` o `error` antes de `deadline_at + 30 s`. | Nivel 1 con reloj controlado |
-| NFR10.18 | La indexación es todo o nada y no se repite a medias (BR2.2). | Un fallo de *embeddings* en el lote k > 1 deja la versión en `error` con 0 pasajes (E4); una reentrega de una versión `ready` o `error` se confirma sin efectos. | Nivel 1 |
-| NFR10.19 | `/readyz` refleja lo que U4 necesita (C16). | `semantic-agent`: `503` si falta o es inválido el umbral (BR6.1, E21), si el SHA-256 del *prompt* no coincide (E22), o si PostgreSQL (rol de solo lectura), Redis, `model-judge` o `model-embeddings` no responden. `session-api` y su trabajador: `503` si falta la configuración de U4, o si PostgreSQL, Redis o `model-embeddings` no responden. Configuración inválida → el proceso termina con código distinto de 0. | Nivel 1 |
-| NFR10.20 | La consola sobrevive a cortes breves. | Si un sondeo falla (red o 5xx), M4 conserva lo que ya mostraba y reintenta cada 2 s, 4 s, 8 s… hasta 30 s; al primer sondeo correcto vuelve al intervalo de NFR3.7 y aplica los cambios desde su último `cursor` sin perder ninguno. | Vitest con un servidor *fake* que falla 3 veces |
+| ID | Estado | Requisito | Criterio medible | Verificación |
+|---|---|---|---|---|
+| NFR10.14 | cambia | Toda E/S propia de U4 tiene un *timeout* explícito, leído de la configuración validada al arrancar. | PostgreSQL ≤ 2 s por consulta y 5 s para la transacción de ingesta; Redis ≤ 0,5 s por operación; `check_ready()` de C21 2 s; conexión HTTP 2 s. Las llamadas a modelos usan `model_call_timeout_s` de la `effective_config` (U11), que debe ser ≥ 270 s en todo despliegue con un perfil comercial (NFR-U4-02) | Nivel 0 (configuración) y nivel 1 |
+| NFR10.15 | cambia | Las colas entregan al menos una vez y sin efectos dobles (BR5.7). | `XACK` solo después de publicar C3 (trabajador) o de confirmar la transacción (ingesta). El trabajador renueva cada 15 s el reclamo de su mensaje; un mensaje sin renovar se reclama con `XAUTOCLAIM` tras `claim_idle_ms` = 60 000 (NFR-U4-06). A la entrega `run_max_deliveries` = 3 sin confirmar, el mensaje va a `<cola>:failed` y la corrida pasa a `error` con `analysis.system`. Una prueba de nivel 1 mata al trabajador a mitad de la corrida: queda un solo resultado por intento | Nivel 1 |
+| NFR10.16 | cambia | Cada fallo de la corrida tiene su tratamiento, sin reintento automático. | `estado: error` de C17 deja la corrida en `error` con el mismo `code` y 0 sugerencias (BR11.3). La salida que no pasa C6 en la ingesta queda en `analysis.invalid_output`. El `503` del proxy queda en `analysis.anonymizer_unavailable` (BR16.7). La cancelación deja la corrida en `cancelled`. El reintento es una acción del analista, que crea `attempt + 1` (BR5.9). Los reintentos de transporte del juez son de U11 (NFR10 de U11). Hay una prueba de nivel 0 por caso con el *fake* de C17 | Nivel 0 |
+| NFR10.17 | cambia | Ninguna corrida queda «en curso» para siempre. | El supervisor (NFR3.6) cubre las corridas huérfanas (mensaje perdido o Redis reiniciado): toda corrida en `queued` o `processing` termina en `completed`, `error` o `cancelled` antes de `deadline_at + 30 s`. Una corrida en espera (NFR3.13) se libera o termina según FD-U9-07, y una prueba comprueba que ninguna queda en espera sin fin | Nivel 1 con reloj controlado |
+| NFR10.18 | Retirado | La indexación es todo o nada. | Sale el escenario (cambio 01) | — |
+| NFR10.19 | cambia | `/readyz` refleja lo que U4 necesita (C16). | `semantic-agent` responde `503` en estos casos: el archivo de perfiles o `contracts/limits.v1.yaml` faltan o no son válidos; Redis no responde; un perfil con destino externo tiene el proxy caído (`check_ready()` falla, NFR1.4); o U11 informa que un servidor local de un perfil habilitado no responde. `session-api` y su trabajador responden `503` si falta su configuración o si PostgreSQL o Redis no responden. Una configuración inválida termina el proceso con un código distinto de 0 (NFR10.25) | Nivel 1 |
+| NFR10.20 | cambia | La consola sobrevive a cortes breves. | Si un sondeo falla (red o 5xx), M4 conserva lo que ya mostraba y reintenta tras 2 s, 4 s, 8 s… hasta 30 s. Al primer sondeo correcto vuelve al intervalo de NFR3.7 y aplica los cambios desde su último `cursor` sin perder ninguno | Vitest con un servidor *fake* que falla 3 veces |
+| NFR10.21 | nuevo | La cancelación llega al trabajador antes de la siguiente llamada (CD-06). | Pausar, terminar, retirar el consentimiento, bloquear o vencer el plazo escribe la clave `veridicus:run-cancelled:{run_id}` antes de responder, con TTL igual al plazo restante más `cancel_key_margin_s` = 120. El trabajador la consulta antes de empezar y antes de cada llamada (BR15.4). Si Redis pierde la clave, el plazo detiene la corrida igual (E52, NFR1.6) | Nivel 1 |
+| NFR10.22 | nuevo | La ingesta es idempotente. | Un `RunResult` repetido para el mismo (`run_id`, `attempt`) se confirma sin efectos. Un `RunStarted` o un `RunResult` que llega cuando la corrida ya es terminal se confirma sin cambiar su estado, salvo el registro del incidente (NFR-U4-09). Hay prueba de nivel 1 con dos consumidores de C3 | Nivel 1 |
+| NFR10.23 | nuevo | Un límite de C25 se comprueba antes de encolar, nunca a mitad de la corrida. | Turno, número de turnos y caracteres se validan al recibir el turno (NFR10.1). El trabajador no recorta ni parte la transcripción: lo que U11 no puede procesar vuelve como `estado: error` con su `code`. Hay una prueba de nivel 1 con la transcripción máxima de P6 = A y P7 = A que termina `completed` con el *fake* | Nivel 1 |
 
-## 3. Determinismo y umbral (calidad de la IA)
+## 3. Calidad de la IA
 
-| ID | Requisito | Criterio medible | Verificación |
-|---|---|---|---|
-| NFR4.1 | Umbral inicial y calibración (P3). | Valor inicial provisional **0,80** (`VERIDICUS_SIMILARITY_THRESHOLD`, rango válido 0,50–0,99, extremos incluidos). En nivel 2 se barre de 0,70 a 0,95 en pasos de 0,01 sobre el Golden Dataset; un valor «cumple» si da ≥ 5 de 6 discrepancias detectadas, ≤ 1 alerta en total sobre las 4 transcripciones alineadas y 0 alertas, 0 preguntas y 1 paquete en el caso de Hecho No Documentado. Se elige el punto medio del tramo continuo más largo de valores que cumplen (empate: el tramo de valores más altos, más conservador para AUTONOMIA-05). El valor entra por PR con el reporte JSON del barrido; si ningún valor cumple, el umbral no cambia y el reporte queda como hallazgo para el humano. | Nivel 2 |
-| NFR4.2 | La evaluación es repetible. | Temperatura 0, semilla fija (`VERIDICUS_JUDGE_SEED`) y un solo turno a la vez en el servidor del juez. Dos corridas de nivel 2 seguidas con el mismo modelo, *prompt* y umbral producen las mismas calificaciones, los mismos `passage_ids` y el mismo conjunto de alertas; la CoT puede diferir solo si el reporte lo declara. | Nivel 2 |
-| NFR4.4 | La salida del juez cumple el formato. | 0 % de error de formato JSON sobre el Golden Dataset (todas las salidas validan contra C6 con BR8.1). | Nivel 2 |
-| NFR4.5 | El orden de los pasajes es un parámetro del *prompt*. | El constructor del *prompt* acepta el orden de los pasajes (directo o invertido), para que el arnés de nivel 2 aplique la permutación al 100 % de las consultas *offline* y mida consistencia > 65 % al invertir el orden; la permutación en línea es de U8. | Nivel 0 (parámetro) y nivel 2 (métrica) |
-| NFR6.1 | La CoT es legible para el analista. | Las instrucciones piden, por afirmación: qué dice la afirmación, qué dice el pasaje citado y por qué difieren o coinciden, en español y en 20 a 80 palabras. El reporte de nivel 2 registra la distribución de longitudes; la calificación Likert ≥ 4,5 de dos evaluadores es manual antes de la sustentación (NFR6). | Nivel 2 y manual |
+| ID | Estado | Requisito | Criterio medible | Verificación |
+|---|---|---|---|---|
+| NFR4.1 | Retirado | Umbral y calibración | Sale el umbral (cambio 01) | — |
+| NFR4.2 | Retirado | Repetibilidad | Pasa a U11 (acuerdo entre 3 corridas) | — |
+| NFR4.4 | Retirado | Formato JSON | Pasa a U11; U4 conserva la segunda línea de NFR10.4 | — |
+| NFR4.5 | Retirado | Permutación | Pasa a U11 | — |
+| NFR4.6 | nuevo | El trabajador y la CLI dan el mismo resultado (BR15.9), y un error nunca deja sugerencias. | Con el mismo `AnalyzerInput`, perfil y *fake* de modelos, la salida de `analyze` vía `AnalysisWorker` y vía la CLI de U11 es idéntica campo a campo. Por eso el nivel 2 de U11 vale para el trabajador. Si la salida es `estado: error`, quedan 0 sugerencias y 0 descartes visibles | Nivel 0 y nivel 1 |
+| NFR6.1 | Retirado | Legibilidad de la CoT | Pasa a U11 (`observaciones`) | — |
 
 ## 4. Recuperación
 
 | Falla | Qué se pierde | Cómo se recupera |
 |---|---|---|
-| Reinicio de `semantic-agent` a mitad de un turno | Nada | El mensaje vuelve por `XAUTOCLAIM` tras 240 s (NFR10.15) |
-| Reinicio del trabajador de `session-api` | Nada | C3 y C4 pendientes se reclaman; la revisión de plazos se reanuda |
-| Caída del servidor del juez | Nada; los turnos esperan | Vuelven por reentrega o terminan por plazo con `turn.error.timeout`; el analista usa «Reintentar evaluación» |
-| Redis pierde hasta 1 s de mensajes (AOF `everysec` de U2) | Mensajes de ese segundo | Los turnos afectados terminan por plazo (NFR10.17) y se reintentan a mano |
+| Reinicio de `semantic-agent` a mitad de una corrida | Las llamadas de ese intento | El mensaje vuelve por `XAUTOCLAIM` tras 60 s (NFR10.15). Las llamadas ya hechas quedan contadas en su intento |
+| Reinicio del trabajador de `session-api` | Nada | C3 pendiente se reclama; el supervisor y las liberaciones se reanudan |
+| Caída de un servidor local o del proveedor comercial | Nada; la corrida espera o falla | U11 aplica sus reintentos. Si no basta, la corrida termina en `error` con su `code` o por plazo, y el analista reintenta |
+| Caída de `anonymizer-proxy` | Nada; no sale ninguna llamada | `/readyz` de `semantic-agent` en `503`. La corrida termina en `analysis.anonymizer_unavailable` |
+| Redis pierde hasta 1 s de mensajes (AOF `everysec` de U2) | Mensajes y claves de ese segundo | Las corridas afectadas terminan por plazo (NFR10.17) y se reintentan a mano; la cancelación la cubre el plazo (NFR10.21) |
 | Pérdida de la base | Según el respaldo de CloudNativePG | Lo fija Infrastructure Design |
 
 ## 5. Degradación
 
-Si el juez no está disponible, la consola sigue respondiendo (NFR3.9): se pueden cargar escenarios,
-crear sesiones, enviar turnos y revisar alertas ya emitidas; los turnos nuevos esperan en cola hasta su
-plazo. Si el servidor de *embeddings* no está disponible, no se indexan escenarios ni se evalúan
-turnos, y `/readyz` de los servicios afectados responde `503`.
+- **Sin trabajador o sin modelos.** La consola sigue respondiendo (NFR3.9): se pueden crear sesiones,
+  enviar turnos y revisar sugerencias ya emitidas. Las corridas nuevas esperan en cola hasta su plazo.
+- **Sin anonimizador.** Solo pueden analizar las sesiones con perfiles locales. Las de perfil comercial
+  terminan en `analysis.anonymizer_unavailable` y nunca salen sin seudonimizar (AUTONOMIA-04).

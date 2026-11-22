@@ -1,94 +1,114 @@
 # Decisiones de pila — U4 text-flow
 
-**Insumos.** Flujos F1–F10 de `functional-design/functional-spec.md` (functional-spec) y reglas de
-`functional-design/rules.md` (rules); pila fijada y NFR2, NFR4, NFR5, NFR9, NFR13 y NFR14 de
-`inception/requirements-analysis/requirements.md` (requirements); C2–C4, C6–C9, C13, C14 y C16 de
-`inception/contract-design/contract-summary.md` (contract-summary); respuestas P1–P5 y S1–S3 de
-`nfr-requirements-questions.md`; `security-requirements.md`; las decisiones de pila ya aprobadas de U2
-(servidores `llama.cpp`, chart, `models.lock`) y de U3 (base de `session-api`).
+**Revisión 2 (2026-11-22).** Esta revisión sustituye a la revisión 1 del 2026-10-03. Es la segunda pasada,
+motivada por el cambio 01 (DT27), la adenda 02 y el Functional Design revisión 2 de U4.
 
-Lo que ya fijan `team.md`, U2 y U3 no se repite: Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 con
-psycopg 3, Alembic en un `Job`, `redis-py`, `uv`, `pytest` + Hypothesis, mypy estricto, Ruff,
-import-linter, React con TypeScript estricto, Vitest, Playwright, Problem Details desde `libs/`.
+**Qué cambia.**
+- Las decisiones sobre el juez, los *embeddings*, el umbral, los vectores, la segmentación y el *prompt*
+  quedan «Retiradas». Son D1–D8, D10 y D16.
+- Esas decisiones pasan a U11, que es dueña del analizador y del `ModelGateway`, o salen del alcance.
+- Lo nuevo empieza en D17.
+
+**Insumos.**
+- `functional-design/functional-spec.md` (functional-spec): flujos F3–F15.
+- `functional-design/rules.md` (rules): las reglas.
+- `inception/requirements-analysis/requirements.md` (requirements): la pila fijada y NFR2, NFR13 y NFR14.
+- `inception/contract-design/contract-summary.md` (contract-summary): C1–C3, C6, C10, C15–C18, C21 y C25.
+- `nfr-requirements-questions.md`: las respuestas P5 = A, S1 = A (adaptada), P6 = A y P7 = A.
+- `security-requirements.md`.
+- Las pilas ya aprobadas de U2, U3, U10 y U11.
+
+**Lo que no se repite.** Esto ya lo fijan `team.md`, U2 y U3:
+- Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 con psycopg 3 (solo en `session-api`) y Alembic en un
+  `Job`;
+- `redis-py`, `uv`, `pytest` con Hypothesis, mypy estricto, Ruff e import-linter;
+- React con TypeScript estricto, Vitest y Playwright;
+- Problem Details desde `libs/`.
 
 ## 1. Decisiones
 
-| # | Decisión | Elección | Alternativas descartadas | Por qué | Requisitos |
-|---|---|---|---|---|---|
-| D1 | Modelo del juez | **Qwen2.5-7B-Instruct** en GGUF **Q4_K_M** (≈ 4,7 GB, Apache 2.0) | Llama-3.1-8B Q4_K_M; Qwen2.5-3B Q4_K_M | P1 = A: buen español y buena obediencia al esquema JSON; familia distinta a la del generador del Golden Dataset (NFR5.2) | NFR3.1, NFR4.4, NFR5.2 |
-| D2 | Servidor del juez | `llama-server` de U2 con `--ctx-size 12288`, `--parallel 1`, hilos = núcleos físicos, caché del *prompt* activa, sin modo detallado ni registro de peticiones | Varias ranuras en paralelo | Una ranura hace repetible la salida con semilla fija (NFR4.2); la caché reutiliza las instrucciones entre turnos | NFR3.11, NFR4.2, NFR8.7, NFR10.8 |
-| D3 | Modelo de *embeddings* | **`intfloat/multilingual-e5-base`** (768 dimensiones) en GGUF f16, en `llama-server --embedding --pooling mean`; prefijo `query: ` para afirmaciones y `passage: ` para pasajes; vectores normalizados (L2) | `bge-m3`; `multilingual-e5-small` | P2 = A: equilibrio entre calidad en español y velocidad en CPU; un solo tipo de servidor (U2 D1) | NFR9.1, NFR9.3, NFR3.4 |
-| D4 | Umbral y calibración | `VERIDICUS_SIMILARITY_THRESHOLD = 0.80` en `values-cpu.yaml` y `values-gpu.yaml`; barrido de nivel 2 con `evaluation/threshold_sweep.py` y la regla de NFR4.1; el valor nuevo entra por PR con el reporte | Fijo sin calibrar; percentil de las alineadas | P3 = A; el cambio queda revisable (AUTONOMIA-01, FR9.2) | NFR4.1, NFR11.3 |
-| D5 | Almacenamiento de vectores | Columna `vector(768)` de `pgvector`, distancia coseno (`<=>`), búsqueda **exacta** filtrada por `version_id` con índice B-tree; similitud = 1 − distancia | Índice HNSW o IVFFlat | Con ≈ 1 100 pasajes por versión la búsqueda exacta cumple NFR3.4, y un índice aproximado con filtro por versión puede devolver menos de 3 pasajes | NFR3.4, NFR8.9 |
-| D6 | Segmentación | Pasajes de hasta **1 000 caracteres** con BR2.1 | 1 600 o 600 caracteres | S2 = A: holgura en la ventana de 512 *tokens* y *prompt* corto | NFR9.2 |
-| D7 | Límite del *prompt* | Bloque de datos ≤ 6 000 *tokens* contados con `/tokenize` del servidor del juez; si se supera, `turn.error.system` sin llamar al juez | Recortar afirmaciones; ventana de 32 768 | S3 = A | NFR3.11, NFR3.12 |
-| D8 | Formato del bloque de datos | JSON serializado en el mensaje `user` (afirmaciones con su índice y pasajes con su `passage_id`, cada pasaje una vez); instrucciones solas en `system` | Delimitadores de texto (`<datos>…</datos>`) | Un testimonio no puede «cerrar» un JSON bien serializado (T1) | NFR10.2, NFR5.1 |
-| D9 | Validación de esquemas | `jsonschema` (Draft 2020-12, validador de formatos) con C2, C3, C4, C6 y C7 cargados de `contracts/` | Modelos Pydantic escritos a mano | Un solo origen: los esquemas de U1 y sus *fixtures* | NFR10.1, NFR10.4 |
-| D10 | Cliente HTTP de ModelGateway | `httpx` síncrono con *timeouts* separados (conexión 2 s; lectura según el método) y verificación de URL interna al construir | `openai` SDK | Control explícito de *timeouts* y de destino; sin dependencia de un SDK externo | NFR1.1, NFR10.14 |
-| D11 | Procesos de `session-api` | Dos procesos de la misma imagen: la API (solo HTTP) y un **trabajador** con tres hilos: ingesta de C3, indexador de C4 y revisión de plazos cada 15 s | Todo en el proceso de la API | La indexación y la ingesta no frenan las respuestas de la consola (NFR3.2) | NFR3.2, NFR3.6, NFR9.1 |
-| D12 | `semantic-agent` | Un proceso con el bucle consumidor de C2 (un turno a la vez) y un servidor HTTP mínimo (FastAPI + Uvicorn en un hilo) solo para `/healthz`, `/readyz` y `/metrics` en un puerto interno | Servicio asíncrono con varios turnos a la vez | El juez atiende uno a la vez (D2); más concurrencia solo agrega espera | NFR8.7, NFR10.19 |
-| D13 | Sondeo de la consola | TanStack Query v5 con `refetchInterval` de 2 000 ms o 15 000 ms según haya turnos en curso, y reintento con espera creciente hasta 30 s | Intervalo fijo con `setInterval` | P5 = A; NFR10.20 sin código propio de temporizadores | NFR3.7, NFR10.20 |
-| D14 | Accesibilidad | `@axe-core/playwright` en nivel 3 y `vitest-axe` en componentes | Revisión manual sola | BR13.7 (WCAG 2.1 AA) | NFR14.1 |
-| D15 | Pruebas de rendimiento y carga | Marca `perf` de `pytest` (nivel 1) para NFR3.2–NFR3.4; arnés de nivel 2 en `evaluation/` para NFR3.1, NFR9.1 y NFR4; `evaluation/load/run_batches.py` para NFR8 | k6 o Locust | Pocas peticiones en proceso; la carga real la limita el juez | NFR3, NFR8, NFR9 |
-| D16 | Paridad de los *embeddings* | Al aprovisionar, 20 frases de control: el coseno entre el vector de `llama-server` y el de referencia guardado en el repositorio debe ser ≥ 0,99 | Confiar en la conversión a GGUF | Detecta una conversión defectuosa antes de calibrar el umbral | NFR4.1 |
+| # | Estado | Decisión | Elección | Alternativas descartadas | Por qué | Requisitos |
+|---|---|---|---|---|---|---|
+| D1 | Retirado | Modelo del juez | Pasa a U11 (perfiles de C18) | — | Cambio 01 | — |
+| D2 | Retirado | Servidor del juez | Pasa a U2 y U11 | — | Cambio 01 | — |
+| D3 | Retirado | Modelo de *embeddings* | Sale | — | Cambio 01 | — |
+| D4 | Retirado | Umbral | Sale | — | Cambio 01 | — |
+| D5 | Retirado | Vectores con `pgvector` | Sale | — | Cambio 01 | — |
+| D6 | Retirado | Segmentación | Sale | — | Cambio 01 | — |
+| D7 | Retirado | Límite del *prompt* | Pasa a U11 | — | Cambio 01 | — |
+| D8 | Retirado | Formato del bloque de datos | Pasa a U11 | — | Cambio 01 | — |
+| D9 | cambia | Validación de esquemas | `jsonschema` (Draft 2020-12, con validador de formatos) con C2, C3 y C6 cargados de `contracts/` | Modelos Pydantic escritos a mano | Un solo origen: los esquemas de U1 y sus *fixtures* | NFR10.1, NFR10.4 |
+| D10 | Retirado | Cliente HTTP del `ModelGateway` | Pasa a U11 | — | Cambio 01 | — |
+| D11 | cambia | Procesos de `session-api` | Dos procesos de la misma imagen: la API (solo HTTP) y un **trabajador** con tres hilos (ingesta de C3, supervisor de plazos cada 15 s y liberación de las corridas en espera) | Todo en el proceso de la API | La ingesta no frena las respuestas de la consola | NFR3.2, NFR3.6, NFR3.13 |
+| D12 | cambia | `semantic-agent` | Un proceso con el bucle consumidor de C2 (una corrida a la vez, que llama `analyze` de U11 en proceso), un hilo que renueva el reclamo y un servidor HTTP mínimo (FastAPI con Uvicorn en un hilo) solo para `/healthz`, `/readyz` y `/metrics` | Servicio asíncrono con varias corridas a la vez | Una corrida a la vez (FD-U4-09) | NFR8.7, NFR10.19 |
+| D13 | cambia | Sondeo de la consola | TanStack Query v5 con `refetchInterval` de `poll_interval_active_s` o `poll_interval_s`, leídos del catálogo de C25 que se genera en *build* desde `contracts/limits.v1.yaml`, y reintento con espera creciente hasta 30 s | Intervalo fijo con `setInterval` | P5 = A; NFR10.20 sin código propio de temporizadores | NFR3.7, NFR10.20 |
+| D14 | se mantiene | Accesibilidad | `@axe-core/playwright` en nivel 3 y `vitest-axe` en los componentes | Revisión manual sola | WCAG 2.1 AA | NFR14.1 |
+| D15 | cambia | Pruebas de rendimiento y carga | Marca `perf` de `pytest` (nivel 1) para NFR3.1–NFR3.3 y NFR3.13; `evaluation/load/run_batches.py` para NFR8 | k6 o Locust | Pocas peticiones en proceso; la carga real la limita el modelo | NFR3, NFR8 |
+| D16 | Retirado | Paridad de los *embeddings* | Sale | — | Cambio 01 | — |
+| D17 | nuevo | Renovación del reclamo | `XCLAIM <stream> <grupo> <consumidor> 0 <id> JUSTID` cada 15 s desde un hilo del trabajador, mientras dura la corrida; `claim_idle_ms` = 60 000 | `claim_idle_ms` mayor que el modo final más largo (más de 1 h) | Un trabajador caído se detecta en 1 min, aunque un modo final dure horas | NFR10.15 (NFR-U4-06) |
+| D18 | nuevo | Fronteras de `semantic-agent` | Contratos de import-linter: `semantic-agent-no-anonymizer` (prohíbe `libs.anonymizer`) y `semantic-agent-no-db` (prohíbe `psycopg`, `sqlalchemy` y `asyncpg`); además, una comprobación del lockfile | Revisión manual del PR | Hace falta un control negativo automático | NFR1.3, NFR10.6 |
+| D19 | nuevo | Cancelación | `SET veridicus:run-cancelled:{run_id} 1 EX <plazo restante + 120>`, que escribe `session-api`; el trabajador solo hace `EXISTS` | Una columna en la base, consultada por el trabajador | El trabajador no tiene base de datos (ADR-002, CD-06) | NFR1.6, NFR10.21 |
+| D20 | nuevo | Límites | `veridicus_contracts.limits.load()` de U1 en los dos servicios; las variables `VERIDICUS_LIMIT_<NOMBRE>` solo bajan una cifra | Constantes en el código de U4 | Un solo catálogo (C25) | NFR10.1, NFR10.25 |
 
 ## 2. Configuración (prefijo `VERIDICUS_`)
 
 | Ajuste | Valor por defecto | Validación al arrancar | Servicio |
 |---|---|---|---|
-| `VERIDICUS_SIMILARITY_THRESHOLD` | 0.80 (en los *values*, sin valor en el código) | Obligatorio; número finito entre 0,50 y 0,99, extremos incluidos (BR6.1) | `session-api`, `semantic-agent` |
-| `VERIDICUS_TOP_K` | 3 | Entero igual a 3 en el MVP (C9, P4 de Functional Design) | `session-api` |
-| `VERIDICUS_TURN_DEADLINE_BASE_SECONDS`, `_MAX_SECONDS` | 300, 3600 | Enteros; base ≥ 60 y máximo ≥ base | `session-api` |
+| `VERIDICUS_PROFILES_PATH` | — | Obligatorio. Archivo de perfiles válido contra C18 | ambos |
+| `VERIDICUS_LIMITS_PATH` | `contracts/limits.v1.yaml` en la imagen | Obligatorio. Catálogo válido y sin nulos | ambos |
+| `VERIDICUS_LIMIT_<NOMBRE>` | — | Opcional. Solo puede bajar la cifra de C25: si la sube, el proceso no arranca | ambos |
+| `VERIDICUS_ANONYMIZER_PROXY_URL` | — | Obligatorio si algún perfil habilitado tiene destino externo. Solo admite una dirección interna (NFR1.1) | `semantic-agent` |
 | `VERIDICUS_DEADLINE_SWEEP_SECONDS` | 15 | Entero entre 5 y 60 | trabajador de `session-api` |
-| `VERIDICUS_QUEUE_RECLAIM_IDLE_SECONDS`, `VERIDICUS_QUEUE_MAX_DELIVERIES` | 240, 3 | Reclamo > *timeout* del juez + *timeout* de *embeddings* | ambos |
-| `VERIDICUS_JUDGE_URL`, `VERIDICUS_EMBEDDINGS_URL` | — | Obligatorias; solo URL internas (NFR1.1) | según el servicio |
-| `VERIDICUS_JUDGE_PROMPT_SHA256` | — | Obligatorio; 64 hexadecimales; igual al del archivo montado | `semantic-agent` |
-| `VERIDICUS_JUDGE_SEED` | 20261002 | Entero ≥ 0 | `semantic-agent` |
-| `VERIDICUS_JUDGE_TIMEOUT_SECONDS`, `VERIDICUS_EMBEDDINGS_TIMEOUT_SECONDS` | 180, 30 | Juez < plazo base | ambos |
-| `VERIDICUS_JUDGE_MAX_DATA_TOKENS` | 6000 | Entero ≤ ventana − 1 000 − 4 096 | `semantic-agent` |
-| `VERIDICUS_PASSAGE_MAX_CHARS`, `VERIDICUS_EMBEDDINGS_BATCH` | 1000, 32 | Enteros positivos | trabajador de `session-api` |
+| `VERIDICUS_CLAIM_RENEW_SECONDS` | 15 | Entero ≥ 5 y < `claim_idle_ms` / 3 000 | `semantic-agent` |
+| `VERIDICUS_FAILED_STREAM_MAXLEN` | 1000 | Entero entre 100 y 10 000 | ambos |
+
+**Ajustes retirados de la revisión 1:**
+- `VERIDICUS_SIMILARITY_THRESHOLD`, `VERIDICUS_TOP_K` y `VERIDICUS_TURN_DEADLINE_*`;
+- `VERIDICUS_QUEUE_*`, `VERIDICUS_JUDGE_*`, `VERIDICUS_EMBEDDINGS_*` y `VERIDICUS_PASSAGE_MAX_CHARS`.
+
+Las cifras de la cola y del plazo de esos ajustes salen ahora de C25 (NFR-U4-01, NFR-U4-04).
 
 ## 3. Calidad del código (NFR2, NFR13, NFR14)
 
-| ID | Requisito | Criterio medible |
-|---|---|---|
-| NFR2.1 | Todo U4 se prueba en CPU sin modelos reales en los niveles 0 y 1. | El juez, los *embeddings* y el tokenizador se sustituyen por *fakes* deterministas que implementan el `Protocol` de C13; PostgreSQL + `pgvector` y Redis son reales en contenedor. Ninguna prueba de los niveles 0 y 1 descarga un modelo ni exige GPU. |
-| NFR2.2 | Las metas de U4 se cumplen en el perfil CPU. | NFR3.1, NFR3.10, NFR9.1 y NFR8.5 se miden con `values-cpu.yaml`; el perfil GPU es opcional y su etapa corre a demanda. |
-| NFR13.1 | Cobertura de líneas por servicio. | ≥ 80 % en `services/session-api`, `services/semantic-agent`, `libs/model_gateway`, `libs/integrity_policy` y `frontend`, medido en la CI y bloqueante. |
-| NFR13.2 | 100 % de ramas en los módulos guardia de U4. | `services/semantic-agent/.../domain/threshold_guard.py` (BR7.3–BR7.6), `domain/alert_assembly.py` y `domain/judge_output_validation.py` (BR8.1–BR8.6), la validación de C7 al ingerir en `session-api` y `libs/integrity_policy/scanner.py` (BR12.1): `--cov-branch` con `fail_under = 100` sobre esos módulos. |
-| NFR14.1 | Textos visibles en español y del catálogo. | M2–M4 solo usan cadenas del catálogo de mensajes y rótulos de U1 (BR12.4); una prueba de nivel 0 falla si un componente de U4 tiene un literal visible fuera del catálogo; identificadores en inglés según el glosario (`undocumented_fact`, `review_suggestion`, `handoff_package`). |
-| NFR14.2 | La CoT está en español. | Las instrucciones lo exigen; el reporte de nivel 2 marca toda CoT con menos de un 20 % de palabras vacías del español y la meta es 0 marcadas. |
+| ID | Estado | Requisito | Criterio medible |
+|---|---|---|---|
+| NFR2.1 | cambia | Todo U4 se prueba en CPU sin modelos reales en los niveles 0 y 1. | `analyze` (C17) y el `ModelGateway` de U11 se sustituyen por *fakes* deterministas. PostgreSQL y Redis son reales, en contenedor. Ninguna prueba de los niveles 0 y 1 descarga un modelo, llama a un proveedor ni exige GPU |
+| NFR2.2 | cambia | Las metas de U4 se cumplen en la máquina de desarrollo con CPU. | NFR3.1–NFR3.3, NFR3.13 y NFR8.12 se miden en CPU. NFR3.10 y NFR8.5 usan `comercial-piloto`. Los perfiles locales grandes van en la etapa GPU, a demanda |
+| NFR13.1 | cambia | Cobertura de líneas por servicio. | ≥ 80 % en `services/session-api`, `services/semantic-agent` y `frontend`, medido en la CI y bloqueante. `libs/incoherence_analyzer` y `libs/integrity_policy` las mide U11 |
+| NFR13.2 | cambia | 100 % de ramas en los módulos guardia de U4. | La segunda línea de C6 en la ingesta (BR8.1–BR8.6), la decisión de incidente y bloqueo (BR16.1–BR16.5) y el cálculo del plazo (NFR3.5): `--cov-branch` con `fail_under = 100` sobre esos módulos |
+| NFR14.1 | se mantiene | Los textos visibles están en español y salen del catálogo. | M3 y M4 y el aviso solo usan cadenas del catálogo de mensajes y rótulos de U1. Una prueba de nivel 0 falla si un componente de U4 tiene un literal visible fuera del catálogo. Los identificadores van en inglés, según el glosario |
+| NFR14.2 | Retirado | La CoT está en español. | Pasa a U11 (`observaciones`) |
 
 ## 4. Dependencias nuevas de U4
 
-- `services/semantic-agent`: `fastapi`, `uvicorn`, `pydantic-settings`, `sqlalchemy`, `psycopg[binary]`,
-  `redis`, `httpx`, `jsonschema`, `prometheus-client`; las de desarrollo de U3.
-- `services/session-api`: añade `jsonschema` y `pgvector` (adaptador de SQLAlchemy).
-- `libs/model_gateway` y `libs/integrity_policy`: `httpx`; sin otras dependencias.
-- `frontend`: `@tanstack/react-query`; en desarrollo `@axe-core/playwright` y `vitest-axe`.
+- `services/semantic-agent`: `fastapi`, `uvicorn`, `pydantic-settings`, `redis`, `jsonschema`,
+  `prometheus-client` y `libs-incoherence-analyzer` (U11). **No lleva** `sqlalchemy`, `psycopg` ni
+  `libs-anonymizer` (D18).
+- `services/session-api`: añade `jsonschema`. Sale `pgvector`.
+- `frontend`: `@tanstack/react-query`; en desarrollo, `@axe-core/playwright` y `vitest-axe`.
 
-Todas fijadas en el lockfile de cada servicio; `pip-audit` y `npm audit` en la CI (team-practices).
+Todas van fijadas en el lockfile de cada servicio, con `pip-audit` y `npm audit` en la CI.
 
 ## 5. Comandos de verificación (AUTONOMIA-02)
 
 | Qué verifica | Comando | Umbral |
 |---|---|---|
-| Unitarias, contratos y guardias (nivel 0) | `uv run --directory services/semantic-agent pytest -m "not integration and not perf"` y lo mismo en `services/session-api` y `libs/` | Verde |
-| Ramas de los módulos guardia | `uv run --directory services/semantic-agent pytest --cov-branch --cov-config=.coveragerc-guards` | 100 % (NFR13.2) |
-| Integración (nivel 1) | `uv run --directory services/session-api pytest -m integration` y lo mismo en `services/semantic-agent` | Verde |
-| Rendimiento en proceso | `uv run --directory services/session-api pytest -m perf` | NFR3.2–NFR3.4 |
+| Unitarias, contratos y guardias (nivel 0) | `uv run --directory services/semantic-agent pytest -m "not integration and not perf"`, y lo mismo en `services/session-api` | Verde |
+| Ramas de los módulos guardia | `uv run --directory services/session-api pytest --cov-branch --cov-config=.coveragerc-guards` | 100 % (NFR13.2) |
+| Integración (nivel 1) | `uv run --directory services/session-api pytest -m integration`, y lo mismo en `services/semantic-agent` | Verde |
+| Rendimiento en proceso | `uv run --directory services/session-api pytest -m perf` | NFR3.1–NFR3.3, NFR3.13 |
+| Fronteras de `semantic-agent` | `uv run --directory services/semantic-agent lint-imports` y `uv run --directory services/semantic-agent python -m scripts.check_lock_no_anonymizer` | 0 violaciones, y el control negativo falla (NFR1.3) |
 | Consola | `npm --prefix frontend run test -- --coverage` y `npm --prefix frontend run typecheck` | Verde; ≥ 80 % de líneas |
-| Evaluación de IA (nivel 2, fuera de la CI) | `uv run --directory evaluation python -m golden.run --profile cpu --report out/level2.json` | NFR3.1, NFR4.1–NFR4.5, NFR5.1, NFR5.2, NFR9.1, NFR14.2 |
-| Barrido del umbral (nivel 2) | `uv run --directory evaluation python -m golden.threshold_sweep --from 0.70 --to 0.95 --step 0.01 --report out/sweep.json` | Regla de NFR4.1 |
-| Carga (a demanda) | `uv run --directory evaluation python -m load.run_batches --sessions 50 --concurrency 3 --report out/nfr8.json` | NFR8.5 |
-| Humo (nivel 3) | `scripts/smoke.sh <url-base>` | Código 0 en ≤ 120 s por caso (NFR3.10) |
-| Tipos, *lint* y fronteras | `mypy --strict`, `ruff check`, `lint-imports` en cada servicio | 0 errores |
+| Carga (a demanda) | `uv run --directory evaluation python -m load.run_batches --profile comercial-piloto --sessions 50 --concurrency 3 --report out/nfr8.json` | NFR8.5 |
+| Humo (nivel 3) | `scripts/smoke.sh <url-base>` | Código 0, con ≤ 300 s por caso (NFR3.10) |
+| Límites del piloto (P7 = A, fuera de Git) | `python scripts/count-transcript-limits.py <ruta-del-corpus-fuera-de-git>` (lo corre el humano) | Imprime 2 cifras. Cada una debe caber con un 25 % de margen (NFR-U4-03) |
+| Tipos y *lint* | `mypy --strict` y `ruff check` en cada servicio | 0 errores |
 
 ## 6. Riesgos
 
 | Riesgo | Mitigación |
 |---|---|
-| El juez de 7B en CPU no llega al p95 de 60 s (el *prompt* y la generación son lentos en CPU) | Caché de las instrucciones, CoT de 20–80 palabras, límite de 6 000 *tokens*; si aun así falla, es un hallazgo que se resuelve por PR (hilos, perfil GPU para la demostración), nunca subiendo la meta |
-| El esquema JSON por gramática de `llama-server` no garantiza todo C6 | La validación de C6 en U4 es la que manda (BR8.1) |
-| La conversión de `multilingual-e5-base` a GGUF da vectores distintos | Comprobación de paridad D16 antes de calibrar |
-| El umbral calibrado sobre un solo escenario no generaliza | Es el alcance del PRD (un escenario); el valor y su reporte quedan versionados para recalibrar por PR |
+| Una transcripción de 250 000 caracteres no cabe en el presupuesto de U10 o en la latencia de U11 | NFR-U4-02: U10 y U11 repiten sus comprobaciones con 250 000 en sus PR y `model_call_timeout_s` ≥ 270 s. Si una falla, falla ese PR; los umbrales no se bajan |
+| El piloto tiene un turno de más de 16 000 caracteres o más de 1 600 turnos | NFR-U4-03: la cifra se sube por el PR de U1 antes del código |
+| Un modo final largo deja la cola parada para las demás sesiones | El plazo suma la cola con un tope (NFR3.5), y la profundidad se vigila (`observability-requirements.md`) |
+| La renovación del reclamo falla sin aviso | El trabajador termina la corrida si una renovación falla dos veces seguidas. El mensaje vuelve por `XAUTOCLAIM` y se registra `WARNING` |

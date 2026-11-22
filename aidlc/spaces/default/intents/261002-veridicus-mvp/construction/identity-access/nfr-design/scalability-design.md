@@ -32,8 +32,8 @@ mismo Redis; la sesión creada en una se usa en la otra, y 5 fallos repartidos e
 
 ## 2. Crecimiento de `WebSession` (NFR8.3, D17)
 
-- Tarea de `session-api` al arrancar y luego cada `VERIDICUS_WEB_SESSION_PURGE_DAYS` × 24 h… no: cada
-  24 h; la antigüedad de purga es `VERIDICUS_WEB_SESSION_PURGE_DAYS` (7).
+- Tarea de `session-api` en un hilo propio, al arrancar y luego cada 24 h; la antigüedad de purga es
+  `VERIDICUS_WEB_SESSION_PURGE_DAYS` (7).
 - Cada lote es una transacción con `veridicus_app` (único `DELETE` de la aplicación, NFR-U3-02):
   1. `pg_try_advisory_xact_lock(<clave del barrido de U3>)`; si otra réplica lo tiene, se detiene;
   2. `DELETE` de hasta 1 000 filas por clave primaria, elegidas con `FOR UPDATE SKIP LOCKED`, cuya

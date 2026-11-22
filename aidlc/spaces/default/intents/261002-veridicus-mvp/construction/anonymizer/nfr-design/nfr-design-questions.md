@@ -45,6 +45,7 @@ C. Se mantiene la numeración por llamada y se añade solo la prueba de nivel 1 
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
 ## P2 — Sobre qué representación del texto se enmascara y se restaura
 
 El bloque de datos del juez va como JSON dentro de `messages[].content` (decisión de NFR Requirements

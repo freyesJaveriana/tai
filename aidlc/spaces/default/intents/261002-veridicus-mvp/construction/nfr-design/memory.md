@@ -48,6 +48,10 @@
 - 2026-11-22T15:40:36Z — NFR1.5 (proxy solo desde semantic-agent) y NFR15.1 de U10 (métricas del proxy) se concilian por puerto: Prometheus solo en el puerto de métricas (NFRD-U2-03).
 <!-- aidlc-wave-memory:platform:43ac9b65d027cedee79c0762c928740797931130f9d55357ec5df808a63b88f3 -->
 
+
+- 2026-11-22T15:41:51Z — Segunda pasada sin preguntas: NFR10.3 revisión 2 (escritura cada 60 s) supera P1 = A, y el /notice de BR4.3 lo resuelve C1 con FD-U4-08 y NFRD-U1-12 (NFRD-U3-09).
+<!-- aidlc-wave-memory:identity-access:882725d6b270a59f70e9ee061bfebb99595771c1d00a1df2219ef10dc8d5dbfb -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -86,6 +90,14 @@
 
 - 2026-11-22T15:27:57Z — Segunda pasada sin preguntas: las peticiones de U3–U13 a U1 se reconciliaron con las fuentes (C15 sigue de U5 y las métricas de otras unidades van en archivos propios de metrics/; VERIDICUS_LIMITS_PATH de U11 solo puede bajar cifras) y quedaron en NFRD-U1-01 a NFRD-U1-14.
 <!-- aidlc-wave-memory:contracts:73ad6bb8f3ca7fffaec9589b6b95a10639e3e11fbd2a278ee4111d4441447c02 -->
+
+
+- 2026-11-22T15:41:51Z — La actividad se escribe tras el bloqueo compartido del usuario y no al resolver la sesión (F2 paso 2): al revés cerraría un ciclo con la desactivación, que bloquea usuario y luego WebSession (NFRD-U3-01).
+<!-- aidlc-wave-memory:identity-access:a9b686ef680f0c7310d8782a92aeef5c33838fd0214c769363d56eb2c966395b -->
+
+
+- 2026-11-22T15:41:51Z — El token anti-CSRF se deriva del token de sesión con HMAC-SHA256: entities.md solo guarda su hash y /auth/me debe devolverlo; la revisión 1 lo guardaba en claro contra NFR10.7 (NFRD-U3-03).
+<!-- aidlc-wave-memory:identity-access:8e1d15b3c1af138ac685f8985adad55a74480505c6686e2926a404a9e15d882f -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -141,6 +153,10 @@
 
 - 2026-11-22T15:40:36Z — Patrón único sin disco en todo /api/ con tope por grupo (C25 + margen) en vez de un Ingress por ruta: menos regex y un solo control, a costa de que use-regex del Ingress de voz valga para todo el host, por lo que el enrutamiento se prueba en nivel 3.
 <!-- aidlc-wave-memory:platform:6e04ac2fd498c2ded144e21292f144d1ac9594a473fa91adbb719cf0c701b77a -->
+
+
+- 2026-11-22T15:41:51Z — /readyz sigue dependiendo de Redis (NFR10.13): con una réplica, Redis caído deja sin servicio toda la consola; se documenta en vez de ocultarlo (cierra R-01).
+<!-- aidlc-wave-memory:identity-access:d16365d4f8bd845f6f52016cc1cd7dc9ce9a17644ac18c5ecf88cc90abc17daa -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

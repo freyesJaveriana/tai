@@ -1,368 +1,89 @@
 {
   "stage": "nfr-design",
   "unit": "assistant-extras",
+  "revision": 2,
   "upstream_ids": [
-    "NFR3.1",
-    "NFR3.2",
-    "NFR3.3",
-    "NFR3.4",
-    "NFR3.5",
-    "NFR3.6",
-    "NFR3.7",
-    "NFR3.8",
-    "NFR3.9",
-    "NFR3.10",
-    "NFR3.11",
-    "NFR3.12",
-    "NFR1.1",
-    "NFR1.2",
-    "NFR5.1",
-    "NFR5.2",
-    "NFR10.1",
-    "NFR10.2",
-    "NFR10.3",
-    "NFR10.4",
-    "NFR10.5",
-    "NFR10.6",
-    "NFR10.7",
-    "NFR10.8",
-    "NFR10.9",
-    "NFR10.10",
-    "NFR11.1",
-    "NFR11.2",
-    "NFR11.3",
-    "NFR11.4",
-    "NFR12.1",
-    "NFR8.1",
-    "NFR8.2",
-    "NFR8.3",
-    "NFR8.4",
-    "NFR8.5",
-    "NFR8.6",
-    "NFR8.7",
-    "NFR10.11",
-    "NFR10.12",
-    "NFR10.13",
-    "NFR10.14",
-    "NFR10.15",
-    "NFR10.16",
-    "NFR4.1",
-    "NFR4.2",
-    "NFR4.3",
-    "NFR4.4",
-    "NFR4.5",
+    "NFR1.1", "NFR1.2",
+    "NFR2.1", "NFR2.2",
+    "NFR3.1", "NFR3.2", "NFR3.3", "NFR3.4", "NFR3.5", "NFR3.6", "NFR3.7", "NFR3.8", "NFR3.9", "NFR3.10",
+    "NFR3.11", "NFR3.12", "NFR3.13",
+    "NFR4.1", "NFR4.2", "NFR4.3", "NFR4.4", "NFR4.5", "NFR4.6",
+    "NFR5.1", "NFR5.2",
     "NFR6.1",
-    "NFR15.2",
-    "NFR15.3",
-    "NFR15.4",
-    "NFR15.1",
-    "NFR2.1",
-    "NFR2.2",
-    "NFR13.1",
-    "NFR13.2",
-    "NFR14.1",
-    "NFR14.2"
+    "NFR8.1", "NFR8.2", "NFR8.3", "NFR8.4", "NFR8.5", "NFR8.6", "NFR8.7",
+    "NFR10.1", "NFR10.2", "NFR10.3", "NFR10.4", "NFR10.5", "NFR10.6", "NFR10.7", "NFR10.8", "NFR10.9",
+    "NFR10.10", "NFR10.11", "NFR10.12", "NFR10.13", "NFR10.14", "NFR10.15", "NFR10.16", "NFR10.17",
+    "NFR11.1", "NFR11.2", "NFR11.3", "NFR11.4", "NFR11.5",
+    "NFR12.1", "NFR12.2",
+    "NFR13.1", "NFR13.2",
+    "NFR14.1", "NFR14.2",
+    "NFR15.1", "NFR15.2", "NFR15.3", "NFR15.4"
   ],
   "coverage": [
-    {
-      "id": "NFR3.1",
-      "status": "OK",
-      "target": "performance-design §1: camino con presupuesto por tramo, máximo 3 llamadas y medición de la caché de la ranura"
-    },
-    {
-      "id": "NFR3.2",
-      "status": "OK",
-      "target": "performance-design §1: con options en false el evaluador no entra en ningún paso de U8"
-    },
-    {
-      "id": "NFR3.3",
-      "status": "OK",
-      "target": "performance-design §1: camino con presupuesto por tramo, máximo 3 llamadas y medición de la caché de la ranura"
-    },
-    {
-      "id": "NFR3.4",
-      "status": "OK",
-      "target": "performance-design §2: segunda lectura como subconjunto sin count_tokens; pregunta contada y limitada a 6 000 tokens"
-    },
-    {
-      "id": "NFR3.5",
-      "status": "OK",
-      "target": "performance-design §2: segunda lectura como subconjunto sin count_tokens; pregunta contada y limitada a 6 000 tokens"
-    },
-    {
-      "id": "NFR3.6",
-      "status": "OK",
-      "target": "performance-design §3: suma del peor caso con reintento y validación al arrancar (plazo 600 s, reclamo 510 s)"
-    },
-    {
-      "id": "NFR3.7",
-      "status": "OK",
-      "target": "performance-design §3: suma del peor caso con reintento y validación al arrancar (plazo 600 s, reclamo 510 s)"
-    },
-    {
-      "id": "NFR3.8",
-      "status": "OK",
-      "target": "performance-design §4: transacción de decisión, change_seq en suggested_question y actualización de la tarjeta con la respuesta"
-    },
-    {
-      "id": "NFR3.9",
-      "status": "OK",
-      "target": "performance-design §4: transacción de decisión, change_seq en suggested_question y actualización de la tarjeta con la respuesta"
-    },
-    {
-      "id": "NFR3.10",
-      "status": "OK",
-      "target": "performance-design §4: transacción de decisión, change_seq en suggested_question y actualización de la tarjeta con la respuesta"
-    },
-    {
-      "id": "NFR3.11",
-      "status": "OK",
-      "target": "performance-design §1: expresión regular compilada al arrancar, ≤ 10 ms"
-    },
-    {
-      "id": "NFR3.12",
-      "status": "OK",
-      "target": "performance-design §5: humo con extras apagados y 300 s si un despliegue los activa"
-    },
-    {
-      "id": "NFR1.1",
-      "status": "OK",
-      "target": "security-design §1: frontera sin destinos nuevos, sin campos URL y verificación con la NetworkPolicy de U2"
-    },
-    {
-      "id": "NFR1.2",
-      "status": "OK",
-      "target": "security-design §1: frontera sin destinos nuevos, sin campos URL y verificación con la NetworkPolicy de U2"
-    },
-    {
-      "id": "NFR5.1",
-      "status": "OK",
-      "target": "security-design §4: datos JSON en user y Escenario A en nivel 2"
-    },
-    {
-      "id": "NFR5.2",
-      "status": "OK",
-      "target": "security-design §3: prompt con SHA-256, bloque de dos claves, esquema estricto y mismo model_digest"
-    },
-    {
-      "id": "NFR10.1",
-      "status": "OK",
-      "target": "security-design §5: authorize de U3, cuerpo estricto, puerto is_question_approved y sin ruta que escriba options"
-    },
-    {
-      "id": "NFR10.2",
-      "status": "OK",
-      "target": "security-design §4: system idéntico al archivo y datos JSON en user"
-    },
-    {
-      "id": "NFR10.3",
-      "status": "OK",
-      "target": "security-design §3: prompt con SHA-256, bloque de dos claves, esquema estricto y mismo model_digest"
-    },
-    {
-      "id": "NFR10.4",
-      "status": "OK",
-      "target": "security-design §3: prompt con SHA-256, bloque de dos claves, esquema estricto y mismo model_digest"
-    },
-    {
-      "id": "NFR10.5",
-      "status": "OK",
-      "target": "security-design §2: escáner C8 en segunda lectura, pregunta, ingesta e indicio"
-    },
-    {
-      "id": "NFR10.6",
-      "status": "OK",
-      "target": "security-design §5: authorize de U3, cuerpo estricto, puerto is_question_approved y sin ruta que escriba options"
-    },
-    {
-      "id": "NFR10.7",
-      "status": "OK",
-      "target": "security-design §5: authorize de U3, cuerpo estricto, puerto is_question_approved y sin ruta que escriba options"
-    },
-    {
-      "id": "NFR10.8",
-      "status": "OK",
-      "target": "security-design §7: lista blanca de campos y prueba con centinela"
-    },
-    {
-      "id": "NFR10.9",
-      "status": "OK",
-      "target": "security-design §5: authorize de U3, cuerpo estricto, puerto is_question_approved y sin ruta que escriba options"
-    },
-    {
-      "id": "NFR10.10",
-      "status": "OK",
-      "target": "security-design §3: lista versionada por PR con fixture y texto fijo"
-    },
-    {
-      "id": "NFR11.1",
-      "status": "OK",
-      "target": "security-design §6: AuditConvention, permisos por columna, disparador, activación por PR y fixtures sintéticos"
-    },
-    {
-      "id": "NFR11.2",
-      "status": "OK",
-      "target": "security-design §6: AuditConvention, permisos por columna, disparador, activación por PR y fixtures sintéticos"
-    },
-    {
-      "id": "NFR11.3",
-      "status": "OK",
-      "target": "security-design §6: AuditConvention, permisos por columna, disparador, activación por PR y fixtures sintéticos"
-    },
-    {
-      "id": "NFR11.4",
-      "status": "OK",
-      "target": "security-design §6: AuditConvention, permisos por columna, disparador, activación por PR y fixtures sintéticos"
-    },
-    {
-      "id": "NFR12.1",
-      "status": "OK",
-      "target": "security-design §6: AuditConvention, permisos por columna, disparador, activación por PR y fixtures sintéticos"
-    },
-    {
-      "id": "NFR8.1",
-      "status": "OK",
-      "target": "scalability-design §1: modelo de capacidad, carga con extras apagados y límite de 24 turnos"
-    },
-    {
-      "id": "NFR8.2",
-      "status": "OK",
-      "target": "scalability-design §1: modelo de capacidad, carga con extras apagados y límite de 24 turnos"
-    },
-    {
-      "id": "NFR8.3",
-      "status": "OK",
-      "target": "scalability-design §2: picos de memoria medidos en la corrida con extras"
-    },
-    {
-      "id": "NFR8.4",
-      "status": "OK",
-      "target": "scalability-design §3: sin estado en memoria y decisión condicional"
-    },
-    {
-      "id": "NFR8.5",
-      "status": "OK",
-      "target": "scalability-design §4: crecimiento acotado y retención total"
-    },
-    {
-      "id": "NFR8.6",
-      "status": "OK",
-      "target": "reliability-design §7: recuperación por falla y objetivos de humo y nivel 2"
-    },
-    {
-      "id": "NFR8.7",
-      "status": "OK",
-      "target": "reliability-design §7: recuperación por falla y objetivos de humo y nivel 2"
-    },
-    {
-      "id": "NFR10.11",
-      "status": "OK",
-      "target": "reliability-design §1: timeouts explícitos por llamada"
-    },
-    {
-      "id": "NFR10.12",
-      "status": "OK",
-      "target": "reliability-design §2: reintento acotado solo en la segunda lectura y omisión de la pregunta por motivo"
-    },
-    {
-      "id": "NFR10.13",
-      "status": "OK",
-      "target": "reliability-design §2: reintento acotado solo en la segunda lectura y omisión de la pregunta por motivo"
-    },
-    {
-      "id": "NFR10.14",
-      "status": "OK",
-      "target": "reliability-design §4: validación al arrancar y /readyz"
-    },
-    {
-      "id": "NFR10.15",
-      "status": "OK",
-      "target": "reliability-design §5: transacción condicional y tarjeta que sobrevive al fallo"
-    },
-    {
-      "id": "NFR10.16",
-      "status": "OK",
-      "target": "reliability-design §5: transacción condicional y tarjeta que sobrevive al fallo"
-    },
-    {
-      "id": "NFR4.1",
-      "status": "OK",
-      "target": "reliability-design §6: regla pura, registro, arnés de nivel 2 y CoT de la primera lectura"
-    },
-    {
-      "id": "NFR4.2",
-      "status": "OK",
-      "target": "reliability-design §6: regla pura, registro, arnés de nivel 2 y CoT de la primera lectura"
-    },
-    {
-      "id": "NFR4.3",
-      "status": "OK",
-      "target": "reliability-design §6: regla pura, registro, arnés de nivel 2 y CoT de la primera lectura"
-    },
-    {
-      "id": "NFR4.4",
-      "status": "OK",
-      "target": "reliability-design §6: regla pura, registro, arnés de nivel 2 y CoT de la primera lectura"
-    },
-    {
-      "id": "NFR4.5",
-      "status": "OK",
-      "target": "reliability-design §6: regla pura, registro, arnés de nivel 2 y CoT de la primera lectura"
-    },
-    {
-      "id": "NFR6.1",
-      "status": "OK",
-      "target": "reliability-design §6: regla pura, registro, arnés de nivel 2 y CoT de la primera lectura"
-    },
-    {
-      "id": "NFR15.2",
-      "status": "OK",
-      "target": "observability-design §1: eventos con lista blanca, correlación y nivel por motivo"
-    },
-    {
-      "id": "NFR15.3",
-      "status": "OK",
-      "target": "observability-design §1: eventos con lista blanca, correlación y nivel por motivo"
-    },
-    {
-      "id": "NFR15.4",
-      "status": "OK",
-      "target": "observability-design §1: eventos con lista blanca, correlación y nivel por motivo"
-    },
-    {
-      "id": "NFR15.1",
-      "status": "OK",
-      "target": "observability-design §2: seis métricas con etiquetas de enum"
-    },
-    {
-      "id": "NFR2.1",
-      "status": "OK",
-      "target": "logical-components §5: FakeJudge ampliado, perfil CPU, cobertura, ramas de guardias y textos"
-    },
-    {
-      "id": "NFR2.2",
-      "status": "OK",
-      "target": "logical-components §5: FakeJudge ampliado, perfil CPU, cobertura, ramas de guardias y textos"
-    },
-    {
-      "id": "NFR13.1",
-      "status": "OK",
-      "target": "logical-components §5: FakeJudge ampliado, perfil CPU, cobertura, ramas de guardias y textos"
-    },
-    {
-      "id": "NFR13.2",
-      "status": "OK",
-      "target": "logical-components §5: FakeJudge ampliado, perfil CPU, cobertura, ramas de guardias y textos"
-    },
-    {
-      "id": "NFR14.1",
-      "status": "OK",
-      "target": "logical-components §5: FakeJudge ampliado, perfil CPU, cobertura, ramas de guardias y textos"
-    },
-    {
-      "id": "NFR14.2",
-      "status": "OK",
-      "target": "logical-components §5: FakeJudge ampliado, perfil CPU, cobertura, ramas de guardias y textos"
-    }
+    { "id": "NFR1.1", "status": "OK", "target": "security-design §1: tabla de frontera por componente; E11 con el mismo número y orden de llamadas con y sin el módulo" },
+    { "id": "NFR1.2", "status": "OK", "target": "security-design §1: profiles_permutation_same_destination con el cargador de U11 y control negativo; dos ModelCall con el mismo proveedor y modelo" },
+    { "id": "NFR2.1", "status": "OK", "target": "logical-components §5: ModelGateway fake con la llamada directa y la permutada; PostgreSQL y Redis reales en nivel 1; sin red ni GPU" },
+    { "id": "NFR2.2", "status": "OK", "target": "logical-components §5 y performance-design §8: medición de BR6.5 con todo-local en CPU" },
+    { "id": "NFR3.1", "status": "OK", "target": "performance-design §1 y §8: p95 incremental ≤ 180 s con comercial-piloto y la permutación activa" },
+    { "id": "NFR3.2", "status": "OK", "target": "performance-design §1: algoritmo con 5-gramas precalculados (DS2); ≤ 50 ms con 50 hallazgos, 0 llamadas" },
+    { "id": "NFR3.3", "status": "OK", "target": "performance-design §1: 2 llamadas al verificador por candidato con permutation true, 1 con false (E42)" },
+    { "id": "NFR3.4", "status": "N/A", "target": "Retirado: U8 ya no tiene prompt (performance-design §2 Retirado)" },
+    { "id": "NFR3.5", "status": "N/A", "target": "Retirado: U8 ya no tiene prompt (performance-design §2 Retirado)" },
+    { "id": "NFR3.6", "status": "OK", "target": "performance-design §3: la permutada dentro del plazo incremental de U11; tiempo_agotado sin hallazgos ni aclaraciones" },
+    { "id": "NFR3.7", "status": "N/A", "target": "Retirado: sale el reclamo con extras (cambio 01)" },
+    { "id": "NFR3.8", "status": "OK", "target": "performance-design §4: transacción de la decisión; p95 ≤ 300 ms con 100 decisiones" },
+    { "id": "NFR3.9", "status": "OK", "target": "performance-design §4: change_seq en las dos tablas e índices (session_id, change_seq); lectura en la instantánea de U4 (NFRD-U8-02)" },
+    { "id": "NFR3.10", "status": "OK", "target": "performance-design §4: panel sobre el sondeo de 2 s y actualización con la respuesta 200; Playwright y Vitest" },
+    { "id": "NFR3.11", "status": "N/A", "target": "Retirado: sale el indicio afectivo (cambio 01)" },
+    { "id": "NFR3.12", "status": "OK", "target": "performance-design §5: humo con N = 300 s y comprobación de verifier y verifier_permuted en el registro (NFRD-U8-10)" },
+    { "id": "NFR3.13", "status": "OK", "target": "performance-design §8: clarifications.permutation_cost por papel en la misma corrida, con resumen de solo números" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design §6: propiedad hallazgos con permutación ⊆ sin ella, con control negativo" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design §6: dos ModelCall por candidato verificado y descarte rechazado_permutacion (E43)" },
+    { "id": "NFR4.3", "status": "OK", "target": "reliability-design §6 y security-design §2: comprobador independiente check_quotes.py con 0 coincidencias en nivel 2 (DS8)" },
+    { "id": "NFR4.4", "status": "OK", "target": "reliability-design §6: reporte de la evaluación de U11 adjunto y diff sin cambios en la permutación" },
+    { "id": "NFR4.5", "status": "OK", "target": "reliability-design §6: función pura, orden por id y deduplicación estable; CLI y trabajador iguales campo a campo" },
+    { "id": "NFR4.6", "status": "OK", "target": "reliability-design §6 y observability-design §3: tasa de descarte por regla en C19 v2; review_signal por encima de 0,50" },
+    { "id": "NFR5.1", "status": "OK", "target": "security-design §4: propiedad de que el tema solo depende del hecho; marca sembrada; tema como texto" },
+    { "id": "NFR5.2", "status": "N/A", "target": "Retirado: sale el prompt de la pregunta (cambio 01)" },
+    { "id": "NFR6.1", "status": "OK", "target": "reliability-design §6: el módulo no modifica los hallazgos (comparación profunda)" },
+    { "id": "NFR8.1", "status": "OK", "target": "scalability-design §1: run_batches.py de U4 con la permutación activa y config_sha256" },
+    { "id": "NFR8.2", "status": "OK", "target": "scalability-design §1: sin tope propio; 0 corridas vencidas y NFR8.7 como criterio" },
+    { "id": "NFR8.3", "status": "OK", "target": "scalability-design §2: picos por Prometheus en la prueba de carga y VmHWM del verificador ≤ 1 % (NFRD-U8-11)" },
+    { "id": "NFR8.4", "status": "OK", "target": "scalability-design §3: sin estado en memoria; deduplicación por índice único y decisiones en serie" },
+    { "id": "NFR8.5", "status": "OK", "target": "scalability-design §4: < 5 MB, sin particiones, purga con la sesión" },
+    { "id": "NFR8.6", "status": "OK", "target": "reliability-design §7: 0 fallos atribuibles a U8 en cada humo" },
+    { "id": "NFR8.7", "status": "OK", "target": "reliability-design §7 y performance-design §8: ≥ 98 % sin tiempo_agotado con todo-local; 100 % done o error con code" },
+    { "id": "NFR10.1", "status": "OK", "target": "security-design §2 y §5: ruta protegida de U3, máquina de estados y segunda línea en la ingesta" },
+    { "id": "NFR10.2", "status": "N/A", "target": "Retirado: sale la segunda lectura del juez (cambio 01)" },
+    { "id": "NFR10.3", "status": "N/A", "target": "Retirado: sale la pregunta sugerida (cambio 01)" },
+    { "id": "NFR10.4", "status": "OK", "target": "security-design §2 y §3: esquema estricto de C6 y de C1 con created_at" },
+    { "id": "NFR10.5", "status": "OK", "target": "security-design §2 y §3: regla de DT23 1.1.0 y escáner de C8 sin tramos excluidos" },
+    { "id": "NFR10.6", "status": "OK", "target": "security-design §5: tabla de respuestas 403, 404, 409 y 413 con 0 filas (E27–E34)" },
+    { "id": "NFR10.7", "status": "OK", "target": "security-design §5: puerto is_observation_approved de solo lectura para U9" },
+    { "id": "NFR10.8", "status": "OK", "target": "security-design §7 y observability-design §1: logs y eventos solo con IDs; prueba del centinela" },
+    { "id": "NFR10.9", "status": "OK", "target": "security-design §3: permutation solo en config/profiles.yaml; prueba profiles_permutation" },
+    { "id": "NFR10.10", "status": "N/A", "target": "Retirado: sale el indicio afectivo (cambio 01)" },
+    { "id": "NFR10.11", "status": "OK", "target": "reliability-design §1: tabla de timeouts; el módulo no hace E/S (prueba y AST)" },
+    { "id": "NFR10.12", "status": "N/A", "target": "Retirado: sale el reintento por llamada de los extras (reliability-design §2 Retirado)" },
+    { "id": "NFR10.13", "status": "OK", "target": "reliability-design §10: descarte normal y fallo del módulo con código 5 o analysis.system" },
+    { "id": "NFR10.14", "status": "OK", "target": "reliability-design §4: regla cargada al arrancar en la CLI, semantic-agent y session-api (NFRD-U8-12)" },
+    { "id": "NFR10.15", "status": "OK", "target": "reliability-design §5: transacción con bump, bloqueo de fila y disparador diferido; corte antes del COMMIT" },
+    { "id": "NFR10.16", "status": "OK", "target": "reliability-design §5: consola sin reintento, botones desactivados y estado vigente tras un 409" },
+    { "id": "NFR10.17", "status": "OK", "target": "reliability-design §9: ingesta atómica e idempotente con ON CONFLICT DO NOTHING (E25, E26)" },
+    { "id": "NFR11.1", "status": "OK", "target": "security-design §6: marcas de auditoría y veridicus_apply_audit_grants" },
+    { "id": "NFR11.2", "status": "OK", "target": "security-design §6: disparador BEFORE UPDATE y disparador diferido del historial (NFRD-U8-04; cierra R-04)" },
+    { "id": "NFR11.3", "status": "OK", "target": "security-design §6: llamadas y descarte de la permutación en tablas history" },
+    { "id": "NFR11.4", "status": "OK", "target": "security-design §3 y §6: permutation en config_sha256; cambio solo por PR con reporte" },
+    { "id": "NFR11.5", "status": "OK", "target": "security-design §6 y scalability-design §4: purge_session con veridicus_retention (NFRD-U8-08)" },
+    { "id": "NFR12.1", "status": "OK", "target": "security-design §6: datos sintéticos con el catálogo de U1" },
+    { "id": "NFR12.2", "status": "OK", "target": "security-design §6: arneses solo sintéticos y resúmenes de solo números (NFRD-U8-09)" },
+    { "id": "NFR13.1", "status": "OK", "target": "logical-components §5: ≥ 80 % de líneas por servicio y en el frontend" },
+    { "id": "NFR13.2", "status": "OK", "target": "logical-components §5: 100 % de ramas en clarification.py y conductor_observation_state.py" },
+    { "id": "NFR14.1", "status": "OK", "target": "logical-components §5: textos del panel del catálogo de U1 y escáner de C8 sobre ellos" },
+    { "id": "NFR14.2", "status": "N/A", "target": "Retirado: salen los textos de los extras (cambio 01)" },
+    { "id": "NFR15.1", "status": "OK", "target": "observability-design §2: dos contadores en contracts/metrics/assistant-extras.v1.yaml (NFRD-U8-06)" },
+    { "id": "NFR15.2", "status": "OK", "target": "observability-design §1: eventos con campos tipados (NFRD-U8-07)" },
+    { "id": "NFR15.3", "status": "OK", "target": "observability-design §1: correlación por run_id, session_id y observation_id; prueba de nivel 1" },
+    { "id": "NFR15.4", "status": "OK", "target": "observability-design §1: enum de 7 reglas de descarte y nivel por evento" }
   ]
 }

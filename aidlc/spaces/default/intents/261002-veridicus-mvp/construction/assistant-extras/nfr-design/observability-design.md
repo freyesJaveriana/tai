@@ -1,78 +1,90 @@
 # Diseño de observabilidad — U8 assistant-extras
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`security-requirements.md` (security-requirements), `scalability-requirements.md`
-(scalability-requirements), `reliability-requirements.md` (reliability-requirements),
-`observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
-(tech-stack-decisions) de esta unidad; §8 de `functional-design/functional-spec.md` (functional-spec);
-C3, C15 y C16 de `inception/contract-design/contract-summary.md` (contract-summary); respuestas P1 = A y
-P2 = A de `nfr-design-questions.md`; formateador de logs de U3 y diseño de observabilidad de U4.
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01 (DT27), la adenda 02 y el NFR Requirements
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **Qué cambia.** Salen los eventos y las seis métricas de los extras. Entran los eventos de la aclaración y
+  dos contadores en `contracts/metrics/assistant-extras.v1.yaml` (NFRD-U8-06). Las reglas informativas de la
+  revisión 1 salen: el MVP no tiene Alertmanager y las cifras de nivel 2 se revisan en el PR.
+- **Numeración.** §1–§4 conservan su tema.
+
+**Insumos.** `nfr-requirements/observability-requirements.md` (observability-requirements: NFR15.1–NFR15.4,
+SLI de §3, panel de §4), `security-requirements.md` (security-requirements: NFR10.8), `reliability-requirements.md`
+(reliability-requirements), `performance-requirements.md` (performance-requirements),
+`scalability-requirements.md` (scalability-requirements) y `tech-stack-decisions.md` (tech-stack-decisions);
+`functional-design/functional-spec.md` (functional-spec: F4–F6, §9) y `functional-design/rules.md` (BR5.7,
+BR5.10, BR5.13, BR5.17, BR6.3); C15, C16 y C19 de `inception/contract-design/contract-summary.md`
+(contract-summary); diseños de hoy de U1 (métricas en archivos propios, etiquetas cerradas), U3 (formateador
+con lista blanca), U4 (métricas de la cola y del registro) y U11 (la biblioteca no exporta métricas; catálogo
+cerrado de la CLI).
 
 ## 1. Logs (NFR15.2–NFR15.4)
 
-- El formateador JSON con lista blanca de `libs/` (U3), ampliado con `claim_index`, `sustained`,
-  `question_id`, `status`, `reason`, `outcome` y `matched` (precisión en `security-design.md` §9).
-  Nunca el texto de la pregunta, de las afirmaciones, de los pasajes, de la CoT de la segunda lectura ni
-  la palabra afectiva encontrada.
-- **Correlación.** `turn_id` + `attempt` + `message_id` (U4) en `semantic-agent`; `question_id` +
-  `turn_id` en `session-api`. Sin trazas distribuidas.
+- **Formato.** El de U4: JSON por el formateador de lista blanca de U3, en `stdout`. Campos nuevos solo para
+  los eventos de U8 (NFRD-U8-07): `observation_id`, `source_finding_id`, `rule`, `state`, `emitted`,
+  `discarded`, `inserted` y `existing`, además de `session_id`, `run_id` y `code` de U4. Nunca el tema, las
+  citas, el `hecho` ni el texto de los turnos (NFR10.8).
+- **CLI.** Los mismos eventos con dos plantillas del catálogo cerrado de U11, con parámetros tipados
+  (`security-design.md` §7).
 
-| Evento | Servicio | Nivel | Campos además de los de U4 |
+| Evento | Dónde | Nivel | Campos además de los comunes |
 |---|---|---|---|
-| `turn.permutation` | `semantic-agent` | `INFO` | Una línea por afirmación releída con `claim_index` y `sustained`; una línea de resumen con `count` (candidatas) |
-| `judge.retry` (P1 = A, segunda lectura) | `semantic-agent` | `WARNING` | El evento de U4 con su número de intento y `reason = second_read` |
-| `turn.question` publicada | `semantic-agent` | `INFO` | `outcome = published` |
-| `turn.question` omitida por `undocumented` | `semantic-agent` | `INFO` | `outcome = omitted`, `reason` |
-| `turn.question` omitida por `invalid_schema`, `forbidden_vocabulary`, `timeout`, `unavailable` o `too_long` | `semantic-agent` | `WARNING` | `outcome = omitted`, `reason` |
-| `turn.affective` | `semantic-agent` | `INFO` | `matched` (booleano) |
-| `question.decided` | API de `session-api` | `INFO` | `question_id`, `turn_id`, `status`, `user_id` |
+| `clarification.discarded` | Biblioteca, emitido por la CLI y por `semantic-agent` | `INFO` | `run_id`, `source_finding_id`, `rule` ∈ {`schema`, `mentions_contradiction`, `phrases`, `cites_turn`, `quote_text`, `quote_overlap`, `forbidden_vocabulary`} |
+| `clarification.summary` | Igual, uno por corrida incremental `ok` | `INFO` | `run_id`, `emitted`, `discarded` |
+| `conductor_observation.ingested` | Trabajador de `session-api`, tras el `COMMIT` | `INFO` | `run_id`, `session_id`, `inserted`, `existing` |
+| `conductor_observation.invalid` | Trabajador de `session-api` | `WARNING` | `run_id`, `session_id`, `code` = `analysis.invalid_output`, `rule` |
+| `conductor_observation.decided` | API de `session-api`, tras el `COMMIT` | `INFO` | `observation_id`, `session_id`, `state`, `user_id` |
+| Excepción del módulo | Biblioteca, por el manejador de quien llama | `ERROR` | `run_id`, `exc_type`; nunca el mensaje |
 
-La omisión por falta de plazo (P2 = A) usa `reason = timeout`, igual que el vencimiento de los 60 s:
-para el analista el efecto es el mismo y el enum de NFR15.4 no cambia. Prueba de nivel 1 que sigue un
-turno con los tres extras por sus logs y otra que comprueba el nivel de cada motivo.
+- **Descartes no son errores.** Un descarte es un resultado normal (functional-spec §9), así que es `INFO`.
+  Una aclaración inválida en la ingesta es `WARNING`, porque la biblioteca ya debería haberla quitado.
+- **Correlación.** `run_id` une la corrida en `semantic-agent` o en la CLI con la ingesta; `observation_id`
+  y `session_id` unen la ingesta con la decisión. Sin trazas distribuidas.
+- **Prueba de nivel 1 (NFR15.3).** Sigue una aclaración desde la corrida (`clarification.summary`) hasta la
+  ingesta y la decisión, solo por sus logs capturados. Otra prueba comprueba el nivel de cada evento.
 
 ## 2. Métricas (NFR15.1)
 
-Todas en `/metrics` del puerto interno, con `prometheus-client`; las etiquetas solo llevan enums.
+En `contracts/metrics/assistant-extras.v1.yaml` (NFRD-U8-06), con la forma de C15 y la comprobación
+`checks/metrics.py` de U1. Se exponen en `/metrics` del puerto interno de cada proceso de `session-api` con
+`prometheus-client`.
 
-| Métrica | Dónde se mide en el código |
-|---|---|
-| `veridicus_extras_enabled{extra}` | `session-api` la fija al arrancar desde la configuración validada |
-| `veridicus_extra_judge_duration_seconds{call, result}` | Alrededor de cada llamada de U8 al juez; en la segunda lectura, una observación por intento (reintentos con `result = unavailable`) |
-| `veridicus_permutation_claims_total{sustained}` | Tras la regla de permutación, una por afirmación releída |
-| `veridicus_suggested_questions_total{outcome, reason}` | En la política de la pregunta, una por turno con `suggest_question` activo |
-| `veridicus_affective_notes_total` | Cuando el paquete lleva el indicio |
-| `veridicus_question_decisions_total{status}` | Tras el `COMMIT` de la decisión |
+| Métrica | Tipo | Etiquetas | Dónde se suma |
+|---|---|---|---|
+| `veridicus_conductor_observations_ingested_total` | counter | ninguna | Tras el `COMMIT` de la ingesta, por cada fila insertada |
+| `veridicus_conductor_observation_decisions_total` | counter | `state` (`approved`, `discarded`) | Tras el `COMMIT` de la decisión |
 
-`veridicus_turn_latency_seconds` (U4) no distingue extras; el p95 con extras se calcula en el reporte
-de nivel 2 agrupando por las opciones de cada sesión. Una prueba de nivel 0 recorre `/metrics` y falla
-ante una etiqueta fuera de su enum.
+- **Sin métricas en la biblioteca.** Los descartes por regla no van a Prometheus, porque la biblioteca no
+  exporta métricas (U11). Se cuentan en la sección `clarifications` de C19 v2 y en los logs.
+- **Permutación.** No tiene métrica propia: las de *tokens* y llamadas por papel de U4 ya distinguen
+  `verificador_permutado` con la etiqueta `role`.
+- **Prueba de nivel 0.** Recorre `/metrics` tras una ingesta y una decisión de cada estado: los nombres y las
+  etiquetas coinciden con el archivo de métricas y ninguna etiqueta tiene un valor fuera de su enum.
 
-## 3. SLI y objetivos
+## 3. Indicadores (SLI) y objetivos
 
-| SLI | Cálculo | Objetivo |
-|---|---|---|
-| Latencia con extras | p95 de `evaluated_at − submitted_at`, corrida de nivel 2 con extras | ≤ 150 s |
-| Tasa en línea de la permutación | `sustained="true"` / total de `veridicus_permutation_claims_total` | > 65 % para activar |
-| Preguntas en el Hecho No Documentado | Preguntas publicadas en ese caso del Golden Dataset | 0 |
-| Omisiones por vocabulario | `veridicus_suggested_questions_total{reason="forbidden_vocabulary"}` | Se reporta y cada caso se revisa |
+| SLI | Cálculo | Objetivo | Dónde se mide |
+|---|---|---|---|
+| Citas en los temas | Coincidencias del comprobador independiente sobre los temas emitidos | **0**; bloquea (NFR4.3) | Nivel 2, `clarifications.run` |
+| Vocabulario y regla de DT23 en los temas | Coincidencias del mismo comprobador | **0** (NFR10.5 (d)) | Nivel 2 |
+| Tasa de descarte por regla | descartadas / (emitidas + descartadas) | Se reporta; > 0,50 pone `review_signal: true` (NFR4.6) | Nivel 2 |
+| Latencia incremental con la permutación | p95 de la duración de la corrida con `comercial-piloto` | ≤ 180 s (NFR3.1) | Nivel 2, `clarifications.permutation_cost` |
+| Corridas completas con `todo-local` | Fracción sin `tiempo_agotado` | ≥ 98 % (NFR8.7) | Igual |
+| Decisión | p95 de `POST /conductor-observations/{id}/decision` | ≤ 300 ms (NFR3.8) | Nivel 1, prueba `perf` |
 
-## 4. Panel y reglas informativas
+## 4. Panel y alertas
 
 ```mermaid
 flowchart LR
-  SA[semantic-agent metrics] --> PR[Prometheus de U2]
-  API[session-api metrics] --> PR
-  PR --> GR[Panel de extras en Grafana]
-  PR --> RU[Reglas informativas sin acciones]
+  API[session-api metrics] --> PR[Prometheus de U2]
+  PR --> GR[Paneles de U8 junto al de U4]
+  N2[Reportes de nivel 2] --> PRV[Revision humana del PR]
 ```
 
-<!-- Texto alternativo: semantic-agent y session-api exponen sus métricas, Prometheus de U2 las recoge y alimenta el panel de extras en Grafana y las reglas informativas, que no ejecutan ninguna acción. -->
+<!-- Texto alternativo: los procesos de session-api exponen sus métricas, Prometheus de U2 las recoge y alimenta dos paneles de U8 junto al panel de U4. Los reportes de nivel 2 no pasan por Prometheus: los revisa el humano en el PR. -->
 
-- **Panel (SHOULD, U2).** Junto al de U4: extras activos; duración de la segunda lectura y de la
-  pregunta por resultado; tasa de sostenidas; preguntas publicadas y omitidas por motivo; decisiones
-  por estado.
-- **Reglas informativas** (no despiertan a nadie ni cambian nada, FR9.1):
-  `max(veridicus_extras_enabled) == 1 and veridicus_turn_queue_depth > 20` durante 10 minutos;
-  `increase(veridicus_suggested_questions_total{reason=~"invalid_schema|forbidden_vocabulary"}[15m]) > 3`.
-  Se validan con `promtool test rules` en nivel 0.
+- **Panel de Grafana (SHOULD, U2).** Dos paneles en el JSON del panel de U4: aclaraciones ingeridas por
+  minuto, y decisiones por `state`. Entran por el PR de B8 y U2 los empaqueta con el panel de U4. Se validan
+  con la comprobación de JSON de paneles de U2.
+- **Sin alertas.** El MVP no tiene Alertmanager y no notifica a nadie (U2). Las cifras de nivel 2 se revisan
+  en el PR.
+- **Trazas distribuidas.** No: la correlación por `run_id`, `session_id` y `observation_id` basta.

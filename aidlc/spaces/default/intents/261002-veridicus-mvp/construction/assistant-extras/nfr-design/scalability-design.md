@@ -1,71 +1,90 @@
 # Diseño de escalado — U8 assistant-extras
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`security-requirements.md` (security-requirements), `scalability-requirements.md`
-(scalability-requirements), `reliability-requirements.md` (reliability-requirements),
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01 (DT27), la adenda 02 y el NFR Requirements
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **Qué cambia.** Ya no hay extras que activar ni un límite propio de turnos en cola. La permutación está
+  activa en todos los perfiles y su costo ya lo cuentan U11 y U4. U8 no añade réplicas, colas ni estado en
+  memoria.
+- **Numeración.** §1–§5 conservan su tema.
+
+**Insumos.** `nfr-requirements/scalability-requirements.md` (scalability-requirements: NFR8.1–NFR8.5 y la
+carga esperada de §1), `reliability-requirements.md` (reliability-requirements: NFR8.7),
+`performance-requirements.md` (performance-requirements), `security-requirements.md` (security-requirements),
 `observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
-(tech-stack-decisions) de esta unidad; flujos F1–F3 de `functional-design/functional-spec.md`
-(functional-spec); C2, C3 y C14 de `inception/contract-design/contract-summary.md`
-(contract-summary); respuestas P1 = A y P2 = A de `nfr-design-questions.md`; diseño de escalado de U4.
+(tech-stack-decisions: D9, D12); `functional-design/functional-spec.md` (functional-spec: F5, F6, F8, §9);
+C3, C6 y C25 de `inception/contract-design/contract-summary.md` (contract-summary); diseño de escalabilidad
+de U4 de hoy (una corrida a la vez, cola FIFO única, 60 incrementales por delante) y decisión de U11 (verificador
+local con una ranura).
 
 ## 1. Modelo de capacidad (NFR8.1, NFR8.2)
 
-U8 no añade réplicas ni colas: la capacidad la fija el juez de U4, que atiende un turno a la vez. Con
-los tres extras activos cada turno ocupa la ranura hasta tres llamadas en serie.
+| Dimensión | Valor | Origen |
+|---|---|---|
+| Corridas en paralelo | 1 en todo el sistema (U4) | Diseño de U4 |
+| Llamadas al verificador por candidato | 2 en serie, en la misma ranura del servidor local | BR6.2; U11 |
+| Aclaraciones por corrida | ≤ hallazgos emitidos, deduplicadas | BR5.1, BR5.8 |
+| Aclaraciones por sesión | ≤ hallazgos distintos de la sesión; se prueba con 100 | BR5.10; NFR-U8-03 |
+| Llamadas nuevas al juez o corridas nuevas por U8 | 0 | BR5.1 |
 
-| Configuración | p95 por turno | Turnos en cola sin vencer (tope 3 600 s) | Cómo se mide |
-|---|---|---|---|
-| Extras apagados (por defecto) | ≤ 60 s | 60 (U4) | Carga de NFR8 de U4 |
-| Tres extras activos | ≤ 150 s | **24** | Corrida de nivel 2 con extras, una sesión a la vez |
-
-- **Carga de NFR8 con extras apagados.** `evaluation/load/run_batches.py` lee `options` de cada sesión
-  creada (respuesta de `POST /sessions`) y termina con código distinto de 0 si alguna trae un extra en
-  `true`; el reporte lista las opciones. El umbral de ≥ 98 % de U4 se mide así.
-- **Límite declarado.** Tres sesiones concurrentes con extras activos no se soportan en el MVP; la
-  corrida de nivel 2 con extras usa una sesión a la vez (≤ 15 turnos en cola) y debe terminar con 0
-  `turn.error.timeout`.
+- **Cola.** La capacidad de U4 (60 incrementales por delante con el p95 de 180 s de U11) ya cuenta la
+  permutación. U8 no añade un tope propio. La cifra es **orientativa**, porque toma el p95 como media; el
+  criterio medible es NFR8.7 y 0 corridas vencidas por plazo en la prueba de carga (NFR8.2).
+- **Prueba de carga con la permutación (NFR8.1).** `evaluation/load/run_batches.py` de U4 corre 50 sesiones
+  en tandas de 3 con `comercial-piloto`, registra `config_sha256` y el perfil de cada sesión, y falla si
+  alguna usa un perfil con `permutation: false` (ya en el diseño de U4). El umbral de ≥ 98 % se mide así. La
+  lanza el humano.
 
 ## 2. Memoria (NFR8.3)
 
-Los extras no suben los topes de U4: `model-judge` ≤ 7 GiB, `semantic-agent` ≤ 512 MiB y trabajador de
-`session-api` ≤ 768 MiB. El arnés de nivel 2 con `--extras all` lee el pico de cada contenedor con
-`docker stats --no-stream` cada 5 s y lo escribe en el reporte; superar un tope es un hallazgo que se
-corrige por PR, no un ajuste del tope.
+| Pieza | Tope | Cómo se mide |
+|---|---|---|
+| `semantic-agent` | ≤ 768 MiB (U4) | En la prueba de carga: `run_batches.py --prometheus-url <url>` consulta en modo lectura `max_over_time(container_memory_working_set_bytes{pod=~"veridicus-semantic-agent.*"}[<ventana>])` y escribe el pico en su reporte (NFRD-U8-11) |
+| Trabajador de `session-api` | ≤ 512 MiB (U4) | Igual, con su pod |
+| Servidor local del verificador | Sin cambio entre la llamada directa y la permutada | En la medición de BR6.5 (`performance-design.md` §8): `VmHWM` del proceso después de una llamada de calentamiento y al final; crecimiento ≤ 1 %. La caché de la ranura la reserva el arranque del servidor (`--parallel 1` y tamaño de contexto fijo), así que no depende del número de llamadas |
+| CLI | Se registra el pico de RSS (`resource.getrusage`) | En la medición de BR6.5 |
+
+Superar un tope es un hallazgo que se corrige por PR, nunca un ajuste del tope. La consulta a Prometheus es de
+solo lectura y la ejecuta el humano; ningún *script* cambia el clúster (AUTONOMIA-01).
 
 ## 3. Sin estado en memoria (NFR8.4)
 
-- Las opciones viajan en C2 desde la copia de la sesión; el resultado de la permutación viaja en C3;
-  la lista afectiva y el *prompt* son de solo lectura y los mismos en cada réplica.
-- La decisión se aplica con la actualización condicional en PostgreSQL, así que dos réplicas de la API
-  no necesitan coordinarse. Prueba de nivel 1: dos decisiones simultáneas sobre la misma pregunta dan
-  exactamente un `200`, un `409 question.already_decided` y una sola fila en `question_decision`.
-- Con la segunda pareja juez + `semantic-agent` de U4, cada `semantic-agent` procesa el turno entero
-  (las tres llamadas al mismo juez de su pareja), así que la caché de la ranura y la semilla siguen
-  siendo las de un solo servidor.
+- **Biblioteca.** `validate_clarifications` es pura. Lo que precalcula (fragmentos y 5-gramas) vive solo
+  durante la llamada.
+- **`session-api`.** No guarda aclaraciones en memoria. La deduplicación por sesión la hace la base con el
+  índice único `(session_id, turnos, tema_sha256)` (NFRD-U8-03). La decisión bloquea la sesión y la fila.
+  Más réplicas de la API o del trabajador no necesitan coordinarse.
+- **Pruebas de nivel 1.** Dos ingestas simultáneas de corridas con la misma aclaración dejan una fila. Dos
+  decisiones simultáneas dan una `200` y una `409` `conductor_observation.already_decided`, con una sola fila
+  de historial.
 
 ## 4. Datos y crecimiento (NFR8.5)
 
 | Tabla | Crecimiento máximo | Retención |
 |---|---|---|
-| `suggested_question` | 1 por intento de turno | Todas (auditoría) |
-| `question_decision` | 1 por pregunta | Todas (auditoría) |
-| Columnas de permutación en la evaluación de la afirmación | 1 juego por afirmación releída | Las de U4 |
+| `conductor_observation` | 1 por hallazgo distinto de la sesión | Historial; la purga la retención con la sesión (NFR11.5) |
+| `conductor_observation_decision` | 1 por aclaración (`UNIQUE (observation_id)`) | Igual |
 
-Estimado < 5 MB en el MVP; no hay particiones ni purga. Una prueba de nivel 1 comprueba que un segundo
-resultado con la misma pregunta del mismo intento no crea otra fila (restricción única `(turn_id,
-attempt)` en `suggested_question`).
+- Estimado < 5 MB en el MVP: 100 aclaraciones por sesión con temas de 2 000 caracteres son unos 250 KB,
+  contando índices.
+- Sin particiones. Las dos tablas entran en `purge_session` de U4 (NFRD-U8-08).
+- Prueba de nivel 1: tras el `Job` de retención sobre una sesión con aclaraciones y decisiones, 0 filas de
+  las dos tablas para esa sesión.
 
 ## 5. Señales para escalar
 
 ```mermaid
 flowchart LR
-  M[veridicus_turn_queue_depth mayor que 20 con extras activos] --> A[Apagar la permutacion por PR]
-  A --> G[Perfil GPU para la demostracion]
-  G --> P[Segunda pareja juez y semantic-agent de U4]
+  S[Senales de cola de U4] --> A[Apagar la permutacion en todo-local por PR si incumple el 98 por ciento]
+  A --> G[Perfil mas rapido para la demostracion]
+  G --> U[Opciones de escalado de U4]
 ```
 
-<!-- Texto alternativo: cuando la profundidad de la cola supera 20 turnos con los extras activos, la primera medida es apagar la permutación por PR; si no alcanza, usar el perfil GPU para la demostración; y como último paso la segunda pareja de juez y semantic-agent de U4. -->
+<!-- Texto alternativo: con las señales de la cola de U4, el primer paso es apagar la permutación en todo-local por PR si incumple el 98 por ciento; si no alcanza, usar en la demostración un perfil más rápido, GPU o comercial; y por último las opciones de escalado de U4. -->
 
-La señal es `veridicus_turn_queue_depth` con `veridicus_extras_enabled` en 1 (regla informativa en
-`observability-design.md` §4). Cada medida entra por PR con su medición; el tope de 3 600 s nunca se
-sube para que una corrida pase.
+- **Señales.** Las de U4: `veridicus_run_queue_depth` sostenido por encima de 10 y
+  `veridicus_run_queue_wait_seconds` cerca de su tope. No hay métrica propia de U8 para la cola.
+- **Qué hacer**, en este orden y cada paso por PR con su medición:
+  1. apagar la permutación en `todo-local` si incumple NFR8.7 (NFR-U8-01);
+  2. usar en la demostración un perfil más rápido (GPU o comercial);
+  3. las opciones de escalado de U4.
+- Nunca se suben los plazos ni se baja el 98 % para que una corrida pase.

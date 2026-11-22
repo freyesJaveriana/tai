@@ -1,0 +1,22 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "ethics-governance",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12", "NFR13", "NFR14", "NFR15"],
+  "coverage": [
+    {"id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2, NFR1.3 (security-requirements.md)"},
+    {"id": "NFR2", "status": "OK", "target": "NFR2.1 (performance-requirements.md)"},
+    {"id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2, NFR3.3, NFR3.4, NFR3.5, NFR3.6, NFR3.7, NFR3.8 (performance-requirements.md); NFR3.9, NFR3.10, NFR3.11, NFR3.12 (scalability-requirements.md)"},
+    {"id": "NFR4", "status": "N/A", "target": "U13 no analiza ni mide la calidad de la IA; los umbrales del nivel 2 son de U11"},
+    {"id": "NFR5", "status": "N/A", "target": "U13 no llama a modelos: no hay inyección, familias ni permutación que resistir"},
+    {"id": "NFR6", "status": "N/A", "target": "U13 no muestra observaciones de hallazgos; la calificación Likert es de U11"},
+    {"id": "NFR7", "status": "N/A", "target": "El MTTV es de la revisión humana y del reporte de revisión (U5, U7); los avisos de U13 no son modales salvo el reconocimiento, que se puede posponer (BR1.5) y aparece antes de M4"},
+    {"id": "NFR8", "status": "N/A", "target": "El éxito del pipeline de sesiones de texto es de U4 y U11; el Job de retención no forma parte de ese recorrido"},
+    {"id": "NFR9", "status": "N/A", "target": "Retirado por el cambio 01 (DT27) en requirements.md revisión 3"},
+    {"id": "NFR10", "status": "OK", "target": "NFR10.1, NFR10.2, NFR10.3, NFR10.4, NFR10.5, NFR10.6, NFR10.7, NFR10.8, NFR10.9, NFR10.10, NFR10.11, NFR10.12 (security-requirements.md); NFR10.13, NFR10.14, NFR10.15, NFR10.16, NFR10.17, NFR10.18, NFR10.19, NFR10.20, NFR10.21 (reliability-requirements.md); NFR10.22, NFR10.23, NFR10.24 (observability-requirements.md)"},
+    {"id": "NFR11", "status": "OK", "target": "NFR11.1, NFR11.2, NFR11.3, NFR11.4, NFR11.5, NFR11.6 (security-requirements.md); NFR11.7, NFR11.8 (reliability-requirements.md)"},
+    {"id": "NFR12", "status": "OK", "target": "NFR12.1, NFR12.2 (security-requirements.md)"},
+    {"id": "NFR13", "status": "OK", "target": "NFR13.1, NFR13.2, NFR13.3 (tech-stack-decisions.md)"},
+    {"id": "NFR14", "status": "OK", "target": "NFR14.1 (security-requirements.md)"},
+    {"id": "NFR15", "status": "OK", "target": "NFR15.1 (observability-requirements.md)"}
+  ]
+}

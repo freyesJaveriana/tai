@@ -136,6 +136,14 @@
 - 2026-11-22T15:08:17Z — NFR-U11-11 no es una contradicción entre fuentes aprobadas: C13 revisión 3 ya declara transcribe y synthesize (SHOULD, solo locales), así que van en el puerto de U11 escritos por U9 en B9, sin PR de U1 (D13, NFR-U9-01).
 <!-- aidlc-wave-memory:voice:7ac96be99d40b516342cece516b80fa181b8891aa67b6d73e04cd9c5dfffb9a9 -->
 
+
+- 2026-11-22T15:13:34Z — Sin preguntas: las preguntas abiertas 1–5 del Functional Design las resuelven U1, U2, U3, U5 y U7; el intervalo de bienestar no tiene cifra del TG en el repositorio, pero es un aviso que no bloquea, así que va como propuesta (2 700 s) a NFR-U13-01.
+<!-- aidlc-wave-memory:ethics-governance:820ee1db15bc8957dc36637753c96a95fecbf0a2ec1dfc411cbd63a93949efe4 -->
+
+
+- 2026-11-22T15:13:34Z — El comando de consulta sigue a verify_store de U7 (kubectl exec, READ ONLY, sin Job ni rol propio), con 1 000 filas por defecto y 10 000 como máximo.
+<!-- aidlc-wave-memory:ethics-governance:65e0cbe4a4fd9e1b11a46afe1c7b5cde49c4e2a2d7e240b2a4394261ab52d01d -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -333,6 +341,14 @@
 
 - 2026-11-22T15:08:17Z — Base del plazo de audio a 360 s con 2 entregas en vez de 300 s con 3: la segunda entrega cabe con 60 s de margen (cierra R-03), a costa de esperar más un turno cuyo trabajador se cae.
 <!-- aidlc-wave-memory:voice:8abda0e5f9849764fffac99e1d68973a012def5beec7f1fa25c13ba173b4bf15 -->
+
+
+- 2026-11-22T15:13:34Z — Con Redis caído, el Job no borra la sesión (failed, system.unavailable) en vez de borrarla sin cancelar sus corridas: el borrado se retrasa a cambio de que ninguna llamada salga para una sesión ya borrada (NFR-U13-05).
+<!-- aidlc-wave-memory:ethics-governance:1f15b4cf865aba2069195a3b0ea8173ba141bc98b13ab3bfaf888f9ef82dafe9 -->
+
+
+- 2026-11-22T15:13:34Z — Una sola ejecución del Job a la vez con pg_try_advisory_lock y código de salida 3, en vez de confiar en que el humano no lance dos (NFR8.6 de U7, NFR-U13-04).
+<!-- aidlc-wave-memory:ethics-governance:834e40b8288ba8cbb04be6366a9e5b36a5f0a4255754279f7c460c8ac76855c8 -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

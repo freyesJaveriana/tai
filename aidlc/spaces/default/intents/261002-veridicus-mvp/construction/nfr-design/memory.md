@@ -56,6 +56,14 @@
 - 2026-11-22T16:00:30Z — P3 = A aplicado: el exceso de tamaño en C21 responde 413 limits.exceeded con 0 peticiones y 422 queda para cuerpo inválido, perfil o papel inexistente y destino local (NFRD-U10-17); el cliente de U11 traduce 413 a AnonymizerUnavailable.
 <!-- aidlc-wave-memory:anonymizer:736340c87ba9099b766cb90306a590b00394dceea5b2038fdc626acbafe42915 -->
 
+
+- 2026-11-22T16:05:32Z — NFR15.1 pide la latencia en cada entrada de registro.llamadas, pero C6 es el contrato común del TG y no cambia (ADR-017): se mide en memoria y solo sus agregados van a C19 v2 (NFRD-U11-07); no se preguntó porque no hay otra salida que respete C6.
+<!-- aidlc-wave-memory:incoherence-analyzer:ab3c5125aee9f097ece01811d5b1b80e9f9fbcda3f67f9cd043a89af9d080154 -->
+
+
+- 2026-11-22T16:05:32Z — El margen de 10 s del cliente de C21 (NFRD-U10-10) se descuenta del plazo de la corrida, para que ninguna corrida pase de run_deadline_* (NFRD-U11-04).
+<!-- aidlc-wave-memory:incoherence-analyzer:7eeba099068af351e8b6f9e0d65f4fccb6f57fb87309ecda2e9888faf30228cb -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -169,6 +177,14 @@
 
 - 2026-11-22T16:00:30Z — El NER corre en un hilo no abandonable con limitador de 1, y la espera cuenta en el presupuesto: nunca hay hilos huérfanos con la tabla viva, a cambio de que una cancelación espere al hilo (NFRD-U10-07).
 <!-- aidlc-wave-memory:anonymizer:bfa3e57f32eae58a825f2d88eb5ed2effab21318c14163de7472b75d14066804 -->
+
+
+- 2026-11-22T16:05:32Z — El p95 ≤ 180 s con 4 llamadas al verificador en CPU depende de la caché del prefijo fijo y del orden hecho, tipo, cita_a, cita_b; es una estimación que decide el nivel 2, y si no alcanza se cambia el perfil por PR, nunca la meta.
+<!-- aidlc-wave-memory:incoherence-analyzer:d3fb5b675f8fccc87c7d9f7daf6ae895e42afd50a2c2c1ee333b6e5999fb49bf -->
+
+
+- 2026-11-22T16:05:32Z — El piso de 270 s de model_call_timeout_s con perfil comercial vive como constante de libs/execution_profiles y no en C25, porque C25 guarda techos (DS9, NFRD-U11-03).
+<!-- aidlc-wave-memory:incoherence-analyzer:fc4db5f70138a9da62a5a1e28c7005b26f2ce3de6a800707616acbcdafb0d42f -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

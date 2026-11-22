@@ -46,3 +46,48 @@ C. Kyverno en el clúster en modo `Audit` (solo informa), sin bloquear.
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Requirements revisión vigente (2026-11-22)
+
+## Lo que ya está decidido
+
+- Los requisitos de la revisión 2 de `nfr-requirements/security-requirements.md` (NFR1.1–NFR1.7, NFR2.1,
+  NFR8.1–NFR8.3, NFR10.1–NFR10.19, NFR11.1–NFR11.2, NFR12.1–NFR12.2 y NFR15.1–NFR15.2) y las decisiones
+  D1–D17 de `nfr-requirements/tech-stack-decisions.md`, con P5 = A (Argo CD sale solo hacia `github.com`).
+- P1 = A (TLS en el Ingress con una CA local de `mkcert`) y P2 = A (Kyverno solo como CLI) de la revisión 1
+  siguen vigentes.
+- Lo que hoy piden a U2 las tablas NFR-Ux aprobadas: NFR-U6-06, NFR-U7-05 a NFR-U7-07, NFR-U9-05,
+  NFR-U10-10, NFR-U11-07, NFR-U11-10, NFR-U12-05 y NFR-U13-07 a NFR-U13-12, y las cifras de C25 del NFR
+  Design de U1 (`audio_max_bytes`, `import_file_max_bytes`, `research_report_max_bytes`,
+  `audio_store_max_bytes`, `retention_max_days` y `dismissal_window_w`).
+
+## Cómo se registra la revisión
+
+`security-design.md` pasa a la revisión 2 y sustituye a la revisión 1, que queda en el historial de Git.
+Las secciones conservan su número cuando siguen; lo nuevo empieza en §11. Las precisiones nuevas toman los
+IDs NFRD-U2-01 en adelante, y la tabla §15 cierra los hallazgos R-01 a R-08 de `reviews/review-01.md`.
+U2 es `packaging`: la etapa solo produce `security-design.md` y `traceability.json`, así que lo que otras
+unidades piden de persistencia, respaldos y métricas se diseña en ese mismo documento.
+
+## Lo que el diseño resolverá sin preguntar
+
+- **Prometheus** raspa el puerto interno de métricas de los cuatro servicios (`session-api`,
+  `semantic-agent`, `audio-worker` y `anonymizer-proxy`), y nunca el puerto de la API ni los servidores
+  de modelos (NFR15.2, NFR-U9-05 (a), NFR15.1 de U10 y NFR10.8 de U2).
+- **Ingress sin disco**: un patrón único para todo lo que va a `session-api` (sin *buffering* de petición
+  ni de respuesta y `proxy-max-temp-file-size: "0"`), con un tope por grupo de rutas derivado de C25 más su
+  margen: 2 113 536 (`/api/`), 6 065 536 (voz) y 8 454 144 (reportes del investigador) (NFR-U6-06,
+  NFR-U7-07, NFR-U12-05).
+- **Redis**: AOF `everysec`, `save ""` y reescritura con `100` y `16mb` (NFR11.2, NFR-U9-05 (b)).
+- **Volúmenes**: PVC de audio aparte del de reportes, ≥ 1,2 × `audio_store_max_bytes`, y una tabla
+  cerrada de quién monta cada volumen, con el `Job` de retención con el mismo UID y GID que `session-api`
+  (NFR-U9-05 (d), NFR-U7-06, NFR-U13-07).
+- **Respaldos** de como mucho 90 días (`retention_max_days`), solo en la máquina local (NFR-U13-11).
+- **PostgreSQL** sin parámetros en los logs (NFR-U13-12) y `kubectl exec` con una lista cerrada de
+  comandos de solo lectura (NFR-U13-08, NFR-U7-05).
+- Los *fixtures* de la regla AIR unen los de U2 (5 de 20 y 6 de 20) y los de U5 (0,25 y 0,375): no se
+  contradicen, porque la regla compara un cociente.
+
+Sin preguntas: todo lo fijan las fuentes.

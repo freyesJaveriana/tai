@@ -1,116 +1,53 @@
 {
   "stage": "nfr-design",
   "unit": "platform",
+  "revision": 2,
   "upstream_ids": [
-    "NFR1.1",
-    "NFR1.2",
-    "NFR1.3",
+    "NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4", "NFR1.5", "NFR1.6", "NFR1.7",
     "NFR2.1",
-    "NFR8.1",
-    "NFR10.1",
-    "NFR10.2",
-    "NFR10.3",
-    "NFR10.4",
-    "NFR10.5",
-    "NFR10.6",
-    "NFR10.7",
-    "NFR10.8",
-    "NFR10.9",
-    "NFR10.10",
-    "NFR11.1",
-    "NFR12.1",
-    "NFR15.1"
+    "NFR8.1", "NFR8.2", "NFR8.3",
+    "NFR10.1", "NFR10.2", "NFR10.3", "NFR10.4", "NFR10.5", "NFR10.6", "NFR10.7", "NFR10.8", "NFR10.9", "NFR10.10",
+    "NFR10.11", "NFR10.12", "NFR10.13", "NFR10.14", "NFR10.15", "NFR10.16", "NFR10.17", "NFR10.18", "NFR10.19",
+    "NFR11.1", "NFR11.2",
+    "NFR12.1", "NFR12.2",
+    "NFR15.1", "NFR15.2"
   ],
   "coverage": [
-    {
-      "id": "NFR1.1",
-      "status": "OK",
-      "target": "§2: veridicus-default-deny, reglas por dependencia, políticas deny-external-egress y verificación manual"
-    },
-    {
-      "id": "NFR1.2",
-      "status": "OK",
-      "target": "§4: fetch-models.sh en la anfitriona, models.lock y volumen readOnly; check-no-downloads.sh"
-    },
-    {
-      "id": "NFR1.3",
-      "status": "OK",
-      "target": "§2: política internal-model-urls con control negativo"
-    },
-    {
-      "id": "NFR2.1",
-      "status": "OK",
-      "target": "§5: política gpu-only-in-gpu-values sobre el render de values-cpu.yaml"
-    },
-    {
-      "id": "NFR8.1",
-      "status": "OK",
-      "target": "§5: política require-resources para contenedores e initContainers"
-    },
-    {
-      "id": "NFR10.1",
-      "status": "OK",
-      "target": "§4: require-image-digest, Chart.lock y Trivy con .trivyignore con caducidad"
-    },
-    {
-      "id": "NFR10.2",
-      "status": "OK",
-      "target": "§5: Pod Security restricted y helper _securityContext.tpl con su política"
-    },
-    {
-      "id": "NFR10.3",
-      "status": "OK",
-      "target": "§6: no-inline-secrets y create-secrets.sh con --dry-run=client"
-    },
-    {
-      "id": "NFR10.4",
-      "status": "OK",
-      "target": "§4: initContainer verify-model y política require-model-verify"
-    },
-    {
-      "id": "NFR10.5",
-      "status": "OK",
-      "target": "§9: check-no-cluster-apply.sh con control negativo; CI sin kubeconfig"
-    },
-    {
-      "id": "NFR10.6",
-      "status": "OK",
-      "target": "§7 y §2: requirepass, protected-mode, comandos renombrados y restrict-datastore-ingress"
-    },
-    {
-      "id": "NFR10.7",
-      "status": "OK",
-      "target": "§7: CloudNativePG sin superusuario, TLS, roles separados; acceso por NetworkPolicy"
-    },
-    {
-      "id": "NFR10.8",
-      "status": "OK",
-      "target": "§2: restrict-datastore-ingress para servidores de modelos y --api-key desde Secret"
-    },
-    {
-      "id": "NFR10.9",
-      "status": "OK",
-      "target": "§5: no-sa-token y ningún Role ni ClusterRole"
-    },
-    {
-      "id": "NFR10.10",
-      "status": "OK",
-      "target": "§7: Job migrations-job aparte y política no-migrations-in-deployments"
-    },
-    {
-      "id": "NFR11.1",
-      "status": "OK",
-      "target": "§7: Prune=false en Cluster y PVC con política no-prune-on-data; deploy key de solo lectura"
-    },
-    {
-      "id": "NFR12.1",
-      "status": "OK",
-      "target": "§9b: deploy/ sin datos; gitleaks y revisión del PR"
-    },
-    {
-      "id": "NFR15.1",
-      "status": "OK",
-      "target": "§9b: PrometheusRule que solo propone, probada con promtool"
-    }
+    { "id": "NFR1.1", "status": "OK", "target": "security-design §2.1, §2.2 y §2.4: default-deny por namespace, reglas por dependencia, egress-peers-explicit, deny-external-egress y verificación manual con control positivo" },
+    { "id": "NFR1.2", "status": "OK", "target": "security-design §4: fetch-models.sh con models.lock y check-no-downloads.sh con control negativo" },
+    { "id": "NFR1.3", "status": "OK", "target": "security-design §2.2: política internal-model-urls con control negativo" },
+    { "id": "NFR1.4", "status": "OK", "target": "security-design §2.3: Corefile con la unión de las dos listas, check-coredns-domains.sh con F9 de U10 y tres controles negativos" },
+    { "id": "NFR1.5", "status": "OK", "target": "security-design §2.1 y §2.2: salida 443 con except completo, entrada solo de semantic-agent en 8080 y de Prometheus en el puerto de métricas" },
+    { "id": "NFR1.6", "status": "OK", "target": "security-design §2.2 y §11: default-deny en los namespaces de operadores, tráfico interno declarado y Grafana sin conexión" },
+    { "id": "NFR1.7", "status": "OK", "target": "security-design §2.2 y §2.4: lista cerrada de dos excepciones, sin entrada desde argocd y verificación manual con git ls-remote" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design §5: política gpu-only-in-gpu-values sobre el render de values-cpu.yaml" },
+    { "id": "NFR8.1", "status": "OK", "target": "security-design §5 y §13: política require-resources y cifras de U10 y U13 para Infrastructure Design" },
+    { "id": "NFR8.2", "status": "Deferred", "target": "Build and Test mide el 98 % con el chart de U2 (security-design §13)" },
+    { "id": "NFR8.3", "status": "OK", "target": "security-design §11: smoke.sh con los cuatro healthz, smoke.spec.ts con N de 300 s y check-ingress-routes.sh" },
+    { "id": "NFR10.1", "status": "OK", "target": "security-design §4: require-image-digest, image-exceptions.yaml con caducidad y Trivy" },
+    { "id": "NFR10.2", "status": "OK", "target": "security-design §5: Pod Security restricted, helper de securityContext, memory-only-tmp y restricted-security-context" },
+    { "id": "NFR10.3", "status": "OK", "target": "security-design §6: no-inline-secrets, gitleaks y create-secrets.sh con salida 0600 fuera del repositorio" },
+    { "id": "NFR10.4", "status": "OK", "target": "security-design §4: initContainer verify-model, require-model-verify y prueba de nivel 1 con un archivo alterado" },
+    { "id": "NFR10.5", "status": "OK", "target": "security-design §9: check-no-cluster-apply.sh normalizado, verbos ampliados y lista cerrada de exec de solo lectura" },
+    { "id": "NFR10.6", "status": "OK", "target": "security-design §7.2 y §2.2: redis.conf con contraseña por include, protected-mode, check-redis-conf.sh y entrada solo de sus clientes" },
+    { "id": "NFR10.7", "status": "OK", "target": "security-design §7.1: cnpg-cluster-hardening con tres roles, sin pgvector y sin superusuario; restrict-datastore-ingress" },
+    { "id": "NFR10.8", "status": "OK", "target": "security-design §2.2 y §6: entrada a los modelos solo desde su cliente, Prometheus excluido y LLAMA_API_KEY por secretKeyRef" },
+    { "id": "NFR10.9", "status": "OK", "target": "security-design §5: no-sa-token con la exención declarada de CloudNativePG y de los operadores" },
+    { "id": "NFR10.10", "status": "OK", "target": "security-design §7.1: migrations-job aparte y política no-migrations-in-deployments" },
+    { "id": "NFR10.11", "status": "OK", "target": "security-design §4: PersistentVolume estático de solo lectura, no-hostpath y models-readonly" },
+    { "id": "NFR10.12", "status": "OK", "target": "security-design §6: secret-consumers.yaml con veridicus-provider-keys solo en anonymizer-proxy" },
+    { "id": "NFR10.13", "status": "OK", "target": "security-design §6: tabla cerrada de consumidores de cada Secret con controles negativos" },
+    { "id": "NFR10.14", "status": "OK", "target": "security-design §3.1: Secret veridicus-tls, ssl-redirect, HSTS, mkcert con dos máquinas y require-ingress-tls" },
+    { "id": "NFR10.15", "status": "OK", "target": "security-design §10: check-config-copy.sh con control negativo" },
+    { "id": "NFR10.16", "status": "OK", "target": "security-design §7.3, §7.4 y §13: chart de jobs fuera de la Application, backoffLimit 0, job-shape y retention-job-identity" },
+    { "id": "NFR10.17", "status": "OK", "target": "security-design §5: require-probes con healthz, readyz y startupProbe del proxy" },
+    { "id": "NFR10.18", "status": "OK", "target": "security-design §2.1 y §2.2: network-deps.yaml cruzado con el render por check-network-deps.sh" },
+    { "id": "NFR10.19", "status": "OK", "target": "security-design §11: captura de logs de todos los contenedores en nivel 1 con el canary de U4" },
+    { "id": "NFR11.1", "status": "OK", "target": "security-design §7.4: Prune=false en la base, Redis, reportes y audio; no-prune-on-data; chart de jobs fuera de la sincronización" },
+    { "id": "NFR11.2", "status": "OK", "target": "security-design §7.2: AOF everysec con save vacío y prueba de nivel 1 de 10 entradas con su control" },
+    { "id": "NFR12.1", "status": "OK", "target": "security-design §10: check-no-data.sh con lista permitida de claves y control negativo" },
+    { "id": "NFR12.2", "status": "OK", "target": "security-design §10: política no-corpus-mounts con control negativo" },
+    { "id": "NFR15.1", "status": "OK", "target": "security-design §11: PrometheusRule veridicus-air mayor que 0,25 con W de C25 y fixtures de U2 y U5 en promtool" },
+    { "id": "NFR15.2", "status": "OK", "target": "security-design §11 y §3.2: ServiceMonitor del puerto de métricas de los cuatro servicios, sin ruta en el Ingress" }
   ]
 }

@@ -40,6 +40,14 @@
 - 2026-10-03T03:57:26Z — El cursor del diálogo se compara como decode(expected_cursor) = valor del bump − 1, después de BR2.2–BR2.4 y BR2.7; como el latido de U6 y cot-views no incrementan change_seq, solo un cambio visible deja la vista desactualizada y no hay falsos rechazos.
 <!-- aidlc-wave-memory:forensic-report:fc34a15cccab11c34e7da29a4e1aa68fc255600aa2327a8944d3fd90f7c77b3e -->
 
+
+- 2026-11-22T15:40:36Z — Segunda pasada sin preguntas: los fixtures AIR de U2 (5 y 6 de 20) y de U5 (0,25 y 0,375) no se contradicen porque la regla compara un cociente; se usan los dos (NFRD-U2-12).
+<!-- aidlc-wave-memory:platform:4b273962344f2bc5309349b67063858992577803fe1a5ef363a7ae4a11009b7c -->
+
+
+- 2026-11-22T15:40:36Z — NFR1.5 (proxy solo desde semantic-agent) y NFR15.1 de U10 (métricas del proxy) se concilian por puerto: Prometheus solo en el puerto de métricas (NFRD-U2-03).
+<!-- aidlc-wave-memory:platform:43ac9b65d027cedee79c0762c928740797931130f9d55357ec5df808a63b88f3 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -129,6 +137,10 @@
 
 - 2026-11-22T15:27:57Z — La compuerta de pip-audit falla con toda vulnerabilidad que tenga corrección, porque pip-audit no da la severidad: es más estricta que HIGH+ y se alivia con excepciones que caducan.
 <!-- aidlc-wave-memory:contracts:8d0062fa9f114c04a22b7c4991c664c612496b337f23a5ebf22ecd06fc5e1740 -->
+
+
+- 2026-11-22T15:40:36Z — Patrón único sin disco en todo /api/ con tope por grupo (C25 + margen) en vez de un Ingress por ruta: menos regex y un solo control, a costa de que use-regex del Ingress de voz valga para todo el host, por lo que el enrutamiento se prueba en nivel 3.
+<!-- aidlc-wave-memory:platform:6e04ac2fd498c2ded144e21292f144d1ac9594a473fa91adbb719cf0c701b77a -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

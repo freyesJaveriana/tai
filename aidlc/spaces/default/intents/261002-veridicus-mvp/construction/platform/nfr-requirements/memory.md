@@ -9,11 +9,13 @@
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
+- 2026-11-22T13:44:22Z — F9 de U10 exige igualdad exacta con el Corefile; con P5 = A, U2 le pasa el Corefile sin la lista cerrada de infraestructura (github.com) y comprueba esa lista aparte (NFR-U2-03).
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 - 2026-10-03T01:38:15Z — llama.cpp sirve juez y embeddings con una sola tecnología GGUF en CPU, a costa de que el esquema JSON se cumpla por gramática y no por un modo nativo; la validación contra C6 en U4 sigue siendo la que manda.
 - 2026-10-03T01:38:15Z — NetworkPolicy de negar todo y abrir lo declarado (P4 = A): más reglas que mantener, pero ningún pod nuevo sale a internet por omisión.
+- 2026-11-22T13:44:22Z — P5 = A: Argo CD conserva la sincronización desde GitHub a cambio de una segunda salida sin datos, y queda como riesgo residual una conexión por IP literal desde el proxy o desde argocd-repo-server.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

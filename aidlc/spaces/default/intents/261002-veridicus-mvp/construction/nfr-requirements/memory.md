@@ -76,6 +76,14 @@
 - 2026-11-22T13:40:27Z — «El único con DELETE» de NFR11 se leyó como sobre historiales y tablas purgables, porque entities.md aprobado ya hace que session-api barra WebSession a los 7 días; quedó como NFR-U3-02.
 <!-- aidlc-wave-memory:identity-access:231c13a83dac2c1d54cd3050a71d7a10baa7a80dba3d63be476e6c8e7582570a -->
 
+
+- 2026-11-22T13:38:45Z — Segunda pasada: FR12.3 dice «todos los pods», así que la negación de salida se extiende a ingress-nginx, cnpg-system, monitoring y keda; semantic-agent ya no alcanza PostgreSQL (C9 Retirado, CD-06).
+<!-- aidlc-wave-memory:platform:615445753854a2906b124b8eb3c0ee651c83849c95e41895d30985dada7b3309 -->
+
+
+- 2026-11-22T13:38:45Z — Los Jobs de retención y create-admin van en un chart que Argo CD no sincroniza, porque VE-12 dice que el sistema no programa el borrado y U13 F7 pide que lo lance el humano.
+<!-- aidlc-wave-memory:platform:cb29e910947bd769f1edf0cccbf341f877d7e0f560ef6edda6362784c6d2a794 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -114,6 +122,10 @@
 
 - 2026-10-03T02:38:33Z — U2 no tiene subchart model-tts ni las reglas de red session-api → audio-worker y audio-worker → model-tts, y Redis no desactiva RDB; se registraron en la tabla de precisiones sin editar U2.
 <!-- aidlc-wave-memory:voice:b3031d0ea6073858b299d8ec94f459e5032784a2ff0baa3954c0061a54544b5f -->
+
+
+- 2026-11-22T13:44:22Z — F9 de U10 exige igualdad exacta con el Corefile; con P5 = A, U2 le pasa el Corefile sin la lista cerrada de infraestructura (github.com) y comprueba esa lista aparte (NFR-U2-03).
+<!-- aidlc-wave-memory:platform:71f64c3d681f327649a54cd5726edbd9638e4e9c5a86792316f41a404d3567d5 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -206,6 +218,10 @@
 - 2026-11-22T13:40:27Z — Las métricas de U3 quedan internas de session-api y no en C15 (R-05); la etiqueta code pasa a error_code para seguir la lista de U1 sin pedirle un cambio.
 <!-- aidlc-wave-memory:identity-access:51409cca30c073936fd48dc3ea32e7634c1801c803daf9590617c28db9bfb1b3 -->
 
+
+- 2026-11-22T13:44:22Z — P5 = A: Argo CD conserva la sincronización desde GitHub a cambio de una segunda salida sin datos, y queda como riesgo residual una conexión por IP literal desde el proxy o desde argocd-repo-server.
+<!-- aidlc-wave-memory:platform:e596adab8b97fd20b6ba7944975dd768b275de93d3d2a4ecf8a577407c04c5a4 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -235,3 +251,6 @@
 
 - 2026-11-22T13:16:31Z — P8: la revisión 1 dejó la suite sin Node, pero la regla 1 de contract-summary y BR1.9, BR9.7 y BR12.3 piden ajv strict y JCS en TypeScript en nivel 0; dónde corre esa mitad cambia el alcance de B1.
 <!-- aidlc-wave-memory:contracts:5f3e1c4e9366f35c84206ef97b6cdaa564e3801444ffe36dd0b5ee7deb11ff27 -->
+
+- 2026-11-22T13:38:45Z — P5: Argo CD necesita github.com, lo que contradice FR12.3 y la igualdad de AC11.5.2; se pregunta al humano antes de generar la revisión 2 (recomendada A, excepción declarada solo para argocd-repo-server).
+<!-- aidlc-wave-memory:platform:04cb8310c7f7577d77f03baeeeb74f76cfcc5ad765ce24f3247308c605872324 -->

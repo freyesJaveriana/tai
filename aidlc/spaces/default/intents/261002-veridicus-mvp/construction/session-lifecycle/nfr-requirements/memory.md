@@ -4,6 +4,8 @@
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-03T02:20:05Z — P2 = A dice que los turnos del entrevistador no cuentan para los 60; para acotar la transacción se fijó además un total de 200 turnos con el mismo transcript.too_large, y quedó en la tabla de precisiones para el humano.
+- 2026-11-22T14:43:24Z — Segunda pasada sin preguntas: import_file_max_bytes = 2 097 152 (archivo máximo ≈ 1,4 MB, margen ≥ 45 %), heartbeat_timeout_s = 180 y dos cifras nuevas de C25 (session_sweep_interval_s = 30, heartbeat_write_min_s = 15); la lista no se pagina en el servidor.
+- 2026-11-22T14:43:24Z — C1 declara 200 en PATCH /analysis y la regla de U1 exige 202 en toda ruta que encola IA; se propuso 202 como NFR-U6-03 para decidir en la aprobación.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
@@ -17,3 +19,4 @@
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 - 2026-10-03T02:20:05Z — El pegado de 60 turnos llega al tope de 3 600 s sin margen si el juez va al p95 de 60 s; la corrida NFR3.11 dirá si hay que bajar el límite.
+- 2026-11-22T14:43:24Z — El modo final de 2 000 turnos con todo-local puede pasar de run_deadline_final_s de desarrollo (3 600 s, de U11); NFR3.17 lo mide sin umbral y el Ingress de U2 no debe escribir en disco el cuerpo del pegado ni del archivo (NFR-U6-06).

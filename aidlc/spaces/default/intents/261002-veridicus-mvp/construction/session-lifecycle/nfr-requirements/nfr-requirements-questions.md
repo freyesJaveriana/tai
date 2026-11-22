@@ -40,3 +40,50 @@ C. Mantener 100 turnos y subir el tope del plazo a 7 200 s para todo el sistema 
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y Functional Design revisión vigente (2026-11-22)
+
+**Unidad.** U6 `session-lifecycle`, revisión 2 del Functional Design (aprobada hoy): pegado, importación,
+lista, latido y suspensión, reanudación, modo final con progreso, pausa, terminación y retirada del
+consentimiento. Sale la versión nueva de un escenario (cambio 01).
+
+## Lo que ya está decidido
+
+- **Cifras de U4 (C25):** `transcript_max_chars` = 250 000, `turn_max_chars` = 20 000,
+  `transcript_max_turns` = 2 000, `poll_interval_s` = 15, `poll_interval_active_s` = 2,
+  `run_queue_wait_max_s` = 10 800 y `cancel_key_margin_s` = 120. U4 deja a U6 `import_file_max_bytes` y
+  `heartbeat_timeout_s`.
+- **Cifras de U11 (C25):** `run_deadline_final_s` = 3 600 en la máquina de desarrollo y 43 200 como tope
+  del catálogo; `run_deadline_incremental_s` = 900 en desarrollo.
+- **U1:** `limits.exceeded` siempre `413`; C25 sin nulos; las rutas que encolan IA declaran `202` como
+  única respuesta 2xx, «Reanudar análisis» incluida.
+- **U3:** `ActorSystem` suma `session-supervisor`. **U10 y U2:** sin cambios para U6.
+- **Primera pasada:** P1 = A (*T* = 180 s y revisión cada 30 s) sigue vigente; P2 = A (60 turnos de
+  testimonio) queda superada por el cambio 01: un bloque crea una sola corrida y los límites son los de C25.
+- **Functional Design revisión 2:** las respuestas P4–P7 y las precisiones FD-U6-01 a FD-U6-24.
+
+## Cómo se registra la revisión
+
+Revisión 2 de los seis documentos y de `traceability.json`, que sustituye a la revisión 1 del 2026-10-03.
+Los requisitos que siguen conservan su ID; lo que sale queda «Retirado» sin renumerar; lo nuevo toma el
+número siguiente de su grupo. Las precisiones nuevas van en la tabla NFR-U6 de `security-requirements.md`
+§6, y las de la revisión 1 quedan marcadas «Superado».
+
+## Lo que el diseño resolverá sin preguntar
+
+- `import_file_max_bytes` = 2 097 152: una transcripción en el límite (2 000 turnos y 250 000 caracteres)
+  ocupa como mucho ≈ 1,4 MB en UTF-8 con el sobre de cada turno; queda un margen ≥ 45 % y coincide con
+  `run_message_max_bytes`.
+- `heartbeat_timeout_s` = 180 (P1 = A); dos cifras nuevas de C25: `session_sweep_interval_s` = 30 y
+  `heartbeat_write_min_s` = 15.
+- El latido **no** escribe en cada sondeo: a lo sumo una vez cada 15 s y sin esperar bloqueos.
+- NFR8 **no** exige paginar la lista en el servidor: ≤ 500 sesiones, una consulta agregada y
+  paginación de 25 en la consola.
+- Un bloque que llevaría la sesión por encima de los totales de C25 responde `413`, como un turno en U4.
+- `PATCH /sessions/{id}/analysis` responde `202` (regla de U1) en vez de `200` (C1); va a la tabla.
+- `run_deadline_final_s` no lo fija U6; una medición sin umbral lo informa (NFR3.17).
+- El Ingress de U2 no debe escribir en disco los cuerpos del pegado ni de la importación.
+
+**Sin preguntas: todo lo fijan las fuentes.**

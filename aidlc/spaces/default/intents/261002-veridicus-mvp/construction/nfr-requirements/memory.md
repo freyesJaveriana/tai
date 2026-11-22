@@ -100,6 +100,38 @@
 - 2026-11-22T14:22:49Z — Segunda pasada: S1 = A se conserva en su idea, pero ahora suma los plazos propios de las corridas que van por delante en la cola FIFO única, con un tope nuevo de C25 (run_queue_wait_max_s). Sin eso, una corrida incremental detrás de un modo final vencería sin fallar nada.
 <!-- aidlc-wave-memory:text-flow:bb667932fb806ec6f63ae8302feee39e1f79bf153966f6af4bc9879dc1f59319 -->
 
+
+- 2026-11-22T14:42:08Z — Segunda pasada sin preguntas: el costo de la permutación en todo-local se resolvió con la regla del 98 % que fijó U11 (NFR-U8-01), y el tope del tema con los topes de bytes ya existentes en C25 (NFR-U8-03).
+<!-- aidlc-wave-memory:assistant-extras:ad90c8fa25ba0b2ee3560d27515efb2ae1dd084e405de675c170e6f421109d0e -->
+
+
+- 2026-11-22T14:42:08Z — «Con y sin permutación» de BR6.5 se mide por papel en la misma corrida, porque BR6.1 prohíbe un perfil con permutation false y la CLI solo acepta perfiles aprobados (NFR-U8-09).
+<!-- aidlc-wave-memory:assistant-extras:99458ab306bad0925747efc2c19fea4b851dafa15b9f4900cd68cd19a28a90b8 -->
+
+
+- 2026-11-22T14:42:40Z — Sin preguntas: las cifras de C25, el volumen de la lista y las latencias salen de las fuentes; el costo de P1 = A (E18, E19) lo dejó el Functional Design para la aprobación, no para esta entrevista.
+<!-- aidlc-wave-memory:research-reports:c1d5d401296ad2fc4724df62d99f767d7738e263233a1763b5ac80740255a555 -->
+
+
+- 2026-11-22T14:42:40Z — Los topes se dimensionaron con un reporte sintético estimado de 240 corridas × 30 llamadas (~3,3 MB): 8 MiB y profundidad 8, frente a una profundidad natural de 5 en C19 v2.
+<!-- aidlc-wave-memory:research-reports:b0a36eb58506cbc0c9bbe0dadbb7a2d15ee36608cac6ad61e9665196d4bab15a -->
+
+
+- 2026-11-22T14:43:57Z — Segunda pasada sin preguntas: AC5.4.4 frente a AC5.4.2 ya lo resolvió P4 = A del Functional Design de U3 con la matriz de FR1.2, y se aplicó como NFR10.19 con la precisión NFR-U5-03.
+<!-- aidlc-wave-memory:human-review:47284c2d4e149d6eb3063a805446725ba342e194870b289288235fd020fc0ded -->
+
+
+- 2026-11-22T14:43:57Z — La ventana AIR se leyó como en C15 v2 (últimas 8 decididas, ordenadas por el change_seq de la decisión vigente, heredadas incluidas), lo que retira las «ignoradas» y cierra R-01.
+<!-- aidlc-wave-memory:human-review:a12a9e9d10a8a33fdda75936151ce4508066260a4f8425b3395b1fe70cc88e6d -->
+
+
+- 2026-11-22T14:43:24Z — Segunda pasada sin preguntas: import_file_max_bytes = 2 097 152 (archivo máximo ≈ 1,4 MB, margen ≥ 45 %), heartbeat_timeout_s = 180 y dos cifras nuevas de C25 (session_sweep_interval_s = 30, heartbeat_write_min_s = 15); la lista no se pagina en el servidor.
+<!-- aidlc-wave-memory:session-lifecycle:75dbfc43c786635336dc4cb091a8b6c53a9c29a0e554909668d07f645920b233 -->
+
+
+- 2026-11-22T14:43:24Z — C1 declara 200 en PATCH /analysis y la regla de U1 exige 202 en toda ruta que encola IA; se propuso 202 como NFR-U6-03 para decidir en la aprobación.
+<!-- aidlc-wave-memory:session-lifecycle:c60bdb38dad9237401fe838acfa5ba7e1002b534ac9ef5bce9ae0c5b0d567e7e -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -146,6 +178,10 @@
 
 - 2026-11-22T14:36:18Z — P6 = A (250 000) contradice el 186 000 que ya aprobaron U10 y U11. No se editaron sus artefactos: NFR-U4-02 les pide repetir sus comprobaciones con 250 000 y fija model_call_timeout_s ≥ 270 s para todo despliegue con perfil comercial.
 <!-- aidlc-wave-memory:text-flow:3486deb61c285f1502ef9942072101b47e55cf58e476d177ac3678e699272caa -->
+
+
+- 2026-11-22T14:42:40Z — BR5.1 dice «ni en disco», pero `request.form()` de Starlette escribe en un archivo temporal por encima de 1 MiB y el Ingress guarda en disco los cuerpos de más de 16 KiB: se fijó un análisis del multipart en memoria (D2) y se pasó el Ingress a Infrastructure Design (NFR-U12-05).
+<!-- aidlc-wave-memory:research-reports:cedfbddc21a9e8ffbdfb2c08cbce14820485d20b55a7e95529644d0989d2fc4f -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -262,6 +298,18 @@
 - 2026-11-22T14:22:49Z — El trabajador renueva cada 15 s el reclamo del mensaje en curso, y por eso claim_idle_ms baja a 60 s aunque un modo final dure una hora. El precio es un hilo más en semantic-agent y una precisión a C2. A cambio, un trabajador caído se reemplaza en un minuto y no en lo que dura el plazo más largo.
 <!-- aidlc-wave-memory:text-flow:934deb711b342fef6f2cc923dce3e0ea2cc944d01e8267d577fa6f0fc381aee9 -->
 
+
+- 2026-11-22T14:42:08Z — La tasa de aclaraciones descartadas se reporta sin bloquear, con señal en 0,50, porque U8 no tiene palanca propia sin relajar las reglas de VE-05 y un umbral sin línea base ya no se podría bajar; el 0 % de citas en los temas sí bloquea (NFR-U8-02).
+<!-- aidlc-wave-memory:assistant-extras:8e67aeee578760466e94b5c656ac048edea3196c5ab4b4f8cf7212e950e1ca58 -->
+
+
+- 2026-11-22T14:43:57Z — Se retiró veridicus_review_rejections_total porque C15 v2 no admite la etiqueta code; los rechazos se cuentan con el log review.decision_rejected, a costa de no tener una serie en Grafana.
+<!-- aidlc-wave-memory:human-review:d45df24b624cab8a452000b678dbfe7f68864bd411dec1b0347ee37f5fb0153a -->
+
+
+- 2026-11-22T14:43:57Z — purge_session borra con DELETE … RETURNING en orden explícito y no con ON DELETE CASCADE: el recibo sale de lo que de verdad se borró, a costa de mantener el orden en código.
+<!-- aidlc-wave-memory:human-review:a9b270a0a9f515f92bf6299fa0f14089dfe73a9534043153e4b9a34944503bb9 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -306,3 +354,6 @@
 
 - 2026-11-22T14:22:49Z — FR3.7 pide margen sobre la entrevista más larga del piloto (unos 186 000 caracteres), pero los NFR de U10 y U11 usan 186 000 como el máximo de C25. Se pregunta como P6, porque la cifra decide cuánto testimonio seudonimizado sale en una llamada. El turno más largo y el número de turnos del piloto no están en Git, así que se pregunta como P7 y no se generan artefactos.
 <!-- aidlc-wave-memory:text-flow:bf5c3978c3608b9d7dc87ac239340bd8ad76d5d505209808997b047114a5cb2a -->
+
+- 2026-11-22T14:43:24Z — El modo final de 2 000 turnos con todo-local puede pasar de run_deadline_final_s de desarrollo (3 600 s, de U11); NFR3.17 lo mide sin umbral y el Ingress de U2 no debe escribir en disco el cuerpo del pegado ni del archivo (NFR-U6-06).
+<!-- aidlc-wave-memory:session-lifecycle:0b4588ef2ec0e932b09f5c80ab9cdce0e0dfdf20f292f707b552646e341f95e6 -->

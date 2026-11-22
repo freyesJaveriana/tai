@@ -132,6 +132,10 @@
 - 2026-11-22T14:43:24Z — C1 declara 200 en PATCH /analysis y la regla de U1 exige 202 en toda ruta que encola IA; se propuso 202 como NFR-U6-03 para decidir en la aprobación.
 <!-- aidlc-wave-memory:session-lifecycle:c60bdb38dad9237401fe838acfa5ba7e1002b534ac9ef5bce9ae0c5b0d567e7e -->
 
+
+- 2026-11-22T15:08:17Z — NFR-U11-11 no es una contradicción entre fuentes aprobadas: C13 revisión 3 ya declara transcribe y synthesize (SHOULD, solo locales), así que van en el puerto de U11 escritos por U9 en B9, sin PR de U1 (D13, NFR-U9-01).
+<!-- aidlc-wave-memory:voice:7ac96be99d40b516342cece516b80fa181b8891aa67b6d73e04cd9c5dfffb9a9 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -182,6 +186,14 @@
 
 - 2026-11-22T14:42:40Z — BR5.1 dice «ni en disco», pero `request.form()` de Starlette escribe en un archivo temporal por encima de 1 MiB y el Ingress guarda en disco los cuerpos de más de 16 KiB: se fijó un análisis del multipart en memoria (D2) y se pasó el Ingress a Infrastructure Design (NFR-U12-05).
 <!-- aidlc-wave-memory:research-reports:cedfbddc21a9e8ffbdfb2c08cbce14820485d20b55a7e95529644d0989d2fc4f -->
+
+
+- 2026-11-22T14:58:28Z — Segunda pasada: se retiró report.storage_failed (500 system.internal, NFR10.17 de U3), las métricas salen de C15 (NFR-U3-03), verify_store pasa a kubectl exec en el contenedor api sin Job ni rol propio (cierra R-01) y el barrido corre también cada 60 s (cierra R-02, NFR-U7-13).
+<!-- aidlc-wave-memory:forensic-report:f9a9de02b431ca89a12ed9a1502b469c7d99f0f062647ef182c1b4f8312b72c9 -->
+
+
+- 2026-11-22T15:08:17Z — La duración del MP3 se mide con un lector de tramas propio en vez de mutagen, porque mutagen estima la tasa variable desde la cabecera Xing, que se puede falsear (BR2.3, E31).
+<!-- aidlc-wave-memory:voice:818b900f6f339118273b06f2ea74b5b14582b1f7a8c4477427c9ff004b507b26 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -310,6 +322,18 @@
 - 2026-11-22T14:43:57Z — purge_session borra con DELETE … RETURNING en orden explícito y no con ON DELETE CASCADE: el recibo sale de lo que de verdad se borró, a costa de mantener el orden en código.
 <!-- aidlc-wave-memory:human-review:a9b270a0a9f515f92bf6299fa0f14089dfe73a9534043153e4b9a34944503bb9 -->
 
+
+- 2026-11-22T14:58:28Z — report_max_bytes = 8 MiB con 413 limits.exceeded (NFR-U7-01): cubre el caso máximo de C25 con margen y acota la memoria, a costa de que el peor caso teórico de 2,4 GiB no quepa en la cuota de 2 GiB (riesgo aceptado en NFR8.5).
+<!-- aidlc-wave-memory:forensic-report:a57ea40aabe10f5513660757f1193032830658e8cb4b439d517aecfd123b37ac -->
+
+
+- 2026-11-22T14:58:28Z — La exportación revierte toda la transacción si AccessLog falla en 500 ms (503 report.export_not_recorded), a diferencia de la lectura de U3 en punto de guardado: ninguna copia sale sin registro (A-3), a costa de que un adaptador caído impida exportar.
+<!-- aidlc-wave-memory:forensic-report:6916e1c7102b73ecfb5081a56c3197a576cc72a2ee9e42d05cac893242cb613b -->
+
+
+- 2026-11-22T15:08:17Z — Base del plazo de audio a 360 s con 2 entregas en vez de 300 s con 3: la segunda entrega cabe con 60 s de margen (cierra R-03), a costa de esperar más un turno cuyo trabajador se cae.
+<!-- aidlc-wave-memory:voice:8abda0e5f9849764fffac99e1d68973a012def5beec7f1fa25c13ba173b4bf15 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -357,3 +381,6 @@
 
 - 2026-11-22T14:43:24Z — El modo final de 2 000 turnos con todo-local puede pasar de run_deadline_final_s de desarrollo (3 600 s, de U11); NFR3.17 lo mide sin umbral y el Ingress de U2 no debe escribir en disco el cuerpo del pegado ni del archivo (NFR-U6-06).
 <!-- aidlc-wave-memory:session-lifecycle:0b4588ef2ec0e932b09f5c80ab9cdce0e0dfdf20f292f707b552646e341f95e6 -->
+
+- 2026-11-22T15:08:17Z — El audio conservado queda sin cifrado en reposo (mismo criterio que los reportes de U7 y A-2); se presenta como riesgo aceptado en la aprobación.
+<!-- aidlc-wave-memory:voice:88b53ebba1e33714e70ccb08d08d9b73a27f90359c09b1dc9831fd64dfffa9ae -->

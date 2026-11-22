@@ -17046,3 +17046,88 @@
 **Artifact Fingerprint**: sha256:beed818cd67cb819553ef4e279cea568bf4072b38e423f87332acc60acd91d24
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T00:45:07Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: abcb2e85830f45368
+**Message**: sigue
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T00:45:10Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9f446db9445b26ef
+**Message**: sigue
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T01:49:21Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/functional-design-questions.md
+**Context**: construction > text-flow > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T01:49:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/functional-design/memory.md
+**Context**: construction > text-flow > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T01:49:50Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: a1da4e8b8d2be29b8
+**Message**: Añadí la sección de segunda pasada al archivo de preguntas de U4, con seis preguntas de criterio (P6–P11). No toqué `entities.md`, `rules.md`, `functional-spec.md` ni `traceability.json`, y lo existen
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T01:49:52Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T01:50:00Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U4 P6-P11 (modo guiado)
+**Options**: A,B,C,D,X
+**Unit**: text-flow
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T01:51:40Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T01:52:51Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T01:52:57Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: U4 P6=A, P7=A, P8=A, P9=A, P10=B, P11=A
+**Unit**: text-flow
+
+---

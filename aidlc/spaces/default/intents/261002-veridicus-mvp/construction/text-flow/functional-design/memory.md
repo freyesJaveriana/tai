@@ -4,6 +4,7 @@
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-02T23:28:41Z — El Paquete de Contexto de Traspaso es uno por intento de turno (C3 trae un solo handoff_package): su fragmento es el texto del turno, con la lista de afirmaciones no documentadas y los 3 pasajes distintos más cercanos de esas afirmaciones.
+- 2026-11-22T01:48:15Z — Segunda pasada (Modify por cambio 01, adenda 02 y revisiones 3): U4 deja de evaluar y pasa a orquestar. Conserva sesión, turnos, colas C2/C3, ingesta, creación de sugerencias por C10, escaneo de salida e interfaz con el escáner de U11, consola base y axe, y suma consentimiento, perfil, AnalysisWorker sobre C17, corridas con su registro de modelos, bloqueo por incidente e import-linter de semantic-agent. Lo que fijan C1–C3, C10, C17, C21, CD-01/06/11, U1 F3, FD-U3-04/08/10/13 y FD-U10-03/16 no se pregunta; solo quedan seis decisiones de criterio (P6–P11): efecto de anonimizador_no_disponible (UG-02), alcance y fin del bloqueo, incidente fuera de su sesión, quién marca processing, corrida de los turnos ENT y tramos cubiertos por el modo final.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->

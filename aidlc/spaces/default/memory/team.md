@@ -75,7 +75,7 @@ Somos un equipo de una persona que trabaja con agentes de IA: el agente propone,
 - **AUTONOMIA-04:** NEVER enviar fuera del clúster local audio crudo, transcripciones sin seudonimizar, nombres de víctimas o identificadores reales del proceso; NEVER llamar a un proveedor externo sin el anonimizador delante o si este falla.
 - **AUTONOMIA-05:** NEVER emitir un hallazgo de contradicción sin sus dos citas literales verificadas en su turno, ni un resultado parcial cuando el analizador falla.
 - **Proceso:** NEVER copiar al repositorio entrevistas, fragmentos, codificaciones ni revisiones del piloto del TG, ni usar la partición `referencia`; las pruebas usan transcripciones sintéticas y los resultados de corridas sobre el corpus se escriben fuera de Git.
-- **Proceso:** NEVER elegir ni proponer autonomía en Construction («Continue automatically»).
+- **Proceso:** NEVER detener la Construction en un punto de control que pasó su verificación; solo se detiene ante un fallo (prueba, verificación o sensor bloqueante) o ante las paradas humanas que el marco no permite quitar (decidido por el humano el 2026-11-22, demo del MVP en 8 días).
 
 ## Mandated
 
@@ -85,7 +85,7 @@ Somos un equipo de una persona que trabaja con agentes de IA: el agente propone,
 - **AUTONOMIA-03:** ALWAYS modelar todo hallazgo de la IA como «sugerencia de revisión» con estado editable (pendiente / aceptada / editada / descartada) cambiado por un humano; la consolidación del reporte exige una acción explícita del analista que registra quién y cuándo; existe al menos una prueba automatizada que falla si la salida de la IA o la interfaz contiene una etiqueta de veracidad binaria.
 - **AUTONOMIA-04:** ALWAYS declarar en el diseño, para cada componente, si corre dentro o fuera del clúster y qué datos cruzan esa frontera; un destino externo exige el anonimizador delante o el servicio no arranca; toda integración con un proveedor externo incluye una prueba de que el payload saliente pasó por el anonimizador y otra de que, si este falla, no sale ninguna llamada; existe una tarea que produce la `NetworkPolicy` que niega salida a internet a todos los pods salvo al anonimizador (como artefacto revisable); las claves de API viven en un `Secret` que crea el humano.
 - **AUTONOMIA-05:** ALWAYS que un hallazgo de contradicción tenga como campos obligatorios `hecho`, `tipo` (7 valores), `cita_a`, `cita_b` (cada una con texto, turno y página si la hay) y `observaciones` (sin ellos se rechaza); existen pruebas de que una cita alterada o en otro turno no sale del analizador, de que `estado: error` implica hallazgos vacíos y de que la cita seudonimizada se restaura antes de verificarse.
-- **Proceso:** ALWAYS una aprobación humana por etapa; en Construction, ALWAYS «Review each checkpoint».
+- **Proceso:** ALWAYS una aprobación humana por etapa; en Construction, ALWAYS «Continue automatically»: los puntos de control que pasan su verificación se aprueban solos, y solo los fallos, `Approve Plan` y la aprobación de cada etapa esperan al humano (cambio del humano, 2026-11-22).
 - **Proceso:** ALWAYS `Approve Plan` lo elige solo el humano, después de revisar el plan de tareas regenerado de la unidad; luego se construye por Bolts (DT27 levanta el alto antes de la Parte 2).
 
 ## Corrections

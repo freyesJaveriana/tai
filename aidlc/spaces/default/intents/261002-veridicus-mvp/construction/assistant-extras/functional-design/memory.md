@@ -4,6 +4,7 @@
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-02T23:52:08Z — Una afirmación cuyas dos lecturas no coinciden queda «no documentada» y va al paquete (P2 = A), así el analista ve la discrepancia en vez de perderla.
+- 2026-11-22T03:19:24Z — Segunda pasada. La lógica de la permutación ya es de U11 (F4, BR6.1–BR6.3, FD-U11-06), así que U8 solo decide su valor en los perfiles que no son de evaluación y la prueba por el camino del producto. La aclaración neutra (US10.3) es lo único que se diseña de nuevo: biblioteca, ingesta, ConductorObservation y consola. La pregunta por pasajes, la segunda lectura del juez y el indicio afectivo quedan «Retirado» sin renumerar. Solo se preguntan P4 (origen del tema), P5 (permutación fuera de evaluación) y P6 (aclaración en el reporte).
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->

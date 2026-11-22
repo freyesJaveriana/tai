@@ -17463,3 +17463,306 @@
 **Artifact Fingerprint**: sha256:eca016f4eafdb2832988760f187ea9fdfced0d4d861db91fc4b7027185ce5b2b
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:15:18Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:16:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6ce267f665055e8a
+**Message**: En Functional Design acepta tú las recomendadas
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:16:45Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a134ded8e93e23b72
+**Message**: En Functional Design acepta tú las recomendadas
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:16:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a345e67dc99352dc8
+**Message**: En Functional Design acepta tú las recomendadas
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-11-22T03:19:55Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/functional-design-questions.md
+**Context**: construction > research-reports > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:20:03Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/functional-design/memory.md
+**Context**: construction > research-reports > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:20:14Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: afd247a2f671f1694
+**Message**: Escribí el archivo de preguntas para U12 research-reports con 3 preguntas de criterio, y anoté en el diario mi lectura del alcance. No generé entities.md, rules.md, functional-spec.md ni traceability.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:20:17Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:20:22Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/functional-design-questions.md
+**Context**: construction > assistant-extras > functional-design > functional-design-questions.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:20:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a818d8f6f006ff323
+**Message**: en Functional Design acepta tú las recomendadas
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:20:29Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/functional-design/memory.md
+**Context**: construction > assistant-extras > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:20:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: ab5b0a6ea27c141cf
+**Message**: Añadí la sección de la segunda pasada y dejé tres preguntas de criterio para el humano, P4 a P6. No toqué `entities.md`, `rules.md`, `functional-spec.md` ni `traceability.json`, ni nada de lo que ya e
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:20:45Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:20:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a1dfd455ca7be08b0
+**Message**: en Functional Design acepta tú las recomendadas
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:21:03Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/functional-design-questions.md
+**Context**: construction > human-review > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:21:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/functional-design-questions.md
+**Context**: construction > human-review > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:21:12Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/functional-design/memory.md
+**Context**: construction > human-review > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:21:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: ad4240b4129a81f0b
+**Message**: Dejé dos preguntas en el archivo de preguntas y una entrada en el diario de la etapa. No toqué entities.md, rules.md, functional-spec.md ni traceability.json, y no hice commit.\n\n**Preguntas** (siguen 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:21:26Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:21:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/functional-design-questions.md
+**Context**: construction > session-lifecycle > functional-design > functional-design-questions.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:21:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: abfbeb41a8e504d9b
+**Message**: En Functional Design acepta tú las recomendadas
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-22T03:21:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/functional-design/memory.md
+**Context**: construction > session-lifecycle > functional-design > memory.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-22T03:21:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architect-agent
+**Agent ID**: aa77c120788131e8b
+**Message**: Añadí la sección de la segunda pasada al archivo de preguntas, con cuatro preguntas (P4–P7) a continuación de P1–P3, y la entrada fechada en `memory.md`. No toqué ningún otro artefacto.\n\n**Preguntas**
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:21:53Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T03:21:58Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U8 P4-P6 (modo guiado)
+**Options**: A,B,C,D,X
+**Unit**: assistant-extras
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T03:21:59Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U5 P2-P3 (modo guiado)
+**Options**: A,B,C,D,X
+**Unit**: human-review
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T03:21:59Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U12 P1-P3 (modo guiado)
+**Options**: A,B,C,D,X
+**Unit**: research-reports
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-22T03:21:59Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: U6 P4-P7 (modo guiado)
+**Options**: A,B,C,D,X
+**Unit**: session-lifecycle
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:22:43Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:23:32Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-22T03:25:07Z
+**Event**: HUMAN_TURN
+**Session**: b3ff6a8d-68ab-4883-94fa-ad0367ddb5a5
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-22T03:25:23Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: U8 P4=A, P5=A, P6=A
+**Unit**: assistant-extras
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-22T03:25:23Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage functional-design --unit human-review --details U5 P2=A, P3=A
+**Error**: Cannot record this answer because no new human reply has arrived for the question. Wait for the human to type an answer, then try again. This needs a fresh human turn: wait for the person to reply, then record it again.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-22T03:25:23Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage functional-design --unit research-reports --details U12 P1=A, P2=A, P3=A
+**Error**: Cannot record this answer because no new human reply has arrived for the question. Wait for the human to type an answer, then try again. This needs a fresh human turn: wait for the person to reply, then record it again.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-22T03:25:23Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage functional-design --unit session-lifecycle --details U6 P4=A, P5=A, P6=A, P7=B
+**Error**: Cannot record this answer because no new human reply has arrived for the question. Wait for the human to type an answer, then try again. This needs a fresh human turn: wait for the person to reply, then record it again.
+
+---

@@ -4,6 +4,7 @@
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-02T23:52:08Z — Las líneas del entrevistador se guardan como turnos de contexto (role interviewer) que no se evalúan pero sí cuentan como turnos previos del paquete (P2 = A).
+- 2026-11-22T03:19:43Z — Segunda pasada: U6 pierde la versión de escenario (US1.2, F1 y BR1.x «Retirado») y gana importación (US2.6), modo final (US2.7) y pausa, terminación y retirada del consentimiento (US15.2, VE-10); P1–P3 de la primera pasada quedan superadas por el hablante ENT/TEST de C1 y el catálogo C25. Casi todo lo deciden C1, U4 (BR5.5, F12, FD-U4-01/07/18) y los AC, así que solo se pregunta lo que contradicen entre sí o lo que no fijan: marcas de hablante (P4), importación sintética sin consentimiento (P5), modo final tras la retirada (P6) y progreso del modo final (P7, SHOULD). Finalizar y consolidar siguen siendo de U7; U6 solo admite las transiciones en su máquina. La suspensión vale también para sesiones importadas porque la demo de B7 lo exige.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->

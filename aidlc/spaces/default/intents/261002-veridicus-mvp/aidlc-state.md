@@ -178,7 +178,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-11-21T23:31:52Z
+- **Last Updated**: 2026-11-22T00:44:39Z
 
 - **Construction Autonomy Mode**: gated
 

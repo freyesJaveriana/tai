@@ -1,0 +1,31 @@
+## Review
+
+**Verdict:** READY
+**Reviewer:** aidlc-architecture-reviewer-agent
+**Date:** 2026-11-22T00:33:56Z
+**Iteration:** 1
+
+### Findings
+
+| ID | Severidad | Ubicación | Hallazgo | Recomendación | Estado |
+|---|---|---|---|---|---|
+| R-01 | Major | aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/functional-design/rules.md > BR12.4 y BR12.7; functional-spec.md > F10 paso 3 y paso 5 | `reversed_order_consistency` (umbral de team.md: consistencia > 65 % al invertir el orden) solo se calcula con el registrador en memoria que BR12.4 pone sobre el gateway. `evaluate --puntuar` (BR12.7, F10 paso 5) no construye gateway y lee solo salidas de C6. Esas salidas no traen el veredicto del verificador: un `rechazado_verificador` omite el veredicto permutado (BR6.2, «sea cual sea verdict_permuted»). La métrica no es derivable de las salidas de ZINE, que es donde se miden los modelos locales grandes. Ninguna regla dice qué pasa con ella: se omitiría sin avisar o se marcaría `passes: true` sin datos. Eso debilita un umbral de team.md sin que nadie lo decida. | Decidir y escribir una de estas dos salidas. (a) Las salidas de C6 de ZINE llevan los dos veredictos por candidato, y eso entra por el PR de U1 de FD-U11-09 (C19 v2). (b) En `--puntuar` la métrica queda como `no_medible` con `passes: false`, y el código de salida es 6 hasta que se mida con gateway. Añadir una prueba con control negativo. | New |
+| R-02 | Minor | rules.md > BR12.7 (campo `statement`); entities.md > líneas 323, 324, 371 y 492 | La CLI se llama `--puntuar` en F10, en E58 y E59 y en el `trigger` de BR12.7. El `statement` de BR12.7 y cuatro líneas de entities.md dicen `--score`. Si el plan de tareas toma el nombre de otro lugar, la prueba y el comando pueden diferir. | Unificar el nombre en `--puntuar` en todos los artefactos. | New |
+| R-03 | Minor | functional-spec.md > §3.1 (diagrama y texto alterno de AnalysisRun); rules.md > BR3.1, BR5.3 | La máquina de estados no tiene `validating → failed`, que BR3.1 exige cuando el SHA-256 del prompt no coincide: «error `salida_invalida` antes de llamar». Tampoco tiene `filtering → failed`: el texto alterno lo menciona, pero el diagrama no. Además BR5.3 dice que un puntero de marca alterada fuera de los candidatos invalida la respuesta, lo que ocurre al recibir la respuesta del juez (`judging`). F3 y §3.1 lo ubican en `filtering`. Es un módulo guardia con 100 % de ramas y esas transiciones se probarían. | Añadir las dos aristas al diagrama y fijar en qué fase se comprueba el puntero (propuesta: `judging`, junto con el esquema). | New |
+| R-04 | Minor | rules.md > BR1.2, BR1.3, BR11.5; functional-spec.md > E28 | El `origen` lo declara el propio archivo de entrada. Una transcripción real marcada `sintetico` evita a la vez el consentimiento (BR1.2), la comprobación de transferencia (BR1.3) y la regla de Git del corpus (BR11.5), y se manda a un perfil comercial. El anonimizador de U10 sigue delante, pero lo que AUTONOMIA-04 y A-4 protegen en la frontera de consentimiento depende de una etiqueta no verificada. La prueba «exención con corpus» de BR1.2 solo cubre el caso rotulado `corpus`. | Para `origen: sintetico` en `analyze`, exigir que la transcripción esté en el manifiesto del conjunto (SHA-256 conocido) o que la CLI emita un aviso visible. O registrarlo como riesgo residual aceptado en §11. | New |
+| R-05 | Minor | rules.md > BR14.4 (lógica y violación) | La comprobación estática de AUTONOMIA-01 cubre solo `evaluation/` y `scripts/` y busca `sbatch`, `ssh` y `scp`. El mapa de team.md dice «ningún workflow ni script». `.github/workflows/`, el `Makefile` y los puntos de entrada del `pyproject.toml` quedan fuera. `empaquetar.py` podría usar `sftp`, `rsync` o `paramiko` sin que la comprobación lo vea. | Ampliar las rutas a `.github/` y a la raíz, y la lista de patrones a `sftp`, `rsync`, `paramiko` y `squeue`. Mantener el control negativo. | New |
+| R-06 | Minor | rules.md > BR12.3 (`verified_quotes`); traceability.json > AC3.4.5 | `verified_quotes` vuelve a verificar con BR5.5 las citas que el mismo filtro BR5.5 ya aceptó. Mientras el código sea correcto, vale 1 por construcción y no aporta señal independiente. Cubre AC3.4.5 solo como detector de regresiones. | Verificar con una implementación mínima separada (subcadena exacta tras normalizar espacios, con «[…]»), o decir en la regla que es una comprobación de regresión y no una medición. | New |
+
+### Validation Tool Results
+
+| Tool | Result | Interpretation |
+|---|---|---|
+| traceability.json parsea | PASS. El JSON carga. Hay 71 `upstream_ids` y 71 entradas en `coverage`, sin diferencias. | Cobertura completa. Las entradas `Deferred` (AC3.2.2, AC3.2.3, AC3.2.5, AC3.3.3, AC3.6.3, AC12.5.3, AC5.5.4, AC8.3.1, AC2.2.7) tienen un dueño nombrado. |
+| BR citados existen | PASS. Hay 85 BR definidos en rules.md. Ningún BR citado en traceability.json, entities.md o functional-spec.md falta, y ninguno queda sin citar en traceability.json. | Referencias válidas. |
+| Cobertura de AC del mapa para U11 | PASS. Los AC de US3.2–3.7, US12.1–12.5, US13.2–13.7, US14.2–14.3 y US15.10 en stories.md y la adenda 02 están todos en `upstream_ids`. | Sin huérfanos. |
+| Coherencia con C6 | PASS. `estado: error` con `hallazgos` y `observaciones_conductor` vacíos coincide con el `allOf` de C6. El `registro.descartes` vacío en error (FD-U11-13) es una precisión propia y no contradice C6. | Alineado. |
+| Sensores required-sections, upstream-coverage, linter, type-check | No ejecutados como herramienta. Revisión manual de estructura y referencias. | Sin hallazgos estructurales más allá de R-02 y R-03. |
+
+### Summary
+
+El diseño sostiene AUTONOMIA-05, AUTONOMIA-04 y AUTONOMIA-03. Toda salida se valida contra C6 y `error` deja `hallazgos` vacíos. Las citas se verifican de forma determinista contra el turno original antes del verificador. El gateway no arranca con un destino externo sin `AnonymizingProvider`. Un anonimizador caído da 0 llamadas, y un `anonymized: false` aborta la corrida. El escáner de vocabulario cubre `hecho` y `observaciones`. Los umbrales de la evaluación no se debilitan salvo por el vacío de R-01 (consistencia al invertir el orden en `--puntuar`), que conviene resolver antes de aprobar. Los demás hallazgos son menores. El veredicto es READY.

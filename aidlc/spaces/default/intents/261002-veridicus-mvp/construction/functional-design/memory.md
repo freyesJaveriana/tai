@@ -96,6 +96,22 @@
 - 2026-11-21T23:10:30Z — Los `code` `user.weak_password` y `auth.too_many_attempts` vienen de NFR Requirements de U3, y `system.internal` y `system.unavailable` del manejador; todos quedan como propuesta a C1 (FD-U3-02, FD-U3-03).
 <!-- aidlc-wave-memory:identity-access:bf2eb8ddb3d08c04a088a80498c800df2305eae330e0618a66bb42c406ed02a6 -->
 
+
+- 2026-11-21T23:42:00Z — Alcance de U11 leído como la biblioteca completa del analizador (núcleo C17, ModelGateway con adaptador local y cliente HTTP de C21, ExecutionProfiles, escáner y aviso de IntegrityPolicy), la CLI con `analyze` y `evaluate`, el conjunto sintético con su manifiesto y los `.sbatch` de ZINE. Quedan fuera las colas y sesiones (U4), la seudonimización y los adaptadores nativos (U10) y las aclaraciones neutras (U8). Solo se preguntan 8 decisiones de criterio que las fuentes no fijan o en las que se contradicen: orden de filtros, contexto del verificador, vocabulario prohibido (AC3.2.4 frente al motivo de C6), permutación en B11 frente a US10.5 en U8, alterno y familias, métricas de las 3 corridas, etiquetas de sesgo frente a `bias_table` de C19, y aviso de VE-01 en la CLI.
+<!-- aidlc-wave-memory:incoherence-analyzer:2d1155811ee6cbe02485c0087687b61f6e5d6c8d6e0904ad29f8b0b6e4d272eb -->
+
+
+- 2026-11-22T00:25:00Z — El archivo de entrada de la CLI se leyó como el objeto `transcripcion` de C6 (la CLI arma la entrada con modo y perfil) y el reporte identifica cada entrevista por `interview_sha256` y no por su id, porque C19 no admite texto libre (FD-U11-23).
+<!-- aidlc-wave-memory:incoherence-analyzer:6cc72d5ed0c9fa5c989f06811e656d5e0c4749b6252fca14946ef77081cc2e30 -->
+
+
+- 2026-11-22T00:25:00Z — La regla del corpus se leyó por la ubicación del directorio de salida: dentro de un árbol de Git debe estar ignorado (`git check-ignore`); fuera de todo repositorio, como en ZINE, se permite (FD-U11-16).
+<!-- aidlc-wave-memory:incoherence-analyzer:9aae365f9c11cc5deaf7073e6823afc6b5252af26a009b270729e5489b2c0700 -->
+
+
+- 2026-11-22T00:25:00Z — El sensor de trazabilidad sumó AC5.5.3, AC5.5.4 y AC8.3.1–AC8.3.3 por los cruces US5.5 y US8.3 del mapa; se cubrieron AC5.5.3 (BR3.4), AC8.3.2 (BR2.11) y AC8.3.3 (BR2.10), y se difirieron AC5.5.4 y AC8.3.1 a U4/U7.
+<!-- aidlc-wave-memory:incoherence-analyzer:18e6fa779a08dd8f9131f3bf822ff792da399e100ca0852bb1301027832c6fe6 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -162,6 +178,10 @@
 
 - 2026-11-21T23:10:30Z — AC8.4.2 incluye «las corridas», pero AnalysisRun tiene estado mutable; no lo resolví desde U3 y lo dejé como FD-U3-10 para U4.
 <!-- aidlc-wave-memory:identity-access:57197631bf2c7b333a5fbfdb1d91e33fa410417117be4ba3125fe280fc8cdf74 -->
+
+
+- 2026-11-22T00:25:00Z — Las métricas de P6 (valores por corrida, umbrales, `passes`, `permutation_coverage`, `type_agreement`, `completed_runs`, sensibilidad por distancia, sección adversarial) no caben en C19 v1: se propone C19 v2 como cambio mayor por un PR de U1 antes del código de B11 (FD-U11-09) y un código de salida 6 (FD-U11-10).
+<!-- aidlc-wave-memory:incoherence-analyzer:eb6e49a930b17ff3f5445e000ac4f95978fa79aa2bf95b760b14cfcbf0575a5e -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -238,6 +258,18 @@
 - 2026-11-21T23:10:30Z — Desactivar se permite con sesiones pendientes (P8 = A): prima el control de seguridad, a costa de sesiones en solo lectura hasta reactivar; M6 muestra su número con un campo `pending_sessions` nuevo en C1 (FD-U3-04).
 <!-- aidlc-wave-memory:identity-access:59cb0834b38b69a92cca2147fbc520b8c1741d53f728aecc5c4bc48f4ff32922 -->
 
+
+- 2026-11-22T00:25:00Z — Con permutación se hacen siempre las dos llamadas del verificador, aunque la directa rechace: el doble de llamadas a cambio de medir sin sesgo la consistencia al invertir el orden (BR6.1, BR12.4).
+<!-- aidlc-wave-memory:incoherence-analyzer:8f12eeac35cd781464fd8df63975caf85313b5460df7c0c9935143ae28846804 -->
+
+
+- 2026-11-22T00:25:00Z — Los veredictos se capturan con un envoltorio del gateway que solo guarda booleanos, en vez de añadirlos a la salida de C6: el contrato no cambia, a costa de que la métrica solo exista dentro de `evaluate` (BR12.4).
+<!-- aidlc-wave-memory:incoherence-analyzer:4834e8d8f5b5633667cfbf59e01ae261f3802da430fa03b07217f9c7fca1360b -->
+
+
+- 2026-11-22T00:25:00Z — En `estado: error`, `registro.descartes` va vacío igual que `hallazgos`: nada de una corrida fallida se interpreta como resultado, a costa de perder el diagnóstico de los descartes previos al fallo (BR7.1, FD-U11-13).
+<!-- aidlc-wave-memory:incoherence-analyzer:774914eebfda80971c1e9ac2146b26a2a994d2f5dd325ec4e2ee3e78aae13b1f -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -288,3 +320,15 @@
 
 - 2026-11-21T23:10:30Z — Los textos de M6 (Reactivar, Cambiar rol, confirmación con número, mensajes de 409 y 422), M0 (429) y M8 (403) son propuestas de esta etapa (FD-U3-11); los decide el humano en la aprobación.
 <!-- aidlc-wave-memory:identity-access:2c45b0d008782454fadb686ea293ce020260a2b0caf66aedd5dfd7dc5414cd2c -->
+
+- 2026-11-22T00:25:00Z — Listas iniciales de `tipo_hecho` y `perfil_persona` (BR13.3) propuestas por el diseño; las aprueba el autor.
+<!-- aidlc-wave-memory:incoherence-analyzer:99f1bcf29f549a00b6967516fea38c7532fbe3c71bbd157a94001b3603014d48 -->
+
+- 2026-11-22T00:25:00Z — Umbrales de las métricas estadísticas y composición mínima del conjunto: los fija NFR Requirements en `evaluation/thresholds.v1.yaml`.
+<!-- aidlc-wave-memory:incoherence-analyzer:1b70f623f86e6ea2de707d62ba078c7417ab8bbe58db0cd95b90378c3896e1c6 -->
+
+- 2026-11-22T00:25:00Z — Tramos de distancia para la sensibilidad (hasta el solapamiento, hasta la ventana, más de la ventana) por confirmar en NFR Requirements (BR12.5).
+<!-- aidlc-wave-memory:incoherence-analyzer:5321dbfba231038c9f7afa66ba2f6cf880660954d3ec70e2286b0145118de2fd -->
+
+- 2026-11-22T00:25:00Z — El riesgo de una sola palabra citada en el escáner depende de FD-U1-14, aún pendiente en U1 (BR9.2).
+<!-- aidlc-wave-memory:incoherence-analyzer:c4a3f41ab3114f752542db35e38a53e95a04e14a398e018da3cf4112b91c82f7 -->

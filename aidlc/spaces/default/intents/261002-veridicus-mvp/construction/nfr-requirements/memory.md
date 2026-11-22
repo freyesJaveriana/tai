@@ -60,6 +60,14 @@
 - 2026-10-03T02:38:33Z — La síntesis de la pregunta va de session-api a una ruta interna de audio-worker y de ahí al TTS, para respetar que SpeechProcessing vive en audio-worker y que solo audio-worker habla con los servidores de voz (U2); queda como precisión de contrato y de red.
 <!-- aidlc-wave-memory:voice:0db8cce825207dbae27245c6faf0ad4a6f28a9daca924f15f4089730524b043c -->
 
+
+- 2026-11-22T13:16:31Z — Segunda pasada: las cifras nuevas de C25 que piden U5, U10, U12 y U13 solo se nombran aquí; sus valores los fijan esas unidades en su NFR, y U1 valida la forma del catálogo y que cada maxLength coincida con su cifra.
+<!-- aidlc-wave-memory:contracts:ebefe169deb95be71ee55b8fed1f62f157edab86f0a2167418ea341289f6bb51 -->
+
+
+- 2026-11-22T13:16:31Z — Revisión 2 generada con P7 = A y P8 = A: el catálogo de errores declara un estado por code (limits.exceeded = 413) y U1 suma contracts/ts/; la sección clarifications de U8 (FD-U8-09) entra en C19 v2 como cambio mayor, porque C19 es estricto (BR1.4).
+<!-- aidlc-wave-memory:contracts:6ee6f89cc91c109a25462f5ba4f8c3225b6f4941f19302cb823fac9863cf24db -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -205,3 +213,9 @@
 
 - 2026-10-03T02:38:33Z — Una transcripción de más de 2 000 caracteres (habla rápida de 120 s) se trata como turn.error.invalid_output; confirmar en la aprobación si se prefiere admitir turnos de voz más largos.
 <!-- aidlc-wave-memory:voice:e0ac751940d0dd1641fa4f91f0b1668f120239024b1c99f40748d176d615c7eb -->
+
+- 2026-11-22T13:16:31Z — P7: limits.exceeded responde 413 en U4, U6 y U12 y 422 en U5 y U13; con una clase por code (BR7.4) no caben dos estados, así que se pregunta y no se generan artefactos.
+<!-- aidlc-wave-memory:contracts:83b2238c20ccd74e5c1a3820e4340f339ae02f59cf27cc11807c892cc20d5f0c -->
+
+- 2026-11-22T13:16:31Z — P8: la revisión 1 dejó la suite sin Node, pero la regla 1 de contract-summary y BR1.9, BR9.7 y BR12.3 piden ajv strict y JCS en TypeScript en nivel 0; dónde corre esa mitad cambia el alcance de B1.
+<!-- aidlc-wave-memory:contracts:5f3e1c4e9366f35c84206ef97b6cdaa564e3801444ffe36dd0b5ee7deb11ff27 -->

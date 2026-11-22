@@ -8,6 +8,8 @@
 
 - 2026-11-22T13:16:31Z — Segunda pasada: las cifras nuevas de C25 que piden U5, U10, U12 y U13 solo se nombran aquí; sus valores los fijan esas unidades en su NFR, y U1 valida la forma del catálogo y que cada maxLength coincida con su cifra.
 
+- 2026-11-22T13:16:31Z — Revisión 2 generada con P7 = A y P8 = A: el catálogo de errores declara un estado por code (limits.exceeded = 413) y U1 suma contracts/ts/; la sección clarifications de U8 (FD-U8-09) entra en C19 v2 como cambio mayor, porque C19 es estricto (BR1.4).
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 - 2026-10-03T01:27:54Z — C1 aprobado tiene cuatro respuestas 409 descritas sin Problem Details, lo que la suite (BR7.2) rechazaría; no se editó contract-summary: se registró en la tabla de precisiones con el code de cada una y la falta de un code para la pregunta no aprobada.

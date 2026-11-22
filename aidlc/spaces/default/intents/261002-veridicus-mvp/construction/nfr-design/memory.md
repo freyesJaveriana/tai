@@ -64,6 +64,14 @@
 - 2026-11-22T16:05:32Z — El margen de 10 s del cliente de C21 (NFRD-U10-10) se descuenta del plazo de la corrida, para que ninguna corrida pase de run_deadline_* (NFRD-U11-04).
 <!-- aidlc-wave-memory:incoherence-analyzer:7eeba099068af351e8b6f9e0d65f4fccb6f57fb87309ecda2e9888faf30228cb -->
 
+
+- 2026-11-22T16:28:13Z — Segunda pasada sin preguntas: la coherencia con U10 (3 envíos como máximo) se logra con XCLAIM JUSTID, que no suma entregas, y con el tope de entregas leído tras XAUTOCLAIM (NFRD-U4-01).
+<!-- aidlc-wave-memory:text-flow:e0df6569225fbbbf135df618f17d103fcd5a4f93fb2210ce34b8a9599f82d244 -->
+
+
+- 2026-11-22T16:28:13Z — «El trabajador no reintenta por su cuenta» (BR15.6) se leyó como no repetir llamadas a modelos; republicar en Redis es idempotente y se permite (NFRD-U4-03).
+<!-- aidlc-wave-memory:text-flow:901b0f079063dd012ced04aabda5b3bd1497114261c54017fbccd7d8a6ba4946 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -185,6 +193,10 @@
 
 - 2026-11-22T16:05:32Z — El piso de 270 s de model_call_timeout_s con perfil comercial vive como constante de libs/execution_profiles y no en C25, porque C25 guarda techos (DS9, NFRD-U11-03).
 <!-- aidlc-wave-memory:incoherence-analyzer:fc4db5f70138a9da62a5a1e28c7005b26f2ce3de6a800707616acbcdafb0d42f -->
+
+
+- 2026-11-22T16:28:13Z — Ruta mínima del incidente en la ingesta: una transacción más a cambio de que un bloqueo nunca se pierda cuando el resultado no se puede ingerir entero (NFRD-U4-04).
+<!-- aidlc-wave-memory:text-flow:9569fa2598ae17ccd8a65cb23c9689b9397a17647f5abeb1d6ff466510dbc31c -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

@@ -1,67 +1,129 @@
 # Componentes lógicos — U4 text-flow
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`security-requirements.md` (security-requirements), `scalability-requirements.md`
-(scalability-requirements), `reliability-requirements.md` (reliability-requirements),
-`observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
-(tech-stack-decisions) de esta unidad; `functional-design/functional-spec.md` (functional-spec);
-C1–C4, C6–C9, C13 y C14 de `inception/contract-design/contract-summary.md` (contract-summary); los
-demás documentos de diseño de esta carpeta.
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01 (DT27), la adenda 02 y el NFR Requirements
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **Qué cambia.** Salen el evaluador semántico, el indexador de escenarios, el cliente de *embeddings* y el
+  servidor del juez. Entran `AnalysisWorker` sobre C17, la ruta mínima del incidente, el hilo de liberación
+  y la renovación del reclamo. Se añade el inventario en YAML.
+
+**Insumos.** `nfr-requirements/tech-stack-decisions.md` (tech-stack-decisions: D9–D20, NFR2, NFR13,
+NFR14), `security-requirements.md` (security-requirements), `reliability-requirements.md`
+(reliability-requirements), `performance-requirements.md` (performance-requirements),
+`scalability-requirements.md` (scalability-requirements), `observability-requirements.md`
+(observability-requirements), `functional-design/functional-spec.md` (functional-spec),
+`contract-summary.md` (contract-summary); los cinco documentos de diseño de esta revisión.
 
 ## 1. Inventario
 
-| Componente lógico | Proceso | Responsabilidad | Patrones de NFR |
+| Componente | Proceso | Responsabilidad | Diseño |
 |---|---|---|---|
-| Rutas de escenarios, sesiones y turnos | API de `session-api` | C1 de U4 | Autorización de U3; corte de carga a 1 MB; 202 sin esperar |
-| `TurnEnqueuer` | API de `session-api` | Numerar, guardar y publicar C2 | Bloqueo de la sesión; `change_seq` |
-| `SessionPoll` | API de `session-api` | `GET /sessions/{id}?since` | Cursor por sesión (P2 = A) |
-| `ResultIngestor` | Trabajador de `session-api` | Consumir C3, validar C7, guardar | Idempotencia por (`turn_id`, `attempt`) |
-| `ScenarioIndexer` | Trabajador de `session-api` | Consumir C4, segmentar, *embeddings* | Todo o nada |
-| `DeadlineSweeper` | Trabajador de `session-api` | Vencer turnos cada 15 s | Ningún turno en curso para siempre |
-| `TurnEvaluator` | `semantic-agent` | Consumir C2 y orquestar la evaluación | Un turno a la vez; `XACK` tras publicar |
-| `ThresholdGuard`, `JudgeOutputValidation`, `AlertAssembly` | `semantic-agent/domain/` | Reglas AUTONOMIA-03/05 | Código puro, 100 % de ramas |
-| `PromptBuilder` | `semantic-agent` | Instrucciones y datos JSON | Aislamiento del *prompt* |
-| `ModelGateway` | `libs/model_gateway` | Juez, *embeddings*, `count_tokens` | URL internas; *timeouts*; reintento acotado del juez (P1 = A) |
-| `IntegrityPolicy.scan` | `libs/integrity_policy` | Escáner C8 | 100 % de ramas |
-| M2–M4 | `frontend` | Consola de texto | Sondeo 2 s / 15 s con reintento creciente |
+| `TurnRoutes`, `SessionRoutes`, `ProfileRoutes` | API de `session-api` | C1 de U4: crear sesión, turnos, reintento, sondeo, perfiles, aviso | `security-design.md` §7; `performance-design.md` §3, §9 |
+| `RunEnqueuer` | API de `session-api` | Plazo, filas, `XADD` de C2 tras `COMMIT`, publicación fallida | `reliability-design.md` §4, §10 |
+| `ResultIngestor` | Trabajador de `session-api`, hilo 1 | C3: incidente, vigencia, segunda línea, `propose`, ruta mínima | `security-design.md` §2; `reliability-design.md` §9, §12 |
+| `RunSupervisor` | Trabajador de `session-api`, hilo 2 | Plazos, turnos de voz, esperas, profundidad de cola | `reliability-design.md` §4 |
+| `HoldReleaser` | Trabajador de `session-api`, hilo 3 | Liberar esperas en ≤ 1 s | `performance-design.md` §8 |
+| `CancellationKeys` | API y trabajador de `session-api` | Escribir y reescribir las claves | `reliability-design.md` §11 |
+| `AnalysisWorker` | `semantic-agent`, bucle | C2 → `analyze` (C17) → C3, tope de entregas, huella | `reliability-design.md` §3; `security-design.md` §12 |
+| `ClaimRenewer` | `semantic-agent`, hilo | `XCLAIM … JUSTID` cada 15 s | `reliability-design.md` §3 |
+| `HealthServer` | `semantic-agent`, hilo | `/healthz`, `/readyz`, `/metrics` | `reliability-design.md` §6 |
+| `CompositionRoot` | `semantic-agent` y `session-api` | Límites, perfiles, piso de 270 s, `check_ready()`, `gateway.build` | `security-design.md` §8, §10, §11 |
+| `ConsoleRunView` (M3, M4) | Navegador | Sondeo, *upsert*, reintentos | `reliability-design.md` §7; `performance-design.md` §6 |
 
 ## 2. Dominios de falla y radio de impacto
 
-| Falla | Qué deja de funcionar | Qué sigue | Radio |
+| Falla | Qué deja de funcionar | Qué sigue | Recuperación |
 |---|---|---|---|
-| `model-judge` | Evaluación de afirmaciones sobre el umbral | Consola, carga, envío de turnos; afirmaciones bajo el umbral | Turnos en curso (esperan o vencen) |
-| `model-embeddings` | Indexación y evaluación | Consola y revisión de alertas ya emitidas | Turnos y escenarios nuevos |
-| `semantic-agent` | Evaluación | Todo lo demás | Turnos en curso (vuelven por reclamo) |
-| Trabajador de `session-api` | Ingesta, indexación, plazos | API y consola | Resultados llegan al reiniciar |
-| Redis | Encolar y entregar | Consultas de la consola | Turnos nuevos |
-| PostgreSQL | Todo | — | Todo el sistema |
+| `semantic-agent` caído | Corridas nuevas | Consola, turnos, revisión; la cola acumula | Reclamo a los 60 s; plazo |
+| Trabajador de `session-api` caído | Ingesta, supervisor, liberación | API y envío de turnos | Mensajes pendientes; reclamo |
+| Redis caído | Cola, cancelación; consola fuera de servicio (`/readyz` de U3) | Datos en PostgreSQL | Reescritura de claves; plazo |
+| PostgreSQL caído | Todo `session-api` | `semantic-agent` termina su corrida y publica | La ingesta no consume hasta que vuelve |
+| `anonymizer-proxy` caído | Corridas con perfil comercial | Perfiles locales | `analysis.anonymizer_unavailable`; reintento del analista |
 
 ## 3. Recursos compartidos
 
-| Recurso | Compartido con | Aislamiento |
-|---|---|---|
-| Proceso API de `session-api` | U3, U5–U7 | Capas e import-linter; nada pesado en la API |
-| Base PostgreSQL | Todas las unidades | Esquema `truthframe` de solo lectura para el evaluador; permisos de solo inserción en historiales |
-| Redis | U3 (limitador), U8, U9 | Prefijos `veridicus:turns`, `veridicus:results`, `veridicus:indexing`; *streams* vacíos tras procesar |
-| `model-embeddings` | Indexador y evaluador | Lotes acotados de 32 |
+- **PostgreSQL** (U2, CloudNativePG): esquema de `session-api`; usuarios `veridicus_app` y
+  `veridicus_retention`.
+- **Redis** (U2): `veridicus:runs`, `veridicus:results`, sus `:failed` y `veridicus:run-cancelled:*`.
+- **Catálogos de U1**: `contracts/limits.v1.yaml`, esquemas de C2, C3 y C6, `contracts/metrics/text-flow.v1.yaml`.
+- **Biblioteca de U11** en proceso dentro de `semantic-agent`; escáner de U11 en `session-api`.
 
 ## 4. Entrega a Infrastructure Design
 
-- Topes de memoria medidos (performance-design §7) y `limits` con ≥ 20 % de margen.
-- Dos `Deployment` de la imagen de `session-api` (API y trabajador) y uno de `semantic-agent`.
-- `ConfigMap` del *prompt* montado `readOnly` y `VERIDICUS_JUDGE_PROMPT_SHA256` en los *values*.
-- Puertos internos de métricas en API, trabajador y `semantic-agent`.
+- Dos *Deployments* de `session-api` de la misma imagen (API y trabajador) y uno de `semantic-agent`, una
+  réplica cada uno; `requests` y `limits` según `performance-design.md` §7.
+- `semantic-agent` sin Secret de PostgreSQL ni claves de proveedor; con Secret de Redis y
+  `VERIDICUS_ANONYMIZER_PROXY_URL` interna.
+- La `NetworkPolicy` de U2 permite a `semantic-agent` solo Redis, los servidores locales y el proxy.
+- Ajustes nuevos `VERIDICUS_RELEASE_POLL_MS` y `VERIDICUS_PUBLISH_RETRIES` (NFRD-U4-14).
 
-## 5. Calidad, pruebas y textos (NFR2.1, NFR2.2, NFR13.1, NFR13.2, NFR14.1, NFR14.2)
+## 5. Calidad, pruebas y textos (NFR2.1, NFR2.2, NFR13.1, NFR13.2, NFR14.1)
 
-- **Dobles de prueba.** `ModelGateway` es un `Protocol` (C13); en los niveles 0 y 1 se inyectan
-  `FakeJudge`, `FakeEmbeddings` y `FakeTokenizer` deterministas (tabla de respuestas por entrada), y
-  PostgreSQL + `pgvector` y Redis son reales en contenedor. Ninguna prueba de esos niveles descarga un
-  modelo ni pide GPU; las metas de NFR3.1, NFR3.10, NFR9.1 y NFR8.5 se miden con `values-cpu.yaml`.
-- **Cobertura.** ≥ 80 % de líneas en `session-api`, `semantic-agent`, `libs/model_gateway`,
-  `libs/integrity_policy` y `frontend`; 100 % de ramas en `threshold_guard.py`,
-  `judge_output_validation.py`, `alert_assembly.py`, la validación de C7 al ingerir y
-  `libs/integrity_policy/scanner.py`, con `.coveragerc-guards`.
-- **Textos.** M2–M4 solo usan cadenas del catálogo de U1; una prueba de nivel 0 falla ante un literal
-  visible fuera del catálogo. El reporte de nivel 2 marca toda CoT con menos de un 20 % de palabras
-  vacías del español (meta: 0 marcadas).
+- **NFR2.1, NFR2.2.** Niveles 0 y 1 en CPU con *fakes* de C17 y del `ModelGateway`, PostgreSQL y Redis
+  reales; ninguna prueba descarga modelos ni llama a proveedores. NFR3.10 y NFR8.5 con `comercial-piloto`.
+- **NFR13.1.** ≥ 80 % de líneas en `services/session-api`, `services/semantic-agent` y `frontend`.
+- **NFR13.2.** 100 % de ramas en `domain/output_check.py`, `domain/incident.py`, `domain/run_currency.py` y
+  `domain/deadline.py` (`.coveragerc-guards`).
+- **NFR14.1 y NFR10.5.** Textos de M3, M4 y el aviso solo desde el catálogo de U1; una prueba de nivel 0
+  falla ante un literal visible; el escáner de U11 corre sobre catálogo y plantillas en nivel 0 y sobre el
+  texto renderizado en nivel 3, con un control negativo por término.
+- `NFR14.2`: Retirado (pasa a U11).
+
+## Componentes en YAML
+
+```yaml
+components:
+  - name: TurnRoutes
+    path: services/session-api/session_api/interview/api/
+    hosts: session-api-api
+    boundary: inside
+    data_out: none
+    guard: false
+  - name: RunEnqueuer
+    path: services/session-api/session_api/interview/application/enqueue.py
+    hosts: session-api-api
+    boundary: inside
+    data_out: none
+    guard: false
+  - name: ResultIngestor
+    path: services/session-api/session_api/interview/application/ingest.py
+    hosts: session-api-worker
+    boundary: inside
+    data_out: none
+    guard: true
+  - name: RunSupervisor
+    path: services/session-api/session_api/interview/worker/supervisor.py
+    hosts: session-api-worker
+    boundary: inside
+    data_out: none
+    guard: true
+  - name: HoldReleaser
+    path: services/session-api/session_api/interview/worker/release.py
+    hosts: session-api-worker
+    boundary: inside
+    data_out: none
+    guard: false
+  - name: AnalysisWorker
+    path: services/semantic-agent/semantic_agent/worker/
+    hosts: semantic-agent
+    boundary: inside
+    data_out: via-anonymizer-proxy
+    guard: true
+  - name: ClaimRenewer
+    path: services/semantic-agent/semantic_agent/worker/claim.py
+    hosts: semantic-agent
+    boundary: inside
+    data_out: none
+    guard: false
+  - name: CompositionRoot
+    path: services/semantic-agent/semantic_agent/main.py
+    hosts: semantic-agent
+    boundary: inside
+    data_out: none
+    guard: true
+  - name: ConsoleRunView
+    path: frontend/src/features/session/
+    hosts: browser
+    boundary: browser
+    data_out: none
+    guard: false
+```

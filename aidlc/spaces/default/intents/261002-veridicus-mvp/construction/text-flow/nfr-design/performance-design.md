@@ -1,111 +1,115 @@
 # Diseño de rendimiento — U4 text-flow
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`security-requirements.md` (security-requirements), `scalability-requirements.md`
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01 (DT27), la adenda 02 y el NFR Requirements
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **Qué cambia.** U4 ya no llama al juez ni a los *embeddings*: su presupuesto es la API, la cola y la
+  ingesta (≤ 10 s de los 300 s de la prueba de humo). §2 (tamaño del *prompt*) y §4 (indexación) quedan
+  «Retirado». §3 gana el sondeo en una instantánea (cierra R-02 de la revisión 1). Lo nuevo empieza en §8.
+
+**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements: NFR3.1–NFR3.3,
+NFR3.5–NFR3.10, NFR3.13, NFR3.14, NFR8.3, NFR8.12), `scalability-requirements.md`
 (scalability-requirements), `reliability-requirements.md` (reliability-requirements),
-`observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
-(tech-stack-decisions, D1–D16) de esta unidad; flujos F1–F9 de `functional-design/functional-spec.md`
-(functional-spec); C1–C4, C6, C7, C9, C13 y C14 de `inception/contract-design/contract-summary.md`
-(contract-summary); respuestas P1–P2 de `nfr-design-questions.md`; diseño de U1 (catálogo de límites)
-y U3 (autorización); prácticas de `team.md`.
+`security-requirements.md` (security-requirements), `observability-requirements.md`
+(observability-requirements), `tech-stack-decisions.md` (tech-stack-decisions: D9, D11–D13, D15, D20),
+`functional-design/functional-spec.md` (functional-spec: F4–F8, F13), C1, C2, C3 y C25 de
+`contract-summary.md` (contract-summary); NFRD-U1-09; NFR-U13-06.
 
-Todas las metas se diseñan para el **perfil CPU** (NFR2.2); el perfil GPU solo puede acortar tiempos.
+## 1. Camino crítico de U4 (NFR3.1, NFR3.8, NFR3.10)
 
-## 1. Camino crítico de un turno de texto (NFR3.1, p95 ≤ 60 s)
-
-```mermaid
-sequenceDiagram
-  participant C as Consola M4
-  participant A as session-api API
-  participant R as Redis
-  participant S as semantic-agent
-  participant E as model-embeddings
-  participant P as PostgreSQL
-  participant J as model-judge
-  participant W as Trabajador session-api
-  C->>A: POST turns 202
-  A->>R: XADD veridicus turns
-  S->>R: XREADGROUP
-  S->>E: embeddings de afirmaciones en un lote
-  S->>P: 3 pasajes por afirmacion
-  S->>J: chat completions con instrucciones en cache
-  S->>R: XADD veridicus results y XACK XDEL
-  W->>R: XREADGROUP results
-  W->>P: ingesta en una transaccion
-  C->>A: GET sessions since cursor
-```
-
-<!-- Texto alternativo: la consola envía el turno y recibe 202; la API lo publica en la cola de turnos. semantic-agent lo lee, pide los embeddings de las afirmaciones en un solo lote, busca 3 pasajes por afirmación en PostgreSQL, llama al juez con las instrucciones ya en caché y publica el resultado, confirmando y borrando el mensaje. El trabajador de session-api ingiere el resultado en una transacción y la consola lo recibe en su siguiente sondeo. -->
-
-| Tramo | Presupuesto de diseño | Técnica |
+| Tramo | Presupuesto p95 | Diseño |
 |---|---|---|
-| Encolar (`POST` → `XADD`) | ≤ 50 ms | Validación de C2 con el validador compilado al arrancar; una transacción corta |
-| Espera en cola | 0 s con la cola vacía | Un turno a la vez (NFR8.7); la espera es la de turnos anteriores |
-| *Embeddings* de las afirmaciones | ≤ 3 s | Un solo lote con todas las afirmaciones del turno (≤ 32), prefijo `query: ` |
-| Recuperación | ≤ 1 s (≤ 100 ms por afirmación, NFR3.4) | Búsqueda exacta por versión (§3) |
-| Guardia del umbral | < 10 ms | Código puro en `domain/`; las afirmaciones bajo el umbral no van al juez |
-| Juez | ≤ 50 s | Instrucciones fijas al inicio del mensaje con `cache_prompt: true`; CoT de 20–80 palabras; `max_tokens = min(4 096, 200 × afirmaciones)` |
-| Publicar e ingerir | ≤ 2 s | Una transacción de ingesta; `XACK` y `XDEL` en un *pipeline* |
-| Llegar a la consola | ≤ 2 s | Sondeo cada 2 s con turnos en curso (NFR3.7, NFR3.8) |
+| `RunResult` en `veridicus:results` → lectura de la ingesta | ≤ 0,5 s | `XREADGROUP BLOCK 5000` en un hilo dedicado; no comparte bucle con el supervisor |
+| Parseo y segunda línea (C6, campos, escáner) | ≤ 1 s con 50 hallazgos | Validador compilado una vez al arrancar (D9); escáner de U11 sobre `hecho` y `observaciones` |
+| Transacción de ingesta | ≤ 3 s, tope 5 s | Una transacción: `bump` → corrida → `RunAttempt`, `ModelCall` y `DiscardedCandidate` con `executemany` → `propose` (C10) → `COMMIT`; métricas en `after_commit` |
+| `COMMIT` → tarjeta en M4 | ≤ 3 s (NFR3.8) | Sondeo cada 2 s con corridas activas (NFR3.7) más ≤ 200 ms del sondeo con `since` |
+| **Total de U4** | **≤ 10 s** (NFR3.1); ingesta sola ≤ 5 s | Medido en nivel 1 (`perf`) con la hora de `XADD` y la del `COMMIT`, y en nivel 3 de punta a punta |
 
-**Calentamiento del juez.** Al arrancar, `semantic-agent` envía una petición con las instrucciones y un
-bloque de datos sintético mínimo para que `llama-server` deje las instrucciones en su caché de
-*prompt*; `/readyz` responde `200` solo después. Así el primer turno real no paga el procesamiento de
-las instrucciones (≈ 1 000 *tokens*).
+El resto de los 300 s de la prueba de humo (NFR3.10) es de U11 y U10. La prueba de nivel 1 usa un
+`RunResult` de 50 hallazgos y 50 llamadas registradas.
 
-## 2. Tamaño del *prompt* (NFR3.11, NFR3.12)
+## 2. Tamaño del *prompt* · Retirado
 
-1. Construir el bloque de datos en JSON (D8) con cada pasaje una sola vez.
-2. Contarlo con `ModelGateway.count_tokens` (`/tokenize` del juez, *timeout* 5 s).
-3. Si supera `VERIDICUS_JUDGE_MAX_DATA_TOKENS` (6 000) → resultado `error` con `turn.error.system`,
-   sin llamar al juez, 0 alertas, 0 paquetes.
-4. Las instrucciones están acotadas a 1 000 *tokens* por una prueba de nivel 0 sobre el archivo del
-   *prompt*.
+NFR3.11 y NFR3.12 pasan a U11 (ventana del juez y modo fragmentado). U4 solo rechaza antes de encolar lo
+que pasa de C25 (§9).
 
-## 3. Base de datos
+## 3. Base de datos y sondeo
 
-| Consulta | Diseño | Meta |
+- **Índices** (NFRD-U4-11): `turn (session_id, n)` para la numeración y la carga; `(session_id,
+  change_seq)` en `turn`, `run_status_change`, `run_attempt` y `review_suggestion` para el sondeo;
+  `run_status_change (run_id, attempt, at DESC)` para el estado vigente; un índice parcial sobre las
+  corridas `queued` por `at` para el plazo y el supervisor; `interview_session (retention_until)` y
+  `(created_at) WHERE retention_until IS NULL` para `EthicsSessionPort` (NFR-U13-06).
+- **Sondeo con `since` (NFR3.3, p95 ≤ 200 ms).** Una transacción `REPEATABLE READ READ ONLY` (cierra R-02):
+  lee `change_cursor` de la sesión y después cada tabla con `change_seq > n` por su índice. El costo depende
+  de lo que cambió, no del tamaño de la sesión. El estado vigente de las sugerencias con decisiones nuevas lo
+  calcula la función de U5 sobre las filas devueltas.
+- **Carga completa (p95 ≤ 1 s).** Misma transacción sin filtro, con 2 000 turnos y 250 000 caracteres:
+  respuesta de ≈ 1,1 MB que se serializa con `orjson`. Medido en nivel 1 con 200 sondeos sobre la sesión
+  de NFR3.3.
+- **Pool.** `psycopg_pool` con 5 conexiones en la API y 3 en el trabajador (una por hilo); el `statement_timeout`
+  de 2 s se fija al abrir cada conexión.
+- **Numeración del turno.** `SELECT … FOR UPDATE` de la sesión vía `change_cursor.bump`, que ya bloquea la
+  fila: el número sale del mismo bloqueo, sin secuencia aparte (BR5.2).
+
+## 4. Indexación del escenario · Retirado
+
+Sale con el cambio 01 (NFR9.1–NFR9.3 Retirado).
+
+## 5. Separación de procesos (D11, D12; NFR3.2, NFR3.9)
+
+- La API de `session-api` solo atiende HTTP: no consume colas ni corre el supervisor. Con el trabajador
+  bloqueado, `POST /sessions/{id}/turns` sigue en p95 ≤ 300 ms (NFR3.2): valida, confirma, publica y
+  responde `202`.
+- El trabajador de `session-api` tiene tres hilos (ingesta, supervisor y liberación) con su propia conexión
+  cada uno; una ingesta lenta no retrasa el supervisor.
+- `semantic-agent` corre una corrida a la vez (NFR8.7) en su bucle; el servidor HTTP mínimo de salud y
+  métricas vive en otro hilo y responde aunque `analyze` esté ocupado.
+- NFR3.9 se mide en nivel 3: con una corrida en `processing`, escribir, enviar otro turno y abrir una
+  sugerencia tardan < 1 s.
+
+## 6. Consola (NFR3.7, NFR3.9)
+
+- TanStack Query v5 con `refetchInterval` dinámico: `poll_interval_active_s` (2 s) si alguna corrida está en
+  `queued` o `processing`, `poll_interval_s` (15 s) si no; las cifras se generan en *build* desde
+  `contracts/limits.v1.yaml` (D13).
+- La respuesta del sondeo se aplica como *upsert* por ID; la lista de turnos se virtualiza a partir de 200
+  filas para que una sesión de 2 000 turnos no bloquee la interfaz.
+- Envío de turnos optimista con `client_request_id`; el reenvío no duplica.
+
+## 7. Recursos (NFR8.3, NFR8.12)
+
+| Proceso | Pico | Cómo se respeta |
 |---|---|---|
-| Pasajes de una afirmación (C9) | `SELECT passage_id, document_id, text, 1 - (embedding <=> :q) AS similarity FROM truthframe.passage_search WHERE version_id = :v ORDER BY embedding <=> :q LIMIT 3`, con índice B-tree sobre `version_id` y sin índice aproximado (D5) | p95 ≤ 100 ms con 1 100 pasajes por versión (NFR3.4, NFR8.9) |
-| Sondeo de la sesión (P2 = A) | Índices `(session_id, change_seq)` en turnos, sugerencias y paquetes; la consulta trae solo filas con `change_seq > :cursor` | p95 ≤ 200 ms con 50 turnos, 20 sugerencias y 5 paquetes (NFR3.3) |
-| Encolar un turno | `SELECT … FOR UPDATE` de la fila de la sesión (numeración BR5.2 y `change_seq`), `INSERT` del turno, `XADD` tras confirmar | p95 ≤ 300 ms, también con el juez bloqueado (NFR3.2) |
-| Indexar una versión | `COPY` de los pasajes con sus vectores en una transacción (≤ 5 s) | NFR9.1 |
+| `semantic-agent` | ≤ 768 MiB en un modo final con 250 000 caracteres y respuestas de 2 MiB | Una corrida a la vez; la entrada y la salida se sueltan al terminar; sin caché entre corridas; U11 lee las respuestas con tope de tamaño |
+| Trabajador de `session-api` | ≤ 512 MiB ingiriendo un `RunResult` de 2 MiB | Un mensaje a la vez por hilo (`COUNT 1`); inserciones por lotes; la salida parseada se suelta tras el `COMMIT` |
+| API de `session-api` | Sin cifra propia; el corte de NFR10.11 limita el crecimiento a ≤ 20 MiB con un cuerpo de 5 MB | Lectura por trozos del cuerpo |
 
-Pools: API de `session-api` `pool_size = 5`, `max_overflow = 5`; trabajador `pool_size = 3`;
-`semantic-agent` `pool_size = 2` (rol de solo lectura). `statement_timeout` según
-reliability-design §1.
+Los `requests` y `limits` de cada contenedor los fija U2 en Infrastructure Design con estas cifras.
 
-## 4. Indexación del escenario (NFR9.1–NFR9.3)
+## 8. Liberación de corridas en espera (NFR3.13)
 
-- El trabajador lee el archivo ya validado, lo segmenta en pasajes de ≤ 1 000 caracteres (BR2.1) y
-  pide *embeddings* en lotes de 32 con prefijo `passage: ` y *timeout* de 30 s por lote.
-- Los lotes se calculan fuera de la transacción; la escritura de todos los pasajes es una sola
-  transacción al final (todo o nada, NFR10.18).
-- Presupuesto para 1 MB (≈ 1 100 pasajes, ≈ 35 lotes): ≤ 150 s de *embeddings* en CPU + ≤ 5 s de
-  escritura, bajo los 180 s de NFR9.1. Lo confirma la medición de nivel 2.
+El hilo de liberación consulta cada `VERIDICUS_RELEASE_POLL_MS` = 500 ms las esperas cuya transcripción ya
+se confirmó (consulta indexada sobre `RunPublicationHold` sin liberar), calcula el plazo con la hora de
+liberación, confirma y publica en C2. Peor caso: 500 ms de espera más ≤ 200 ms de transacción y `XADD`,
+dentro de 1 s. Prueba de nivel 1 con reloj controlado y 50 liberaciones.
 
-## 5. Separación de procesos (D11, D12)
+## 9. Límites antes de encolar (NFR3.14, NFR10.1, NFR10.23)
 
-| Proceso | Qué hace | Por qué no frena la consola |
-|---|---|---|
-| API de `session-api` | Solo HTTP | No consume colas ni indexa |
-| Trabajador de `session-api` | Hilos de ingesta de C3, indexador de C4 y revisión de plazos | Proceso aparte, mismo código e imagen |
-| `semantic-agent` | Bucle consumidor de C2, un turno a la vez | Proceso aparte; su servidor HTTP solo atiende salud y métricas |
+- **Origen de las cifras.** `veridicus_contracts.limits.load(os.environ)` al arrancar (D20): el catálogo
+  empaquetado es el techo y `VERIDICUS_LIMIT_<NOMBRE>` solo baja (NFRD-U1-09).
+- **Orden de comprobación** en `POST /sessions/{id}/turns`, todo antes de crear filas:
+  1. Corte por bytes del cuerpo (`security-design.md` §7).
+  2. Turno de 1 a `turn_max_chars` caracteres tras quitar los bordes.
+  3. Totales: `turn_count + 1 ≤ transcript_max_turns` y `char_count + len ≤ transcript_max_chars`, con
+     contadores guardados en la fila de la sesión y actualizados en la misma transacción (sin sumar turnos).
+  4. Tamaño del mensaje C2: el mensaje se serializa antes del `COMMIT` y se compara con
+     `run_message_max_bytes`; si no cabe, `413` `limits.exceeded` y *rollback*.
+- **Peor caso de NFR3.14.** 250 000 caracteres de 4 bytes (1 000 000 bytes) más 2 000 turnos con sus
+  metadatos (≈ 160 bytes cada uno, 320 000 bytes) y la configuración efectiva: ≈ 1,35 MB, por debajo de
+  2 097 152. Prueba de nivel 0 con el *fixture* límite de U1 y el mismo con un carácter más.
 
-## 6. Consola
+## 10. Plazo y supervisor (NFR3.5, NFR3.6)
 
-- TanStack Query con `refetchInterval` de 2 000 ms si hay turnos `queued` o `processing` y 15 000 ms si
-  no (NFR3.7). El cursor de la última respuesta se guarda en la caché de la consulta.
-- Las tarjetas nuevas se agregan sin volver a renderizar la lista entera (clave estable por
-  `suggestion_id`), para que escribir y enviar no esperen (NFR3.9).
-
-## 7. Recursos (NFR8.1–NFR8.4)
-
-| Pod | Tope medido | Cómo se respeta en el diseño |
-|---|---|---|
-| `model-judge` | ≤ 7 GiB | Ventana de 12 288 *tokens* y una sola ranura |
-| `model-embeddings` | ≤ 1,5 GiB | Lotes de 32 |
-| `semantic-agent` | ≤ 512 MiB | Un turno a la vez; sin caché de pasajes |
-| Trabajador de `session-api` | ≤ 768 MiB | Segmenta y envía por lotes; el archivo de 1 MB se lee una vez |
-
-Infrastructure Design fija `limits.memory` con ≥ 20 % sobre cada pico medido.
+El cálculo del plazo y el supervisor están en `reliability-design.md` §4. Su costo: la suma de plazos por
+delante es una consulta agregada sobre el índice parcial de corridas `queued` o `processing`; el supervisor
+lee solo los `session_id` vencidos y abre una transacción corta por sesión.

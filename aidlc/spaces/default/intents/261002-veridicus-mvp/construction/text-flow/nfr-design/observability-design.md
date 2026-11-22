@@ -1,65 +1,75 @@
 # Diseño de observabilidad — U4 text-flow
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`security-requirements.md` (security-requirements), `scalability-requirements.md`
-(scalability-requirements), `reliability-requirements.md` (reliability-requirements),
-`observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
-(tech-stack-decisions) de esta unidad; `functional-design/functional-spec.md` (functional-spec);
-C15 y C16 de `inception/contract-design/contract-summary.md` (contract-summary); respuestas P1–P2 de
-`nfr-design-questions.md`; formateador de logs de U3.
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01 (DT27), la adenda 02 y el NFR Requirements
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03.
+- **Qué cambia.** Salen las métricas del juez, de los *embeddings* y del umbral. Las métricas de U4 pasan a
+  `contracts/metrics/text-flow.v1.yaml` con la lista cerrada de etiquetas de U1 (NFRD-U1-05) y suman
+  `veridicus_runs_total` y `veridicus_sessions_blocked_total`. Lo nuevo: eventos de corrida entre servicios
+  y el incidente visible (NFR15.5).
 
-## 1. Logs (NFR15.2–NFR15.4)
+**Insumos.** `nfr-requirements/observability-requirements.md` (observability-requirements: NFR15.1–NFR15.5),
+`security-requirements.md` (security-requirements: NFR10.7), `reliability-requirements.md`
+(reliability-requirements), `performance-requirements.md` (performance-requirements),
+`scalability-requirements.md` (scalability-requirements), `tech-stack-decisions.md`
+(tech-stack-decisions), `functional-design/functional-spec.md` (functional-spec), C15 y C16 de
+`contract-summary.md` (contract-summary); NFRD-U1-05; NFRD-U11-07.
 
-- El mismo formateador JSON de `libs/` que usa U3, con lista blanca: `timestamp`, `level`, `service`,
-  `event`, `session_id`, `turn_id`, `attempt`, `message_id`, `version_id`, `code`, `duration_ms`,
-  `count`. Nada de texto de turnos, afirmaciones, pasajes, CoT ni *prompts* (security-design §6).
-- **Correlación sin trazas distribuidas.** `message_id` lo asigna el productor al publicar C2 y viaja
-  en C3; con `turn_id` + `attempt` + `message_id` se sigue un turno por la API, `semantic-agent` y el
-  trabajador.
+## 1. Logs (NFR15.2–NFR15.5)
 
-| Evento | Servicio | Nivel |
+- **Formato.** El formateador JSON único de `libs/` (U3): `timestamp`, `level`, `service`, `event` y solo
+  los campos de la lista blanca de NFR10.7. Un campo fuera de la lista se descarta y suma
+  `veridicus_log_fields_dropped_total` de U3. Excepciones por tipo y `code` (`security-design.md` §6).
+- **Eventos de corrida (NFR15.3).** Un `INFO` por transición con `run_id`, `attempt` y `message_id`:
+
+| Evento | Quién | Cuándo |
 |---|---|---|
-| `turn.queued`, `turn.processing`, `turn.evaluated` | API, `semantic-agent`, trabajador | `INFO` |
-| `turn.error` con su `code` | Trabajador o `semantic-agent` | `WARNING` |
-| `judge.retry` (P1 = A) con número de intento | `semantic-agent` | `WARNING` |
-| `queue.failed` (mensaje a `<cola>:failed`) | Consumidor | `WARNING` |
-| `scenario.indexed` / `scenario.error` | Trabajador | `INFO` / `WARNING` |
-| Dependencia caída (base, Redis, modelo) | Cualquiera | `ERROR` |
+| `run.queued` | API de `session-api` | Tras el `XADD` de C2 |
+| `run.held` | API de `session-api` | Al crear la corrida en espera |
+| `run.processing` | `semantic-agent` e ingesta | Al publicar e ingerir `RunStarted` |
+| `run.completed`, `run.error`, `run.cancelled` | `semantic-agent` (salida) e ingesta (estado) | Al publicar `RunResult` y al confirmar |
+
+- **Fallos (NFR15.4).** `WARNING` con `code` por corrida en `error`, mensaje a fallidos, `limits.exceeded`,
+  `run.claim_lost`. `ERROR` por caída de dependencia y por `run.publish_failed`.
+- **Incidente (NFR15.5).** `ERROR` `session.blocked` con `session_id`, `run_id` y `code`, y
+  `veridicus_sessions_blocked_total` sube en `after_commit`. Prueba de nivel 1 con E36.
+- **Prueba de nivel 1:** una corrida se reconstruye de punta a punta filtrando por `run_id` en los logs de
+  los tres procesos; el *canary* aparece 0 veces.
 
 ## 2. Métricas (NFR15.1)
 
-Todas en `/metrics` del puerto interno de cada proceso, con `prometheus-client`. En el trabajador de
-`session-api`, que no tiene HTTP público, un servidor mínimo en un hilo expone el mismo puerto
-interno.
+Declaradas en `contracts/metrics/text-flow.v1.yaml` (NFRD-U4-08); una prueba de nivel 0 falla si el código
+registra una métrica o una etiqueta fuera del archivo, o un valor de etiqueta fuera de su enum.
 
-| Métrica | Dónde se mide en el código |
-|---|---|
-| `veridicus_turn_latency_seconds{origin}` | Al ingerir: `evaluated_at − submitted_at` |
-| `veridicus_turns_total{outcome, code}` | Al ingerir o al vencer el plazo |
-| `veridicus_turn_queue_depth` | El hilo de plazos la recalcula cada 15 s con un `COUNT` |
-| `veridicus_judge_duration_seconds{result}` | Alrededor de cada llamada al juez, incluidos los reintentos (`unavailable`) |
-| `veridicus_judge_prompt_tokens` | Tras `count_tokens` |
-| `veridicus_claims_total{grade, guard}` | Por afirmación, después de la guardia y del juez |
-| `veridicus_alerts_total`, `veridicus_handoff_packages_total` | Al publicar C3 |
-| `veridicus_embedding_duration_seconds{purpose}` | Alrededor de cada lote |
-| `veridicus_scenario_indexing_seconds{result}` | Al terminar una versión |
+| Métrica | Tipo | Etiquetas (valores) | Proceso |
+|---|---|---|---|
+| `veridicus_run_latency_seconds` | histogram (10 … 7 200) | `mode` (`incremental`, `final`), `outcome` (`completed`, `error`, `cancelled`) | Trabajador de `session-api`, al ingerir |
+| `veridicus_runs_total` | counter | `mode`, `outcome`, `error_code` (catálogo de C1) | Trabajador de `session-api` |
+| `veridicus_run_queue_depth` | gauge | — | Trabajador de `session-api`, cada 15 s con el supervisor |
+| `veridicus_run_queue_wait_seconds` | histogram | `mode` | Trabajador de `session-api` (de `enqueued_at` a `RunStarted`) |
+| `veridicus_ingest_duration_seconds` | histogram | `outcome` (`ok`, `discarded`, `invalid_output`, `rolled_back`) | Trabajador de `session-api` |
+| `veridicus_model_input_tokens_total`, `veridicus_model_output_tokens_total` | counter | `provider`, `role` (C18) | Trabajador de `session-api`, desde `ModelCall` |
+| `veridicus_sessions_blocked_total` | counter | — | API y trabajador de `session-api` |
 
-Las etiquetas son enums cerrados; una prueba de nivel 0 recorre el registro y falla ante un valor
-fuera del enum o una etiqueta con identificadores. Se añaden a C15 por un PR de U1.
+- `outcome = completed` corresponde al estado de corrida `done`.
+- Ninguna etiqueta lleva `session_id` de alta cardinalidad en U4. La latencia por llamada y el costo por
+  proveedor solo existen en memoria de U11 y llegan agregados en C19 v2 (NFRD-U11-07); U4 no los duplica.
+- Las métricas se exponen en `/metrics` de cada proceso (C16) y suben en `after_commit`: una transacción
+  revertida no cambia ningún contador.
 
 ## 3. SLI y objetivos del MVP
 
-| SLI | Fuente | Objetivo |
+| SLI | Objetivo | Fuente |
 |---|---|---|
-| Latencia del turno | p95 de `veridicus_turn_latency_seconds{origin="typed"}` en nivel 2 | ≤ 60 s |
-| Éxito de turnos | Corrida de NFR8 | ≥ 98 % de sesiones sin turnos en error |
-| Salud de la cola | `veridicus_turn_queue_depth` | ≤ 30 sostenido |
-| Visibilidad de la alerta | Prueba Playwright de nivel 3 | ≤ 3 s desde `evaluated_at` |
+| Ingesta p95 | ≤ 5 s | `veridicus_ingest_duration_seconds` |
+| Corridas que terminan sin `analysis.system` | 100 % en la prueba de carga | `veridicus_runs_total{error_code="analysis.system"}` |
+| Espera en cola p95 | ≤ 3 600 s | `veridicus_run_queue_wait_seconds` |
+| Sesiones bloqueadas | 0 en la prueba de carga | `veridicus_sessions_blocked_total` |
+
+Son objetivos de verificación del MVP (prueba de carga y humo), no SLO con ventana de producción.
 
 ## 4. Panel y reglas informativas
 
-- Panel de Grafana (SHOULD, U2): latencia p50/p95, profundidad de la cola, turnos en error por `code`,
-  duración y reintentos del juez, *tokens* del *prompt*, CPU y memoria de los pods de IA.
-- Reglas informativas (no despiertan a nadie, no cambian nada): cola > 30 durante 10 minutos; más de 3
-  `turn.error.invalid_output` en 15 minutos; más de 5 `judge.retry` en 15 minutos (el juez se está
-  reiniciando).
+- Panel de Grafana de U2 con una fila de U4: profundidad de cola, espera p95, corridas por resultado y
+  código, ingesta p95, tokens por proveedor y papel, sesiones bloqueadas.
+- Reglas informativas (sin Alertmanager, decisión de U2): cola > 20 durante 10 min; espera p95 > 3 600 s;
+  cualquier aumento de `veridicus_sessions_blocked_total`; mensajes en `:failed` (por log).

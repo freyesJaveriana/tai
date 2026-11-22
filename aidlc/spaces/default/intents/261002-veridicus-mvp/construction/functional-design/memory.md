@@ -176,6 +176,18 @@
 - 2026-11-22T12:04:51Z — Revisión 2: ninguna regla sale entera (solo atributos y referencias del marco de verdad), así que `reverse` lleva solo reglas sin AC propio (BR4.3, BR7.1, BR7.2, BR9.4, BR11.5); los AC cruzados que prueba otra unidad van como Deferred con su dueño.
 <!-- aidlc-wave-memory:forensic-report:b307d9a5238b12877aec2f77bc7ca98c252ac5aec41b38b4c0c99cbbf7e012fb -->
 
+
+- 2026-11-22T12:10:44Z — Primera pasada de U13. Pregunté solo siete puntos de criterio en los que las fuentes callan o se contradicen. Son «Salir» del diálogo frente a «ninguna demostración bloquea» (B13), el plazo por defecto y las sesiones sin plazo de FD-U4-22, desde cuándo cuenta el plazo, quién reduce el plazo, la fecha de corte del Job en el clúster, el reporte sin sesión (UG-01 frente a C1) y cómo se consulta lo registrado. Lo que fijan la adenda, C1, C23, C24 y los FD de U3–U9 va en la tabla de decididos.
+<!-- aidlc-wave-memory:ethics-governance:e3a4a55b28322de20a1adc11f6e0a7c2532b71da3f62682a91d3dd078a56402a -->
+
+
+- 2026-11-22T12:10:44Z — C1 exige `note` en `/problem-reports`, pero AC15.3.1 la quiere opcional. No hice una pregunta: lo dejé para resolver siguiendo la historia, como precisión a C1. También faltan en C25 las cifras de retención, de vigencia del reconocimiento y del intervalo de bienestar, que entran como precisión.
+<!-- aidlc-wave-memory:ethics-governance:6a7b8a9d17ed0dbe0a5a1360b32184daa0549d371adf68ef2e8112087da28b2a -->
+
+
+- 2026-11-22T12:58:10Z — El plazo vive en InterviewSessionRecord (U4), así que U13 no lo escribe directamente. Lo cambia por un puerto nuevo, EthicsSessionPort, que implementa U4, y guarda el quién y el cuándo en su propio historial, RetentionChange. No hay aristas nuevas, porque EthicsGovernance → InterviewSession ya existía (FD-U13-08).
+<!-- aidlc-wave-memory:ethics-governance:5121a8b068f503ffde8a13a849ad99788d1491c19c193069986092ef65dad306 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -278,6 +290,10 @@
 
 - 2026-11-22T12:04:51Z — El sensor upstream-coverage dijo «no upstream» al correrlo solo con `--output-path`; se volvió a correr con `--stage`, `--consumes` y `--deliverables` explícitos y pasó.
 <!-- aidlc-wave-memory:forensic-report:9abf77327f12a52327529236d4bc015ef85c8a5961159e129423e3cf0dd0a1d8 -->
+
+
+- 2026-11-22T12:58:10Z — C1 no tenía ruta para reducir el plazo ni campo de retención en POST /sessions. Propuse PATCH /sessions/{id}/retention y retention_days opcional como precisiones (FD-U13-04, FD-U13-05), sin editar C1.
+<!-- aidlc-wave-memory:ethics-governance:9c4100457bc57ed07d968cb1bb03edbe28eca6fbce093b4ef541b13573d458b0 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -410,6 +426,10 @@
 - 2026-11-22T12:04:51Z — La exportación no guarda sus bytes, solo `export_sha256` (VE-12): no se puede volver a entregar la misma exportación, a cambio de no multiplicar copias del testimonio.
 <!-- aidlc-wave-memory:forensic-report:2307b817e1c0fb902442887eec34b0932b2e7e124ab8b060dee53a4e811d81ed -->
 
+
+- 2026-11-22T12:58:10Z — El Job borra cada sesión en su propia transacción y sigue con las demás si una falla. A cambio, un archivo ya borrado antes de la reversión queda como file_missing en el siguiente intento, en vez de detener todo el borrado.
+<!-- aidlc-wave-memory:ethics-governance:5f05b556ed42f6003b7d2bfd33dc09ff4712f4f9e4867f4faae7266a55a773f5 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -493,3 +513,6 @@
 
 - 2026-11-22T12:04:51Z — AC5.4.4 (adenda) dice que cualquier rol distinto del dueño recibe 403 al pedir hallazgos, y eso choca a la letra con AC5.4.2 (otros analistas leen); quedó Deferred a U5, que debe aclararlo.
 <!-- aidlc-wave-memory:forensic-report:5755bfc9a8c1d8f95a54d841a0621115adca1fcacd7fe6663dbc51e3f1101394 -->
+
+- 2026-11-22T12:58:10Z — Falta definir cómo monta el Job los volúmenes de reportes y de audio (PVC ReadWriteOnce compartido con session-api) y su activeDeadlineSeconds. Quedan para Infrastructure Design (§11, pregunta 4).
+<!-- aidlc-wave-memory:ethics-governance:d50052ec9dcf88dbe50d3cd34936a38c9879c29aab7ec0148406d5f76d658a9c -->

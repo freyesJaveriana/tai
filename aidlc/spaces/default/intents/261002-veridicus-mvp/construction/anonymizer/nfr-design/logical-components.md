@@ -1,79 +1,102 @@
 # Componentes lógicos — U10 anonymizer
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`nfr-requirements/security-requirements.md` (security-requirements),
-`nfr-requirements/scalability-requirements.md` (scalability-requirements),
-`nfr-requirements/reliability-requirements.md` (reliability-requirements),
-`nfr-requirements/observability-requirements.md` (observability-requirements) y
-`nfr-requirements/tech-stack-decisions.md` (tech-stack-decisions) de esta unidad;
-`functional-design/functional-spec.md` (functional-spec); C13–C16 de
-`inception/contract-design/contract-summary.md` (contract-summary); respuestas P1 = A y P2 = A de
-`nfr-design-questions.md`; los demás documentos de diseño de esta carpeta.
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01, la adenda 02 y el NFR Requirements revisión
+2.** Sustituye a la revisión 1 del 2026-10-03. Salen `AnonymizerGateway` y `anonymizer_route.py` de
+`libs/model_gateway` (pasan a U11), las políticas Kyverno de U10 (pasan a U2) y `embed`. Entran el módulo
+en `libs/anonymizer/` con sus adaptadores nativos, la verificación final y la CLI como segundo anfitrión.
+
+**Insumos.** `nfr-requirements/security-requirements.md` (security-requirements),
+`reliability-requirements.md` (reliability-requirements), `performance-requirements.md`
+(performance-requirements), `scalability-requirements.md` (scalability-requirements),
+`observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
+(tech-stack-decisions) de esta unidad; §1, F1–F9 y §7 de `functional-design/functional-spec.md`
+(functional-spec); C13, C16, C20, C21 y C22 de `inception/contract-design/contract-summary.md`
+(contract-summary); NFR de U2 (red, Secret y montajes) y de U11 (cliente de C21 y raíz de composición de la
+CLI).
 
 ## 1. Inventario
 
-| Componente lógico | Proceso y capa | Dentro o fuera del clúster | Responsabilidad | Patrones de NFR |
+| Componente | Ruta | Proceso | Dentro / fuera | Patrones NFR que aplica |
 |---|---|---|---|---|
-| `ProxyApi` | `anonymizer-proxy`, `api/` | Dentro | Rutas C14 permitidas, `404` para el resto, límites de cuerpo | Admisión con semáforo; Problem Details |
-| `MaskedCall` | `application/` | Dentro | Orquesta validar, enmascarar, comprobar, enviar y restaurar | Falla cerrada; plazos con `fail_after`; tabla borrada en `finally` |
-| `PayloadWalker` | `domain/` | Dentro | Decodificar y reserializar cadenas hoja (P2 = A) | Representación decodificada |
-| `Masker` y `NumberingPlan` | `domain/` | Dentro | Detección `re2` y marcadores estables (P1 = A) | Tiempo lineal; sin estado |
-| `OutboundCheck` | `domain/` | Dentro | Segunda barrera sobre el cuerpo exacto | Defensa en profundidad |
-| `Restorer` | `domain/` | Dentro | Restaurar cadenas hoja de la respuesta | JSON válido tras restaurar |
-| `UpstreamClient` | `adapters/` | Dentro; único con salida | HTTPS al destino del ADR | TLS ≥ 1.2, sin redirecciones, un intento, 4 cabeceras |
-| `RulesLoader` y `Settings` | `adapters/` | Dentro | Reglas montadas `readOnly` y ajustes | No arranca mal configurado |
-| `AnonymizerGateway` | `libs/model_gateway`, en `semantic-agent` y `session-api` | Dentro | Adaptador C13 que llama al proxy con la lista ordenada | Traduce `502` y `504` a finales |
-| `anonymizer_route` | `libs/model_gateway` | Dentro | URL del proxy solo en juez y *embeddings* | 100 % de ramas |
-| Destino externo | — | **Fuera** | Juez o *embeddings* del proveedor | Solo recibe marcadores |
+| API del módulo | `libs/anonymizer/api.py` | `anonymizer-proxy` o CLI | Dentro o máquina local | Fallo cerrado con un solo punto de envío, plazo total |
+| Seudonimización | `libs/anonymizer/domain/` | Igual | Igual | Código puro, 100 % de ramas, normalización, verificación final |
+| Puerto del NER | `libs/anonymizer/application/ner_port.py` | Igual | Igual | Hilo no abandonable, limitador de 1, ventanas |
+| Adaptadores nativos | `libs/anonymizer/providers/` | Igual | Igual; única conexión externa | TLS fijo, sin redirecciones, sin reintentos, tope de respuesta, proyección del esquema |
+| Datos versionados | `libs/anonymizer/data/` | Igual | Igual | `SHA256SUMS` al arrancar |
+| Utilería de pruebas | `libs/anonymizer/testing/` | Solo pruebas | Ninguno | Prohibido fuera de las pruebas (import-linter) |
+| `anonymizer-proxy` | `services/anonymizer-proxy/` | Pod propio | Dentro; único con salida con datos | Mamparo de 4, rechazo por tamaño, sondas, métricas |
 
-Las capas `api/` → `application/` → `domain/` con `adapters/` se hacen cumplir con import-linter;
-`domain/` no importa `httpx` ni nada de red (contrato de import-linter con control negativo).
+## 2. Componentes en YAML
 
-## 2. Dominios de falla y radio de impacto
+```yaml
+components:
+  - name: anonymizer-module
+    path: libs/anonymizer
+    hosts: [anonymizer-proxy, cli]
+    boundary: inside
+    data_out: none
+    guard: true
+  - name: anonymizer-providers
+    path: libs/anonymizer/providers
+    hosts: [anonymizer-proxy, cli]
+    boundary: inside
+    data_out: pseudonymized_body_https_443
+    allowed_domains: [api.anthropic.com, generativelanguage.googleapis.com, api.openai.com]
+    guard: true
+  - name: anonymizer-proxy
+    path: services/anonymizer-proxy
+    hosts: [anonymizer-proxy]
+    boundary: inside
+    ingress_from: [semantic-agent, prometheus-metrics-port]
+    replicas: 1
+    guard: true
+  - name: anonymizer-testing
+    path: libs/anonymizer/testing
+    hosts: [tests]
+    boundary: none
+    data_out: none
+    guard: false
+```
 
-| Falla | Qué deja de funcionar | Qué sigue | Radio |
-|---|---|---|---|
-| Proxy apagado (por defecto) | Nada | Todo, con el juez interno | Ninguno |
-| Caída del proxy habilitado | Juez y, si se usan, *embeddings* externos | Consola, revisión de alertas ya emitidas, afirmaciones bajo el umbral | Turnos en curso (error o reclamo) |
-| Destino externo caído | Igual | Igual; nada se reenvía | Turnos en curso terminan en `error` |
-| Reglas defectuosas | Toda llamada termina cerrada | Igual | Ninguna fuga: el radio es de disponibilidad, no de datos |
+## 3. Dominios de fallo y radio de impacto
 
-El diseño elige siempre que una falla del proxy cueste disponibilidad y nunca confidencialidad.
+```mermaid
+flowchart LR
+  SA[semantic-agent] -->|C21| P[anonymizer-proxy]
+  CLI[CLI de U11] -->|en proceso| M[modulo anonymizer]
+  P --> M
+  M --> AD[adaptador nativo]
+  AD -->|HTTPS 443| EXT[proveedor comercial]
+```
 
-## 3. Recursos compartidos
+<!-- Texto alternativo: semantic-agent llama al proxy por C21 dentro del clúster; la CLI usa el módulo en el mismo proceso; el proxy envuelve el mismo módulo; el módulo usa el adaptador nativo, que es lo único que abre una conexión HTTPS 443 hacia el proveedor comercial. -->
 
-| Recurso | Compartido con | Aislamiento |
+| Falla | Radio de impacto | Contención |
 |---|---|---|
-| `libs/model_gateway` | U4, U8, U9 | El adaptador y la regla de ruta son módulos propios de U10 |
-| Formateador de logs de `libs/` | Todas las unidades | Perfil de campos de U10 en la lista blanca |
-| Catálogo `contracts/limits.v1.yaml` | Todas | Entradas `anonymizer.*` con U10 como dueña |
-| Base de datos y Redis | — | El proxy no tiene credencial de ninguno |
+| Proxy caído | Las corridas con destino externo en el clúster terminan en error; `todo-local` y la consola siguen | Sin estado; Kubernetes lo reinicia; `/readyz` lo saca del servicio |
+| NER lento o colgado | Solo la petición en curso | Presupuesto de seudonimización y limitador de 1 |
+| Proveedor caído o con límite de tasa | Las llamadas a ese proveedor | Error tipado sin reintento; U11 decide el alterno ante `451` |
+| Datos o NER con otro SHA-256 | Ninguna llamada sale | El proxy no arranca; la CLI no construye el módulo |
+| Error de seudonimización | Esa llamada | `AnonymizerUnavailable` con 0 peticiones |
+| Ráfaga de peticiones | Las que pasan de 4 | `503` inmediato sin leer el cuerpo |
 
-## 4. Entrega a Infrastructure Design
+## 4. Aislamiento y recursos compartidos
 
-- `Deployment`, `Service` y `NetworkPolicy` del proxy solo con `anonymizer.enabled: true`; 1 réplica;
-  CPU `requests` 100m y `limits` 1; `limits.memory` = pico medido + ≥ 20 %.
-- `ConfigMap` de reglas montado `readOnly`, `emptyDir` en memoria de ≤ 16 MiB para `/tmp`, Secret
-  `veridicus-anonymizer-credential` por `secretKeyRef`, `automountServiceAccountToken: false`.
-- Riesgos transferidos: desactivar los volcados de memoria (*core dumps*) en el nodo; limitar la
-  resolución DNS externa a lo necesario si el CNI lo permite (T15); CNI con políticas por FQDN si el
-  proveedor no tiene CIDR estables, o el proxy no se habilita.
-- Tabla de fronteras de AUTONOMIA-04: el proxy aparece fuera de la frontera solo con el *payload*
-  enmascarado (BR3.4).
+- **Claves.** Solo el proceso que construye el módulo con un destino externo las tiene: el pod del proxy
+  (Secret `veridicus-provider-keys`, U2) o la máquina de la CLI. `semantic-agent` no las tiene ni importa
+  `libs.anonymizer` (contrato de U4).
+- **Recursos compartidos.** Ninguno de escritura. De solo lectura: el NER (volumen de U2), el `ConfigMap`
+  `veridicus-profiles` y el catálogo de límites empaquetado de U1.
+- **Red.** La `NetworkPolicy` de salida (443 y DNS), la de entrada (desde `semantic-agent`, más Prometheus
+  en el puerto 9090, NFRD-U10-09) y la lista blanca de CoreDNS son de U2. U10 impone los dominios dentro del
+  proceso y publica la comparación de F9.
 
-## 5. Calidad, pruebas y textos (NFR2.1, NFR2.2, NFR12.1, NFR13.1, NFR13.2, NFR14.1)
+## 5. Lo que se entrega a Infrastructure Design (U2)
 
-- **Sin red y en CPU (NFR2.1).** Nivel 0 con `httpx.MockTransport`; nivel 1 con un servidor HTTPS local
-  y certificado de `trustme`; `pytest-socket` falla ante cualquier conexión fuera de `localhost`.
-  Ninguna prueba llama a un proveedor real ni descarga un modelo.
-- **Sin GPU (NFR2.2).** Prueba de nivel 0 sobre el render de `values-cpu.yaml` y `values-gpu.yaml` con
-  el proxy habilitado en un *values* de prueba: 0 `nvidia.com/gpu` en el proxy.
-- **Datos sintéticos (NFR12.1).** *Fixtures* del catálogo de U1 con `synthetic: true`; la comprobación
-  de U1 sobre `services/anonymizer-proxy/tests/` da 0 hallazgos.
-- **Cobertura (NFR13.1, NFR13.2).** ≥ 80 % de líneas en `services/anonymizer-proxy`; 100 % de ramas en
-  `domain/` y `application/` del proxy y en `libs/model_gateway/anonymizer_route.py` y el adaptador
-  `AnonymizerGateway`, con `.coveragerc-guards`.
-- **Textos (NFR14.1).** `detail` de los errores desde el catálogo en español; identificadores del
-  glosario (`masking_request`, `mask_table`, `mask_category`, `detection_rule_set`,
-  `outbound_destination`, `marker`, `proper_nouns`, y los nuevos `numbering_plan` y `outbound_check`);
-  marcadores con categorías en español porque son valores del contrato.
+| Tema | Qué fija U10 | Qué decide U2 |
+|---|---|---|
+| Recursos del pod | Pico de RSS ≤ 1,5 GiB; `VERIDICUS_ANONYMIZER_NER_THREADS` = 2 | `requests`/`limits` de CPU y memoria |
+| Sondas | `/healthz` y `/readyz` en 8080; arranque ≤ 60 s | `startupProbe` que tolere 60 s |
+| Métricas | Puerto 9090 y panel versionado | Regla de entrada y raspado de Prometheus |
+| NER | Directorio `safetensors` sin `.py`, `.bin` ni `.pkl`, y su SHA-256 | El modelo concreto, su volumen de solo lectura |
+| Sistema de archivos | El proceso no escribe nada | `readOnlyRootFilesystem`, sin PVC de escritura, sin *core dumps* en el nodo |

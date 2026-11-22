@@ -1,147 +1,169 @@
 # Diseño de fiabilidad — U10 anonymizer
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`nfr-requirements/security-requirements.md` (security-requirements),
-`nfr-requirements/scalability-requirements.md` (scalability-requirements),
-`nfr-requirements/reliability-requirements.md` (reliability-requirements),
-`nfr-requirements/observability-requirements.md` (observability-requirements) y
-`nfr-requirements/tech-stack-decisions.md` (tech-stack-decisions) de esta unidad; la máquina de
-estados y §8 de `functional-design/functional-spec.md` (functional-spec); C13, C14 y C16 de
-`inception/contract-design/contract-summary.md` (contract-summary); respuestas P1 = A y P2 = A de
-`nfr-design-questions.md`; diseño de fiabilidad de U4 (reintento acotado del juez, reclamo a los
-240 s); hallazgos R-03 y R-04 de `nfr-requirements/reviews/review-01.md`.
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01, la adenda 02 y el NFR Requirements revisión
+2.** Sustituye a la revisión 1 del 2026-10-03. Las secciones conservan su tema; la de reintento acotado
+de U4 sale porque C13 ya no reintenta llamadas comerciales. Cierra los hallazgos R-03 (§3) y R-05 (§2) de la
+revisión 1 de esta etapa; R-04 lo cierra §5.
 
-U10 no tiene objetivo de disponibilidad (COULD, apagado por defecto). Su objetivo de fiabilidad es uno
-solo: **ante cualquier duda, no sale nada**.
+**Insumos.** `nfr-requirements/reliability-requirements.md` (reliability-requirements: NFR10.1, NFR10.4,
+NFR10.7, NFR6.1, NFR6.2, NFR4.1–NFR4.3), `security-requirements.md` (security-requirements),
+`performance-requirements.md` (performance-requirements), `scalability-requirements.md`
+(scalability-requirements), `observability-requirements.md` (observability-requirements) y
+`tech-stack-decisions.md` (tech-stack-decisions) de esta unidad; F1, F3, F5–F8, §3.1–§3.2 y E11–E34 de
+`functional-design/functional-spec.md` (functional-spec); C13 (tabla de errores), C16, C20 y C21 de
+`inception/contract-design/contract-summary.md` (contract-summary); P3 = A de `nfr-design-questions.md`;
+NFR-U4-12 de U4.
 
-## 1. Máquina de estados con falla cerrada (NFR10.1)
+**Objetivo único: ante cualquier duda, no sale nada.** Como máximo una llamada externa por `generate`,
+sin reintentos ni en U10 ni en el cliente de C21. Sin objetivo de disponibilidad propio en el MVP: una
+réplica en una máquina.
+
+## 1. Fallo cerrado por construcción (NFR10.1)
+
+`generate` tiene **un solo** punto de envío, `adapter.send(prepared)`, fuera del bloque que cubre
+validar, seudonimizar, verificar y armar el cuerpo. Todo lo anterior está dentro de un
+`try/except BaseException` que convierte cualquier error en `AnonymizerUnavailable` sin `ModelCall`.
+
+```python
+async def generate(self, req: GenerateRequest) -> GenerateResult:
+    table = MaskTable()
+    try:
+        with anyio.fail_after(effective_timeout(req)):
+            try:
+                prepared = await self._prepare(req, table)   # destino, F4, §3, cuerpo nativo
+            except Exception as exc:
+                raise AnonymizerUnavailable(step_of(exc)) from None
+            raw = await self._adapter.send(prepared)          # único envío
+            return self._finish(raw, table, prepared)         # validar, F6, ModelCall
+    finally:
+        table.clear()                                         # BR1.8
+```
+
+`from None` evita que el mensaje de la excepción original, que podría traer texto, quede encadenado. Si
+`fail_after` vence durante `_prepare`, la cancelación se convierte en `AnonymizerUnavailable`; si vence
+durante `send` o después, en `Timeout` con su `ModelCall`. El `FakeTransport` cuenta las peticiones: **0**
+en cada rama de F7 anterior al envío, también ante una excepción no prevista inyectada en cada paso.
+
+| Estado de §3.1 | Llamadas | Resultado | `ModelCall` |
+|---|---|---|---|
+| `failed_closed` | 0 | `AnonymizerUnavailable` (proxy: `503`) | No |
+| `failed_after_send` | 1 | `ContentBlocked` (451), `ProviderError` (502), `InvalidOutput` (502), `Timeout` (504) | Sí |
+| `restored` | 1 | `GenerateResult` | Sí |
+
+Los rechazos del proxy antes de `generate` (`409`, `413`, `422`) no tocan el módulo ni abren conexión.
+
+## 2. Plazos y concurrencia sin hilos huérfanos (NFR10.4, NFR3.5; cierra R-05)
+
+- **Plazo efectivo.** `min(req.timeout_s, model_call_timeout_s efectivo)`. Cubre seudonimizar, enviar,
+  leer, validar y restaurar. Conexión ≤ 10 s dentro de ese plazo (`httpx.Timeout(connect=10, …)`).
+- **Presupuesto de seudonimización.** 0,15 × plazo efectivo (`anonymizer_masking_budget_ratio`). Se mide
+  desde que empieza `_prepare` hasta que termina la verificación final, **incluida la espera del NER**.
+  Pasarlo da `AnonymizerUnavailable` antes del envío.
+- **NER en un hilo que no se abandona.** El NER corre con `anyio.to_thread.run_sync(..., limiter=ner_limiter,
+  abandon_on_cancel=False)` y un `CapacityLimiter(1)` por proceso. Si el plazo vence mientras el hilo
+  trabaja, la cancelación espera a que el hilo termine y solo entonces se libera el cupo del semáforo de 4
+  peticiones (NFR8.2). Así nunca hay más hilos del NER vivos que cupos, y la tabla se vacía cuando ningún
+  hilo la usa (NFRD-U10-07).
+- **Pruebas.** Un NER *fake* que tarda más que el presupuesto: `AnonymizerUnavailable`, 0 peticiones, y
+  tras la llamada 0 hilos del NER activos y el cupo libre. Cinco llamadas con NER lento: nunca más de un
+  hilo del NER a la vez y nunca más de 4 peticiones en curso.
+
+## 3. Errores después del envío y sin reintentos (NFR10.4; cierra R-03)
+
+| Qué pasa | Antes o después de escribir el cuerpo | Resultado | ¿Se reintenta? |
+|---|---|---|---|
+| `ConnectError`, `ConnectTimeout`, fallo de TLS | Antes | `AnonymizerUnavailable` (no salió nada) | No |
+| `WriteError`, `ReadError`, `RemoteProtocolError`, `ReadTimeout` | Después | `ProviderError` o `Timeout` con su `ModelCall` | No |
+| `429`, `5xx`, `529` | Después | `ProviderError` | No |
+| `3xx` | Después | `ProviderError`, sin seguir la redirección | No |
+| `stop_reason: refusal` | Después | `ContentBlocked` | No; el alterno lo decide U11 (FR15.2) |
+| `stop_reason: max_tokens`, no JSON, JSON con claves repetidas o `NaN`, o que no valida | Después | `InvalidOutput` | No |
+| Respuesta más grande que `anonymizer_response_max_bytes` | Después | `ProviderError` | No |
+
+«Después» empieza cuando el transporte empieza a escribir el cuerpo: desde ahí la llamada puede haber
+salido y no se repite (C13). La prueba con el `FakeTransport` lento, que devuelve 500, 429 o 529, que corta
+la conexión a mitad de respuesta y que redirige da **exactamente 1** petición en cada caso.
+
+**Reentrega de la cola (NFRD-U10-14).** Si `semantic-agent` cae después de que el proxy envió, U4 puede
+reentregar la corrida (`run_max_deliveries` = 3) y el mismo cuerpo seudonimizado puede salir otra vez.
+U10 no puede verlo, porque no guarda estado entre llamadas (NFR8.4). Se declara en el ADR como riesgo
+residual. El trabajador hace una corrida a la vez (NFR-U4-12).
+
+**Cliente de C21 (NFRD-U10-10).** El cliente de U11 espera el plazo efectivo más 10 s, para que el proxy
+alcance a responder `504` con su `call`. `409`, `413`, `422`, `503` y la conexión rechazada terminan en
+`AnonymizerUnavailable` (NFRD-U10-17).
+
+**Sin disyuntor (*circuit breaker*).** Con una sola réplica, sin reintentos y una corrida a la vez, un
+disyuntor solo añadiría estado compartido entre llamadas. Un proveedor caído ya falla rápido por
+`ConnectError` o `5xx`, y la corrida termina en error. Se descarta para el MVP.
+
+## 4. Arranque y sondas (NFR10.7, NFR15.3)
 
 ```mermaid
 stateDiagram-v2
-  [*] --> validating
-  validating --> rejected: Esquema o limites
-  validating --> masking: Peticion valida
-  masking --> failed_closed: Error, timeout, marcador previo o tabla incoherente
-  masking --> checking: Cuerpo serializado
-  checking --> failed_closed: Nombre o digitos en el cuerpo final
-  checking --> sent: Cuerpo limpio
-  sent --> failed: Timeout o error del destino
-  sent --> restoring: Respuesta legible
-  restoring --> failed: Error al restaurar
-  restoring --> restored: Respuesta restaurada
-  restored --> [*]
-  failed --> [*]
-  failed_closed --> [*]
-  rejected --> [*]
+  [*] --> starting
+  starting --> exited: Ajuste ausente o invalido
+  starting --> warming: Datos, NER, perfiles, claves, capacidades y limites validos
+  warming --> ready: Inferencia de calentamiento del NER sobre texto sintetico
+  warming --> exited: El NER falla
+  ready --> ready: Atiende peticiones
+  exited --> [*]
 ```
 
-<!-- Texto alternativo: una llamada se valida; si el esquema o los límites fallan, termina rechazada. Luego se enmascara; un error, un timeout, un marcador previo en la entrada o una tabla incoherente la cierran sin enviar. El cuerpo serializado pasa la comprobación final; si contiene un nombre de la lista o dígitos, se cierra sin enviar. Si está limpio se envía; un timeout o error del destino termina en fallo, y si la respuesta es legible se restaura. En todos los finales la tabla se borra. -->
+<!-- Texto alternativo: el proxy arranca y comprueba datos, NER, perfiles, claves, tabla de capacidades y límites; si falta o falla algo, termina con código distinto de cero. Si todo es válido, hace una inferencia de calentamiento del NER sobre un texto sintético; si falla, termina; si pasa, queda listo y atiende peticiones. -->
 
-- `MaskedCall.run` envuelve `validating`, `masking` y `checking` en un solo `try`; **toda** excepción
-  dentro de ese bloque, prevista o no, termina en `failed_closed` (`500`
-  `anonymizer.masking_failed`) o en el `code` de límites de NFR10.8. La única instrucción que envía
-  (`upstream.send`) está después de `checking` y fuera de ese bloque.
-- Ramas nuevas por P2 = A, con su prueba de nivel 0 y 0 peticiones al *fake*: `content` JSON por encima
-  de la profundidad o de las hojas permitidas; reserialización que no reproduce la forma; comprobación
-  final con coincidencia (enmascarador defectuoso inyectado).
-- Rama nueva por P1 = A: `proper_nouns_sha256` que no coincide con la lista recibida (`422`).
-- **Verificación.** `pytest --cov-branch --cov-config=.coveragerc-guards` con **100 % de ramas** en
-  `domain/` y `application/` del proxy (NFR13.2).
+- **Comprobaciones al arrancar**, en este orden, cada una con su nombre de *check*: `data_files`
+  (SHA-256 de los cuatro archivos), `ner` (manifiesto y SHA-256, carga sin red), `capabilities` (cada
+  entrada con su ADR y una combinación de modo, esfuerzo, temperatura y `max_output_tokens` admitida),
+  `profiles` (`profiles.validate` y huellas), `api_keys` (presencia de cada `api_key_ref` externa),
+  `limits` (`limits.load`) y `settings` (`VERIDICUS_ANONYMIZER_MAX_CONCURRENCY` y `_NER_THREADS` en
+  rango). Si una falla, el proceso termina con código ≠ 0 y una línea `anonymizer.startup_failed` con el
+  nombre del *check* y del ajuste, nunca su valor (E17, E18, E28).
+- **Calentamiento.** Una inferencia del NER sobre un texto sintético fijo del paquete, dentro de los 60 s
+  de NFR3.3, para que la primera petición real no pague la carga perezosa.
+- **`/healthz`** responde 200 mientras el proceso vive. **`/readyz`** responde 200 solo en `ready`; en
+  `starting` o `warming`, 503 con la lista de *checks* que faltan, por nombre y sin valores. Ninguna de las
+  dos abre conexiones hacia fuera: la prueba de nivel 1 sustituye `socket.create_connection` por una
+  función que falla y llama a las dos.
+- **CLI.** `Anonymizer.build(...)` hace las mismas comprobaciones salvo `profiles` (las hace U11) y lanza
+  el error de configuración antes de cualquier llamada (AC13.3.2).
 
-## 2. *Timeouts* y plazo total por llamada (NFR10.4, NFR3.4, hallazgo R-04)
+## 5. Restauración exacta y marcas alteradas (NFR6.1, NFR6.2, NFR10.12; cierra R-04)
 
-El *timeout* de lectura de `httpx` es por lectura: un destino que gotea bytes lo esquiva. Por eso cada
-tramo tiene un **plazo total** con `anyio.fail_after`, además de los *timeouts* de `httpx`.
+- **Sobre el JSON ya validado.** `domain/restore.py` recorre los valores de cadena con su puntero RFC
+  6901. Una expresión de `re2` encuentra las formas de marca (F6). Una forma que es, carácter por
+  carácter, una marca canónica **de esta tabla** se reemplaza por su forma original exacta. Cualquier otra,
+  incluida una canónica que no está en la tabla, queda sin restaurar y su puntero entra en
+  `altered_markers`, sin repetidos y en orden de recorrido. Solo se restauran marcas de la tabla de la
+  llamada: un modelo que inventa `[PERSONA_9]` no recibe ningún nombre.
+- **Marcas de entrada (BR1.7).** Una forma de marca que ya venía en el testimonio tiene su propia marca
+  en la tabla y vuelve intacta (E15).
+- **Pruebas.** Con Hypothesis, sobre textos sintéticos sin formas de marca, seudonimizar y restaurar
+  devuelve el mismo texto byte a byte. Sobre respuestas grabadas: 0 marcas conocidas quedan, las seis
+  variantes de NFR10.12 caen en `altered_markers` con punteros válidos, y «persona 3» no se informa
+  (E25, E26). U11 invalida los hallazgos afectados (BR4.2), así que nunca llegan a la calificación Likert
+  (NFR6.2).
+- **Repetibilidad (NFR4.2, NFR4.3).** La misma entrada da la misma tabla y el mismo cuerpo, byte a byte. El
+  módulo nunca inventa una semilla: si `supports_seed` es falso (Anthropic), `ModelCall.seed` queda nula y
+  la del perfil no se envía.
 
-| Tramo | Plazo total `judge` | Plazo total `embed` | Al vencer |
-|---|---|---|---|
-| Validar, enmascarar y comprobar | 2 s (`VERIDICUS_ANONYMIZER_MASKING_TIMEOUT_SECONDS`) | 2 s | `failed_closed`, nada enviado |
-| Envío al destino (conexión 5 s incluida, escritura, lectura) | 170 s | 25 s | `504` `anonymizer.upstream_timeout` |
-| Restaurar | 2 s | 0 s (no hay restauración) | `502` `anonymizer.upstream_error` |
-| **Total en el proxy** | **≤ 174 s** frente a 180 s del cliente de U4 | **≤ 27 s** frente a 30 s | — |
+## 6. Calidad de la IA con el anonimizador en el camino (NFR4.1)
 
-```python
-async def send(self, body: bytes, op: Operation) -> UpstreamReply:
-    with anyio.fail_after(self.total_upstream_s[op]):          # 170 s o 25 s, todo incluido
-        resp = await self.client.post(self.path[op], content=body,
-                                      timeout=httpx.Timeout(self.read_s[op], connect=5))
-        return await read_capped(resp, max_bytes=2 * 1024 * 1024)
-```
+U10 aporta al reporte de nivel 2 de B11 `altered_markers_count` por corrida y la tasa de llamadas en
+`InvalidOutput`. Los umbrales de NFR4 son de U11 y no se bajan. Si la proyección del esquema (§6 de
+`security-design.md`) hace que el modelo viole restricciones numéricas, aparece como `InvalidOutput` y la
+mide la misma tasa.
 
-El enmascarado corre en un hilo (`anyio.to_thread.run_sync`) bajo su `fail_after`; si vence, la
-llamada termina cerrada aunque el hilo siga, y su resultado se descarta (el hilo no tiene acceso al
-cliente `httpx`). **Un solo intento** hacia el destino: `HTTPTransport(retries=0)` y ningún bucle.
+## 7. Fallos y recuperación
 
-**Verificación (nivel 0).** *Fakes* lento, que gotea 1 byte por segundo, que devuelve 500, 429 y
-302, y que corta la conexión: el *fake* registra **exactamente 1** petición y el proxy responde en
-≤ plazo + 0,5 s.
-
-## 3. Contrato de fallos con el cliente (U4)
-
-El proxy distingue lo que **ya salió** de lo que **no salió** con su `code`:
-
-| Respuesta del proxy | ¿Salió algo? | Tratamiento en `AnonymizerGateway` y U4 |
+| Fallo | Qué se pierde | Cómo se recupera |
 |---|---|---|
-| `503` `anonymizer.busy` | No | Recuperable: entra en el reintento acotado de U4 (2 s y 6 s) y luego el reclamo de 240 s |
-| Conexión rechazada hacia el proxy | No | Recuperable, igual que arriba |
-| `500` `anonymizer.masking_failed`, `413`, `422` | No | Final: `turn.error.system` (un error de reglas no se arregla reintentando) |
-| `502` `anonymizer.upstream_error` | Sí, o pudo salir | **Final**: `turn.error.system`, sin reintento en el proceso ni por la cola |
-| `504` `anonymizer.upstream_timeout` | Sí | **Final**: `turn.error.timeout`, sin reintento |
+| Error antes del envío | Nada salió; la corrida termina con `anonimizador_no_disponible` | El analista relanza; si se repite, es un hallazgo de configuración |
+| Error o plazo después del envío | La llamada; U11 registra su `ModelCall` | Relanzar a mano; ante `451`, U11 usa el alterno si el perfil lo tiene |
+| Salida inválida o marcas alteradas | Esa llamada o esos hallazgos | U11 invalida lo afectado; nunca un resultado parcial |
+| Proxy saturado (5.ª petición) | Nada salió | `503` inmediato; la corrida termina en error |
+| Caída o reinicio del proxy | La llamada en curso; la tabla desaparece con el proceso | El cliente ve conexión rechazada → `AnonymizerUnavailable`; Kubernetes reinicia el pod y `/readyz` lo saca del servicio hasta `ready` |
+| Proveedor que deja de cumplir su ADR | — | PR que saca sus modelos de la tabla; el proxy no arranca con un perfil que los use |
 
-El reintento acotado de U4 (P1 = A de U4: conexión rechazada, `502`, `503`, `504`) **no** se aplica
-tal cual con este adaptador: `AnonymizerGateway` traduce `502` y `504` del proxy a errores finales
-antes de que el reintento los vea. Prueba de nivel 0 en `libs/model_gateway`: con un proxy *fake* que
-responde `502`, el destino del proxy registra 1 petición y el turno queda en `error` sin reclamo.
-
-## 4. Restauración segura para JSON (NFR6.1, P2 = A, hallazgo R-03)
-
-- Si `choices[0].message.content` es JSON válido, se restaura **cadena hoja por cadena hoja** y se
-  vuelve a serializar con `ensure_ascii=False`; un nombre con comillas, barra invertida o salto de línea
-  queda escapado y C6 sigue siendo JSON válido.
-- Si no es JSON, se restaura como texto: U4 lo rechazará igual como `turn.error.invalid_output`.
-- Solo se restauran marcadores de la tabla de esa llamada; los desconocidos se dejan y se cuentan en
-  `unknown_markers`. Con P1 = A, un marcador estable de la lista que el destino cite aunque no estuviera
-  en esta llamada también se restaura, porque `NumberingPlan` conoce toda la lista.
-- **Verificación (nivel 0, Hypothesis).** (a) Enmascarar y restaurar un texto sin marcadores previos
-  devuelve el mismo texto; (b) sobre un objeto JSON con nombres sintéticos que incluyen `"`, `\`, saltos
-  de línea y caracteres no ASCII, enmascarar, simular la respuesta con los marcadores y restaurar da un
-  JSON que se parsea y cuyas cadenas son iguales a las originales; (c) 0 marcadores conocidos quedan.
-
-## 5. Arranque y salud (NFR10.7, C16)
-
-| Sonda | Responde 200 si… | Nunca… |
-|---|---|---|
-| `/healthz` | El proceso vive | Consulta nada |
-| `/readyz` | Reglas con SHA-256 y `schema_version` válidos y compiladas; URL del destino válida (NFR10.5); credencial presente; modelo declarado; *timeouts* y límites dentro de sus topes | Abre conexiones salientes (prueba de nivel 1 con `pytest-socket` que solo admite `localhost`) |
-
-Configuración inválida: el proceso termina con código distinto de 0 y un log `ERROR` que nombra el
-ajuste, nunca su valor (`pydantic-settings` con mensajes propios).
-
-## 6. Calidad de la IA y repetibilidad al habilitar (NFR4.1, NFR4.2)
-
-- El PR de habilitación adjunta el reporte de nivel 2 con `--model-gateway anonymizer` y cumple todos
-  los umbrales de NFR4; si cambia también los *embeddings*, reindexa todas las versiones de escenario
-  (los vectores guardados son de otro modelo y otra numeración) y recalibra el umbral con el barrido de
-  U4.
-- Repetibilidad: `temperature = 0` y `seed` reenviados tal cual; con P1 = A el mismo testimonio produce
-  el mismo cuerpo enmascarado en cada corrida, así que dos corridas de nivel 2 deben dar las mismas
-  calificaciones, `passage_ids` y alertas. Si difieren, el proxy no se habilita.
-
-## 7. Fallas y recuperación
-
-| Falla | Qué se pierde | Recuperación |
-|---|---|---|
-| Error en el enmascarado o en la comprobación final | Nada sale; turno en `error` (`turn.error.system`) | Reintento manual del analista; si se repite, hallazgo de las reglas |
-| *Timeout* o error del destino | Turno en `error` | Reintento manual; nunca automático hacia fuera |
-| Proxy saturado | Nada | Reintento acotado de U4 y reclamo por la cola |
-| Caída del proxy | La llamada en curso y su tabla | Conexión rechazada: recuperable (nada salió con esa conexión) |
-| Proveedor que incumple el ADR | — | PR con `anonymizer.enabled: false`; verificación manual de NFR1.7 |
-
-## 8. Precisiones a artefactos ya aprobados
-
-| Artefacto | Qué precisa | Origen |
-|---|---|---|
-| `text-flow/nfr-design/reliability-design.md` (§2, U4) | Con `AnonymizerGateway`, `502` y `504` del proxy son finales y quedan fuera del reintento acotado; solo `503` `anonymizer.busy` y la conexión rechazada entran en él | §3; NFR10.4 |
-| `anonymizer/nfr-requirements/reliability-requirements.md` (NFR10.4) | Plazo total por tramo con `anyio.fail_after` (2 s, 170 s o 25 s, 2 s) además de los *timeouts* de `httpx` | R-04 |
-| `anonymizer/nfr-requirements/reliability-requirements.md` (NFR6.1) | Restauración por cadenas hoja de la respuesta JSON y prueba de propiedad sobre JSON con caracteres especiales | R-03, P2 = A |
-| `anonymizer/functional-design/functional-spec.md` (máquina de estados) | Se suman los estados `validating`, `checking` y `restoring`, y el final `rejected`, ya previsto en NFR15.2 | P2 = A |
+No hay modo degradado que deje salir texto sin seudonimizar. Con el proxy caído, la consola sigue
+respondiendo y un perfil todo local sigue funcionando, porque no pasa por U10.

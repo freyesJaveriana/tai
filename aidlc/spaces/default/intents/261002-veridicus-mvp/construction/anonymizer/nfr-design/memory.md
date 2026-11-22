@@ -3,6 +3,7 @@
 
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
+- 2026-11-22T16:00:30Z — P3 = A aplicado: el exceso de tamaño en C21 responde 413 limits.exceeded con 0 peticiones y 422 queda para cuerpo inválido, perfil o papel inexistente y destino local (NFRD-U10-17); el cliente de U11 traduce 413 a AnonymizerUnavailable.
 - 2026-10-03T03:31:30Z — La numeración estable de P1 = A se deriva de la lista que trae cada llamada (posición por categoría, detectados por reglas desde N + 1); así no rompe la ausencia de estado de NFR8.3 y escala sin afinidad.
 
 ## Deviations
@@ -11,6 +12,8 @@
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
+- 2026-11-22T16:00:30Z — Sin disyuntor ni reintentos: con una réplica y una corrida a la vez solo añadiría estado; a cambio, la reentrega de la cola de U4 puede reenviar el mismo cuerpo seudonimizado hasta 3 veces, declarado en el ADR (NFRD-U10-14).
+- 2026-11-22T16:00:30Z — El NER corre en un hilo no abandonable con limitador de 1, y la espera cuenta en el presupuesto: nunca hay hilos huérfanos con la tabla viva, a cambio de que una cancelación espere al hilo (NFRD-U10-07).
 - 2026-10-03T03:31:30Z — La lista de nombres se compila por llamada en vez de cachearla; cuesta parte del presupuesto de 250 ms, a cambio de no retener nombres propios en memoria entre llamadas.
 
 ## Open questions

@@ -1,82 +1,94 @@
 # Diseño de rendimiento — U10 anonymizer
 
-**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements),
-`nfr-requirements/security-requirements.md` (security-requirements),
-`nfr-requirements/scalability-requirements.md` (scalability-requirements),
-`nfr-requirements/reliability-requirements.md` (reliability-requirements),
-`nfr-requirements/observability-requirements.md` (observability-requirements) y
-`nfr-requirements/tech-stack-decisions.md` (tech-stack-decisions, D2, D5, D6) de esta unidad; flujos
-F1 y F2 de `functional-design/functional-spec.md` (functional-spec); C13 y C14 de
-`inception/contract-design/contract-summary.md` (contract-summary); respuestas P1 = A y P2 = A de
-`nfr-design-questions.md`; metas de U4 (p95 de 60 s por turno, indexación en menos de 180 s).
+**Revisión 2 (2026-11-22): segunda pasada por el cambio 01, la adenda 02 y el NFR Requirements revisión
+2.** Sustituye a la revisión 1 del 2026-10-03, que medía un proxy apagado delante de `judge` y `embed`.
+Ahora U10 está en el camino de toda llamada comercial, en la CLI y en el clúster. Sale el presupuesto de
+`embed` (NFR9.1 «Retirado») y entra el tamaño de 250 000 caracteres (NFRD-U10-01).
 
-Todo se mide en la máquina de desarrollo con el perfil CPU; ninguna meta depende de la GPU. Una
-prueba de rendimiento inestable se arregla o va a cuarentena con un *issue*; nunca se baja su umbral.
+**Insumos.** `nfr-requirements/performance-requirements.md` (performance-requirements: NFR3.1–NFR3.6,
+NFR8.1), `scalability-requirements.md` (scalability-requirements), `reliability-requirements.md`
+(reliability-requirements), `security-requirements.md` (security-requirements),
+`observability-requirements.md` (observability-requirements) y `tech-stack-decisions.md`
+(tech-stack-decisions, D2, D5, D6) de esta unidad; F1, F4, F5 y F8 de `functional-design/functional-spec.md`
+(functional-spec); C20, C21 y C25 de `inception/contract-design/contract-summary.md` (contract-summary);
+NFR-U4-02 de U4.
 
-## 1. Presupuesto de una llamada `judge` (NFR3.3, NFR3.4)
+Todo se mide en la máquina de desarrollo, en CPU (`CUDA_VISIBLE_DEVICES=""`), con el `FakeTransport` y
+transcripciones sintéticas de 10 000, 50 000, 186 000 y 250 000 caracteres: 3 corridas de calentamiento y
+20 medidas, p95, reporte en `out/anonymizer-perf.json`. Una prueba de rendimiento inestable se arregla o
+va a cuarentena con un *issue*; nunca se baja su umbral.
 
-| Tramo | Diseño | Presupuesto p95 (24 000 + 4 000 caracteres de entrada, 16 000 de respuesta, 2 000 nombres) |
-|---|---|---|
-| Validación de esquema y límites | Pydantic v2 sobre el cuerpo ya leído | 10 ms |
-| Compilar la lista de nombres de la llamada | Alternación escapada en `google-re2`, ordenada de mayor a menor longitud | 60 ms |
-| Decodificar y enmascarar (P2 = A) | Recorrido de cadenas hoja y búsqueda sobre la copia normalizada | 80 ms |
-| Serializar y comprobación final | `json.dumps(ensure_ascii=False)` y segunda búsqueda con la misma lista compilada | 50 ms |
-| Restaurar | Un solo patrón `re2` de marcadores y diccionario | 20 ms |
-| Holgura | — | 30 ms |
-| **Total, sin la espera al destino** | — | **≤ 250 ms** (NFR3.3) |
+## 1. Presupuesto de una llamada `generate`
 
-- Las reglas de `DetectionRuleSet` se compilan **una vez** al arrancar; la lista de nombres se compila
-  **por llamada**, porque el proxy no guarda estado entre llamadas (NFR8.3) y no conserva nombres
-  propios en memoria más allá de la llamada. Si la compilación por llamada rompe el presupuesto, es un
-  hallazgo que se corrige por PR (por ejemplo, con un autómata de cadenas); no se introduce una caché
-  de listas.
-- La comprobación final (P2 = A) reutiliza la lista ya compilada: su costo es una búsqueda lineal más
-  sobre el cuerpo, dentro del presupuesto.
-- `NumberingPlan` (P1 = A) es un diccionario de valor normalizado a número, construido al compilar la
-  lista; asignar un marcador es O(1).
-- Si el enmascarado pasa de 2 s (`fail_after`), la llamada termina cerrada (NFR3.4); prueba de nivel 0
-  con un detector *fake* de 3 s.
+| Tramo | Diseño | Meta p95 con 250 000 caracteres | Requisito |
+|---|---|---|---|
+| Lectura y validación del cuerpo de C21 | Rechazo por `Content-Length`; lectura por bloques; Pydantic v2 con el modelo de C21 | ≤ 20 ms | NFR3.2 |
+| Resolución del perfil y del destino | Diccionario en memoria con las huellas calculadas al arrancar | ≤ 1 ms | NFR3.2 |
+| Seudonimización (`masking_ms`) | §2 | ≤ **20 s** (≤ 15 s con 186 000; 0,8 s por cada 10 000) | NFR3.1, NFR3.5 |
+| Verificación final | §3 de `security-design.md`; una pasada lineal | Incluida en `masking_ms` | NFR3.1 |
+| Proveedor (`upstream_ms`) | No lo fija U10; lo limita el plazo | — | NFR3.6 |
+| Validación, restauración y serialización | `jsonschema` compilado una vez por esquema y llamada; una pasada sobre las cadenas | ≤ 25 ms | NFR3.2 |
+| Sobrecosto total del proxy | Total − `masking_ms` − `upstream_ms` | ≤ **50 ms** | NFR3.2 |
 
-## 2. Costo lineal y protección de CPU (NFR3.1, NFR3.2)
+**Cifras atadas (NFR-U10-04, NFR-U4-02).** Con `model_call_timeout_s` = 270 s el presupuesto de
+seudonimización es 0,15 × 270 = 40,5 s, y la mitad, 20,25 s, cubre la meta de 20 s. La prueba `-m limits`
+falla si una unidad fija un plazo menor con un perfil comercial.
 
-- `google-re2` garantiza tiempo lineal en el largo del texto; no hay retroceso catastrófico (T12). La
-  normalización (minúsculas, sin tildes, espacios y saltos de línea colapsados) también es lineal y
-  produce un mapa de posiciones al original en un arreglo de enteros.
-- El trabajo de CPU corre en un hilo (`anyio.to_thread.run_sync`) para no bloquear el bucle de
-  Uvicorn mientras otras llamadas esperan al destino; el semáforo de 4 llamadas (NFR8.2) limita los
-  hilos simultáneos.
+## 2. NER en CPU (NFR3.1, NFR3.3, NFR8.5)
 
-| ID | Prueba `-m perf` (nivel 1, en proceso, `time.perf_counter`, 200 repeticiones) | Umbral |
-|---|---|---|
-| NFR3.1 | Enmascarar 10 000 y 100 000 caracteres con 1 mención cada 200 y lista de 2 000 nombres | p95 ≤ 50 ms por 10 000; p95(100 000) ≤ 10 × p95(10 000) + 20 ms |
-| NFR3.2 | Restaurar 10 000 caracteres con 100 marcadores conocidos y 5 desconocidos | p95 ≤ 10 ms |
-| NFR3.3 | Llamada `judge` completa con el servicio HTTP en proceso y destino `httpx.MockTransport` de 0 ms | p95 ≤ 250 ms |
+- **Carga única.** El modelo se carga al arrancar en `torch` solo CPU, en `eval()` y bajo
+  `torch.inference_mode()`, y se calienta con un texto sintético (§4 de `reliability-design.md`).
+- **Ventanas.** Cada valor de texto se tokeniza una vez y se parte en ventanas de 512 *tokens* con 128 de
+  solapamiento. Las ventanas se procesan en lotes de 8; los tramos de los solapes se unen por posición de
+  carácter. El costo crece de forma lineal con el texto.
+- **Hilos.** `torch.set_num_threads(VERIDICUS_ANONYMIZER_NER_THREADS)` (por defecto 2) y un solo NER a la
+  vez por proceso (`CapacityLimiter(1)`, NFRD-U10-07). En el MVP pasa como mucho una llamada a la vez por
+  el proxy, porque el trabajador hace una corrida a la vez (NFR-U4-12); la espera del NER cuenta en el
+  presupuesto y falla cerrado si se pasa.
+- **Prueba de linealidad.** La razón entre el p95 de 250 000 y el de 10 000 es ≤ 25 × 1,34 (≤ 33,5), y la de
+  186 000 frente a 10 000 sigue en ≤ 25 (NFR3.1).
 
-El reporte de la prueba registra p50, p95 y máximo, y el tramo de la comprobación final por separado.
+## 3. Reglas, propagación y caminos lineales (NFR3.4, NFR10.8)
 
-## 3. Lotes de *embeddings* (NFR9.1)
+- **Reglas.** Compiladas una vez al arrancar con `re2`. Una entrada adversaria de 100 000 caracteres
+  termina la detección por reglas en < 1 s; una prueba confirma que ninguna regla compila con `re`.
+- **Propagación por forma exacta.** Las formas detectadas se unen en una sola alternancia de `re2` por
+  llamada, con las formas escapadas y ordenadas de mayor a menor longitud; la comprobación del límite de
+  palabra Unicode se hace sobre el carácter anterior y el siguiente de cada coincidencia. Una pasada por
+  valor.
+- **Reemplazo.** Los tramos se reemplazan de derecha a izquierda con una lista de partes y un solo
+  `"".join`, sin concatenar cadenas en un bucle.
+- **Palabras permitidas** en un `frozenset` cargado al arrancar.
 
-- `embed` admite hasta 32 textos por llamada (catálogo de límites de U1). El indexador de U4 ya envía
-  lotes de 32; con P1 = A cada lote de la misma versión de escenario usa la misma numeración, sin costo
-  adicional.
-- Meta: enmascarar los ≈ 1 100 pasajes de un documento de 1 048 576 bytes cuesta ≤ 6 s en total
-  (prueba `-m perf` que suma los 35 lotes); el tiempo de 202 a `ready_at` con el proxy sigue en
-  < 180 s en el nivel 2 del PR de habilitación.
+## 4. Conexiones y salida hacia el proveedor (NFR3.2, NFR10.4)
 
-## 4. Metas que se miden al habilitar (NFR3.5)
+- Un `httpx.AsyncClient` por adaptador, creado al arrancar, con `Limits(max_connections=4,
+  max_keepalive_connections=2, keepalive_expiry=30)` y HTTP/1.1. Reutilizar la conexión TLS ahorra el
+  saludo en llamadas seguidas; el dominio es fijo.
+- **Caché de *prompts* del proveedor (FR15.1).** El punto de caché va solo en el bloque `system`, que no
+  trae testimonio (NFRD-U10-12). Como la numeración es por primera aparición, el prefijo es estable entre
+  llamadas. Si el prefijo no alcanza el mínimo del proveedor, simplemente no se cachea.
+- **Sin caché propia de resultados.** El módulo no guarda cuerpos ni tablas entre llamadas: una caché
+  retendría testimonio (BR1.8). Es una decisión explícita frente al ahorro.
 
-El PR que habilita el proxy adjunta
-`uv run --directory evaluation python -m golden.run --profile cpu --model-gateway anonymizer --report out/level2-anonymizer.json`:
-p95 de `evaluated_at − submitted_at` ≤ 60 s y prueba de humo ≤ 120 s por caso. Si no se cumple, el
-proxy no se habilita; la meta de U4 no se sube.
+## 5. Arranque (NFR3.3)
 
-## 5. Recursos del pod (NFR8.1)
+Desde que empieza el proceso hasta que `/readyz` responde 200 (datos comprobados, NER cargado y
+calentado, perfiles y claves validados) pasan ≤ **60 s** en CPU. El SHA-256 del NER se calcula leyendo
+por bloques de 1 MiB. En la CLI, construir el módulo tarda lo mismo como máximo. La sonda de arranque de U2
+debe tolerar ese tiempo.
 
-| Recurso | Diseño | Verificación |
-|---|---|---|
-| Memoria | 1 proceso Uvicorn; como máximo 4 llamadas con cuerpos de 512 KiB, sus copias normalizadas, la serialización y la respuesta de 2 MiB; ninguna caché | Prueba `-m perf` que mide el pico de RSS con 4 llamadas de 24 000 caracteres y 2 000 nombres: ≤ 256 MiB |
-| CPU | `requests` 100m, `limits` 1 núcleo | Entregado a Infrastructure Design (`logical-components.md` §4) |
-| `limits.memory` | Pico medido + ≥ 20 % (≈ 320 MiB si el pico es 256 MiB) | Infrastructure Design |
-| GPU | Ninguna en ningún perfil (NFR2.2) | Prueba de nivel 0 sobre el render |
+## 6. Prueba de carga de NFR8 (NFR8.1)
 
-Un pico por encima del tope es un hallazgo que se corrige por PR; el tope no se sube en silencio.
+Durante las 50 sesiones de texto en tandas de 3 con un perfil comercial: 0 respuestas `503` por saturación
+y 0 `OOMKilled`, comprobado con `veridicus_anonymizer_requests_total{error_code="analysis.anonymizer_unavailable"}`
+y los eventos del pod. El reporte declara el perfil y los límites de la cuenta de Anthropic usados.
+
+## 7. Decisiones y alternativas
+
+| # | Decisión | Alternativas descartadas | Consecuencias |
+|---|---|---|---|
+| DP1 | NER en ventanas de 512 con solapamiento 128, en lotes de 8 | Un texto por llamada al *pipeline*; truncar | Lineal y sin perder entidades en los bordes; a cambio, unir tramos de los solapes |
+| DP2 | Un NER a la vez por proceso con hilos de `torch` fijados | Varias inferencias en paralelo | Uso de CPU previsible y sin contención; a cambio, una segunda petición espera dentro de su presupuesto |
+| DP3 | Una alternancia de `re2` por llamada para propagar las formas | Una búsqueda por forma | Una pasada por valor aunque haya muchas formas |
+| DP4 | Sin caché de resultados en U10 | Caché por SHA-256 del cuerpo | No retiene testimonio; cada llamada paga su seudonimización |

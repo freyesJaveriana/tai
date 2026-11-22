@@ -1,284 +1,85 @@
 {
   "stage": "nfr-design",
   "unit": "anonymizer",
+  "revision": 2,
   "upstream_ids": [
-    "NFR15.2",
-    "NFR15.3",
-    "NFR15.1",
-    "NFR3.1",
-    "NFR3.2",
-    "NFR3.3",
-    "NFR3.4",
-    "NFR3.5",
+    "NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4", "NFR1.5", "NFR1.6", "NFR1.7", "NFR1.8", "NFR1.9", "NFR1.10",
+    "NFR1.11", "NFR1.12", "NFR1.13", "NFR1.14",
+    "NFR2.1", "NFR2.2",
+    "NFR3.1", "NFR3.2", "NFR3.3", "NFR3.4", "NFR3.5", "NFR3.6",
+    "NFR4.1", "NFR4.2", "NFR4.3",
+    "NFR5.1", "NFR5.2",
+    "NFR6.1", "NFR6.2",
+    "NFR8.1", "NFR8.2", "NFR8.3", "NFR8.4", "NFR8.5",
     "NFR9.1",
-    "NFR8.1",
-    "NFR10.1",
-    "NFR10.4",
-    "NFR10.7",
-    "NFR6.1",
-    "NFR4.1",
-    "NFR4.2",
-    "NFR8.2",
-    "NFR8.3",
-    "NFR8.4",
-    "NFR1.1",
-    "NFR1.2",
-    "NFR1.3",
-    "NFR1.4",
-    "NFR1.5",
-    "NFR1.6",
-    "NFR1.7",
-    "NFR1.8",
-    "NFR1.9",
-    "NFR1.10",
-    "NFR5.1",
-    "NFR5.2",
-    "NFR10.2",
-    "NFR10.3",
-    "NFR10.5",
-    "NFR10.6",
-    "NFR10.8",
-    "NFR10.9",
-    "NFR10.10",
-    "NFR10.11",
+    "NFR10.1", "NFR10.2", "NFR10.3", "NFR10.4", "NFR10.5", "NFR10.6", "NFR10.7", "NFR10.8",
+    "NFR10.9", "NFR10.10", "NFR10.11", "NFR10.12", "NFR10.13", "NFR10.14", "NFR10.15", "NFR10.16",
     "NFR11.1",
     "NFR12.1",
-    "NFR2.1",
-    "NFR2.2",
-    "NFR13.1",
-    "NFR13.2",
-    "NFR14.1"
+    "NFR13.1", "NFR13.2",
+    "NFR14.1",
+    "NFR15.1", "NFR15.2", "NFR15.3", "NFR15.4"
   ],
   "coverage": [
-    {
-      "id": "NFR15.2",
-      "status": "OK",
-      "target": "observability-design §1: una línea por llamada con campos permitidos y reason"
-    },
-    {
-      "id": "NFR15.3",
-      "status": "OK",
-      "target": "observability-design §1: niveles por resultado y correlación por X-Request-Id"
-    },
-    {
-      "id": "NFR15.1",
-      "status": "OK",
-      "target": "observability-design §2: métricas veridicus_anonymizer_* más failed_closed_total por reason"
-    },
-    {
-      "id": "NFR3.1",
-      "status": "OK",
-      "target": "performance-design §2: google-re2 lineal, normalización lineal y prueba perf"
-    },
-    {
-      "id": "NFR3.2",
-      "status": "OK",
-      "target": "performance-design §2: restauración con un patrón re2 y diccionario; prueba perf"
-    },
-    {
-      "id": "NFR3.3",
-      "status": "OK",
-      "target": "performance-design §1: presupuesto por tramo de 250 ms incluida la comprobación final"
-    },
-    {
-      "id": "NFR3.4",
-      "status": "OK",
-      "target": "performance-design §1: fail_after de 2 s sobre el enmascarado; falla cerrada"
-    },
-    {
-      "id": "NFR3.5",
-      "status": "OK",
-      "target": "performance-design §4: nivel 2 con --model-gateway anonymizer en el PR de habilitación"
-    },
-    {
-      "id": "NFR9.1",
-      "status": "OK",
-      "target": "performance-design §3: lotes de 32 y ≤ 6 s de enmascarado para 1 MB"
-    },
-    {
-      "id": "NFR8.1",
-      "status": "OK",
-      "target": "performance-design §5: pico de RSS ≤ 256 MiB con 4 llamadas y limits con 20 % de margen"
-    },
-    {
-      "id": "NFR10.1",
-      "status": "OK",
-      "target": "reliability-design §1: máquina de estados con falla cerrada en cada rama y 100 % de ramas"
-    },
-    {
-      "id": "NFR10.4",
-      "status": "OK",
-      "target": "reliability-design §2: un intento y plazo total con anyio.fail_after (R-04)"
-    },
-    {
-      "id": "NFR10.7",
-      "status": "OK",
-      "target": "reliability-design §5: validación al arrancar y /readyz sin conexiones salientes"
-    },
-    {
-      "id": "NFR6.1",
-      "status": "OK",
-      "target": "reliability-design §4: restauración por cadenas hoja con prueba de propiedad sobre JSON"
-    },
-    {
-      "id": "NFR4.1",
-      "status": "OK",
-      "target": "reliability-design §6: nivel 2 en el PR de habilitación; reindexación y recalibración si cambian los embeddings"
-    },
-    {
-      "id": "NFR4.2",
-      "status": "OK",
-      "target": "reliability-design §6: temperatura 0, seed y cuerpo enmascarado determinista por P1 = A"
-    },
-    {
-      "id": "NFR8.2",
-      "status": "OK",
-      "target": "scalability-design §2: semáforo de 4 tomado antes de leer el cuerpo; 503 anonymizer.busy"
-    },
-    {
-      "id": "NFR8.3",
-      "status": "OK",
-      "target": "scalability-design §3: tabla y NumberingPlan por llamada; numeración estable derivada de la lista"
-    },
-    {
-      "id": "NFR8.4",
-      "status": "OK",
-      "target": "scalability-design §4: corrida de carga de 50 sesiones con el proxy en el PR de habilitación"
-    },
-    {
-      "id": "NFR1.1",
-      "status": "OK",
-      "target": "security-design §5: política veridicus-anonymizer-disabled-by-default con control negativo; apagado por defecto"
-    },
-    {
-      "id": "NFR1.2",
-      "status": "OK",
-      "target": "security-design §10: scripts/check-provider-adr.sh con la sección «Seudónimos estables» añadida por P1 = A"
-    },
-    {
-      "id": "NFR1.3",
-      "status": "OK",
-      "target": "security-design §2: enmascarado sobre cadenas decodificadas y comprobación final del cuerpo exacto; propiedades con escapes"
-    },
-    {
-      "id": "NFR1.4",
-      "status": "OK",
-      "target": "security-design §2: embed pasa por la misma cadena de enmascarado y comprobación final"
-    },
-    {
-      "id": "NFR1.5",
-      "status": "OK",
-      "target": "security-design §5: veridicus-egress-only-anonymizer con los casos de R-02 (sin to, namespaceSelector, hostNetwork, sin denegación)"
-    },
-    {
-      "id": "NFR1.6",
-      "status": "OK",
-      "target": "security-design §9: módulo libs/model_gateway/anonymizer_route.py con 100 % de ramas"
-    },
-    {
-      "id": "NFR1.7",
-      "status": "OK",
-      "target": "security-design §10: verificación manual de solo lectura con python o bash de la imagen"
-    },
-    {
-      "id": "NFR1.8",
-      "status": "OK",
-      "target": "security-design §6: rutas, campos y 4 cabeceras salientes permitidas"
-    },
-    {
-      "id": "NFR1.9",
-      "status": "OK",
-      "target": "security-design §5: política veridicus-anonymizer-ingress con controles negativos"
-    },
-    {
-      "id": "NFR1.10",
-      "status": "OK",
-      "target": "security-design §4: prueba residual con lista vacía y tasa en out/anonymizer-residual.json"
-    },
-    {
-      "id": "NFR5.1",
-      "status": "OK",
-      "target": "security-design §10: Escenario A con variante de revelar nombres en nivel 2"
-    },
-    {
-      "id": "NFR5.2",
-      "status": "OK",
-      "target": "security-design §10: familia del juez externo distinta de la del generador"
-    },
-    {
-      "id": "NFR10.2",
-      "status": "OK",
-      "target": "security-design §8: MaskTable y NumberingPlan vaciados en finally"
-    },
-    {
-      "id": "NFR10.3",
-      "status": "OK",
-      "target": "observability-design §1: formateador de lista blanca y prueba canary"
-    },
-    {
-      "id": "NFR10.5",
-      "status": "OK",
-      "target": "security-design §6: HTTPS, TLS ≥ 1.2, verificación y sin redirecciones"
-    },
-    {
-      "id": "NFR10.6",
-      "status": "OK",
-      "target": "security-design §6: credencial por secretKeyRef en SecretStr"
-    },
-    {
-      "id": "NFR10.8",
-      "status": "OK",
-      "target": "security-design §7: límites del catálogo de U1 con lectura por bloques"
-    },
-    {
-      "id": "NFR10.9",
-      "status": "OK",
-      "target": "security-design §7: Problem Details con los seis code y detail del catálogo"
-    },
-    {
-      "id": "NFR10.10",
-      "status": "OK",
-      "target": "security-design §5: política veridicus-anonymizer-hardening"
-    },
-    {
-      "id": "NFR10.11",
-      "status": "OK",
-      "target": "security-design §4: ConfigMap readOnly con SHA-256 y schema_version"
-    },
-    {
-      "id": "NFR11.1",
-      "status": "OK",
-      "target": "security-design §10: cabeceras X-Veridicus-Masking-Rules y X-Veridicus-Model y model_digest"
-    },
-    {
-      "id": "NFR12.1",
-      "status": "OK",
-      "target": "logical-components §5: fixtures del catálogo de U1 con 0 hallazgos"
-    },
-    {
-      "id": "NFR2.1",
-      "status": "OK",
-      "target": "logical-components §5: MockTransport, servidor HTTPS local con trustme y pytest-socket"
-    },
-    {
-      "id": "NFR2.2",
-      "status": "OK",
-      "target": "logical-components §5: render sin nvidia.com/gpu en el proxy"
-    },
-    {
-      "id": "NFR13.1",
-      "status": "OK",
-      "target": "logical-components §5: ≥ 80 % de líneas en services/anonymizer-proxy"
-    },
-    {
-      "id": "NFR13.2",
-      "status": "OK",
-      "target": "logical-components §5: 100 % de ramas en domain, application, anonymizer_route y AnonymizerGateway (R-06)"
-    },
-    {
-      "id": "NFR14.1",
-      "status": "OK",
-      "target": "logical-components §5: glosario y detail desde el catálogo"
-    }
+    { "id": "NFR1.1", "status": "N/A", "target": "Retirado en NFR Requirements: U10 es MUST; qué genera el chart es de U2" },
+    { "id": "NFR1.2", "status": "OK", "target": "security-design §10: check-provider-adr.py sobre provider-capabilities.v1.yaml; riesgo residual con NFRD-U10-14" },
+    { "id": "NFR1.3", "status": "OK", "target": "security-design §2 y §3: valores decodificados, NFKC sin Cf, verificación final; Hypothesis con invisibles y escapes (NFRD-U10-05, NFRD-U10-06)" },
+    { "id": "NFR1.4", "status": "N/A", "target": "Retirado: sale embed (cambio 01)" },
+    { "id": "NFR1.5", "status": "N/A", "target": "Retirado: pasa a U2 (security-design §5 Retirado)" },
+    { "id": "NFR1.6", "status": "N/A", "target": "Retirado: pasa a U11 (security-design §9 Retirado)" },
+    { "id": "NFR1.7", "status": "N/A", "target": "Retirado: pasa a U2 (verificación manual en el clúster)" },
+    { "id": "NFR1.8", "status": "OK", "target": "security-design §6: rutas, lista permitida de 5 cabeceras, cuerpo de Anthropic con campos cerrados, trust_env=False" },
+    { "id": "NFR1.9", "status": "N/A", "target": "Retirado: la NetworkPolicy de entrada es de U2 (NFRD-U10-09 suma Prometheus)" },
+    { "id": "NFR1.10", "status": "OK", "target": "security-design §4: prueba de leakage con el NER real y por detector; out/anonymizer-residual.json citado en el ADR" },
+    { "id": "NFR1.11", "status": "OK", "target": "security-design §6: allowed-domains.v1.yaml, URL base constante, puerto 443; E22 con 0 peticiones" },
+    { "id": "NFR1.12", "status": "OK", "target": "security-design §5: compare_with_corefile de F9 que U2 ejecuta sobre su Corefile" },
+    { "id": "NFR1.13", "status": "OK", "target": "security-design §6: scope y proveedor comprobados antes de seudonimizar; E14 con 0 peticiones" },
+    { "id": "NFR1.14", "status": "OK", "target": "security-design §10: build_model_call único que fija anonymized true; prueba de propiedades y AST (DS7)" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design §12 y reliability-design §1: FakeTransport inyectado, pytest-socket, NER de prueba en nivel 0 y real en nivel 1" },
+    { "id": "NFR2.2", "status": "OK", "target": "scalability-design §5: índice de torch solo CPU y comprobación del lockfile" },
+    { "id": "NFR3.1", "status": "OK", "target": "performance-design §1 y §2: ventanas de 512 con solape 128; ≤ 15 s con 186 000 y ≤ 20 s con 250 000 (NFRD-U10-01)" },
+    { "id": "NFR3.2", "status": "OK", "target": "performance-design §1 y §4: sobrecosto ≤ 50 ms, clientes httpx reutilizados" },
+    { "id": "NFR3.3", "status": "OK", "target": "performance-design §5 y reliability-design §4: arranque con calentamiento ≤ 60 s" },
+    { "id": "NFR3.4", "status": "OK", "target": "performance-design §3 y security-design §4: re2 compilado al arrancar, clases explícitas (NFRD-U10-15)" },
+    { "id": "NFR3.5", "status": "OK", "target": "reliability-design §2: presupuesto 0,15 × plazo efectivo con la espera del NER (NFRD-U10-07)" },
+    { "id": "NFR3.6", "status": "OK", "target": "observability-design §1 y §3: masking_ms, upstream_ms e histogramas; performance-design §1 cifras atadas a 270 s" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design §6: altered_markers_count y tasa de InvalidOutput al reporte de nivel 2 de B11" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design §5: supports_seed en la tabla de capacidades; seed nula con Anthropic (NFRD-U10-04)" },
+    { "id": "NFR4.3", "status": "OK", "target": "reliability-design §5: misma entrada, misma tabla y mismo cuerpo byte a byte" },
+    { "id": "NFR5.1", "status": "OK", "target": "security-design §10: cuenta de valores sembrados antes de restaurar para el Escenario A de U11" },
+    { "id": "NFR5.2", "status": "OK", "target": "security-design §10: family en la tabla de capacidades (NFRD-U10-04)" },
+    { "id": "NFR6.1", "status": "OK", "target": "reliability-design §5: restauración sobre el JSON validado, ida y vuelta byte a byte con Hypothesis" },
+    { "id": "NFR6.2", "status": "OK", "target": "reliability-design §5: marcas alteradas en altered_markers; U11 invalida esos hallazgos" },
+    { "id": "NFR8.1", "status": "OK", "target": "performance-design §6: 0 respuestas 503 por saturación y 0 OOMKilled en la prueba de NFR8" },
+    { "id": "NFR8.2", "status": "OK", "target": "scalability-design §2: semáforo de 4 antes de leer el cuerpo y 503 inmediato" },
+    { "id": "NFR8.3", "status": "OK", "target": "scalability-design §4: ≤ 1,5 GiB con 4 peticiones de 250 000; crecimiento ≤ 10 % tras 50" },
+    { "id": "NFR8.4", "status": "OK", "target": "scalability-design §3: sin estado, tabla por petición, E33" },
+    { "id": "NFR8.5", "status": "OK", "target": "scalability-design §5: CUDA_VISIBLE_DEVICES vacío en niveles 0 y 1" },
+    { "id": "NFR9.1", "status": "N/A", "target": "Retirado con NFR9 y embed (cambio 01)" },
+    { "id": "NFR10.1", "status": "OK", "target": "reliability-design §1: un solo punto de envío, todo lo previo convertido en AnonymizerUnavailable con 0 peticiones" },
+    { "id": "NFR10.2", "status": "OK", "target": "reliability-design §1: MaskTable vaciada en finally; hilo del NER no abandonado (§2)" },
+    { "id": "NFR10.3", "status": "OK", "target": "observability-design §1: lista blanca tipada y canary en logs, métricas y excepciones" },
+    { "id": "NFR10.4", "status": "OK", "target": "reliability-design §2 y §3: plazo efectivo, conexión ≤ 10 s, 1 petición en cada error (NFRD-U10-08, NFRD-U10-10)" },
+    { "id": "NFR10.5", "status": "OK", "target": "security-design §6: TLS 1.2 mínimo, verificación activa, follow_redirects False, URL constante" },
+    { "id": "NFR10.6", "status": "OK", "target": "security-design §8: api_key_ref, SecretStr, Secret veridicus-provider-keys, canary E34, gitleaks" },
+    { "id": "NFR10.7", "status": "OK", "target": "reliability-design §4: checks de arranque por nombre, salida ≠ 0, readyz sin conexiones externas" },
+    { "id": "NFR10.8", "status": "OK", "target": "security-design §7: 413 limits.exceeded por Content-Length y lectura en bloques (P3 = A, NFRD-U10-17); tope de respuesta" },
+    { "id": "NFR10.9", "status": "OK", "target": "security-design §7: Problem Details con los code de C21 más limits.exceeded y call solo en 451, 502 y 504" },
+    { "id": "NFR10.10", "status": "OK", "target": "security-design §12: sin escritura, variables fuera de línea de Hugging Face, prueba con open y tempfile sustituidos" },
+    { "id": "NFR10.11", "status": "OK", "target": "security-design §4: cuatro archivos con schema_version y SHA256SUMS; NER contra su SHA-256" },
+    { "id": "NFR10.12", "status": "OK", "target": "reliability-design §5: solo marcas de la tabla se restauran; las seis variantes en altered_markers" },
+    { "id": "NFR10.13", "status": "OK", "target": "security-design §12: tres contratos de import-linter con control negativo; transporte inyectado" },
+    { "id": "NFR10.14", "status": "OK", "target": "security-design §2 y §6: solo valores de cadena; esquema recibido intacto y proyección saliente (NFRD-U10-03)" },
+    { "id": "NFR10.15", "status": "OK", "target": "security-design §8: canonical.sha256_jcs de U1 y los seis casos negativos de C21" },
+    { "id": "NFR10.16", "status": "OK", "target": "security-design §6 y reliability-design §3: JSON estricto validado contra el esquema completo antes de restaurar" },
+    { "id": "NFR11.1", "status": "OK", "target": "security-design §10 y observability-design §1: ModelCall completo y evento anonymizer.startup" },
+    { "id": "NFR12.1", "status": "OK", "target": "security-design §10: respuestas grabadas a mano y comprobación sintética de U1 con 0 hallazgos" },
+    { "id": "NFR13.1", "status": "OK", "target": "logical-components §1: 80 % de líneas en libs/anonymizer y services/anonymizer-proxy" },
+    { "id": "NFR13.2", "status": "OK", "target": "logical-components §2: guard true en módulo, adaptadores y proxy; 100 % de ramas solo sobre código de U10" },
+    { "id": "NFR14.1", "status": "OK", "target": "observability-design §1 y security-design §7: detail del catálogo; identificadores del glosario" },
+    { "id": "NFR15.1", "status": "OK", "target": "observability-design §2 y §3: métricas con etiquetas enum y error_code (NFRD-U10-02)" },
+    { "id": "NFR15.2", "status": "OK", "target": "observability-design §1: anonymizer.call, anonymizer.startup y anonymizer.startup_failed" },
+    { "id": "NFR15.3", "status": "OK", "target": "observability-design §4 y reliability-design §4: readyz con checks por nombre y gauge ready" },
+    { "id": "NFR15.4", "status": "OK", "target": "observability-design §6: grafana-dashboard.json versionado y validado; U2 lo empaqueta (NFRD-U10-09)" }
   ]
 }

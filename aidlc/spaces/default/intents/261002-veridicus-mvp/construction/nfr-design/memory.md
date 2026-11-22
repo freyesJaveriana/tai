@@ -52,6 +52,10 @@
 - 2026-11-22T15:41:51Z — Segunda pasada sin preguntas: NFR10.3 revisión 2 (escritura cada 60 s) supera P1 = A, y el /notice de BR4.3 lo resuelve C1 con FD-U4-08 y NFRD-U1-12 (NFRD-U3-09).
 <!-- aidlc-wave-memory:identity-access:882725d6b270a59f70e9ee061bfebb99595771c1d00a1df2219ef10dc8d5dbfb -->
 
+
+- 2026-11-22T16:00:30Z — P3 = A aplicado: el exceso de tamaño en C21 responde 413 limits.exceeded con 0 peticiones y 422 queda para cuerpo inválido, perfil o papel inexistente y destino local (NFRD-U10-17); el cliente de U11 traduce 413 a AnonymizerUnavailable.
+<!-- aidlc-wave-memory:anonymizer:736340c87ba9099b766cb90306a590b00394dceea5b2038fdc626acbafe42915 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -158,8 +162,25 @@
 - 2026-11-22T15:41:51Z — /readyz sigue dependiendo de Redis (NFR10.13): con una réplica, Redis caído deja sin servicio toda la consola; se documenta en vez de ocultarlo (cierra R-01).
 <!-- aidlc-wave-memory:identity-access:d16365d4f8bd845f6f52016cc1cd7dc9ce9a17644ac18c5ecf88cc90abc17daa -->
 
+
+- 2026-11-22T16:00:30Z — Sin disyuntor ni reintentos: con una réplica y una corrida a la vez solo añadiría estado; a cambio, la reentrega de la cola de U4 puede reenviar el mismo cuerpo seudonimizado hasta 3 veces, declarado en el ADR (NFRD-U10-14).
+<!-- aidlc-wave-memory:anonymizer:66835f547e83cb22dff6e35f77cfad00946cf8ba15ae424d0e60dd813ed3b375 -->
+
+
+- 2026-11-22T16:00:30Z — El NER corre en un hilo no abandonable con limitador de 1, y la espera cuenta en el presupuesto: nunca hay hilos huérfanos con la tabla viva, a cambio de que una cancelación espere al hilo (NFRD-U10-07).
+<!-- aidlc-wave-memory:anonymizer:bfa3e57f32eae58a825f2d88eb5ed2effab21318c14163de7472b75d14066804 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
 - 2026-11-22T15:27:57Z — El sensor upstream-coverage marcó performance, scalability, reliability y observability requirements, que U1 (spec) no produce; se volvió a correr solo con los consumes que existen y pasó.
 <!-- aidlc-wave-memory:contracts:c9b8b2c0d106ea9f158806beeb2d2c39352c29a061f1d01b1ed7334a0e2ad7e7 -->
+
+- 2026-11-22T15:46:13Z — Segunda pasada: NFR10.8 y BR6.1 de U10 responden 422 ante un cuerpo de C21 demasiado grande, y el NFR Design de U1 (§4.3) exige 413 limits.exceeded en toda operación con x-veridicus-max-bytes, que C21 declara; se preguntó como P3 y no se generaron artefactos.
+<!-- aidlc-wave-memory:anonymizer:48bec1293a3e280c2237c7f67714f4b4aa7ffdb743cf9b1faa48ada93fe927e3 -->
+
+- 2026-11-22T15:46:13Z — La salida estructurada de Anthropic no admite minimum, maxLength, if/then ni oneOf, que usa C6; se resolverá sin preguntar con una proyección del esquema por proveedor y validación local completa (precisa NFR10.14).
+<!-- aidlc-wave-memory:anonymizer:830dec0c9c5b685dba1586319a44c0ccf2fd9ad2c7edc5e0ed3478f8f3310271 -->
+
+- 2026-11-22T15:46:13Z — El escrito de la revisión 2 de security-design.md se revirtió a la revisión 1, byte a byte, al detectar la contradicción, para no dejar artefactos antes de la respuesta.
+<!-- aidlc-wave-memory:anonymizer:8a55eaedc1e777dd5b8e15194210b5f39ae6082e50f605ed1884cefa7c14f385 -->

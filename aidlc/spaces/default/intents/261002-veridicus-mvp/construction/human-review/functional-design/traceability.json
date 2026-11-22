@@ -16,134 +16,67 @@
     "AC5.4.1",
     "AC5.4.2",
     "AC5.4.3",
-    "AC8.4.1",
-    "AC8.4.2",
+    "AC5.5.1",
+    "AC5.5.2",
+    "AC5.5.3",
+    "AC5.5.4",
+    "AC5.5.5",
+    "AC5.5.6",
     "AC5.6.1",
     "AC5.6.2",
-    "AC5.6.3"
+    "AC5.6.3",
+    "AC5.6.4",
+    "AC5.6.5",
+    "AC8.4.1",
+    "AC8.4.2",
+    "AC15.7.1",
+    "AC15.7.2",
+    "AC15.7.3"
   ],
   "coverage": [
-    {
-      "id": "AC5.1.1",
-      "status": "OK",
-      "target": "BR5.1"
-    },
-    {
-      "id": "AC5.1.2",
-      "status": "OK",
-      "target": "BR1.3, BR2.2"
-    },
-    {
-      "id": "AC5.1.3",
-      "status": "OK",
-      "target": "BR2.5, BR2.6"
-    },
-    {
-      "id": "AC5.1.4",
-      "status": "OK",
-      "target": "BR2.1, BR3.2"
-    },
-    {
-      "id": "AC5.1.5",
-      "status": "OK",
-      "target": "BR5.2"
-    },
-    {
-      "id": "AC5.2.1",
-      "status": "OK",
-      "target": "BR2.4, BR5.3"
-    },
-    {
-      "id": "AC5.2.2",
-      "status": "OK",
-      "target": "BR2.4"
-    },
-    {
-      "id": "AC5.2.3",
-      "status": "OK",
-      "target": "BR5.3"
-    },
-    {
-      "id": "AC5.2.4",
-      "status": "OK",
-      "target": "BR3.6"
-    },
-    {
-      "id": "AC5.3.1",
-      "status": "OK",
-      "target": "BR2.3, BR5.4"
-    },
-    {
-      "id": "AC5.3.2",
-      "status": "OK",
-      "target": "BR2.3, BR2.6"
-    },
-    {
-      "id": "AC5.4.1",
-      "status": "OK",
-      "target": "BR1.1"
-    },
-    {
-      "id": "AC5.4.2",
-      "status": "OK",
-      "target": "BR1.2"
-    },
-    {
-      "id": "AC5.4.3",
-      "status": "OK",
-      "target": "BR1.1"
-    },
-    {
-      "id": "AC8.4.1",
-      "status": "OK",
-      "target": "BR2.6"
-    },
-    {
-      "id": "AC8.4.2",
-      "status": "OK",
-      "target": "BR2.6"
-    },
-    {
-      "id": "AC5.6.1",
-      "status": "OK",
-      "target": "BR5.5"
-    },
-    {
-      "id": "AC5.6.2",
-      "status": "OK",
-      "target": "BR5.5"
-    },
-    {
-      "id": "AC5.6.3",
-      "status": "OK",
-      "target": "BR5.5"
-    }
+    { "id": "AC5.1.1", "status": "OK", "target": "BR5.1, BR5.6" },
+    { "id": "AC5.1.2", "status": "OK", "target": "BR1.3, BR2.2" },
+    { "id": "AC5.1.3", "status": "OK", "target": "BR2.5, BR2.6, BR5.7" },
+    { "id": "AC5.1.4", "status": "OK", "target": "BR2.1, BR3.2, BR5.7" },
+    { "id": "AC5.1.5", "status": "OK", "target": "BR5.2" },
+    { "id": "AC5.2.1", "status": "OK", "target": "BR2.4, BR5.3" },
+    { "id": "AC5.2.2", "status": "OK", "target": "BR2.4" },
+    { "id": "AC5.2.3", "status": "OK", "target": "BR5.3" },
+    { "id": "AC5.2.4", "status": "OK", "target": "BR3.6" },
+    { "id": "AC5.3.1", "status": "OK", "target": "BR2.3, BR5.4" },
+    { "id": "AC5.3.2", "status": "OK", "target": "BR2.3, BR2.6" },
+    { "id": "AC5.4.1", "status": "OK", "target": "BR1.1" },
+    { "id": "AC5.4.2", "status": "OK", "target": "BR1.2" },
+    { "id": "AC5.4.3", "status": "OK", "target": "BR1.1" },
+    { "id": "AC5.5.1", "status": "OK", "target": "BR2.8, BR5.8" },
+    { "id": "AC5.5.2", "status": "OK", "target": "BR2.8" },
+    { "id": "AC5.5.3", "status": "N/A", "target": "El esquema del hallazgo (C7 v2) y su validación son de U1 y U4; U5 no añade campos a la sugerencia y su cuerpo de decisión ya es estricto" },
+    { "id": "AC5.5.4", "status": "N/A", "target": "Los rótulos de resultado y de los 7 tipos los pone la tarjeta de U4; U5 solo añade rótulos de estado de la decisión" },
+    { "id": "AC5.5.5", "status": "OK", "target": "BR5.8" },
+    { "id": "AC5.5.6", "status": "N/A", "target": "El aviso de VE-01 y su excepción en el escáner son de U4 y U11; U5 no muestra el aviso" },
+    { "id": "AC5.6.1", "status": "OK", "target": "BR5.5" },
+    { "id": "AC5.6.2", "status": "OK", "target": "BR5.5" },
+    { "id": "AC5.6.3", "status": "OK", "target": "BR5.5, BR5.7" },
+    { "id": "AC5.6.4", "status": "OK", "target": "BR5.6" },
+    { "id": "AC5.6.5", "status": "N/A", "target": "aria-live sobre bloques pegados e importaciones es de U4 y U6; la tarjeta de U5 no anuncia cambios agregados" },
+    { "id": "AC8.4.1", "status": "OK", "target": "BR2.6, BR6.3" },
+    { "id": "AC8.4.2", "status": "OK", "target": "BR2.6, BR6.2" },
+    { "id": "AC15.7.1", "status": "Deferred", "target": "U13 ethics-governance: plazo de retención al crear la sesión" },
+    { "id": "AC15.7.2", "status": "OK", "target": "BR6.1 (lo de HumanReview; el Job y el acta son de U13)" },
+    { "id": "AC15.7.3", "status": "Deferred", "target": "U13 ethics-governance: ampliar o reducir el plazo" }
   ],
   "reverse": [
-    {
-      "id": "BR3.1",
-      "status": "N/A",
-      "target": "ADR-007, decisiones solo en ronda abierta"
-    },
-    {
-      "id": "BR3.3",
-      "status": "N/A",
-      "target": "C11 y ADR-007, ronda de corrección"
-    },
-    {
-      "id": "BR3.4",
-      "status": "N/A",
-      "target": "C11 y AC6.1.6 de U7"
-    },
-    {
-      "id": "BR3.5",
-      "status": "N/A",
-      "target": "C10 y AUTONOMIA-03"
-    },
-    {
-      "id": "BR4.1",
-      "status": "N/A",
-      "target": "C15 y FR9.3 (SHOULD)"
-    }
+    { "id": "BR1.4", "status": "N/A", "target": "regla técnica: 404 de una sugerencia inexistente (C1, revisión 1 R-05)" },
+    { "id": "BR2.7", "status": "N/A", "target": "regla técnica de límites del catálogo C25 (NFR10)" },
+    { "id": "BR3.1", "status": "N/A", "target": "ADR-007 y C10: decisiones solo en la ronda abierta, con bloqueo" },
+    { "id": "BR3.3", "status": "N/A", "target": "C11 y ADR-007: ronda de corrección que pide U7" },
+    { "id": "BR3.4", "status": "N/A", "target": "C11: bloqueo atómico que pide U7 (AC6.1.6 es de U7)" },
+    { "id": "BR3.5", "status": "N/A", "target": "C10 y AUTONOMIA-03: contrato de propose que implementa U4" },
+    { "id": "BR3.7", "status": "N/A", "target": "C11: ronda 1 al consolidar sin sugerencias (revisión 1 R-04)" },
+    { "id": "BR3.8", "status": "N/A", "target": "regla técnica de concurrencia: orden usuario → sesión → ronda (C11, revisión 1 R-02)" },
+    { "id": "BR3.9", "status": "N/A", "target": "C11 propuesto: descartar la copia de trabajo (AC6.3.2 es de U7)" },
+    { "id": "BR3.10", "status": "N/A", "target": "Respuesta P3 = A y VE-10: decisiones en cualquier estado de la sesión" },
+    { "id": "BR3.11", "status": "N/A", "target": "Respuesta P2 = A y FR7.5: reglas iguales en la ronda de corrección" },
+    { "id": "BR4.1", "status": "N/A", "target": "C15 v2 y FR9.3 (SHOULD); la alerta es de U2" }
   ]
 }

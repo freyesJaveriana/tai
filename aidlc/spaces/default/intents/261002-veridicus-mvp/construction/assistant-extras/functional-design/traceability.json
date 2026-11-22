@@ -1,107 +1,64 @@
 {
   "stage": "functional-design",
   "unit": "assistant-extras",
+  "revision": "Revisión 2 (2026-11-22), segunda pasada por el cambio 01 y la adenda 02; sustituye a la revisión 1 del 2026-10-02. AC11.1.1 sale (US11.1 Retirada); entran AC10.3.4, AC5.5.5, AC5.5.6, AC5.6.4 y AC5.6.5.",
   "upstream_ids": [
     "AC10.3.1",
     "AC10.3.2",
     "AC10.3.3",
+    "AC10.3.4",
     "AC10.5.1",
-    "AC11.1.1",
     "AC5.5.1",
     "AC5.5.2",
     "AC5.5.3",
     "AC5.5.4",
+    "AC5.5.5",
+    "AC5.5.6",
     "AC5.6.1",
     "AC5.6.2",
-    "AC5.6.3"
+    "AC5.6.3",
+    "AC5.6.4",
+    "AC5.6.5"
   ],
   "coverage": [
-    {
-      "id": "AC10.3.1",
-      "status": "OK",
-      "target": "BR2.2, BR2.4"
-    },
-    {
-      "id": "AC10.3.2",
-      "status": "OK",
-      "target": "BR2.1"
-    },
-    {
-      "id": "AC10.3.3",
-      "status": "OK",
-      "target": "BR2.5"
-    },
-    {
-      "id": "AC10.5.1",
-      "status": "OK",
-      "target": "BR1.1, BR1.2, BR1.4"
-    },
-    {
-      "id": "AC11.1.1",
-      "status": "OK",
-      "target": "BR3.1, BR3.2"
-    },
-    {
-      "id": "AC5.5.1",
-      "status": "OK",
-      "target": "BR4.1, BR2.3, BR3.2"
-    },
-    {
-      "id": "AC5.5.2",
-      "status": "OK",
-      "target": "BR4.1"
-    },
-    {
-      "id": "AC5.5.3",
-      "status": "OK",
-      "target": "BR4.2"
-    },
-    {
-      "id": "AC5.5.4",
-      "status": "OK",
-      "target": "BR4.3"
-    },
-    {
-      "id": "AC5.6.1",
-      "status": "OK",
-      "target": "BR4.4"
-    },
-    {
-      "id": "AC5.6.2",
-      "status": "OK",
-      "target": "BR4.4"
-    },
-    {
-      "id": "AC5.6.3",
-      "status": "OK",
-      "target": "BR4.4"
-    }
+    { "id": "AC10.3.1", "status": "OK", "target": "BR5.3, BR4.2, BR5.9" },
+    { "id": "AC10.3.2", "status": "OK", "target": "BR5.5, BR5.1, BR5.15, BR5.17" },
+    { "id": "AC10.3.3", "status": "OK", "target": "BR5.14, BR5.15, BR5.11, BR5.12" },
+    { "id": "AC10.3.4", "status": "OK", "target": "BR5.4, BR5.7, BR5.16, BR5.9" },
+    { "id": "AC10.5.1", "status": "OK", "target": "BR6.1, BR6.2, BR6.3, BR6.4" },
+    { "id": "AC5.5.1", "status": "OK", "target": "BR4.1, BR5.6" },
+    { "id": "AC5.5.2", "status": "OK", "target": "BR4.1, BR5.6, BR5.16" },
+    { "id": "AC5.5.3", "status": "OK", "target": "BR4.2" },
+    { "id": "AC5.5.4", "status": "OK", "target": "BR4.5" },
+    { "id": "AC5.5.5", "status": "OK", "target": "BR4.1" },
+    { "id": "AC5.5.6", "status": "OK", "target": "BR4.1" },
+    { "id": "AC5.6.1", "status": "OK", "target": "BR4.4" },
+    { "id": "AC5.6.2", "status": "OK", "target": "BR4.4" },
+    { "id": "AC5.6.3", "status": "OK", "target": "BR4.4" },
+    { "id": "AC5.6.4", "status": "OK", "target": "BR4.6" },
+    { "id": "AC5.6.5", "status": "OK", "target": "BR4.7" }
   ],
   "reverse": [
-    {
-      "id": "BR1.3",
-      "status": "N/A",
-      "target": "respuesta P2 = A"
-    },
-    {
-      "id": "BR1.5",
-      "status": "N/A",
-      "target": "FR4.2, validación de la segunda lectura"
-    },
-    {
-      "id": "BR1.6",
-      "status": "N/A",
-      "target": "C3, permutation_applied"
-    },
-    {
-      "id": "BR2.6",
-      "status": "N/A",
-      "target": "ADR-003"
-    },
-    {
-      "id": "BR3.3",
-      "status": "N/A",
-      "target": "respuesta P3 = A"
-    }
+    { "id": "BR1.1", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR1.2", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR1.3", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR1.4", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR1.5", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR1.6", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR2.1", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR2.2", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR2.3", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR2.4", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR2.5", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR2.6", "status": "N/A", "target": "Retirado (cambio 01)" },
+    { "id": "BR3.1", "status": "N/A", "target": "Retirado (cambio 01; US11.1 Retirada)" },
+    { "id": "BR3.2", "status": "N/A", "target": "Retirado (cambio 01; US11.1 Retirada)" },
+    { "id": "BR3.3", "status": "N/A", "target": "Retirado (cambio 01; US11.1 Retirada)" },
+    { "id": "BR4.3", "status": "N/A", "target": "Retirado (cambio 01); la sustituye BR4.5" },
+    { "id": "BR5.2", "status": "N/A", "target": "FR10.3 y regla 7 de C6: solo incremental con estado ok" },
+    { "id": "BR5.8", "status": "N/A", "target": "Deduplicación dentro de la salida (punto 5 de las preguntas)" },
+    { "id": "BR5.10", "status": "N/A", "target": "Persistencia en la ingesta, components InterviewSession (punto 5)" },
+    { "id": "BR5.13", "status": "N/A", "target": "ADR-003 y NFR11, convención de auditoría; cierra R-06" },
+    { "id": "BR6.5", "status": "N/A", "target": "Medición de costo de B8 frente a NFR3 y NFR8 (unit-of-work U8)" }
   ]
 }

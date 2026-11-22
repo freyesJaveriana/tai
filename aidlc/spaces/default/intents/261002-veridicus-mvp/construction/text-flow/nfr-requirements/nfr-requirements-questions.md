@@ -140,3 +140,175 @@ C. Ventana de 32 768 *tokens* sin límite propio; un turno demasiado largo termi
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y Functional Design revisión vigente (2026-11-22)
+
+**Unidad.** U4 `text-flow` (MUST, L; Bolt B3). Después del cambio 01, U4 deja de evaluar y pasa a
+orquestar (`functional-design/functional-spec.md`, revisión 2). Hace cinco cosas:
+- crea la sesión con su consentimiento y su perfil;
+- recibe los turnos y encola una corrida incremental por turno TEST (C2);
+- corre `AnalysisWorker` en `semantic-agent` sobre la biblioteca de U11 (C17);
+- ingiere el resultado (C3), con el registro de modelos, el bloqueo por incidente y las sugerencias por C10;
+- muestra todo en M3 y M4, con el aviso de propósito limitado.
+
+La revisión 1 de esta etapa (2026-10-03) es anterior al cambio 01. Sus respuestas P1–P5 y S1–S3 se
+revisan aquí por Modify.
+
+## Lo que ya está decidido
+
+No se vuelve a preguntar.
+
+- **Sale de U4** con el cambio 01 (unit-of-work revisión 3; `docs/iteracion2.md` §2.8):
+  - el juez, el *prompt*, los *embeddings* y `pgvector`;
+  - el umbral, la indexación de escenarios y el Paquete de Contexto de Traspaso.
+  Con ellos quedan superadas **P1, P2, P3, S2 y S3**. El modelo y la calidad de la IA (NFR4, NFR5, NFR6)
+  pasan a U11, que ya los fijó hoy.
+- **De la respuesta P4** salen el p95 de 60 s, el plazo de 300 s y el *N* de 120 s. Los sustituyen:
+  - el p95 de `analyze` incremental de U11 (≤ 180 s, NFR3.1 de U11);
+  - los topes de C25 que fijó U11: `model_call_timeout_s` = 3600 y `run_deadline_incremental_s` = 1200,
+    con 300 y 900 en la máquina de desarrollo;
+  - el *N* de la prueba de humo, 300 s (NFR-U11-10), dentro del cual U4 suma su parte de cola,
+    ingesta y consola.
+- **P5 = A sigue vigente** (sondeo cada 2 s con corridas en curso y cada 15 s sin ellas).
+- **S1 = A sigue vigente en su idea**: el plazo de una corrida crece con lo que tiene por delante en la
+  cola. Se adapta a las corridas y a los plazos de C25 (ver «Lo que el diseño resolverá sin preguntar»).
+- **U1:** `limits.exceeded` es siempre `413`, y C25 no admite nulos (NFR-U1-03, NFR-U1-07).
+- **U2:** `semantic-agent` ya no alcanza PostgreSQL. El Job de retención alcanza Redis.
+- **U3:** `AccessLog.record` corre en un punto de guardado de 500 ms (NFR-U3-05), y el sondeo con
+  `since` no registra acceso (E11 de U13). `ActorSystem` suma `run-supervisor`.
+- **U10:** el proxy responde `503` `analysis.anonymizer_unavailable` con más de 4 peticiones
+  simultáneas (NFR-U10-08).
+- **U11:** verificador local gpt-oss-20b en CPU y permutación activa en todos los perfiles
+  (NFR-U11-01, NFR-U11-08). La franja del modo fragmentado muestra lo que diga
+  `registro.fragmentado`, no el ejemplo 40/8 de E42 (NFR-U11-13).
+- **Functional Design de U4 (aprobado hoy):** una sola cola FIFO (FD-U4-09), un trabajador sin base de
+  datos, el bloqueo por incidente, la cancelación con la clave de CD-06, el registro de modelos sin texto
+  y la tabla FD-U4-01 a FD-U4-22.
+- **Precisiones de otras unidades que recaen en U4:**
+  - `EthicsSessionPort`, y el descarte en la ingesta de los resultados de una sesión ya borrada
+    (FD-U13-08, FD-U13-13);
+  - RunPublicationHold y la cancelación de las corridas en espera (FD-U9-07, FD-U9-08);
+  - la tubería que reutilizan el pegado, la importación y el modo final (FD-U6-07, FD-U6-15, FD-U6-19);
+  - `discard_correction_round` (FD-U5-04), que no cambia nada de U4.
+
+## Cómo se registra la revisión 2
+
+Igual que en las demás segundas pasadas (regla de `project.md`):
+- **IDs.** Los requisitos que siguen conservan su ID; los que salen quedan «Retirado» sin renumerar y
+  nombran a su nuevo dueño; lo nuevo toma el número siguiente de su grupo.
+- **Estado.** Cada fila dice si **se mantiene**, **cambia**, es **nuevo** o está **Retirado**.
+- **Lo que se retira:**
+  - NFR3.4 (`pgvector`) y NFR3.11–NFR3.12 (*prompt* del juez);
+  - NFR4.1–NFR4.5, NFR5.1–NFR5.2, NFR6.1 y NFR14.2, que pasan a U11;
+  - NFR8.1, NFR8.2 y NFR8.4 (servidores del juez, de *embeddings* y del indexador);
+  - NFR9.1–NFR9.3 (NFR9 queda «Retirado» en requirements);
+  - NFR10.2, NFR10.3, NFR10.6, NFR10.8, NFR10.11 y NFR10.12 (*prompt*, usuario de solo lectura,
+    servidores de modelos, carga de escenarios y modelos fijados), que pasan a U11, U2 o salen;
+  - las decisiones de pila D1–D8, D10 y D16.
+- **Tabla de precisiones.** La tabla de §6 de `security-requirements.md` conserva sus filas de la
+  revisión 1 marcadas «Superado» y suma las filas `NFR-U4-01` en adelante.
+- **`traceability.json`.** NFR9 pasa a `N/A` con su motivo, y NFR7 sigue en `N/A`.
+
+## Lo que el diseño resolverá sin preguntar
+
+Sale de las fuentes aprobadas. Va como propuesta a la tabla NFR-U4 y puedes objetarlo en la aprobación.
+
+- **Plazo de la corrida (S1 = A, adaptada).** El plazo propio es `run_deadline_incremental_s` o
+  `run_deadline_final_s` de la `effective_config` de la sesión.
+  - `deadline_at = enqueued_at + plazo propio + suma de los plazos propios de las corridas que están por
+    delante en la cola de todo el sistema (en `queued` o `processing`)`.
+  - Esa suma tiene un tope: la cifra nueva de C25 `run_queue_wait_max_s` = 10 800 s, que cubre tres modos
+    finales por delante.
+  - Sin la suma, con la cola FIFO única, una corrida detrás de un modo final de 3600 s vencería sin que
+    nada fallara, y NFR8 no llegaría al 98 %.
+  - Una corrida en espera (RunPublicationHold, FD-U9-07) no tiene plazo hasta que se libera.
+- **Reclamo de mensajes.** El trabajador renueva cada 15 s el reclamo del mensaje que está procesando
+  (`XCLAIM … JUSTID`), así que `claim_idle_ms` = 60 000 basta aunque un modo final dure una hora. Además,
+  `run_max_deliveries` = 3 y `cancel_key_margin_s` = 120 (un solo nodo de Minikube con NTP). La
+  renovación es una precisión a C2.
+- **Sondeo.** `poll_interval_s` = 15 (sin corridas en curso) y una cifra nueva,
+  `poll_interval_active_s` = 2 (con corridas en curso), como dice P5 = A. Ante un fallo, espera
+  creciente hasta 30 s. *T* (`heartbeat_timeout_s`) es de U6.
+- **Mensaje de corrida.** `run_message_max_bytes` = 2 097 152, igual que `anonymizer_request_max_bytes`
+  de U10, porque C2 y C21 llevan la misma transcripción.
+- **Latencia propia de U4** (máquina de desarrollo, cola vacía):
+  - desde que el resultado llega a Redis hasta que la sugerencia se ve en M4, ≤ 10 s, dentro de los 300 s
+    del humo;
+  - `POST /turns` con p95 ≤ 300 ms, también con el trabajador bloqueado;
+  - `GET /sessions/{id}?since=` con p95 ≤ 200 ms.
+- **Concurrencia.** Una réplica de `semantic-agent` con una corrida a la vez y sin prioridad por modo
+  (FD-U4-09): la latencia del único analista del MVP no lo pide. Así el trabajador nunca pasa de 1 de las
+  4 peticiones del proxy; si aun así recibe el `503`, la corrida termina en
+  `analysis.anonymizer_unavailable` (BR16.7).
+- **Prueba de carga de NFR8.**
+  - 50 sesiones sintéticas con `comercial-piloto`, en tandas de 3.
+  - Cada sesión entra como un bloque pegado (una corrida incremental), se finaliza y corre su modo final.
+  - Meta: ≥ 98 %. Solo se intenta si pasa NFR8.2 de U11.
+  - Dura unas 7 h, corre a demanda y nunca en la CI.
+- **Datos fuera del clúster.** Nada propio: U4 no sale del clúster. Los mensajes C2 y C3 se borran del
+  *stream* tras confirmarlos (`XDEL`). Los fallidos llevan solo IDs y `code`.
+- **Descartes en la ingesta.** El resultado de una sesión ya borrada se confirma sin filas (FD-U13-13),
+  pero un incidente que traiga se registra igual, solo con IDs (FD-U4-11, FD-U4-12).
+
+Queda una decisión de criterio en dos partes. Dos fuentes aprobadas se contradicen, y la cifra decide cuánto
+testimonio seudonimizado puede salir del clúster en una sola llamada.
+
+---
+
+## P6 — Tamaño máximo de la transcripción (`transcript_max_chars`)
+
+FR3.7 pide admitir «al menos la entrevista más larga del corpus del piloto **con margen**». Esa entrevista
+mide unos 186 000 caracteres (47 294 *tokens* de solo texto en M3 de `docs/validacion-zine/reporte.md`;
+NFR-U10-01).
+
+Los NFR de U10 y U11 aprobados hoy usan 186 000 como «el tamaño máximo de C25»:
+- U11 en NFR3.2 y NFR3.4;
+- U10 en NFR-U10-04, que ata a esta cifra su presupuesto de seudonimización.
+
+Así no queda margen. La cifra la usan:
+- el turno guiado de U4 (la entrada de C2 lleva los turnos 1..n);
+- el pegado y la importación (U6);
+- la CLI (U11).
+
+Una cifra mayor deja pasar más testimonio en una sola llamada al proveedor comercial y obliga a U10 y U11 a
+repetir sus comprobaciones con ella.
+
+A. **250 000 caracteres** (≈ 34 % sobre la más larga):
+   - U10 y U11 repiten sus comprobaciones con esta cifra en sus PR (NFR-U10-04 (a) y (b); NFR3.2 y
+     NFR3.4 de U11);
+   - el presupuesto de U10 pide `model_call_timeout_s` ≥ 270 s, y los 300 s de la máquina de desarrollo
+     alcanzan.
+   (Recomendada)
+B. **186 000 caracteres**, como asumieron U10 y U11: no cambia nada, pero contradice el margen de FR3.7, y
+   una entrevista un poco más larga que la del piloto se rechaza con `413`.
+C. **372 000 caracteres** (el doble):
+   - más margen;
+   - pide `model_call_timeout_s` ≥ 400 s, así que hay que subir el valor de la máquina de desarrollo y
+     repetir la medición de U11.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided
+
+## P7 — Tamaño máximo de un turno (`turn_max_chars`) y número máximo de turnos (`transcript_max_turns`)
+
+La revisión 1 fijó 2 000 caracteres por turno pensando en el juez en CPU, que salió con el cambio 01.
+Ahora `turn_max_chars` vale también para cada turno importado y para la CLI (NFR10.1 de U11).
+
+Un turno del piloto puede ser un monólogo largo, y ni el turno más largo ni el número de turnos de la
+entrevista más larga están en el repositorio (el corpus está fuera de Git). Una cifra corta impide importar
+el piloto; una larga permite un turno escrito enorme en la consola.
+
+A. `turn_max_chars` = **20 000** y `transcript_max_turns` = **2 000**:
+   - antes del PR de U1 que las fija, el humano las comprueba fuera de Git sobre las 10 entrevistas del
+     piloto con un script revisable que solo imprime dos cifras (turno más largo y número de turnos);
+   - si alguna no cabe con un 25 % de margen, se sube por ese PR.
+   (Recomendada)
+B. `turn_max_chars` = **2 000** (la cifra de la revisión 1) y `transcript_max_turns` = **2 000**: un turno
+   importado más largo se rechaza y hay que partirlo a mano.
+C. Dos cifras: `turn_max_chars` = 20 000 para la importación y la CLI, y una nueva `typed_turn_max_chars`
+   = 2 000 para el turno escrito en M4. Suma una cifra a C25 y una regla más a U4.
+X. Other (please specify)
+
+[Answer]: A **Mode:** guided

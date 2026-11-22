@@ -5,6 +5,7 @@
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-03T02:00:43Z — S1 = A se leyó con la cola de todo el sistema (no solo la de la sesión), porque el juez atiende un turno a la vez para todas las sesiones; el tope de 3 600 s limita la capacidad a unos 60 turnos en cola.
 - 2026-10-03T02:00:43Z — S3 = A usa turn.error.system para el prompt demasiado largo; para no crear un code nuevo, el mensaje de catálogo de ese code cubre los dos casos (dividir el turno o reintentar).
+- 2026-11-22T14:22:49Z — Segunda pasada: S1 = A se conserva en su idea, pero ahora suma los plazos propios de las corridas que van por delante en la cola FIFO única, con un tope nuevo de C25 (run_queue_wait_max_s). Sin eso, una corrida incremental detrás de un modo final vencería sin fallar nada.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
@@ -14,8 +15,10 @@
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 - 2026-10-03T02:00:43Z — Búsqueda exacta por versión en vez de un índice HNSW: con unos 1 100 pasajes por versión cumple 100 ms y no pierde pasajes al filtrar por versión, a costa de recorrer toda la versión en cada consulta.
 - 2026-10-03T02:00:43Z — Una sola ranura en el servidor del juez y un turno a la vez en semantic-agent: resultados repetibles con semilla fija, a costa de que la prueba de carga de NFR8 dure horas.
+- 2026-11-22T14:22:49Z — El trabajador renueva cada 15 s el reclamo del mensaje en curso, y por eso claim_idle_ms baja a 60 s aunque un modo final dure una hora. El precio es un hilo más en semantic-agent y una precisión a C2. A cambio, un trabajador caído se reemplaza en un minuto y no en lo que dura el plazo más largo.
 - 2026-10-03T02:00:43Z — El bloque de datos del prompt va como JSON en el mensaje user en vez de delimitadores de texto: el testimonio no puede cerrar el bloque, a costa de unos tokens más.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 - 2026-10-03T02:00:43Z — Confirmar al construir el Golden Dataset que ninguna transcripción pasa de 15 turnos; si pasa, la prueba de NFR8 con transcripciones pegadas puede vencer plazos.
+- 2026-11-22T14:22:49Z — FR3.7 pide margen sobre la entrevista más larga del piloto (unos 186 000 caracteres), pero los NFR de U10 y U11 usan 186 000 como el máximo de C25. Se pregunta como P6, porque la cifra decide cuánto testimonio seudonimizado sale en una llamada. El turno más largo y el número de turnos del piloto no están en Git, así que se pregunta como P7 y no se generan artefactos.

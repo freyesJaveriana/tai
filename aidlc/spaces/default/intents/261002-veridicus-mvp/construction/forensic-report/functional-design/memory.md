@@ -5,6 +5,8 @@
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-03T00:09:14Z — Finalizar desde `suspended` se permite (U6 lo dejó a U7): una sesión suspendida y abandonada se podría cerrar sin reanudarla.
 - 2026-10-03T00:09:14Z — AC6.2.2 se cubre con un code nuevo `report.not_consolidated`, porque la descarga va por versión y no existe versión antes de consolidar.
+- 2026-11-22T04:01:59Z — Segunda pasada: la tabla de roles de FR1 y VE-13 sustituyen a P4 = A (el `admin` lee y exporta); la transcripción se pasa como `literal_sources` del escáner, igual que en U11, para que «prueba» (VE-02) no bloquee la consolidación (cierra R-01).
+- 2026-11-22T04:01:59Z — Segunda pasada: solo se preguntan P5–P8 (ruta `/download` frente a VE-13, «página» en Markdown, consolidar una importada sin «Finalizar sesión», exportar una versión no vigente); el resto lo fijan las fuentes.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->

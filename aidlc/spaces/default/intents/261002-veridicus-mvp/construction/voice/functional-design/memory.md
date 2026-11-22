@@ -4,6 +4,8 @@
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-10-03T00:21:01Z — La consola codifica a WAV mono de 16 kHz porque el navegador graba en su formato nativo y el contrato solo admite WAV o MP3.
+- 2026-11-22T04:05:24Z — Segunda pasada: «confirmar la transcripción» de AC10.2.4 se lee como la ingesta del TranscriptResult (P3 = A, sin paso de corrección); R-01, R-03 y R-04 ya los cerraron NFR Requirements y NFR Design de U9, y R-02 sigue abierto en el modelo del cambio 01 (pregunta 5).
+- 2026-11-22T04:05:24Z — El estado del turno de voz ya no se guarda en el turno: se deriva de su corrida (U4) más `voice_status` de C1, así que la corrida se crea al ingerir el texto y no en el `202`.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->

@@ -156,6 +156,26 @@
 - 2026-11-22T03:47:09Z — P7 = B: el progreso del modo final es etapa, cronómetro y total de ventanas que calcula session-api con la ventana y el solapamiento de effective_config (1 + techo((N − W)/(W − O))), con los ejemplos de U11; no hay «ventana N de M» y no cambian C3, C17 ni la biblioteca.
 <!-- aidlc-wave-memory:session-lifecycle:3ade181c5a8d883781d56bb86f7dc10092fc1fe90d5c29bda3169c66f7400411 -->
 
+
+- 2026-11-22T04:05:24Z — Segunda pasada: «confirmar la transcripción» de AC10.2.4 se lee como la ingesta del TranscriptResult (P3 = A, sin paso de corrección); R-01, R-03 y R-04 ya los cerraron NFR Requirements y NFR Design de U9, y R-02 sigue abierto en el modelo del cambio 01 (pregunta 5).
+<!-- aidlc-wave-memory:voice:4b4253a747d74835316127355c75f3a3102ff256146656c345ac1c93981df0d0 -->
+
+
+- 2026-11-22T04:05:24Z — El estado del turno de voz ya no se guarda en el turno: se deriva de su corrida (U4) más `voice_status` de C1, así que la corrida se crea al ingerir el texto y no en el `202`.
+<!-- aidlc-wave-memory:voice:cfcad926cd4193af8fdf605d978ba996b019b28dbc312ed309b56762320cba81 -->
+
+
+- 2026-11-22T04:01:59Z — Segunda pasada: la tabla de roles de FR1 y VE-13 sustituyen a P4 = A (el `admin` lee y exporta); la transcripción se pasa como `literal_sources` del escáner, igual que en U11, para que «prueba» (VE-02) no bloquee la consolidación (cierra R-01).
+<!-- aidlc-wave-memory:forensic-report:c6294f94090e69f7bb181db82d53d09d59d1ae1c4333738ce23a01223811a5a4 -->
+
+
+- 2026-11-22T04:01:59Z — Segunda pasada: solo se preguntan P5–P8 (ruta `/download` frente a VE-13, «página» en Markdown, consolidar una importada sin «Finalizar sesión», exportar una versión no vigente); el resto lo fijan las fuentes.
+<!-- aidlc-wave-memory:forensic-report:055d390f2c818eb530497ecc6d117aa4e14bc713cdc4d2d0b5f179ec6de8bf2c -->
+
+
+- 2026-11-22T12:04:51Z — Revisión 2: ninguna regla sale entera (solo atributos y referencias del marco de verdad), así que `reverse` lleva solo reglas sin AC propio (BR4.3, BR7.1, BR7.2, BR9.4, BR11.5); los AC cruzados que prueba otra unidad van como Deferred con su dueño.
+<!-- aidlc-wave-memory:forensic-report:b307d9a5238b12877aec2f77bc7ca98c252ac5aec41b38b4c0c99cbbf7e012fb -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -250,6 +270,14 @@
 
 - 2026-11-22T03:47:09Z — «Reanudar análisis» (punto 6 de la lista) excluye los tramos en error: solo encola desde el primer TEST cuya última corrida está cancelled o que no tiene ninguna, para no pisar el «Reintentar tramo» que esos tramos ya ofrecen (FD-U6-15).
 <!-- aidlc-wave-memory:session-lifecycle:3dca3ce774fd51426d034bf853a130382b445e7b95e312ca2291d83eacd7b474 -->
+
+
+- 2026-11-22T12:04:48Z — BR5.7 (escuchar solo con la sesión abierta o en pausa) no la pidió ninguna respuesta: la propuse por VE-09 y VE-10 y quedó en FD-U9-14 para que el humano decida.
+<!-- aidlc-wave-memory:voice:7b0ee6eaa3b01d21cc4da3e545370418d2306775a0cb5516f95d666759e5f114 -->
+
+
+- 2026-11-22T12:04:51Z — El sensor upstream-coverage dijo «no upstream» al correrlo solo con `--output-path`; se volvió a correr con `--stage`, `--consumes` y `--deliverables` explícitos y pasó.
+<!-- aidlc-wave-memory:forensic-report:9abf77327f12a52327529236d4bc015ef85c8a5961159e129423e3cf0dd0a1d8 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -370,6 +398,18 @@
 - 2026-11-22T03:47:09Z — El hasta_turno de un bloque pegado es su último turno TEST y no n+k−1 (FD-U6-07): respeta la restricción de U4 de que una incremental termina en TEST y la semántica del turno ENT sin corrida, a costa de una precisión a AC2.3.3.
 <!-- aidlc-wave-memory:session-lifecycle:014defda73b8187fb811f52133a8fdf97971cce8790641d28575dfa69e14cb2e -->
 
+
+- 2026-11-22T12:04:48Z — Espera en orden (P5 = B) con RunPublicationHold: las corridas ven lo mismo que si el relato se hubiera escrito en orden, a costa de que el turno siguiente espere la transcripción y de una precisión al flujo de texto (FD-U9-07).
+<!-- aidlc-wave-memory:voice:f079b8251bced8544cadd32ac8d13effa6d586c0287a5bd330ed222f7368cce7 -->
+
+
+- 2026-11-22T12:04:48Z — Tras la retirada, el audio en cola se descarta con una clave por sesión que audio-worker solo lee; una llamada a Whisper que ya salió no se deshace y su texto se descarta en la ingesta.
+<!-- aidlc-wave-memory:voice:fd23cc2e47ea80fd21fd10d7b0c035227a360fd6c8fbaad6ece0c8d65fa411c8 -->
+
+
+- 2026-11-22T12:04:51Z — La exportación no guarda sus bytes, solo `export_sha256` (VE-12): no se puede volver a entregar la misma exportación, a cambio de no multiplicar copias del testimonio.
+<!-- aidlc-wave-memory:forensic-report:2307b817e1c0fb902442887eec34b0932b2e7e124ab8b060dee53a4e811d81ed -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -447,3 +487,9 @@
 
 - 2026-11-22T03:47:09Z — Para NFR Requirements: cifras de C25 del pegado y la importación con margen sobre la entrevista más larga del piloto, run_deadline_final_s en CPU, si el latido escribe en cada sondeo y si NFR8 exige paginar la lista en el servidor (functional-spec §11).
 <!-- aidlc-wave-memory:session-lifecycle:07e0c344ca1b5a1e1974248d337500cd21a9982f0760e5bfa6d329de0b8e3b35 -->
+
+- 2026-11-22T12:04:48Z — P4 = A conserva el audio autorizado aunque luego se retire el consentimiento; solo el Job de retención lo borra. Falta decidir si la retirada debe adelantar ese borrado.
+<!-- aidlc-wave-memory:voice:dbcba27fb83c59514c9452742d1e110df35876b9d11d2a80648b7475b037da75 -->
+
+- 2026-11-22T12:04:51Z — AC5.4.4 (adenda) dice que cualquier rol distinto del dueño recibe 403 al pedir hallazgos, y eso choca a la letra con AC5.4.2 (otros analistas leen); quedó Deferred a U5, que debe aclararlo.
+<!-- aidlc-wave-memory:forensic-report:5755bfc9a8c1d8f95a54d841a0621115adca1fcacd7fe6663dbc51e3f1101394 -->

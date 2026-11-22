@@ -8,7 +8,10 @@
 - 2026-11-22T04:01:59Z — Segunda pasada: la tabla de roles de FR1 y VE-13 sustituyen a P4 = A (el `admin` lee y exporta); la transcripción se pasa como `literal_sources` del escáner, igual que en U11, para que «prueba» (VE-02) no bloquee la consolidación (cierra R-01).
 - 2026-11-22T04:01:59Z — Segunda pasada: solo se preguntan P5–P8 (ruta `/download` frente a VE-13, «página» en Markdown, consolidar una importada sin «Finalizar sesión», exportar una versión no vigente); el resto lo fijan las fuentes.
 
+- 2026-11-22T12:04:51Z — Revisión 2: ninguna regla sale entera (solo atributos y referencias del marco de verdad), así que `reverse` lleva solo reglas sin AC propio (BR4.3, BR7.1, BR7.2, BR9.4, BR11.5); los AC cruzados que prueba otra unidad van como Deferred con su dueño.
+
 ## Deviations
+- 2026-11-22T12:04:51Z — El sensor upstream-coverage dijo «no upstream» al correrlo solo con `--output-path`; se volvió a correr con `--stage`, `--consumes` y `--deliverables` explícitos y pasó.
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 - 2026-10-03T00:09:14Z — Ninguna desviación del texto de la etapa; los huecos de contrato (X1–X6) quedan en una tabla del spec en vez de editar U5 o C11.
 
@@ -17,6 +20,9 @@
 - 2026-10-03T00:09:14Z — Archivo antes que fila (P2 = A): nunca hay versión sin archivo, a cambio de un barrido de huérfanos al arrancar.
 - 2026-10-03T00:09:14Z — La sugerencia editada muestra IA y analista (P3 = A): más largo, pero separa lo que dijo la máquina de lo que decidió la persona.
 
+- 2026-11-22T12:04:51Z — La exportación no guarda sus bytes, solo `export_sha256` (VE-12): no se puede volver a entregar la misma exportación, a cambio de no multiplicar copias del testimonio.
+
 ## Open questions
+- 2026-11-22T12:04:51Z — AC5.4.4 (adenda) dice que cualquier rol distinto del dueño recibe 403 al pedir hallazgos, y eso choca a la letra con AC5.4.2 (otros analistas leen); quedó Deferred a U5, que debe aclararlo.
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 - 2026-10-03T00:09:14Z — Los cambios X1–X6 a U5, C1 y C11 necesitan la decisión del humano en la aprobación antes de Code Generation.

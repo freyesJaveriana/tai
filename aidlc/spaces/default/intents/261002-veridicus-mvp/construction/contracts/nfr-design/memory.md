@@ -11,10 +11,17 @@
 
 - 2026-10-03T02:56:01Z — El diseño cambia el criterio aprobado de NFR10.6 (de 50 ms a análisis estático) y amplía NFR10.12 a toda operación de C1; no se editó security-requirements.md y quedó en la tabla de precisiones.
 
+- 2026-11-22T15:27:57Z — Segunda pasada sin preguntas: las peticiones de U3–U13 a U1 se reconciliaron con las fuentes (C15 sigue de U5 y las métricas de otras unidades van en archivos propios de metrics/; VERIDICUS_LIMITS_PATH de U11 solo puede bajar cifras) y quedaron en NFRD-U1-01 a NFRD-U1-14.
+
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
+
+- 2026-11-22T15:27:57Z — Subconjunto portátil de patrones (sin \d, \w, \s ni grupos con nombre) para que ajv y jsonschema den el mismo veredicto, a costa de reescribir algún patrón con clases explícitas.
+- 2026-11-22T15:27:57Z — La compuerta de pip-audit falla con toda vulnerabilidad que tenga corrección, porque pip-audit no da la severidad: es más estricta que HIGH+ y se alivia con excepciones que caducan.
 
 - 2026-10-03T02:56:01Z — Catálogo único de límites (P1 = A): contrato y servicio no pueden divergir, a costa de que U9 pierda el margen de VERIDICUS_VOICE_MAX_BYTES hasta 8 000 000 bytes, porque el entorno solo puede bajar el límite.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
+
+- 2026-11-22T15:27:57Z — El sensor upstream-coverage marcó performance, scalability, reliability y observability requirements, que U1 (spec) no produce; se volvió a correr solo con los consumes que existen y pasó.

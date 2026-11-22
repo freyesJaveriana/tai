@@ -75,6 +75,10 @@
 - 2026-10-03T03:57:26Z — Con P2 = A el barrido del arranque deja de ser el camino normal de limpieza y pasa a ser respaldo de report.cleanup_failed; se registró como precisión a D5/D6, NFR10.16 y NFR10.17, sin editar los originales.
 <!-- aidlc-wave-memory:forensic-report:e2250f8c6f0bf8a6d2c1602109153a35d4bfefb506033ef1cfee9a5dccaba6d8 -->
 
+
+- 2026-11-22T15:27:57Z — Segunda pasada sin preguntas: las peticiones de U3–U13 a U1 se reconciliaron con las fuentes (C15 sigue de U5 y las métricas de otras unidades van en archivos propios de metrics/; VERIDICUS_LIMITS_PATH de U11 solo puede bajar cifras) y quedaron en NFRD-U1-01 a NFRD-U1-14.
+<!-- aidlc-wave-memory:contracts:73ad6bb8f3ca7fffaec9589b6b95a10639e3e11fbd2a278ee4111d4441447c02 -->
+
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 
@@ -118,5 +122,16 @@
 - 2026-10-03T03:57:26Z — La consolidación retiene la fila de la sesión y la ronda desde el bump hasta el commit (≤ 2 s, con E/S local del volumen) para que el reporte sea exactamente el estado bloqueado; a cambio, una decisión simultánea de otra pestaña espera o recibe 503 a los 2 s.
 <!-- aidlc-wave-memory:forensic-report:b49cfd69488b706e4962a3026f5d2b980de95ed1dd953a2cc1cad2fb88ca0253 -->
 
+
+- 2026-11-22T15:27:57Z — Subconjunto portátil de patrones (sin \d, \w, \s ni grupos con nombre) para que ajv y jsonschema den el mismo veredicto, a costa de reescribir algún patrón con clases explícitas.
+<!-- aidlc-wave-memory:contracts:1e5788ec42f6a96ddeb6dd0b7cc720286a7a0f97b88b1f1075455ea1039d3ae0 -->
+
+
+- 2026-11-22T15:27:57Z — La compuerta de pip-audit falla con toda vulnerabilidad que tenga corrección, porque pip-audit no da la severidad: es más estricta que HIGH+ y se alivia con excepciones que caducan.
+<!-- aidlc-wave-memory:contracts:8d0062fa9f114c04a22b7c4991c664c612496b337f23a5ebf22ecd06fc5e1740 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
+
+- 2026-11-22T15:27:57Z — El sensor upstream-coverage marcó performance, scalability, reliability y observability requirements, que U1 (spec) no produce; se volvió a correr solo con los consumes que existen y pasó.
+<!-- aidlc-wave-memory:contracts:c9b8b2c0d106ea9f158806beeb2d2c39352c29a061f1d01b1ed7334a0e2ad7e7 -->

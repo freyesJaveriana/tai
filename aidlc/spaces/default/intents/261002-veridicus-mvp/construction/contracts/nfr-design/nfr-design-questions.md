@@ -76,3 +76,57 @@ C. Una herramienta externa de diferencias de OpenAPI (`oasdiff`, en Go) en un *j
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Requirements revisión vigente (2026-11-22)
+
+**Por qué hay segunda pasada.** La revisión 1 (2026-10-03) diseñó la seguridad sobre C1–C16 y
+NFR1.1–NFR15.1 de la primera pasada. NFR Requirements revisión 2 suma `contracts/ts/` (P8 = A),
+`limits.exceeded` siempre `413` (P7 = A), las extensiones `x-veridicus-limit` y `x-veridicus-max-bytes`,
+los decimales en `ratio` y `s` y el paso del paquete con 180 s. Además, las tablas NFR-U3 a NFR-U13 piden
+a U1 cifras nuevas de C25 y cambios en C1, C2, C5, C13, C15 y C19.
+
+## Lo que ya está decidido
+
+| Tema | Qué queda fijo | Fuente |
+|---|---|---|
+| Respuestas de la revisión 1 | P1 = A (catálogo único de límites), P2 = A (ReDoS por análisis estático), P3 = A (huella de seguridad versionada) | Esta etapa, revisión 1 |
+| Requisitos | NFR1.1–NFR1.4, NFR2.1–NFR2.2, NFR3.1, NFR10.1–NFR10.16, NFR11.1–NFR11.5, NFR12.1–NFR12.3, NFR13.1–NFR13.2, NFR14.1, NFR15.1; decisiones D1–D16 | `nfr-requirements/`, revisión 2 |
+| Estado de `limits.exceeded` | `413` en todas las rutas | P7 = A; NFR-U1-03 |
+| Mitad TypeScript | `contracts/ts/` en el *job* `contracts-level0` | P8 = A; NFR-U1-04 |
+| Cifras de C25 | Las fija la unidad dueña en su NFR Requirements; U1 las nombra, valida su forma y las admite por PR | NFR10.14; NFR-U1-07; tablas NFR-U3 a NFR-U13 |
+| Métodos de voz de C13 | Van en el puerto de U11 y los escribe U9; los tipos de `model_calls.py` no cambian | NFR-U9-01 |
+| FD-U1-14 | Sigue pendiente de la aprobación de Functional Design; aquí no se pregunta | functional-spec §9 |
+
+## Cómo se registra la revisión 2
+
+- `security-design.md` y `traceability.json` pasan a la revisión 2 en el mismo archivo, con una nota de
+  cabecera que dice qué cambia y por qué.
+- Los controles §4.1–§4.13 y las decisiones DS1–DS5 conservan su número; lo que sale queda «Retirado» y
+  lo nuevo empieza en §4.14 y DS6.
+- Las precisiones a artefactos aprobados van en la tabla NFRD-U1-xx de `security-design.md`. Ningún
+  original se edita.
+- Como U1 es de tipo `spec`, la etapa sigue produciendo solo el diseño de seguridad y la trazabilidad.
+
+## Lo que el diseño resolverá sin preguntar
+
+1. **Hallazgos R-01 a R-08 de la revisión 1 de esta etapa.** Recorrido completo del árbol de cada
+   `pattern`, canonización de la huella, umbral medible de `pip-audit`, separación de pasos y alcance de
+   las excepciones. Cada uno sale de su hallazgo.
+2. **Contenido de C25 v1.** Entra cada cifra que fijaron las unidades dueñas en sus tablas NFR-Ux. Los
+   nombres de la revisión 1 que no siguen (escenarios, `turn_text_max_chars`, `voice_audio_*`,
+   `web_session_max_age_s`) quedan «Retirado» frente a los nombres de contract-summary.
+3. **Métricas de otras unidades.** C15 sigue siendo el contrato de U5. Las métricas que U4, U6, U8, U9 y
+   U10 piden registrar van en archivos propios de `contracts/metrics/`, con la misma comprobación de
+   etiquetas. Así U3 y U7, que las dejan internas, no se contradicen con las demás.
+4. **`VERIDICUS_LIMITS_PATH` de U11.** El catálogo empaquetado es siempre el techo, como dicen
+   `project.md`, C25 y BR11.1. Cualquier otra fuente solo puede bajar una cifra.
+5. **Lista cerrada de extensiones `x-veridicus-*`.** Es la unión de NFR10.12, NFR10.7 y
+   `x-veridicus-priority` de contract-summary, más `x-veridicus-cookie` de la revisión 1.
+6. **Tipo de la parte de archivo en `multipart`.** U6 y U12 deciden por el contenido, así que el contrato
+   no exige `encoding.contentType`. Si lo declara, la lista es cerrada.
+
+Ningún punto cambia qué datos salen del clúster.
+
+Sin preguntas: todo lo fijan las fuentes.

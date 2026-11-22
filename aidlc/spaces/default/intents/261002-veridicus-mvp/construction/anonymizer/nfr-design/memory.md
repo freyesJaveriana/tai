@@ -15,3 +15,6 @@
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
+- 2026-11-22T15:46:13Z — Segunda pasada: NFR10.8 y BR6.1 de U10 responden 422 ante un cuerpo de C21 demasiado grande, y el NFR Design de U1 (§4.3) exige 413 limits.exceeded en toda operación con x-veridicus-max-bytes, que C21 declara; se preguntó como P3 y no se generaron artefactos.
+- 2026-11-22T15:46:13Z — La salida estructurada de Anthropic no admite minimum, maxLength, if/then ni oneOf, que usa C6; se resolverá sin preguntar con una proyección del esquema por proveedor y validación local completa (precisa NFR10.14).
+- 2026-11-22T15:46:13Z — El escrito de la revisión 2 de security-design.md se revirtió a la revisión 1, byte a byte, al detectar la contradicción, para no dejar artefactos antes de la respuesta.

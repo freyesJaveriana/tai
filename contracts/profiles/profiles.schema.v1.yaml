@@ -47,6 +47,7 @@ $defs:
         properties:
           verifier_permuted:
             const: verifier
+      fallback_provider: true
       permutation:
         type: boolean
       chunking:

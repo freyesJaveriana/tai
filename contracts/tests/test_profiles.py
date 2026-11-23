@@ -11,7 +11,9 @@ from collections.abc import Mapping
 from typing import Any
 
 import pytest
-from helpers import cargar_fixture, importar_o_fallar
+from helpers import cargar_fixture, errores_de, importar_o_fallar, load_contract, validador_de
+
+from veridicus_contracts.validators import validate_json_schema
 
 pytestmark = pytest.mark.c18
 
@@ -337,10 +339,153 @@ def test_un_error_del_proveedor_alterno_lo_nombra_como_papel() -> None:
     datos = _analizador()
     _perfil(datos)["fallback_provider"] = _destino("modelo-alterno", sobra=1)
     error = _rechaza(datos)
-    assert (
-        "perfil todo-local, papel fallback_provider, ajuste sobra: ajuste no permitido"
-        in error.problems
+    # F-03: exactamente un problema; el proveedor alterno declarado no es «no permitido».
+    assert error.problems == (
+        "perfil todo-local, papel fallback_provider, ajuste sobra: ajuste no permitido",
     )
+
+
+def test_una_clave_con_comillas_sale_como_interrogacion() -> None:
+    """F-01: los nombres sobrantes salen de las claves, no del texto del mensaje."""
+    datos = _analizador()
+    _perfil(datos)["roles"]["judge"][f"x'{CANARY}'y"] = 1
+    error = _rechaza(datos)
+    assert error.problems == ("perfil todo-local, papel judge, ajuste ?: ajuste no permitido",)
+    assert CANARY not in str(error)
+
+
+def test_los_nombres_sobrantes_salen_ordenados_y_los_seguros_se_conservan() -> None:
+    datos = _analizador()
+    _perfil(datos)["roles"]["judge"].update({"zeta": 1, "alfa": 1, "con espacio": 1})
+    assert _rechaza(datos).problems == (
+        "perfil todo-local, papel judge, ajuste alfa, ?, zeta: ajuste no permitido",
+    )
+
+
+def test_una_clave_de_papel_sin_forma_segura_en_un_error_de_tipo_sale_como_interrogacion() -> None:
+    """F-02, mutante 19: el ajuste del último tramo de la ruta también se sanea."""
+    datos = _base()
+    _perfil(datos, "prueba-generica")["roles"][f"Clave {CANARY} x"] = "texto"
+    error = _rechaza(datos, kind="base")
+    assert "perfil prueba-generica, papel ?, ajuste ?: tipo incorrecto" in error.problems
+    assert CANARY not in str(error)
+
+
+def test_una_base_url_que_no_es_uri_se_rechaza_con_su_motivo() -> None:
+    """F-02, mutante 27 y F-07: el formato `uri` se comprueba."""
+    datos = _analizador()
+    _perfil(datos)["roles"]["judge"]["base_url"] = "no es uri"
+    assert _rechaza(datos).problems == (
+        "perfil todo-local, papel judge, ajuste base_url: formato no válido",
+    )
+
+
+def test_un_minimo_incumplido_tiene_su_motivo() -> None:
+    """F-07."""
+    datos = _analizador()
+    _perfil(datos)["chunking"] = {"enabled": True, "window": 0}
+    assert _rechaza(datos).problems == (
+        "perfil todo-local, papel -, ajuste window: valor por debajo del mínimo",
+    )
+
+
+def test_los_problemas_del_esquema_salen_ordenados_por_ruta() -> None:
+    """F-06: `permutation` va antes que `purpose` aunque el esquema declare `purpose` primero."""
+    datos = _analizador()
+    _perfil(datos)["purpose"] = "otro-proposito"
+    _perfil(datos)["permutation"] = "si"
+    error = _rechaza(datos)
+    assert error.problems == (
+        "perfil todo-local, papel -, ajuste permutation: tipo incorrecto",
+        "perfil todo-local, papel -, ajuste purpose: valor fuera de los permitidos",
+    )
+    assert str(error) == "perfil no válido: " + "; ".join(error.problems)
+
+
+def test_los_problemas_repetidos_se_cuentan_una_vez() -> None:
+    """F-06: un `purpose` ausente produce dos errores del esquema idénticos."""
+    datos = _analizador()
+    del _perfil(datos)["purpose"]
+    assert _rechaza(datos).problems == (
+        "perfil todo-local, papel -, ajuste purpose: falta el ajuste obligatorio",
+    )
+
+
+def test_f04_el_sobre_de_la_base_esta_cerrado_igual_que_el_del_analizador() -> None:
+    for kind, datos in (("base", _base()), ("analyzer", _analizador())):
+        datos["extra_top"] = 1
+        assert _rechaza(datos, kind=kind).problems == (
+            "perfil -, papel -, ajuste extra_top: ajuste no permitido",
+        )
+        del datos["extra_top"]
+        _perfiles().validate(datos, key_prefix=PREFIJO, kind=kind)
+
+
+# --- Tabla de precios (C18, F-05) -------------------------------------------------------
+
+PRECIOS = "profiles/prices.schema.v1.yaml"
+
+
+def _tabla() -> dict[str, Any]:
+    return {
+        "schema_version": "1.0.0",
+        "version": "2026-11",
+        "currency": "USD",
+        "prices": [
+            {"provider": "local", "model": "modelo-prueba", "input_per_million": 0, "output_per_million": 0},
+            {
+                "provider": "openai",
+                "model": "modelo-comercial:1",
+                "input_per_million": 1.5,
+                "output_per_million": 6,
+            },
+        ],
+    }
+
+
+def _errores_de_precios(datos: Any) -> list[Any]:
+    return errores_de(validador_de(PRECIOS), datos)
+
+
+def test_precios_el_esquema_cumple_el_metaesquema_y_acepta_una_tabla_valida() -> None:
+    validate_json_schema(load_contract(PRECIOS))
+    assert _errores_de_precios(_tabla()) == []
+
+
+def test_precios_rechaza_una_clave_sobrante_en_la_raiz_y_en_un_precio() -> None:
+    raiz = _tabla()
+    raiz["extra"] = 1
+    assert [e.validator for e in _errores_de_precios(raiz)] == ["additionalProperties"]
+    precio = _tabla()
+    precio["prices"][0]["extra"] = 1
+    errores = _errores_de_precios(precio)
+    assert [(e.validator, e.json_path) for e in errores] == [
+        ("additionalProperties", "$.prices[0]")
+    ]
+
+
+def test_precios_rechaza_un_minimo_incumplido_y_un_patron_incumplido() -> None:
+    datos = _tabla()
+    datos["prices"][0]["input_per_million"] = -1
+    datos["version"] = "con espacio"
+    errores = {(e.validator, e.json_path) for e in _errores_de_precios(datos)}
+    assert errores == {("minimum", "$.prices[0].input_per_million"), ("pattern", "$.version")}
+
+
+def test_precios_resuelve_la_referencia_al_token_del_analizador() -> None:
+    datos = _tabla()
+    datos["prices"][1]["model"] = "modelo con espacios"
+    errores = _errores_de_precios(datos)
+    assert [(e.validator, e.json_path) for e in errores] == [("pattern", "$.prices[1].model")]
+
+
+def test_precios_exige_los_campos_obligatorios_y_la_moneda() -> None:
+    sin = _tabla()
+    del sin["prices"][0]["output_per_million"]
+    del sin["version"]
+    sin["currency"] = "EUR"
+    palabras = {e.validator for e in _errores_de_precios(sin)}
+    assert palabras == {"required", "const"}
 
 
 # --- E39: el prefijo es obligatorio ---------------------------------------------------

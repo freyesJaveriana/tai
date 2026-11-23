@@ -4,11 +4,13 @@ title: Archivo de perfiles de ejecución, forma genérica (C18)
 description: >-
   Sobre del archivo (`schema_version` y `profiles`) y perfil genérico (FD-U1-02, FD-U1-12). Un
   perfil declara al menos un papel con su destino, alias de papeles y como mucho un
-  `fallback_provider`, que sirve a cualquier papel (BR9.2, BR9.5). Es abierto: otra
+  `fallback_provider`, que sirve a cualquier papel (BR9.2, BR9.5). El sobre está cerrado, igual que
+  el del analizador (FD-U1-12); el perfil es abierto: otra
   especialización, como la del analizador, añade sus campos y se cierra por su cuenta. El prefijo
   de `api_key_ref` no va en el archivo: lo exige `profiles.validate` como argumento (BR9.4). Las
   referencias cruzadas de los alias también las comprueba la función (BR9.2).
 type: object
+additionalProperties: false
 required: [schema_version, profiles]
 properties:
   schema_version:

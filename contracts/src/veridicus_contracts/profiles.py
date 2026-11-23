@@ -41,7 +41,6 @@ _ESQUEMAS = {
 }
 _NOMBRE_SEGURO = re.compile(r"[A-Za-z0-9_.\-]{1,64}")
 _PREFIJO_VALIDO = re.compile(r"[A-Z][A-Z0-9_]*")
-_NOMBRES_ENTRE_COMILLAS = re.compile(r"'([^']*)'")
 
 # Texto fijo por palabra clave del esquema; ninguno incluye el valor de la instancia.
 _MOTIVOS = {
@@ -51,6 +50,9 @@ _MOTIVOS = {
     "propertyNames": "nombre no válido",
     "minProperties": "debe tener al menos un elemento",
     "pattern": "no cumple la forma exigida",
+    "format": "formato no válido",
+    "minimum": "valor por debajo del mínimo",
+    "exclusiveMinimum": "valor por debajo del mínimo",
     "enum": "valor fuera de los permitidos",
     "const": "valor distinto del exigido",
     "type": "tipo incorrecto",
@@ -109,13 +111,18 @@ def _del_esquema(error: ValidationError) -> str:
     papel = ruta[3] if len(ruta) > 3 and ruta[2] == "roles" else "-"
     if len(ruta) > 2 and ruta[2] == "fallback_provider":
         papel = "fallback_provider"
-    # Los nombres que el propio mensaje cita son los de ajustes (los de `required` y de
-    # `additionalProperties`), nunca valores de la instancia.
-    citados = _NOMBRES_ENTRE_COMILLAS.findall(error.message)
+    # Los nombres salen de las claves de la instancia y del esquema, nunca del texto del mensaje
+    # de jsonschema, que puede citar una clave de forma engañosa (F-01).
+    instancia: Any = error.instance
     if error.validator == "required":
-        ajuste = _seguro(citados[0])
+        exigidos: Any = error.validator_value
+        faltan = [nombre for nombre in exigidos if nombre not in instancia]
+        ajuste = ", ".join(_seguro(nombre) for nombre in faltan)
     elif error.validator in ("additionalProperties", "unevaluatedProperties"):
-        ajuste = ", ".join(_seguro(nombre) for nombre in citados)
+        esquema: Any = error.schema
+        declarados = esquema.get("properties", {})
+        sobran = sorted((clave for clave in instancia if clave not in declarados), key=str)
+        ajuste = ", ".join(_seguro(nombre) for nombre in sobran)
     else:
         ajuste = _seguro(ruta[-1] if ruta else "-")
     motivo = _MOTIVOS.get(str(error.validator), "no cumple el esquema")

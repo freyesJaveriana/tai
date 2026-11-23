@@ -95,3 +95,59 @@ C. Se quita la alerta del volumen en el MVP y queda solo `/readyz` sobre el espa
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Design revisión vigente (2026-11-23)
+
+## Lo que ya está decidido
+
+- **U7 sigue sin proceso propio.** Es el módulo `review_report` de la API de `session-api`. Su único estado
+  fuera de PostgreSQL es el PVC `veridicus-reports` de 2 GiB, con cuota propia y montado solo por la API y el
+  `Job` de retención de U13 (NFR Design revisión 2: `logical-components.md` §1 y §4; NFR-U7-05, -06 y -08).
+- **Se mantienen las respuestas de la revisión 1.** P1 = A (`Recreate` y una sola réplica de la API), P2 = A
+  (respaldo conjunto a pedido, base antes que volumen) y P3 = A (cuota y *gauges* propios). Ninguna fuente
+  aprobada las retiró: NFR8.6 y `scalability-design.md` §4 de la revisión 2 siguen pidiendo `Recreate`.
+- **Sale el `Job` de `verify_store`**, con su rol `veridicus_report_ro`, su Secret y su `NetworkPolicy`.
+  `verify_store` corre por `kubectl exec`, desde la lista cerrada de U2 (NFR-U7-05).
+- **Entran** la exportación sin copias en disco, la purga de U13 y la regla `not_recorded` (NFR Design
+  revisión 2).
+- **Plazo de inactividad.** Se fija por transacción con `SET LOCAL` a 15 s al consolidar y exportar, y nunca
+  en la fila `veridicus-pg` (NFRD-U7-01). U6 ya aceptó el parámetro `idle_timeout_s` de `db.py`
+  (IDS-U6-02).
+- **Barrido de huérfanos** al arrancar y cada 60 s, con un margen de 300 s: un archivo sin fila vive como
+  mucho unos 6 min (DS4).
+- **Lo que ya fijaron en esta etapa U2, U3, U4, U5 y U6:**
+  - una sola máquina de 64 GB, solo CPU, con Minikube de 50 GiB y 16 CPU (IDS-U2-01), sin `values-gpu.yaml`
+    (IDS-U2-02);
+  - `Deployment` `veridicus-session-api` con el contenedor `session-api` (IDS-U2-14, IDS-U3-03);
+  - API con 0,5 CPU / 512 MiB de reserva y 2 CPU / 1,125 GiB de límite (U2 §4);
+  - `readinessProbe` sobre el `/readyz` completo (IDS-U3-01);
+  - `ConfigMap` `veridicus-session-api-config` (IDS-U5-01);
+  - reglas y paneles en el subchart `monitoring-rules` de U2 (IDS-U3-10);
+  - `veridicus-web` sin disco en `/api/` (U2 §2.4).
+
+## Cómo se registra la revisión
+
+Revisión 2 de los cuatro artefactos de esta carpeta. Sustituye a la revisión 1 del 2026-10-03, que queda en
+el historial de Git. Las secciones conservan su número y lo que sale queda «Retirado», sin renumerar. La tabla
+de precisiones de la revisión 1 (§6 de `infrastructure-specification.md`) se retira entera: la sustituye la
+tabla IDS-U7-01 en adelante. La nueva §7 cierra los hallazgos R-01 a R-06 de `reviews/review-01.md`.
+
+## Lo que el diseño resolverá sin preguntar
+
+- **`Recreate` de la API**, que U2 revisión 2 dejó en `RollingUpdate`. Va como petición a U2, con la política
+  Kyverno de escritor único. El humano ya lo decidió en P1 = A; no se da por aplicado.
+- **Nombre del contenedor** (`session-api`) en la línea de `verify_store` y en las políticas. Cierra R-01.
+- **Respaldo de archivos.** `export_store` pasa de `backup-db.sh` al runbook, justo después del volcado, como
+  exige la lista cerrada de `exec` de U2. Se pide que la poda por `retention_max_days` cubra también el
+  `tar` de reportes.
+- **Memoria de la API** frente al límite de 1,125 GiB de U2, contando también el proceso de `kubectl exec`.
+  Cierra R-06.
+- **Corte de cada despliegue con `Recreate`:** su medición, con comando y umbral. Cierra R-03 y R-04.
+- **Radio de impacto de `/readyz`** frente al disco del nodo. Cierra R-05.
+- **Migración de B7:** `report_export`, permisos de `veridicus_retention` y la función de bloqueo que pide
+  U13 (NFRD-U13-07).
+- **Retirada** de lo que la revisión 1 ponía y ya no existe.
+
+Sin preguntas: todo lo fijan las fuentes.

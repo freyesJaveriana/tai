@@ -166,18 +166,18 @@ misma ola no dependen entre sí.
 
 ### Paso 1 — Estructura del paquete y configuración · tarea T01
 
-- [ ] `contracts/pyproject.toml`: distribución `veridicus-contracts` con `hatchling` y el mapa de rutas de
+- [x] `contracts/pyproject.toml`: distribución `veridicus-contracts` con `hatchling` y el mapa de rutas de
   functional-spec §1 con la precisión PD-9 (módulos en `src/veridicus_contracts/`, esquemas y catálogos
   como datos, `*/fixtures/` fuera) (D1, D15); la rueda, construida por `uv build` (sdist → rueda) o por
   `uv build --wheel`, y la instalación editable ven los mismos módulos y datos; dependencias de tech-stack-decisions §3 más `yamllint` en el grupo de desarrollo;
   `uv lock --directory contracts` (con red) genera `uv.lock` con *hashes*, que se versiona.
 - [ ] `build/` en `.gitignore`; `tools/audit_gate.py` y el paso de `pip-audit` crean `build/` si falta.
-- [ ] Configuración en `pyproject.toml`: mypy estricto; Ruff con reglas por defecto + `S` (toda
+- [x] Configuración en `pyproject.toml`: mypy estricto; Ruff con reglas por defecto + `S` (toda
   supresión `# noqa: S…` con motivo); cobertura con ramas y exclusión declarada solo para `ts/generated/`.
-- [ ] Directorios del inventario: `api/`, `errors/`, `queues/`, `analyzer/v1/`, `integrity/`, `ui/`,
+- [x] Directorios del inventario: `api/`, `errors/`, `queues/`, `analyzer/v1/`, `integrity/`, `ui/`,
   `profiles/`, `model_calls/`, `cli/`, `metrics/`, `health/`, `format/`, `transcript/`,
   `vendor/`, `fixtures/`, `src/veridicus_contracts/{checks,tools}/`, `tests/`; `py.typed`.
-- [ ] Fuera de `contracts/`: `.gitattributes` con `contracts/** text eol=lf` (NFRD-U1-13); `.gitignore`
+- [x] Fuera de `contracts/`: `.gitattributes` con `contracts/** text eol=lf` (NFRD-U1-13); `.gitignore`
   con `.env`, `*.pem`, `*.key`, `kubeconfig*`, `secrets*.yaml`, `.worktrees/` y `build/` si faltan.
 - Cubre: D1, D15, BR12.1; NFR13.2. Fuera: código de contratos y pruebas.
 - Verificación: `uv lock --check --directory contracts` → código 0, y `uv sync --frozen --directory contracts`
@@ -185,10 +185,10 @@ misma ola no dependen entre sí.
 
 ### Paso 2 — Ejecutor de pruebas listo (antes de la primera prueba) · tarea T01
 
-- [ ] `pytest` en `pyproject.toml`: `testpaths = ["tests"]`, `addopts` con `--disable-socket
+- [x] `pytest` en `pyproject.toml`: `testpaths = ["tests"]`, `addopts` con `--disable-socket
   --cov=veridicus_contracts --cov-branch --cov-fail-under=80` (D6, D7); perfil de Hypothesis determinista
   (`derandomize = true`, sin `deadline`).
-- [ ] `tests/conftest.py` (rutas al árbol `contracts/`) y `tests/test_runner.py`: abrir un *socket* lanza
+- [x] `tests/conftest.py` (rutas al árbol `contracts/`) y `tests/test_runner.py`: abrir un *socket* lanza
   `SocketBlockedError`; el árbol se resuelve.
 - Cubre: NFR2.1, NFR10.5. Fuera: F7 en `pytest_sessionstart` (paso 6).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_runner.py --no-cov`

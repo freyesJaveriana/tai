@@ -30941,3 +30941,3431 @@
 **Artifact Fingerprint**: sha256:9248b80ab96f29e0c7382e28d2cd3c178e0164c85ab936b4f47e0148c65be1cb
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-23T00:31:50Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c14
+**Content-Hash**: 03d227038fd01854da58fffa4432a9f459332cee52149066c3693aec44aab9f1
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c17
+**Content-Hash**: 29f9f85080649b70289337be83801e5cf5d08a7a751c769beda87aa8615d019b
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c24
+**Content-Hash**: bbfe1aa603c3282da33c859990ed467f2f392258f741a26c9d268bc4a109a87d
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c40
+**Content-Hash**: 0e36b348930377f7e777f6d467028be8a30e018ce8ce8e3de5ce755617178679
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c42
+**Content-Hash**: f18563d37a4abc0ea7bfaa1f201e54cf4aa16d5cba9b7a9998591d386e07370d
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c57
+**Content-Hash**: 3996d6b7fec31a51e518d8f2c1399901c5239f7fa5bc402505c21266b8c51d2b
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c60
+**Content-Hash**: 570eb105e6b77b24c42ff39455161d851cab65a35a4df7dbeaed7a881bbe1c14
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-23T00:32:03Z
+**Event**: RULE_LEARNED
+**Stage**: nfr-design
+**Candidate-ID**: c20
+**Content-Hash**: e0c7038fcd6d47919a92ed9e4358ed9ad50901903c65c274302518cdfa6b50f1
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: da1a4268
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: da1a4268
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: ec5f9c6d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: ec5f9c6d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/traceability.json
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3a6d5076
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3a6d5076
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/performance-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: e96d7551
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: e96d7551
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/security-design.md
+**Duration ms**: 49
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 592b7b67
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 592b7b67
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/scalability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1904d04f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1904d04f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/reliability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 35ec1662
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 35ec1662
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/observability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2f5bcd39
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2f5bcd39
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/logical-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 70d549f0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 70d549f0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/traceability.json
+**Duration ms**: 49
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 09406e9e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 09406e9e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 71b945e3
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 71b945e3
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/security-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7be9f03a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7be9f03a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 88758baf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: 88758baf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/reliability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: eee0a720
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: eee0a720
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/observability-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: cf340281
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: cf340281
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/logical-components.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: 315b1abc
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: 315b1abc
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: ec487c2b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: ec487c2b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/performance-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: a887f588
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: a887f588
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/security-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: 36d34b66
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: 36d34b66
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/scalability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: 34dae15e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: 34dae15e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/reliability-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: b89977e0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: b89977e0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/observability-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9fef0bbf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9fef0bbf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/logical-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: 64784cb8
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 64784cb8
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: a77a63c9
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: a77a63c9
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/performance-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5e9194f4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5e9194f4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: c63b3e85
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: c63b3e85
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/reliability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: d65a68a4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: d65a68a4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/logical-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: 457768bb
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 457768bb
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: 470369a6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 470369a6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/performance-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: dcb17c43
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: dcb17c43
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/security-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: eae8cb7a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: eae8cb7a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/scalability-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4770af85
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4770af85
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/reliability-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7465b727
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7465b727
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/observability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8b2cbbab
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8b2cbbab
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/logical-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8f04c860
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8f04c860
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/traceability.json
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: c198027d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: c198027d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/performance-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5c67ddc6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5c67ddc6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/security-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: ce163bb6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: ce163bb6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: b490e696
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_PASSED
+**Fire id**: b490e696
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/reliability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: f0027991
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: f0027991
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/observability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: edfcbf3d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: edfcbf3d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/logical-components.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: e77b201f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: e77b201f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: 043b4dda
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: 043b4dda
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/security-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: 499227cf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: 499227cf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: cad29b3e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: cad29b3e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4cd34d67
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4cd34d67
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/security-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3f7ce835
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3f7ce835
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/scalability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: e06d0b30
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: e06d0b30
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/reliability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: be7aba45
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: be7aba45
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/observability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: aa720907
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: aa720907
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2cce0d92
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2cce0d92
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: f9189103
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: f9189103
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: c66272f7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: c66272f7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/security-design.md
+**Duration ms**: 59
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: 10c014a2
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: 10c014a2
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/scalability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: 64bb5ffa
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: 64bb5ffa
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/reliability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: 209b0f2c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: 209b0f2c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/observability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: d9f3b8f2
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: d9f3b8f2
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/logical-components.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: 02ee78f7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: 02ee78f7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: d70e292e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: d70e292e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/performance-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 91c0ee59
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 91c0ee59
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1bc7985a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1bc7985a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: b34f0e5d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: b34f0e5d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/reliability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: d69c829d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: d69c829d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/observability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1936e561
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1936e561
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2745a323
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2745a323
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: cd15dc54
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: cd15dc54
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7f27944c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7f27944c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/security-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8211a523
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8211a523
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/scalability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 614379e0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 614379e0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/reliability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: ea852970
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: ea852970
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/observability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 274a8e75
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 274a8e75
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0376de2d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0376de2d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: ae27fb3e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: ae27fb3e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: c7d33c85
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: c7d33c85
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/security-design.md
+**Duration ms**: 57
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3b239c66
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3b239c66
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/scalability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8749ea9c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8749ea9c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/reliability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: b2448e13
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: b2448e13
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/observability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 977559a5
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 977559a5
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: da2ed93f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: da2ed93f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/traceability.json
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4050d79b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4050d79b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/security-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: eb1c9bb2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: eb1c9bb2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1080bb63
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1080bb63
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: f01e3825
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: f01e3825
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/security-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9d380ffb
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9d380ffb
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/scalability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 395049e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 395049e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/reliability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: fd1f96c4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: fd1f96c4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/observability-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5af92855
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5af92855
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/logical-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 20386f30
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 20386f30
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/session-lifecycle/nfr-design/traceability.json
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: d744eaca
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: d744eaca
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/performance-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 77e47ebd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 77e47ebd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/security-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: e57b1b4b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: e57b1b4b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1390fd70
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1390fd70
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/reliability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: d734516f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: d734516f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/observability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: dd3be5f0
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: dd3be5f0
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/logical-components.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: c00fc28b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: c00fc28b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/text-flow/nfr-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: f88c432f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: f88c432f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 07127a1a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 07127a1a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9f167fe8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9f167fe8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: cacfbeff
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: cacfbeff
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/reliability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5f5011e4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5f5011e4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/observability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: ea7d6006
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: ea7d6006
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/logical-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4a1e878a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4a1e878a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/assistant-extras/nfr-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: d3d9903a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: d3d9903a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/performance-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: fefa15cd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: fefa15cd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: eee49f0d
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: eee49f0d
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/reliability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: e20160e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: e20160e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/logical-components.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: dc4be7e2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: dc4be7e2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/incoherence-analyzer/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6f0278ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6f0278ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/performance-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 483bcf47
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 483bcf47
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/security-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3c3461d8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3c3461d8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8d21ccab
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8d21ccab
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/reliability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: dc14a5a8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: dc14a5a8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/observability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6efe65cf
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6efe65cf
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 376b30e3
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 376b30e3
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/research-reports/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 471f9f57
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 471f9f57
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/performance-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: c14eecc1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: c14eecc1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/security-design.md
+**Duration ms**: 50
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: c9163c8b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: c9163c8b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/scalability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: a377e392
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: a377e392
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/reliability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: d2121b0b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: d2121b0b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/observability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: aecd028b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: aecd028b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: d709b9ea
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: d709b9ea
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/voice/nfr-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9cda82f1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9cda82f1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 395de52e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 395de52e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/platform/nfr-design/traceability.json
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: f72cc65c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: f72cc65c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/performance-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9aa06e3c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9aa06e3c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2c68c267
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2c68c267
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0c48ab13
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0c48ab13
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/reliability-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 64f72461
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 64f72461
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/observability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: bf46876d
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: bf46876d
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/logical-components.md
+**Duration ms**: 49
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9bd838e2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9bd838e2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/identity-access/nfr-design/traceability.json
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: aefe80e1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: aefe80e1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/performance-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: bb6d1220
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: bb6d1220
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2d73b170
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2d73b170
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/scalability-design.md
+**Duration ms**: 55
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3f8fb114
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3f8fb114
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/reliability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4a57bf3a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4a57bf3a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/observability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: d616949c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: d616949c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1cfb4c8e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1cfb4c8e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/anonymizer/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 659c2f80
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:22Z
+**Event**: SENSOR_PASSED
+**Fire id**: 659c2f80
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/performance-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: d1f43480
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: d1f43480
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/security-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3b797790
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3b797790
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/scalability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 74c6d680
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 74c6d680
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/reliability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: e967d26f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: e967d26f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/observability-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9a4113c1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9a4113c1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/logical-components.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1e95c723
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1e95c723
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/forensic-report/nfr-design/traceability.json
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 20debe98
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 20debe98
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/performance-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1f9d35ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1f9d35ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/security-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7e1a83dd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7e1a83dd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/scalability-design.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: ff4a44ac
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: ff4a44ac
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/reliability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: f5c7347b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: f5c7347b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/observability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 42ae9ef7
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 42ae9ef7
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/logical-components.md
+**Duration ms**: 52
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 946aeb37
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 946aeb37
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/human-review/nfr-design/traceability.json
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 937a6116
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/performance-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 937a6116
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/performance-design.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 865836d4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/security-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 865836d4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/security-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: ac9079d7
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/scalability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: ac9079d7
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/scalability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 62946999
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/reliability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 62946999
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/reliability-design.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 453188b5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/observability-design.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 453188b5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/observability-design.md
+**Duration ms**: 53
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3b25ba0e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/logical-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3b25ba0e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/logical-components.md
+**Duration ms**: 54
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-23T00:32:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8cf61593
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-23T00:32:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8cf61593
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/ethics-governance/nfr-design/traceability.json
+**Duration ms**: 52
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-11-23T00:32:25Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: nfr-design
+
+---

@@ -32,21 +32,21 @@ def es_interna(url: str) -> bool:
     return (url.startswith("/") and not url.startswith("//")) or INTERNA.match(url) is not None
 
 
-def servidores_externos(documento: Any) -> list[str]:
-    """URL de `servers` (OpenAPI) o `host` (AsyncAPI) y valores por omisión que no son internos."""
-    externos: list[str] = []
+def direcciones_declaradas(documento: Any) -> list[str]:
+    """URL de `servers` (OpenAPI) o `host` de cada servidor (AsyncAPI) y sus valores por omisión."""
     servidores = documento.get("servers") or []
     if isinstance(servidores, dict):  # AsyncAPI 3.0: mapa nombre -> servidor
-        for servidor in servidores.values():
-            direccion = "http://" + str(servidor.get("host", ""))
-            if not es_interna(direccion):
-                externos.append(str(servidor.get("host", "")))
-        return externos
+        return ["http://" + str(s.get("host", "")) for s in servidores.values()]
+    direcciones: list[str] = []
     for servidor in servidores:  # OpenAPI 3.1: lista con `url` y `variables`
-        candidatas = [str(servidor.get("url", ""))]
-        candidatas += [str(v.get("default", "")) for v in (servidor.get("variables") or {}).values()]
-        externos += [url for url in candidatas if not es_interna(url)]
-    return externos
+        direcciones.append(str(servidor.get("url", "")))
+        direcciones += [str(v.get("default", "")) for v in (servidor.get("variables") or {}).values()]
+    return direcciones
+
+
+def servidores_externos(documento: Any) -> list[str]:
+    """Direcciones declaradas que no son internas."""
+    return [d for d in direcciones_declaradas(documento) if not es_interna(d)]
 
 
 SERVIDORES = [
@@ -62,7 +62,10 @@ SERVIDORES = [
 
 @pytest.mark.parametrize("ruta", SERVIDORES)
 def test_los_servers_son_internos(ruta: str) -> None:
-    assert servidores_externos(load_contract(ruta)) == []
+    """NFR1.1: el contrato declara al menos un servidor (sin `servers` no hay nada comprobado)."""
+    documento = load_contract(ruta)
+    assert direcciones_declaradas(documento), f"{ruta}: no declara ningún servidor en servers"
+    assert servidores_externos(documento) == []
 
 
 @pytest.mark.c21
@@ -140,11 +143,41 @@ def test_c21_declara_el_tamano_maximo_de_peticion_y_respuesta() -> None:
     assert en_respuesta == {"anonymizer_response_max_bytes"}
 
 
+def _tipos(valor: dict[str, Any]) -> list[str]:
+    """Los tipos que declara un esquema, sea `type: x` o `type: [x, y]`."""
+    tipo = valor.get("type")
+    if isinstance(tipo, str):
+        return [tipo]
+    return [t for t in tipo if isinstance(t, str)] if isinstance(tipo, list) else []
+
+
+_COMPOSICION = ("$ref", "enum", "const", "allOf", "anyOf", "oneOf", "not", "if")
+
+
+def _propiedades_sin_tipo(documento: Any) -> list[str]:
+    """Propiedades sin `type` ni `$ref`, enum, const o composición: aceptan cualquier cadena."""
+    sin_tipo = []
+    for sitio, clave, valor in recorrer(documento):
+        if clave == "properties" and isinstance(valor, dict):
+            for nombre, esquema in valor.items():
+                abierta = (
+                    isinstance(esquema, dict)
+                    and "type" not in esquema
+                    and not any(k in esquema for k in _COMPOSICION)
+                )
+                if abierta:
+                    sin_tipo.append(f"{sitio}.{nombre}")
+    return sin_tipo
+
+
 def _cadenas_abiertas(documento: Any) -> list[str]:
-    """Cadenas que no son enum, const, formato cerrado ni patrón sin espacios con tope de 128."""
-    abiertas = []
+    """Cadenas que no son enum, const, formato cerrado ni patrón sin espacios con tope de 128.
+
+    Ve `type: string`, `type: [string, "null"]` y las propiedades declaradas sin `type`.
+    """
+    abiertas = _propiedades_sin_tipo(documento)
     for sitio, _, valor in recorrer(documento):
-        if not isinstance(valor, dict) or valor.get("type") != "string":
+        if not isinstance(valor, dict) or "string" not in _tipos(valor):
             continue
         cerrada = (
             "enum" in valor
@@ -164,7 +197,7 @@ def _cadenas_abiertas(documento: Any) -> list[str]:
 def _enteros_sin_tope(documento: Any) -> list[str]:
     sin_tope = []
     for sitio, _, valor in recorrer(documento):
-        if isinstance(valor, dict) and valor.get("type") == "integer":
+        if isinstance(valor, dict) and "integer" in _tipos(valor):
             maximo = valor.get("maximum")
             if "minimum" not in valor or not isinstance(maximo, int) or maximo > MAXIMO_ENTERO:
                 sin_tope.append(sitio)
@@ -175,7 +208,7 @@ def _enteros_sin_tope(documento: Any) -> list[str]:
     "ruta",
     [
         pytest.param("cli/report.schema.v2.yaml", marks=pytest.mark.c19, id="report"),
-        pytest.param("model_calls/model-call.v1.yaml", marks=pytest.mark.c19, id="model-call"),
+        pytest.param("model_calls/model-call.v1.yaml", marks=pytest.mark.c13, id="model-call"),
     ],
 )
 def test_c19_no_tiene_campos_de_texto_libre(ruta: str) -> None:

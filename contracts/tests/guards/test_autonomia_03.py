@@ -147,7 +147,7 @@ def test_los_enum_copiados_de_c6_son_iguales(ruta: str) -> None:
         pytest.param("profiles/profiles.schema.v1.yaml", marks=pytest.mark.c18, id="c18-perfiles"),
         pytest.param("profiles/effective-config.v1.yaml", marks=pytest.mark.c18, id="c18-efectiva"),
         pytest.param("cli/report.schema.v2.yaml", marks=pytest.mark.c19, id="c19-reporte"),
-        pytest.param("model_calls/model-call.v1.yaml", marks=pytest.mark.c19, id="c19-llamada"),
+        pytest.param("model_calls/model-call.v1.yaml", marks=pytest.mark.c13, id="c13-llamada"),
         pytest.param("api/anonymizer-proxy.v1.yaml", marks=pytest.mark.c21, id="c21"),
         pytest.param(C1, marks=pytest.mark.c1, id="c1"),
         pytest.param("queues/runs.v2.yaml", marks=pytest.mark.asyncapi, id="c2"),
@@ -285,7 +285,19 @@ def test_c7_registra_quien_y_cuando_decidio() -> None:
     assert {"decided_by", "decided_at", "note", "reformulation"} <= set(documento["properties"])
     assert not {"decided_by", "decided_at"} & set(documento.get("required", []))
     condiciones = documento["allOf"]
-    assert len(condiciones) >= 3
-    texto = str(condiciones)
-    for campo in ("decided_by", "decided_at", "note", "reformulation"):
-        assert campo in texto
+
+    def del_estado(estado: str) -> dict[str, Any]:
+        for condicion in condiciones:
+            if condicion.get("if", {}).get("properties", {}).get("state", {}).get("const") == estado:
+                return condicion
+        pytest.fail(f"C7 no declara la condición if/then del estado {estado}")
+
+    # Forma de FD-U1-13 (contract-summary C7): if state=pending, then not(anyOf required), else required.
+    pendiente = del_estado("pending")
+    prohibidos = {
+        campo for rama in pendiente["then"]["not"]["anyOf"] for campo in rama["required"]
+    }
+    assert prohibidos == {"decided_by", "decided_at"}, "pending no debe traer quién ni cuándo"
+    assert set(pendiente["else"]["required"]) == {"decided_by", "decided_at"}
+    assert "note" in del_estado("dismissed")["then"]["required"]
+    assert "reformulation" in del_estado("edited")["then"]["required"]

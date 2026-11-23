@@ -4,9 +4,9 @@ synthetic: true
 expectation: accept
 mentions: [Villa Rocamora, Puerto Altamira]
 payload:
-  suggestion_id: 88888888-aaaa-4bbb-8ccc-000000000008
-  session_id: 33333333-aaaa-4bbb-8ccc-000000000003
-  first_run_id: 22222222-aaaa-4bbb-8ccc-000000000002
+  suggestion_id: 2e9f7b4d-c5a1-4a8e-b3c6-8d2f5a1e9c7b
+  session_id: e7a2d5c9-6f1b-4d3e-a8c4-f9b3e0d7a2c5
+  first_run_id: c4e8b1f7-2d9a-4a6c-8b3e-d5f0a9c2e1b4
   hecho: Lugar donde pasó la noche del suceso
   tipo: lugar
   cita_a: {cita: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana.", turno: T2}
@@ -15,5 +15,5 @@ payload:
   state: edited
   reformulation: Conviene preguntar por el orden de los dos lugares durante esa noche.
   observations_viewed: true
-  decided_by: 99999999-aaaa-4bbb-8ccc-000000000009
+  decided_by: 6a8c4e1f-b7d3-4e2a-9f1c-5c0b3d8a4e6f
   decided_at: "2026-11-23T16:00:00Z"

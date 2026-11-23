@@ -7,9 +7,9 @@ reject_reason: BR1.2
 mentions: []
 payload:
   schema_version: "2.0.0"
-  message_id: 55555555-aaaa-4bbb-8ccc-000000000005
-  turn_id: 66666666-aaaa-4bbb-8ccc-000000000006
-  session_id: 33333333-aaaa-4bbb-8ccc-000000000003
+  message_id: d2c7a9e4-8b3f-4e1a-b6d5-a0f4c9e2b7d1
+  turn_id: f5b1e8c3-4a7d-4c9f-8e2b-e3a6d0c1f9b8
+  session_id: e7a2d5c9-6f1b-4d3e-a8c4-f9b3e0d7a2c5
   attempt: 1
   audio_format: wav
   audio_base64: UklGRgAAAAA=

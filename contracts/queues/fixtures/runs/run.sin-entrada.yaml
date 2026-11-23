@@ -7,9 +7,9 @@ reject_reason: BR2.1
 mentions: []
 payload:
   schema_version: "2.0.0"
-  message_id: 11111111-aaaa-4bbb-8ccc-000000000001
-  run_id: 22222222-aaaa-4bbb-8ccc-000000000002
-  session_id: 33333333-aaaa-4bbb-8ccc-000000000003
+  message_id: a3f1c9d2-7b4e-4c8a-9e5f-b2d6a1c7e3f0
+  run_id: c4e8b1f7-2d9a-4a6c-8b3e-d5f0a9c2e1b4
+  session_id: e7a2d5c9-6f1b-4d3e-a8c4-f9b3e0d7a2c5
   attempt: 1
   effective_config: {schema_version: "1.0.0", analyzer_version: "0.1.0", profile_name: todo-local, profile: {purpose: demonstration, roles: {judge: {provider: local, model: modelo-juez-prueba, family: familia-a, scope: local, base_url: "http://veridicus-llm-judge:8080"}, verifier: {provider: local, model: modelo-verificador-prueba, family: familia-a, scope: local, base_url: "http://veridicus-llm-verifier:8080"}}, role_aliases: {verifier_permuted: verifier}, permutation: true, same_family_declared: true}, profile_sha256: d53a44b5d42ef2504d2f77ee2302bae86e7099536d6945908507f35b9ca3a50e, prompt_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12, limits: {model_call_timeout_s: 120, run_deadline_incremental_s: 300, run_deadline_final_s: 900, fragment_window_turns: 40, fragment_overlap_turns: 10}}
   config_sha256: b22a9783ba236cb406fd82682080d1646d0e4aa0986f933af8df08ca32787553

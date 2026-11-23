@@ -47,4 +47,32 @@ sesión de `gh` como administrador.
 
 ## Evidencia
 
-_Pendiente: salidas de las validaciones 1 y 2._
+Configuración aplicada el 2026-11-23 con `bash scripts/github-p0-1.sh freyesJaveriana/tai`. Reglas
+activas en `main`: `deletion`, `non_fast_forward`, `required_linear_history`, `pull_request`,
+`required_status_checks`.
+
+**Validación 1: la CI bloquea.** El PR #2 añadía `helm upgrade` en `scripts/validacion-p0-1.sh`.
+`repo-level0` falló en el paso de AUTONOMIA-01:
+
+```text
+check-no-cluster-apply: AUTONOMIA-01 incumplida. Estas líneas aplican cambios a un clúster o envían trabajos a ZINE:
+./scripts/validacion-p0-1.sh:3:helm upgrade veridicus deploy/veridicus
+##[error]Process completed with exit code 1.
+```
+
+`gh pr view 2 --json mergeStateStatus` → `"BLOCKED"`. Se cerró sin fusionar y se borró la rama.
+
+**Validación 2: el *push* directo se rechaza.** Un commit vacío en `main` y `git push`:
+
+```text
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: - Changes must be made through a pull request.
+remote: - Required status check "repo-level0" is expected.
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+```
+
+El commit se descartó con `git reset origin/main`, sin tocar el árbol de trabajo.
+
+**Falso positivo previo:** la primera corrida de `repo-level0` (PR #1) encontró 38 coincidencias de
+`generic-api-key`. Todas eran marcas `aidlc-wave-memory` de los diarios de AI-DLC; se excluyeron en
+`.gitleaks.toml`, y una clave de prueba se siguió detectando.

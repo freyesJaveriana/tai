@@ -43848,3 +43848,459 @@
 **Context**: construction > contracts > code-generation > code-generation-plan.md
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:26:25Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:26:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a672695caa2a2367e
+**Message**: Reading queue fixtures and helpers
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:26:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7859e92ceca5d108
+**Message**: Reading pending-con-decided-at fixture
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:26:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3cd4e04b1762a91b
+**Message**: Reading contract-summary error codes
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:27:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5f971cacb571fd1b
+**Message**: Checking plan paso 7 C18 refs
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:27:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: acd8b4598f48bc271
+**Message**: Verifying review-suggestion.v2.json against fixtures
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:27:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a23e66097ed8b46d1
+**Message**: Checking uv and bitácoras listing.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:27:46Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a563637a9dd4748c7
+**Message**: Reading effective-config C18 schema
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:27:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad63c8b09710e9910
+**Message**: Editing suggestion_conditions.py guard
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:27:57Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aba5ec5f966aaa563
+**Message**: Writing gen_errors.py generator
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:28:18Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a085d1b6432163309
+**Message**: Checking schema IDs in entrada.schema.json
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:28:22Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a2f9f2caf3f517be9
+**Message**: Running lint and coverage checks
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:28:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae1db45c41c310ca2
+**Message**: Locking libs/errors dependencies with uv
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:28:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3cecb4a30959595f
+**Message**: Writing speech.v2.yaml contract
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:28:53Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9a40a4136a305e5b
+**Message**: Reading HEAD short SHA
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:28:56Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a51447b91f4ef935a
+**Message**: TAREA: U01-T06\nRAMA: tarea/U01-T06   SHA: d0ec0c0 (subida a origin)\nCRITERIOS: 6 de 6 verificados\n- CA-1: 37 pruebas en verde.\n- CA-2: `test_autonomia_05.py` completo, 20 pruebas en verde.\n- CA-3: 16 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:28:56Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:28:59Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a57038495cfbcf967
+**Message**: Verifying libs/errors tests, types, lint
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:29:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae3021a05458ee5fa
+**Message**: Debugging inlined effective_config in runs.v2.yaml
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:29:30Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a925ddb3b9dfa6b36
+**Message**: Writing error_codes.py guard module
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:29:36Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a45137184583bb7c4
+**Message**: Measuring branch coverage of suggestion_conditions.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:29:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aadebb0e68f6a073a
+**Message**: Rewriting runs.v2.yaml schemas
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:30:01Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a69903aec4c0c0594
+**Message**: Fixing mypy error in error_codes.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:30:07Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae5c1b649f570484d
+**Message**: Checking BR4.4 in rules.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:30:22Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: acd8cf56b814fbea1
+**Message**: Listing the bitacoras directory.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:30:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad388e4de3c44f146
+**Message**: Checking error_codes coverage report.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:30:39Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a4c0a76b5efa0a709
+**Message**: Probing review-suggestion.v2.json edge cases
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:30:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a92702db7e7714bfb
+**Message**: TAREA: U01-T05\nRAMA: tarea/U01-T05   SHA: 38f1ae7\nCRITERIOS: 5 de 5 verificados\n- CA-1: rojo primero (`contrato ausente: queues/runs.v2.yaml`) y luego 18 passed.\n- CA-2: `git diff --name-only feat/b1-
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:30:51Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:31:00Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: adccf84d2a3383c3a
+**Message**: TAREA: U01-T07\nRAMA: tarea/U01-T07   SHA: 5575e00\nCRITERIOS: 10 de 10 corridos en verde en mi worktree. El revisor debe volver a correrlos él mismo.\nBITACORA: <project-dir>/.worktrees/U01-T07/docs/loop/b
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:31:03Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:31:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a49b4c4a7881be1f6
+**Message**: Mutation-testing suggestion_conditions.py guard
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:31:54Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7c6ef4d0a1effb0b
+**Message**: Reading libs/errors .gitignore and tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a27ad109a99546ddb
+**Message**: Running mutants 2–6 against _declara
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3d911852089da058
+**Message**: Measuring registry.py branch coverage
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:25Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a372134545ba84dfc
+**Message**: Searching contract-summary for C1 error statuses
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3e957c3674a5fc39
+**Message**: Mutating _problemas_del_fixture reject_reason check
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a648697ee7cbcdcce
+**Message**: Running failing registry tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:57Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a48e6eb15b146f4b4
+**Message**: Comparing error statuses against error-codes.v2.yaml
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:16Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3b4450f07593d5ad
+**Message**: Running mutants on suggestion_conditions.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a1eda261a4abb831e
+**Message**: Running full contracts test suite
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:29Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa569e64fcd77748f
+**Message**: Extracting status tables from functional-spec.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aabf354ab8512a85b
+**Message**: Checking tests/checks folder contents
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aaba9fd6e82058250
+**Message**: Reading U01-T05 bitácora
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:34:01Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5d1afa3f3744d356
+**Message**: Checking uv.lock in libs/errors
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:34:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a92702db7e7714bfb
+**Message**: TAREA: U01-T05 (ronda 2)\nRAMA: tarea/U01-T05   SHA: 76c713d\nCRITERIOS: 5 de 5 verificados, más el criterio nuevo de `registry.py` verificado en su archivo pero no con el comando literal (ver BLOQUEOS)
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:34:15Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:34:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a6b78ea8ea0940ce0
+**Message**: # Ronda 1 — U01-T06\n\nVEREDICTO: NO-VERDE\n\nHay dos NARANJA y ningún ROJO. Los seis criterios pasan con mis propias corridas. C7 es idéntico al bloque C7 de `contract-summary.md` (líneas 1682–1714). El 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:34:30Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:34:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac2407f5970b712e6
+**Message**: Searching contracts for veridicus_errors
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:35:05Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a48176c58945c963a
+**Message**: Preparing mutations for error_codes.py
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:35:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---

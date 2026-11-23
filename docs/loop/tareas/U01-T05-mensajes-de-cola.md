@@ -110,6 +110,18 @@ El rojo es de T03. Antes de escribir el primer contrato, corre CA-1 y pega la sa
 - F-11: corre siempre con `uv run` y nunca con `--no-sync`.
 - Conventional Commits en español con alcance `contracts`, por ejemplo `feat(contracts): mensajes de cola C2, C3 y C5 v2 (T05)`.
 
+### Ampliación de alcance para la ronda 2 (orquestador, 2026-11-23)
+
+En la ronda 1, el codificador copió el esquema de C18 dentro de `runs.v2.yaml` en lugar de usar un `$ref`, porque el registro de T02 solo carga archivos `*.schema.json`. Esa copia incumple BR12.3: el registro carga **cada esquema del paquete** y es el único resolvedor; las referencias entre esquemas son rutas absolutas del `$id`. No hace falta cambiar el plan: se corrige el registro para que cumpla BR12.3.
+
+- **Dentro, además:** `contracts/src/veridicus_contracts/registry.py` y `contracts/tests/test_registry.py`.
+  - El registro carga también los esquemas YAML. Cuenta como esquema todo archivo `.yaml` o `.json` bajo `contracts/` cuyo documento raíz declare `$schema` y `$id`, fuera de `fixtures/` y de `tests/`.
+  - Las reglas de T02b se mantienen: URI repetida, `$id` vacío o con fragmento, fuera de la base.
+  - Pruebas en rojo primero; `registry` sigue al 100 % de ramas.
+- `effective_config` de C2 pasa a `$ref: /veridicus/contracts/profiles/effective-config.v1` (o el `$id` que lleve C18), y se borra la copia de `components/schemas`.
+- Ninguna tarea vecina de la ola 5 ni de la ola 6 toca `registry.py`.
+- Criterio adicional, en dos comandos. Primero `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_registry.py --cov-fail-under=0` → verde. Después `uv run --frozen --offline --directory contracts coverage report --include=src/veridicus_contracts/registry.py --fail-under=100` → 100 %. El total del paquete no cuenta aquí: `addopts` ya mide todo el paquete. Corrección del orquestador tras la ronda 2.
+
 ### Decisión tomada (2026-11-23)
 
 - **A-5 → E-5: opción (a), T05 escribe `effective-config.v1.yaml`.** E-2 (opción c) se descartó porque el registro no resuelve C2 entero con el `$ref` ausente (ronda 1 de U01-T03). Contexto original: el paso 7 valida `effective_config` de C2 contra C18 (F2 paso 3, BR9.7), pero C18 (`profiles/effective-config.v1.yaml`) lo escribe el paso 11, en T09 (ola 6). PD-8 solo aplaza C25 y C1, no C18. Con el registro cerrado de T02, un `$ref` a un esquema ausente es un error y el *fixture* válido de C2 no puede pasar a verde en esta ola. Opciones: (a) adelantar a T05 solo `profiles/effective-config.v1.yaml` (T09 conserva `profile-base`, `profiles.schema`, `prices` y `profiles.validate`); (b) mover T05 a la ola 6, después de T09; (c) aplazar el caso de C2 con `effective_config` como PD-8 hace con C25. Las tres cambian el plan aprobado y piden volver a aprobarlo. Mientras no se decida, si el verde depende de C18, el codificador para y lo informa: no escribe C18.

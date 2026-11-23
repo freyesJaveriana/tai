@@ -26,6 +26,7 @@ Las fuentes aprobadas ya las deciden.
 | C-1 | FD-U11-03 y FD-U8-01 se unen siguiendo a FD-U8-01: `observaciones_conductor` lo arma el módulo de U8 dentro de la biblioteca, solo en modo incremental |
 | C-2 | FD-U3-01 y NFR-U5-03 se unen en un solo texto de AC5.4.4 |
 | C-4 | `connectionLimit` de `veridicus_app` es 30 (IDS-U4-03, `project.md`); IDS-U2-14 queda superada |
+| P-T06-1 | C7 de `contract-summary.md` no pone `minLength` en `note` ni en `reformulation`, pero BR4.4 (functional-design de U1, aprobado después) exige que no estén vacíos. Se aplica BR4.4: `minLength: 1` en los dos campos, con dos *fixtures* negativos nuevos que escribe T06 (ronda 1 de U01-T06, F-01). La precisión se lleva a `contract-summary.md` al cerrar la etapa |
 | NFR-U11-10 | La cifra N = 300 s no se lleva a `team.md`, que remite esa cifra a NFR Requirements |
 
 ## Cómo se llevan las precisiones a sus originales

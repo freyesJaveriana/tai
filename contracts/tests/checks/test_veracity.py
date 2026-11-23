@@ -39,10 +39,21 @@ SALIDA = "analyzer/v1/salida.schema.json"
 C7 = "integrity/review-suggestion.v2.json"
 
 # E-7: los 9 términos de la primera versión más los de VE-02 con sus flexiones regulares.
+# E-8: más las formas verbales comunes de «mentir», «inculpar» y «engañar» (presente, pretérito,
+# imperfecto en tercera persona e infinitivo). Las formas de «probar» quedan fuera.
+TERMINOS_E8 = [
+    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mintieron", "mentir",
+    "mentía", "mentían",
+    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpó", "inculparon",
+    "inculpar",
+    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañó",
+    "engañaron", "engañar",
+]  # fmt: skip
 TERMINOS_APROBADOS = [
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
     "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
     "inculpa", "engaños", "falsos", "falsas",
+    *TERMINOS_E8,
 ]  # fmt: skip
 CATEGORIAS_APROBADAS = ["veracity_score", "is_lying", "truthfulness", "veracidad", "credibilidad"]
 ROTULOS_APROBADOS = {
@@ -157,10 +168,21 @@ def test_los_terminos_de_ve02_fuera_del_aviso_se_marcan_en_los_nombres(nombre: s
     assert con_veracidad(nombre)
 
 
-@pytest.mark.parametrize("nombre", ["probar", "comprueba", "reprueba", "pliegue", "inculpar", "engañar", "pruebaz"])
-def test_e14_las_flexiones_no_fijadas_son_una_limitacion_declarada(nombre: str) -> None:
-    """E14: ninguna fuente fija estas formas; la lista no las cubre y eso queda a la vista."""
+@pytest.mark.parametrize(
+    "nombre",
+    ["probar", "pruebe", "probó", "comprueba", "reprueba", "pliegue", "pruebaz", "mintiendo", "inculpando",
+     "engañando", "mentira", "mentiras", "incluir"],
+)  # fmt: skip
+def test_e14_las_formas_que_no_estan_en_la_lista_son_una_limitacion_declarada(nombre: str) -> None:
+    """E14: las formas de «probar» (E-8, por falsos positivos), los gerundios y los derivados no entran."""
     assert not con_veracidad(nombre)
+
+
+@pytest.mark.parametrize("termino", TERMINOS_E8)
+def test_e8_las_formas_verbales_se_detectan_en_nombres(termino: str) -> None:
+    assert con_veracidad(termino)
+    assert con_veracidad(f"es_{termino}")
+    assert con_veracidad(termino.upper())
 
 
 def test_el_aviso_versionado_trae_version_y_frase_base() -> None:
@@ -202,9 +224,9 @@ def test_un_nombre_igual_a_una_categoria_prohibida_es_veracidad(categoria: str) 
     assert con_veracidad(categoria.upper())
 
 
-@pytest.mark.parametrize("nombre", ["falsete", "mienten", "verdaderamente", "tipo", "cita_a"])
+@pytest.mark.parametrize("nombre", ["falsete", "mintiendo", "verdaderamente", "tipo", "cita_a"])
 def test_palabra_completa_no_subcadena(nombre: str) -> None:
-    """E14: «falsete» y «mienten» no coinciden (la lista se queda en 9 términos)."""
+    """E14: «falsete» (subcadena) y «mintiendo» (gerundio, no cubierto) no coinciden."""
     assert not con_veracidad(nombre)
 
 
@@ -236,7 +258,7 @@ def test_c8_sin_un_termino_da_br51(termino: str) -> None:
 
 def test_c8_con_un_termino_nuevo_o_repetido_da_br51() -> None:
     c8 = _vocabulario()
-    c8["terms"].append("mienten")
+    c8["terms"].append("mintiendo")
     assert problemas_de_vocabulario(c8) == [
         "BR5.1: la lista de términos no es la aprobada (faltan 0, sobran 1)"
     ]
@@ -569,7 +591,76 @@ def test_camel_y_pascal_case_se_parten_en_las_fronteras(nombre: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "nombre", ["Falsete", "esFalsete", "tipoDeCita", "credibilidadExtra", "isTruth", "mienteentodo", "Mienten"]
+    "nombre",
+    ["es_falso2", "falso2", "es2falso", "FALSO2", "es.falso", "falso2x", "Falso9Positivo", "v1.falso",
+     "esＦａｌｓｏ", "ＦＡＬＳＯ2", "es_ｆａｌｓｏ", "is_lying2", "veracity2Score"],
+)  # fmt: skip
+def test_digitos_y_puntos_tambien_son_fronteras_y_el_ancho_completo_se_normaliza(nombre: str) -> None:
+    """R2-01: letra y dígito (en los dos sentidos), el punto y NFKC antes de comparar."""
+    assert con_veracidad(nombre)
+
+
+def _textos(nodo: Any) -> list[str]:
+    """Todas las cadenas de valor (no las claves) de un documento."""
+    if isinstance(nodo, str):
+        return [nodo]
+    if isinstance(nodo, dict):
+        return [t for valor in nodo.values() for t in _textos(valor)]
+    if isinstance(nodo, list):
+        return [t for valor in nodo for t in _textos(valor)]
+    return []
+
+
+# Archivos que traen los términos a propósito: la lista, sus casos y el texto del aviso (excluido, A-1).
+CON_TERMINOS_A_PROPOSITO = {C8, "integrity/scan-cases.v1.yaml", AVISO}
+
+
+def test_e8_ningun_termino_coincide_con_un_texto_fijo_de_los_contratos() -> None:
+    """Un término de C8 solo aparece, como palabra completa, donde se declara o se ejercita."""
+    terminos = {normalizar(t) for t in veracity.TERMINOS}
+    coincidencias = []
+    for relativa in veracity._contratos(CONTRACTS_ROOT):
+        if relativa in CON_TERMINOS_A_PROPOSITO:
+            continue
+        for texto in _textos(load_contract(relativa)):
+            palabras = set(veracity.PALABRAS.findall(normalizar(texto)))
+            coincidencias += [(relativa, p) for p in sorted(palabras & terminos)]
+    assert coincidencias == []
+
+
+def test_el_recorrido_de_textos_fijos_ve_un_termino_sembrado() -> None:
+    assert _textos({"a": ["x", {"b": "Un texto con MIENTEN dentro", "c": 3}], "d": None}) == [
+        "x",
+        "Un texto con MIENTEN dentro",
+    ]
+    palabras = set(veracity.PALABRAS.findall(normalizar("Un texto con MIENTEN dentro")))
+    assert palabras & {normalizar(t) for t in veracity.TERMINOS} == {"mienten"}
+
+
+def test_nfkc_no_rompe_las_tildes_descompuestas_ni_los_nombres_limpios() -> None:
+    """NFKC compone «ñ» antes de comparar: la forma descompuesta y la compuesta dan lo mismo."""
+    assert con_veracidad("EngañoFinal")
+    assert con_veracidad("Engaño")
+    assert con_veracidad("mintió")  # «mintió» descompuesto
+    assert not con_veracidad("séptimo")
+    assert not con_veracidad("ñandú")
+    assert not con_veracidad("ﬁnal")  # la ligadura «ﬁ» se descompone en «fi»
+
+
+@pytest.mark.parametrize("nombre", ["falsete2", "v2", "tipo2", "x1y", "es.falsete", "ｔｉｐｏ", "mintiendo2", "2025"])
+def test_digitos_y_puntos_no_marcan_lo_limpio(nombre: str) -> None:
+    assert not con_veracidad(nombre)
+
+
+@pytest.mark.parametrize("nombre", ["HTTPFALSO", "EsEngaÑo", "ESFALSO", "fAlso"])
+def test_limitacion_declarada_mayusculas_a_mitad_de_palabra_no_se_parten(nombre: str) -> None:
+    """Limitación declarada (R2-01): una mayúscula seguida de otra mayúscula, o a mitad de una
+    palabra, no es frontera; el nombre queda como una sola palabra y no coincide con un término."""
+    assert not con_veracidad(nombre)
+
+
+@pytest.mark.parametrize(
+    "nombre", ["Falsete", "esFalsete", "tipoDeCita", "credibilidadExtra", "isTruth", "mienteentodo", "Mintiendo"]
 )
 def test_camel_case_limpio_no_se_marca(nombre: str) -> None:
     assert not con_veracidad(nombre)
@@ -625,7 +716,7 @@ def test_un_nombre_de_veracidad_se_detecta(documento: Any) -> None:
 
 
 def test_los_nombres_limpios_pasan() -> None:
-    documento = {"properties": {"falsete": {}, "mienten": {}, "tipo": {"enum": ["fecha", "otro"]}}}
+    documento = {"properties": {"falsete": {}, "mintiendo": {}, "tipo": {"enum": ["fecha", "otro"]}}}
     assert problemas_de_nombres("x.yaml", documento) == []
     assert problemas_de_nombres("x.yaml", {}) == []
 
@@ -688,6 +779,88 @@ def test_un_enum_de_valores_que_no_son_cadenas_no_cuenta_como_declarado() -> Non
     assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
     documento = {"properties": ["tipo"]}
     assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+
+
+PREFIJO_C6 = "/veridicus/contracts/analyzer/v1/salida#"
+RUTAS_EN_C6 = {
+    "estado": "/properties/estado",
+    "tipo": "/$defs/hallazgo/properties/tipo",
+    "codigo": "/properties/error/properties/codigo",
+    "motivo": "/$defs/registro/properties/descartes/items/properties/motivo",
+    "papel": "/$defs/registro/properties/llamadas/items/properties/papel",
+}
+
+
+def _apuntado(documento: Any, puntero: str) -> Any:
+    nodo = documento
+    for parte in puntero.removeprefix("/").split("/"):
+        nodo = nodo[parte]
+    return nodo
+
+
+def test_las_rutas_de_c6_apuntan_a_los_enum_de_c6() -> None:
+    """R2-04: cada ruta canónica resuelve de verdad en la copia de C6 al enum que se compara."""
+    assert veracity.PREFIJO_DE_C6 == PREFIJO_C6
+    assert veracity.RUTAS_EN_C6 == RUTAS_EN_C6
+    salida = load_contract(SALIDA)
+    c6 = enums_de_c6(salida)
+    for nombre, ruta in RUTAS_EN_C6.items():
+        assert frozenset(_apuntado(salida, ruta)["enum"]) == c6[nombre], nombre
+
+
+def _ref(nombre: str) -> dict[str, str]:
+    return {"$ref": PREFIJO_C6 + RUTAS_EN_C6[nombre]}
+
+
+def test_un_ref_exacto_a_la_ruta_de_c6_cuenta_como_copia_correcta() -> None:
+    c6 = enums_de_c6(load_contract(SALIDA))
+    documento = {"properties": {"tipo": _ref("tipo")}}
+    assert problemas_de_enums(C7, documento, c6) == []
+
+
+def test_un_ref_a_otra_ruta_es_una_copia_desviada() -> None:
+    c6 = enums_de_c6(load_contract(SALIDA))
+    mensaje = [f"BR3.2: {C7}: el enum de tipo difiere del de C6 (tipo)"]
+    for ref in (
+        {"$ref": PREFIJO_C6 + RUTAS_EN_C6["estado"]},
+        {"$ref": PREFIJO_C6 + "/$defs/hallazgo"},
+        {"$ref": PREFIJO_C6 + RUTAS_EN_C6["tipo"] + "/enum"},
+        {"$ref": "#/$defs/tipo"},
+        {"$ref": "/veridicus/contracts/analyzer/v1/entrada#/$defs/hallazgo/properties/tipo"},
+        {"$ref": RUTAS_EN_C6["tipo"]},
+    ):
+        documento = {"properties": {"tipo": ref}}
+        assert problemas_de_enums(C7, documento, c6) == mensaje, ref
+
+
+def test_un_ref_que_no_es_texto_no_cuenta_como_declarado() -> None:
+    c6 = enums_de_c6(load_contract(SALIDA))
+    documento = {"properties": {"tipo": {"$ref": 3}}}
+    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+
+
+def test_c19_y_c1_con_ref_a_las_rutas_de_c6_pasan(tmp_path: Path) -> None:
+    c19 = {
+        "properties": {
+            "runs": {
+                "items": {
+                    "properties": {
+                        "status": _ref("estado"),
+                        "error_code": _ref("codigo"),
+                        "discards": {"propertyNames": _ref("motivo")},
+                    }
+                }
+            },
+            "bias_table": {"items": {"properties": {"fact_type": _ref("tipo")}}},
+        }
+    }
+    c1 = {"components": {"schemas": {"ModelCall": {"properties": {"papel": _ref("papel")}}}}}
+    raiz = _arbol(tmp_path)
+    _con_c19_y_c1(raiz, c19, c1)
+    assert comprobar(raiz) == []
+    c1["components"]["schemas"]["ModelCall"]["properties"]["papel"] = _ref("tipo")
+    _escribir(raiz, C1, c1)
+    assert comprobar(raiz) == [f"BR3.2: {C1}: el enum de papel difiere del de C6 (papel)"]
 
 
 def test_cada_copia_del_campo_se_compara_y_basta_una_declarada() -> None:
@@ -981,7 +1154,7 @@ def test_una_salida_de_c6_sin_sus_enum_se_informa(tmp_path: Path, salida: Any) -
 def test_comprobar_propaga_los_defectos_de_cada_archivo_clave(tmp_path: Path) -> None:
     raiz = _arbol(tmp_path)
     c8 = copia(C8)
-    c8["terms"].append("mienten")
+    c8["terms"].append("mintiendo")
     _escribir(raiz, C8, c8)
     rotulos = copia(ROTULOS)
     rotulos["labels"]["decimo"] = "Décimo"

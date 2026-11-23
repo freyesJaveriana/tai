@@ -49,8 +49,11 @@ cases:
     text: "Mintio sobre la fecha del viaje."
     literal_sources: []
     expect: {matches: [mintió], excluded: []}
-  # E14 es una limitación declarada: la lista solo trae las flexiones regulares de género y número
-  # de E-7, no las verbales («mienten») ni las subcadenas («falsete»); cada ampliación entra por su PR.
+  # E14 es una limitación declarada: la lista trae las flexiones de género y número (E-7) y las formas
+  # verbales comunes de «mentir», «inculpar» y «engañar» (E-8, presente, pretérito e infinitivo), pero no
+  # los gerundios («mintiendo») ni las subcadenas («falsete»). Las formas de «probar» («pruebe», «probó»,
+  # «probar») quedan fuera de C8 por E-8: dan falsos positivos en los textos de la interfaz. Cada
+  # ampliación entra por su PR con su control negativo.
   - id: e14-falsete-no-coincide
     source: E14
     synthetic: true
@@ -59,12 +62,12 @@ cases:
     text: "Se oyó un falsete en la canción del patio."
     literal_sources: []
     expect: {matches: [], excluded: []}
-  - id: e14-mienten-no-coincide
+  - id: e14-gerundio-no-coincide
     source: E14
     synthetic: true
     rule: vocabulary
     field: hecho
-    text: "Ellos mienten sobre la fecha del viaje."
+    text: "Ellos siguen mintiendo sobre la fecha del viaje."
     literal_sources: []
     expect: {matches: [], excluded: []}
   - id: d2-termino-solo-entre-comillas-se-escanea
@@ -230,7 +233,7 @@ cases:
     text: "Dice que él inculpa al vecino de la esquina."
     literal_sources: []
     expect: {matches: [inculpa], excluded: []}
-  - id: termino-enganos-sin-tilde
+  - id: termino-enganos-en-mayusculas
     source: BR5.2
     synthetic: true
     rule: vocabulary
@@ -262,6 +265,247 @@ cases:
     text: "No son prueba, dijo el vecino, sino un relato de la tarde."
     literal_sources: []
     expect: {matches: [prueba], excluded: []}
+  # --- E-8: un caso por forma verbal de «mentir», «inculpar» y «engañar» (BR5.1, BR5.8, E40) ---
+  - id: e8-miento
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que yo miento al contar el camino."
+    literal_sources: []
+    expect: {matches: [miento], excluded: []}
+  - id: e8-mientes
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que tú mientes al contar el camino."
+    literal_sources: []
+    expect: {matches: [mientes], excluded: []}
+  - id: e8-mienten
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Ellos mienten sobre la fecha del viaje."
+    literal_sources: []
+    expect: {matches: [mienten], excluded: []}
+  - id: e8-mentimos
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que mentimos al contar el camino."
+    literal_sources: []
+    expect: {matches: [mentimos], excluded: []}
+  - id: e8-mentis
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que vosotros mentís al contar el camino."
+    literal_sources: []
+    expect: {matches: [mentís], excluded: []}
+  - id: e8-menti
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que mentí al contar el camino."
+    literal_sources: []
+    expect: {matches: [mentí], excluded: []}
+  - id: e8-mentiste
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que tú mentiste al contar el camino."
+    literal_sources: []
+    expect: {matches: [mentiste], excluded: []}
+  - id: e8-mintieron
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que ellos mintieron al contar el camino."
+    literal_sources: []
+    expect: {matches: [mintieron], excluded: []}
+  - id: e8-mentir
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se le acusa de mentir sobre la hora de salida."
+    literal_sources: []
+    expect: {matches: [mentir], excluded: []}
+  - id: e8-mentia
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se afirma que él mentía sobre la hora de salida."
+    literal_sources: []
+    expect: {matches: [mentía], excluded: []}
+  - id: e8-mentian
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se afirma que ellos mentían sobre la hora de salida."
+    literal_sources: []
+    expect: {matches: [mentían], excluded: []}
+  - id: e8-inculpas
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que tú inculpas al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpas], excluded: []}
+  - id: e8-inculpamos
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que inculpamos al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpamos], excluded: []}
+  - id: e8-inculpais
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que vosotros inculpáis al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpáis], excluded: []}
+  - id: e8-inculpan
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que ellos inculpan al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpan], excluded: []}
+  - id: e8-inculpe
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que inculpé al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpé], excluded: []}
+  - id: e8-inculpaste
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que tú inculpaste al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpaste], excluded: []}
+  - id: e8-inculpo
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que él inculpó al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpó], excluded: []}
+  - id: e8-inculparon
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que ellos inculparon al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculparon], excluded: []}
+  - id: e8-inculpar
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se menciona la intención de inculpar al vecino."
+    literal_sources: []
+    expect: {matches: [inculpar], excluded: []}
+  - id: e8-enganas
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que tú engañas al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañas], excluded: []}
+  - id: e8-engana
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que él engaña al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engaña], excluded: []}
+  - id: e8-enganamos
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que engañamos al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañamos], excluded: []}
+  - id: e8-enganais
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que vosotros engañáis al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañáis], excluded: []}
+  - id: e8-enganan
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que ellos engañan al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañan], excluded: []}
+  - id: e8-engane
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que engañé al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañé], excluded: []}
+  - id: e8-enganaste
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que tú engañaste al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañaste], excluded: []}
+  - id: e8-engano-pasado
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que él engañó al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañó], excluded: []}
+  - id: e8-enganaron
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que ellos engañaron al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañaron], excluded: []}
+  - id: e8-enganar
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se menciona la intención de engañar al comprador."
+    literal_sources: []
+    expect: {matches: [engañar], excluded: []}
   - id: termino-en-tema
     source: BR5.4
     synthetic: true

@@ -48,6 +48,16 @@ RUTAS_DE_ENUM: dict[str, tuple[tuple[str, str, bool], ...]] = {
     ),
     C1: (("papel", "papel", False),),
 }
+# Ruta de cada enum de C6 dentro de la copia (`$id` canónico, FD-U1-11, BR4.3): un `$ref` que resuelve
+# exactamente a ella vale como la copia en línea.
+PREFIJO_DE_C6 = "/veridicus/contracts/analyzer/v1/salida#"
+RUTAS_EN_C6 = {
+    "estado": "/properties/estado",
+    "tipo": "/$defs/hallazgo/properties/tipo",
+    "codigo": "/properties/error/properties/codigo",
+    "motivo": "/$defs/registro/properties/descartes/items/properties/motivo",
+    "papel": "/$defs/registro/properties/llamadas/items/properties/papel",
+}
 # Claves cuyo mapa de nombres se compara en BR3.3: propiedades, `$defs` y `components.schemas`.
 CLAVES_DE_NOMBRES = frozenset({"properties", "$defs", "schemas"})
 
@@ -63,6 +73,13 @@ TERMINOS = (
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
     "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
     "inculpa", "engaños", "falsos", "falsas",
+    # E-8: formas verbales comunes de «mentir», «inculpar» y «engañar» (las de «probar» no entran).
+    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mintieron", "mentir",
+    "mentía", "mentían",
+    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpó", "inculparon",
+    "inculpar",
+    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañó",
+    "engañaron", "engañar",
 )  # fmt: skip
 CATEGORIAS = ("veracity_score", "is_lying", "truthfulness", "veracidad", "credibilidad")
 ESCANEADOS = (
@@ -119,11 +136,17 @@ FRASES_DE_ACLARACION = ("antes dijo", "dijo antes", "se contradice", "antes menc
 CLAVES_DE_RECHAZO = frozenset({"mentions_contradiction", "phrases", "cites_turn"})
 BANDERAS_DE_RECHAZO = ("mentions_contradiction", "cites_turn")
 
-# Fronteras de palabra de un nombre: `_`, `-`, espacios y los cambios de minúscula a mayúscula
-# (camelCase, PascalCase), también antes de una sigla seguida de palabra («ESFalso»).
+# Fronteras de palabra de un nombre (tras NFKC): `_`, `-`, `.`, espacios, el paso de letra a dígito
+# y de dígito a letra, y los cambios de minúscula a mayúscula (camelCase, PascalCase), también antes
+# de una sigla seguida de palabra («ESFalso»).
+# Limitación declarada (R2-01): una racha de mayúsculas que no va seguida de una palabra con
+# minúscula («HTTPFALSO», «ESFALSO») y las mayúsculas a mitad de palabra («EsEngaÑo») no se parten;
+# el nombre queda como una sola palabra y no coincide con un término.
 FRONTERAS_DE_PALABRA = re.compile(
-    r"[_\-\s]+"
-    r"|(?<=[a-z0-9à-ÿ])(?=[A-ZÀ-Þ])"
+    r"[_\-.\s]+"
+    r"|(?<=[A-Za-zÀ-ÿ])(?=[0-9])"
+    r"|(?<=[0-9])(?=[A-Za-zÀ-ÿ])"
+    r"|(?<=[a-zà-ÿ])(?=[A-ZÀ-Þ])"
     r"|(?<=[A-ZÀ-Þ])(?=[A-ZÀ-Þ][a-zà-ÿ])"
 )
 PALABRAS = re.compile(r"[^\W\d_]+")
@@ -322,10 +345,13 @@ def nombres_de_un_documento(documento: Any) -> list[str]:
 def con_veracidad(nombre: str) -> bool:
     """Igualdad de palabras: la categoría prohibida completa, o un segmento igual a un término de C8.
 
-    Los segmentos se parten en `_`, `-`, espacios y en las fronteras de camelCase y PascalCase.
+    El nombre se normaliza a NFKC (el ancho completo pasa a ancho normal) y sus segmentos se parten
+    en `_`, `-`, `.`, espacios, dígitos y las fronteras de camelCase y PascalCase. Los dígitos no
+    cuentan al comparar con la categoría (`is_lying2` es `is_lying`).
     """
-    segmentos = [normalizar(s) for s in FRONTERAS_DE_PALABRA.split(nombre) if s]
-    if "".join(segmentos) in CATEGORIAS_COMPACTAS:
+    texto = unicodedata.normalize("NFKC", nombre)
+    segmentos = [normalizar(s) for s in FRONTERAS_DE_PALABRA.split(texto) if s]
+    if "".join(s for s in segmentos if not s.isdigit()) in CATEGORIAS_COMPACTAS:
         return True
     return any(segmento in TERMINOS_NORMALIZADOS for segmento in segmentos)
 
@@ -354,12 +380,13 @@ def enums_de_c6(salida: Any) -> dict[str, frozenset[str]]:
     }
 
 
-def _enums_de_un_campo(documento: Any, campo: str, en_claves: bool) -> list[frozenset[str]]:
-    """Los enum en línea del campo `campo` de cualquier `properties` del documento.
+def _enums_de_un_campo(documento: Any, campo: str, en_claves: bool) -> list[frozenset[str] | str]:
+    """Las copias del campo `campo` de cualquier `properties` del documento: el enum en línea o,
+    si no lo hay, el texto de su `$ref`.
 
-    Con `en_claves`, el enum está en `propertyNames` (un mapa cuyas claves son los valores).
+    Con `en_claves`, la copia está en `propertyNames` (un mapa cuyas claves son los valores).
     """
-    encontrados: list[frozenset[str]] = []
+    encontrados: list[frozenset[str] | str] = []
     for clave, valor in _recorrer(documento):
         if clave != "properties" or not isinstance(valor, dict) or not isinstance(valor.get(campo), dict):
             continue
@@ -367,8 +394,11 @@ def _enums_de_un_campo(documento: Any, campo: str, en_claves: bool) -> list[froz
         if en_claves:
             esquema = esquema.get("propertyNames")
         enum = esquema.get("enum") if isinstance(esquema, dict) else None
+        referencia = esquema.get("$ref") if isinstance(esquema, dict) else None
         if isinstance(enum, list) and _lista_de_cadenas(enum):
             encontrados.append(frozenset(enum))
+        elif isinstance(referencia, str):
+            encontrados.append(referencia)
     return encontrados
 
 
@@ -382,7 +412,7 @@ def problemas_de_enums(ruta: str, documento: Any, c6: Mapping[str, frozenset[str
         problemas += [
             f"BR3.2: {ruta}: el enum de {campo} difiere del de C6 ({nombre})"
             for copia in copias
-            if copia != c6[nombre]
+            if copia != (PREFIJO_DE_C6 + RUTAS_EN_C6[nombre] if isinstance(copia, str) else c6[nombre])
         ]
     return problemas
 

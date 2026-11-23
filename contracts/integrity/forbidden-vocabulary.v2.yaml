@@ -32,7 +32,10 @@ terms:
   - verdadera
   - engaño
   # E-7 (2026-11-23): términos de VE-02 (adenda 02) con sus flexiones regulares de género y número.
-  # Ninguna fuente fija más variantes; no se añaden formas verbales (p. ej. «inculpan», «mienten»).
+  # Ninguna fuente fija más variantes de género y número.
+  # E-8 (2026-11-23): formas verbales comunes de «mentir», «inculpar» y «engañar» (presente, pretérito,
+  # infinitivo y el imperfecto de tercera persona de «mentir»). «miente», «mintió», «inculpa» y «engaño»
+  # ya estaban. Quedan fuera las formas de «probar» («pruebe», «probó», «probar»): falsos positivos.
   - prueba
   - pruebas
   - probatorio
@@ -45,6 +48,36 @@ terms:
   - engaños
   - falsos
   - falsas
+  - miento
+  - mientes
+  - mienten
+  - mentimos
+  - mentís
+  - mentí
+  - mentiste
+  - mintieron
+  - mentir
+  - mentía
+  - mentían
+  - inculpas
+  - inculpamos
+  - inculpáis
+  - inculpan
+  - inculpé
+  - inculpaste
+  - inculpó
+  - inculparon
+  - inculpar
+  - engañas
+  - engaña
+  - engañamos
+  - engañáis
+  - engañan
+  - engañé
+  - engañaste
+  - engañó
+  - engañaron
+  - engañar
 categories_forbidden_in_schemas: [veracity_score, is_lying, truthfulness, veracidad, credibilidad]
 scanned:
   - salida.hallazgos[].hecho

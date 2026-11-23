@@ -9,6 +9,7 @@ un control negativo con una copia con un defecto sembrado, en memoria o en `tmp_
 
 import copy
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -22,15 +23,23 @@ from veridicus_contracts.checks.scan_cases import (
     problemas_de_casos,
     problemas_de_testimonio,
 )
+from veridicus_contracts.checks.veracity import normalizar
 
 CASOS = "integrity/scan-cases.v1.yaml"
 TESTIMONIO = "integrity/testimony-warning-cases.v1.yaml"
 LIMITES = "limits.v1.yaml"
 # E-7: los 9 términos de la primera versión más los de VE-02 con sus flexiones regulares.
+# E-8: más las formas verbales comunes de «mentir», «inculpar» y «engañar»; las de «probar» no entran.
 TERMINOS = (
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
     "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
     "inculpa", "engaños", "falsos", "falsas",
+    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mintieron", "mentir",
+    "mentía", "mentían",
+    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpó", "inculparon",
+    "inculpar",
+    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañó",
+    "engañaron", "engañar",
 )  # fmt: skip
 FRASES = ("antes dijo", "dijo antes", "se contradice", "antes mencionó", "había dicho")
 ORIGENES = ("E10", "E11", "E12", "E13", "E14", "E30", "D-2", "A-1")
@@ -101,6 +110,45 @@ def test_el_conjunto_versionado_cubre_cada_termino_y_cada_frase() -> None:
     assert all(c["synthetic"] is True for c in documento["cases"])
     ids = [c["id"] for c in documento["cases"]]
     assert len(ids) == len(set(ids))
+
+
+def _coincidencias(texto: str, fuentes: list[str]) -> set[str]:
+    """Referencia mínima, solo de prueba (el escáner real es de U11): palabras completas de C8 en el
+    texto, sin mayúsculas ni tildes, quitando las citas «…» que están en una fuente y no son un
+    término solo (D-2)."""
+    terminos = {normalizar(t) for t in TERMINOS}
+    restante = texto
+    for tramo in re.findall(r"«([^»]*)»", texto):
+        normal = " ".join(tramo.split())
+        if normalizar(normal) not in terminos and any(normal in " ".join(f.split()) for f in fuentes):
+            restante = restante.replace(f"«{tramo}»", " ")
+    return set(re.findall(r"[^\W\d_]+", normalizar(restante))) & terminos
+
+
+def test_e8_ningun_caso_de_vocabulario_coincide_con_un_termino_que_no_espera() -> None:
+    """Un término nuevo no puede coincidir por accidente con el texto de otro caso (p. ej. dentro
+    de una palabra más larga): lo que la referencia encuentra es exactamente lo que el caso espera."""
+    documento = casos()
+    de_vocabulario = [c for c in documento["cases"] if c["rule"] == "vocabulary"]
+    assert len(de_vocabulario) > len(TERMINOS)
+    for caso in de_vocabulario:
+        esperado = {normalizar(t) for t in caso["expect"]["matches"]}
+        assert _coincidencias(caso["text"], caso["literal_sources"]) == esperado, caso["id"]
+
+
+@pytest.mark.parametrize(
+    "texto",
+    ["Un mentirillo", "mentirosamente", "inculparse", "engañando", "la mentira", "una pruebita", "mintiendo"],
+)
+def test_e8_una_palabra_mas_larga_no_coincide_con_un_termino(texto: str) -> None:
+    assert _coincidencias(texto, []) == set()
+
+
+def test_e8_la_referencia_ve_un_termino_sembrado_y_respeta_la_cita() -> None:
+    assert _coincidencias("Ellos MIENTEN ahora", []) == {"mienten"}
+    assert _coincidencias("Dijo «ya mintieron antes» y calló", ["ya mintieron antes"]) == set()
+    assert _coincidencias("Dijo «mintieron» y calló", ["mintieron"]) == {"mintieron"}
+    assert _coincidencias("Dijo «mintieron ya» y calló", []) == {"mintieron"}
 
 
 def test_el_caso_e11_excluye_una_cita_y_el_de_d2_escanea_el_termino_solo() -> None:

@@ -1,18 +1,19 @@
 # Preguntas de Code Generation — U1 contracts
 
+> Segunda pasada (cambio 01, 2026-11-23): la aprobación de la primera pasada se vació y el plan se
+> regeneró (revisión 2). El revisor de arquitectura lo dio READY en la iteración 2; R-13 y R-14 se
+> integraron antes de calcular la huella.
+
 ## Plan Approval
 
 ¿Apruebas este plan exacto de Code Generation para U1 contracts? La aprobación cubre
-`code-generation-plan.md` (19 pasos, decisiones PD-1 a PD-5 y su Testing Contract incrustado) y
-`unit-test-instructions.md`.
+`code-generation-plan.md` (25 pasos en 23 tareas del loop, decisiones PD-1 a PD-8 y su Testing Contract
+incrustado) y `unit-test-instructions.md`.
 
-Nota de proceso (`team.md`, Forbidden): este trabajo se detiene en la Parte 1; la regla del equipo es
-no responder `Approve Plan` en este flujo.
-
-[Approval Fingerprint]: sha256:v3:6f76a443b60e56c6710a70fda591f379d49e1dc30c80331bb8f15cfa9ffdf540
-[Planned Source]: fa6f701f26f6a023f8568098346b222c5f0e2e080565c9cfc9e95592d23f0e27
+[Approval Fingerprint]: sha256:v3:6e44c57ad97e471a9c712a362b5135aac081d7bc1d85d1f6570624a5f93748d3
+[Planned Source]: a1050910ef4df8b01a553bfad4bdd0995410fc87d038d33a73cda4b879cb9350
 
 - Approve Plan
 - Request Changes
 
-[Answer]: Approve Plan
+[Answer]:

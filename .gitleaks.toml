@@ -1,0 +1,16 @@
+# Configuración de gitleaks del repositorio (tarea previa P0.1).
+# Usa las reglas por defecto y solo excluye falsos positivos con su motivo y su
+# fecha de revisión (team.md: excepciones versionadas con motivo y caducidad).
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = """Marcas internas de AI-DLC en los diarios de etapa (memory.md): \
+<!-- aidlc-wave-memory:<unidad>:<sha256> -->. El hash es el resumen del contenido, \
+no una credencial; la regla generic-api-key lo confunde con una clave. \
+Motivo: falso positivo estructural. Revisar: 2027-05-23."""
+regexTarget = "line"
+regexes = [
+  '''<!-- aidlc-wave-memory:[a-z0-9-]+:[0-9a-f]{64} -->''',
+]

@@ -22,6 +22,7 @@ sesión de `gh` como administrador.
 | `.github/workflows/repo-level0.yml` | La comprobación obligatoria inicial |
 | `.github/dependabot.yml` | Actualizaciones semanales de las acciones; cada Bolt suma su ecosistema |
 | `.yamllint.yaml` | Reglas de `yamllint` del repositorio |
+| `.gitleaks.toml` | Reglas por defecto de `gitleaks` y una sola excepción: las marcas `aidlc-wave-memory:<unidad>:<sha256>` de los diarios de AI-DLC, que la regla `generic-api-key` confundía con claves (38 falsos positivos en el primer análisis; revisar 2027-05-23) |
 | `scripts/check-no-cluster-apply.sh` | Versión inicial de la guardia de AUTONOMIA-01; U2 la amplía en B4 |
 | `scripts/github-p0-1.sh` | Aplica la configuración del repositorio (lo ejecuta el humano) |
 | `docs/operacion/github/ruleset-main.json` | El *ruleset* `main-protegida` |

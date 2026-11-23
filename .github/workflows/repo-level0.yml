@@ -43,7 +43,7 @@ jobs:
           echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
 
       - name: Buscar secretos en todo el historial (NFR12.2)
-        run: gitleaks git --redact --no-banner --exit-code 1 .
+        run: gitleaks git --redact --no-banner --exit-code 1 --config .gitleaks.toml .
 
       - name: Validar el YAML de .github
         run: |

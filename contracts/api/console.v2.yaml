@@ -1,0 +1,1547 @@
+# C1: API de la consola (ConsoleApi), versión 2.0.0 (contract-summary §C1 revisiones 3 y 4, PD-1 y PD-2).
+# Única superficie expuesta al navegador (ADR-004). Solo se admiten las extensiones cerradas de §4.6:
+# x-veridicus-roles, x-veridicus-owner-only, x-veridicus-owner-only-for-role, x-veridicus-access-log,
+# x-veridicus-demo, x-veridicus-priority, x-veridicus-limit, x-veridicus-max-bytes y x-veridicus-cookie.
+# Cada tope nombra su cifra de contracts/limits.v1.yaml (C25). Toda 4xx y 5xx es application/problem+json.
+openapi: 3.1.0
+info:
+  title: Veridicus ConsoleApi
+  version: 2.0.0
+servers:
+  - url: /api/v1
+security:
+  - sessionCookie: []
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: veridicus_session
+      # NFRD-U1-03, NFR-U3-01
+      x-veridicus-cookie:
+        http_only: true
+        secure: true
+        same_site: Strict
+        path: /
+        max_age_limit: web_session_max_s
+        idle_limit: web_session_idle_s
+  parameters:
+    CsrfToken:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 32
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    Since:
+      name: since
+      in: query
+      schema: {$ref: '#/components/schemas/Cursor'}
+    RunId:
+      name: run_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    SuggestionId:
+      name: suggestion_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+  responses:
+    Problem:
+      description: Error en formato Problem Details (RFC 9457)
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+  schemas:
+    DateTime:
+      type: string
+      format: date-time
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'
+      description: Formato único de fecha AAAA-MM-DDTHH:MM:SSZ en UTC (BR8.1, NFR11.2)
+    Problem:
+      type: object
+      required: [type, title, status, code, detail]
+      properties:
+        type: {type: string, format: uri-reference}
+        title: {type: string}
+        status: {type: integer}
+        code: {$ref: '#/components/schemas/ErrorCode'}
+        detail: {type: string, description: 'Texto en español, sin datos sensibles'}
+        instance: {type: string}
+    ErrorCode:
+      type: string
+      # Igual a los code con http: true de errors/error-codes.v2.yaml (NFR10.3)
+      enum:
+        - auth.invalid_credentials
+        - auth.unauthenticated
+        - auth.forbidden
+        - auth.csrf
+        - auth.too_many_attempts
+        - validation.invalid_request
+        - limits.exceeded
+        - route.not_found
+        - system.internal
+        - system.unavailable
+        - user.duplicate_username
+        - user.self_deactivation
+        - user.last_admin
+        - user.has_pending_sessions
+        - user.not_found
+        - user.weak_password
+        - profile.not_approved
+        - profile.transfer_not_authorized
+        - session.not_owner
+        - session.finalized
+        - session.not_suspended
+        - session.not_paused
+        - session.not_finalized
+        - session.suspended
+        - session.consolidated
+        - session.closed_to_new_turns
+        - session.paused
+        - session.terminated
+        - session.blocked
+        - session.consent_missing
+        - session.consent_withdrawn
+        - session.voice_not_authorized
+        - import.invalid_type
+        - import.invalid_transcript
+        - import.profile_mismatch
+        - retention.above_maximum
+        - retention.below_minimum
+        - retention.cannot_extend
+        - ethics.text_version_outdated
+        - problem_report.ids_mismatch
+        - run.not_in_error
+        - run.final_in_progress
+        - analysis.invalid_output
+        - analysis.content_blocked
+        - analysis.timeout
+        - analysis.provider
+        - analysis.anonymizer_unavailable
+        - anonymizer.profile_mismatch
+        - anonymizer.destination_rejected
+        - analysis.system
+        - suggestion.not_found
+        - review.observations_not_viewed
+        - review.note_required
+        - review.invalid_transition
+        - review.round_locked
+        - report.session_not_finalized
+        - report.final_mode_not_launched
+        - report.runs_in_progress
+        - report.pending_suggestions
+        - report.forbidden_vocabulary
+        - report.conflict
+        - report.view_outdated
+        - report.integrity_mismatch
+        - report.not_consolidated
+        - report.not_found
+        - report.export_not_recorded
+        - research.invalid_report
+        - research.invalid_type
+        - research.not_found
+        - research.duplicate
+        - research.not_comparable
+        - conductor_observation.not_approved
+        - conductor_observation.not_found
+        - conductor_observation.already_decided
+        - conductor_observation.session_closed
+        - speech.unavailable
+        - speech.text_rejected
+    Role: {type: string, enum: [analista, admin, investigador]}
+    Me:
+      type: object
+      required: [user_id, username, role, csrf_token]
+      properties:
+        user_id: {type: string, format: uuid}
+        username: {type: string}
+        role: {$ref: '#/components/schemas/Role'}
+        csrf_token: {type: string}
+        acknowledgement: {$ref: '#/components/schemas/AcknowledgementStatus'}
+    User:
+      type: object
+      required: [user_id, username, role, active, created_at]
+      properties:
+        user_id: {type: string, format: uuid}
+        username: {type: string}
+        role: {$ref: '#/components/schemas/Role'}
+        active: {type: boolean}
+        created_at: {$ref: '#/components/schemas/DateTime'}
+        pending_sessions:
+          type: integer
+          minimum: 0
+          description: >-
+            Solo en GET /users y en la respuesta del PATCH; sesiones del usuario en cualquier estado distinto
+            de consolidated, para la confirmación de M6 (FD-U3-04)
+    Cursor:
+      type: string
+      maxLength: 128
+      x-veridicus-limit: cursor_max_chars
+      description: >-
+        Opaco: v1.<session_id>.<n> en base64url, donde n es el change_cursor de la sesión leído en la
+        instantánea del sondeo. Uno mal formado, de otra sesión o mayor que el actual se trata como ausente
+        (vista completa); la consola aplica cada respuesta como upsert por ID (NFRD-U4-05, NFRD-U7-04)
+    Notice:
+      type: object
+      required: [text, version]
+      description: Aviso de propósito limitado (VE-01), leído de C8 en ejecución; la consola no guarda copia
+      properties:
+        text: {type: string}
+        version: {type: string}
+    ProfileSummary:
+      type: object
+      required: [profile_name, purpose, roles, config_sha256]
+      properties:
+        profile_name: {type: string}
+        purpose: {type: string, enum: [evaluation, demonstration, production]}
+        config_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        roles:
+          type: array
+          items:
+            type: object
+            required: [role, commercial, via_anonymizer]
+            properties:
+              role: {type: string, enum: [judge, verifier]}
+              commercial: {type: boolean}
+              via_anonymizer: {type: boolean, description: 'true siempre que commercial es true (FR14.5)'}
+        chunking_enabled: {type: boolean, description: chunking.enabled del perfil (C18)}
+        same_family_warning:
+          type: boolean
+          description: Perfil de demostración que declara la misma familia (FR14.4)
+    Consent:
+      type: object
+      description: >-
+        Bloque `consentimiento` de C6 (P11); sin datos personales. `registrado_en` lo completa el servidor con
+        la hora del registro; si la petición lo trae, se ignora.
+      required: [tipo, version_texto, autoriza_transferencia, autoriza_voz, autoriza_conservar_audio, requiere_mandato]
+      additionalProperties: false
+      properties:
+        tipo: {type: string, enum: [persona, autoridad]}
+        version_texto: {type: string, minLength: 1}
+        autoriza_transferencia: {type: boolean}
+        autoriza_voz: {type: boolean}
+        autoriza_conservar_audio: {type: boolean}
+        constancia: {type: string, description: Solo un identificador de la constancia de la autoridad}
+        requiere_mandato: {type: boolean, description: La persona es compareciente o tercero civil (VE-06)}
+        constancia_mandato:
+          type: string
+          description: Identificador de la constancia de mandato y garantías de la entidad; nunca un nombre
+        registrado_en:
+          $ref: '#/components/schemas/DateTime'
+          readOnly: true
+      allOf:
+        - if: {properties: {tipo: {const: autoridad}}}
+          then: {required: [constancia]}
+        - if: {properties: {requiere_mandato: {const: true}}}
+          then: {required: [constancia_mandato]}
+    SessionStatus:
+      type: string
+      enum: [open, paused, suspended, finalized, terminated, blocked, consolidated]
+      description: >-
+        Única representación de la pausa; PATCH /sessions/{id}/analysis pasa de open a paused y de vuelta
+        (components, InterviewSession)
+    Turn:
+      type: object
+      required: [turn_id, n, hablante, texto, origin, submitted_at]
+      properties:
+        turn_id: {type: string, format: uuid}
+        n: {type: integer, minimum: 1}
+        hablante: {type: string, enum: [ENT, TEST]}
+        texto: {type: string}
+        pagina: {type: integer, minimum: 1, description: Ausente en turnos guiados (P4 de iteracion2)}
+        pagina_fin: {type: integer, minimum: 1}
+        estado: {type: string, enum: [visible, plegado]}
+        origin: {type: string, enum: [typed, pasted, voice, imported]}
+        voice_status:
+          type: string
+          enum: [transcribing, transcribed, error]
+          description: Solo turnos de voz (SHOULD)
+        voice_error_code:
+          $ref: '#/components/schemas/ErrorCode'
+          description: 'Solo turnos de voz en error: un code de C5 o session.consent_withdrawn (FD-U9-03)'
+        submitted_at: {$ref: '#/components/schemas/DateTime'}
+    Run:
+      type: object
+      required: [run_id, mode, desde_turno, hasta_turno, status, attempt, profile_name, config_sha256, requested_at]
+      properties:
+        run_id: {type: string, format: uuid}
+        mode: {type: string, enum: [incremental, final]}
+        desde_turno: {type: integer, minimum: 1}
+        hasta_turno: {type: integer, minimum: 1}
+        status: {type: string, enum: [queued, processing, done, error, cancelled]}
+        error_code: {$ref: '#/components/schemas/ErrorCode'}
+        attempt: {type: integer, minimum: 1}
+        profile_name: {type: string}
+        config_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        fragmentado:
+          $ref: /veridicus/contracts/analyzer/v1/salida#/$defs/registro/properties/fragmentado
+          description: >-
+            Copia tal cual de registro.fragmentado de C6 (regla 8). session-api lo llena al crear la corrida
+            final con la configuración efectiva y al ingerir lo sustituye la copia de C6, con los mismos
+            valores (NFRD-U6-18). Referencia canónica por $id (FD-U1-11)
+        anonymized:
+          type: boolean
+          description: >-
+            true solo si todas las llamadas externas pasaron por el anonimizador; ausente si la corrida
+            fue solo local (FD-U4-20, AC11.3.8)
+        requested_at: {$ref: '#/components/schemas/DateTime'}
+        finished_at: {$ref: '#/components/schemas/DateTime'}
+    ModelCall:
+      type: object
+      description: Una fila de registro.llamadas de C6, copiada tal cual (regla 8); de solo lectura (FR15.3, AC12.5.3)
+      required: [papel, proveedor, modelo, tokens_entrada, tokens_salida, proveedor_alterno, anonimizado, fecha]
+      properties:
+        papel: {type: string, enum: [juez, verificador, verificador_permutado]}
+        proveedor: {type: string}
+        modelo: {type: string}
+        version: {type: string}
+        esfuerzo_o_cuantizacion: {type: string}
+        motor: {type: string}
+        semilla: {type: integer}
+        tokens_entrada: {type: integer, minimum: 0}
+        tokens_salida: {type: integer, minimum: 0}
+        proveedor_alterno: {type: boolean}
+        anonimizado: {type: boolean}
+        fecha: {$ref: '#/components/schemas/DateTime'}
+    ReviewSuggestion:
+      $ref: /veridicus/contracts/integrity/review-suggestion/v2
+    ConductorObservation:
+      type: object
+      additionalProperties: false
+      required: [observation_id, run_id, tema, turnos, status, created_at]
+      properties:
+        observation_id: {type: string, format: uuid}
+        run_id: {type: string, format: uuid}
+        tema: {type: string, description: Nunca contiene el texto de las citas (AC10.3.2)}
+        turnos:
+          type: array
+          items: {type: string, pattern: '^T[0-9]{1,4}$'}
+        status: {type: string, enum: [proposed, approved, discarded]}
+        created_at: {$ref: '#/components/schemas/DateTime'}
+    SessionSummary:
+      type: object
+      required: [session_id, entrevista, owner_user_id, status, profile_name, created_at, pending_suggestions]
+      properties:
+        session_id: {type: string, format: uuid}
+        entrevista: {type: string}
+        owner_user_id: {type: string, format: uuid}
+        owner_username: {type: string}
+        status: {$ref: '#/components/schemas/SessionStatus'}
+        origin: {type: string, enum: [guiada, corpus, sintetico]}
+        profile_name: {type: string}
+        created_at: {$ref: '#/components/schemas/DateTime'}
+        finalized_at: {$ref: '#/components/schemas/DateTime'}
+        pending_suggestions: {type: integer, minimum: 0}
+    SessionView:
+      allOf:
+        - $ref: '#/components/schemas/SessionSummary'
+        - type: object
+          required: [config_sha256, cursor, closed_to_new_turns, turns, runs, suggestions, can_consolidate]
+          properties:
+            config_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+            cursor:
+              $ref: '#/components/schemas/Cursor'
+              description: Opaco; se devuelve en el siguiente sondeo
+            closed_to_new_turns: {type: boolean}
+            retention_days: {type: integer, description: FD-U13-04}
+            retention_until:
+              $ref: '#/components/schemas/DateTime'
+              description: FD-U13-04
+            retention_default: {type: boolean, description: FD-U13-04}
+            consent_withdrawn_at: {$ref: '#/components/schemas/DateTime'}
+            blocked_code: {$ref: '#/components/schemas/ErrorCode'}
+            turns:
+              type: array
+              items: {$ref: '#/components/schemas/Turn'}
+            runs:
+              type: array
+              items: {$ref: '#/components/schemas/Run'}
+            suggestions:
+              type: array
+              items: {$ref: '#/components/schemas/ReviewSuggestion'}
+            conductor_observations:
+              type: array
+              items: {$ref: '#/components/schemas/ConductorObservation'}
+            can_consolidate: {type: boolean}
+            consolidation_blockers:
+              type: array
+              items: {$ref: '#/components/schemas/ErrorCode'}
+    ReportVersion:
+      type: object
+      required: [report_version_id, session_id, version_number, sha256, consolidated_by, consolidated_at]
+      properties:
+        report_version_id: {type: string, format: uuid}
+        session_id: {type: string, format: uuid}
+        version_number: {type: integer, minimum: 1}
+        sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        notice_version: {type: string}
+        consolidated_by: {type: string, format: uuid}
+        consolidated_at: {$ref: '#/components/schemas/DateTime'}
+        supersedes_version_id: {type: string, format: uuid}
+    ResearchReportSummary:
+      type: object
+      required:
+        - research_report_id
+        - kind
+        - profile_name
+        - config_sha256
+        - prompt_sha256
+        - analyzer_version
+        - source_sha256
+        - uploaded_at
+      description: >-
+        Revisión 4 (FD-U12-05): suma schema_version, origin (local | zine, opcional), dataset_sha256
+        (opcional), measurement_valid, uploaded_by_username (lo resuelve ConsoleApi con IdentityAccess, porque
+        el investigador no puede leer /users) y report_created_at. Entra con C19 v2
+      properties:
+        research_report_id: {type: string, format: uuid}
+        schema_version: {type: string}
+        origin: {type: string, enum: [local, zine]}
+        dataset_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        measurement_valid: {type: boolean}
+        uploaded_by_username: {type: string}
+        report_created_at: {$ref: '#/components/schemas/DateTime'}
+        kind: {type: string, enum: [run, evaluation]}
+        profile_name: {type: string}
+        config_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        prompt_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        analyzer_version: {type: string}
+        dataset_version: {type: string}
+        source_sha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: SHA-256 del archivo subido; dos subidas iguales dan research.duplicate
+        uploaded_by: {type: string, format: uuid}
+        uploaded_at: {$ref: '#/components/schemas/DateTime'}
+    ResearchReportDetail:
+      allOf:
+        - $ref: '#/components/schemas/ResearchReportSummary'
+        - type: object
+          description: >-
+            Solo cifras de C19; ningún texto de transcripciones, hallazgos ni citas (NFR12). Revisión 4
+            (FD-U12-05): suma run_summary, price_table_version, currency y overall_passes; en metrics, el
+            threshold y el passes de cada métrica cuando el reporte los trae; bias_table se devuelve con
+            story_fact_type y persona_profile ya separados. Se guarda blocking (booleano opcional) y la
+            latencia p50 y p95 por papel en el registro de modelos; clarifications no se guarda ni se muestra
+            (NFR-U12-04)
+          properties:
+            run_summary: {type: object}
+            price_table_version: {type: string}
+            currency: {type: string}
+            overall_passes: {type: boolean}
+            blocking: {type: boolean}
+            calls:
+              type: array
+              items: {$ref: /veridicus/contracts/model_calls/model-call.v1}
+            totals: {$ref: '/veridicus/contracts/cli/report.schema.v2#/properties/totals'}
+            metrics: {$ref: '/veridicus/contracts/cli/report.schema.v2#/properties/metrics'}
+            bias_table: {$ref: '/veridicus/contracts/cli/report.schema.v2#/properties/bias_table'}
+    AcknowledgementStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [valid, missing, expired, text_changed]
+          description: Solo avisa; nunca impide abrir sesiones (VE-04, demostración)
+        text_version: {type: string}
+        current_text_version: {type: string, description: FD-U13-04}
+        at: {$ref: '#/components/schemas/DateTime'}
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              additionalProperties: false
+              properties:
+                username: {type: string, minLength: 1, maxLength: 32, x-veridicus-limit: username_max_chars}
+                password: {type: string, minLength: 1, maxLength: 128, x-veridicus-limit: password_max_chars}
+      responses:
+        '204':
+          description: 'Sesión creada; responde Set-Cookie veridicus_session (HttpOnly, Secure, SameSite=Strict)'
+        '401': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '429':
+          description: 'auth.too_many_attempts, con Retry-After (FD-U3-02)'
+          headers:
+            Retry-After: {schema: {type: integer}}
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+        '503':
+          description: 'Cola del semáforo llena; documenta Retry-After (FD-U3-02, NFRD-U3-10)'
+          headers:
+            Retry-After: {schema: {type: integer}}
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+  /auth/logout:
+    post:
+      operationId: logout
+      parameters:
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '204': {description: Sesión revocada}
+        '401': {$ref: '#/components/responses/Problem'}
+  /auth/me:
+    get:
+      operationId: get_me
+      responses:
+        '200':
+          description: Usuario actual, token anti-CSRF y estado del reconocimiento
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Me'}
+        '401': {$ref: '#/components/responses/Problem'}
+  /users:
+    get:
+      operationId: list_users
+      x-veridicus-roles: [admin]
+      responses:
+        '200':
+          description: Usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/User'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+    post:
+      operationId: create_user
+      x-veridicus-roles: [admin]
+      parameters:
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role]
+              additionalProperties: false
+              properties:
+                username: {type: string, minLength: 1, maxLength: 32, x-veridicus-limit: username_max_chars}
+                password: {type: string, minLength: 1, maxLength: 128, x-veridicus-limit: password_max_chars}
+                role: {$ref: '#/components/schemas/Role'}
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: user.duplicate_username (FD-U3-02)
+        '413': {$ref: '#/components/responses/Problem'}
+        '422':
+          $ref: '#/components/responses/Problem'
+          description: user.weak_password o validation.invalid_request (FD-U3-02)
+  /users/{user_id}:
+    patch:
+      operationId: update_user
+      x-veridicus-roles: [admin]
+      parameters:
+        - {name: user_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              minProperties: 1
+              properties:
+                active: {type: boolean}
+                role: {$ref: '#/components/schemas/Role'}
+      responses:
+        '200':
+          description: Usuario actualizado; deja fila en el historial de usuario
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: user.not_found (FD-U3-02)
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: >-
+            user.has_pending_sessions (cambio de rol con sesiones pendientes), user.self_deactivation o
+            user.last_admin; deja de citar validation.invalid_request (FD-U3-02)
+        '422':
+          $ref: '#/components/responses/Problem'
+          description: user.weak_password o validation.invalid_request (FD-U3-02)
+  /notice:
+    get:
+      operationId: get_notice
+      description: >-
+        Pública: solo devuelve el texto versionado del aviso de VE-01, para que se vea también al iniciar
+        sesión (AC15.5.1; D-1, FD-U4-08; lista pública de NFRD-U1-12)
+      security: []
+      responses:
+        '200':
+          description: Texto y versión del aviso de VE-01
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Notice'}
+  /profiles:
+    get:
+      operationId: list_profiles
+      x-veridicus-roles: [analista, admin, investigador]
+      responses:
+        '200':
+          description: Solo los perfiles aprobados (C18), con su indicación de proveedor comercial (FR14.5)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ProfileSummary'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+  /sessions:
+    get:
+      operationId: list_sessions
+      x-veridicus-roles: [analista, admin]
+      parameters:
+        - {name: status, in: query, schema: {$ref: '#/components/schemas/SessionStatus'}}
+      responses:
+        '200':
+          description: Lista de sesiones
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/SessionSummary'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+    post:
+      operationId: create_session
+      description: >-
+        Sesión guiada. Exige consentimiento y un perfil aprobado; un perfil con proveedor comercial sin
+        autoriza_transferencia da 422 profile.transfer_not_authorized antes de crear filas.
+      x-veridicus-roles: [analista]
+      parameters:
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [entrevista, profile_name, consentimiento]
+              additionalProperties: false
+              properties:
+                entrevista: {type: string, minLength: 1}
+                profile_name: {type: string}
+                consentimiento: {$ref: '#/components/schemas/Consent'}
+                retention_days:
+                  type: integer
+                  description: Opcional; lo valida EthicsGovernance contra C25 (FD-U13-04)
+      responses:
+        '201':
+          description: Sesión abierta y ligada al perfil y a su config_sha256 (FR3.1)
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+  /sessions/import:
+    post:
+      operationId: import_session
+      description: >-
+        Importa una transcripción en el formato de entrada de C6 con su bloque `consentimiento`. Sin el
+        bloque se rechaza completa (salvo origen sintetico). El archivo debe cumplir C6 completo: `modo` debe
+        ser `final` (si no, `import.invalid_transcript`) y `perfil` debe ser igual a `profile_name` del
+        formulario (si no, `422` `import.profile_mismatch`); `hasta_turno` y `desde_turno`, si vienen, se
+        ignoran. La sesión nace cerrada a turnos nuevos (FR3.6) y sus corridas son siempre de modo final, que
+        se puede lanzar enseguida. El archivo es solo JSON; otro tipo responde 415 `import.invalid_type`
+        (FD-U6-03). No lleva `client_request_id`: un doble envío crea dos sesiones, límite declarado, y M7
+        deshabilita «Importar» mientras crea (FD-U6-23).
+      x-veridicus-roles: [analista]
+      parameters:
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: import_body_max_bytes
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, profile_name]
+              additionalProperties: false
+              properties:
+                file: {type: string, format: binary, description: JSON de la entrada de C6 (FD-U6-03)}
+                profile_name: {type: string, pattern: '^[a-z0-9-]{1,48}$'}
+                retention_days: {type: integer, description: Opcional (FD-U13-04)}
+      responses:
+        '201':
+          description: Sesión importada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '415':
+          $ref: '#/components/responses/Problem'
+          description: import.invalid_type (FD-U6-03)
+        '422': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}:
+    get:
+      operationId: get_session
+      description: >-
+        Sondeo de la consola. Con `since` devuelve solo lo que cambió desde ese cursor. Cada llamada del
+        dueño con la sesión abierta cuenta como latido (AC7.1.1). Registra el acceso (C23) solo sin `since`
+        (FD-U3-05).
+      x-veridicus-roles: [analista, admin]
+      x-veridicus-access-log: session
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/Since'}
+      responses:
+        '200':
+          description: Vista de la sesión
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/heartbeat:
+    post:
+      operationId: heartbeat_session
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '204': {description: Latido sin corridas en proceso}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/turns:
+    post:
+      operationId: create_turn
+      description: >-
+        Un turno escrito; encola una corrida incremental con desde_turno = hasta_turno = n (FR4.9), salvo con
+        el análisis en pausa.
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hablante, texto, client_request_id]
+              additionalProperties: false
+              properties:
+                hablante: {type: string, enum: [ENT, TEST]}
+                texto: {type: string, minLength: 1, maxLength: 20000, x-veridicus-limit: turn_max_chars}
+                client_request_id:
+                  type: string
+                  format: uuid
+                  description: Evita turnos duplicados si el navegador reenvía
+      responses:
+        '202':
+          description: Turno numerado; la corrida queda en cola y no se espera
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [turn]
+                properties:
+                  turn: {$ref: '#/components/schemas/Turn'}
+                  run: {$ref: '#/components/schemas/Run'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/transcript:
+    post:
+      operationId: paste_transcript
+      description: >-
+        Bloque pegado, dividido en turnos con la especificación versionada (FR3.3); una sola corrida desde su
+        primer turno.
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: transcript_body_max_bytes
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text, client_request_id]
+              additionalProperties: false
+              properties:
+                text: {type: string, minLength: 1}
+                client_request_id: {type: string, format: uuid}
+      responses:
+        '202':
+          description: Turnos numerados en orden y una corrida en cola
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [turns]
+                properties:
+                  turns:
+                    type: array
+                    items: {$ref: '#/components/schemas/Turn'}
+                  run: {$ref: '#/components/schemas/Run'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/final-runs:
+    post:
+      operationId: launch_final_run
+      description: >-
+        Lanza (o relanza) el modo final sobre toda la transcripción. Cuenta el último lanzado. De dos
+        lanzamientos simultáneos, uno recibe 202 y el otro 409 run.final_in_progress.
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '202':
+          description: Corrida final en cola
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Run'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: >-
+            Code de la situación (FD-U6-17): run.final_in_progress, session.not_finalized (guiada sin
+            finalizar, FD-U6-02), session.paused, session.suspended, session.consolidated, session.blocked,
+            session.terminated o session.consent_withdrawn
+  /sessions/{session_id}/runs/{run_id}/retry:
+    post:
+      operationId: retry_run
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/RunId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '202':
+          description: Misma corrida, mismo tramo, attempt + 1
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Run'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: >-
+            La corrida no está en error (run.not_in_error) o la sesión no admite corridas (session.blocked,
+            session.consent_withdrawn, session.terminated, session.paused, session.consolidated; FD-U4-05)
+  /sessions/{session_id}/runs/{run_id}/model-calls:
+    get:
+      operationId: list_model_calls
+      x-veridicus-roles: [analista, admin]
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/RunId'}
+      responses:
+        '200':
+          description: Registro de modelos de la corrida, solo lectura (US12.5)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ModelCall'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/analysis:
+    patch:
+      operationId: set_analysis_paused
+      description: >-
+        Pausar o reanudar el análisis. Con `paused` en true la sesión pasa de `open` a `paused`, y con false
+        vuelve a `open`, con actor y hora (SessionStatusChange); desde cualquier otro estado responde 409. En
+        pausa los turnos se guardan sin encolar y las corridas en cola se cancelan sin llamar a modelos
+        (DD-06). «Reanudar análisis» encola una corrida, así que la ruta responde `202` con `SessionView`
+        como única 2xx, en las dos direcciones (C-3, NFR-U6-03, NFRD-U6-02).
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [paused]
+              additionalProperties: false
+              properties:
+                paused: {type: boolean}
+      responses:
+        '202':
+          description: Sesión actualizada; al reanudar, la corrida queda en cola (C-3)
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: >-
+            Code de la situación (FD-U6-17): session.not_paused al reanudar sin pausa (FD-U6-01),
+            session.suspended, session.consolidated y los demás estados que no admiten el cambio
+  /sessions/{session_id}/terminate:
+    post:
+      operationId: terminate_session
+      description: Terminar sesión. Cancela lo encolado y cierra la sesión a turnos nuevos; se puede consolidar después.
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '200':
+          description: Sesión terminada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: Code de la situación de la tabla §3 del Functional Design de U6 (FD-U6-17)
+  /sessions/{session_id}/consent-withdrawal:
+    post:
+      operationId: withdraw_consent
+      description: >-
+        Registra la retirada del consentimiento con actor y hora (AC15.2.3). Desde ese momento no se encola ni
+        se analiza ninguna corrida (VE-10 (a)).
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '200':
+          description: Retirada registrada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: Code de la situación de la tabla §3 del Functional Design de U6 (FD-U6-17)
+  /sessions/{session_id}/resume:
+    post:
+      operationId: resume_session
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '200':
+          description: Sesión suspendida vuelve a abierta desde el último turno registrado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/finalize:
+    post:
+      operationId: finalize_session
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '200':
+          description: Sesión finalizada (también desde suspendida); empieza la medición de MTTV
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+  /suggestions/{suggestion_id}/observation-views:
+    post:
+      operationId: view_observations
+      x-veridicus-roles: [analista, admin]
+      x-veridicus-access-log: suggestion
+      parameters:
+        - {$ref: '#/components/parameters/SuggestionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '204': {description: '«Observaciones desplegadas» registradas (solo inserción) y acceso registrado (C23)'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: suggestion.not_found (FD-U5-01, NFR-U5-05)
+  /suggestions/{suggestion_id}/decisions:
+    post:
+      operationId: decide_suggestion
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SuggestionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: review_body_max_bytes
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [state]
+              additionalProperties: false
+              properties:
+                state: {type: string, enum: [accepted, edited, dismissed]}
+                note:
+                  type: string
+                  maxLength: 2000
+                  x-veridicus-limit: review_text_max_chars
+                  description: Obligatoria y no vacía si state es dismissed
+                reformulation:
+                  type: string
+                  maxLength: 2000
+                  x-veridicus-limit: review_text_max_chars
+                  description: Obligatoria si state es edited; nunca cambia hecho, tipo, citas ni observaciones
+      responses:
+        '201':
+          description: Decisión registrada en la ronda abierta
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReviewSuggestion'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403':
+          $ref: '#/components/responses/Problem'
+          description: auth.forbidden, session.not_owner o auth.csrf (NFR-U5-05)
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: suggestion.not_found (FD-U5-01, NFR-U5-05)
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: Ronda bloqueada, observaciones no desplegadas, nota faltante o transición inválida
+        '413':
+          $ref: '#/components/responses/Problem'
+          description: limits.exceeded (FD-U5-02, NFR-U1-03, NFR-U5-05)
+        '422':
+          $ref: '#/components/responses/Problem'
+          description: review.note_required o validation.invalid_request (NFR-U5-05)
+  /sessions/{session_id}/reports:
+    get:
+      operationId: list_report_versions
+      x-veridicus-roles: [analista, admin]
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+      responses:
+        '200':
+          description: Versiones del reporte
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ReportVersion'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+    post:
+      operationId: consolidate_report
+      description: >-
+        Consolidar. De dos consolidaciones simultáneas solo una gana; la otra recibe 409 report.conflict.
+        Lleva el cuerpo obligatorio { expected_cursor }, el cursor congelado al abrir el diálogo; si el
+        resumen cambió, 409 report.view_outdated con el detail «El resumen cambió desde que abriste el
+        diálogo. Revísalo de nuevo antes de consolidar.» (NFRD-U7-04). Un Markdown que pasa de
+        report_max_bytes responde 413 limits.exceeded antes de escribir, con 0 filas y 0 archivos (NFR-U7-01).
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expected_cursor]
+              additionalProperties: false
+              properties:
+                expected_cursor: {$ref: '#/components/schemas/Cursor'}
+      responses:
+        '201':
+          description: Reporte consolidado, guardado y con su SHA-256
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReportVersion'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/correction-rounds:
+    post:
+      operationId: open_correction_round
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '201':
+          description: Abre o retoma la única ronda de corrección, que parte de la versión vigente
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+  /sessions/{session_id}/correction-rounds/current/discard:
+    post:
+      operationId: discard_correction_round
+      description: >-
+        Descarta la ronda de corrección abierta (estado discarded, con quién y cuándo; FD-U5-04). Sin copia
+        abierta, 409 report.conflict. FD-U7-09 recoge X6 de U7.
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '204': {description: Ronda de corrección descartada}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+  /reports/{report_version_id}/download:
+    get:
+      operationId: download_report
+      description: >-
+        Lectura de la vista previa: Content-Disposition inline; la consola no ofrece guardar el archivo.
+        «Descargar reporte» llama a /exports (FD-U7-01).
+      x-veridicus-roles: [analista, admin]
+      x-veridicus-access-log: report_version
+      parameters:
+        - {name: report_version_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: >-
+            Markdown del reporte (text/markdown; charset=utf-8); el servidor recalcula el SHA-256 antes de
+            enviarlo (NFR10.4)
+          headers:
+            X-Veridicus-SHA256: {schema: {type: string, pattern: '^[a-f0-9]{64}$'}}
+            Content-Disposition: {schema: {type: string, const: inline}}
+            X-Content-Type-Options: {schema: {type: string, const: nosniff}}
+            Cache-Control: {schema: {type: string, const: no-store}}
+          content:
+            text/markdown:
+              schema: {type: string}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: >-
+            El archivo no coincide con el SHA-256 registrado (report.integrity_mismatch) o no hay versión
+            (report.not_consolidated)
+        '422': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+  /reports/{report_version_id}/exports:
+    post:
+      operationId: export_report
+      description: >-
+        Exportación con marca visible de usuario y hora, y el SHA-256 de la versión en la cabecera (US15.8).
+        Solo el dueño y el admin; el investigador no (A-3).
+      x-veridicus-roles: [analista, admin]
+      x-veridicus-owner-only-for-role: analista
+      parameters:
+        - {name: report_version_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      responses:
+        '201':
+          description: >-
+            Archivo exportado (text/markdown; charset=utf-8); cada exportación es un artefacto propio con su
+            hash, registrado por C23 (NFR10.4)
+          headers:
+            X-Veridicus-Export-SHA256: {schema: {type: string, pattern: '^[a-f0-9]{64}$'}}
+            Content-Disposition:
+              schema:
+                type: string
+                pattern: '^attachment; filename="veridicus-reporte-[0-9a-f-]{36}-[0-9a-f-]{36}[.]md"$'
+            X-Content-Type-Options: {schema: {type: string, const: nosniff}}
+            Cache-Control: {schema: {type: string, const: no-store}}
+          content:
+            text/markdown:
+              schema: {type: string}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: report.not_found (FD-U7-05)
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '503':
+          $ref: '#/components/responses/Problem'
+          description: >-
+            report.export_not_recorded: AccessLog falló o venció en 500 ms y se revirtió la transacción
+            (FD-U7-05, NFR-U7-09)
+  /conductor-observations/{observation_id}/decision:
+    post:
+      operationId: decide_conductor_observation
+      x-veridicus-priority: SHOULD
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {name: observation_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: review_body_max_bytes
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              additionalProperties: false
+              properties:
+                status: {type: string, enum: [approved, discarded]}
+      responses:
+        '200':
+          description: Decisión del analista sobre la aclaración
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ConductorObservation'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403':
+          $ref: '#/components/responses/Problem'
+          description: session.not_owner, auth.forbidden o auth.csrf (FD-U8-02)
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: conductor_observation.not_found (FD-U8-02)
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: conductor_observation.already_decided o conductor_observation.session_closed (FD-U8-02)
+        '413':
+          $ref: '#/components/responses/Problem'
+          description: limits.exceeded (NFRD-U8-05)
+  /conductor-observations/{observation_id}/audio:
+    get:
+      operationId: get_conductor_observation_audio
+      x-veridicus-priority: SHOULD
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {name: observation_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: Audio sintetizado en el clúster solo para una aclaración aprobada que cumple DT23
+          headers:
+            Cache-Control: {schema: {type: string, const: no-store}}
+          content:
+            audio/wav:
+              schema: {type: string, format: binary}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: conductor_observation.not_found (FD-U9-02)
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: >-
+            La aclaración no está aprobada (conductor_observation.not_approved), el texto se rechazó
+            (speech.text_rejected) o el estado de la sesión no lo admite (BR5.7 de U9) (FD-U9-02)
+        '503':
+          $ref: '#/components/responses/Problem'
+          description: speech.unavailable (FD-U9-02)
+  /sessions/{session_id}/voice-turns:
+    post:
+      operationId: create_voice_turn
+      x-veridicus-priority: SHOULD
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: voice_body_max_bytes
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [audio, hablante, client_request_id]
+              additionalProperties: false
+              properties:
+                audio: {type: string, format: binary, description: WAV mono de 16 kHz o MP3}
+                hablante: {type: string, enum: [ENT, TEST]}
+                client_request_id: {type: string, format: uuid}
+      responses:
+        '202':
+          description: Turno de voz numerado en transcribing
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Turn'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: Sin autorización de voz (session.voice_not_authorized)
+        '413':
+          $ref: '#/components/responses/Problem'
+          description: limits.exceeded por voice_body_max_bytes o audio_max_bytes (NFRD-U9-03)
+        '415': {$ref: '#/components/responses/Problem'}
+  /research-reports:
+    get:
+      operationId: list_research_reports
+      x-veridicus-roles: [investigador]
+      responses:
+        '200':
+          description: Reportes subidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ResearchReportSummary'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+    post:
+      operationId: upload_research_report
+      description: >-
+        Sube un reporte de la CLI (C19). Lo que no cumple el esquema se rechaza con 422
+        research.invalid_report sin guardar nada (P12). Si la petición no es multipart/form-data, 415
+        research.invalid_type; sin parte file, o con otra parte, 422 validation.invalid_request (NFR-U12-02).
+        ConsoleApi pasa el catálogo de referencia de C18 en cada subida (FD-U12-06).
+      x-veridicus-roles: [investigador]
+      parameters:
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: research_report_max_bytes
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              additionalProperties: false
+              properties:
+                file: {type: string, format: binary, description: JSON de C19}
+      responses:
+        '201':
+          description: Reporte guardado (solo cifras)
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResearchReportDetail'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: El mismo archivo ya se subió (research.duplicate)
+        '413': {$ref: '#/components/responses/Problem'}
+        '415':
+          $ref: '#/components/responses/Problem'
+          description: research.invalid_type (NFR-U12-02)
+        '422': {$ref: '#/components/responses/Problem'}
+  /research-reports/{research_report_id}:
+    get:
+      operationId: get_research_report
+      x-veridicus-roles: [investigador]
+      parameters:
+        - {name: research_report_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: Detalle
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ResearchReportDetail'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: research.not_found (FD-U12-04)
+  /research-reports/compare:
+    get:
+      operationId: compare_research_reports
+      x-veridicus-priority: SHOULD
+      x-veridicus-roles: [investigador]
+      parameters:
+        - {name: a, in: query, required: true, schema: {type: string, format: uuid}}
+        - {name: b, in: query, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: Las cifras de los dos reportes lado a lado
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 2
+                prefixItems:
+                  - {$ref: '#/components/schemas/ResearchReportDetail'}
+                  - {$ref: '#/components/schemas/ResearchReportDetail'}
+                items: false
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404':
+          $ref: '#/components/responses/Problem'
+          description: research.not_found (FD-U12-04)
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: Reportes de tipo distinto (research.not_comparable)
+        '422':
+          $ref: '#/components/responses/Problem'
+          description: validation.invalid_request cuando a = b (FD-U12-04)
+  /sessions/{session_id}/retention:
+    patch:
+      operationId: update_retention
+      description: >-
+        Cambia el plazo de retención de la sesión; lo valida EthicsGovernance contra C25 y lo escribe por
+        EthicsSessionPort (FD-U13-05, FD-U13-08).
+      x-veridicus-demo: true
+      x-veridicus-roles: [analista, admin]
+      x-veridicus-owner-only-for-role: analista
+      parameters:
+        - {$ref: '#/components/parameters/SessionId'}
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: ethics_body_max_bytes
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [retention_days]
+              additionalProperties: false
+              properties:
+                retention_days: {type: integer}
+      responses:
+        '200':
+          description: Plazo actualizado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionView'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422':
+          $ref: '#/components/responses/Problem'
+          description: retention.above_maximum, retention.below_minimum o retention.cannot_extend (FD-U13-04)
+  /acknowledgements:
+    post:
+      operationId: create_acknowledgement
+      x-veridicus-demo: true
+      x-veridicus-roles: [analista]
+      parameters:
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: ethics_body_max_bytes
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text_version]
+              additionalProperties: false
+              properties:
+                text_version: {type: string}
+      responses:
+        '201':
+          description: Reconocimiento registrado (VE-04)
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AcknowledgementStatus'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          $ref: '#/components/responses/Problem'
+          description: ethics.text_version_outdated (FD-U13-04)
+        '413': {$ref: '#/components/responses/Problem'}
+  /problem-reports:
+    post:
+      operationId: create_problem_report
+      x-veridicus-demo: true
+      x-veridicus-roles: [analista, admin]
+      parameters:
+        - {$ref: '#/components/parameters/CsrfToken'}
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: ethics_body_max_bytes
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [category]
+              additionalProperties: false
+              properties:
+                category:
+                  type: string
+                  enum:
+                    - harmful_finding
+                    - improper_vocabulary
+                    - mismatched_quote
+                    - interviewee_distress
+                    - anonymization_failure
+                    - misuse
+                session_id: {type: string, format: uuid}
+                suggestion_id:
+                  type: string
+                  format: uuid
+                  description: >-
+                    Si viene, session_id se deriva de la sugerencia; si los dos vienen y no coinciden, 422
+                    problem_report.ids_mismatch (FD-U13-04, FD-U13-07)
+                note:
+                  type: string
+                  maxLength: 2000
+                  x-veridicus-limit: problem_report_note_max_chars
+                  description: Opcional (FD-U13-06)
+      responses:
+        '201':
+          description: >-
+            Reporte guardado; avisa, sin rechazar, si la nota trae testimony_warning_words (C25) o más
+            palabras seguidas de un turno (VE-15)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [problem_report_id, testimony_warning]
+                properties:
+                  problem_report_id: {type: string, format: uuid}
+                  testimony_warning: {type: boolean}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}

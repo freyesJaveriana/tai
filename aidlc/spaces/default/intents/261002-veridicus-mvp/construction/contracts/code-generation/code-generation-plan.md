@@ -278,14 +278,14 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 6 — Copia del contrato común C6 y F7 (verde) · tarea T04, con parada humana
 
-- [ ] **El humano** copia `entrada.schema.json` y `salida.schema.json` desde
+- [x] **El humano** copia `entrada.schema.json` y `salida.schema.json` desde
   `/insumos/app/contratos/analizador/v1/` a `contracts/analyzer/v1/` y escribe `SHA256SUMS` (dos líneas)
   con las huellas que recalcula allí con `sha256sum`; anota origen y huellas en la descripción del PR de
   la tarea (PD-4, BR1.8). El agente no edita esos archivos.
-- [ ] `tests/conftest.py`: F7 en `pytest_sessionstart` — `SHA256SUMS` de exactamente dos líneas, SHA-256
+- [x] `tests/conftest.py`: F7 en `pytest_sessionstart` — `SHA256SUMS` de exactamente dos líneas, SHA-256
   de bytes igual, `contrato: { const: "1.0.0" }` en los dos; si falla, aborta la sesión con el mensaje de
   F7 paso 4 (§4.19).
-- [ ] Prueba E18: copia en memoria de `salida.schema.json` con un byte cambiado en una `description` →
+- [x] Prueba E18: copia en memoria de `salida.schema.json` con un byte cambiado en una `description` →
   F7 en rojo.
 - Cubre: definición de terminado 2 y 4 de B1; BR1.7, BR1.8, BR3.1–BR3.6; NFR11.4. Fuera: editar C6.
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_analyzer_copy.py tests/guards/test_autonomia_05.py -m c6 --no-cov`

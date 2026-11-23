@@ -47,7 +47,9 @@ paths:
         '401':
           description: Sin token o con un token que no es el configurado (auth.unauthenticated)
         '422':
-          description: El texto no pasa una regla de la aclaración; no salió ninguna llamada
+          description: >-
+            El texto no pasa una regla de la aclaración; no salió ninguna llamada. Problem Details
+            (RFC 9457) con `rule_id` de lista cerrada.
           content:
             application/problem+json:
               schema:
@@ -55,6 +57,17 @@ paths:
                 additionalProperties: false
                 required: [rule_id]
                 properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  status:
+                    const: 422
+                  code:
+                    type: string
+                    pattern: '^[a-z][a-z_]*\.[a-z][a-z_]*$'
+                  detail:
+                    type: string
                   rule_id:
                     enum: [template_version, dt23, vocabulary, length]
         '503':

@@ -1,9 +1,11 @@
 """Módulo guardia de soberanía de datos: `servers` internos en todo contrato (NFR1.1, §4.9).
 
-Los controles negativos trabajan sobre copias en `tmp_path`; nunca se toca un archivo versionado.
-Cada constante, cada patrón y cada regla tiene un control positivo y uno negativo.
+Los controles negativos trabajan sobre copias en `tmp_path` o sobre documentos en memoria; nunca
+se toca un archivo versionado. Cada constante, cada patrón y cada regla tiene un control positivo y
+uno negativo, y ningún mensaje de la guardia copia un valor del documento (se prueba con un *canary*).
 """
 
+import copy
 import shutil
 from pathlib import Path
 from typing import Any
@@ -16,10 +18,13 @@ from veridicus_contracts.checks import servers as guardia
 C21 = "api/anonymizer-proxy.v1.yaml"
 # Los contratos que ya existen en esta tarea; `api/console.v2.yaml` (C1) llega en el paso 16.
 EXISTENTES = tuple(ruta for ruta in guardia.CONTRATOS if ruta != "api/console.v2.yaml")
+CANARY = "canary-7f3a"
+SUFIJO = "(NFR1.1, §4.9)"
 
 INTERNAS = [
     "/",
     "/api/v1",
+    "/a.b_c~d-e/F9",
     "http://veridicus-anonymizer-proxy:8080",
     "http://veridicus-a:1",
     "http://veridicus-a1-b2:65535/v1",
@@ -34,6 +39,15 @@ EXTERNAS = [
     "api/v1",
     "//api.openai.com",
     "//veridicus-x:80",
+    "/\\evil.com",
+    "/\\/evil.com",
+    "/\t/evil.com",
+    "/ /evil.com",
+    "/a?b",
+    "/a#b",
+    "/a b",
+    "/{p}",
+    "/a\n",
     "https://api.openai.com",
     "http://api.openai.com",
     "http://10.0.0.1:8080",
@@ -50,6 +64,8 @@ EXTERNAS = [
     "http://veridicus-x:123456",
     "http://veridicus-x:80@evil.example",
     "http://veridicus-x:80\n",
+    "http://veridicus-x:80/a\\b",
+    "http://veridicus-x:80/a?b",
     "http://veridicus-x.evil.example:80",
     "http://a.svc.cluster.local.evil.example",
     "http://svc.cluster.local",
@@ -59,7 +75,17 @@ EXTERNAS = [
     "http://a.svc.cluster.local:",
     "http://a.svc.cluster.local:x",
     "http://a.svc.cluster.local\n",
+    "http://a.svc.cluster.local/a b",
+    "http://evil-svc-cluster-local",
+    "http://evilxsvcxclusterxlocal",
+    "http://a.svcxclusterxlocal",
+    "http://a.svc-cluster.local",
+    "http://a.svc.cluster-local",
+    "http://a.svc.clusterxlocal",
+    "http://a.svcxcluster.local",
+    "http://a-svc.cluster.local",
     "ftp://veridicus-x:80",
+    "http://veridicus-x:{port}",
 ]
 
 
@@ -92,42 +118,229 @@ def test_los_contratos_que_recorre_son_exactamente_los_siete_de_4_9() -> None:
     )
 
 
-def test_direcciones_de_openapi_incluyen_url_y_valores_por_omision() -> None:
-    documento = {
-        "servers": [
-            {"url": "/api"},
-            {"url": "http://{host}:80", "variables": {"host": {"default": "h1"}, "p": {"default": "8"}}},
-            {"url": "/sin-variables", "variables": None},
-        ]
+def _oas(**extra: Any) -> dict[str, Any]:
+    """Un OpenAPI mínimo con un servidor global interno, más lo que se le añada."""
+    documento: dict[str, Any] = {"servers": [{"url": "/"}], "paths": {"/x": {"get": {}}}}
+    documento.update(extra)
+    return documento
+
+
+def _problemas(documento: Any) -> list[str]:
+    return guardia.comprobar_documento("c.yaml", documento)
+
+
+def _externo(puntero: str, regla: str = "dirección no interna") -> str:
+    return f"c.yaml: {puntero}: {regla} {SUFIJO}"
+
+
+def test_un_documento_limpio_y_el_servidor_global_se_reportan_con_su_puntero() -> None:
+    assert _problemas(_oas()) == []
+    sucio = _oas(servers=[{"url": "/"}, {"url": "https://api.openai.com"}])
+    assert _problemas(sucio) == [_externo("/servers/1")]
+
+
+def test_servers_por_ruta_por_operacion_y_en_enlaces_se_revisan() -> None:
+    malo = {"url": "https://api.openai.com"}
+    por_ruta = _oas()
+    por_ruta["paths"]["/x"]["servers"] = [malo]
+    assert _problemas(por_ruta) == [_externo("/paths/~1x/servers/0")]
+    por_operacion = _oas()
+    por_operacion["paths"]["/x"]["get"]["servers"] = [malo]
+    assert _problemas(por_operacion) == [_externo("/paths/~1x/get/servers/0")]
+    en_respuesta = _oas()
+    en_respuesta["paths"]["/x"]["get"]["responses"] = {"200": {"links": {"l": {"server": malo}}}}
+    assert _problemas(en_respuesta) == [_externo("/paths/~1x/get/responses/200/links/l/server")]
+    en_componentes = _oas(components={"links": {"l": {"server": malo}}})
+    assert _problemas(en_componentes) == [_externo("/components/links/l/server")]
+    en_lista = _oas(paths={"/x": {"get": {"callbacks": [{"servers": [malo]}]}}})
+    assert _problemas(en_lista) == [_externo("/paths/~1x/get/callbacks/0/servers/0")]
+
+
+def test_servers_internos_por_ruta_y_enlaces_no_dan_problemas() -> None:
+    bueno = {"url": "http://veridicus-x:80"}
+    documento = _oas()
+    documento["paths"]["/x"]["servers"] = [bueno]
+    documento["paths"]["/x"]["get"]["servers"] = [bueno]
+    documento["paths"]["/x"]["get"]["responses"] = {"200": {"links": {"l": {"server": bueno}}}}
+    assert _problemas(documento) == []
+
+
+def test_los_esquemas_y_los_ejemplos_no_son_estructura() -> None:
+    falso = {"servers": [{"url": "https://api.openai.com"}], "server": "x"}
+    documento = _oas(
+        components={
+            "schemas": {"S": falso},
+            "examples": {"E": falso},
+        }
+    )
+    documento["paths"]["/x"]["get"]["responses"] = {
+        "200": {"content": {"a/b": {"schema": falso, "example": falso, "examples": {"e": falso}}}}
     }
-    assert guardia.direcciones(documento) == ["/api", "http://{host}:80", "h1", "8", "/sin-variables"]
+    documento["paths"]["/x"]["get"]["x-props"] = {"properties": falso}
+    assert _problemas(documento) == []
 
 
-def test_direcciones_de_asyncapi_anteponen_http_al_host() -> None:
-    documento = {"servers": {"redis": {"host": "veridicus-redis:6379"}, "otro": {}}}
-    assert guardia.direcciones(documento) == ["http://veridicus-redis:6379", "http://"]
+def test_un_puntero_escapa_la_barra_y_la_tilde_del_nombre() -> None:
+    documento = _oas()
+    documento["paths"] = {"/a~b/c": {"servers": [{"url": "//evil.example"}]}}
+    assert _problemas(documento) == [_externo("/paths/~1a~0b~1c/servers/0")]
 
 
-@pytest.mark.parametrize("servidores", [None, [], {}, "texto", 7])
-def test_direcciones_sin_servidores_utilizables_es_una_lista_vacia(servidores: Any) -> None:
-    assert guardia.direcciones({"servers": servidores}) == []
-    assert guardia.direcciones({}) == []
+@pytest.mark.parametrize("valor", ["texto", 7, True])
+def test_servers_que_no_es_lista_ni_mapa_es_mal_formado(valor: Any) -> None:
+    assert _problemas({"servers": valor}) == [_externo("/servers", "servidor mal formado")]
+    por_ruta = _oas(paths={"/x": {"servers": valor}})
+    assert _problemas(por_ruta) == [_externo("/paths/~1x/servers", "servidor mal formado")]
 
 
-def test_direcciones_tolera_servidores_que_no_son_objetos() -> None:
-    assert guardia.direcciones({"servers": ["texto", {"url": "/x"}]}) == ["", "/x"]
-    assert guardia.direcciones({"servers": {"a": "texto"}}) == ["http://"]
-    assert guardia.direcciones({"servers": [{"url": "/x", "variables": {"v": "texto"}}]}) == [
-        "/x",
-        "",
+def test_un_servidor_que_no_es_un_objeto_es_mal_formado() -> None:
+    assert _problemas({"servers": ["texto", {"url": "/"}]}) == [
+        _externo("/servers/0", "servidor mal formado")
     ]
-    assert guardia.direcciones({"servers": [{"url": "/x", "variables": ["texto"]}]}) == ["/x"]
-    assert guardia.direcciones({"servers": [{"url": "/x", "variables": {"v": {}}}]}) == ["/x", ""]
+    assert _problemas({"servers": {"a": "texto"}}) == [
+        _externo("/servers/a", "servidor mal formado")
+    ]
+    assert _problemas(_oas(paths={"/x": {"get": {"links": {"l": {"server": "x"}}}}})) == [
+        _externo("/paths/~1x/get/links/l/server", "servidor mal formado")
+    ]
 
 
-def test_direcciones_toma_url_y_host_como_texto() -> None:
-    assert guardia.direcciones({"servers": [{"url": 5}]}) == ["5"]
-    assert guardia.direcciones({"servers": {"a": {"host": 5}}}) == ["http://5"]
+@pytest.mark.parametrize("documento", [None, [], {}, "texto", 7, {"servers": []}, {"servers": {}}])
+def test_sin_servidores_globales_no_pasa_en_vacio(documento: Any) -> None:
+    assert _problemas(documento) == [
+        f"c.yaml: no declara ningún servidor en servers {SUFIJO}"
+    ]
+
+
+def test_solo_servers_por_ruta_no_cuenta_como_servidor_global() -> None:
+    documento = {"paths": {"/x": {"servers": [{"url": "/"}]}}}
+    assert _problemas(documento) == [f"c.yaml: no declara ningún servidor en servers {SUFIJO}"]
+
+
+def test_el_problema_de_sin_servidores_va_primero() -> None:
+    documento = {"paths": {"/x": {"servers": [{"url": "https://a.example"}]}}}
+    assert _problemas(documento) == [
+        f"c.yaml: no declara ningún servidor en servers {SUFIJO}",
+        _externo("/paths/~1x/servers/0"),
+    ]
+
+
+def test_variable_con_url_de_ruta_y_default_externo_se_detecta() -> None:
+    servidor = {"url": "/{p}", "variables": {"p": {"default": "/evil.com"}}}
+    assert _problemas(_oas(servers=[servidor])) == [_externo("/servers/0")]
+
+
+def test_variable_con_un_valor_de_enum_externo_se_detecta() -> None:
+    servidor = {
+        "url": "http://veridicus-x:{port}",
+        "variables": {"port": {"default": "8080", "enum": ["8080", "80@evil.example"]}},
+    }
+    assert _problemas(_oas(servers=[servidor])) == [_externo("/servers/0")]
+
+
+def test_variable_de_puerto_interna_no_da_falso_positivo() -> None:
+    servidor = {
+        "url": "http://veridicus-x:{port}",
+        "variables": {"port": {"default": "8080", "enum": ["8080", "9090"]}},
+    }
+    assert _problemas(_oas(servers=[servidor])) == []
+    numerico = {"url": "http://veridicus-x:{port}", "variables": {"port": {"default": 8080}}}
+    assert _problemas(_oas(servers=[numerico])) == []
+
+
+def test_variable_con_host_externo_por_omision_se_detecta() -> None:
+    servidor = {"url": "http://{host}:80", "variables": {"host": {"default": "api.openai.com"}}}
+    assert _problemas(_oas(servers=[servidor])) == [_externo("/servers/0")]
+
+
+def test_se_combinan_las_variables_y_basta_una_combinacion_externa() -> None:
+    servidor = {
+        "url": "http://{a}-{b}:80",
+        "variables": {
+            "a": {"default": "veridicus", "enum": ["veridicus", "evil"]},
+            "b": {"default": "x"},
+        },
+    }
+    assert _problemas(_oas(servers=[servidor])) == [_externo("/servers/0")]
+    interno = {
+        "url": "http://veridicus-{b}:80{c}",
+        "variables": {"b": {"default": "x", "enum": ["y"]}, "c": {"default": "/v1"}},
+    }
+    assert _problemas(_oas(servers=[interno])) == []
+
+
+def test_variable_sin_default_o_sin_declarar_deja_la_llave_y_se_detecta() -> None:
+    sin_default = {"url": "http://veridicus-x:{port}", "variables": {"port": {"enum": ["80"]}}}
+    assert _problemas(_oas(servers=[sin_default])) == [_externo("/servers/0")]
+    no_objeto = {"url": "/{p}", "variables": {"p": "texto"}}
+    assert _problemas(_oas(servers=[no_objeto])) == [_externo("/servers/0")]
+    sin_declarar = {"url": "/{p}"}
+    assert _problemas(_oas(servers=[sin_declarar])) == [_externo("/servers/0")]
+    variables_mal = {"url": "/{p}", "variables": ["p"]}
+    assert _problemas(_oas(servers=[variables_mal])) == [_externo("/servers/0")]
+
+
+def test_una_variable_que_la_url_no_usa_no_cuenta_y_un_enum_que_no_es_lista_se_ignora() -> None:
+    sin_uso = {"url": "/", "variables": {"p": {"default": "https://api.openai.com"}}}
+    assert _problemas(_oas(servers=[sin_uso])) == []
+    enum_mal = {"url": "/{p}", "variables": {"p": {"default": "a", "enum": "evil"}}}
+    assert _problemas(_oas(servers=[enum_mal])) == []
+
+
+def test_una_url_ausente_o_que_no_es_texto_es_externa() -> None:
+    assert _problemas(_oas(servers=[{}])) == [_externo("/servers/0")]
+    assert _problemas(_oas(servers=[{"url": 5}])) == [_externo("/servers/0")]
+    assert _problemas(_oas(servers=[{"url": None}])) == [_externo("/servers/0")]
+
+
+def _asyncapi(**servidor: Any) -> dict[str, Any]:
+    return {"servers": {"redis": {"host": "veridicus-redis:6379", **servidor}}}
+
+
+def test_asyncapi_con_host_interno_pasa_con_protocolo_redis_http_o_ausente() -> None:
+    assert _problemas(_asyncapi()) == []
+    assert _problemas(_asyncapi(protocol="redis", description="x")) == []
+    assert _problemas(_asyncapi(protocol="http", pathname="/v1")) == []
+    assert _problemas({"servers": {"a": {"host": "a.svc.cluster.local"}}}) == []
+
+
+def test_asyncapi_con_host_externo_o_ausente_se_detecta() -> None:
+    assert _problemas({"servers": {"redis": {"host": "api.openai.com:443"}}}) == [
+        _externo("/servers/redis")
+    ]
+    assert _problemas({"servers": {"redis": {}}}) == [_externo("/servers/redis")]
+    assert _problemas({"servers": {"redis": {"host": 5}}}) == [_externo("/servers/redis")]
+    assert _problemas({"servers": {"redis": {"host": "veridicus-x:80", "pathname": 7}}}) == [
+        _externo("/servers/redis", "pathname no interno")
+    ]
+
+
+def test_asyncapi_con_url_y_host_a_la_vez_o_con_claves_extra_se_detecta() -> None:
+    con_url = _asyncapi(url="https://api.openai.com")
+    assert _problemas(con_url) == [_externo("/servers/redis", "campo no admitido en un servidor de AsyncAPI")]
+    con_extra = _asyncapi(variables={"a": {}})
+    assert _problemas(con_extra) == [
+        _externo("/servers/redis", "campo no admitido en un servidor de AsyncAPI")
+    ]
+    solo_url = {"servers": {"redis": {"url": "http://veridicus-redis:6379"}}}
+    assert _problemas(solo_url) == [
+        _externo("/servers/redis", "campo no admitido en un servidor de AsyncAPI"),
+        _externo("/servers/redis"),
+    ]
+
+
+@pytest.mark.parametrize("protocolo", ["https", "rediss", "amqps", "HTTP", 7])
+def test_asyncapi_con_protocolo_que_no_es_http_ni_redis_se_detecta(protocolo: Any) -> None:
+    assert _problemas(_asyncapi(protocol=protocolo)) == [
+        _externo("/servers/redis", "protocolo no admitido")
+    ]
+
+
+@pytest.mark.parametrize("ruta", ["//evil.com", "/\\evil.com", "v1", "/a b", ""])
+def test_asyncapi_con_pathname_no_interno_se_detecta(ruta: str) -> None:
+    assert _problemas(_asyncapi(pathname=ruta)) == [
+        _externo("/servers/redis", "pathname no interno")
+    ]
 
 
 def test_el_arbol_versionado_cumple_todo() -> None:
@@ -139,7 +352,7 @@ def test_la_entrada_principal_recorre_los_siete_y_c1_ausente_es_un_problema() ->
     esperado = (
         []
         if (CONTRACTS_ROOT / "api" / "console.v2.yaml").is_file()
-        else ["api/console.v2.yaml: contrato ausente (NFR1.1, §4.9)"]
+        else [f"api/console.v2.yaml: contrato ausente {SUFIJO}"]
     )
     assert guardia.comprobar(CONTRACTS_ROOT) == esperado
 
@@ -171,7 +384,7 @@ def test_la_copia_limpia_pasa_y_no_pasa_en_vacio(tmp_path: Path) -> None:
 def test_control_c21_con_https_api_openai_com(tmp_path: Path) -> None:
     raiz = _con_servers(tmp_path, C21, "servers:\n  - url: https://api.openai.com\n")
     assert guardia.comprobar(raiz, EXISTENTES) == [
-        "api/anonymizer-proxy.v1.yaml: dirección no interna: https://api.openai.com (NFR1.1, §4.9)"
+        f"api/anonymizer-proxy.v1.yaml: /servers/0: dirección no interna {SUFIJO}"
     ]
 
 
@@ -182,37 +395,27 @@ def test_control_c21_con_https_api_openai_com(tmp_path: Path) -> None:
         "https://veridicus-anonymizer-proxy:8080",
         "http://anonymizer-proxy:8080",
         "//veridicus-x:80",
+        "/\\\\evil.com",
     ],
-    ids=["ip-literal", "https-en-el-cluster", "sin-prefijo", "relativa-de-red"],
+    ids=["ip-literal", "https-en-el-cluster", "sin-prefijo", "relativa-de-red", "barra-invertida"],
 )
 def test_cada_regla_tiene_su_control_negativo_en_c21(tmp_path: Path, url: str) -> None:
-    raiz = _con_servers(tmp_path, C21, f"servers:\n  - url: {url}\n")
+    raiz = _con_servers(tmp_path, C21, f"servers:\n  - url: '{url}'\n")
     assert guardia.comprobar(raiz, EXISTENTES) == [
-        f"api/anonymizer-proxy.v1.yaml: dirección no interna: {url} (NFR1.1, §4.9)"
+        f"api/anonymizer-proxy.v1.yaml: /servers/0: dirección no interna {SUFIJO}"
     ]
 
 
-def test_un_valor_por_omision_externo_se_detecta(tmp_path: Path) -> None:
-    texto = (
-        "servers:\n  - url: 'http://{host}:80'\n    variables:\n"
-        "      host: {default: api.openai.com}\n"
-    )
-    raiz = _con_servers(tmp_path, C21, texto)
-    problemas = guardia.comprobar(raiz, EXISTENTES)
-    assert problemas == [
-        "api/anonymizer-proxy.v1.yaml: dirección no interna: http://{host}:80 (NFR1.1, §4.9)",
-        "api/anonymizer-proxy.v1.yaml: dirección no interna: api.openai.com (NFR1.1, §4.9)",
-    ]
-
-
-def test_server_ausente_o_vacio_es_un_problema(tmp_path: Path) -> None:
-    raiz = _con_servers(tmp_path, C21, "servers: []\n")
+def test_c21_con_un_servers_por_operacion_externo_se_detecta(tmp_path: Path) -> None:
+    raiz = _copia(tmp_path)
+    ruta = raiz / C21
+    texto = ruta.read_text(encoding="utf-8")
+    marca = "      operationId: generate\n"
+    assert marca in texto
+    nuevo = texto.replace(marca, marca + "      servers:\n        - url: https://api.openai.com\n")
+    ruta.write_text(nuevo, encoding="utf-8")
     assert guardia.comprobar(raiz, EXISTENTES) == [
-        "api/anonymizer-proxy.v1.yaml: no declara ningún servidor en servers (NFR1.1, §4.9)"
-    ]
-    raiz = _con_servers(tmp_path / "otro", "health/health.v2.yaml", "x-otra: 1\n")
-    assert guardia.comprobar(raiz, EXISTENTES) == [
-        "health/health.v2.yaml: no declara ningún servidor en servers (NFR1.1, §4.9)"
+        f"api/anonymizer-proxy.v1.yaml: /paths/~1v1~1generate/post/servers/0: dirección no interna {SUFIJO}"
     ]
 
 
@@ -223,7 +426,18 @@ def test_un_asyncapi_con_host_externo_se_detecta(tmp_path: Path) -> None:
     assert "host: 'veridicus-redis:6379'" in texto
     ruta.write_text(texto.replace("host: 'veridicus-redis:6379'", "host: 'api.openai.com:443'"))
     assert guardia.comprobar(raiz, EXISTENTES) == [
-        "queues/runs.v2.yaml: dirección no interna: http://api.openai.com:443 (NFR1.1, §4.9)"
+        f"queues/runs.v2.yaml: /servers/redis: dirección no interna {SUFIJO}"
+    ]
+
+
+def test_un_asyncapi_con_protocolo_https_se_detecta(tmp_path: Path) -> None:
+    raiz = _copia(tmp_path)
+    ruta = raiz / "queues" / "results.v2.yaml"
+    texto = ruta.read_text(encoding="utf-8")
+    assert "protocol: redis" in texto
+    ruta.write_text(texto.replace("protocol: redis", "protocol: https"), encoding="utf-8")
+    assert guardia.comprobar(raiz, EXISTENTES) == [
+        f"queues/results.v2.yaml: /servers/redis: protocolo no admitido {SUFIJO}"
     ]
 
 
@@ -231,32 +445,69 @@ def test_un_contrato_ausente_no_pasa_en_vacio(tmp_path: Path) -> None:
     raiz = _copia(tmp_path)
     (raiz / C21).unlink()
     assert guardia.comprobar(raiz, EXISTENTES) == [
-        "api/anonymizer-proxy.v1.yaml: contrato ausente (NFR1.1, §4.9)"
+        f"api/anonymizer-proxy.v1.yaml: contrato ausente {SUFIJO}"
     ]
 
 
-def test_un_contrato_ilegible_es_un_problema(tmp_path: Path) -> None:
+def test_un_directorio_con_el_nombre_del_contrato_no_es_un_archivo(tmp_path: Path) -> None:
     raiz = _copia(tmp_path)
-    (raiz / C21).write_text("a: 1\na: 2\n", encoding="utf-8")
-    problemas = guardia.comprobar(raiz, EXISTENTES)
-    assert len(problemas) == 1
-    assert problemas[0].startswith("api/anonymizer-proxy.v1.yaml: contrato ilegible: ")
+    (raiz / C21).unlink()
+    (raiz / C21).mkdir()
+    assert guardia.comprobar(raiz, EXISTENTES) == [
+        f"api/anonymizer-proxy.v1.yaml: no es un archivo {SUFIJO}"
+    ]
+
+
+def test_un_contrato_ilegible_es_un_problema_sin_el_texto_del_error(tmp_path: Path) -> None:
+    raiz = _copia(tmp_path)
+    (raiz / C21).write_text(f"a: {CANARY}-uno\na: {CANARY}-dos\n", encoding="utf-8")
+    assert guardia.comprobar(raiz, EXISTENTES) == [
+        f"api/anonymizer-proxy.v1.yaml: contrato ilegible, no se pudo interpretar {SUFIJO}"
+    ]
 
 
 def test_un_documento_que_no_es_un_objeto_no_declara_servidores(tmp_path: Path) -> None:
     raiz = _copia(tmp_path)
     (raiz / C21).write_text("- uno\n- dos\n", encoding="utf-8")
     assert guardia.comprobar(raiz, EXISTENTES) == [
-        "api/anonymizer-proxy.v1.yaml: no declara ningún servidor en servers (NFR1.1, §4.9)"
+        f"api/anonymizer-proxy.v1.yaml: no declara ningún servidor en servers {SUFIJO}"
     ]
+
+
+def test_ningun_mensaje_copia_valores_del_documento(tmp_path: Path) -> None:
+    documento: dict[str, Any] = {
+        "servers": [
+            {"url": f"https://user:{CANARY}@{CANARY}.example/{CANARY}"},
+            {"url": "/{p}", "variables": {"p": {"default": f"/{CANARY}.evil", "enum": [CANARY]}}},
+            {"url": f"//{CANARY}", "variables": {CANARY: {"default": CANARY}}},
+        ],
+        "paths": {f"/{CANARY}": {"servers": [{"url": CANARY}]}},
+    }
+    mapa = {"servers": {CANARY: {"host": f"{CANARY}.example", "protocol": CANARY, "pathname": CANARY}}}
+    mensajes = _problemas(documento) + _problemas(mapa) + _problemas({"servers": CANARY})
+    assert len(mensajes) == 8
+    assert not [m for m in mensajes if CANARY in m.replace(f"/paths/~1{CANARY}", "").replace(
+        f"/servers/{CANARY}", ""
+    )]
+    raiz = _copia(tmp_path)
+    (raiz / C21).write_text(f"a: {CANARY}\na: {CANARY}\n", encoding="utf-8")
+    assert not [m for m in guardia.comprobar(raiz, EXISTENTES) if CANARY in m]
 
 
 def test_varios_defectos_se_listan_todos_en_orden(tmp_path: Path) -> None:
     raiz = _con_servers(tmp_path, C21, "servers:\n  - url: https://a.example\n  - url: /ok\n")
     ruta = raiz / "health" / "health.v2.yaml"
-    ruta.write_text(ruta.read_text(encoding="utf-8").replace("servers:", "servers:\n  - url: http://b.example"))
-    problemas = guardia.comprobar(raiz, EXISTENTES)
-    assert problemas == [
-        "health/health.v2.yaml: dirección no interna: http://b.example (NFR1.1, §4.9)",
-        "api/anonymizer-proxy.v1.yaml: dirección no interna: https://a.example (NFR1.1, §4.9)",
+    ruta.write_text(
+        ruta.read_text(encoding="utf-8").replace("servers:", "servers:\n  - url: http://b.example")
+    )
+    assert guardia.comprobar(raiz, EXISTENTES) == [
+        f"health/health.v2.yaml: /servers/0: dirección no interna {SUFIJO}",
+        f"api/anonymizer-proxy.v1.yaml: /servers/0: dirección no interna {SUFIJO}",
     ]
+
+
+def test_la_copia_profunda_del_documento_no_se_modifica() -> None:
+    documento = _oas(servers=[{"url": "/{p}", "variables": {"p": {"default": "a"}}}])
+    antes = copy.deepcopy(documento)
+    assert _problemas(documento) == []
+    assert documento == antes

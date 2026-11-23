@@ -1,14 +1,12 @@
 """C21 (respuestas), ruta interna de voz y C16: forma, estados y cierre de los cuerpos (T13).
 
-- C21: los estados de la revisión 4 y el `code` de cada uno coinciden con el catálogo de errores v2;
-  `anonymizer.incident` no es respuesta de ninguna ruta (P-T07-1, CD-11).
+- C21: los estados de la revisión 4; `anonymizer.incident` no es respuesta de ninguna ruta
+  (P-T07-1, CD-11). La comparación de los `code` con el catálogo es de T15 (K-19, PD-8).
 - Ruta interna de voz: `bearerAuth`, cuerpo estricto, `401`, `422` con `rule_id` cerrado, `503` y
   `audio/wav` con tope (NFRD-U1-08).
 - C16: `/healthz` y `/readyz` públicas, con cuerpos cerrados y sin datos sensibles.
 """
 
-import copy
-import re
 from typing import Any
 
 import pytest
@@ -18,50 +16,13 @@ C21 = "api/anonymizer-proxy.v1.yaml"
 VOZ = "api/speech-internal.v1.yaml"
 SALUD = "health/health.v2.yaml"
 CATALOGO = "errors/error-codes.v2.yaml"
-CODE_EN_TEXTO = re.compile(r'"code": "([a-z_]+\.[a-z_]+)"')
 ESTADOS_C21 = {"200", "409", "413", "422", "451", "502", "503", "504"}
-CODES_C21 = {
-    "409": {"anonymizer.profile_mismatch"},
-    "413": {"limits.exceeded"},
-    "422": {"anonymizer.destination_rejected"},
-    "451": {"analysis.content_blocked"},
-    "502": {"analysis.provider", "analysis.invalid_output"},
-    "503": {"analysis.anonymizer_unavailable"},
-    "504": {"analysis.timeout"},
-}
-
-
-def _codes_por_estado(documento: Any) -> dict[str, set[str]]:
-    """El `code` que cada respuesta de error de C21 nombra en su descripción."""
-    respuestas = documento["paths"]["/v1/generate"]["post"]["responses"]
-    return {
-        estado: set(CODE_EN_TEXTO.findall(respuesta["description"]))
-        for estado, respuesta in respuestas.items()
-        if estado != "200"
-    }
-
-
-def _problemas_de_estado(documento: Any, catalogo: dict[str, Any]) -> list[str]:
-    problemas = []
-    for estado, codes in _codes_por_estado(documento).items():
-        if not codes:
-            problemas.append(f"{estado}: no nombra ningún code")
-        for code in sorted(codes):
-            if code not in catalogo:
-                problemas.append(f"{estado}: {code} no está en el catálogo")
-            elif catalogo[code].get("status") != int(estado):
-                problemas.append(f"{estado}: {code} es {catalogo[code].get('status')} en el catálogo")
-    return problemas
 
 
 @pytest.mark.c21
-def test_c21_declara_los_estados_de_la_revision_4_y_cada_code_del_catalogo() -> None:
-    documento = load_contract(C21)
-    respuestas = documento["paths"]["/v1/generate"]["post"]["responses"]
+def test_c21_declara_los_estados_de_la_revision_4() -> None:
+    respuestas = load_contract(C21)["paths"]["/v1/generate"]["post"]["responses"]
     assert set(respuestas) == ESTADOS_C21
-    assert _codes_por_estado(documento) == CODES_C21
-    catalogo = load_contract(CATALOGO)["codes"]
-    assert _problemas_de_estado(documento, catalogo) == []
 
 
 @pytest.mark.c21
@@ -73,21 +34,6 @@ def test_c21_no_nombra_anonymizer_incident_en_ninguna_respuesta() -> None:
     assert catalogo["anonymizer.incident"]["http"] is False
     assert "anonymizer.incident" not in str(documento)
     assert "incidente_anonimizacion" not in str(documento)
-
-
-@pytest.mark.c21
-def test_control_negativo_un_estado_que_no_es_el_del_catalogo_se_detecta() -> None:
-    catalogo = load_contract(CATALOGO)["codes"]
-    documento = copy.deepcopy(load_contract(C21))
-    respuestas = documento["paths"]["/v1/generate"]["post"]["responses"]
-    respuestas["409"]["description"] = 'x: { "code": "analysis.timeout" }'
-    respuestas["413"]["description"] = 'x: { "code": "inventado.code" }'
-    respuestas["422"]["description"] = "sin code"
-    assert _problemas_de_estado(documento, catalogo) == [
-        "409: analysis.timeout es 504 en el catálogo",
-        "413: inventado.code no está en el catálogo",
-        "422: no nombra ningún code",
-    ]
 
 
 @pytest.mark.c21
@@ -154,6 +100,36 @@ def test_voz_interna_422_lleva_un_rule_id_de_lista_cerrada() -> None:
     assert errores_de(validador, {"rule_id": "otra"})
     assert errores_de(validador, {})
     assert errores_de(validador, {"rule_id": "dt23", "texto": "x"})
+
+
+@pytest.mark.speech
+def test_voz_interna_422_admite_problem_details_de_rfc_9457_y_sigue_cerrado() -> None:
+    validador = validador_de(
+        VOZ,
+        "#/paths/~1internal~1v1~1speech/post/responses/422/content/application~1problem+json/schema",
+    )
+    problema = {
+        "type": "about:blank",
+        "title": "Texto rechazado",
+        "status": 422,
+        "code": "speech.text_rejected",
+        "detail": "La frase propuesta no cumple la regla de longitud.",
+        "rule_id": "length",
+    }
+    assert errores_de(validador, problema) == []
+    assert errores_de(validador, {"rule_id": "length"}) == []
+    for campo, valor in (
+        ("status", 409),
+        ("status", "422"),
+        ("code", "Texto rechazado"),
+        ("type", 5),
+        ("title", 5),
+        ("detail", 5),
+        ("instance", "x"),
+    ):
+        assert errores_de(validador, {**problema, campo: valor}), campo
+    sin_regla = {k: v for k, v in problema.items() if k != "rule_id"}
+    assert errores_de(validador, sin_regla)
 
 
 def _validador_de_voz() -> Any:

@@ -293,30 +293,30 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 7 — Mensajes de cola C2, C3 y C5 v2 (verde) · tarea T05 (ola con T06)
 
-- [ ] `contracts/queues/runs.v2.yaml` (C2), `results.v2.yaml` (C3), `speech.v2.yaml` (C5,
+- [x] `contracts/queues/runs.v2.yaml` (C2), `results.v2.yaml` (C3), `speech.v2.yaml` (C5,
   `x-veridicus-priority: SHOULD`) en AsyncAPI 3.0: sobre con `schema_version`, `message_id`,
   `attempt ≥ 1`; `entrada` y `salida` por `$ref` canónico a la copia de C6; `effective_config` contra C18;
   `audio_base64` con `x-veridicus-limit: audio_base64_max_chars`; `servers` internos. Sin el umbral ni las
   calificaciones retiradas (BR2.2, BR2.4, BR2.5 «Retirado»). `queues/indexing.v1.yaml` (C4) **no** se
   entrega. Las marcas `x-veridicus-limit` se comprueban contra C25 en el paso 16 (PD-8).
-- [ ] Los *fixtures* y `tests/contracts/test_queue_messages.py` ya existen (paso 5); este paso solo
+- [x] Los *fixtures* y `tests/contracts/test_queue_messages.py` ya existen (paso 5); este paso solo
   escribe los contratos.
-- [ ] Entradas de `<cola>:failed` con esquema estricto: solo `message_id`, ID de la corrida o del audio,
+- [x] Entradas de `<cola>:failed` con esquema estricto: solo `message_id`, ID de la corrida o del audio,
   `attempt` y `code` (NFRD-U1-07, NFR-U4-07, NFR-U9-03).
 - Cubre: C2, C3, C5; BR1.1–BR1.3, BR2.1, BR2.3; NFR10.2. Fuera: lógica de productores y consumidores (U4,
   U9).
-- [ ] `contracts/profiles/effective-config.v1.yaml` (C18, estricto), que C2 referencia; la huella de
+- [x] `contracts/profiles/effective-config.v1.yaml` (C18, estricto), que C2 referencia; la huella de
   `effective-config.valid.json` es su `sha256_jcs` (BR9.7). Se adelanta desde el paso 11 (E-5).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py --no-cov`
   → verde, incluido el caso `c18` de C2.
 
 ### Paso 8 — Sugerencia de revisión C7 v2 (verde) · tarea T06 (ola con T05)
 
-- [ ] `contracts/integrity/review-suggestion.v2.json`: JSON Schema 2020-12 estricto, `$id` versionado;
+- [x] `contracts/integrity/review-suggestion.v2.json`: JSON Schema 2020-12 estricto, `$id` versionado;
   `hecho`, `tipo`, `cita_a`, `cita_b`, `observaciones` obligatorios y no vacíos; citas por `$ref` canónico
   a `/veridicus/contracts/analyzer/v1/salida#/$defs/cita` (BR4.3); estados `pending`, `accepted`,
   `edited`, `dismissed` con las cuatro condiciones `if/then` de FD-U1-13 (BR4.4).
-- [ ] `src/veridicus_contracts/checks/suggestion_conditions.py` (módulo guardia): C7 declara las cuatro
+- [x] `src/veridicus_contracts/checks/suggestion_conditions.py` (módulo guardia): C7 declara las cuatro
   condiciones y hay un *fixture* negativo por cada una (§4.8, NFR11.5); 5–8 pruebas, 100 % de ramas.
 - Cubre: C7; AC5.5.3; BR4.1–BR4.4; NFR11.5; AUTONOMIA-03 (quién y cuándo). Fuera: máquina de estados en
   ejecución (U5).
@@ -326,22 +326,22 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 9 — Catálogo de errores v2 y excepciones de `libs/errors/` · tarea T07
 
-- [ ] `contracts/errors/error-codes.v2.yaml`: por `code`, un solo `status`, `class`, unidad dueña y
+- [x] `contracts/errors/error-codes.v2.yaml`: por `code`, un solo `status`, `class`, unidad dueña y
   `http: true|false`; `limits.exceeded` = `413` (D16); arranque y log con `http: false`
   (`config.invalid_profile`, `config.invalid_limit`, `run.publish_failed`); los `code` de NFR10.3 y de
   contract-summary revisión 3, incluidos `session.blocked` (CD-11), `route.not_found` (`404`,
   NFRD-U3-10), `report.view_outdated` (`409`, NFRD-U7-04), `import.invalid_type` y
   `research.invalid_type` (`415`); tabla `error.codigo` de C6 → `code` uno a uno, con
   `proveedor` → `analysis.provider` (BR3.4, E34).
-- [ ] `libs/errors/` (PD-7): distribución `veridicus-errors` con `pyproject.toml` (hatchling, Python 3.12,
+- [x] `libs/errors/` (PD-7): distribución `veridicus-errors` con `pyproject.toml` (hatchling, Python 3.12,
   mypy estricto, Ruff con `S`, `pytest-cov` al 80 %), `uv.lock` generado con `uv lock --directory
   libs/errors`, `src/veridicus_errors/` con una clase sin lógica por `code` (atributo de clase `code`)
   y su jerarquía (BR7.4), y `tests/` con 5–8 pruebas (jerarquía, `code` único, `status` no expuesto en
   la clase). El manejador que traduce a Problem Details es de cada servicio.
-- [ ] `src/veridicus_contracts/checks/error_codes.py` (módulo guardia, §4.7 a–e; la parte de C1 se
+- [x] `src/veridicus_contracts/checks/error_codes.py` (módulo guardia, §4.7 a–e; la parte de C1 se
   completa en el paso 16): catálogo y clases uno a uno leyendo `libs/errors/src/` con `ast`, sin importar
   (E31, E44); tabla de C6 completa (E34).
-- [ ] `tests/checks/test_error_codes.py` y `tests/test_errors_catalog.py` (forma del catálogo, un
+- [x] `tests/checks/test_error_codes.py` y `tests/test_errors_catalog.py` (forma del catálogo, un
   `status` por `code`, `limits.exceeded` = 413, `http: false` en los de arranque).
 - Cubre: definición de terminado 4 de B1; BR3.4, BR7.2, BR7.4; NFR10.3. Fuera: `ErrorCode` de C1 (paso
   16).

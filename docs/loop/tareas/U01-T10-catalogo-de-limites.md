@@ -73,9 +73,10 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-2**: 100 % de ramas en `limits.py` y `checks/limits_catalog.py` (módulos guardia, V-GUARD).
   ```bash
-  timeout 120 uv run --frozen --offline --directory contracts pytest tests/test_limits.py tests/checks/test_limits_catalog.py --cov=veridicus_contracts.limits --cov=veridicus_contracts.checks.limits_catalog --cov-branch --cov-fail-under=100
+  timeout 120 uv run --frozen --offline --directory contracts pytest tests/test_limits.py tests/checks/test_limits_catalog.py --cov-fail-under=0
+  uv run --frozen --offline --directory contracts coverage report --include=src/veridicus_contracts/limits.py,src/veridicus_contracts/checks/limits_catalog.py --fail-under=100 --show-missing
   ```
-  Esperado: verde, 100 %.
+  Esperado: verde las dos, 100 % de líneas y de ramas. `addopts` ya mide todo el paquete con ramas, así que el umbral se aplica solo a los módulos guardia con `coverage report --include`.
 
 - [ ] **CA-3**: el catálogo está en la instalación editable y en la rueda (F-12).
   ```bash

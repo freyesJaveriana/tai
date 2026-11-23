@@ -65,9 +65,10 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-2**: 100 % de ramas en `profiles.py` (módulo guardia, V-GUARD).
   ```bash
-  timeout 120 uv run --frozen --offline --directory contracts pytest tests/test_profiles.py --cov=veridicus_contracts.profiles --cov-branch --cov-fail-under=100
+  timeout 120 uv run --frozen --offline --directory contracts pytest tests/test_profiles.py --cov-fail-under=0
+  uv run --frozen --offline --directory contracts coverage report --include=src/veridicus_contracts/profiles.py --fail-under=100 --show-missing
   ```
-  Esperado: verde, 100 %.
+  Esperado: verde las dos, 100 % de líneas y de ramas. `addopts` ya mide todo el paquete con ramas, así que el umbral se aplica solo al módulo guardia con `coverage report --include`.
 
 - [ ] **CA-3**: el caso `c18` de C2 sigue en verde (no se rompe lo de T05).
   ```bash

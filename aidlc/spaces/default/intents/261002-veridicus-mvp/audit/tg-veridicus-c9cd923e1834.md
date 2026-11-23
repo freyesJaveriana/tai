@@ -44497,3 +44497,328 @@
 **Context**: construction > contracts > code-generation > decisiones-humano.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:38:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: adb476def01fe4df0
+**Message**: Running test_profiles_contract.py C18 cases
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:38:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa768a93b63db18e3
+**Message**: Avísame cuando haya PR para fusionar
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:38:39Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7b068b1cfb8c3296
+**Message**: Validando fixtures nuevos de review-suggestion
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:38:50Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a62f59fd3e027c289
+**Message**: <analysis>\nRepaso cronológico desde el resumen anterior hasta este punto.\n\n**T03 y T02b**\n- T03, ronda 1: NO-VERDE.\n  - F-01 NARANJA: la guardia de `servers` pasaba en vacío.\n  - F-02 a F-06 AMARILLO.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:38:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a77faf37d6a503000
+**Message**: Correcting statuses in error-codes.v2.yaml
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:38:56Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae3e8c6c98b3c2a5a
+**Message**: Escribiendo informe de ronda-1.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:39:01Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a4c92db5e2dd49444
+**Message**: # Ronda 1 — U01-T05\n\nVEREDICTO: VERDE\n\nHash de la tarea comprobado: `sha256sum` da `9fe18bbd…b060`, igual al del despacho. La rama `tarea/U01-T05` está en `76c713d`. Al terminar, `git status --short` 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:39:01Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:39:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3d451ea18c75ed7b
+**Message**: Comprobando cobertura de suggestion_conditions.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:39:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a97fd25771109f400
+**Message**: Checking test_error_codes.py for Raiz references
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:39:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af4e64258a830e5ac
+**Message**: Verificando worktree limpio tras mutantes
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:39:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a6b78ea8ea0940ce0
+**Message**: # Ronda 2: U01-T06\n\nVEREDICTO: VERDE\n\nF-01 y F-02 están cerrados. Corrí yo los seis criterios y todos pasan. Ninguno de los 29 mutantes sobrevive, y el diff no revierte nada de la rama del Bolt.\n\nRevi
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:40:05Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:40:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae9e2a9c94d99eaef
+**Message**: gh pr merge 10 --repo freyesJaveriana/tai --squash --delete-branch
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:41:27Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0319f09b4843d922
+**Message**: Updating test_hierarchy.py and .gitignore
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:41:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac41c707251adaeed
+**Message**: Locating "Propuestas y vacíos" in bitácora
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:42:29Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: acd37d51457b55b38
+**Message**: Pushing the T07 rework commit
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:42:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: adccf84d2a3383c3a
+**Message**: TAREA: U01-T07 (ronda 2)\nRAMA: tarea/U01-T07   SHA: 0e27d16\nCRITERIOS: 10 de 10 corridos en verde en mi worktree. El revisor debe volver a correrlos él mismo.\nBITACORA: <project-dir>/.worktrees/U01-T07/d
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:42:31Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:43:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af779e1f0f11e9b35
+**Message**: Reading error-codes.v2.yaml statuses
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:43:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9f0ec42c25a937ba
+**Message**: Running libs/errors lint checks
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:44:16Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7411a18564e69eef
+**Message**: Running check-no-cluster-apply.sh guard
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:44:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af797bb150b78c450
+**Message**: Mutating veridicus_errors hierarchy for test_hierarchy
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:45:19Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac5ba72bbcca45fd7
+**Message**: Checking worktree status and vocabulary hits
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:45:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: af711fc229f34c0da
+**Message**: # Ronda 2 — U01-T07\n\nVEREDICTO: VERDE\n\nLos siete hallazgos de la ronda 1 quedaron cerrados y todos los criterios pasan con mi propia ejecución. Los 26 mutantes de la ronda 1 mueren, y también los 7 nu
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:45:33Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:46:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a33f1c359c78f7a1b
+**Message**: ! gh pr merge 10 --repo freyesJaveriana/tai --squash --delete-branch
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:27Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:29Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:30Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:33Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:34Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:35Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:37Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:54:39Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---

@@ -78,9 +78,10 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-3**: 100 % de ramas en `checks/protocol_surface.py` (módulo guardia).
   ```bash
-  timeout 120 uv run --frozen --offline --directory contracts pytest tests/typing tests/checks/test_protocol_surface.py --cov=veridicus_contracts.checks.protocol_surface --cov-branch --cov-fail-under=100
+  timeout 120 uv run --frozen --offline --directory contracts pytest tests/typing tests/checks/test_protocol_surface.py --cov-fail-under=0
+  uv run --frozen --offline --directory contracts coverage report --include=src/veridicus_contracts/checks/protocol_surface.py --fail-under=100 --show-missing
   ```
-  Esperado: verde, 100 %.
+  Esperado: verde las dos, 100 % de líneas y de ramas. `addopts` ya mide todo el paquete con ramas, así que el umbral se aplica solo al módulo guardia con `coverage report --include`.
 
 - [ ] **CA-4**: los datos de `model_calls/` siguen en la instalación editable y en la rueda, junto al módulo `model_calls.py`.
   ```bash

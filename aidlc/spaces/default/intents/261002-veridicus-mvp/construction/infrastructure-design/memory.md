@@ -56,6 +56,10 @@
 - 2026-11-23T00:41:02Z — Segunda pasada: el cambio de máquinas (sin GPU, un solo equipo de 64 GB con WSL2) cambia los recursos, así que se preguntó (P6–P8) y no se generaron artefactos; el juez de todo-local entró como pregunta porque NFR-U11-07 deja su archivo a U2 y fija casi la mitad de la memoria.
 <!-- aidlc-wave-memory:platform:16e60c2d50e0784c439cce07b89a7a02a8dbe2c9ac4aa4d075fae0f7b6d35c3d -->
 
+
+- 2026-11-23T00:57:53Z — «Reporte adjunto al PR» se lee como un par versionado (C19 v2 y una evidencia con el commit evaluado) en evaluation/reports/level2/, porque C19 no tiene campo de commit y la CI no puede leer adjuntos (IDS-U11-04).
+<!-- aidlc-wave-memory:incoherence-analyzer:46eeeb6ab83e7c302a623d29bcfcb67e717a3561091fe92d1683009056b22345 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -98,6 +102,10 @@
 
 - 2026-11-23T00:47:00Z — El mamparo de 4 se limita a POST /v1/generate (IDS-U10-04), porque con 4 llamadas en curso una sonda sin cupo haría que la livenessProbe reiniciara el pod a mitad de una llamada.
 <!-- aidlc-wave-memory:anonymizer:c08f56d8e430ea1b179767e8e873b47de46ab0f6fd5ef5c58cc4cde055cfad1c -->
+
+
+- 2026-11-23T00:57:53Z — U11 es library: solo cicd-pipeline.md y traceability.json (produces_kinds), aunque el brief nombraba los cuatro artefactos; máquina de la CLI, ZINE y frontera van en §5–§7 (IDS-U11-01).
+<!-- aidlc-wave-memory:incoherence-analyzer:eb1639c526e17c07afd32d29f5194433bf50e608ec219aababe3ea66ddd74b8c -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -161,6 +169,14 @@
 
 - 2026-11-23T00:41:02Z — El humano delegó P6–P8 («ahora tengo 64, así que puedes ajustar lo que sea necesario»): Minikube 50 GiB y 16 CPU, WSL2 56 GB y 20 procesadores, juez Qwen3.6-35B-A3B Q4_K_M; los limits (≈ 51,8 GiB) superan a Minikube porque los pesos de llama-server son memoria recuperable y juez y verificador no generan a la vez.
 <!-- aidlc-wave-memory:platform:7e83e3301fb5d00c36becaec84a9f29795e40a21479e60be1e6a20b8df6213e6 -->
+
+
+- 2026-11-23T00:57:53Z — La wheelhouse de ZINE va sin el extra cli (sin torch ni libs-anonymizer) a cambio de que composition importe el anonimizador de forma diferida y un perfil comercial sin él dé código 3 (IDS-U11-02).
+<!-- aidlc-wave-memory:incoherence-analyzer:eb9f54432ba8a7f507ae5b725851abcec7219d8ed97afc94c747efade4a8e72e -->
+
+
+- 2026-11-23T00:57:53Z — El verificador del nivel 2 en la anfitriona reutiliza la imagen de llama-server de U2 por digest solo en loopback; conserva la salida de la red puente de Docker, riesgo residual igual al de la propia CLI (IDS-U11-05).
+<!-- aidlc-wave-memory:incoherence-analyzer:64f9533ea232f59ae2ef51c5f7d0406e954245c779859a193f484b75e00be0bb -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

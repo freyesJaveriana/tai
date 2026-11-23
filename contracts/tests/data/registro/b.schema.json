@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "/veridicus/contracts/prueba/b",
+  "type": "object",
+  "required": ["cita_a"],
+  "properties": {
+    "cita_a": {"$ref": "/veridicus/contracts/prueba/a#/$defs/cita"}
+  }
+}

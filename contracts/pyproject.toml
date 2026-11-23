@@ -26,6 +26,7 @@ dev = [
     "pip-audit>=2.7",
     "hatchling>=1.26",
     "yamllint>=1.35",
+    "types-jsonschema>=4.23",
 ]
 
 # Mapa de rutas de functional-spec §1 con PD-9 (D1, D15): los módulos viven en
@@ -54,6 +55,7 @@ include = [
     "/queues",
     "/transcript",
     "/ui",
+    "/vendor",
 ]
 exclude = ["fixtures"]
 dev-mode-dirs = ["src"]
@@ -76,6 +78,7 @@ dev-mode-dirs = ["src"]
 "queues" = "veridicus_contracts/queues"
 "transcript" = "veridicus_contracts/transcript"
 "ui" = "veridicus_contracts/ui"
+"vendor" = "veridicus_contracts/vendor"
 
 # La copia editable de los datos se rehace cuando cambia un archivo de datos.
 [tool.uv]
@@ -95,6 +98,7 @@ cache-keys = [
     { file = "queues/**" },
     { file = "transcript/**" },
     { file = "ui/**" },
+    { file = "vendor/**" },
 ]
 
 [tool.mypy]

@@ -33,7 +33,7 @@ codes:
   session.paused: { status: 409, class: SessionPausedError, unit: U4, http: true }
   session.terminated: { status: 409, class: SessionTerminatedError, unit: U4, http: true }
   session.blocked: { status: 409, class: SessionBlockedError, unit: U4, http: true }
-  session.consent_missing: { status: 422, class: SessionConsentMissingError, unit: U4, http: true }
+  session.consent_missing: { status: 409, class: SessionConsentMissingError, unit: U4, http: true }
   session.consent_withdrawn: { status: 409, class: SessionConsentWithdrawnError, unit: U4, http: true }
   session.voice_not_authorized: { status: 409, class: SessionVoiceNotAuthorizedError, unit: U4, http: true }
   import.invalid_type: { status: 415, class: ImportInvalidTypeError, unit: U6, http: true }
@@ -42,19 +42,19 @@ codes:
   retention.above_maximum: { status: 422, class: RetentionAboveMaximumError, unit: U13, http: true }
   retention.below_minimum: { status: 422, class: RetentionBelowMinimumError, unit: U13, http: true }
   retention.cannot_extend: { status: 422, class: RetentionCannotExtendError, unit: U13, http: true }
-  ethics.text_version_outdated: { status: 409, class: EthicsTextVersionOutdatedError, unit: U13, http: true }
+  ethics.text_version_outdated: { status: 422, class: EthicsTextVersionOutdatedError, unit: U13, http: true }
   problem_report.ids_mismatch: { status: 422, class: ProblemReportIdsMismatchError, unit: U13, http: true }
   run.not_in_error: { status: 409, class: RunNotInErrorError, unit: U4, http: true }
   run.final_in_progress: { status: 409, class: RunFinalInProgressError, unit: U4, http: true }
   analysis.invalid_output: { status: 502, class: AnalysisInvalidOutputError, unit: U4, http: true, c6: salida_invalida }
-  analysis.content_blocked: { status: 502, class: AnalysisContentBlockedError, unit: U4, http: true, c6: bloqueo_contenido }
+  analysis.content_blocked: { status: 451, class: AnalysisContentBlockedError, unit: U4, http: true, c6: bloqueo_contenido }
   analysis.timeout: { status: 504, class: AnalysisTimeoutError, unit: U4, http: true, c6: tiempo_agotado }
   analysis.provider: { status: 502, class: AnalysisProviderError, unit: U4, http: true, c6: proveedor }
   analysis.anonymizer_unavailable: { status: 503, class: AnalysisAnonymizerUnavailableError, unit: U4, http: true, c6: anonimizador_no_disponible }
-  anonymizer.incident: { status: 503, class: AnonymizerIncidentError, unit: U10, http: true, c6: incidente_anonimizacion }
+  anonymizer.incident: { class: AnonymizerIncidentError, unit: U10, http: false, c6: incidente_anonimizacion }
   anonymizer.profile_mismatch: { status: 409, class: AnonymizerProfileMismatchError, unit: U10, http: true }
   anonymizer.destination_rejected: { status: 422, class: AnonymizerDestinationRejectedError, unit: U10, http: true }
-  analysis.system: { status: 502, class: AnalysisSystemError, unit: U4, http: true }
+  analysis.system: { status: 503, class: AnalysisSystemError, unit: U4, http: true }
   suggestion.not_found: { status: 404, class: SuggestionNotFoundError, unit: U5, http: true }
   review.observations_not_viewed: { status: 409, class: ReviewObservationsNotViewedError, unit: U5, http: true }
   review.note_required: { status: 422, class: ReviewNoteRequiredError, unit: U5, http: true }
@@ -64,7 +64,7 @@ codes:
   report.final_mode_not_launched: { status: 409, class: ReportFinalModeNotLaunchedError, unit: U7, http: true }
   report.runs_in_progress: { status: 409, class: ReportRunsInProgressError, unit: U7, http: true }
   report.pending_suggestions: { status: 409, class: ReportPendingSuggestionsError, unit: U7, http: true }
-  report.forbidden_vocabulary: { status: 422, class: ReportForbiddenVocabularyError, unit: U7, http: true }
+  report.forbidden_vocabulary: { status: 409, class: ReportForbiddenVocabularyError, unit: U7, http: true }
   report.conflict: { status: 409, class: ReportConflictError, unit: U7, http: true }
   report.view_outdated: { status: 409, class: ReportViewOutdatedError, unit: U7, http: true }
   report.integrity_mismatch: { status: 409, class: ReportIntegrityMismatchError, unit: U7, http: true }

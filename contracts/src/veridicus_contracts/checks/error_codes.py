@@ -22,6 +22,7 @@ CODE = re.compile(r"^[a-z][a-z_]*\.[a-z][a-z_]*$")
 CLAVES_DE_CODE = frozenset({"code", "error_code"})
 # Contratos que se recorren en (b) cuando existen (los de C1 se suman en el paso 16).
 CONTRATOS_CON_CODES = ("queues/*.yaml", "api/*.yaml")
+RAIZ = "VeridicusError"  # raíz de la jerarquía única (BR7.4)
 CODE_C6_PROVEEDOR = ("proveedor", "analysis.provider")  # BR3.4
 
 
@@ -32,6 +33,7 @@ class ClaseLeida(NamedTuple):
     bases: tuple[str, ...]
     code: str | None
     con_logica: bool
+    code_no_textual: bool = False
 
 
 def cargar_catalogo(ruta: Path) -> dict[str, dict[str, Any]]:
@@ -48,8 +50,8 @@ def _es_docstring(nodo: ast.stmt) -> bool:
     )
 
 
-def _code_de(nodo: ast.stmt) -> str | None:
-    """El texto de `code = "x"` o `code: ClassVar[str] = "x"`; `None` si el nodo es otra cosa."""
+def _valor_de_code(nodo: ast.stmt) -> ast.expr | None:
+    """El valor de `code = ...` o `code: ClassVar[str] = ...`; `None` si el nodo es otra cosa."""
     destinos: list[ast.expr]
     if isinstance(nodo, ast.AnnAssign):
         destinos = [nodo.target]
@@ -59,14 +61,8 @@ def _code_de(nodo: ast.stmt) -> str | None:
         valor = nodo.value
     else:
         return None
-    if (
-        len(destinos) == 1
-        and isinstance(destinos[0], ast.Name)
-        and destinos[0].id == "code"
-        and isinstance(valor, ast.Constant)
-        and isinstance(valor.value, str)
-    ):
-        return valor.value
+    if len(destinos) == 1 and isinstance(destinos[0], ast.Name) and destinos[0].id == "code":
+        return valor
     return None
 
 
@@ -74,15 +70,24 @@ def _leer_clase(nodo: ast.ClassDef) -> ClaseLeida:
     bases = tuple(base.id for base in nodo.bases if isinstance(base, ast.Name))
     code: str | None = None
     con_logica = False
+    no_textual = False
     for cuerpo in nodo.body:
         if _es_docstring(cuerpo):
             continue
-        valor = _code_de(cuerpo)
+        valor = _valor_de_code(cuerpo)
         if valor is None:
             con_logica = True
+        elif isinstance(valor, ast.Constant) and isinstance(valor.value, str):
+            code = valor.value
         else:
-            code = valor
-    return ClaseLeida(nodo.name, bases, code, con_logica)
+            no_textual = True
+    return ClaseLeida(nodo.name, bases, code, con_logica, no_textual)
+
+
+def _familia_de(code: str) -> str:
+    """Nombre de la base de familia de un `code`: `session.blocked` -> `SessionFamilyError`."""
+    partes = code.split(".")[0].split("_")
+    return "".join(parte.capitalize() for parte in partes) + "FamilyError"
 
 
 def leer_clases(src: Path) -> list[ClaseLeida]:
@@ -90,7 +95,9 @@ def leer_clases(src: Path) -> list[ClaseLeida]:
     clases: list[ClaseLeida] = []
     for archivo in sorted(src.rglob("*.py")):
         arbol = ast.parse(archivo.read_text(encoding="utf-8"), filename=str(archivo))
-        clases.extend(_leer_clase(nodo) for nodo in ast.walk(arbol) if isinstance(nodo, ast.ClassDef))
+        clases.extend(
+            _leer_clase(nodo) for nodo in ast.walk(arbol) if isinstance(nodo, ast.ClassDef)
+        )
     return clases
 
 
@@ -102,10 +109,20 @@ def comprobar_clases(catalogo: dict[str, dict[str, Any]], clases: list[ClaseLeid
     for clase in clases:
         if clase.con_logica:
             problemas.append(f"{clase.nombre}: define lógica o atributos distintos de code (BR7.4)")
+        if clase.code_no_textual:
+            problemas.append(f"{clase.nombre}: su code no es un texto literal (E31)")
         if clase.code is not None:
             por_code.setdefault(clase.code, []).append(clase)
+            if _familia_de(clase.code) not in clase.bases:
+                problemas.append(
+                    f"{clase.nombre}: su base debe ser {_familia_de(clase.code)} (BR7.4)"
+                )
         elif clase.nombre not in bases_usadas:
             problemas.append(f"{clase.nombre}: clase de excepción sin code (E31)")
+    por_nombre = {clase.nombre: clase for clase in clases}
+    for familia in sorted({_familia_de(code) for code in por_code}):
+        if familia not in por_nombre or RAIZ not in por_nombre[familia].bases:
+            problemas.append(f"{familia}: la base de familia debe heredar de {RAIZ} (BR7.4)")
     for code, entrada in catalogo.items():
         halladas = por_code.get(code, [])
         if not halladas:

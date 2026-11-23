@@ -1,6 +1,7 @@
 """Jerarquía de excepciones: clases sin lógica, un `code` único por clase (BR7.4)."""
 
 import inspect
+from typing import Any
 
 import pytest
 
@@ -13,18 +14,24 @@ from veridicus_errors import (
 )
 
 
-def _hojas() -> list[type[VeridicusError]]:
+def _hojas() -> list[type[Any]]:
+    """Toda clase con `code`, cuelgue o no de `VeridicusError` (una que no cuelgue debe fallar)."""
     return [
         clase
         for _, clase in inspect.getmembers(veridicus_errors, inspect.isclass)
-        if issubclass(clase, VeridicusError) and "code" in vars(clase)
+        if "code" in vars(clase)
     ]
 
 
-def test_toda_clase_cuelga_de_la_raiz() -> None:
+def test_toda_clase_cuelga_de_su_familia_y_esta_de_la_raiz() -> None:
     assert issubclass(LimitsExceededError, LimitsFamilyError)
     assert issubclass(LimitsFamilyError, VeridicusError)
     assert issubclass(VeridicusError, Exception)
+    for clase in _hojas():
+        familia = clase.code.split(".")[0].replace("_", " ").title().replace(" ", "")
+        assert [base.__name__ for base in clase.__bases__] == [f"{familia}FamilyError"], clase
+        assert issubclass(clase, VeridicusError), clase.__name__
+        assert VeridicusError in clase.__bases__[0].__bases__, clase.__name__
 
 
 def test_code_unico_y_con_formato() -> None:

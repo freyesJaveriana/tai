@@ -66,6 +66,22 @@ def test_codes_pedidos_por_las_otras_unidades() -> None:
     assert codes["research.invalid_type"]["status"] == 415
 
 
+def test_estados_que_fijan_las_fuentes_aprobadas() -> None:
+    codes = _codes()
+    esperados = {
+        "analysis.content_blocked": 451,
+        "analysis.system": 503,
+        "session.consent_missing": 409,
+        "ethics.text_version_outdated": 422,
+        "report.forbidden_vocabulary": 409,
+    }
+    for code, status in esperados.items():
+        assert codes[code]["status"] == status, code
+    # P-T07-1: es la causa del bloqueo y el codigo de C6, no una respuesta de ruta
+    assert codes["anonymizer.incident"]["http"] is False
+    assert "status" not in codes["anonymizer.incident"]
+
+
 def test_clases_y_codes_c6_no_se_repiten() -> None:
     codes = _codes()
     clases = [entrada["class"] for entrada in codes.values()]

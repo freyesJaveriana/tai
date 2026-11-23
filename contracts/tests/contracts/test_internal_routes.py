@@ -112,8 +112,10 @@ def test_voz_interna_422_admite_problem_details_de_rfc_9457_y_sigue_cerrado() ->
         "type": "about:blank",
         "title": "Texto rechazado",
         "status": 422,
-        "code": "speech.text_rejected",
+        # `validation.invalid_request` es 422 en el catálogo; el code propio de esta ruta es K-18.
+        "code": "validation.invalid_request",
         "detail": "La frase propuesta no cumple la regla de longitud.",
+        "instance": "/internal/v1/speech",
         "rule_id": "length",
     }
     assert errores_de(validador, problema) == []
@@ -125,7 +127,8 @@ def test_voz_interna_422_admite_problem_details_de_rfc_9457_y_sigue_cerrado() ->
         ("type", 5),
         ("title", 5),
         ("detail", 5),
-        ("instance", "x"),
+        ("instance", 5),
+        ("extra", "x"),
     ):
         assert errores_de(validador, {**problema, campo: valor}), campo
     sin_regla = {k: v for k, v in problema.items() if k != "rule_id"}

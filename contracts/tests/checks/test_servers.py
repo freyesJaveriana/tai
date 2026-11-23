@@ -43,6 +43,10 @@ EXTERNAS = [
     "/\\/evil.com",
     "/\t/evil.com",
     "/ /evil.com",
+    "/%2F/evil.com",
+    "/%2f%2fevil.com",
+    "/a@b",
+    "/a:b",
     "/a?b",
     "/a#b",
     "/a b",
@@ -152,8 +156,79 @@ def test_servers_por_ruta_por_operacion_y_en_enlaces_se_revisan() -> None:
     assert _problemas(en_respuesta) == [_externo("/paths/~1x/get/responses/200/links/l/server")]
     en_componentes = _oas(components={"links": {"l": {"server": malo}}})
     assert _problemas(en_componentes) == [_externo("/components/links/l/server")]
-    en_lista = _oas(paths={"/x": {"get": {"callbacks": [{"servers": [malo]}]}}})
-    assert _problemas(en_lista) == [_externo("/paths/~1x/get/callbacks/0/servers/0")]
+    en_callback = _oas()
+    en_callback["paths"]["/x"]["get"]["callbacks"] = {"cb": {"expr": {"servers": [malo]}}}
+    assert _problemas(en_callback) == [_externo("/paths/~1x/get/callbacks/cb/expr/servers/0")]
+    en_callback_con_operacion = _oas()
+    en_callback_con_operacion["paths"]["/x"]["get"]["callbacks"] = {
+        "cb": {"expr": {"post": {"servers": [malo]}}}
+    }
+    assert _problemas(en_callback_con_operacion) == [
+        _externo("/paths/~1x/get/callbacks/cb/expr/post/servers/0")
+    ]
+    en_webhook = _oas(webhooks={"w": {"servers": [malo], "put": {"servers": [malo]}}})
+    assert _problemas(en_webhook) == [
+        _externo("/webhooks/w/servers/0"),
+        _externo("/webhooks/w/put/servers/0"),
+    ]
+    en_servidores_de_componentes = _oas(components={"servers": {"s": {"host": "api.openai.com"}}})
+    assert _problemas(en_servidores_de_componentes) == [_externo("/components/servers/s")]
+    en_respuestas_de_componentes = _oas(
+        components={"responses": {"r": {"links": {"l": {"server": malo}}}}}
+    )
+    assert _problemas(en_respuestas_de_componentes) == [
+        _externo("/components/responses/r/links/l/server")
+    ]
+    en_pathitems = _oas(components={"pathItems": {"p": {"get": {"servers": [malo]}}}})
+    assert _problemas(en_pathitems) == [_externo("/components/pathItems/p/get/servers/0")]
+
+
+def test_los_nombres_que_coinciden_con_palabras_de_esquema_o_ejemplo_no_ocultan_servers() -> None:
+    """F-09: `schema`, `example`, `examples`, `schemas` y `properties` son nombres válidos de claves."""
+    malo = {"url": "https://api.openai.com"}
+    en_callback = _oas()
+    en_callback["paths"]["/x"]["get"]["callbacks"] = {"schema": {"expr": {"servers": [malo]}}}
+    assert _problemas(en_callback) == [_externo("/paths/~1x/get/callbacks/schema/expr/servers/0")]
+    en_enlace = _oas()
+    en_enlace["paths"]["/x"]["get"]["responses"] = {"200": {"links": {"example": {"server": malo}}}}
+    assert _problemas(en_enlace) == [_externo("/paths/~1x/get/responses/200/links/example/server")]
+    en_webhook = _oas(webhooks={"examples": {"servers": [malo]}})
+    assert _problemas(en_webhook) == [_externo("/webhooks/examples/servers/0")]
+    en_pathitems = _oas(components={"pathItems": {"schemas": {"servers": [malo]}}})
+    assert _problemas(en_pathitems) == [_externo("/components/pathItems/schemas/servers/0")]
+    en_enlaces = _oas(components={"links": {"example": {"server": malo}}})
+    assert _problemas(en_enlaces) == [_externo("/components/links/example/server")]
+    en_callbacks = _oas(components={"callbacks": {"properties": {"expr": {"servers": [malo]}}}})
+    assert _problemas(en_callbacks) == [_externo("/components/callbacks/properties/expr/servers/0")]
+
+
+def test_un_servers_global_con_un_nombre_parecido_no_cuenta() -> None:
+    assert _problemas({"serversX": [{"url": "/"}]}) == [
+        f"c.yaml: no declara ningún servidor en servers {SUFIJO}"
+    ]
+    assert _problemas({"x-servers": [{"url": "/"}]}) == [
+        f"c.yaml: no declara ningún servidor en servers {SUFIJO}"
+    ]
+
+
+def test_las_estructuras_que_no_son_objetos_se_recorren_sin_error() -> None:
+    documento = _oas(
+        paths={"/x": "texto", "/y": {"get": "texto", "put": {"callbacks": "x", "responses": "x"}}},
+        webhooks=["x"],
+        components="x",
+    )
+    assert _problemas(documento) == []
+    documento = _oas(
+        paths="x",
+        components={"pathItems": "x", "callbacks": {"c": "x", "d": {"e": "x"}}, "links": "x",
+                    "responses": {"r": "x", "s": {"links": "x"}, "t": {"links": {"l": "x"}}},
+                    "servers": "x"},
+    )
+    assert _problemas(documento) == [_externo("/components/servers", "servidor mal formado")]
+    documento = _oas()
+    documento["paths"]["/x"]["get"]["responses"] = {"200": {"links": {"l": {}}}}
+    documento["paths"]["/x"]["get"]["callbacks"] = {"cb": "x"}
+    assert _problemas(documento) == []
 
 
 def test_servers_internos_por_ruta_y_enlaces_no_dan_problemas() -> None:
@@ -200,8 +275,10 @@ def test_un_servidor_que_no_es_un_objeto_es_mal_formado() -> None:
     assert _problemas({"servers": {"a": "texto"}}) == [
         _externo("/servers/a", "servidor mal formado")
     ]
-    assert _problemas(_oas(paths={"/x": {"get": {"links": {"l": {"server": "x"}}}}})) == [
-        _externo("/paths/~1x/get/links/l/server", "servidor mal formado")
+    enlace = _oas()
+    enlace["paths"]["/x"]["get"]["responses"] = {"200": {"links": {"l": {"server": "x"}}}}
+    assert _problemas(enlace) == [
+        _externo("/paths/~1x/get/responses/200/links/l/server", "servidor mal formado")
     ]
 
 
@@ -280,11 +357,26 @@ def test_variable_sin_default_o_sin_declarar_deja_la_llave_y_se_detecta() -> Non
     assert _problemas(_oas(servers=[variables_mal])) == [_externo("/servers/0")]
 
 
-def test_una_variable_que_la_url_no_usa_no_cuenta_y_un_enum_que_no_es_lista_se_ignora() -> None:
+def test_una_variable_que_la_url_no_usa_no_cuenta() -> None:
     sin_uso = {"url": "/", "variables": {"p": {"default": "https://api.openai.com"}}}
     assert _problemas(_oas(servers=[sin_uso])) == []
-    enum_mal = {"url": "/{p}", "variables": {"p": {"default": "a", "enum": "evil"}}}
-    assert _problemas(_oas(servers=[enum_mal])) == []
+
+
+@pytest.mark.parametrize("enum", ["evil", [], {}, 7, None])
+def test_un_enum_que_no_es_una_lista_con_valores_es_una_variable_mal_formada(enum: Any) -> None:
+    mal = {"url": "/{p}", "variables": {"p": {"default": "a", "enum": enum}}}
+    assert _problemas(_oas(servers=[mal])) == [
+        _externo("/servers/0", "variable de servidor mal formada")
+    ]
+    sin_uso = {"url": "/", "variables": {"p": {"default": "a", "enum": enum}}}
+    assert _problemas(_oas(servers=[sin_uso])) == [
+        _externo("/servers/0", "variable de servidor mal formada")
+    ]
+
+
+def test_un_enum_con_valores_internos_y_un_enum_ausente_no_dan_problemas() -> None:
+    bueno = {"url": "/{p}", "variables": {"p": {"default": "a", "enum": ["a", "b"]}}}
+    assert _problemas(_oas(servers=[bueno])) == []
 
 
 def test_una_url_ausente_o_que_no_es_texto_es_externa() -> None:

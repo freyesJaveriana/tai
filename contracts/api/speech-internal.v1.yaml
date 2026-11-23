@@ -59,6 +59,7 @@ paths:
                 properties:
                   type:
                     type: string
+                    format: uri-reference
                   title:
                     type: string
                   status:
@@ -67,6 +68,8 @@ paths:
                     type: string
                     pattern: '^[a-z][a-z_]*\.[a-z][a-z_]*$'
                   detail:
+                    type: string
+                  instance:
                     type: string
                   rule_id:
                     enum: [template_version, dt23, vocabulary, length]

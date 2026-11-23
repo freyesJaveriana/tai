@@ -1,7 +1,8 @@
 """Registro de esquemas de los contratos (functional-spec §4.2, BR12.3, FD-U1-11).
 
-Recorre los archivos `*.schema.json` y registra cada uno bajo `https://veridicus.invalid/`
-más su `$id` (relativo, con o sin barra inicial), sin tocar el archivo. Toda referencia entre esquemas usa el `$id` del destino
+Recorre los archivos `*.schema.json` y todo `.yaml`, `.yml` o `.json` cuyo documento raíz
+declare `$schema` y `$id` (fuera de `fixtures/` y `tests/`) y registra cada uno bajo
+`https://veridicus.invalid/` más su `$id` (relativo, con o sin barra inicial), sin tocar el archivo. Toda referencia entre esquemas usa el `$id` del destino
 como ruta absoluta (BR12.3). Los meta-esquemas de `vendor/` se registran bajo su propio
 `$id` absoluto. El dominio `.invalid` está reservado y nunca se consulta por red, y la
 función de recuperación del registro rechaza cualquier URI que no esté registrada
@@ -22,6 +23,8 @@ from veridicus_contracts.loaders import LoadError, load_file
 
 BASE_URI = "https://veridicus.invalid/"
 SUFIJO_DE_ESQUEMA = ".schema.json"
+SUFIJOS_DE_DATOS = (".yaml", ".yml", ".json")
+DIRECTORIOS_SALTADOS = frozenset({"fixtures", "tests"})
 
 
 class ForeignUriError(LookupError):
@@ -33,13 +36,21 @@ def _no_recuperar(uri: str) -> Resource[Any]:
 
 
 def _esquemas(raiz: Traversable, en_vendor: bool) -> Iterator[tuple[Traversable, bool]]:
-    """Cada archivo de esquema bajo `raiz`, con si cuelga de `vendor/`; salta `fixtures/`."""
+    """Cada archivo `.yaml`, `.yml` o `.json` bajo `raiz`, con si cuelga de `vendor/`.
+
+    Salta `fixtures/` y `tests/`. Qué archivos son esquemas lo decide `build_registry`.
+    """
     for entrada in sorted(raiz.iterdir(), key=lambda e: e.name):
         if entrada.is_dir():
-            if entrada.name != "fixtures":
+            if entrada.name not in DIRECTORIOS_SALTADOS:
                 yield from _esquemas(entrada, en_vendor or entrada.name == "vendor")
-        elif entrada.name.endswith(SUFIJO_DE_ESQUEMA):
+        elif entrada.name.endswith(SUFIJOS_DE_DATOS):
             yield entrada, en_vendor
+
+
+def _declara_esquema(contenido: Any) -> bool:
+    """Un documento cuya raíz declara `$schema` y `$id` es un esquema (BR12.3)."""
+    return isinstance(contenido, dict) and "$schema" in contenido and "$id" in contenido
 
 
 def _uri_de(archivo: Traversable, contenido: Any, en_vendor: bool) -> str:
@@ -73,6 +84,8 @@ def build_registry(raiz: Traversable | None = None) -> Registry[Any]:
     origen: dict[str, str] = {}
     for archivo, en_vendor in _esquemas(raiz, raiz.name == "vendor"):
         contenido = load_file(archivo)
+        if not archivo.name.endswith(SUFIJO_DE_ESQUEMA) and not _declara_esquema(contenido):
+            continue
         uri = _uri_de(archivo, contenido, en_vendor)
         if uri in origen:
             raise LoadError(

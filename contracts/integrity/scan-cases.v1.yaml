@@ -1,0 +1,230 @@
+# Casos de escaneo (BR5.8, PD-6, FD-U1-09, D-2). U1 valida solo su forma (checks/scan_cases.py);
+# el escáner scan(text, literal_sources) de U11 los ejecuta todos y su suite falla si una coincidencia
+# o un tramo excluido difiere de lo esperado. Todo el texto es sintético: ningún fragmento de entrevista.
+#
+# rule: vocabulary    -> expect.matches (términos de C8 que coinciden) y expect.excluded (tramos «…» excluidos)
+# rule: clarification -> expect.valid, expect.reasons y expect.phrases (regla de las aclaraciones neutras)
+schema_version: 1.0.0
+cases:
+  # --- Escenarios de functional-spec: E10 a E14 y E30, y la decisión D-2 ---
+  - id: e10-miente-en-observaciones
+    source: E10
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "El compareciente miente sobre la hora de salida."
+    literal_sources: []
+    expect: {matches: [miente], excluded: []}
+  - id: e11-cita-literal-con-falso
+    source: E11
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "El compareciente dijo «que ese dato era falso» al hablar del puente."
+    literal_sources:
+      - "Yo le dije que ese dato era falso porque nadie lo confirmó."
+    expect: {matches: [], excluded: ["que ese dato era falso"]}
+  - id: e12-cita-que-no-esta-en-ningun-turno
+    source: E12
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se registra «el relator miente» en la parte final."
+    literal_sources:
+      - "Hablamos del río y de la tienda."
+    expect: {matches: [miente], excluded: []}
+  - id: e13-mayusculas
+    source: E13
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "MIENTE sobre la fecha del viaje."
+    literal_sources: []
+    expect: {matches: [miente], excluded: []}
+  - id: e13-sin-tilde
+    source: E13
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Mintio sobre la fecha del viaje."
+    literal_sources: []
+    expect: {matches: [mintió], excluded: []}
+  - id: e14-falsete-no-coincide
+    source: E14
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Se oyó un falsete en la canción del patio."
+    literal_sources: []
+    expect: {matches: [], excluded: []}
+  - id: e14-mienten-no-coincide
+    source: E14
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Ellos mienten sobre la fecha del viaje."
+    literal_sources: []
+    expect: {matches: [], excluded: []}
+  - id: d2-termino-solo-entre-comillas-se-escanea
+    source: D-2
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se dice «falso» del relato de la tarde."
+    literal_sources:
+      - "Eso es falso, dijo el vecino."
+    expect: {matches: [falso], excluded: []}
+  - id: e30-aclaracion-con-frase-y-turno
+    source: E30
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Lo que antes dijo en T3"
+    literal_sources: []
+    expect: {valid: false, reasons: [phrase, cites_turn], phrases: [antes dijo]}
+  # --- Un caso por término de C8 (BR5.1, BR5.8, E40) ---
+  - id: termino-mentiroso
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Se describe como mentiroso al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [mentiroso], excluded: []}
+  - id: termino-mentirosa
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Se describe como mentirosa a la vecina de la esquina."
+    literal_sources: []
+    expect: {matches: [mentirosa], excluded: []}
+  - id: termino-miente
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que ella miente al contar el camino."
+    literal_sources: []
+    expect: {matches: [miente], excluded: []}
+  - id: termino-mintio
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que mintió al contar el camino."
+    literal_sources: []
+    expect: {matches: [mintió], excluded: []}
+  - id: termino-falso
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "El dato de la hora es falso según el texto."
+    literal_sources: []
+    expect: {matches: [falso], excluded: []}
+  - id: termino-falsa
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "La versión de la hora es falsa según el texto."
+    literal_sources: []
+    expect: {matches: [falsa], excluded: []}
+  - id: termino-verdadero
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "El dato de la hora es verdadero según el texto."
+    literal_sources: []
+    expect: {matches: [verdadero], excluded: []}
+  - id: termino-verdadera
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "La versión de la hora es verdadera según el texto."
+    literal_sources: []
+    expect: {matches: [verdadera], excluded: []}
+  - id: termino-engano-sin-tilde-ni-mayusculas
+    source: BR5.2
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Habla de un ENGANO en la venta del terreno."
+    literal_sources: []
+    expect: {matches: [engaño], excluded: []}
+  - id: termino-en-tema
+    source: BR5.4
+    synthetic: true
+    rule: vocabulary
+    field: tema
+    text: "Aclaración sobre lo verdadero del recorrido"
+    literal_sources: []
+    expect: {matches: [verdadero], excluded: []}
+  # --- Un caso por frase de la aclaración neutra (BR5.6, E40) ---
+  - id: frase-antes-dijo
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Lo que antes dijo sobre la tienda"
+    literal_sources: []
+    expect: {valid: false, reasons: [phrase], phrases: [antes dijo]}
+  - id: frase-dijo-antes
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Lo que dijo antes sobre la tienda"
+    literal_sources: []
+    expect: {valid: false, reasons: [phrase], phrases: [dijo antes]}
+  - id: frase-se-contradice
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Cuando se contradice el horario de la tienda"
+    literal_sources: []
+    expect: {valid: false, reasons: [mentions_contradiction, phrase], phrases: [se contradice]}
+  - id: frase-antes-menciono
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Lo que antes mencionó sobre la tienda"
+    literal_sources: []
+    expect: {valid: false, reasons: [phrase], phrases: [antes mencionó]}
+  - id: frase-habia-dicho
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Lo que había dicho sobre la tienda"
+    literal_sources: []
+    expect: {valid: false, reasons: [phrase], phrases: [había dicho]}
+  - id: aclaracion-con-contradiccion
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Hay una contradicción en la hora"
+    literal_sources: []
+    expect: {valid: false, reasons: [mentions_contradiction], phrases: []}
+  - id: aclaracion-con-turno
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Revisar el turno 4 con calma"
+    literal_sources: []
+    expect: {valid: false, reasons: [cites_turn], phrases: []}
+  - id: aclaracion-neutra-valida
+    source: BR5.6
+    synthetic: true
+    rule: clarification
+    field: tema
+    text: "Cambio de tema al hablar de la tienda"
+    literal_sources: []
+    expect: {valid: true, reasons: [], phrases: []}

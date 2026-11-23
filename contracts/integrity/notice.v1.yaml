@@ -1,0 +1,8 @@
+# Aviso de propósito limitado (VE-01, BR5.7). La consola (GET /notice) y el reporte muestran esta versión.
+# Solo cambia por PR y solo para hacerlo más estricto: el texto nuevo contiene el anterior completo.
+# El escáner excluye este texto (A-1): «prueba» aquí no falla, en cualquier otra cadena sí.
+schema_version: 1.0.0
+version: "1.0.0"
+text: >-
+  Los hallazgos son sugerencias de revisión sobre la coherencia interna del relato.
+  No son prueba, no indican falsedad y no deben usarse para decidir sobre la persona.

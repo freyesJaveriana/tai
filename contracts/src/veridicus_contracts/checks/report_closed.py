@@ -161,7 +161,16 @@ def _clase_valida(cuerpo: str) -> bool:
 
 
 def _en_la_gramatica_blanca(patron: str) -> bool:
-    """Solo `^`, `$`, clases con rangos de A-Za-z0-9, `\\.`, `\\-`, `\\+`, literales, `( ) | ?` y cuantificadores."""
+    """Solo `^`, `$`, clases con rangos de A-Za-z0-9, `\\.`, `\\-`, `\\+`, literales, `( ) | ?` y cuantificadores.
+
+    Limitación declarada (ReDoS sin cuantificadores anidados): la guardia rechaza un cuantificador
+    sobre un grupo que ya contiene otro, pero admite `^(a|a)+$` y varios `[a-z]*` seguidos, que
+    también pueden retroceder en exceso. Los patrones solo entran por PR con revisión y llevan un
+    tope de 128 caracteres; la regla no se amplía.
+
+    `(?` solo se admite como `(?:`: las banderas en línea (`(?i:`, `(?a:`, `(?-i:`) compilan en
+    Python pero no en ECMA con la bandera `u`, y romperían a `contracts/ts/`.
+    """
     try:
         re.compile(patron)
     except re.error:
@@ -172,6 +181,8 @@ def _en_la_gramatica_blanca(patron: str) -> bool:
     while posicion < len(cuerpo):
         letra = cuerpo[posicion]
         if letra == "(":
+            if cuerpo[posicion + 1 : posicion + 2] == "?" and cuerpo[posicion + 2 : posicion + 3] != ":":
+                return False
             grupos.append(False)
             posicion += 1
         elif letra == ")":
@@ -250,7 +261,12 @@ def _esquema_abierto(esquema: Any) -> bool:
 
 
 def _cierra(esquema: Any) -> bool:
-    """Un nodo se cierra con `type`, `$ref`, `enum` o `const`; `allOf` basta con una rama que cierre."""
+    """Un nodo se cierra con `type`, `$ref`, `enum` o `const`; `allOf` basta con una rama que cierre.
+
+    `false` cuenta como cerrado: no acepta ningún valor, así que no abre nada.
+    """
+    if esquema is False:
+        return True
     if not isinstance(esquema, dict):
         return False
     if any(k in esquema for k in _CIERRES):

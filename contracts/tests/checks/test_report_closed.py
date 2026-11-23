@@ -1583,3 +1583,66 @@ def test_adversarial_verdadero_sin_ninguna_metrica_del_escenario_a_se_rechaza() 
 def test_adversarial_en_una_corrida_no_habilita_metrics() -> None:
     carga = _carga(kind="run", adversarial=True, metrics={"precision": _metrica(0.9)})
     assert _rechazos(carga) != []
+
+
+# --- Ronda 5, F-02: `false` cuenta como esquema cerrado -----------------------------------------------
+
+
+@pytest.mark.parametrize("palabra", ["allOf", "anyOf", "oneOf"])
+def test_false_en_una_composicion_cierra_el_nodo(palabra: str) -> None:
+    """Decisión: `false` no acepta ningún valor, así que no abre nada; fija a q21."""
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["libre"] = {palabra: [False]}
+    assert _problemas(reporte, llamada, fixtures) == []
+    reporte["properties"]["libre"] = {palabra: [CERRADO, False]}
+    assert _problemas(reporte, llamada, fixtures) == []
+    reporte["properties"]["libre"] = {palabra: [False, False]}
+    assert _problemas(reporte, llamada, fixtures) == []
+
+
+@pytest.mark.parametrize("palabra", ["anyOf", "oneOf"])
+def test_false_junto_a_una_rama_abierta_no_cierra_anyof_ni_oneof(palabra: str) -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["libre"] = {palabra: [False, {}]}
+    assert _problemas(reporte, llamada, fixtures) == [
+        "BR10.1 $.properties.libre: propiedad sin tipo, $ref, enum ni const",
+        ABIERTO.format(sitio=f"$.properties.libre.{palabra}[1]"),
+    ]
+
+
+def test_false_anidado_en_allof_cierra_y_true_no() -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["libre"] = {"allOf": [{"allOf": [False]}]}
+    assert _problemas(reporte, llamada, fixtures) == []
+    reporte["properties"]["libre"] = {"allOf": [{"allOf": [True]}]}
+    assert _problemas(reporte, llamada, fixtures) == [
+        "BR10.1 $.properties.libre: propiedad sin tipo, $ref, enum ni const"
+    ]
+
+
+# --- Ronda 5, F-04: solo `(?:`; las banderas en línea no son ECMA -------------------------------------
+
+
+@pytest.mark.parametrize(
+    "patron",
+    ["^(?i:a)$", "^(?a:a)$", "^(?-i:a)$", "^(?=a)a$", "^(?!a)b$", "^(?P<n>a)$", "^(?#c)a$"],
+)
+def test_un_grupo_con_interrogacion_distinto_de_dos_puntos_queda_en_rojo(patron: str) -> None:
+    re.compile(patron)  # compilan en Python, que es justo el peligro
+    assert _con_patron(patron) == [CONSTRUCCIONES], patron
+
+
+@pytest.mark.parametrize("patron", ["^(?:a|b)$", "^x(?:ab)+y$", "^(a)?$", "^(a(?:b|c))?$"])
+def test_un_grupo_sin_captura_o_con_interrogacion_de_cuantificador_pasa(patron: str) -> None:
+    assert _con_patron(patron) == [], patron
+
+
+# --- Ronda 5, F-03: limitación declarada del ReDoS sin anidar ----------------------------------------
+
+
+@pytest.mark.parametrize("patron", ["^(a|a)+$", "^[a-z]*[a-z]*[a-z]*$", "^(a|aa)+$"])
+def test_el_redos_sin_cuantificadores_anidados_es_una_limitacion_declarada(patron: str) -> None:
+    """La guardia no ve estos patrones y no se amplía la regla: solo entran por PR con revisión."""
+    assert _con_patron(patron) == [], patron
+    fuente = Path(guardia.__file__).read_text(encoding="utf-8")
+    assert "Limitación declarada (ReDoS sin cuantificadores anidados)" in fuente

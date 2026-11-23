@@ -84,6 +84,14 @@
 - 2026-11-23T01:31:23Z — Segunda pasada sin preguntas: U5 no añade procesos, memoria fuera del límite de 1,125 GiB de U2, red ni Secrets; su código corre en la API, el trabajador (propose) y el Job de retención (purge_session), y solo pide a U2 VERIDICUS_DB_LOCK_TIMEOUT_MS en cada contenedor de session-api que abre conexiones (IDS-U5-02).
 <!-- aidlc-wave-memory:human-review:d7b85d333c8e0ca30c71c25afe3a4479133e25b10309a1278ab3d9ee7fc06744 -->
 
+
+- 2026-11-23T01:41:06Z — U2 revisión 2 dejó la API en RollingUpdate, pero NFR8.6 y P1 = A siguen pidiendo Recreate: no es una contradicción nueva (la resolvió el humano en la revisión 1), así que va como petición a U2 (IDS-U7-03) sin pregunta.
+<!-- aidlc-wave-memory:forensic-report:326c92c6659d02c91bbbe71448f10ffeecf7e2b3eb98cea7dfa8093590ca80ea -->
+
+
+- 2026-11-23T01:45:49Z — Segunda pasada sin preguntas: U9 no cambia ninguna cifra de pod del presupuesto de U2; P3 = A se lee como voice.enabled en true en values-cpu.yaml de la única máquina.
+<!-- aidlc-wave-memory:voice:864d3de47a98b740a83ea46853772c7d0a4fa19434bd2c056f750d3251f25c40 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -146,6 +154,14 @@
 
 - 2026-11-23T01:31:23Z — El sensor de trazabilidad tomó NFR3.13 de reliability-design §3, que cita la consolidación de U7; entró como N/A justificado.
 <!-- aidlc-wave-memory:human-review:ff3b3be4b4fb619e9ae3700d82189088df170fd785031e2fd5b18bdeb21737a2 -->
+
+
+- 2026-11-23T01:41:06Z — export_store sale de backup-db.sh y pasa al runbook, justo después del volcado, porque la lista cerrada de exec de U2 solo admite pg_dump, la consulta de U13 y verify_store; se conservan el orden base → volumen y el SHA256SUMS de P2 = A (IDS-U7-07).
+<!-- aidlc-wave-memory:forensic-report:c94c6d956db2f0def5c1298bf31b388dd555b13a2e4e173915b78beb56427a60 -->
+
+
+- 2026-11-23T01:45:49Z — El /tmp en memoria de model-tts baja de 64 a 16 MiB: con 64 MiB, 1,2 × (512 + 64) superaba su límite de 640 MiB de U2 (IDS-U9-06).
+<!-- aidlc-wave-memory:voice:3d14bfcad6b89398f410397562b46124139f5e8eb63ec8f1f635d6c33df08d99 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -253,6 +269,14 @@
 
 - 2026-11-23T01:31:23Z — Se retiró la precisión max by (session_id) de la revisión 1: la regla AIR es de U2 con > 0.25, y la alerta doble de ≤ 60 s durante el relevo de pods queda como riesgo aceptado porque nadie recibe notificaciones.
 <!-- aidlc-wave-memory:human-review:3e2701b278b11bebb01a03de1b1ae71b30d1b9876e19a77c65124ad9f015ae74 -->
+
+
+- 2026-11-23T01:41:06Z — El corte de Recreate se mide desde fuera con scripts/measure-cutover.sh (solo HTTP, umbral ≤ 90 s, contando la descarga de capas) en vez de con kubectl rollout status, que check-no-cluster-apply.sh prohíbe en scripts (IDS-U7-11).
+<!-- aidlc-wave-memory:forensic-report:e3fe96d33ac82c1a95489b867b348d36eaa2102129dec220845156856d66a4a3 -->
+
+
+- 2026-11-23T01:45:49Z — No se pide subir Redis a 768 MiB: el AofRewriteRequester reescribe con la cola vacía, y una prueba de nivel 1 exige un pico de RSS ≤ 427 MiB; solo si falla se pide a U2 por PR (IDS-U9-05).
+<!-- aidlc-wave-memory:voice:6a218770f575bed308ef787cba579c27e3ef1b32db506fa938457bbd52d4d37d -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

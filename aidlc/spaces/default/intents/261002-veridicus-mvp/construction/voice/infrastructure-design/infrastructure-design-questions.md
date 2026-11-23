@@ -99,3 +99,41 @@ C. Como A, pero en la máquina de demostración Whisper corre en GPU (el mismo m
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Design revisión vigente (2026-11-23)
+
+## Lo que ya está decidido
+
+- **Una sola máquina de 64 GB, solo CPU**, con Minikube de 50 GiB y 16 CPU (IDS-U2-01) y sin `values-gpu.yaml`
+  (IDS-U2-02). P3 = A se lee como la voz encendida por defecto en `values-cpu.yaml` de esa máquina.
+- **De U2 revisión 2:** `model-whisper` (1 / 768 MiB → 4 / 1,3 GiB), `model-tts` (0,5 / 384 MiB → 2 / 640 MiB) y
+  `audio-worker` (0,1 / 192 MiB → 0,5 / 384 MiB); CTranslate2 y ONNX admitidos (IDS-U2-08); `veridicus-audio` de
+  3 GiB solo en la API y en `retention-job` (NFRD-U2-15); entrada a la síntesis solo desde la API (NFRD-U9-16);
+  `Ingress` `veridicus-voice` sin disco con tope de 6 065 536; Redis con `maxmemory 384mb`, `noeviction` y
+  `BGREWRITEAOF` sin renombrar.
+- **De NFR Design revisión 2 de U9:** cifras de voz en C25 (incluida `voice_body_max_bytes`), cota de 1 920 s
+  del audio en Redis con recorte por `MINID`, latido con `busy_until`, métricas en `voice.v1.yaml` con
+  `outcome` y `error_code`, y la imagen propia `tts-server` (P2 = A de la revisión 1).
+- **De U4, U5, U6 y U11:** patrón `changes` + `gate`, `libs.yml` sustituido por `analyzer.yml`, evidencia de
+  nivel 2 versionada, `VERIDICUS_DB_LOCK_TIMEOUT_MS` = 2000 y el lector en memoria de U6.
+
+## Cómo se registra la revisión
+
+Revisión 2 de los cuatro artefactos de esta carpeta, que sustituye a la revisión 1 del 2026-10-03 (queda en el
+historial de Git). Las secciones conservan su número; lo que sale queda «Retirado». La tabla de precisiones de
+la revisión 1 (§9) se retira entera y la sustituye la tabla IDS-U9-01 a IDS-U9-21 (§9 de
+`infrastructure-specification.md`); §10 cierra los hallazgos R-01 a R-07 de `reviews/review-01.md`.
+
+## Lo que el diseño resolverá sin preguntar
+
+- Los límites de cada pod de voz frente a 1,2 × (pico + `/tmp` en memoria), sin cambiar ninguna cifra de pod
+  del presupuesto de U2.
+- La capacidad de Redis con la cota de 1 920 s y si su límite de 512 MiB basta, con una medición de nivel 1.
+- La imagen de `model-whisper`, que U2 no nombra, como petición a U2.
+- La retirada de lo que la revisión 1 ponía y ya no existe (dos máquinas, banderas, ajustes que pasaron a C25,
+  la ruta de la pregunta sugerida, métricas y alertas con etiquetas viejas, `libs.yml`).
+- Lo que U9 pide a U2, a U11 y al humano, como petición sin darlo por aplicado.
+
+Sin preguntas: todo lo fijan las fuentes.

@@ -1,6 +1,7 @@
 # Aviso de propósito limitado (VE-01, BR5.7). La consola (GET /notice) y el reporte muestran esta versión.
 # Solo cambia por PR y solo para hacerlo más estricto: el texto nuevo contiene el anterior completo.
-# El escáner excluye este texto (A-1): «prueba» aquí no falla, en cualquier otra cadena sí.
+# El escáner de U11 excluye este texto (A-1), para que «prueba» dentro del aviso no lo haga fallar.
+# Hoy «prueba» no está entre los 9 términos de C8 (BR5.1); sumar los términos de VE-02 está por decidir.
 schema_version: 1.0.0
 version: "1.0.0"
 text: >-

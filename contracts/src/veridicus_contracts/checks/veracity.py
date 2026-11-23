@@ -35,8 +35,21 @@ C1 = "api/console.v2.yaml"
 
 # Archivos que la guardia necesita: sin ellos informa y no sigue con lo que de ellos depende.
 ARCHIVOS_CLAVE = (C8, RUTA_DE_ROTULOS, AVISO, ACLARACION, SALIDA_C6, C7)
-# Contratos que copian el tipo de C6 y deben declararlo (BR3.2); C19 y C1 solo si ya existen.
-EXIGEN_TIPO = (C7, C19, C1)
+# BR3.2: ruta declarada de cada copia de un enum de C6 (contract-summary: C1 ModelCall.papel, C7 tipo,
+# C19 status, error_code, discards y fact_type). (campo, enum de C6, el enum está en propertyNames).
+# La comparación va por la ruta, no por parecido; C19 y C1 se comprueban solo cuando ya existen.
+RUTAS_DE_ENUM: dict[str, tuple[tuple[str, str, bool], ...]] = {
+    C7: (("tipo", "tipo", False),),
+    C19: (
+        ("status", "estado", False),
+        ("error_code", "codigo", False),
+        ("discards", "motivo", True),
+        ("fact_type", "tipo", False),
+    ),
+    C1: (("papel", "papel", False),),
+}
+# Claves cuyo mapa de nombres se compara en BR3.3: propiedades, `$defs` y `components.schemas`.
+CLAVES_DE_NOMBRES = frozenset({"properties", "$defs", "schemas"})
 
 # Directorios de datos de contracts/ que se recorren (los mismos del mapa de la rueda, sin vendor/).
 DIRECTORIOS_DE_DATOS = (
@@ -104,7 +117,13 @@ FRASES_DE_ACLARACION = ("antes dijo", "dijo antes", "se contradice", "antes menc
 CLAVES_DE_RECHAZO = frozenset({"mentions_contradiction", "phrases", "cites_turn"})
 BANDERAS_DE_RECHAZO = ("mentions_contradiction", "cites_turn")
 
-SEPARADOR_DE_SEGMENTOS = re.compile(r"[_\-\s]")
+# Fronteras de palabra de un nombre: `_`, `-`, espacios y los cambios de minúscula a mayúscula
+# (camelCase, PascalCase), también antes de una sigla seguida de palabra («ESFalso»).
+FRONTERAS_DE_PALABRA = re.compile(
+    r"[_\-\s]+"
+    r"|(?<=[a-z0-9à-ÿ])(?=[A-ZÀ-Þ])"
+    r"|(?<=[A-ZÀ-Þ])(?=[A-ZÀ-Þ][a-zà-ÿ])"
+)
 PALABRAS = re.compile(r"[^\W\d_]+")
 
 _FALLO = object()
@@ -117,7 +136,7 @@ def normalizar(texto: str) -> str:
 
 
 TERMINOS_NORMALIZADOS = frozenset(normalizar(t) for t in TERMINOS)
-CATEGORIAS_NORMALIZADAS = frozenset(normalizar(c) for c in CATEGORIAS)
+CATEGORIAS_COMPACTAS = frozenset(normalizar(c).replace("_", "") for c in CATEGORIAS)
 
 
 def _lista_de_cadenas(valor: Any) -> bool:
@@ -279,25 +298,34 @@ def _recorrer(nodo: Any, clave: str | None = None) -> Iterator[tuple[str | None,
             yield from _recorrer(valor, clave)
 
 
+def _nombres_de_parametros(parametros: Any) -> list[str]:
+    """`name` de cada parámetro, sea una lista (`paths`) o un mapa (`components.parameters`)."""
+    elementos = parametros.values() if isinstance(parametros, dict) else parametros
+    return [p["name"] for p in elementos if isinstance(p, dict) and isinstance(p.get("name"), str)]
+
+
 def nombres_de_un_documento(documento: Any) -> list[str]:
-    """Nombres de propiedad, de parámetro y valores de enum de cadena de un contrato."""
+    """Nombres de propiedad, de parámetro, de `$defs` y `components.schemas`, y valores de enum de cadena."""
     nombres: list[str] = []
     for clave, valor in _recorrer(documento):
-        if clave == "properties" and isinstance(valor, dict):
+        if clave in CLAVES_DE_NOMBRES and isinstance(valor, dict):
             nombres += list(valor)
-        elif clave == "parameters" and isinstance(valor, list):
-            nombres += [p["name"] for p in valor if isinstance(p, dict) and "name" in p]
+        elif clave == "parameters" and isinstance(valor, list | dict):
+            nombres += _nombres_de_parametros(valor)
         elif clave == "enum" and isinstance(valor, str):
             nombres.append(valor)
     return nombres
 
 
 def con_veracidad(nombre: str) -> bool:
-    """Igualdad de palabras: el nombre es una categoría prohibida o un segmento es un término de C8."""
-    normal = normalizar(nombre)
-    if normal in CATEGORIAS_NORMALIZADAS:
+    """Igualdad de palabras: la categoría prohibida completa, o un segmento igual a un término de C8.
+
+    Los segmentos se parten en `_`, `-`, espacios y en las fronteras de camelCase y PascalCase.
+    """
+    segmentos = [normalizar(s) for s in FRONTERAS_DE_PALABRA.split(nombre) if s]
+    if "".join(segmentos) in CATEGORIAS_COMPACTAS:
         return True
-    return any(segmento in TERMINOS_NORMALIZADOS for segmento in SEPARADOR_DE_SEGMENTOS.split(normal))
+    return any(segmento in TERMINOS_NORMALIZADOS for segmento in segmentos)
 
 
 def problemas_de_nombres(ruta: str, documento: Any) -> list[str]:
@@ -312,10 +340,11 @@ def problemas_de_nombres(ruta: str, documento: Any) -> list[str]:
 
 
 def enums_de_c6(salida: Any) -> dict[str, frozenset[str]]:
-    """Los enum de C6 que otros contratos copian: tipo, código de error, motivo y papel."""
+    """Los enum de C6 que otros contratos copian: estado, tipo, código de error, motivo y papel."""
     definiciones = salida["$defs"]
     registro = definiciones["registro"]["properties"]
     return {
+        "estado": frozenset(salida["properties"]["estado"]["enum"]),
         "tipo": frozenset(definiciones["hallazgo"]["properties"]["tipo"]["enum"]),
         "codigo": frozenset(salida["properties"]["error"]["properties"]["codigo"]["enum"]),
         "motivo": frozenset(registro["descartes"]["items"]["properties"]["motivo"]["enum"]),
@@ -323,27 +352,36 @@ def enums_de_c6(salida: Any) -> dict[str, frozenset[str]]:
     }
 
 
-def _enums_de_cadenas(documento: Any) -> list[frozenset[str]]:
-    return [
-        frozenset(valor)
-        for clave, valor in _recorrer(documento)
-        if clave == "enum" and _lista_de_cadenas(valor)
-    ]
+def _enums_de_un_campo(documento: Any, campo: str, en_claves: bool) -> list[frozenset[str]]:
+    """Los enum en línea del campo `campo` de cualquier `properties` del documento.
+
+    Con `en_claves`, el enum está en `propertyNames` (un mapa cuyas claves son los valores).
+    """
+    encontrados: list[frozenset[str]] = []
+    for clave, valor in _recorrer(documento):
+        if clave != "properties" or not isinstance(valor, dict) or not isinstance(valor.get(campo), dict):
+            continue
+        esquema: Any = valor[campo]
+        if en_claves:
+            esquema = esquema.get("propertyNames")
+        enum = esquema.get("enum") if isinstance(esquema, dict) else None
+        if isinstance(enum, list) and _lista_de_cadenas(enum):
+            encontrados.append(frozenset(enum))
+    return encontrados
 
 
-def problemas_de_enums(
-    ruta: str, documento: Any, c6: Mapping[str, frozenset[str]], *, exige_tipo: bool
-) -> list[str]:
-    """BR3.2: todo enum que comparte dos o más valores con uno de C6 es igual a él."""
-    enums = _enums_de_cadenas(documento)
-    problemas = [
-        f"BR3.2: {ruta}: un enum difiere del de C6 ({nombre})"
-        for enum in enums
-        for nombre, valores in c6.items()
-        if len(enum & valores) >= 2 and enum != valores
-    ]
-    if exige_tipo and c6["tipo"] not in enums:
-        problemas.append(f"BR3.2: {ruta}: no declara el enum de tipo de C6")
+def problemas_de_enums(ruta: str, documento: Any, c6: Mapping[str, frozenset[str]]) -> list[str]:
+    """BR3.2: el enum de cada campo declarado en `RUTAS_DE_ENUM` es igual al de C6 y está."""
+    problemas: list[str] = []
+    for campo, nombre, en_claves in RUTAS_DE_ENUM.get(ruta, ()):
+        copias = _enums_de_un_campo(documento, campo, en_claves)
+        if not copias:
+            problemas.append(f"BR3.2: {ruta}: no declara el enum de {campo} de C6")
+        problemas += [
+            f"BR3.2: {ruta}: el enum de {campo} difiere del de C6 ({nombre})"
+            for copia in copias
+            if copia != c6[nombre]
+        ]
     return problemas
 
 
@@ -403,5 +441,5 @@ def comprobar(raiz: Path) -> list[str]:
             continue
         problemas += problemas_de_nombres(relativa, documento)
         if c6 is not None:
-            problemas += problemas_de_enums(relativa, documento, c6, exige_tipo=relativa in EXIGEN_TIPO)
+            problemas += problemas_de_enums(relativa, documento, c6)
     return problemas

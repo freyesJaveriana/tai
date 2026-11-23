@@ -46,6 +46,7 @@ REQUERIDOS_DE_TESTIMONIO: dict[str, str | None] = {
     "ocho-palabras": None,
     "siete-palabras": None,
     "dos-turnos": None,
+    "al-final-del-turno": None,
     "espacios-distintos": None,
     "u00a0": " ",
     "u3000": "　",

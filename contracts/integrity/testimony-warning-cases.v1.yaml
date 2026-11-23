@@ -50,6 +50,14 @@ cases:
     note: "la luna subió despacio sobre el techo viejo"
     turns: ["la luna subió despacio", "sobre el techo viejo"]
     testimony_warning: false
+  - id: al-final-del-turno
+    note: "Anoche vi la luna subió despacio sobre el techo viejo"
+    turns: ["Dijo que vio la luna subió despacio sobre el techo viejo"]
+    testimony_warning: true
+  - id: casi-al-final-del-turno
+    note: "la luna subió despacio sobre el techo viejo"
+    turns: ["Anoche dijo que luna subió despacio sobre el techo viejo"]
+    testimony_warning: false
   - id: espacios-distintos
     note: "la  luna subió   despacio sobre  el techo viejo"
     turns: ["Ayer la luna subió despacio sobre el techo viejo del almacén"]

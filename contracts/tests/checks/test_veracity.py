@@ -530,6 +530,48 @@ def test_aclaracion_con_forma_incorrecta() -> None:
 # ---------------------------------------------------------------- nombres (BR3.3)
 
 
+@pytest.mark.parametrize(
+    "nombre",
+    ["isLying", "veracityScore", "esFalso", "esVerdadero", "MintioEnLaHora", "falsoPositivo",
+     "ESFalso", "EngañoFinal", "es_Falso", "truthfulness", "Credibilidad", "isTruthfulness_x_Miente"],
+)  # fmt: skip
+def test_camel_y_pascal_case_se_parten_en_las_fronteras(nombre: str) -> None:
+    """F-01: BR3.3 parte también en las fronteras de minúscula a mayúscula."""
+    assert con_veracidad(nombre)
+    assert problemas_de_nombres("x.yaml", {"properties": {nombre: {}}}) == [
+        f"BR3.3: x.yaml: nombres con vocabulario de veracidad: ['{nombre}']"
+    ]
+
+
+@pytest.mark.parametrize(
+    "nombre", ["Falsete", "esFalsete", "tipoDeCita", "credibilidadExtra", "isTruth", "mienteentodo", "Mienten"]
+)
+def test_camel_case_limpio_no_se_marca(nombre: str) -> None:
+    assert not con_veracidad(nombre)
+
+
+def test_parameters_como_mapa_de_components_se_recoge() -> None:
+    """F-02: `components.parameters` es un mapa nombre -> parámetro, no una lista."""
+    documento = {"components": {"parameters": {"P": {"name": "es_falso", "in": "query"}, "Q": {"in": "query"}}}}
+    assert nombres_de_un_documento(documento) == ["es_falso"]
+    assert problemas_de_nombres("api/x.yaml", documento) == [
+        "BR3.3: api/x.yaml: nombres con vocabulario de veracidad: ['es_falso']"
+    ]
+    documento = {"components": {"parameters": {"P": {"name": 7}, "Q": "texto"}}}
+    assert nombres_de_un_documento(documento) == []
+
+
+def test_los_nombres_de_defs_y_de_components_schemas_se_comparan() -> None:
+    assert problemas_de_nombres("x.yaml", {"$defs": {"EsFalso": {}}}) == [
+        "BR3.3: x.yaml: nombres con vocabulario de veracidad: ['EsFalso']"
+    ]
+    assert problemas_de_nombres("x.yaml", {"components": {"schemas": {"is_lying": {}}}}) == [
+        "BR3.3: x.yaml: nombres con vocabulario de veracidad: ['is_lying']"
+    ]
+    assert problemas_de_nombres("x.yaml", {"$defs": {"hallazgo": {}}, "components": {"schemas": {"Run": {}}}}) == []
+    assert nombres_de_un_documento({"$defs": ["EsFalso"], "otro": {"schemas": 3}}) == []
+
+
 def test_nombres_de_un_documento_recoge_propiedades_parametros_y_enum() -> None:
     documento = {
         "properties": {"a": {"properties": {"b": {}}}, "c": {"enum": ["x", "y"]}},
@@ -585,58 +627,54 @@ def test_enums_de_c6_son_los_aprobados() -> None:
         "rechazado_verificador", "rechazado_permutacion", "fuera_de_tramo", "vocabulario_prohibido",
     }  # fmt: skip
     assert enums["papel"] == {"juez", "verificador", "verificador_permutado"}
-    assert "estado" not in enums
-    assert set(enums) == {"tipo", "codigo", "motivo", "papel"}
+    assert enums["estado"] == {"ok", "error"}
+    assert set(enums) == {"tipo", "codigo", "motivo", "papel", "estado"}
 
 
-C6 = {
-    "tipo": frozenset({"a", "b", "c"}),
-    "papel": frozenset({"x", "y"}),
-}
-
-
-def test_un_enum_igual_o_sin_parentesco_pasa() -> None:
-    documento = {"properties": {"t": {"enum": ["c", "b", "a"]}, "u": {"enum": ["a", "z"]}}}
-    assert problemas_de_enums("x.yaml", documento, C6, exige_tipo=True) == []
-
-
-def test_un_enum_que_comparte_dos_valores_y_difiere_da_br32() -> None:
-    for valores in (["a", "b"], ["a", "b", "c", "d"], ["a", "b", "z"]):
-        documento = {"properties": {"t": {"enum": valores}}}
-        assert problemas_de_enums("x.yaml", documento, C6, exige_tipo=False) == [
-            "BR3.2: x.yaml: un enum difiere del de C6 (tipo)"
-        ], valores
-
-
-def test_un_enum_que_comparte_un_solo_valor_no_se_compara() -> None:
-    documento = {"properties": {"t": {"enum": ["a", "z"]}, "p": {"enum": ["x"]}}}
-    assert problemas_de_enums("x.yaml", documento, C6, exige_tipo=False) == []
-
-
-def test_un_enum_cuenta_aunque_traiga_valores_que_no_son_cadenas() -> None:
-    documento = {"properties": {"t": {"enum": ["a", "b", 3]}}}
-    assert problemas_de_enums("x.yaml", documento, C6, exige_tipo=False) == []
-    documento = {"enum": ["a", "b", "z", "w"], "propiedad": {"enum": "a"}}
-    assert problemas_de_enums("x.yaml", documento, C6, exige_tipo=False) == [
-        "BR3.2: x.yaml: un enum difiere del de C6 (tipo)"
-    ]
-
-
-def test_exige_tipo_pide_el_enum_de_tipo_de_c6() -> None:
-    assert problemas_de_enums("x.yaml", {"properties": {}}, C6, exige_tipo=True) == [
-        "BR3.2: x.yaml: no declara el enum de tipo de C6"
-    ]
-    documento = {"properties": {"t": {"enum": ["a", "b"]}}}
-    assert problemas_de_enums("x.yaml", documento, C6, exige_tipo=True) == [
-        "BR3.2: x.yaml: un enum difiere del de C6 (tipo)",
-        "BR3.2: x.yaml: no declara el enum de tipo de C6",
-    ]
-    assert problemas_de_enums("x.yaml", {"properties": {}}, C6, exige_tipo=False) == []
+def test_las_rutas_declaradas_son_las_de_contract_summary() -> None:
+    assert veracity.RUTAS_DE_ENUM == {
+        C7: (("tipo", "tipo", False),),
+        "cli/report.schema.v2.yaml": (
+            ("status", "estado", False),
+            ("error_code", "codigo", False),
+            ("discards", "motivo", True),
+            ("fact_type", "tipo", False),
+        ),
+        "api/console.v2.yaml": (("papel", "papel", False),),
+    }
 
 
 def test_c7_versionado_declara_el_enum_de_tipo() -> None:
     c6 = enums_de_c6(load_contract(SALIDA))
-    assert problemas_de_enums(C7, load_contract(C7), c6, exige_tipo=True) == []
+    assert problemas_de_enums(C7, load_contract(C7), c6) == []
+
+
+def test_un_documento_sin_rutas_declaradas_no_se_compara() -> None:
+    c6 = enums_de_c6(load_contract(SALIDA))
+    documento = {"properties": {"tipo": {"enum": ["fecha"]}, "papel": {"enum": ["x"]}}}
+    assert problemas_de_enums("queues/otro.json", documento, c6) == []
+
+
+def test_un_enum_de_valores_que_no_son_cadenas_no_cuenta_como_declarado() -> None:
+    c6 = enums_de_c6(load_contract(SALIDA))
+    documento = {"properties": {"tipo": {"enum": ["fecha", 3]}}}
+    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+    documento = {"properties": {"tipo": "texto"}}
+    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+    documento = {"properties": ["tipo"]}
+    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+
+
+def test_cada_copia_del_campo_se_compara_y_basta_una_declarada() -> None:
+    c6 = enums_de_c6(load_contract(SALIDA))
+    buena = {"enum": sorted(TIPOS)}
+    mala = {"enum": ["fecha", "fuente"]}
+    documento = {"a": {"properties": {"tipo": buena}}, "b": {"properties": {"tipo": mala}}}
+    assert problemas_de_enums(C7, documento, c6) == [
+        f"BR3.2: {C7}: el enum de tipo difiere del de C6 (tipo)"
+    ]
+    documento = {"a": {"properties": {"tipo": buena}}, "b": {"properties": {"tipo": {"type": "string"}}}}
+    assert problemas_de_enums(C7, documento, c6) == []
 
 
 # ---------------------------------------------------------------- comprobar sobre un árbol
@@ -711,21 +749,144 @@ def test_un_yaml_o_json_ilegible_se_informa_sin_su_contenido(tmp_path: Path) -> 
     assert CANARIO not in "".join(problemas)
 
 
-def test_un_enum_de_c6_alterado_en_cualquier_contrato_se_ve(tmp_path: Path) -> None:
-    raiz = _arbol(tmp_path)
-    _escribir(raiz, "queues/otro.json", {"properties": {"t": {"enum": ["fecha", "numero", "lugar"]}}})
-    assert comprobar(raiz) == ["BR3.2: queues/otro.json: un enum difiere del de C6 (tipo)"]
+CODIGOS_DE_C6 = [
+    "salida_invalida", "bloqueo_contenido", "tiempo_agotado", "proveedor",
+    "anonimizador_no_disponible", "incidente_anonimizacion",
+]  # fmt: skip
+MOTIVOS_DE_C6 = [
+    "cita_no_verificada", "cita_en_otro_turno", "marca_alterada", "campo_faltante",
+    "rechazado_verificador", "rechazado_permutacion", "fuera_de_tramo", "vocabulario_prohibido",
+]  # fmt: skip
+ENUMS_DE_C6 = {
+    "status": ["ok", "error"],
+    "error_code": CODIGOS_DE_C6,
+    "discards": MOTIVOS_DE_C6,
+    "fact_type": sorted(TIPOS),
+    "papel": ["juez", "verificador", "verificador_permutado"],
+}
+NOMBRE_EN_C6 = {
+    "status": "estado",
+    "error_code": "codigo",
+    "discards": "motivo",
+    "fact_type": "tipo",
+    "papel": "papel",
+}
+C19 = "cli/report.schema.v2.yaml"
+C1 = "api/console.v2.yaml"
 
 
-def test_c7_con_el_enum_de_tipo_recortado_se_ve(tmp_path: Path) -> None:
+def _c19(**cambios: Any) -> dict[str, Any]:
+    """Un reporte mínimo con las cuatro rutas de enum de C6 que declara contract-summary (C19)."""
+    enums = {**ENUMS_DE_C6, **cambios}
+    corrida = {
+        "status": {"enum": enums["status"]},
+        "error_code": {"enum": enums["error_code"]},
+        "discards": {"propertyNames": {"enum": enums["discards"]}},
+    }
+    return {
+        "properties": {
+            "runs": {"items": {"properties": corrida}},
+            "bias_table": {"items": {"properties": {"fact_type": {"enum": enums["fact_type"]}}}},
+        }
+    }
+
+
+def _c1(papel: Any) -> dict[str, Any]:
+    """Una consola mínima: ModelCall.papel copia el enum de C6; `estado` (visible/plegado) es ajeno."""
+    return {
+        "components": {
+            "schemas": {
+                "ModelCall": {"properties": {"papel": {"enum": papel}}},
+                "Turn": {"properties": {"estado": {"enum": ["visible", "plegado"]}}},
+            }
+        }
+    }
+
+
+def _con_c19_y_c1(raiz: Path, c19: Any, c1: Any) -> None:
+    _escribir(raiz, C19, c19)
+    _escribir(raiz, C1, c1)
+
+
+def test_las_rutas_declaradas_de_c19_y_c1_pasan(tmp_path: Path) -> None:
     raiz = _arbol(tmp_path)
-    c7 = copia(C7)
-    c7["properties"]["tipo"] = {"enum": ["fecha", "numero", "lugar", "persona"]}
-    _escribir(raiz, C7, c7)
+    _con_c19_y_c1(raiz, _c19(), _c1(ENUMS_DE_C6["papel"]))
+    assert comprobar(raiz) == []
+
+
+@pytest.mark.parametrize("campo", ["status", "error_code", "discards", "fact_type"])
+def test_una_copia_desviada_de_un_valor_en_c19_se_ve(tmp_path: Path, campo: str) -> None:
+    """Una copia que conserva solo un valor de C6 también es una copia desviada (F-03)."""
+    valores = ENUMS_DE_C6[campo]
+    desviadas = (
+        [valores[0], "otro_valor"],
+        valores[:-1],
+        [*valores, "otro_valor"],
+        [*valores[:-1], "otro_valor"],
+        [],
+    )
+    esperado = f"BR3.2: {C19}: el enum de {campo} difiere del de C6 ({NOMBRE_EN_C6[campo]})"
+    for posicion, desviada in enumerate(desviadas):
+        raiz = tmp_path / f"copia-{posicion}"
+        raiz.mkdir()
+        _arbol(raiz)
+        _con_c19_y_c1(raiz, _c19(**{campo: desviada}), _c1(ENUMS_DE_C6["papel"]))
+        assert comprobar(raiz) == [esperado], desviada
+
+
+def test_una_copia_desviada_de_papel_en_c1_se_ve(tmp_path: Path) -> None:
+    raiz = _arbol(tmp_path)
+    _con_c19_y_c1(raiz, _c19(), _c1(["juez", "otro_papel"]))
+    assert comprobar(raiz) == [f"BR3.2: {C1}: el enum de papel difiere del de C6 (papel)"]
+
+
+def test_el_enum_estado_de_c6_se_compara_en_c19(tmp_path: Path) -> None:
+    raiz = _arbol(tmp_path)
+    _con_c19_y_c1(raiz, _c19(status=["ok", "advertencia"]), _c1(ENUMS_DE_C6["papel"]))
+    assert comprobar(raiz) == [f"BR3.2: {C19}: el enum de status difiere del de C6 (estado)"]
+
+
+@pytest.mark.parametrize("campo", ["status", "error_code", "discards", "fact_type"])
+def test_una_ruta_declarada_de_c19_que_falta_se_ve(tmp_path: Path, campo: str) -> None:
+    c19 = _c19()
+    if campo == "fact_type":
+        del c19["properties"]["bias_table"]
+    else:
+        del c19["properties"]["runs"]["items"]["properties"][campo]
+    raiz = _arbol(tmp_path)
+    _con_c19_y_c1(raiz, c19, _c1(ENUMS_DE_C6["papel"]))
+    assert comprobar(raiz) == [f"BR3.2: {C19}: no declara el enum de {campo} de C6"]
+
+
+def test_una_ruta_declarada_que_no_trae_el_enum_en_linea_se_ve(tmp_path: Path) -> None:
+    c19 = _c19()
+    c19["properties"]["runs"]["items"]["properties"]["discards"] = {"propertyNames": {"type": "string"}}
+    c19["properties"]["runs"]["items"]["properties"]["status"] = {"enum": 3}
+    raiz = _arbol(tmp_path)
+    _con_c19_y_c1(raiz, c19, _c1(ENUMS_DE_C6["papel"]))
     assert comprobar(raiz) == [
-        "BR3.2: integrity/review-suggestion.v2.json: un enum difiere del de C6 (tipo)",
-        "BR3.2: integrity/review-suggestion.v2.json: no declara el enum de tipo de C6",
+        f"BR3.2: {C19}: no declara el enum de status de C6",
+        f"BR3.2: {C19}: no declara el enum de discards de C6",
     ]
+
+
+def test_c1_sin_el_enum_de_papel_se_ve(tmp_path: Path) -> None:
+    raiz = _arbol(tmp_path)
+    _con_c19_y_c1(raiz, _c19(), {"components": {"schemas": {}}})
+    assert comprobar(raiz) == [f"BR3.2: {C1}: no declara el enum de papel de C6"]
+
+
+def test_c7_con_el_enum_de_tipo_desviado_se_ve(tmp_path: Path) -> None:
+    for valores in (["fecha", "fuente"], ["fecha", "numero", "lugar", "persona"], [*sorted(TIPOS), "fuente"]):
+        raiz = tmp_path / str(len(valores))
+        raiz.mkdir()
+        _arbol(raiz)
+        c7 = copia(C7)
+        c7["properties"]["tipo"] = {"enum": valores}
+        _escribir(raiz, C7, c7)
+        assert comprobar(raiz) == [
+            "BR3.2: integrity/review-suggestion.v2.json: el enum de tipo difiere del de C6 (tipo)"
+        ], valores
 
 
 def test_c7_sin_enum_de_tipo_se_ve(tmp_path: Path) -> None:
@@ -738,16 +899,30 @@ def test_c7_sin_enum_de_tipo_se_ve(tmp_path: Path) -> None:
     ]
 
 
-def test_el_reporte_y_la_consola_tambien_exigen_el_enum_de_tipo_cuando_existen(tmp_path: Path) -> None:
+def test_un_enum_ajeno_que_se_parece_a_uno_de_c6_no_se_compara(tmp_path: Path) -> None:
+    """La comparación va por la ruta declarada, no por parecido: un enum libre no es una copia."""
     raiz = _arbol(tmp_path)
-    _escribir(raiz, "cli/report.schema.v2.yaml", {"properties": {"x": {"type": "string"}}})
-    _escribir(raiz, "api/console.v2.yaml", {"properties": {"x": {"type": "string"}}})
+    _escribir(raiz, "queues/otro.json", {"properties": {"t": {"enum": ["fecha", "numero", "lugar"]}}})
+    assert comprobar(raiz) == []
+
+
+def test_un_defecto_sembrado_en_un_yml_se_ve(tmp_path: Path) -> None:
+    raiz = _arbol(tmp_path)
+    _escribir(raiz, "api/nuevo.v1.yml", {"properties": {"is_lying": {"type": "boolean"}}})
     assert comprobar(raiz) == [
-        "BR3.2: api/console.v2.yaml: no declara el enum de tipo de C6",
-        "BR3.2: cli/report.schema.v2.yaml: no declara el enum de tipo de C6",
+        "BR3.3: api/nuevo.v1.yml: nombres con vocabulario de veracidad: ['is_lying']"
     ]
-    _escribir(raiz, "cli/report.schema.v2.yaml", {"properties": {"x": {"enum": sorted(TIPOS)}}})
-    assert comprobar(raiz) == ["BR3.2: api/console.v2.yaml: no declara el enum de tipo de C6"]
+
+
+def test_los_directorios_de_datos_son_los_del_arbol() -> None:
+    """Un directorio de datos nuevo sin listar en `DIRECTORIOS_DE_DATOS` deja la suite en rojo."""
+    no_datos = {"src", "tests", "ts", "fixtures", "build", "dist", "vendor"}
+    en_el_arbol = {
+        d.name
+        for d in CONTRACTS_ROOT.iterdir()
+        if d.is_dir() and not d.name.startswith((".", "_")) and d.name not in no_datos
+    }
+    assert en_el_arbol == set(veracity.DIRECTORIOS_DE_DATOS)
 
 
 @pytest.mark.parametrize(

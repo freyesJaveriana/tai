@@ -38,6 +38,7 @@ REQUERIDOS = {
     "ocho-palabras": None,
     "siete-palabras": None,
     "dos-turnos": None,
+    "al-final-del-turno": None,
     "espacios-distintos": None,
     "u00a0": " ",
     "u3000": "　",
@@ -374,6 +375,28 @@ def _aclaracion(documento: dict[str, Any]) -> tuple[dict[str, Any], int]:
     return caso, documento["cases"].index(caso)
 
 
+@pytest.mark.parametrize("expect", [["valid"], "valid", None, 3])
+def test_aclaracion_con_expect_que_no_es_un_objeto(expect: Any) -> None:
+    documento = casos()
+    caso, i = _aclaracion(documento)
+    caso["expect"] = expect
+    assert validar(documento) == [f"BR5.8: casos[{i}]: expect no es un objeto"]
+
+
+def test_el_aviso_acepta_la_ventana_en_el_ultimo_lugar_del_turno_y_de_la_nota() -> None:
+    """F-04: una ventana que termina justo al final de la nota y del turno cuenta."""
+    documento = datos_de_testimonio()
+    caso = documento["cases"][0]
+    caso["note"] = "Anoche vi la luna subió despacio sobre el techo viejo"
+    caso["turns"] = ["Dijo que vio la luna subió despacio sobre el techo viejo"]
+    caso["testimony_warning"] = True
+    assert validar_testimonio(documento) == []
+    caso["turns"] = ["Dijo que vio luna subió despacio sobre el techo viejo"]
+    assert validar_testimonio(documento) == [
+        "BR3.6: casos[0]: el resultado esperado no concuerda con la regla de BR3.6"
+    ]
+
+
 def test_aclaracion_con_expect_de_vocabulario() -> None:
     documento = casos()
     caso, i = _aclaracion(documento)
@@ -504,11 +527,13 @@ def test_el_testimonio_versionado_pasa_y_trae_los_nueve_casos() -> None:
     assert documento["testimony_warning_words"] == 8
     assert documento["whitespace_code_points"] == [f"U+{c:04X}" for c in ESPACIOS]
     por_id = {c["id"]: c for c in documento["cases"]}
-    assert set(por_id) >= set(REQUERIDOS)
+    assert set(por_id) >= set(REQUERIDOS) | {"casi-al-final-del-turno"}
     esperado = {
         "ocho-palabras": True,
         "siete-palabras": False,
         "dos-turnos": False,
+        "al-final-del-turno": True,
+        "casi-al-final-del-turno": False,
         "espacios-distintos": True,
         "u00a0": True,
         "u3000": True,

@@ -27,6 +27,8 @@ Las fuentes aprobadas ya las deciden.
 | C-2 | FD-U3-01 y NFR-U5-03 se unen en un solo texto de AC5.4.4 |
 | C-4 | `connectionLimit` de `veridicus_app` es 30 (IDS-U4-03, `project.md`); IDS-U2-14 queda superada |
 | P-T06-1 | C7 de `contract-summary.md` no pone `minLength` en `note` ni en `reformulation`, pero BR4.4 (functional-design de U1, aprobado después) exige que no estén vacíos. Se aplica BR4.4: `minLength: 1` en los dos campos, con dos *fixtures* negativos nuevos que escribe T06 (ronda 1 de U01-T06, F-01). La precisión se lleva a `contract-summary.md` al cerrar la etapa |
+| P-T07-1 | `anonymizer.incident` no es respuesta de ninguna ruta: por CD-11, la corrida rechazada es `409 session.blocked` y `anonymizer.incident` es su causa (`blocked_code`) y el `codigo` de C6. Va con `http: false` y sin estado (ronda 1 de U01-T07, F-04) |
+| P-T07-2 | Errata en una tabla de U12: «413 \| `research.invalid_type`» frente al 415 de NFR-U12-02. Manda NFR-U12-02 (415). La tabla se corrige al cerrar la etapa |
 | NFR-U11-10 | La cifra N = 300 s no se lleva a `team.md`, que remite esa cifra a NFR Requirements |
 
 ## Cómo se llevan las precisiones a sus originales

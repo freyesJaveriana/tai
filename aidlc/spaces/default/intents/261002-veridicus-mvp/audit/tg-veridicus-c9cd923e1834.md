@@ -44304,3 +44304,196 @@
 **Context**: construction > contracts > code-generation > decisiones-humano.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:35:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab0b23808f1491b53
+**Message**: Running test_queue_messages.py and diff checks
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:35:37Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a43eb4615306f4310
+**Message**: Creando carpeta de mutaciones en scratchpad
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:35:46Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a999664955faa3f34
+**Message**: Writing dismissed-note-vacia.yaml fixture
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:35:46Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6641a102ee5811ae
+**Message**: Reading registry.py and loaders.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:36:08Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a170cf44b2e9f465d
+**Message**: Mutando funciones de error_codes.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:36:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a755d35ab8ddfc0c9
+**Message**: Updating test_suggestion_conditions.py tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:36:18Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a64e9f8cf81ef5582
+**Message**: Probing build_registry with adversarial fixtures
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:36:40Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: abbe3114d67aa5e6f
+**Message**: Buscando textos sensibles en veridicus_errors/__init__.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:36:48Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8a68d0b3988a0c91
+**Message**: Running guard tests after reverting mutant
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:36:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af2385627bbda3670
+**Message**: Analyzing build_registry LoadError on data files
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:37:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3b0217da1c795ca2
+**Message**: Comprobando limpieza del worktree final
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:37:19Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a39746138d59093ae
+**Message**: Staging suggestion_conditions.py changes
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:37:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa955d54721b0f6a9
+**Message**: Listing helpers in tests/helpers.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:37:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a51447b91f4ef935a
+**Message**: TAREA: U01-T06 (ronda 2)\nRAMA: tarea/U01-T06   SHA: 1605393 (subida a origin; el merge de origin/feat/b1-contratos ya está dentro)\nCRITERIOS: 6 de 6 verificados\n- CA-1: 44 pruebas en verde.\n- CA-2: `t
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:37:28Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:37:38Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: af711fc229f34c0da
+**Message**: # Ronda 1 — U01-T07\n\nVEREDICTO: NO-VERDE\n\nLos 10 criterios de aceptación pasan con mi propia ejecución. Aun así quedan un ROJO y dos NARANJA. El ROJO es que cinco estados del catálogo contradicen fuen
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:37:41Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-11-23T19:37:42Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: code-generation
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:37:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0137468715636580
+**Message**: avísame cuando haya PR para fusionar
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:37:53Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a14e48f28b02869e1
+**Message**: Locating C2 and C3 sections
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:38:07Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae2ad98aed0e1d98a
+**Message**: Revisando cambios en suggestion_conditions.py
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T19:38:14Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---

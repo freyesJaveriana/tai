@@ -88,6 +88,18 @@
 - 2026-11-22T23:43:59Z — NFR10.14 dejaba a esta etapa el plazo de las lecturas: se tomó el statement_timeout común de 2 s de U3 en vez de una cifra propia (NFRD-U12-07).
 <!-- aidlc-wave-memory:research-reports:feb9e146f28f921634824709081859cfcbc2fa6df80deaa660526f5a766c2ff0 -->
 
+
+- 2026-11-23T00:07:07Z — Revisión 2: BR3.6 («clave justo antes de publicar») se leyó como NFR10.14 (publicar y luego MULTI con XACK, XDEL y la clave), porque al revés un corte perdería el resultado; quedó como NFRD-U9-04.
+<!-- aidlc-wave-memory:voice:3817e7f5a892ae5cc1c28fdfbe0034ae345d8232f5bd0b7db8569f8d9ab01bf4 -->
+
+
+- 2026-11-23T00:07:07Z — Revisión 2: las transiciones de pausa, terminación y retirada entran por la función de cancelación de InterviewSession con un motivo (NFRD-U9-08) para no crear una arista voice → session-lifecycle.
+<!-- aidlc-wave-memory:voice:36dd36c9b550e468c57581a2d820468465ce4edd0de322bb7f767c79ae6c7aca -->
+
+
+- 2026-11-23T00:12:37Z — La contradicción 5 s (U6) / 15 s (U7) del plazo de inactividad era de alcance, no de valor: U4 y U6 lo fijan con SET LOCAL en sus transacciones y NFR10.17 fija 15 s para U7; se aplicó SET LOCAL en consolidar y exportar, sin valor por conexión, y no se preguntó (NFRD-U7-01).
+<!-- aidlc-wave-memory:forensic-report:24db2f44243e1cfcc5ec97735c4ce223c53ab35b5f26c6c4bc0231e10acac098 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -150,6 +162,10 @@
 
 - 2026-11-22T23:43:59Z — La subida no corre en la transacción única de GuardedRoute sino en tres cortas (T1 autoriza y confirma, T2 duplicado, T3 escritura con relectura del rol), como el inicio de sesión de U3; con el Ingress sin buffering y una validación de hasta 12 s, la conexión quedaba inactiva dentro de la transacción frente a un plazo de 5 s o 15 s (NFRD-U12-01).
 <!-- aidlc-wave-memory:research-reports:bbac5b8f0cc027e4075b664f10cd41fda849805a3f1953238145d3eb327081e7 -->
+
+
+- 2026-11-23T00:12:37Z — C1 revisión 3 no llevó el cuerpo expected_cursor de P1 = A; como ninguna fuente aprobada retiró la respuesta del humano, se mantuvo y se volvió a pedir a U1 (NFRD-U7-04) en vez de abandonarla.
+<!-- aidlc-wave-memory:forensic-report:e8bde93ba1aa51ccab70e0968a7256aa625ce30fe02a8950cbfa8f71c3360857 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -249,6 +265,18 @@
 
 - 2026-11-22T23:43:59Z — El pico estimado de memoria por subida (≈ 230 MiB) deja poco margen frente a los 256 MiB de NFR3.8; si la medición lo supera, se arman las filas de las llamadas por lotes antes de tocar el tope.
 <!-- aidlc-wave-memory:research-reports:f384c6ed0695c7a8d875a0b4dd44a87bdd7a797fddd30ed3dd01010c193163b3 -->
+
+
+- 2026-11-23T00:07:07Z — Recorte por XTRIM MINID desde el supervisor de session-api (cierra R-02) en vez de guardar el message_id en la fila: sin columna nueva y sin depender del consumidor, a cambio de que la cota en memoria sea de 1 920 s y no de segundos.
+<!-- aidlc-wave-memory:voice:41aa5b002ef4e627f322cdbcb1a53d018b42a46d9ba29b2ed7916d1a2c2f9ec8 -->
+
+
+- 2026-11-23T00:07:07Z — Guardias evaluadas antes de leer el cuerpo y repetidas bajo el bloqueo (NFRD-U9-14): no hay bloqueo de la sesión durante la lectura de 6 MB y la retirada siempre gana, a cambio de llamar dos veces a la misma función pura.
+<!-- aidlc-wave-memory:voice:78e4c239b66067b318d2c70aa518b44526d8d5ea896602a8375e3147ef0e48fe -->
+
+
+- 2026-11-23T00:12:37Z — Ante un COMMIT fallido el archivo no se borra (resultado desconocido) y lo resuelve el barrido, que borra solo sin fila: nunca se pierde el archivo de una versión confirmada, a costa de un huérfano de hasta 6 minutos (DS4, cierra R-01).
+<!-- aidlc-wave-memory:forensic-report:58970e7fabaa53ffbcbdf6f6d69a6c76c17a83f63591d96ae6c5dcdb7226d435 -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

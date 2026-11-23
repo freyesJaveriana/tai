@@ -63,3 +63,67 @@ C. Barrido periódico en el proceso de la API (cada 10 minutos) con el mismo mar
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Requirements revisión vigente (2026-11-22)
+
+**Sin preguntas: todo lo fijan las fuentes.** Ninguna decisión de esta pasada enfrenta dos fuentes
+aprobadas sin una salida que cumpla las dos. Tampoco cambia el alcance, el riesgo aceptado ni un dato que
+sale del clúster (regla de `project.md` del 2026-11-22). Lo que se aplica sin preguntar queda en la tabla
+NFRD-U7-xx de `security-design.md` §14 y se presenta en la aprobación.
+
+## Lo que ya está decidido
+
+| Tema | Qué queda fijo | Fuente |
+|---|---|---|
+| Módulo y paquete | ReviewReport, paquete `review_report`; el directorio sigue `forensic-report` | NFR-U7-08; `team.md` (glosario) |
+| Roles | Leen los analistas y el `admin`; exportan el dueño y el `admin`; consolidan, corrigen y descartan solo el dueño | FR1; VE-13; NFR10.1, NFR10.2, NFR10.23 |
+| Exportación | Marca por página, `export_sha256`, `ReportExport` de solo inserción, sin guardar bytes, `AccessLog` en 500 ms con falla cerrada | BR9; A-3; NFR10.24–NFR10.26, NFR11.7; NFR-U7-09; U3 (`record_access_strict`) |
+| Retención | `purge_session` con `veridicus_retention`; archivo antes que fila; recibo sin texto | C24; VE-12; NFR11.8, NFR10.27 |
+| Cifras | `report_max_bytes` = 8 MiB; PVC de 2 GiB con cuota; 768 MiB de memoria; almacén 5 s; consolidación y exportación 10 s; 15 s de inactividad | NFR-U7-01, NFR-U7-11; NFR10.17; tech-stack §2 |
+| Errores | `500 system.internal` y `503 system.unavailable`; sale `report.storage_failed` | NFR-U7-03; NFR10.17 de U3 |
+| Métricas | Internas de `session-api`, fuera de C15 | NFR-U7-04; NFR Design de U1 |
+| Verificación del almacén | `verify_store` por `kubectl exec`, sin `Job` ni rol | NFR-U7-05; lista de `exec` de U2 |
+| `Ingress` | Sin buffering ni temporales en todo `/api/` | NFR1.3; NFR Design de U2 §3 |
+| Barrido | Al arrancar y cada 60 s, con margen de 300 s | NFR-U7-13; NFR10.16 |
+| Respuestas de la primera pasada | **Siguen** P1 = A (cursor de lo revisado) y P2 = A (cancelación cooperativa); ninguna fuente aprobada las retiró | Respuestas del humano (revisión 1) |
+| Cursor | Es el de la sesión, `v1.<session_id>.<n>` con `n` = `change_cursor` | NFRD-U4-05 |
+
+## Cómo se registra la revisión
+
+- Los seis documentos llevan la cabecera «Revisión 2 (2026-11-22)…», que sustituye a la revisión 1 y dice
+  qué cambia. Las secciones conservan su número; lo que sale queda «Retirado» y lo nuevo toma el número
+  siguiente.
+- Las tablas de precisiones de la revisión 1 que estaban repartidas por varios documentos se reúnen en una
+  sola tabla, **NFRD-U7-01…** (`security-design.md` §14). Las demás tablas quedan «Retirado».
+- Las amenazas T16 y T17 de la revisión 1 pasan a T21 y T22, porque NFR Requirements revisión 2 usó
+  T16–T20.
+- Las decisiones de diseño se recogen en una tabla DSn (`security-design.md` §12).
+- `traceability.json` lleva `"revision": 2` y los 78 IDs de NFR Requirements revisión 2.
+- Se cierran los hallazgos R-01 a R-04 de `reviews/review-01.md` en las secciones que los citan.
+
+## Lo que el diseño resolverá sin preguntar
+
+1. **Plazo de inactividad: 5 s en U6 frente a 15 s en U7 (pendiente de U12).** Las fuentes aprobadas lo
+   deciden, así que no es una pregunta:
+   - el NFR Design de U4 y U6 fija los 5 s con `SET LOCAL` en sus propias transacciones;
+   - NFR10.17 de U7 fija 15 s para consolidar y exportar.
+
+   Son alcances distintos, no valores en conflicto. Solo los dos Infrastructure Design lo escribieron sin
+   alcance. Se aplica `SET LOCAL` de 15 s como primera sentencia de los manejadores de U7, sin valor por
+   conexión ni por rol (DS3). Se registran tres entradas:
+   - la precisión a los Infrastructure Design de U6 y U7 (NFRD-U7-01, que cierra R-02 de la revisión de
+     Infrastructure Design de U7);
+   - la nota para U12 (NFRD-U7-02);
+   - la petición del parámetro en `db.py` (NFRD-U7-03).
+2. **COMMIT con resultado desconocido (R-01).** La limpieza corre solo tras un *rollback* cierto. Si el
+   `COMMIT` falla, el archivo se queda y el barrido lo borra solo si no hay fila (DS4; petición a U3,
+   NFRD-U7-05).
+3. **Exportación frente a purga.** `FOR KEY SHARE` sobre la versión al exportar y `FOR UPDATE` sobre las
+   versiones al purgar (DS5, NFRD-U7-06).
+4. **P1 = A frente a C1 revisión 3.** C1 no llevó el cuerpo `{ expected_cursor }`, así que se vuelve a pedir
+   a U1 con su límite (NFRD-U7-04). La métrica recupera `outdated` (NFRD-U7-08).
+5. **P2 = A frente al texto de D6.** Se precisa que el hilo se cancela de forma cooperativa (NFRD-U7-07).
+6. **Presupuesto del bloqueo (R-02), cursor de la sesión (R-03) y *executor* colgado (R-04).** Se tratan en
+   `performance-design.md` §1, en `security-design.md` §3 y en `reliability-design.md` §3.

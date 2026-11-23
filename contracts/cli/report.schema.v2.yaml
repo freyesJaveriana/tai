@@ -1,0 +1,277 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: veridicus/contracts/cli/report.schema.v2
+title: Reporte de la CLI del analizador (C19 v2)
+description: >-
+  Reporte de una corrida o de una evaluación de la CLI. Solo lleva cifras, hashes, versiones y
+  nombres de perfil: ninguna cadena es de texto libre (P12, BR10.1). Toda cadena es `enum`,
+  `const`, una fecha o un patrón anclado sin espacios con `maxLength: 128` y la marca
+  `x-veridicus-limit: report_token_max_chars` (NFRD-U1-06). Todo número lleva `minimum` y
+  `maximum` (NFR1.4). Las llamadas a modelos usan `model-call.v1` y se restringen a los tres
+  papeles del analizador (BR10.2, FD-U1-03). Límite declarado (FD-U1-05): una palabra suelta del
+  alfabeto permitido cabe en un campo con patrón; el canary de AC12.6.1 lo cierra U12.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - origin
+  - blocking
+  - analyzer_version
+  - contract_version
+  - profile_name
+  - config_sha256
+  - prompt_sha256
+  - created_at
+  - runs
+  - totals
+properties:
+  schema_version:
+    const: '2.0.0'
+  kind:
+    enum: [run, evaluation]
+  origin:
+    enum: [local, zine]
+  blocking:
+    type: boolean
+    description: true solo con el perfil de evaluación comercial (NFR-U11-14)
+  analyzer_version:
+    $ref: '#/$defs/semver'
+  contract_version:
+    const: '1.0.0'
+  profile_name:
+    $ref: '#/$defs/slug48'
+  config_sha256:
+    $ref: '#/$defs/sha256'
+  prompt_sha256:
+    $ref: '#/$defs/sha256'
+  dataset_sha256:
+    $ref: '#/$defs/sha256'
+  dataset_version:
+    $ref: '#/$defs/semver'
+  created_at:
+    type: string
+    format: date-time
+  measurement_valid:
+    type: boolean
+    description: false si una llamada local declara una cuantización distinta de Q8_0 y BF16
+  runs:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [interview_sha256, status, findings, discards, calls]
+      properties:
+        interview_sha256:
+          $ref: '#/$defs/sha256'
+        status:
+          enum: [ok, error]
+        error_code:
+          enum:
+            - salida_invalida
+            - bloqueo_contenido
+            - tiempo_agotado
+            - proveedor
+            - anonimizador_no_disponible
+            - incidente_anonimizacion
+        findings:
+          $ref: '#/$defs/count'
+        discards:
+          type: object
+          description: Conteo por motivo de descarte de C6
+          propertyNames:
+            enum:
+              - cita_no_verificada
+              - cita_en_otro_turno
+              - marca_alterada
+              - campo_faltante
+              - rechazado_verificador
+              - rechazado_permutacion
+              - fuera_de_tramo
+              - vocabulario_prohibido
+          additionalProperties:
+            $ref: '#/$defs/count'
+        calls:
+          type: array
+          items:
+            allOf:
+              - $ref: /veridicus/contracts/model_calls/model-call.v1
+              - properties:
+                  role:
+                    enum: [judge, verifier, verifier_permuted]
+  totals:
+    type: object
+    additionalProperties: false
+    required: [input_tokens, output_tokens]
+    properties:
+      input_tokens:
+        $ref: '#/$defs/count'
+      output_tokens:
+        $ref: '#/$defs/count'
+      estimated_cost:
+        type: number
+        minimum: 0
+        maximum: 1000000000
+      price_table_version:
+        $ref: '#/$defs/token'
+  latency_ms:
+    type: object
+    description: Latencia p50 y p95 por papel, en milisegundos enteros (NFRD-U11-07)
+    additionalProperties: false
+    properties:
+      judge:
+        $ref: '#/$defs/latency'
+      verifier:
+        $ref: '#/$defs/latency'
+      verifier_permuted:
+        $ref: '#/$defs/latency'
+  metrics:
+    type: object
+    additionalProperties: false
+    description: Solo evaluación (NFR4); los umbrales los fija evaluation/thresholds.v1.yaml
+    properties:
+      verified_quotes:
+        $ref: '#/$defs/metric'
+      json_format_errors:
+        $ref: '#/$defs/metric'
+      permutation_coverage:
+        $ref: '#/$defs/metric'
+      anonymizer_leaks:
+        $ref: '#/$defs/metric'
+      completed_runs:
+        $ref: '#/$defs/metric'
+      precision:
+        $ref: '#/$defs/metric'
+      recall:
+        $ref: '#/$defs/metric'
+      reversed_order_consistency:
+        $ref: '#/$defs/metric'
+      three_run_agreement:
+        $ref: '#/$defs/metric'
+      type_agreement:
+        $ref: '#/$defs/metric'
+      scenario_a_marker_hits:
+        $ref: '#/$defs/metric'
+      scenario_a_difference:
+        $ref: '#/$defs/metric'
+  distance_sensitivity:
+    type: array
+    description: Sensibilidad por tramo de distancia entre citas; se reporta sin umbral
+    items:
+      type: object
+      additionalProperties: false
+      required: [range, expected, found]
+      properties:
+        range:
+          $ref: '#/$defs/slug32'
+        expected:
+          $ref: '#/$defs/count'
+        found:
+          $ref: '#/$defs/count'
+  bias_table:
+    type: array
+    description: VE-17; por tipo de hecho y por conjunto sintético
+    items:
+      type: object
+      additionalProperties: false
+      required: [fact_type, synthetic_set, expected, found]
+      properties:
+        fact_type:
+          enum: [fecha, numero, lugar, persona, negacion, secuencia, otro]
+        synthetic_set:
+          $ref: '#/$defs/slug128'
+        expected:
+          $ref: '#/$defs/count'
+        found:
+          $ref: '#/$defs/count'
+  adversarial:
+    type: object
+    description: Sección del Escenario A (NFR5.1)
+    additionalProperties: false
+    required: [scenario, marker_hits]
+    properties:
+      scenario:
+        enum: [scenario_a]
+      marker_hits:
+        $ref: '#/$defs/count'
+      difference:
+        $ref: '#/$defs/ratio'
+  clarifications:
+    type: object
+    description: Aclaraciones (FD-U8-09); solo enteros, nunca texto
+    additionalProperties: false
+    properties:
+      emitted:
+        $ref: '#/$defs/count'
+      quote_matches:
+        $ref: '#/$defs/count'
+      discarded:
+        type: object
+        description: Descartes por cada una de las reglas de neutralidad
+        maxProperties: 7
+        propertyNames:
+          $ref: '#/$defs/slug48'
+        additionalProperties:
+          $ref: '#/$defs/count'
+$defs:
+  token:
+    type: string
+    pattern: '^[A-Za-z0-9._:/@+-]{1,128}$'
+    maxLength: 128
+    x-veridicus-limit: report_token_max_chars
+  semver:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+    maxLength: 128
+    x-veridicus-limit: report_token_max_chars
+  sha256:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+    maxLength: 128
+    x-veridicus-limit: report_token_max_chars
+  slug32:
+    type: string
+    pattern: '^[a-z0-9_-]{1,32}$'
+    maxLength: 128
+    x-veridicus-limit: report_token_max_chars
+  slug48:
+    type: string
+    pattern: '^[a-z0-9_-]{1,48}$'
+    maxLength: 128
+    x-veridicus-limit: report_token_max_chars
+  slug128:
+    type: string
+    pattern: '^[a-z0-9_-]{1,128}$'
+    maxLength: 128
+    x-veridicus-limit: report_token_max_chars
+  count:
+    type: integer
+    minimum: 0
+    maximum: 9007199254740991
+  ratio:
+    type: number
+    minimum: 0
+    maximum: 1
+  latency:
+    type: object
+    additionalProperties: false
+    required: [p50_ms, p95_ms]
+    properties:
+      p50_ms:
+        $ref: '#/$defs/count'
+      p95_ms:
+        $ref: '#/$defs/count'
+  metric:
+    type: object
+    additionalProperties: false
+    required: [value]
+    properties:
+      value:
+        type: number
+        minimum: 0
+        maximum: 1000000000
+      threshold:
+        type: number
+        minimum: 0
+        maximum: 1000000000
+      passes:
+        type: boolean

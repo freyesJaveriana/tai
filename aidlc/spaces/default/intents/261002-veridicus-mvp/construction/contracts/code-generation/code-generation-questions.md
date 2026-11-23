@@ -10,6 +10,9 @@
 >
 > Segunda reaprobación (2026-11-23): E-2 extiende PD-8 a C18 (el caso `c18` de C2 pasa a verde en el
 > paso 11) y el `--co -q` del paso 5 lleva `--no-cov` (A-1).
+>
+> Tercera reaprobación (2026-11-23): E-5 sustituye a E-2 (T05 escribe `effective-config.v1.yaml`, que C2
+> referencia) y E-6 excluye `c19` de la verificación del paso 15.
 
 ## Plan Approval
 
@@ -17,8 +20,8 @@
 `code-generation-plan.md` (25 pasos en 23 tareas del loop, decisiones PD-1 a PD-9 y su Testing Contract
 incrustado) y `unit-test-instructions.md`.
 
-[Approval Fingerprint]: sha256:v3:bd7805639a3fb4219c3c086ad842276583fbe8c4f5b74a9e7321e2a52ddb0cdc
-[Planned Source]: e26c5233e3c6257cd0d9a887fc21188577d0facd9c1933704f7ce6e3d348b374
+[Approval Fingerprint]: sha256:v3:1e1b9998d3c4f39cb71ef9e488719989f6684adcff05f84a6cb4beec1473bff7
+[Planned Source]: 0be6b35521684f55952a939da4012b0d87a362378438e17dc1f10fd2c1fa6d98
 
 - Approve Plan
 - Request Changes

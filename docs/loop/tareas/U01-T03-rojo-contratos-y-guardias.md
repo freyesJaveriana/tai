@@ -149,7 +149,7 @@ Marcadores (PD-8): cada prueba lleva el marcador del contrato que lee (`c1`, `c6
 - `build/red.xml` queda bajo `contracts/build/`, que ignora `.gitignore`; pytest crea la carpeta si falta. No se versiona.
 - Los archivos de prueba tienen nombres únicos en todo `tests/` y sus subcarpetas no llevan `__init__.py` (modo de importación por defecto, igual que hoy).
 - Los *payloads* de C6 toman su forma de los dos `*.schema.json` de `/insumos/app/contratos/analizador/v1/`, que el codificador **solo lee** (E-3). Nunca los copia, ni enteros ni en parte, y no copia nada más de `/insumos`: la copia es del humano en T04 (PD-4). Los valores de los *payloads* son sintéticos (`synthetic-names.yaml`).
-- El caso de C2 que valida `effective_config` contra C18 lleva el marcador `c18` (E-2); pasa a verde en T09.
+- El caso de C2 que valida `effective_config` contra C18 lleva el marcador `c18`; pasa a verde en T05, que escribe también `effective-config.v1.yaml` (E-5, sustituye a E-2).
 - F-11: corre siempre con `uv run` y nunca con `--no-sync`.
 - PD-9: el único módulo nuevo es `contracts/src/veridicus_contracts/tools/check_red.py`. No crees `src/veridicus_contracts/__init__.py`.
 - Desde esta tarea y hasta T15, la suite completa (`pytest` sin rutas, V-SUITE) queda en rojo a propósito. Ninguna tarea intermedia usa V-SUITE como criterio.

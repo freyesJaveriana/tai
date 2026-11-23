@@ -48,7 +48,7 @@ a `main` con *squash-merge*. `Approve Plan` lo elige el humano (team.md, Mandate
 | PD-5 | El orden del equipo (Testing Contract) se aplica así en una unidad `spec`: antes de cualquier contrato, el paso 5 escribe en rojo las pruebas de contratos de datos (C6, C2, C3, C5, C7, C18, C19, C21 y fallidos) y de las guardias AUTONOMIA-03/04/05. El resto de capas (carga, registro, funciones puras, comprobaciones, herramientas, mitad TypeScript) se implementa y se prueba enseguida, paso a paso. | Convertirlo en TDD por capa | Es la `ordering` exacta del contrato (custom); no se reinterpreta. |
 | PD-6 | El escáner `scan(text, literal_sources)` es de U11 (FD-U1-09). U1 publica `integrity/scan-cases.v1.yaml` y valida solo su forma (BR5.8); no reimplementa el escáner. `checks/veracity.py` compara nombres, rótulos y enum por igualdad de palabras (BR3.3, BR6.3). | Un comparador propio de texto libre en U1 | Un solo escáner en el sistema; los casos E10–E14, E30 y E40 los ejecuta U11 en B11. |
 | PD-7 | `libs/errors/` es una distribución aparte, `veridicus-errors` (importada como `veridicus_errors`), con su `pyproject.toml`, su `uv.lock`, sus pruebas y sus compuertas (V-ERRORS). `contracts/` **no** la importa ni la incluye en su rueda: `checks/error_codes.py` lee sus fuentes por ruta con `ast` (nombre de clase, base y atributo `code`) y las compara con el catálogo. | Dependencia por ruta en `uv` desde `contracts/`; meter las clases en la rueda de contratos | `check_package` (paso 22) y BR12.1 no cambian; `libs/errors` tiene sus propios tipos, *lint* y cobertura del 80 % (team.md) (R-03 de la revisión 1). |
-| PD-8 | Los pasos que escriben un contrato antes de C25 (pasos 7, 8 y 11) o de C1 (pasos 13–15) solo prueban su forma y sus *fixtures*; las marcas `x-veridicus-limit` y `x-veridicus-max-bytes` se comprueban contra el catálogo en el paso 16 (`limits_match`), y las guardias que miran C1 pasan a verde en el paso 16. Del mismo modo, el caso de C2 que valida `effective_config` contra C18 (marcador `c18`) pasa a verde en el paso 11 (E-2). Cada guardia del paso 5 marca sus pruebas con un marcador de pytest por contrato (`c1`, `c6`, `c7`, `c13`, `c16`, `c18`, `c19`, `c21`, `c8`, `labels`, `speech`, `asyncapi`) para poder acotarlas con `-m`. | Mover C25 y C1 al principio | Se conserva el orden de bolt-plan; ninguna verificación exige verde a una prueba cuyo contrato aún no existe (R-01, R-02, R-11). C7 va antes que C8 porque su esquema no depende del vocabulario (R-12). |
+| PD-8 | Los pasos que escriben un contrato antes de C25 (pasos 7, 8 y 11) o de C1 (pasos 13–15) solo prueban su forma y sus *fixtures*; las marcas `x-veridicus-limit` y `x-veridicus-max-bytes` se comprueban contra el catálogo en el paso 16 (`limits_match`), y las guardias que miran C1 pasan a verde en el paso 16. El esquema de C18 (`effective-config.v1.yaml`) lo escribe el paso 7 junto con C2, que lo referencia (E-5, sustituye a E-2). Cada guardia del paso 5 marca sus pruebas con un marcador de pytest por contrato (`c1`, `c6`, `c7`, `c13`, `c16`, `c18`, `c19`, `c21`, `c8`, `labels`, `speech`, `asyncapi`) para poder acotarlas con `-m`. | Mover C25 y C1 al principio | Se conserva el orden de bolt-plan; ninguna verificación exige verde a una prueba cuyo contrato aún no existe (R-01, R-02, R-11). C7 va antes que C8 porque su esquema no depende del vocabulario (R-12). |
 | PD-9 | Los módulos Python de contratos viven en `contracts/src/veridicus_contracts/<módulo>.py` y no en `contracts/python/`; el nombre de importación (`veridicus_contracts.<módulo>`) no cambia. Los esquemas y catálogos siguen en sus directorios de `contracts/` y entran a la rueda como datos (decisión del humano el 2026-11-23, tras tres rondas NO-VERDE de U01-T01: F-01, F-05, F-08). | Mantener `python/` con un mapa de desarrollo propio (`__path__` ampliado y lector de recursos sustituido): funciona al importar, pero mypy no resuelve las importaciones cruzadas (F-08) | Cambian las rutas de V-GUARD y V-TYPES y las de los pasos 3, 10, 11, 12, 17 y 19. Los artefactos aprobados que citan `contracts/python/` (functional-spec §1, contract-summary, components, bolt-plan y otros) no se editan: la precisión queda en `decisiones-humano.md` y se lleva a los originales si el humano lo decide al cerrar la etapa. |
 
 ## Dependencias y punto de partida
@@ -305,10 +305,10 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   `attempt` y `code` (NFRD-U1-07, NFR-U4-07, NFR-U9-03).
 - Cubre: C2, C3, C5; BR1.1–BR1.3, BR2.1, BR2.3; NFR10.2. Fuera: lógica de productores y consumidores (U4,
   U9).
-- [ ] El caso que valida `effective_config` de C2 contra C18 lleva el marcador `c18` y pasa a verde en el
-  paso 11, cuando existe C18 (PD-8, E-2).
-- Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py -m "not c18" --no-cov`
-  → verde.
+- [ ] `contracts/profiles/effective-config.v1.yaml` (C18, estricto), que C2 referencia; la huella de
+  `effective-config.valid.json` es su `sha256_jcs` (BR9.7). Se adelanta desde el paso 11 (E-5).
+- Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py --no-cov`
+  → verde, incluido el caso `c18` de C2.
 
 ### Paso 8 — Sugerencia de revisión C7 v2 (verde) · tarea T06 (ola con T05)
 
@@ -375,8 +375,8 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   `profiles.schema.v1.yaml` (especialización del analizador cerrada con `unevaluatedProperties: false`:
   exactamente `judge` y `verifier`, alias `verifier_permuted → verifier`, `purpose` en su enum)
   (FD-U1-02, FD-U1-12, BR9.2–BR9.5).
-- [ ] `contracts/profiles/effective-config.v1.yaml` y `prices.schema.v1.yaml` (C18, estrictos); la huella
-  de `effective-config.valid.json` es su `sha256_jcs` (BR9.7).
+- [ ] `contracts/profiles/prices.schema.v1.yaml` (C18, estricto). `effective-config.v1.yaml` ya lo
+  escribió el paso 7 (E-5).
 - [ ] `contracts/src/veridicus_contracts/profiles.py`: `validate(data, *, key_prefix, kind)` sin E/S — sobre
   (`schema_version: 1.0.0`, nombres `^[a-z0-9-]{1,48}$`), referencias cruzadas de alias, prefijo de
   `api_key_ref` y especialización con `kind: analyzer`; `ProfileValidationError`
@@ -386,8 +386,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 - Cubre: C18; AC13.3.1; BR9.2–BR9.5, BR9.7, BR9.8; NFR10.13, NFR10.15. Fuera: claves presentes y
   anonimizador obligatorio (U11).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_profiles.py tests/contracts/test_profiles_contract.py --no-cov`
-  → verde, y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py -m c18 --no-cov`
-  → verde (el caso de C2 aplazado del paso 7, E-2).
+  → verde.
 
 ### Paso 12 — Catálogo de límites C25 y `limits.load` (implementar y probar) · tarea T10
 
@@ -457,8 +456,8 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   `https://api.openai.com`.
 - Cubre: C16, C21; NFR1.1, NFR1.3; AUTONOMIA-04. Fuera: el proxy (U10) y `audio-worker` (U9).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_anonymizer_proxy.py tests/checks/test_servers.py --no-cov`
-  → verde, y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/guards/test_autonomia_04.py -m "not c1" --no-cov`
-  → verde. Las pruebas `c1` de `test_autonomia_04.py` pasan a verde en el paso 16 (PD-8).
+  → verde, y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/guards/test_autonomia_04.py -m "not c1 and not c19" --no-cov`
+  → verde. Las pruebas `c19` de `test_autonomia_04.py` las pone en verde el paso 14 (T12, misma ola; E-6) y las `c1`, el paso 16 (PD-8).
 
 ### Paso 16 — OpenAPI de la consola C1 v2 y sus comprobaciones (implementar y probar) · tareas T14 y T15
 

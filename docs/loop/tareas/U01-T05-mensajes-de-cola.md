@@ -14,20 +14,20 @@
 
 **Dentro:**
 
-> Los tres contratos AsyncAPI 3.0 de la cola: `contracts/queues/runs.v2.yaml` (C2), `results.v2.yaml` (C3) y `speech.v2.yaml` (C5, con `x-veridicus-priority: SHOULD`), con sobre `schema_version`, `message_id` y `attempt ≥ 1`; `entrada` y `salida` por `$ref` canónico a la copia de C6; `effective_config` contra C18; `audio_base64` con `x-veridicus-limit: audio_base64_max_chars`; `servers` internos; y el esquema estricto de las entradas de `<cola>:failed` (solo `message_id`, ID de la corrida o del audio, `attempt` y `code`; NFRD-U1-07, NFR-U4-07, NFR-U9-03). Los *fixtures* y `tests/contracts/test_queue_messages.py` ya existen (T03): **esta tarea solo escribe los contratos**.
+> Los tres contratos AsyncAPI 3.0 de la cola: `contracts/queues/runs.v2.yaml` (C2), `results.v2.yaml` (C3) y `speech.v2.yaml` (C5, con `x-veridicus-priority: SHOULD`), con sobre `schema_version`, `message_id` y `attempt ≥ 1`; `entrada` y `salida` por `$ref` canónico a la copia de C6; `effective_config` contra C18; `audio_base64` con `x-veridicus-limit: audio_base64_max_chars`; `servers` internos; y el esquema estricto de las entradas de `<cola>:failed` (solo `message_id`, ID de la corrida o del audio, `attempt` y `code`; NFRD-U1-07, NFR-U4-07, NFR-U9-03). Además, el esquema de C18 `contracts/profiles/effective-config.v1.yaml` (estricto), que C2 referencia; la huella de `effective-config.valid.json` es su `sha256_jcs` (BR9.7) (E-5). Los *fixtures* y `tests/contracts/test_queue_messages.py` ya existen (T03): **esta tarea solo escribe los contratos**.
 
 **Fuera** (el codificador debe rechazarlo aunque lo vea roto o incompleto):
 
 - `queues/indexing.v1.yaml` (C4): **no** se entrega. Tampoco el umbral ni las calificaciones retiradas (BR2.2, BR2.4 y BR2.5 «Retirado»).
 - Comprobar las marcas `x-veridicus-limit` contra C25: es `checks/limits_match.py` en T15 (paso 16, PD-8). Aquí la marca solo se escribe.
-- Escribir C18 (`profiles/effective-config.v1.yaml`): es T09 (paso 11). El `$ref` de `effective_config` apunta a C18 aunque aún no exista; el caso que lo valida lleva el marcador `c18` y pasa a verde en T09 (E-2).
+- El resto de `profiles/` (`profile-base`, `profiles.schema`, `prices.schema`) y `profiles.validate`: es T09 (paso 11).
 - Lógica de productores y consumidores (U4, U9).
 - Editar los *fixtures* o las pruebas de T03. Si una prueba parece mal, el codificador para y lo informa al orquestador (`docs/loop/CANDIDATAS.md`); no la cambia.
 - **Archivos de las tareas vecinas de la ola 5**, que corren en paralelo y no se pisan:
 
   | Tarea | Archivos que toca |
   |---|---|
-  | **T05 (esta)** | `contracts/queues/runs.v2.yaml`, `results.v2.yaml`, `speech.v2.yaml` y, si va aparte, el esquema de `<cola>:failed` dentro de `contracts/queues/` |
+  | **T05 (esta)** | `contracts/queues/runs.v2.yaml`, `results.v2.yaml`, `speech.v2.yaml`, si va aparte el esquema de `<cola>:failed` dentro de `contracts/queues/`, y `contracts/profiles/effective-config.v1.yaml` |
   | T06 | `contracts/integrity/review-suggestion.v2.json`, `contracts/src/veridicus_contracts/checks/suggestion_conditions.py`, `contracts/tests/checks/test_suggestion_conditions.py` |
   | T07 | `contracts/errors/error-codes.v2.yaml`, `contracts/src/veridicus_contracts/checks/error_codes.py`, `contracts/tests/checks/test_error_codes.py`, `contracts/tests/test_errors_catalog.py` y todo `libs/errors/` |
 
@@ -54,7 +54,7 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-1**: los mensajes de cola aceptan y rechazan sus *fixtures* (verificación del paso 7).
   ```bash
-  timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py -m "not c18" --no-cov
+  timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py --no-cov
   ```
   Esperado: verde. Cada *fixture* de `queues/fixtures/runs/`, `results/` y `speech/` se acepta, o se rechaza por su `reject_reason`: E1 sin `entrada` (BR2.1), E2 mayor desconocido (BR1.2), E3 menor con campo nuevo aceptado (BR1.3), `salida` que no cumple C6 (BR2.3) y fallido con un campo `text` (NFRD-U1-07).
 
@@ -111,4 +111,4 @@ El rojo es de T03. Antes de escribir el primer contrato, corre CA-1 y pega la sa
 
 ### Decisión tomada (2026-11-23)
 
-- **A-5 → E-2: opción (c), aplazar como PD-8.** Contexto: el paso 7 valida `effective_config` de C2 contra C18 (F2 paso 3, BR9.7), pero C18 (`profiles/effective-config.v1.yaml`) lo escribe el paso 11, en T09 (ola 6). PD-8 solo aplaza C25 y C1, no C18. Con el registro cerrado de T02, un `$ref` a un esquema ausente es un error y el *fixture* válido de C2 no puede pasar a verde en esta ola. Opciones: (a) adelantar a T05 solo `profiles/effective-config.v1.yaml` (T09 conserva `profile-base`, `profiles.schema`, `prices` y `profiles.validate`); (b) mover T05 a la ola 6, después de T09; (c) aplazar el caso de C2 con `effective_config` como PD-8 hace con C25. Las tres cambian el plan aprobado y piden volver a aprobarlo. Mientras no se decida, si el verde depende de C18, el codificador para y lo informa: no escribe C18.
+- **A-5 → E-5: opción (a), T05 escribe `effective-config.v1.yaml`.** E-2 (opción c) se descartó porque el registro no resuelve C2 entero con el `$ref` ausente (ronda 1 de U01-T03). Contexto original: el paso 7 valida `effective_config` de C2 contra C18 (F2 paso 3, BR9.7), pero C18 (`profiles/effective-config.v1.yaml`) lo escribe el paso 11, en T09 (ola 6). PD-8 solo aplaza C25 y C1, no C18. Con el registro cerrado de T02, un `$ref` a un esquema ausente es un error y el *fixture* válido de C2 no puede pasar a verde en esta ola. Opciones: (a) adelantar a T05 solo `profiles/effective-config.v1.yaml` (T09 conserva `profile-base`, `profiles.schema`, `prices` y `profiles.validate`); (b) mover T05 a la ola 6, después de T09; (c) aplazar el caso de C2 con `effective_config` como PD-8 hace con C25. Las tres cambian el plan aprobado y piden volver a aprobarlo. Mientras no se decida, si el verde depende de C18, el codificador para y lo informa: no escribe C18.

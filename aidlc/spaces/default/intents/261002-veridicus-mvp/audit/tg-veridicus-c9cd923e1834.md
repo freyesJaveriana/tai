@@ -34369,3 +34369,86 @@
 **Stage**: nfr-design
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-11-23T00:32:46Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-design
+**Decision**: Aprobación de NFR Design (segunda pasada, 13 unidades)
+**Options**: Approve,Request Changes
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T00:35:07Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Question Answered
+**Timestamp**: 2026-11-23T00:35:11Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-design
+**Details**: Approve
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T00:35:12Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state approve nfr-design --user-input Approve --project-dir <project-dir>
+**Error**: Cannot approve "nfr-design" because no new human reply has been received for this approval question. Wait for the human to type their choice, then retry the approval. This needs a fresh human turn: wait for the person to reply, then record it again.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T00:35:22Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa27fac254f5c8889
+**Message**: Approve
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T00:35:37Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-11-23T00:35:41Z
+**Event**: GATE_APPROVED
+**Stage**: nfr-design
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-11-23T00:35:41Z
+**Event**: STAGE_COMPLETED
+**Stage**: nfr-design
+**Validation Basis**: {"graphContract":"sha256:ef880741298a28ff1b153f7995686a9c571a06744a85ec1852b3998a0ee954fb","inputs":[{"artifact":"contract-summary","contentHash":"sha256:934d2caf72a8d31cb38ac58b3eee5a1ed8b389fd86e9e8b45b75463a6339b8fd","instanceCount":1,"presentCount":1,"producer":"contract-design","required":false,"structureHash":"sha256:8041781712773965520b7af8f254e4cf15144012b4b1c037fe33deb650af9f1a"},{"artifact":"functional-spec","contentHash":"sha256:ff799225215659225ebd13694b8b490b423a336ac1c72754c62accd58d619d0b","instanceCount":12,"presentCount":12,"producer":"functional-design","required":true,"structureHash":"sha256:ed50eab7b362a2306e9d8e7738e5e62002f540326c307760696098809bf685d6"},{"artifact":"observability-requirements","contentHash":"sha256:6b9796e166728dfcd1ac6a203e591c97a9894f77d5f877ce0bfd141ae4629c3c","instanceCount":10,"presentCount":10,"producer":"nfr-requirements","required":true,"structureHash":"sha256:413c1f35e297f3ac76cfc4415ea1a9814013d07c197df1113953b3c8b68eb84b"},{"artifact":"performance-requirements","contentHash":"sha256:b445ae9156f1ca57b36715e4c96b30b37296bb9bc16c45da188121f2f5a76db8","instanceCount":10,"presentCount":10,"producer":"nfr-requirements","required":true,"structureHash":"sha256:dc5024e11d00941658860f3e579c06ecaf4b08ff80e1164f83093a2cd24c65a1"},{"artifact":"reliability-requirements","contentHash":"sha256:0d9e2dba9ee32e8190ab7d23a7ad9d0c5797364e4966409131c52502342891b3","instanceCount":10,"presentCount":10,"producer":"nfr-requirements","required":true,"structureHash":"sha256:b95d49fccfa843aac46a260231ed00780dbc793dc7a1bec10286f44e656882d4"},{"artifact":"scalability-requirements","contentHash":"sha256:a28ed6976a63282e81438fd2b855258424ed0f276f6905a62af256c1157c40ff","instanceCount":10,"presentCount":10,"producer":"nfr-requirements","required":true,"structureHash":"sha256:beb3342b25cc98e1fbf2743e5ff926f9912aa32935ff8b14549fe38d3ba6998b"},{"artifact":"security-requirements","contentHash":"sha256:30829553dedf56f26da8c24130384da95433dc2f707c1b8aaa6cc63296a0dfbc","instanceCount":13,"presentCount":13,"producer":"nfr-requirements","required":true,"structureHash":"sha256:154c7259b2c2db306b2e083ab6514f5f62dea98299e994d61b2a9a3df2f75fee"},{"artifact":"tech-stack-decisions","contentHash":"sha256:264cb9d161ced5c1aae0c4e25bbf596c6e9b6ae5565b4b9d8c534c0315bb189c","instanceCount":13,"presentCount":13,"producer":"nfr-requirements","required":true,"structureHash":"sha256:4c0352009bfaa37fde6661d542398a03cc6cc65d4e7ffe16445e8a96a868b875"}],"outputs":[{"artifact":"logical-components","contentHash":"sha256:454fd7d1f3fc3b3d9cff6f96a9d1645667885521282dd54d12f3ea1c7305c1aa","instanceCount":11,"presentCount":11,"producer":"nfr-design","required":true,"structureHash":"sha256:a570f8186d07d2e31ae05dfd3069ff9625d0b03b09204b5ff702cb668d924e33"},{"artifact":"observability-design","contentHash":"sha256:40543445231081ea3d5bd243f02a5864a11ea8f2a2dc3e99a5a8bf697e4d74b5","instanceCount":10,"presentCount":10,"producer":"nfr-design","required":true,"structureHash":"sha256:2fe892ae4660b1f3abfebbffbb6fb56be743e4fa179a800422e61d3e352f0f4a"},{"artifact":"performance-design","contentHash":"sha256:7b6d2a96be6a5a6b322c983db1018258b588e0d80dc2c3bf566ef5fcacb359fd","instanceCount":10,"presentCount":10,"producer":"nfr-design","required":true,"structureHash":"sha256:1b6d1b6813592ed826a96d7ac0c86a1335752a7b80e5a146b31941f77b95b9c4"},{"artifact":"reliability-design","contentHash":"sha256:88ad10ef89124ad73053bc11957d1a81d467b4a883f0fdd0443be3b6353643ae","instanceCount":10,"presentCount":10,"producer":"nfr-design","required":true,"structureHash":"sha256:02a82ba5daccdd29962e9f14b8d0c5c8bccdfd8efe5e2ca71972bfbb9c362e08"},{"artifact":"scalability-design","contentHash":"sha256:34cf802e2a287f3bdb10924c2b678701fc6f48ead7e8449f45b9aeb2de8537a1","instanceCount":10,"presentCount":10,"producer":"nfr-design","required":true,"structureHash":"sha256:31b127a3eb7206f72e2d085e4b2e47a78e07d5f912daf96deabf6670acd87246"},{"artifact":"security-design","contentHash":"sha256:c8f6cdfc4b48e9474fbfde4a5cc562bcf49f30fd140a7168edb38a377c02b8f2","instanceCount":13,"presentCount":13,"producer":"nfr-design","required":true,"structureHash":"sha256:a3276cff7c5a470e309193891b691f58301f76cf27ded654382a619b7e0bbe7c"},{"artifact":"traceability","contentHash":"sha256:382ed5f18bf511067642895b3017937edbeeaa44af081f8d4b79d7a1c25afbf3","instanceCount":13,"presentCount":13,"producer":"nfr-design","required":true,"structureHash":"sha256:b21dc2328e60019af8d010459812eff13f8f0e45949598480633efbb30173963"}],"projectType":"greenfield","schema":3}
+**Details**: Stage NFR Design approved by gate
+**Tokens In**: 1748
+**Tokens Out**: 1102763
+**Cache Read**: 200851480
+**Cache Write**: 6286605
+**Cost USD**: 168.94
+**By Model**: opus-5=168.94
+**By Agent**: main=15.12; aidlc-architect-agent=153.82
+**Tokens By Model**: opus-5=1.7k/1.1M/200.9M/6.3M
+**Tokens By Agent**: main=182/56.4k/18.7M/438.6k; aidlc-architect-agent=1.6k/1M/182.2M/5.8M
+
+---
+
+## Stage Start
+**Timestamp**: 2026-11-23T00:35:41Z
+**Event**: STAGE_STARTED
+**Stage**: infrastructure-design
+**Agent**: aidlc-aws-platform-agent
+
+---

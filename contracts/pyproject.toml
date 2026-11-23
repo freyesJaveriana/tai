@@ -28,28 +28,14 @@ dev = [
     "yamllint>=1.35",
 ]
 
-# Mapa de rutas de functional-spec §1 (D1, D15): los módulos de python/ quedan
-# en la raíz del paquete; esquemas y catálogos van como datos con la misma ruta
-# relativa; los fixtures no se empaquetan.
+# Mapa de rutas de functional-spec §1 (D1, D15). Los directorios de datos y los
+# módulos de python/ aparecen en src/veridicus_contracts/ como enlaces simbólicos
+# versionados, así que la instalación editable y la rueda ven el mismo paquete
+# (hatchling no admite en modo editable un `sources` que cambie de prefijo, y
+# `exclude` no se aplica a `force-include`). Los fixtures no se empaquetan.
 [tool.hatch.build.targets.wheel]
 packages = ["src/veridicus_contracts"]
-exclude = ["**/fixtures/**"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"python" = "veridicus_contracts"
-"api" = "veridicus_contracts/api"
-"errors" = "veridicus_contracts/errors"
-"queues" = "veridicus_contracts/queues"
-"analyzer" = "veridicus_contracts/analyzer"
-"integrity" = "veridicus_contracts/integrity"
-"ui" = "veridicus_contracts/ui"
-"profiles" = "veridicus_contracts/profiles"
-"model_calls" = "veridicus_contracts/model_calls"
-"cli" = "veridicus_contracts/cli"
-"metrics" = "veridicus_contracts/metrics"
-"health" = "veridicus_contracts/health"
-"format" = "veridicus_contracts/format"
-"transcript" = "veridicus_contracts/transcript"
+exclude = ["fixtures"]
 
 [tool.mypy]
 strict = true

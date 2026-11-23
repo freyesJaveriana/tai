@@ -64,10 +64,14 @@ class GenerateRequest:
 
 @dataclass(frozen=True, kw_only=True)
 class ModelCall:
-    """El registro de una llamada; misma forma que `model_calls/model-call.v1.yaml`."""
+    """El registro de una llamada; misma forma que `model_calls/model-call.v1.yaml`.
+
+    El esquema es cerrado y no admite `null`: al serializar, quien escribe el registro omite los
+    campos opcionales que valen `None` (`version`, `effort_or_quantization`, `engine`, `seed`).
+    """
 
     role: Role
-    provider: str
+    provider: Provider
     model: str
     input_tokens: int
     output_tokens: int

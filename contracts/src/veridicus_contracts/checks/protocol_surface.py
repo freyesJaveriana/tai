@@ -2,9 +2,11 @@
 
 Módulo guardia (100 % de ramas). Lee `model_calls.py` con `ast`, sin importarlo, y comprueba:
 
-- el `Protocol` `AnonymizingProvider` declara solo `generate(self, request: GenerateRequest) ->
-  GenerateResult` (sin `check_ready` ni atributos);
-- el módulo solo importa de `veridicus_contracts`, `typing`, `dataclasses`, `enum` y `datetime`;
+- el `Protocol` `AnonymizingProvider` hereda solo de `Protocol` (ni siquiera de otro `Protocol`
+  con `check_ready`) y declara solo `generate(self, request: GenerateRequest) -> GenerateResult`,
+  sin decoradores, `check_ready` ni atributos;
+- el módulo solo importa de `veridicus_contracts`, `typing`, `dataclasses`, `enum` y `datetime`,
+  y no llama a `__import__` ni a `importlib`;
 - existen `ModelCallError` y sus cinco subclases; `ContentBlocked`, `Timeout`, `ProviderError` e
   `InvalidOutput` declaran `call: ModelCall` y `AnonymizerUnavailable` no (FD-U10-04).
 
@@ -32,9 +34,20 @@ def _es_docstring(nodo: ast.stmt) -> bool:
     )
 
 
+def _es_importacion_dinamica(llamada: ast.Call) -> bool:
+    """`__import__(...)` o cualquier llamada de `importlib` (`importlib.import_module(...)`)."""
+    nombre = ast.unparse(llamada.func)
+    return nombre == "__import__" or nombre.split(".")[0] == "importlib"
+
+
 def _importaciones_ajenas(arbol: ast.Module) -> list[str]:
     problemas: list[str] = []
     for nodo in ast.walk(arbol):
+        if isinstance(nodo, ast.Call) and _es_importacion_dinamica(nodo):
+            problemas.append(
+                f"llamada dinámica de importación: {ast.unparse(nodo.func)} (E43)"
+            )
+            continue
         if isinstance(nodo, ast.Import):
             nombres = [alias.name.split(".")[0] for alias in nodo.names]
         elif isinstance(nodo, ast.ImportFrom) and nodo.level:
@@ -54,8 +67,10 @@ def _importaciones_ajenas(arbol: ast.Module) -> list[str]:
 
 def _comprobar_puerta(clase: ast.ClassDef) -> list[str]:
     problemas: list[str] = []
-    if not any(ast.unparse(base) in {"Protocol", "typing.Protocol"} for base in clase.bases):
-        problemas.append(f"{PUERTA} no es un Protocol (BR9.9)")
+    bases = [ast.unparse(base) for base in clase.bases]
+    if bases not in (["Protocol"], ["typing.Protocol"]):
+        detalle = ", ".join(bases) or "ninguna"
+        problemas.append(f"{PUERTA} debe heredar solo de Protocol, no de: {detalle} (BR9.9, E43)")
     miembros = [nodo for nodo in clase.body if not _es_docstring(nodo)]
     metodos = [n for n in miembros if isinstance(n, ast.FunctionDef) and n.name == "generate"]
     otros = [n for n in miembros if n not in metodos]
@@ -65,6 +80,9 @@ def _comprobar_puerta(clase: ast.ClassDef) -> list[str]:
     if not metodos:
         problemas.append(f"{PUERTA} no declara generate (BR9.9)")
     for metodo in metodos:
+        if metodo.decorator_list:
+            decoradores = ", ".join(f"@{ast.unparse(d)}" for d in metodo.decorator_list)
+            problemas.append(f"generate lleva decoradores: {decoradores} (BR9.9, E43)")
         firma = (ast.unparse(metodo.args), ast.unparse(metodo.returns) if metodo.returns else "")
         if firma != FIRMA_DE_GENERATE:
             problemas.append(

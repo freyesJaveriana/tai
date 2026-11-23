@@ -57,6 +57,13 @@ LISTA = "lista"  # `servers` de OpenAPI: lista de objetos con `url`
 MAPA = "mapa"  # `servers` de AsyncAPI: nombre -> servidor con `host`
 ENLACE = "enlace"  # `server` de un `link` de OpenAPI
 MAL_FORMADO = "mal formado"  # `servers` que no es ni lista ni mapa
+FUERA = "fuera"  # `$ref` estructural que apunta fuera de lo que la guardia recorre
+VERSION_OPENAPI = "3.1."
+REF_ELEMENTO = re.compile(r"#/components/pathItems/[^/]+")
+REF_RESPUESTA = re.compile(r"#/components/responses/[^/]+")
+REF_ENLACE = re.compile(r"#/components/links/[^/]+")
+REF_CALLBACK = re.compile(r"#/components/callbacks/[^/]+")
+REF_SERVIDOR = re.compile(r"#/(components/)?servers/[^/]+")
 
 
 def es_interna(url: str) -> bool:
@@ -97,22 +104,54 @@ def _declarados(contenedor: dict[str, Any], puntero: str) -> Iterator[Servidor]:
         yield hijo, MAL_FORMADO, valor
 
 
+def _referencia(nodo: dict[str, Any], puntero: str, destino: re.Pattern[str]) -> Iterator[Servidor]:
+    """Un `$ref` estructural solo puede apuntar a lo que la guardia recorre (`components`)."""
+    if "$ref" in nodo:
+        valor = nodo["$ref"]
+        if not isinstance(valor, str) or destino.fullmatch(valor) is None:
+            yield puntero, FUERA, None
+
+
 def _enlaces(contenedor: dict[str, Any], puntero: str) -> Iterator[Servidor]:
     """El `server` de cada `link` de una respuesta o de `components`."""
     for nombre, enlace in _objeto(contenedor.get("links")).items():
-        if isinstance(enlace, dict) and "server" in enlace:
-            yield f"{puntero}/links/{_escapar(nombre)}/server", ENLACE, enlace["server"]
+        sitio = f"{puntero}/links/{_escapar(nombre)}"
+        if isinstance(enlace, dict):
+            yield from _referencia(enlace, sitio, REF_ENLACE)
+            if "server" in enlace:
+                yield f"{sitio}/server", ENLACE, enlace["server"]
 
 
 def _de_respuestas(respuestas: dict[str, Any], puntero: str) -> Iterator[Servidor]:
     for estado, respuesta in respuestas.items():
-        yield from _enlaces(_objeto(respuesta), f"{puntero}/{_escapar(estado)}")
+        sitio = f"{puntero}/{_escapar(estado)}"
+        contenido = _objeto(respuesta)
+        yield from _referencia(contenido, sitio, REF_RESPUESTA)
+        yield from _enlaces(contenido, sitio)
 
 
 def _de_callbacks(callbacks: Any, puntero: str) -> Iterator[Servidor]:
     for nombre, callback in _objeto(callbacks).items():
-        for expresion, elemento in _objeto(callback).items():
-            yield from _de_elemento(elemento, f"{puntero}/{_escapar(nombre)}/{_escapar(expresion)}")
+        sitio = f"{puntero}/{_escapar(nombre)}"
+        contenido = _objeto(callback)
+        yield from _referencia(contenido, sitio, REF_CALLBACK)
+        for expresion, elemento in contenido.items():
+            if expresion != "$ref":
+                yield from _de_elemento(elemento, f"{sitio}/{_escapar(expresion)}")
+
+
+def _de_canales(canales: Any) -> Iterator[Servidor]:
+    """AsyncAPI: `channels.*.servers` solo lleva `$ref` a `servers` o a `components.servers`."""
+    for nombre, canal in _objeto(canales).items():
+        servidores_del_canal = _objeto(canal).get("servers")
+        if not isinstance(servidores_del_canal, list):
+            continue
+        for indice, referencia in enumerate(servidores_del_canal):
+            sitio = f"/channels/{_escapar(nombre)}/servers/{indice}"
+            if not isinstance(referencia, dict) or "$ref" not in referencia:
+                yield sitio, FUERA, None
+            else:
+                yield from _referencia(referencia, sitio, REF_SERVIDOR)
 
 
 def _de_operacion(operacion: dict[str, Any], puntero: str) -> Iterator[Servidor]:
@@ -124,6 +163,7 @@ def _de_operacion(operacion: dict[str, Any], puntero: str) -> Iterator[Servidor]
 def _de_elemento(elemento: Any, puntero: str) -> Iterator[Servidor]:
     """Un elemento de ruta: sus `servers` y los de cada operación."""
     contenido = _objeto(elemento)
+    yield from _referencia(contenido, puntero, REF_ELEMENTO)
     yield from _declarados(contenido, puntero)
     for metodo in METODOS:
         if isinstance(contenido.get(metodo), dict):
@@ -150,25 +190,22 @@ def servidores(documento: Any) -> Iterator[Servidor]:
     yield from _enlaces(componentes, "/components")
     yield from _de_respuestas(_objeto(componentes.get("responses")), "/components/responses")
     yield from _declarados(componentes, "/components")
+    yield from _de_canales(raiz.get("channels"))
 
 
 def _urls_resultantes(servidor: dict[str, Any]) -> list[str]:
     """La `url` con sus variables sustituidas por el `default` y por cada valor del `enum`."""
     url = _texto(servidor.get("url"))
-    variables = servidor.get("variables")
-    if not isinstance(variables, dict):
-        variables = {}
+    variables = _objeto(servidor.get("variables"))
     usadas = [nombre for nombre in variables if "{" + str(nombre) + "}" in url]
     opciones: list[list[str]] = []
     for nombre in usadas:
-        variable = variables[nombre]
-        por_omision = "{" + str(nombre) + "}"
-        valores = [por_omision]
-        if isinstance(variable, dict):
-            if "default" in variable:
-                valores = [_texto(variable["default"])]
-            enum = variable.get("enum")
-            valores += [_texto(valor) for valor in enum] if isinstance(enum, list) else []
+        variable = _objeto(variables[nombre])
+        valores = ["{" + str(nombre) + "}"]
+        if "default" in variable:
+            valores = [_texto(variable["default"])]
+        enum = variable.get("enum")
+        valores += [_texto(valor) for valor in enum] if isinstance(enum, list) else []
         opciones.append(valores)
     resultantes = []
     for combinacion in itertools.product(*opciones):
@@ -195,35 +232,48 @@ def _problemas_de_asyncapi(servidor: dict[str, Any]) -> list[str]:
 
 def comprobar_servidor(forma: str, servidor: Any) -> list[str]:
     """Las reglas que incumple un servidor, sin copiar ningún valor del documento."""
+    if forma == FUERA:
+        return ["referencia fuera de la estructura"]
     if forma == MAL_FORMADO or not isinstance(servidor, dict):
         return ["servidor mal formado"]
     if forma == MAPA:
         return _problemas_de_asyncapi(servidor)
     problemas: list[str] = []
-    variables = _objeto(servidor.get("variables"))
-    if any(not _enum_valido(variable) for variable in variables.values()):
+    if not _variables_validas(servidor):
         problemas.append("variable de servidor mal formada")
     if not all(es_interna(url) for url in _urls_resultantes(servidor)):
         problemas.append("dirección no interna")
     return problemas
 
 
-def _enum_valido(variable: Any) -> bool:
-    """Sin `enum`, o una lista con al menos un valor."""
-    if not isinstance(variable, dict) or "enum" not in variable:
+def _variables_validas(servidor: dict[str, Any]) -> bool:
+    """Sin `variables`, o un objeto de objetos cuyo `enum`, si lo hay, es una lista con valores."""
+    if "variables" not in servidor:
         return True
-    return isinstance(variable["enum"], list) and bool(variable["enum"])
+    variables = servidor["variables"]
+    if not isinstance(variables, dict):
+        return False
+    return all(
+        isinstance(variable, dict)
+        and ("enum" not in variable or (isinstance(variable["enum"], list) and bool(variable["enum"])))
+        for variable in variables.values()
+    )
 
 
 def comprobar_documento(nombre: str, documento: Any) -> list[str]:
     """Problemas de un contrato ya cargado: sin servidores, o con alguno que no es interno."""
-    encontrados = list(servidores(documento))
-    problemas = [
+    raiz = _objeto(documento)
+    problemas: list[str] = []
+    version = raiz.get("openapi")
+    if "openapi" in raiz and not (isinstance(version, str) and version.startswith(VERSION_OPENAPI)):
+        # Otras versiones traen nodos con `servers` que esta guardia no recorre (3.2: `query`).
+        problemas.append(f"{nombre}: /openapi: versión de OpenAPI no admitida ({REGLA})")
+    problemas.extend(
         f"{nombre}: {puntero}: {regla} ({REGLA})"
-        for puntero, forma, servidor in encontrados
+        for puntero, forma, servidor in servidores(documento)
         for regla in comprobar_servidor(forma, servidor)
-    ]
-    if not list(_declarados(_objeto(documento), "")):
+    )
+    if not list(_declarados(raiz, "")):
         problemas.insert(0, f"{nombre}: no declara ningún servidor en servers ({REGLA})")
     return problemas
 

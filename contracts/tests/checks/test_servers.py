@@ -349,12 +349,142 @@ def test_se_combinan_las_variables_y_basta_una_combinacion_externa() -> None:
 def test_variable_sin_default_o_sin_declarar_deja_la_llave_y_se_detecta() -> None:
     sin_default = {"url": "http://veridicus-x:{port}", "variables": {"port": {"enum": ["80"]}}}
     assert _problemas(_oas(servers=[sin_default])) == [_externo("/servers/0")]
-    no_objeto = {"url": "/{p}", "variables": {"p": "texto"}}
-    assert _problemas(_oas(servers=[no_objeto])) == [_externo("/servers/0")]
     sin_declarar = {"url": "/{p}"}
     assert _problemas(_oas(servers=[sin_declarar])) == [_externo("/servers/0")]
-    variables_mal = {"url": "/{p}", "variables": ["p"]}
-    assert _problemas(_oas(servers=[variables_mal])) == [_externo("/servers/0")]
+
+
+MAL_FORMADA = "variable de servidor mal formada"
+
+
+@pytest.mark.parametrize("variable", ["texto", 7, None, [], ["p"], True])
+def test_una_variable_que_no_es_un_objeto_es_mal_formada_y_no_falla_con_typeerror(
+    variable: Any,
+) -> None:
+    usada = {"url": "/{p}", "variables": {"p": variable}}
+    assert _problemas(_oas(servers=[usada])) == [
+        _externo("/servers/0", MAL_FORMADA),
+        _externo("/servers/0"),
+    ]
+    sin_uso = {"url": "/", "variables": {"p": variable}}
+    assert _problemas(_oas(servers=[sin_uso])) == [_externo("/servers/0", MAL_FORMADA)]
+
+
+@pytest.mark.parametrize("variables", ["texto", 7, None, [], ["p"], True])
+def test_variables_que_no_es_un_objeto_es_mal_formada(variables: Any) -> None:
+    assert _problemas(_oas(servers=[{"url": "/", "variables": variables}])) == [
+        _externo("/servers/0", MAL_FORMADA)
+    ]
+
+
+@pytest.mark.parametrize("valor", [None, 7, [], ["x"], "x", True])
+def test_un_server_de_enlace_o_de_lista_que_no_es_un_objeto_es_mal_formado(valor: Any) -> None:
+    enlace = _oas()
+    enlace["paths"]["/x"]["get"]["responses"] = {"200": {"links": {"l": {"server": valor}}}}
+    assert _problemas(enlace) == [
+        _externo("/paths/~1x/get/responses/200/links/l/server", "servidor mal formado")
+    ]
+    assert _problemas(_oas(servers=[valor])) == [_externo("/servers/0", "servidor mal formado")]
+    assert _problemas({"servers": {"a": valor}}) == [_externo("/servers/a", "servidor mal formado")]
+
+
+@pytest.mark.parametrize("version", ["3.1.0", "3.1.9", "3.1.0-rc1"])
+def test_las_versiones_3_1_de_openapi_pasan(version: str) -> None:
+    assert _problemas(_oas(openapi=version)) == []
+
+
+@pytest.mark.parametrize("version", ["3.2.0", "3.0.3", "3.10.0", "3.1", "4.1.0", "v3.1.0", "", None, 3.1, 7])
+def test_otras_versiones_de_openapi_no_se_admiten_porque_no_se_recorren_sus_nodos(
+    version: Any,
+) -> None:
+    assert _problemas(_oas(openapi=version)) == [_externo("/openapi", "versión de OpenAPI no admitida")]
+    sin_servers = {"openapi": version}
+    assert _problemas(sin_servers) == [
+        f"c.yaml: no declara ningún servidor en servers {SUFIJO}",
+        _externo("/openapi", "versión de OpenAPI no admitida"),
+    ]
+
+
+def test_un_asyncapi_sin_clave_openapi_no_tiene_version_que_comprobar() -> None:
+    assert _problemas({"asyncapi": "3.0.0", "servers": {"a": {"host": "veridicus-x:80"}}}) == []
+
+
+@pytest.mark.parametrize("metodo", ["get", "put", "post", "delete", "options", "head", "patch", "trace"])
+def test_servers_por_operacion_en_cada_uno_de_los_ocho_metodos(metodo: str) -> None:
+    malo = {"url": "https://api.openai.com"}
+    documento = _oas(paths={"/x": {metodo: {"servers": [malo]}}})
+    assert _problemas(documento) == [_externo(f"/paths/~1x/{metodo}/servers/0")]
+    en_webhook = _oas(webhooks={"w": {metodo: {"servers": [malo]}}})
+    assert _problemas(en_webhook) == [_externo(f"/webhooks/w/{metodo}/servers/0")]
+
+
+def test_los_metodos_que_recorre_son_exactamente_los_ocho_de_openapi_3_1() -> None:
+    assert guardia.METODOS == ("get", "put", "post", "delete", "options", "head", "patch", "trace")
+
+
+FUERA = "referencia fuera de la estructura"
+DESTINOS_MALOS = ["#/x-evil", "otro.yaml#/p", "#/components/schemas/S", "#/components/pathItems", "", 7, None]
+
+
+@pytest.mark.parametrize("destino", DESTINOS_MALOS)
+def test_un_ref_estructural_fuera_de_components_se_detecta_en_cada_tipo_de_nodo(destino: Any) -> None:
+    ref = {"$ref": destino}
+    elemento = _oas(paths={"/x": ref})
+    assert _problemas(elemento) == [_externo("/paths/~1x", FUERA)]
+    webhook = _oas(webhooks={"w": ref})
+    assert _problemas(webhook) == [_externo("/webhooks/w", FUERA)]
+    en_componentes = _oas(components={"pathItems": {"p": ref}})
+    assert _problemas(en_componentes) == [_externo("/components/pathItems/p", FUERA)]
+    respuesta = _oas(paths={"/x": {"get": {"responses": {"200": ref}}}})
+    assert _problemas(respuesta) == [_externo("/paths/~1x/get/responses/200", FUERA)]
+    respuesta_de_componentes = _oas(components={"responses": {"r": ref}})
+    assert _problemas(respuesta_de_componentes) == [_externo("/components/responses/r", FUERA)]
+    enlace = _oas(paths={"/x": {"get": {"responses": {"200": {"links": {"l": ref}}}}}})
+    assert _problemas(enlace) == [_externo("/paths/~1x/get/responses/200/links/l", FUERA)]
+    enlace_de_componentes = _oas(components={"links": {"l": ref}})
+    assert _problemas(enlace_de_componentes) == [_externo("/components/links/l", FUERA)]
+    callback = _oas(paths={"/x": {"get": {"callbacks": {"cb": ref}}}})
+    assert _problemas(callback) == [_externo("/paths/~1x/get/callbacks/cb", FUERA)]
+    callback_de_componentes = _oas(components={"callbacks": {"cb": ref}})
+    assert _problemas(callback_de_componentes) == [_externo("/components/callbacks/cb", FUERA)]
+    en_callback = _oas(paths={"/x": {"get": {"callbacks": {"cb": {"expr": ref}}}}})
+    assert _problemas(en_callback) == [_externo("/paths/~1x/get/callbacks/cb/expr", FUERA)]
+
+
+@pytest.mark.parametrize("destino", DESTINOS_MALOS + ["#/servers", "#/components/servers", "#/servers/a/b"])
+def test_un_servidor_de_canal_de_asyncapi_con_ref_fuera_de_servers_se_detecta(destino: Any) -> None:
+    documento = {"servers": {"a": {"host": "veridicus-x:80"}}, "channels": {"c": {"servers": [{"$ref": destino}]}}}
+    assert _problemas(documento) == [_externo("/channels/c/servers/0", FUERA)]
+    sin_ref = {"servers": {"a": {"host": "veridicus-x:80"}}, "channels": {"c": {"servers": [{"host": "x"}, "x"]}}}
+    assert _problemas(sin_ref) == [
+        _externo("/channels/c/servers/0", FUERA),
+        _externo("/channels/c/servers/1", FUERA),
+    ]
+
+
+def test_los_ref_estructurales_a_components_y_los_de_canal_a_servers_pasan() -> None:
+    documento = _oas(
+        paths={"/x": {"$ref": "#/components/pathItems/p", "get": {
+            "responses": {"200": {"$ref": "#/components/responses/r", "links": {"l": {"$ref": "#/components/links/l"}}}},
+            "callbacks": {"cb": {"$ref": "#/components/callbacks/c"}, "d": {"expr": {"$ref": "#/components/pathItems/p"}}},
+        }}},
+        webhooks={"w": {"$ref": "#/components/pathItems/p~1q"}},
+    )
+    assert _problemas(documento) == []
+    asyncapi = {
+        "servers": {"a": {"host": "veridicus-x:80"}},
+        "channels": {
+            "c": {"servers": [{"$ref": "#/servers/a"}, {"$ref": "#/components/servers/b"}]},
+            "sin_servers": {},
+            "no_lista": {"servers": "x"},
+            "no_canal": "x",
+        },
+    }
+    assert _problemas(asyncapi) == []
+
+
+def test_un_ref_estructural_valido_no_oculta_un_servers_hermano_externo() -> None:
+    documento = _oas(paths={"/x": {"$ref": "#/components/pathItems/p", "servers": [{"url": "//evil.com"}]}})
+    assert _problemas(documento) == [_externo("/paths/~1x/servers/0")]
 
 
 def test_una_variable_que_la_url_no_usa_no_cuenta() -> None:

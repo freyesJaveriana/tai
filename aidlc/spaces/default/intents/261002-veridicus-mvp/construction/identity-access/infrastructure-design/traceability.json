@@ -6,9 +6,11 @@
     "NFR3.1",
     "NFR3.2",
     "NFR3.3",
+    "NFR3.4",
     "NFR8.1",
     "NFR8.2",
     "NFR8.3",
+    "NFR8.4",
     "NFR10.1",
     "NFR10.2",
     "NFR10.3",
@@ -24,153 +26,69 @@
     "NFR10.13",
     "NFR10.14",
     "NFR10.15",
+    "NFR10.16",
+    "NFR10.17",
+    "NFR10.18",
+    "NFR10.19",
+    "NFR10.20",
+    "NFR10.21",
+    "NFR10.22",
+    "NFR10.23",
     "NFR11.1",
     "NFR11.2",
+    "NFR11.3",
+    "NFR11.4",
+    "NFR11.5",
     "NFR12.1",
+    "NFR13.1",
+    "NFR14.1",
     "NFR15.1",
     "NFR15.2",
     "NFR15.3"
   ],
   "coverage": [
-    {
-      "id": "NFR1.1",
-      "status": "OK",
-      "target": "infrastructure-specification §3: salida de session-api solo a veridicus-pg, veridicus-redis y CoreDNS bajo la política de negar todo de U2"
-    },
-    {
-      "id": "NFR3.1",
-      "status": "OK",
-      "target": "infrastructure-specification §1.1: limits.cpu 2 para dos Argon2id a la vez; monitoring-design §2: VeridicusLoginSlow; cicd-pipeline §1: test-perf"
-    },
-    {
-      "id": "NFR3.2",
-      "status": "OK",
-      "target": "infrastructure-specification §2: pool y statement_timeout; monitoring-design §3: SLI de F2 en la prueba perf"
-    },
-    {
-      "id": "NFR3.3",
-      "status": "OK",
-      "target": "cicd-pipeline §1: test-perf con Redis 7.2 real; monitoring-design §3: SLI de la respuesta 429"
-    },
-    {
-      "id": "NFR8.1",
-      "status": "OK",
-      "target": "infrastructure-specification §1.1: limits.memory 768 MiB con ≥ 160 MiB para Argon2id; monitoring-design §1: memoria frente al límite"
-    },
-    {
-      "id": "NFR8.2",
-      "status": "OK",
-      "target": "infrastructure-specification §1: 1 réplica por valores y estado en PostgreSQL y Redis; cicd-pipeline §1: prueba de dos instancias en test-level1"
-    },
-    {
-      "id": "NFR8.3",
-      "status": "OK",
-      "target": "infrastructure-specification §2.3: barrido diario dentro de session-api con advisory lock, sin CronJob"
-    },
-    {
-      "id": "NFR10.1",
-      "status": "OK",
-      "target": "infrastructure-specification §2.1: parámetros de Argon2id en session-api-config"
-    },
-    {
-      "id": "NFR10.2",
-      "status": "OK",
-      "target": "infrastructure-specification §1: data/common-passwords.txt empaquetado en la imagen con su SHA-256 comprobado al arrancar"
-    },
-    {
-      "id": "NFR10.3",
-      "status": "OK",
-      "target": "infrastructure-specification §2.1: duraciones en el ConfigMap validadas contra el catálogo de U1; Ingress con TLS para la cookie Secure"
-    },
-    {
-      "id": "NFR10.4",
-      "status": "N/A",
-      "target": "Token anti-CSRF y comparación en tiempo constante son lógica de aplicación (security-design §4); la infraestructura solo aporta HTTPS en el Ingress"
-    },
-    {
-      "id": "NFR10.5",
-      "status": "OK",
-      "target": "infrastructure-specification §2 y §2.1: Redis 7.2 para EXPIRE NX, Secret veridicus-auth con la clave HMAC y VERIDICUS_TRUSTED_PROXY con el pod CIDR"
-    },
-    {
-      "id": "NFR10.6",
-      "status": "N/A",
-      "target": "Respuesta única y hash señuelo son lógica de aplicación (security-design §3); no requieren recursos de infraestructura"
-    },
-    {
-      "id": "NFR10.7",
-      "status": "OK",
-      "target": "monitoring-design §4: logs JSON con lista blanca leídos con kubectl logs, sin agregación central"
-    },
-    {
-      "id": "NFR10.8",
-      "status": "OK",
-      "target": "infrastructure-specification §2.2: create-admin-job con Secret veridicus-bootstrap-admin montado solo en él, aplicado una vez por el humano"
-    },
-    {
-      "id": "NFR10.9",
-      "status": "OK",
-      "target": "infrastructure-specification §1: C1 empaquetado en la imagen para generar el mapa de rutas al arrancar"
-    },
-    {
-      "id": "NFR10.10",
-      "status": "OK",
-      "target": "infrastructure-specification §2: ingress-nginx sin caché deja pasar Cache-Control: no-store"
-    },
-    {
-      "id": "NFR10.11",
-      "status": "OK",
-      "target": "infrastructure-specification §2: statement_timeout 2 000 ms, connect_timeout 2 s, socket_timeout 0,5 s; sondas con timeout de 1 y 2 s"
-    },
-    {
-      "id": "NFR10.12",
-      "status": "OK",
-      "target": "infrastructure-specification §1.2: con Redis caído el pod sigue listo y el inicio de sesión responde 503; monitoring-design §2: VeridicusLoginErrors"
-    },
-    {
-      "id": "NFR10.13",
-      "status": "OK",
-      "target": "infrastructure-specification §1.2: readinessProbe en /readyz?probe=kubernetes y /readyz completo para smoke.sh, con su precisión en §5"
-    },
-    {
-      "id": "NFR10.14",
-      "status": "OK",
-      "target": "infrastructure-specification §2.2: backoffLimit 0 y código 2 si ya existe un admin; cicd-pipeline §4"
-    },
-    {
-      "id": "NFR10.15",
-      "status": "N/A",
-      "target": "El bloqueo del último admin es una transacción de la aplicación (reliability-design §1); la base de U2 lo soporta sin configuración adicional"
-    },
-    {
-      "id": "NFR11.1",
-      "status": "OK",
-      "target": "infrastructure-specification §2: tablas creadas por veridicus_owner y solo INSERT, SELECT para veridicus_app en user_change"
-    },
-    {
-      "id": "NFR11.2",
-      "status": "OK",
-      "target": "cicd-pipeline §1: lint-imports con la regla del umbral en el job lint"
-    },
-    {
-      "id": "NFR12.1",
-      "status": "OK",
-      "target": "cicd-pipeline §2: usuarios de prueba del catálogo sintético de U1 y claves generadas por corrida"
-    },
-    {
-      "id": "NFR15.1",
-      "status": "OK",
-      "target": "monitoring-design §1 y §2: ServiceMonitor del puerto metrics 8081 y PrometheusRule del subchart session-api"
-    },
-    {
-      "id": "NFR15.2",
-      "status": "OK",
-      "target": "monitoring-design §4: formato JSON con lista blanca y X-Request-ID UUID propio"
-    },
-    {
-      "id": "NFR15.3",
-      "status": "OK",
-      "target": "monitoring-design §4: 401, 403 y 429 en INFO con su code, y eventos de create-admin"
-    }
+    { "id": "NFR1.1", "status": "OK", "target": "infrastructure-specification §3: salida de session-api solo a veridicus-pg, veridicus-redis y kube-dns bajo el negar todo de U2; nada sale del clúster" },
+    { "id": "NFR3.1", "status": "OK", "target": "infrastructure-specification §1.1: limits.cpu 2 para dos Argon2id; monitoring-design §2: VeridicusLoginSlow; cicd-pipeline §1: test-perf en ubuntu-24.04" },
+    { "id": "NFR3.2", "status": "OK", "target": "infrastructure-specification §2: pool 5 + 5 y statement_timeout; monitoring-design §3: SLI de lectura en la prueba perf" },
+    { "id": "NFR3.3", "status": "OK", "target": "cicd-pipeline §1: test-perf con Redis real; monitoring-design §3: SLI de la respuesta 429" },
+    { "id": "NFR3.4", "status": "OK", "target": "cicd-pipeline §1: test-perf; monitoring-design §3: SLI de la ruta que cambia estado" },
+    { "id": "NFR8.1", "status": "OK", "target": "infrastructure-specification §1.1: limits.memory 768 MiB con 160 MiB para Argon2id y /tmp de 16 MiB contado; monitoring-design §1: memoria frente al límite" },
+    { "id": "NFR8.2", "status": "OK", "target": "infrastructure-specification §1: 1 réplica por valores, estado en PostgreSQL y Redis, RollingUpdate; cicd-pipeline §1: prueba de dos instancias en test-level1" },
+    { "id": "NFR8.3", "status": "OK", "target": "infrastructure-specification §2.3: barrido dentro de session-api con bloqueo asesor por lote, sin CronJob" },
+    { "id": "NFR8.4", "status": "OK", "target": "monitoring-design §1: veridicus_auth_login_total{outcome=error}; cicd-pipeline §1: test-perf con el semáforo ocupado" },
+    { "id": "NFR10.1", "status": "OK", "target": "infrastructure-specification §2.1: parámetros de Argon2id en veridicus-session-api-config" },
+    { "id": "NFR10.2", "status": "OK", "target": "infrastructure-specification §1: lista de D15 con SHA256SUMS en la imagen, comprobada al arrancar" },
+    { "id": "NFR10.3", "status": "OK", "target": "infrastructure-specification §1 y §2.1: cifras de C25 del paquete instalado sin ajustes propios; Ingress con TLS para la cookie Secure" },
+    { "id": "NFR10.4", "status": "N/A", "target": "Token anti-CSRF derivado y comparación en tiempo constante son lógica de aplicación (security-design §5.3); la infraestructura solo aporta HTTPS en el Ingress" },
+    { "id": "NFR10.5", "status": "OK", "target": "infrastructure-specification §2.1: Secret veridicus-auth y VERIDICUS_TRUSTED_PROXY desde network-ranges.yaml; IDS-U3-14" },
+    { "id": "NFR10.6", "status": "N/A", "target": "Respuesta única y hash señuelo son lógica de aplicación (security-design §4.2); no requieren recursos" },
+    { "id": "NFR10.7", "status": "OK", "target": "infrastructure-specification §1: Uvicorn --no-access-log; monitoring-design §4: logs JSON con lista blanca, sin agregación central" },
+    { "id": "NFR10.8", "status": "OK", "target": "infrastructure-specification §2.2: Job veridicus-create-admin en deploy/jobs con Secret veridicus-bootstrap-admin solo en él y borrado tras el uso; cicd-pipeline §3.1" },
+    { "id": "NFR10.9", "status": "OK", "target": "infrastructure-specification §1: C1 desde el paquete veridicus-contracts instalado en la imagen; cicd-pipeline §1: test-level0 con la matriz" },
+    { "id": "NFR10.10", "status": "OK", "target": "infrastructure-specification §2: ingress-nginx sin caché deja pasar Cache-Control: no-store" },
+    { "id": "NFR10.11", "status": "OK", "target": "infrastructure-specification §2: statement_timeout 2 000 ms, connect_timeout 2 s, socket_timeout 0,5 s; sondas con timeout de 1 y 2 s" },
+    { "id": "NFR10.12", "status": "OK", "target": "infrastructure-specification §1.2: con Redis o la base caídos la consola queda sin servicio, sin acceso; monitoring-design §2: VeridicusLoginErrors" },
+    { "id": "NFR10.13", "status": "OK", "target": "infrastructure-specification §1.2: readinessProbe sobre el /readyz completo con PostgreSQL y Redis (IDS-U3-01); smoke.sh por IDS-U3-06" },
+    { "id": "NFR10.14", "status": "OK", "target": "infrastructure-specification §2.2: backoffLimit 0 y código 2 si ya existe un admin; cicd-pipeline §4" },
+    { "id": "NFR10.15", "status": "N/A", "target": "Bloqueos y orden usuario, WebSession, sesión, ronda son transacciones de la aplicación (security-design §5.4); la base de U2 los soporta sin configuración" },
+    { "id": "NFR10.16", "status": "OK", "target": "infrastructure-specification §1.2: startupProbe de 60 s para las comprobaciones de arranque; la configuración inválida deja el pod sin arrancar" },
+    { "id": "NFR10.17", "status": "OK", "target": "monitoring-design §1 y §2: veridicus_problem_responses_total y VeridicusInternalErrors" },
+    { "id": "NFR10.18", "status": "OK", "target": "infrastructure-specification §2: Ingress con proxy-request-buffering off y proxy-body-size del grupo, así el 413 lo da session-api" },
+    { "id": "NFR10.19", "status": "OK", "target": "infrastructure-specification §2.4: managed.roles con passwordSecret veridicus-db-app y sin contraseña en migraciones; cicd-pipeline §1: regla estática y gitleaks" },
+    { "id": "NFR10.20", "status": "N/A", "target": "Matriz de permisos y prueba de VE-09 son lógica y pruebas de aplicación (security-design §10); corren en cicd-pipeline §1 test-level0 sin recursos propios" },
+    { "id": "NFR10.21", "status": "OK", "target": "infrastructure-specification §2.1: VERIDICUS_ACCESS_LOG_TIMEOUT_MS 500; monitoring-design §2: VeridicusAccessLogFailures" },
+    { "id": "NFR10.22", "status": "OK", "target": "infrastructure-specification §1 y §2: Ingress veridicus-web solo HTTPS, ssl-redirect, HSTS y sin disco en /api/" },
+    { "id": "NFR10.23", "status": "OK", "target": "infrastructure-specification §1: puerto metrics 8081 que el Ingress no enruta; monitoring-design: ServiceMonitor veridicus-session-api" },
+    { "id": "NFR11.1", "status": "OK", "target": "infrastructure-specification §2: esquema creado por veridicus_owner con permisos derivados de la marca veridicus-audit" },
+    { "id": "NFR11.2", "status": "N/A", "target": "Retirado en NFR Requirements revisión 2; lint-imports ya no lleva la regla del umbral (cicd-pipeline §1)" },
+    { "id": "NFR11.3", "status": "OK", "target": "infrastructure-specification §2: veridicus_apply_audit_grants() en la migración de U3; cicd-pipeline §1: pytest -m audit_convention" },
+    { "id": "NFR11.4", "status": "OK", "target": "infrastructure-specification §1: readOnlyRootFilesystem con el helper de U2; cicd-pipeline §1.1: Kyverno restricted-security-context" },
+    { "id": "NFR11.5", "status": "N/A", "target": "UserChange en la misma transacción es lógica de aplicación (security-design §9.4); la prueba corre en test-level1" },
+    { "id": "NFR12.1", "status": "OK", "target": "cicd-pipeline §2: usuarios de prueba del catálogo sintético de U1 y claves generadas por corrida" },
+    { "id": "NFR13.1", "status": "OK", "target": "cicd-pipeline §1: job coverage con --cov-fail-under=80 sobre services/session-api" },
+    { "id": "NFR14.1", "status": "N/A", "target": "Catálogo de mensajes en español comprobado al arrancar es lógica de aplicación (security-design §3.2); viaja en la imagen" },
+    { "id": "NFR15.1", "status": "OK", "target": "monitoring-design §1 y §2: ServiceMonitor del puerto 8081 y PrometheusRule en charts/monitoring-rules con prueba promtool" },
+    { "id": "NFR15.2", "status": "OK", "target": "monitoring-design §4: JSON con lista blanca y X-Request-ID UUID propio" },
+    { "id": "NFR15.3", "status": "OK", "target": "monitoring-design §4: eventos INFO, WARNING y ERROR con su code, incluidos los del Job create-admin" }
   ]
 }

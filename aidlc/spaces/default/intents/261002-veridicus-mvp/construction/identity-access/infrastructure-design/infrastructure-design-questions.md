@@ -36,3 +36,49 @@ C. Sin `readinessProbe` en `session-api` (solo `livenessProbe` con `/healthz` y 
 X. Other (please specify)
 
 [Answer]: B **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Design revisión vigente (2026-11-23)
+
+**Sin preguntas: todo lo fijan las fuentes.** Ninguna decisión de esta pasada enfrenta dos fuentes
+aprobadas ni cambia el alcance, el riesgo aceptado, los recursos de la máquina o un dato que sale del
+clúster (regla de `project.md` del 2026-11-22). El cambio de máquinas sí cambia recursos, pero esa
+pregunta la hace solo U2 (`platform`); U3 usa el supuesto indicado abajo. Lo que se aplica sin preguntar
+queda en la tabla IDS-U3-xx de `infrastructure-specification.md` §5 y se presenta en la aprobación.
+
+## Lo que ya está decidido
+
+- NFR Design de U3, revisión 2 (aprobado el 2026-11-22): `readinessProbe` sobre el `/readyz` completo,
+  que depende de PostgreSQL y de Redis, aunque con una réplica la caída de Redis deje fuera toda la
+  consola (reliability-design §2, logical-components §2 y §4; NFR10.13 revisión 2; C16 v2). Esto supera
+  P1 = B de la revisión 1 de esta etapa, y `project.md` lo confirma («Con Redis caído manda la decisión de
+  U3: /readyz deja toda la consola fuera de servicio»).
+- Lo que U3 entrega a Infrastructure Design (logical-components §4): ≥ 160 MiB de memoria para Argon2id,
+  puertos `http` 8080 y `metrics` 8081, Ingress solo HTTPS y sin disco en `/api/`, Secrets de la clave
+  HMAC y del primer `admin`, `VERIDICUS_TRUSTED_PROXY` = pod CIDR, `managed.roles` de CloudNativePG,
+  `create-admin` en `deploy/jobs/` fuera de Argo CD y `readOnlyRootFilesystem`.
+- NFR Design de U2, revisión 2: patrón del Ingress sin disco y grupo `veridicus-web`, tabla cerrada de
+  consumidores de Secrets y de volúmenes, `deploy/jobs/` fuera de la `Application`, reglas y paneles en
+  `charts/monitoring-rules/`.
+- Cambio de máquinas del 2026-11-22 (supuesto de esta unidad): **una sola máquina de 64 GB, solo CPU,
+  con el tamaño de Minikube por decidir en U2**. No hay máquina GPU ni perfil GPU.
+
+## Cómo se registra la revisión
+
+- Los cuatro documentos y `traceability.json` se reescriben como revisión 2; la revisión 1 queda en el
+  historial de Git.
+- Las secciones conservan su número; cada documento dice qué **se mantiene**, qué **cambia** y qué es
+  **nuevo**. Lo que salía de P1 = B queda «Retirado» sin renumerar.
+- Se cierran los hallazgos R-01 a R-08 de `reviews/review-01.md` en las secciones que los citan.
+
+## Lo que el diseño resolverá sin preguntar
+
+- Sonda de disponibilidad sobre el `/readyz` completo y retiro de `probe=kubernetes` (cierra R-01 a y
+  R-03).
+- Nombres de recursos con el prefijo `veridicus-` y nombres de Secrets alineados con U2; peticiones a U2
+  para la tabla de consumidores y para `managed.roles`.
+- Cómo llega `scripts/smoke.sh` al `/readyz` (petición a U2; cierra R-01 b).
+- Comandos de puerta para los manifiestos y las reglas de U3 (cierra R-02).
+- Borrado del Secret del primer `admin` tras el `Job` (cierra R-04), cifra de memoria (R-05), origen del
+  pod CIDR (R-06), sondas del kubelet y DNS del `Job` (R-07) y *runner* de la prueba de rendimiento (R-08).

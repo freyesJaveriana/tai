@@ -74,12 +74,12 @@ TERMINOS = (
     "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
     "inculpa", "engaños", "falsos", "falsas",
     # E-8: formas verbales comunes de «mentir», «inculpar» y «engañar» (las de «probar» no entran).
-    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mintieron", "mentir",
-    "mentía", "mentían",
-    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpó", "inculparon",
-    "inculpar",
-    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañó",
-    "engañaron", "engañar",
+    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mentisteis", "mintieron",
+    "mentir", "mentía", "mentían",
+    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpasteis", "inculpó",
+    "inculparon", "inculpar",
+    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañasteis",
+    "engañó", "engañaron", "engañar",
 )  # fmt: skip
 CATEGORIAS = ("veracity_score", "is_lying", "truthfulness", "veracidad", "credibilidad")
 ESCANEADOS = (
@@ -136,14 +136,22 @@ FRASES_DE_ACLARACION = ("antes dijo", "dijo antes", "se contradice", "antes menc
 CLAVES_DE_RECHAZO = frozenset({"mentions_contradiction", "phrases", "cites_turn"})
 BANDERAS_DE_RECHAZO = ("mentions_contradiction", "cites_turn")
 
-# Fronteras de palabra de un nombre (tras NFKC): `_`, `-`, `.`, espacios, el paso de letra a dígito
-# y de dígito a letra, y los cambios de minúscula a mayúscula (camelCase, PascalCase), también antes
-# de una sigla seguida de palabra («ESFalso»).
-# Limitación declarada (R2-01): una racha de mayúsculas que no va seguida de una palabra con
-# minúscula («HTTPFALSO», «ESFALSO») y las mayúsculas a mitad de palabra («EsEngaÑo») no se parten;
-# el nombre queda como una sola palabra y no coincide con un término.
+# Fronteras de palabra de un nombre (tras NFKC): todo carácter que no es letra ni dígito (`_`, `-`, `.`,
+# espacios, corchetes, barras, signos, espacio de ancho cero, guion blando, punto medio, guiones
+# Unicode…), el paso de letra a dígito y de dígito a letra, y los cambios de minúscula a mayúscula
+# (camelCase, PascalCase), también antes de una sigla seguida de palabra («ESFalso»).
+# Limitaciones declaradas (R2-01, R3-02, R3-04); ninguna cambia la regla y cada una la fija una prueba:
+# - una racha de mayúsculas que no va seguida de una palabra con minúscula («HTTPFALSO», «ESFALSO») y
+#   las mayúsculas a mitad de palabra («EsEngaÑo») no se parten: el nombre queda como una sola palabra
+#   y no coincide con un término;
+# - los homoglifos (la «a» cirílica U+0430 en lugar de la latina), los dígitos que no son ASCII (U+0662) y
+#   las letras fuera de Latin-1 antes de una mayúscula (U+0101 y «Falso») no se reconocen como frontera ni
+#   como la letra latina;
+# - los números romanos de un carácter (U+216B, que NFKC pasa a «XII») no se parten;
+# - la comparación no distingue tildes, así que un segmento como «menti» (de «mentí»), «engane» (de
+#   «engañé») o «inculpo» (de «inculpó») coincide con un término aunque no sea un uso prohibido.
 FRONTERAS_DE_PALABRA = re.compile(
-    r"[_\-.\s]+"
+    r"[\W_]+"
     r"|(?<=[A-Za-zÀ-ÿ])(?=[0-9])"
     r"|(?<=[0-9])(?=[A-Za-zÀ-ÿ])"
     r"|(?<=[a-zà-ÿ])(?=[A-ZÀ-Þ])"

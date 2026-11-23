@@ -34,12 +34,12 @@ TERMINOS = (
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
     "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
     "inculpa", "engaños", "falsos", "falsas",
-    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mintieron", "mentir",
-    "mentía", "mentían",
-    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpó", "inculparon",
-    "inculpar",
-    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañó",
-    "engañaron", "engañar",
+    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mentisteis", "mintieron",
+    "mentir", "mentía", "mentían",
+    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpasteis", "inculpó",
+    "inculparon", "inculpar",
+    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañasteis",
+    "engañó", "engañaron", "engañar",
 )  # fmt: skip
 FRASES = ("antes dijo", "dijo antes", "se contradice", "antes mencionó", "había dicho")
 ORIGENES = ("E10", "E11", "E12", "E13", "E14", "E30", "D-2", "A-1")

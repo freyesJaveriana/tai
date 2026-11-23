@@ -33,9 +33,10 @@ terms:
   - engaño
   # E-7 (2026-11-23): términos de VE-02 (adenda 02) con sus flexiones regulares de género y número.
   # Ninguna fuente fija más variantes de género y número.
-  # E-8 (2026-11-23): formas verbales comunes de «mentir», «inculpar» y «engañar» (presente, pretérito,
-  # infinitivo y el imperfecto de tercera persona de «mentir»). «miente», «mintió», «inculpa» y «engaño»
-  # ya estaban. Quedan fuera las formas de «probar» («pruebe», «probó», «probar»): falsos positivos.
+  # E-8 (2026-11-23): formas verbales comunes de «mentir», «inculpar» y «engañar»: presente, pretérito
+  # (perfecto e imperfecto) e infinitivo. Del imperfecto solo «mentía» y «mentían». «miente», «mintió»,
+  # «inculpa» y «engaño» ya estaban. Quedan fuera las formas de «probar» («pruebe», «probó», «probar»):
+  # falsos positivos en los textos de la interfaz.
   - prueba
   - pruebas
   - probatorio
@@ -55,6 +56,7 @@ terms:
   - mentís
   - mentí
   - mentiste
+  - mentisteis
   - mintieron
   - mentir
   - mentía
@@ -65,6 +67,7 @@ terms:
   - inculpan
   - inculpé
   - inculpaste
+  - inculpasteis
   - inculpó
   - inculparon
   - inculpar
@@ -75,6 +78,7 @@ terms:
   - engañan
   - engañé
   - engañaste
+  - engañasteis
   - engañó
   - engañaron
   - engañar

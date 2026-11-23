@@ -322,6 +322,14 @@ cases:
     text: "Dice que tú mentiste al contar el camino."
     literal_sources: []
     expect: {matches: [mentiste], excluded: []}
+  - id: e8-mentisteis
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que vosotros mentisteis al contar el camino."
+    literal_sources: []
+    expect: {matches: [mentisteis], excluded: []}
   - id: e8-mintieron
     source: BR5.1
     synthetic: true
@@ -402,6 +410,14 @@ cases:
     text: "Dice que tú inculpaste al vecino de la esquina."
     literal_sources: []
     expect: {matches: [inculpaste], excluded: []}
+  - id: e8-inculpasteis
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que vosotros inculpasteis al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpasteis], excluded: []}
   - id: e8-inculpo
     source: BR5.1
     synthetic: true
@@ -482,6 +498,14 @@ cases:
     text: "Dice que tú engañaste al comprador del terreno."
     literal_sources: []
     expect: {matches: [engañaste], excluded: []}
+  - id: e8-enganasteis
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que vosotros engañasteis al comprador del terreno."
+    literal_sources: []
+    expect: {matches: [engañasteis], excluded: []}
   - id: e8-engano-pasado
     source: BR5.1
     synthetic: true

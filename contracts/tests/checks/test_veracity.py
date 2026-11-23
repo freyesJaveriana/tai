@@ -1,4 +1,4 @@
-"""Guardia de veracidad (BR3.2, BR3.3, BR5.1, BR5.6, BR5.7, BR6.1–BR6.3; security-design §4.8).
+"""Guardia de veracidad (BR3.2, BR3.3, BR5.1, BR5.6, BR5.7, BR6.1\u2013BR6.3; security-design §4.8).
 
 Módulo guardia con 100 % de ramas. Cada constante, cada lista cerrada y cada patrón de
 `checks/veracity.py` tiene aquí un control positivo (el contrato versionado pasa) y uno negativo
@@ -42,12 +42,12 @@ C7 = "integrity/review-suggestion.v2.json"
 # E-8: más las formas verbales comunes de «mentir», «inculpar» y «engañar» (presente, pretérito,
 # imperfecto en tercera persona e infinitivo). Las formas de «probar» quedan fuera.
 TERMINOS_E8 = [
-    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mintieron", "mentir",
-    "mentía", "mentían",
-    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpó", "inculparon",
-    "inculpar",
-    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañó",
-    "engañaron", "engañar",
+    "miento", "mientes", "mienten", "mentimos", "mentís", "mentí", "mentiste", "mentisteis", "mintieron",
+    "mentir", "mentía", "mentían",
+    "inculpas", "inculpamos", "inculpáis", "inculpan", "inculpé", "inculpaste", "inculpasteis", "inculpó",
+    "inculparon", "inculpar",
+    "engañas", "engaña", "engañamos", "engañáis", "engañan", "engañé", "engañaste", "engañasteis",
+    "engañó", "engañaron", "engañar",
 ]  # fmt: skip
 TERMINOS_APROBADOS = [
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
@@ -657,6 +657,54 @@ def test_limitacion_declarada_mayusculas_a_mitad_de_palabra_no_se_parten(nombre:
     """Limitación declarada (R2-01): una mayúscula seguida de otra mayúscula, o a mitad de una
     palabra, no es frontera; el nombre queda como una sola palabra y no coincide con un término."""
     assert not con_veracidad(nombre)
+
+
+@pytest.mark.parametrize(
+    "nombre",
+    [
+        "filter[falso]", "falso[]", "es/falso", "es:falso", "es+falso", "es(falso)", "es@falso",
+        "es,falso", "es;falso", "es|falso", "es\\falso", "es#falso", "es=falso", "es?falso", "es*falso",
+        "es\u200bfalso",  # espacio de ancho cero
+        "es\u00adfalso",  # guion blando
+        "es\u00b7falso",  # punto medio
+        "es\u2011falso",  # guion sin salto
+        "es\u2010falso", "es\u2013falso", "es\u2014falso", "es\u2212falso",  # otros guiones y el menos
+        "es\u00a0falso", "es\u3000falso", "es\ufefffalso",
+        "deep[Object][falso]", "a.b[0].es_falso",
+    ],
+)  # fmt: skip
+def test_r3_01_todo_lo_que_no_es_letra_ni_digito_es_frontera(nombre: str) -> None:
+    assert con_veracidad(nombre)
+
+
+@pytest.mark.parametrize(
+    "nombre",
+    ["filter[falsete]", "es/falsete", "es\u200bfalsete", "es\u00b7tipo", "es(tipo)", "a/b", "[]", "\u200b", ""],
+)
+def test_r3_01_los_signos_no_marcan_lo_limpio(nombre: str) -> None:
+    assert not con_veracidad(nombre)
+
+
+@pytest.mark.parametrize(
+    "nombre",
+    [
+        "f\u0430lso",  # «\u0430» cirílica en lugar de la «a» latina (homoglifo)
+        "\u0101Falso",  # «\u0101» (fuera de Latin-1) pegada a una mayúscula: no es frontera
+        "falso\u0662",  # dígito arábigo-índico: ni dígito ASCII ni frontera de letra a dígito
+        "\u216bfalso",  # «\u216b»: NFKC lo pasa a «XII» y el nombre sigue siendo una sola palabra
+    ],
+)
+def test_r3_04_limitaciones_declaradas_de_alfabeto_y_numeros(nombre: str) -> None:
+    """Limitaciones declaradas (R3-04): homoglifos, letras fuera de Latin-1 antes de una mayúscula,
+    dígitos que no son ASCII y números romanos. Ninguna cambia la regla."""
+    assert not con_veracidad(nombre)
+
+
+@pytest.mark.parametrize("nombre", ["menti_x", "x.engane", "es_inculpo", "mentia", "mentian"])
+def test_r3_02_limitacion_declarada_la_comparacion_sin_tildes_coincide_con_segmentos(nombre: str) -> None:
+    """Limitación declarada (R3-02): sin tildes, «menti» (de «mentí»), «engane» (de «engañé») e
+    «inculpo» (de «inculpó») coinciden aunque no sean un uso prohibido."""
+    assert con_veracidad(nombre)
 
 
 @pytest.mark.parametrize(

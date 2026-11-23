@@ -154,6 +154,69 @@ def test_un_id_absoluto_ajeno_fuera_de_vendor_sigue_rechazado(tmp_path: Path) ->
         build_registry(tmp_path)
 
 
+def _texto(ruta: Path, contenido: str) -> None:
+    ruta.parent.mkdir(parents=True, exist_ok=True)
+    ruta.write_text(contenido, encoding="utf-8")
+
+
+def test_un_yaml_o_json_que_declara_schema_e_id_se_registra(tmp_path: Path) -> None:
+    """BR12.3: el registro carga cada esquema del paquete, sea cual sea su sufijo."""
+    _texto(tmp_path / "p" / "uno.v1.yaml", "$schema: https://json-schema.org/draft/2020-12/schema\n$id: veridicus/c/uno\n")
+    _texto(tmp_path / "p" / "dos.v1.yml", "$schema: https://json-schema.org/draft/2020-12/schema\n$id: /veridicus/c/dos\n")
+    _esquema(tmp_path / "p" / "tres.v1.json", {"$schema": "x", "$id": "veridicus/c/tres"})
+    registro = build_registry(tmp_path)
+    for nombre in ("uno", "dos", "tres"):
+        assert registro.get_or_retrieve(BASE_URI + f"veridicus/c/{nombre}").value is not None
+    assert len(list(registro)) == 3
+
+
+def test_un_documento_sin_schema_o_sin_id_no_es_un_esquema(tmp_path: Path) -> None:
+    _texto(tmp_path / "solo_id.yaml", "$id: veridicus/c/solo-id\n")
+    _texto(tmp_path / "solo_schema.yaml", "$schema: https://json-schema.org/draft/2020-12/schema\n")
+    _texto(tmp_path / "asyncapi.yaml", "asyncapi: 3.0.0\ninfo: {title: x, version: 1.0.0}\n")
+    _texto(tmp_path / "lista.yaml", "- uno\n- dos\n")
+    _esquema(tmp_path / "datos.json", {"clave": "valor"})
+    assert len(list(build_registry(tmp_path))) == 0
+
+
+def test_los_directorios_tests_no_se_registran(tmp_path: Path) -> None:
+    _texto(tmp_path / "ok.yaml", "$schema: s\n$id: veridicus/c/ok\n")
+    _texto(tmp_path / "x" / "tests" / "malo.yaml", "$schema: s\n$id: veridicus/c/ok\n")
+    registro = build_registry(tmp_path)
+    assert len(list(registro)) == 1
+
+
+def test_las_reglas_de_t02b_valen_tambien_para_los_yaml(tmp_path: Path) -> None:
+    _texto(tmp_path / "a.yaml", "$schema: s\n$id: veridicus/c/a\n")
+    _esquema(tmp_path / "b.schema.json", {"$id": "/veridicus/c/a"})
+    with pytest.raises(ValueError, match="repetida") as excepcion:
+        build_registry(tmp_path)
+    assert "a.yaml" in str(excepcion.value)
+    assert "b.schema.json" in str(excepcion.value)
+    _texto(tmp_path / "a.yaml", "$schema: s\n$id: veridicus/c/a#frag\n")
+    with pytest.raises(ValueError, match="vacío, con fragmento o con consulta"):
+        build_registry(tmp_path)
+    _texto(tmp_path / "a.yaml", "$schema: s\n$id: ../x\n")
+    with pytest.raises(ValueError, match="sale de la base"):
+        build_registry(tmp_path)
+    _texto(tmp_path / "a.yaml", "$schema: s\n$id: https://example.com/x\n")
+    with pytest.raises(ValueError, match="vendor"):
+        build_registry(tmp_path)
+
+
+def test_el_paquete_registra_c18_y_sigue_cargando_vendor_y_c6_sin_duplicados() -> None:
+    registro = build_registry()
+    efectiva = registro.get_or_retrieve(BASE_URI + "veridicus/contracts/profiles/effective-config.v1")
+    assert efectiva.value.contents["title"].startswith("Configuración efectiva")
+    for uri in (
+        BASE_URI + "veridicus/contracts/analyzer/v1/entrada",
+        BASE_URI + "veridicus/contracts/analyzer/v1/salida",
+        "https://json-schema.org/draft/2020-12/schema",
+        "http://asyncapi.com/definitions/3.0.0/asyncapi.json",
+    ):
+        assert registro.get_or_retrieve(uri).value is not None
+
+
 def test_sin_raiz_usa_los_datos_del_paquete_incluido_vendor() -> None:
     registro = build_registry()
     meta = registro.get_or_retrieve("https://json-schema.org/draft/2020-12/schema")

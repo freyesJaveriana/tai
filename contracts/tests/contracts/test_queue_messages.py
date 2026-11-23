@@ -1,12 +1,12 @@
 """Mensajes de cola C2, C3 y C5 (AsyncAPI 3.0): fixtures y reglas de BR1.1–BR1.3, BR2.1, BR2.3.
 
-Rojo hasta T05. Supuestos que T05 debe cumplir (o ajustar aquí en el mismo PR):
+Verde desde T05. Supuestos que T05 cumple:
 - cada AsyncAPI declara los mensajes `RunRequested` (C2), `RunResult` (C3), `AudioToTranscribe` y
   `TranscriptResult` (C5), y los de entradas fallidas `RunFailed`, `ResultFailed` y `AudioFailed`,
   estrictos y con solo `message_id`, el ID de la corrida o del turno, `attempt` y `code`
   (NFRD-U1-07);
 - `effective_config` se valida contra C18 (`profiles/effective-config.v1.yaml`): el caso
-  `test_effective_config_de_c2_cumple_c18` lleva el marcador `c18` y pasa a verde en T09 (E-2).
+  `test_effective_config_de_c2_cumple_c18` lleva el marcador `c18` y pasa a verde en T05 (E-5).
 """
 
 import pytest
@@ -117,7 +117,7 @@ def test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla(
 
 @pytest.mark.c18
 def test_effective_config_de_c2_cumple_c18() -> None:
-    """E-2: `effective_config` de C2 cumple C18 y su huella JCS es `config_sha256` (BR9.7)."""
+    """E-5: `effective_config` de C2 cumple C18 y su huella JCS es `config_sha256` (BR9.7)."""
     validador = validador_de("profiles/effective-config.v1.yaml")
     mensaje = cargar_fixture("queues/fixtures/runs/run.valid.yaml", "C2.RunRequested")["payload"]
     assert errores_de(validador, mensaje["effective_config"]) == []

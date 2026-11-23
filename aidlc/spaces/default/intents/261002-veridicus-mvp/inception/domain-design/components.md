@@ -1,5 +1,20 @@
 # Componentes del dominio — Veridicus (MVP)
 
+**Revisión 4 (2026-11-23): se integran las precisiones aprobadas en Construction (tablas FD, NFR, NFRD e
+IDS), por decisión del humano; cada cambio cita su ID de origen.** Es la excepción explícita a la regla de
+no editar artefactos aprobados. No cambia ningún componente ni ninguna arista del grafo; cambian
+comportamientos, entidades y atributos:
+- **CD-11** (Contract Design, revisión 3), pendiente en la tabla de precisiones: ConsoleApi rechaza las
+  corridas nuevas de una sesión bloqueada con `409` `session.blocked`.
+- **C-1** (`construction/contracts/code-generation/decisiones-humano.md`): FD-U11-03 y FD-U8-01 se unen
+  siguiendo a FD-U8-01; `observaciones_conductor` lo arma el módulo de U8 dentro de la biblioteca, solo en
+  modo incremental.
+- Entidades nuevas: `RunStatusChange` y `RunAttempt` (InterviewSession, FD-U4-03) y `RetentionChange`
+  (EthicsGovernance, FD-U13-08). `AnalysisRun` pasa a guardar solo la petición.
+- Puertos nuevos dentro de aristas existentes: `EthicsSessionPort` (EthicsGovernance → InterviewSession,
+  FD-U13-08), `SessionLifecycle` y `PendingSessions` (C11, FD-U7-02, FD-U3-04).
+- Los cambios de contrato están en `contract-design/contract-summary.md`, revisión 4.
+
 **Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque las precisiones aprobadas después de la
 revisión 2 (preguntas 13 y 14 = A). No cambia ningún componente, entidad ni arista, y la trazabilidad
 conserva sus ID:
@@ -111,8 +126,16 @@ components:
       muestran la misma versión, y una prueba lo comprueba (R-03). Traduce la jerarquía única de
       excepciones a Problem Details (RFC 9457) con `code` estable y `detail` en español. Cuando
       InterviewSession tiene la sesión `bloqueada` por un incidente de anonimización, devuelve a la consola
-      ese estado y rechaza las corridas nuevas con `anonymizer.incident`; los errores de cada corrida
-      salen con los códigos `analysis.*` de C1 (CD-08).
+      ese estado y rechaza las corridas nuevas con `409` `session.blocked`; `anonymizer.incident` es el
+      código del bloqueo, que la consola muestra como causa (CD-11, revisión 4). Los errores de cada
+      corrida salen con los códigos `analysis.*` de C1 (CD-08). Revisión 4: el aviso de VE-01 es público,
+      sin sesión, y solo devuelve su texto versionado (D-1, FD-U4-08). Antes de cambiar el rol de un
+      usuario cuenta sus sesiones pendientes por el puerto `PendingSessions` de InterviewSession, para no
+      crear la arista IdentityAccess → InterviewSession (FD-U3-04, FD-U4-03). En cada subida de un reporte
+      de la CLI pasa a ResearchReports el catálogo de referencia de perfiles, sin arista nueva (FD-U12-06).
+      Al crear o importar una sesión pide a EthicsGovernance validar el plazo de retención (FD-U13-08).
+      Registra el acceso tras una lectura 2xx marcada en C1 y, en la exportación, no entrega si el
+      registro falla (FD-U3-05, NFR-U7-09).
     responsibilities:
       - Autenticación por token y autorización por rol y por dueño de sesión
       - Entrega a la consola del texto versionado del aviso de VE-01 (R-03)
@@ -142,7 +165,7 @@ components:
         interaction: Subir, listar, ver y comparar reportes de la CLI (rol investigador)
         style: sync
       - component: EthicsGovernance
-        interaction: Reconocimientos, registro de acceso, reportes de problemas y retención (demostración)
+        interaction: Reconocimientos, registro de acceso, reportes de problemas y retención (demostración); validar el plazo al crear o importar una sesión y cambiarlo (FD-U13-05, FD-U13-08)
         style: sync
       - component: IntegrityPolicy
         interaction: Leer el texto versionado del aviso de VE-01 y su versión para servirlos a la consola
@@ -177,7 +200,7 @@ components:
         attributes: [username, role, password_hash, active, created_by, created_at]
       - name: UserChange
         identifier: change_id
-        attributes: [user_id, change, actor_user_id, at]
+        attributes: [user_id, change, old_value, new_value, actor_kind, actor_user_id, actor_system, at]   # revisión 4 (FD-U3-06)
         references:
           - entity: User
             owned_by: IdentityAccess
@@ -199,7 +222,11 @@ components:
       perfiles locales en CPU solo admiten el modo por lotes (validación en ZINE). Nunca escribe los
       archivos: solo cambian por PR. Los esquemas de perfiles (`contracts/profiles/`) son de U1; este
       componente los aplica, y `anonymizer-proxy` valida perfiles con esos esquemas sin depender de él
-      (CD-09).
+      (CD-09). Revisión 4: el esquema se parte en una base abierta (`roles`, `role_aliases`, un
+      `fallback_provider`) y la especialización cerrada del analizador (juez, verificador y el alias
+      `verifier_permuted`); `api_key_ref` sigue `^[A-Z][A-Z0-9_]{2,63}$` y el prefijo `VERIDICUS_` es un
+      argumento de la validación (FD-U1-02). En evaluación el alterno es de una tercera familia y `family`
+      es obligatoria en los tres destinos (FD-U11-05, FD-U11-22).
     responsibilities:
       - Carga y validación de perfiles y de la tabla de precios
       - Huella config_sha256 de la configuración efectiva
@@ -259,6 +286,18 @@ components:
       Pasa la sesión a `suspendida` cuando falta el latido y conserva todo lo procesado (FR8). Borra lo
       suyo solo cuando se lo pide la retención (A-2). Conserva el audio de un turno solo con la
       autorización de voz (VE-08).
+      Revisión 4. La corrida guarda solo la petición; su estado va en `RunStatusChange` y cada intento en
+      `RunAttempt`, las dos de solo inserción (FD-U4-03). Una sesión `blocked` se puede finalizar y
+      conserva `blocked_code`; un incidente sobre una sesión `finalized` o `terminated` solo fija
+      `blocked_code` (FD-U4-18). Finalizar es de U7 (ReviewReport, por el puerto `SessionLifecycle`), y
+      el ciclo suma `paused`/`suspended` → `finalized`, `paused`/`suspended`/`blocked` → `terminated` y
+      `terminated` → `consolidated`, así que `terminated` deja de ser final (FD-U6-12, FD-U7-02). Tras
+      pausar, terminar o retirar el consentimiento, las decisiones sobre hallazgos ya existentes siguen
+      (FD-U5-07). Escribe el audio de un turno de voz al recibirlo; `retain_audio` del mensaje es solo
+      informativo (FD-U9-12). Implementa `EthicsSessionPort` (`retention_of`, `set_retention`,
+      `expired_sessions`, `turn_texts` y `request_cancellation`) dentro de la arista existente
+      EthicsGovernance → InterviewSession (FD-U13-08), y `PendingSessions.count_pending` para ConsoleApi
+      (FD-U3-04).
     responsibilities:
       - Ciclo de vida de la sesión (abierta, pausada, suspendida, finalizada, terminada, bloqueada, consolidada) e inicio de MTTV
       - Registro del consentimiento, su retirada y su paso al contrato (A-4)
@@ -290,7 +329,7 @@ components:
       - component: ReviewReport
         interaction: Leer transcripción, corridas, registro de modelos y estado de la sesión
       - component: EthicsGovernance
-        interaction: Borrar una sesión vencida y leer sus turnos para el aviso del reporte de problemas
+        interaction: Borrar una sesión vencida y leer sus turnos para el aviso del reporte de problemas; leer y reducir el plazo, listar sesiones vencidas y cancelar sus corridas por EthicsSessionPort (FD-U13-08)
     external_dependencies:
       - name: PostgreSQL
         kind: database
@@ -323,14 +362,20 @@ components:
         attributes: [session_id, n, speaker, text, page, page_end, fold_state, origin, submitted_at]
       - name: TurnAudio
         identifier: audio_id
-        attributes: [turn_id, storage_path, sha256, retained_until]
+        attributes: [turn_id, storage_path, sha256, audio_format, byte_size, created_at, retained_until]   # revisión 4 (FD-U9-11): storage_path relativa al directorio de audio y con el audio_id
       - name: AnalysisRun
         identifier: run_id
-        attributes: [session_id, mode, from_turn, to_turn, profile_name, config_sha256, prompt_sha256, analyzer_version, status, error_code, fragmented, window, overlap, anonymized, tokens_in, tokens_out, estimated_cost, requested_by, requested_at, finished_at]
+        attributes: [session_id, mode, from_turn, to_turn, profile_name, config_sha256, prompt_sha256, analyzer_version, fragmented, window, overlap, requested_by, requested_at]   # revisión 4 (FD-U4-03): solo la petición
         references:
           - entity: ExecutionProfile
             owned_by: ExecutionProfiles
             relationship: cada corrida guarda el perfil y la huella con que corrió
+      - name: RunStatusChange
+        identifier: change_id
+        attributes: [run_id, from_status, to_status, attempt, deadline_at, error_code, actor_kind, actor_user_id, actor_system, at]   # revisión 4 (FD-U4-03); history; detalle en functional-spec de U4
+      - name: RunAttempt
+        identifier: attempt_id
+        attributes: [run_id, attempt, anonymized, tokens_in, tokens_out, estimated_cost, finished_at]   # revisión 4 (FD-U4-03); history; ModelCall y DiscardedCandidate cuelgan del intento
       - name: ModelCall
         identifier: call_id
         attributes: [run_id, role, provider, model, version, effort_or_quantization, engine, seed, tokens_in, tokens_out, used_fallback, anonymized, at]
@@ -342,7 +387,10 @@ components:
         attributes: [session_id, run_id, call_id, code, detected_at]
       - name: ConductorObservation
         identifier: observation_id
-        attributes: [run_id, session_id, topic, turns, status, discarded_by_rule, decided_by, decided_at]
+        attributes: [run_id, session_id, tema, turnos, status, created_at]   # revisión 4 (FD-U8-03): decided_by y decided_at se derivan de ConductorObservationDecision
+      - name: ConductorObservationDecision
+        identifier: decision_id
+        attributes: [observation_id, status, actor_user_id, at]   # revisión 4 (FD-U8-03); history
 
   - name: AnalysisWorker
     summary: Envoltura delgada de cola (semantic-agent) que llama al núcleo del analizador; sin estado.
@@ -388,8 +436,19 @@ components:
       `desde_turno`. Con modelos locales fragmenta por ventanas con solapamiento y lo declara en la
       salida (FR4.8). Cualquier falla deja `estado: error` con `codigo` estable y `hallazgos` vacío,
       nunca un resultado parcial (FR4.2). Valida las aclaraciones neutras con la regla de DT23 (VE-05):
-      descarta la que menciona la contradicción, dice «antes dijo» o cita un turno. Escanea las
-      observaciones con el vocabulario prohibido. Usa el proveedor alterno del perfil ante un bloqueo de
+      descarta la que menciona la contradicción, dice «antes dijo» o cita un turno. Revisión 4 (C-1,
+      FD-U8-01 y FD-U11-03): `observaciones_conductor` lo arma el módulo de U8 dentro de la biblioteca, solo
+      en modo incremental con `estado: ok`, y no el juez. Escanea las
+      observaciones con el vocabulario prohibido.
+      Revisión 4. El orden es juez → verificación determinista de citas → verificador: el verificador
+      corre después del filtro determinista, al revés de lo que decía la frase de arriba (FD-U11-01). Un
+      solo prompt, `libs/incoherence_analyzer/data/prompt.v1.md` (FD-U11-21). El juez recibe todo hasta
+      `hasta_turno`, o ventanas por posición con paso `W − O`; en incremental, solo las ventanas con un
+      turno ≥ `desde_turno` (FD-U11-25, FD-U11-26). El juez no devuelve `id`, `pagina`, `avisos` ni
+      `actos`; el núcleo pone los tres primeros (FD-U11-12). La cancelación y el plazo se comprueban antes
+      de cada llamada, y una salida inválida del verificador invalida la corrida (FD-U11-28). El escáner
+      de vocabulario es `scan(text, literal_sources)`; un tramo «…» que es solo un término prohibido sí se
+      escanea (FD-U1-09, D-2). Usa el proveedor alterno del perfil ante un bloqueo de
       contenido (FR15.2). Devuelve el registro de modelos de cada llamada (FR15.3). Si una respuesta de
       un destino externo trae `anonimizado: false`, aborta la corrida en ese punto: no hace más llamadas,
       deja `estado: error` con `codigo: incidente_anonimizacion` y `hallazgos` vacío (AUTONOMIA-05), y anota
@@ -472,6 +531,10 @@ components:
       con el campo `anonimizado` (FR15.3, VE-14). Los fakes deterministas de los niveles 0 y 1 se enchufan
       aquí (team-practices). Los tipos de la llamada (`contracts/python/model_calls.py`) y el esquema del
       registro de llamadas (`contracts/model_calls/`) son de U1, no de este componente (CD-09).
+      Revisión 4: el papel (`Role`) es texto con el patrón `^[a-z][a-z0-9_]{0,31}$`, y el analizador lo
+      restringe a juez, verificador y verificador permutado (FD-U1-01); los tipos se importan como
+      `veridicus_contracts.model_calls` (FD-U1-04). Los errores tipados, salvo `AnonymizerUnavailable`,
+      llevan el registro de la llamada (FD-U10-04).
     responsibilities:
       - Contrato estable de llamada a modelos, errores tipados y timeouts
       - Adaptador del servidor local; los comerciales se alcanzan solo por Anonymizer (CD-04)
@@ -508,6 +571,13 @@ components:
       pod `anonymizer-proxy`); las claves de API se montan solo en `anonymizer-proxy` (CD-04). Usa los tipos
       de la llamada, el registro de llamadas y los esquemas de perfiles de U1 (`contracts/`), así que solo
       depende de `contracts` y valida perfiles sin ExecutionProfiles (CD-09).
+      Revisión 4. Las marcas son coherentes dentro de cada llamada y se numeran de forma determinista por
+      primera aparición (FD-U10-01), lo que precisa «coherentes en toda la entrevista». Cuatro categorías
+      (`PERSONA`, `LUGAR`, `EXPEDIENTE`, `IDENTIFICADOR`) más la red `ENTIDAD`; organizaciones, fechas y
+      cifras no se seudonimizan, y la red no se aplica a los mensajes `system` (FD-U10-02). Los
+      adaptadores nativos viven en el subpaquete `libs/anonymizer/providers/`, usan `httpx` sin
+      redirecciones ni otra URL base, y una tabla versionada de capacidades decide cómo forzar la salida
+      JSON en cada proveedor (FD-U10-03, FD-U10-05, FD-U10-09).
     responsibilities:
       - Seudonimización, tabla en memoria y restauración de citas
       - Adaptadores nativos de los proveedores comerciales y sus claves (CD-04)
@@ -577,6 +647,11 @@ components:
       la versión del reporte de la que parte: la deduce ReviewReport, que es la ReportVersion de la ronda
       bloqueada anterior. Así HumanReview no referencia ninguna entidad de ReviewReport (R-01). Borra lo
       suyo solo cuando se lo pide la retención (A-2).
+      Revisión 4. La ronda suma el estado `discarded`: `discard_correction_round` descarta solo una ronda
+      de corrección abierta, guarda quién y cuándo y nunca vuelve a `open` (FD-U5-04). `open_round` abre la
+      ronda 1 si no hay ninguna (FD-U5-03). Tras pausar, terminar o retirar el consentimiento, las
+      decisiones sobre hallazgos ya existentes siguen (VE-10, FD-U5-07). `decide` responde
+      `suggestion.not_found` y `limits.exceeded` (FD-U5-01).
     responsibilities:
       - Sugerencias de revisión, su validación y su unión sin duplicados
       - Máquina de estados de la decisión (AUTONOMIA-03), módulo guardia con 100 % de ramas
@@ -615,7 +690,7 @@ components:
             relationship: cada cita apunta a un turno de la sesión
       - name: ReviewRound
         identifier: round_id
-        attributes: [session_id, number, status, opened_by, opened_at, closed_at]
+        attributes: [session_id, number, status, opened_by, opened_at, closed_at]   # revisión 4: status suma discarded (FD-U5-04)
         references:
           - entity: InterviewSessionRecord
             owned_by: InterviewSession
@@ -650,6 +725,13 @@ components:
       marca visible con usuario y hora en la cabecera y en cada página, y en la cabecera el SHA-256 de la
       versión consolidada. Registra el SHA-256 del archivo exportado. Borra lo suyo solo cuando se lo pide
       la retención (A-2).
+      Revisión 4. Finalizar la sesión es de este componente, por el puerto `SessionLifecycle` de
+      InterviewSession (`finalize`, `mark_consolidated`) (FD-U6-12, FD-U7-02). La consolidación exige el
+      cursor congelado al abrir el diálogo y responde `report.view_outdated` si el resumen cambió
+      (NFRD-U7-04); `report.final_mode_not_launched` entra en el orden de las precondiciones (FD-U7-04).
+      La vista previa se lee `inline` y solo «Descargar reporte» exporta (FD-U7-01). La exportación
+      revierte si el registro de acceso falla en 500 ms (NFR-U7-09). Descartar la ronda de corrección tiene
+      su ruta (FD-U7-09).
     responsibilities:
       - Precondiciones y ejecución de la consolidación (AUTONOMIA-03), módulo guardia con 100 % de ramas
       - Generación del reporte con el aviso, su SHA-256 y su almacenamiento
@@ -680,7 +762,7 @@ components:
     entities:
       - name: ReportVersion
         identifier: report_version_id
-        attributes: [session_id, round_id, version_number, sha256, storage_path, consolidated_by, consolidated_at, supersedes_version_id]
+        attributes: [session_id, round_id, version_number, sha256, storage_path, notice_version, format_version, consolidated_by, consolidated_at, supersedes_version_id]   # revisión 4 (FD-U7-10)
         references:
           - entity: InterviewSessionRecord
             owned_by: InterviewSession
@@ -693,7 +775,7 @@ components:
             relationship: cada versión la consolida un analista
       - name: ReportExport
         identifier: export_id
-        attributes: [report_version_id, exported_by, exported_at, export_sha256]
+        attributes: [report_version_id, exported_by, exported_at, export_sha256, was_current]   # revisión 4 (FD-U7-10)
         references:
           - entity: User
             owned_by: IdentityAccess
@@ -738,6 +820,10 @@ components:
       texto de transcripciones, hallazgos o citas en una columna ni en un log (NFR12, CD-03). Lista
       los reportes, muestra el detalle y compara dos (US12.7). No lanza análisis. Sus datos no tienen
       testimonio, así que la retención no los toca.
+      Revisión 4 (FD-U12-06): el registro de modelos se llama `model_calls`, entran `run_summary`,
+      `origin`, `measurement_valid`, `schema_version` y `dataset_sha256`, y la tabla es `history`, no
+      purgable, con `owner_unit` U12. ConsoleApi le pasa el catálogo de referencia de perfiles en cada
+      subida, sin arista nueva.
     responsibilities:
       - Validación y guarda de cifras de reportes de la CLI
       - Lista, detalle y comparación de dos reportes
@@ -755,7 +841,7 @@ components:
     entities:
       - name: ResearchReport
         identifier: research_report_id
-        attributes: [kind, profile_name, config_sha256, prompt_sha256, analyzer_version, dataset_version, model_log, tokens_in, tokens_out, estimated_cost, metrics, bias_table, source_sha256, uploaded_by, uploaded_at]
+        attributes: [kind, schema_version, origin, profile_name, config_sha256, prompt_sha256, analyzer_version, dataset_version, dataset_sha256, model_calls, run_summary, measurement_valid, tokens_in, tokens_out, estimated_cost, metrics, bias_table, source_sha256, uploaded_by, uploaded_at]   # revisión 4 (FD-U12-06)
         references:
           - entity: User
             owned_by: IdentityAccess
@@ -782,6 +868,16 @@ components:
       borrada sobreviven solo el acta y el registro de acceso: no tienen texto y guardan los IDs sin
       clave foránea. La prueba con reloj simulado (AC15.7.2) comprueba que, tras el Job, no queda ninguna
       fila de la sesión fuera de esas dos tablas, incluidos los ProblemReport.
+      Revisión 4. También sobrevive `AnonymizationIncident`, sin clave foránea y solo con IDs (FD-U4-12).
+      El ProblemReport tiene `session_id` opcional; si llega `suggestion_id`, la sesión se deriva de la
+      sugerencia, y los ProblemReport sin sesión se borran al vencer su propio plazo con un acta de
+      `deleted_session_id` nulo (FD-U13-07, que supera UG-01). El plazo vive en InterviewSessionRecord:
+      EthicsGovernance lo valida al crear o importar y lo cambia por el puerto `EthicsSessionPort` que
+      implementa InterviewSession, y guarda quién y cuándo en `RetentionChange`, sin aristas nuevas
+      (FD-U13-05, FD-U13-08). El usuario del Job (`veridicus_retention`) tiene `SELECT` en todo, `DELETE`
+      solo en tablas purgables, `INSERT` solo en `RetentionAct` y nunca `UPDATE` (FD-U3-09); el Job también
+      borra los archivos de audio antes de su fila y `TranscriptPaste` antes que `Turn` (FD-U9-09,
+      FD-U6-22). Las reglas de uso de VE-04 viven en `contracts/integrity/usage-rules.v1.yaml` (FD-U13-02).
     responsibilities:
       - Reconocimiento del analista y su vigencia (VE-04, demostración)
       - Registro de acceso y de exportaciones (VE-11, demostración)
@@ -789,7 +885,7 @@ components:
       - Job de retención en orden de referencias, con ProblemReport primero, y acta de borrado (VE-12, A-2, demostración)
     depends_on:
       - component: InterviewSession
-        interaction: Borrar una sesión vencida y leer sus turnos para el aviso del reporte de problemas
+        interaction: Borrar una sesión vencida y leer sus turnos para el aviso del reporte de problemas; leer y reducir el plazo, listar sesiones vencidas y cancelar sus corridas por EthicsSessionPort (FD-U13-08)
         style: sync
       - component: HumanReview
         interaction: Borrar las sugerencias y decisiones de una sesión vencida
@@ -799,7 +895,7 @@ components:
         style: sync
     dependents:
       - component: ConsoleApi
-        interaction: Reconocimientos, registro de acceso, reportes de problemas y retención (demostración)
+        interaction: Reconocimientos, registro de acceso, reportes de problemas y retención (demostración); validar el plazo al crear o importar una sesión y cambiarlo (FD-U13-05, FD-U13-08)
     external_dependencies:
       - name: PostgreSQL
         kind: database
@@ -821,7 +917,7 @@ components:
             relationship: cada acceso lo hace un usuario
       - name: ProblemReport
         identifier: problem_report_id
-        attributes: [category, session_id, suggestion_id, note, testimony_warning, reported_by, reported_at]
+        attributes: [category, session_id, suggestion_id, note, testimony_warning, reported_by, reported_at]   # revisión 4: session_id opcional y derivada de la sugerencia; note opcional (FD-U13-06, FD-U13-07)
         references:
           - entity: InterviewSessionRecord
             owned_by: InterviewSession
@@ -832,6 +928,13 @@ components:
       - name: RetentionAct
         identifier: act_id
         attributes: [deleted_session_id, deleted_ids, deleted_report_sha256s, rule, executed_at]
+      - name: RetentionChange
+        identifier: change_id
+        attributes: [session_id, old_retention_days, new_retention_days, actor_user_id, at]   # revisión 4 (FD-U13-08); history, purgable
+        references:
+          - entity: InterviewSessionRecord
+            owned_by: InterviewSession
+            relationship: cada cambio de plazo pertenece a una sesión
 ```
 
 ## Diagrama de componentes
@@ -900,7 +1003,7 @@ graph LR
 | ConsoleApi | Fachada única, autenticación, autorización, acceso, aviso, errores | IdentityAccess, ExecutionProfiles, InterviewSession, HumanReview, ReviewReport, SpeechProcessing, ResearchReports, EthicsGovernance, IntegrityPolicy | AnalystConsole | — |
 | IdentityAccess | Usuarios, tres roles, credenciales | — | ConsoleApi | User, UserChange |
 | ExecutionProfiles | Perfiles aprobados por PR, validación y huella | — | ConsoleApi, InterviewSession, AnalysisWorker, IncoherenceAnalyzer, AnalyzerCli | ExecutionProfile, PriceTable |
-| InterviewSession | Sesión, consentimiento, turnos, corridas y llamadas | ExecutionProfiles, AnalysisWorker, SpeechProcessing, HumanReview, IntegrityPolicy | ConsoleApi, ReviewReport, EthicsGovernance | InterviewSessionRecord, ConsentRecord, SessionStatusChange, Turn, TurnAudio, AnalysisRun, ModelCall, DiscardedCandidate, AnonymizationIncident, ConductorObservation |
+| InterviewSession | Sesión, consentimiento, turnos, corridas y llamadas | ExecutionProfiles, AnalysisWorker, SpeechProcessing, HumanReview, IntegrityPolicy | ConsoleApi, ReviewReport, EthicsGovernance | InterviewSessionRecord, ConsentRecord, SessionStatusChange, Turn, TurnAudio, AnalysisRun, RunStatusChange, RunAttempt, ModelCall, DiscardedCandidate, AnonymizationIncident, ConductorObservation, ConductorObservationDecision |
 | AnalysisWorker | Envoltura de cola del analizador | IncoherenceAnalyzer, ExecutionProfiles | InterviewSession | — |
 | IncoherenceAnalyzer | Núcleo del analizador (contrato común) | ModelGateway, ExecutionProfiles, IntegrityPolicy | AnalysisWorker, AnalyzerCli | — |
 | AnalyzerCli | Lotes y modo evaluación | IncoherenceAnalyzer, ExecutionProfiles, IntegrityPolicy | — | — |
@@ -911,7 +1014,7 @@ graph LR
 | ReviewReport | Consolidación, versiones y exportación | InterviewSession, HumanReview, IntegrityPolicy | ConsoleApi, EthicsGovernance | ReportVersion, ReportExport |
 | SpeechProcessing | Voz a texto y texto a voz (SHOULD) | ModelGateway, IntegrityPolicy | ConsoleApi, InterviewSession | — |
 | ResearchReports | Cifras de reportes de la CLI | IntegrityPolicy | ConsoleApi | ResearchReport |
-| EthicsGovernance | Demostración del protocolo ético | InterviewSession, HumanReview, ReviewReport | ConsoleApi | AnalystAcknowledgement, AccessLogEntry, ProblemReport, RetentionAct |
+| EthicsGovernance | Demostración del protocolo ético | InterviewSession, HumanReview, ReviewReport | ConsoleApi | AnalystAcknowledgement, AccessLogEntry, ProblemReport, RetentionAct, RetentionChange |
 
 ## Componentes retirados
 
@@ -930,41 +1033,60 @@ observaciones del hallazgo y no una CoT (FR6.2).
 | Entidad | Componente dueño | Identificador | Atributos | Referencias |
 |---|---|---|---|---|
 | User | IdentityAccess | user_id | username, role, password_hash, active, created_by, created_at | — |
-| UserChange | IdentityAccess | change_id | user_id, change, actor_user_id, at | User |
+| UserChange | IdentityAccess | change_id | user_id, change, old_value, new_value, actor_kind, actor_user_id, actor_system, at (FD-U3-06) | User |
 | ExecutionProfile | ExecutionProfiles | profile_name | purpose, judge, verifier, permutation, fallback_provider, fragmented, window, overlap, same_family_declared, external_destination, config_sha256 | — |
 | PriceTable | ExecutionProfiles | price_table_version | provider, model, input_token_price, output_token_price, currency | — |
 | InterviewSessionRecord | InterviewSession | session_id | owner_user_id, entrevista, origin, profile_name, config_sha256, effective_config, status, closed_to_new_turns, retention_days, retention_until, blocked_code, created_at, finalized_at, last_heartbeat_at | User, ExecutionProfile |
 | ConsentRecord | InterviewSession | consent_id | session_id, kind, text_version, authorizes_commercial_transfer, authorizes_voice, authorizes_audio_retention, mandate_evidence, recorded_by, recorded_at, withdrawn_at, withdrawn_by | — |
 | SessionStatusChange | InterviewSession | change_id | session_id, from_status, to_status, actor, at | — |
 | Turn | InterviewSession | turn_id | session_id, n, speaker, text, page, page_end, fold_state, origin, submitted_at | — |
-| TurnAudio | InterviewSession | audio_id | turn_id, storage_path, sha256, retained_until | — |
-| AnalysisRun | InterviewSession | run_id | session_id, mode, from_turn, to_turn, profile_name, config_sha256, prompt_sha256, analyzer_version, status, error_code, fragmented, window, overlap, anonymized, tokens_in, tokens_out, estimated_cost, requested_by, requested_at, finished_at | ExecutionProfile |
+| TurnAudio | InterviewSession | audio_id | turn_id, storage_path, sha256, audio_format, byte_size, created_at, retained_until (FD-U9-11) | — |
+| AnalysisRun | InterviewSession | run_id | session_id, mode, from_turn, to_turn, profile_name, config_sha256, prompt_sha256, analyzer_version, fragmented, window, overlap, requested_by, requested_at (solo la petición, FD-U4-03) | ExecutionProfile |
+| RunStatusChange | InterviewSession | change_id | run_id, from_status, to_status, attempt, deadline_at, error_code, actor_kind, actor_user_id, actor_system, at (FD-U4-03) | AnalysisRun |
+| RunAttempt | InterviewSession | attempt_id | run_id, attempt, anonymized, tokens_in, tokens_out, estimated_cost, finished_at (FD-U4-03) | AnalysisRun |
 | ModelCall | InterviewSession | call_id | run_id, role, provider, model, version, effort_or_quantization, engine, seed, tokens_in, tokens_out, used_fallback, anonymized, at | — |
 | DiscardedCandidate | InterviewSession | discard_id | run_id, reason, turn_a, turn_b | — |
 | AnonymizationIncident | InterviewSession | incident_id | session_id, run_id, call_id, code, detected_at | — |
-| ConductorObservation | InterviewSession | observation_id | run_id, session_id, topic, turns, status, discarded_by_rule, decided_by, decided_at | — |
+| ConductorObservation | InterviewSession | observation_id | run_id, session_id, tema, turnos, status, created_at (FD-U8-03) | — |
+| ConductorObservationDecision | InterviewSession | decision_id | observation_id, status, actor_user_id, at (FD-U8-03) | ConductorObservation, User |
 | ReviewSuggestion | HumanReview | suggestion_id | session_id, first_run_id, hecho, tipo, cita_a, cita_b, observaciones, actos, quote_warnings, pair_key, created_at | InterviewSessionRecord, AnalysisRun, Turn |
-| ReviewRound | HumanReview | round_id | session_id, number, status, opened_by, opened_at, closed_at | InterviewSessionRecord |
+| ReviewRound | HumanReview | round_id | session_id, number, status (suma `discarded`, FD-U5-04), opened_by, opened_at, closed_at | InterviewSessionRecord |
 | ReviewDecision | HumanReview | decision_id | round_id, suggestion_id, previous_state, state, note, reformulation, actor_user_id, at | User |
 | ObservationsView | HumanReview | view_id | suggestion_id, user_id, viewed_at | User |
-| ReportVersion | ReviewReport | report_version_id | session_id, round_id, version_number, sha256, storage_path, consolidated_by, consolidated_at, supersedes_version_id | InterviewSessionRecord, ReviewRound, User |
-| ReportExport | ReviewReport | export_id | report_version_id, exported_by, exported_at, export_sha256 | User |
-| ResearchReport | ResearchReports | research_report_id | kind, profile_name, config_sha256, prompt_sha256, analyzer_version, dataset_version, model_log, tokens_in, tokens_out, estimated_cost, metrics, bias_table, source_sha256, uploaded_by, uploaded_at | User |
+| ReportVersion | ReviewReport | report_version_id | session_id, round_id, version_number, sha256, storage_path, notice_version, format_version, consolidated_by, consolidated_at, supersedes_version_id (FD-U7-10) | InterviewSessionRecord, ReviewRound, User |
+| ReportExport | ReviewReport | export_id | report_version_id, exported_by, exported_at, export_sha256, was_current (FD-U7-10) | User |
+| ResearchReport | ResearchReports | research_report_id | kind, schema_version, origin, profile_name, config_sha256, prompt_sha256, analyzer_version, dataset_version, dataset_sha256, model_calls, run_summary, measurement_valid, tokens_in, tokens_out, estimated_cost, metrics, bias_table, source_sha256, uploaded_by, uploaded_at (FD-U12-06) | User |
 | AnalystAcknowledgement | EthicsGovernance | acknowledgement_id | user_id, text_version, at | User |
 | AccessLogEntry | EthicsGovernance | entry_id | user_id, resource_type, resource_id, export_sha256, at | User |
-| ProblemReport | EthicsGovernance | problem_report_id | category, session_id, suggestion_id, note, testimony_warning, reported_by, reported_at | InterviewSessionRecord, ReviewSuggestion |
+| ProblemReport | EthicsGovernance | problem_report_id | category, session_id (opcional, FD-U13-07), suggestion_id, note (opcional, FD-U13-06), testimony_warning, reported_by, reported_at | InterviewSessionRecord, ReviewSuggestion |
 | RetentionAct | EthicsGovernance | act_id | deleted_session_id, deleted_ids, deleted_report_sha256s, rule, executed_at | — |
+| RetentionChange | EthicsGovernance | change_id | session_id, old_retention_days, new_retention_days, actor_user_id, at (FD-U13-08) | InterviewSessionRecord |
 
 **Historiales de solo inserción (ADR-003).** Son UserChange, SessionStatusChange, ModelCall,
 AnonymizationIncident, ReviewDecision, ObservationsView, ReportVersion, ReportExport,
 AnalystAcknowledgement, AccessLogEntry y RetentionAct. Todos siguen la convención común: actor y hora no
 nulos y sin `UPDATE` ni `DELETE` para el usuario de la aplicación (NFR11, FR1.3).
 
+**Revisión 4.**
+- Entran como historiales `AnalysisRun` (solo la petición), `RunStatusChange` y `RunAttempt`, que
+  cierran FD-U3-10 (FD-U4-03); `ConductorObservationDecision` (FD-U8-03); `RetentionChange`, purgable
+  (FD-U13-08); y `ResearchReport`, no purgable, con `owner_unit` U12 (FD-U12-06).
+- Cada tabla lleva en su comentario la marca `veridicus-audit` con `kind` (`history | mutable`),
+  `purgeable`, `owner_unit` y las columnas del actor; toda tabla `history` suma `actor_kind` y
+  `actor_system` (FD-U3-07).
+- La lista `ActorSystem` v1 vive en `db/audit/actor-systems.v1.yaml`: `create-admin`, `retention-job` y
+  `analysis-worker`; U6 añade `session-supervisor` (FD-U3-08, FD-U6-13).
+- No son purgables `User`, `UserChange`, `WebSession`, `AnalystAcknowledgement`, `AccessLogEntry` ni
+  `RetentionAct` (FD-U3-09). `AnonymizationIncident` tampoco se borra: sobrevive sin clave foránea
+  (FD-U4-12).
+
 **Única excepción: el Job de retención (A-2).** Tiene su propio usuario y es el único con `DELETE`.
 Borra en el orden inverso de las referencias: ProblemReport, ReportExport, ReportVersion,
 ObservationsView, ReviewDecision, ReviewSuggestion, ReviewRound y los datos de InterviewSession (R-01,
 R-02). De una sesión borrada sobreviven solo RetentionAct y AccessLogEntry, que no tienen texto y
 guardan los IDs sin clave foránea. ProblemReport no es de solo inserción y se borra con la sesión.
+Revisión 4: también sobrevive AnonymizationIncident, solo con IDs (FD-U4-12), y los ProblemReport sin
+sesión se borran al vencer su propio plazo (FD-U13-07).
 
 **Lo que no es entidad:**
 - Los perfiles, los prompts y la tabla de precios no tienen historial propio: su rastro es el historial
@@ -1046,6 +1168,16 @@ cambia nada. La tabla queda como registro del origen. Los cinco hallazgos Minor 
 
 **Revisión 3 (2026-11-21).** No propone precisiones nuevas a artefactos aprobados: solo ratifica las de
 Contract Design (CD-01, CD-03, CD-04, CD-06, CD-09), que ya están en el catálogo, y las alinea en las ADR.
+
+**Revisión 4 (2026-11-23).** Lleva al catálogo CD-11 (ConsoleApi rechaza las corridas nuevas de una sesión
+bloqueada con `409` `session.blocked`), que estaba pendiente en la tabla de Contract Design, y C-1. Las
+demás precisiones de Construction que tocan este documento están citadas por su ID en cada componente:
+FD-U1-01, FD-U1-02, FD-U1-04, FD-U1-09, FD-U3-04, FD-U3-05, FD-U3-06, FD-U3-07, FD-U3-08, FD-U3-09,
+FD-U4-03, FD-U4-08, FD-U4-12, FD-U4-18, FD-U5-01, FD-U5-03, FD-U5-04, FD-U5-07, FD-U6-12, FD-U6-13,
+FD-U6-22, FD-U7-01, FD-U7-02, FD-U7-04, FD-U7-09, FD-U7-10, FD-U8-01, FD-U8-03, FD-U9-09, FD-U9-11,
+FD-U9-12, FD-U10-01, FD-U10-02, FD-U10-03, FD-U10-04, FD-U10-05, FD-U10-09, FD-U11-01, FD-U11-03,
+FD-U11-05, FD-U11-12, FD-U11-21, FD-U11-22, FD-U11-25, FD-U11-26, FD-U11-28, FD-U12-06, FD-U13-02,
+FD-U13-05, FD-U13-06, FD-U13-07, FD-U13-08, NFR-U7-09 y NFRD-U7-04. Ninguna cambia el grafo.
 
 ## Justificación
 

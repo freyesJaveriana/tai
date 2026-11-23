@@ -43,7 +43,11 @@ LIMITE_DECLARADO_DEL_CANARY = (
 )
 
 _COMPOSICION = ("type", "$ref", "enum", "const", "allOf", "anyOf", "oneOf")
-_ESPACIOS = re.compile(r"\\s|\s")
+_ESPACIO = re.compile(r"\s")
+_SONDAS = (" ", "\t", "\u00a0", "\n")  # espacio, tabulador, NBSP y salto de línea
+_FRAGMENTO_DE_PATRON = re.compile(r"\[[^\]]*\]|\\.|.", re.DOTALL)
+_CLASE_BLANCA = re.compile(r"[A-Za-z0-9._:/@+\-]+")
+_ESCAPES_ABIERTOS = frozenset({"\\W", "\\D", "\\S", "\\x", "\\u", "\\p", "\\P"})
 
 
 def _recorrer(nodo: Any, sitio: str = "$", clave: str | None = None) -> Iterator[tuple[str, str | None, Any]]:
@@ -106,11 +110,36 @@ def _problemas_de_numero(
     return [f"NFR1.4 {rotulo}: {'entero' if es_entero else 'número'} sin minimum o maximum acotados"]
 
 
+def _fragmento_admite_espacio(fragmento: str) -> bool:
+    """Un fragmento del patrón (clase, escape o carácter) acepta un espacio, un tabulador, un NBSP o un salto."""
+    try:
+        return any(re.fullmatch(fragmento, sonda) for sonda in _SONDAS)
+    except re.error:
+        return False  # fragmento que solo existe dentro de una construcción mayor: no acepta por sí solo
+
+
+def _fragmento_abierto(fragmento: str) -> bool:
+    """Construcción que acepta un conjunto que la guardia no puede acotar: `.`, `[^`, `\\W`, etc."""
+    if fragmento == "." or fragmento in _ESCAPES_ABIERTOS or fragmento == "[":
+        return True
+    if fragmento.startswith("["):
+        return not _CLASE_BLANCA.fullmatch(fragmento[1:-1])
+    return False
+
+
+def _problema_de_alfabeto(patron: str, rotulo: str) -> list[str]:
+    """El patrón se juzga por lo que acepta: sin espacios y solo con clases de una lista blanca."""
+    fragmentos = _FRAGMENTO_DE_PATRON.findall(patron)
+    if any(_fragmento_admite_espacio(f) for f in fragmentos):
+        return [f"BR10.1 {rotulo}: el patrón admite espacios"]
+    if any(_fragmento_abierto(f) for f in fragmentos):
+        return [f"BR10.1 {rotulo}: el patrón usa construcciones abiertas (., [^, \\W, \\D, \\S, \\x, \\u, \\p)"]
+    return []
+
+
 def _problemas_de_patron(nodo: Mapping[str, Any], rotulo: str, en_reporte: bool) -> list[str]:
     patron = nodo["pattern"]
-    problemas: list[str] = []
-    if _ESPACIOS.search(patron):
-        problemas.append(f"BR10.1 {rotulo}: el patrón admite espacios")
+    problemas: list[str] = _problema_de_alfabeto(patron, rotulo)
     if not (patron.startswith("^") and patron.endswith("$")):
         problemas.append(f"BR10.1 {rotulo}: el patrón no está anclado con ^ y $")
     largo = nodo.get("maxLength")
@@ -123,6 +152,39 @@ def _problemas_de_patron(nodo: Mapping[str, Any], rotulo: str, en_reporte: bool)
     return problemas
 
 
+def _esquema_abierto(esquema: Any) -> bool:
+    """`true` o un subesquema sin `type`, `$ref`, enum, const ni composición: acepta cualquier valor."""
+    if esquema is True:
+        return True
+    return isinstance(esquema, dict) and not any(k in esquema for k in _COMPOSICION)
+
+
+def _cerrado_por_nombres(nombres: Any) -> bool:
+    """`propertyNames` cerrado: un `enum` no vacío o un `const`."""
+    if not isinstance(nombres, Mapping):
+        return False
+    valores = nombres.get("enum")
+    return (isinstance(valores, list) and len(valores) > 0) or "const" in nombres
+
+
+def _problemas_de_subesquemas(
+    nodo: Mapping[str, Any], sitio: str, prefijo: str, tipos: list[str]
+) -> list[str]:
+    """`items`, `additionalProperties`, `anyOf` y `oneOf` no admiten un subesquema abierto."""
+    abiertos: list[str] = []
+    if _esquema_abierto(nodo.get("items")):
+        abiertos.append(f"{sitio}.items")
+    adicionales = nodo.get("additionalProperties")
+    if _esquema_abierto(adicionales) and (adicionales is not True or "object" not in tipos):
+        abiertos.append(f"{sitio}.additionalProperties")
+    for palabra in ("anyOf", "oneOf"):
+        ramas = nodo.get(palabra)
+        for indice, rama in enumerate(ramas if isinstance(ramas, list) else []):
+            if _esquema_abierto(rama):
+                abiertos.append(f"{sitio}.{palabra}[{indice}]")
+    return [f"BR10.1 {prefijo}{a}: esquema abierto (acepta cualquier valor)" for a in abiertos]
+
+
 def _problemas_de_nodo(
     nodo: Mapping[str, Any], sitio: str, prefijo: str, en_reporte: bool
 ) -> list[str]:
@@ -131,8 +193,17 @@ def _problemas_de_nodo(
     problemas: list[str] = []
     if "object" in tipos and nodo.get("additionalProperties", True) is True:
         problemas.append(f"BR10.1 {rotulo}: objeto sin additionalProperties cerrado")
+    if isinstance(nodo.get("additionalProperties"), Mapping) and not _cerrado_por_nombres(
+        nodo.get("propertyNames")
+    ):
+        problemas.append(
+            f"BR10.1 {rotulo}: additionalProperties sin propertyNames cerrado (enum o const)"
+        )
+    if "patternProperties" in nodo:
+        problemas.append(f"BR10.1 {rotulo}: patternProperties no se admite")
+    problemas.extend(_problemas_de_subesquemas(nodo, sitio, prefijo, tipos))
     for valor in _valores_cerrados(nodo):
-        if isinstance(valor, str) and (_ESPACIOS.search(valor) or len(valor) > MAXIMO_DE_CADENA):
+        if isinstance(valor, str) and (_ESPACIO.search(valor) or len(valor) > MAXIMO_DE_CADENA):
             problemas.append(
                 f"BR10.1 {rotulo}: un valor de enum o const lleva espacios o pasa de "
                 f"{MAXIMO_DE_CADENA} caracteres"
@@ -144,7 +215,7 @@ def _problemas_de_nodo(
         "string" in tipos
         and "enum" not in nodo
         and "const" not in nodo
-        and nodo.get("format") != "date-time"
+        and (en_reporte or nodo.get("format") != "date-time")
     ):
         problemas.append(f"BR10.1 {rotulo}: cadena abierta (sin enum, const, formato ni patrón)")
     problemas.extend(_problemas_de_numero(nodo, sitio, rotulo, tipos))
@@ -159,12 +230,17 @@ def _problemas_de_forma(documento: Any, prefijo: str, en_reporte: bool) -> list[
             continue
         if clave == "properties":
             for nombre, hijo in nodo.items():
-                if isinstance(hijo, dict) and not any(k in hijo for k in _COMPOSICION):
+                if _esquema_abierto(hijo):
                     problemas.append(
                         f"BR10.1 {prefijo}{sitio}.{nombre}: propiedad sin tipo, $ref, enum ni const"
                     )
             continue
         if clave == "$defs":
+            problemas.extend(
+                f"BR10.1 {prefijo}{sitio}.{nombre}: esquema abierto (acepta cualquier valor)"
+                for nombre, hijo in nodo.items()
+                if _esquema_abierto(hijo)
+            )
             continue
         problemas.extend(_problemas_de_nodo(nodo, sitio, prefijo, en_reporte))
     return problemas

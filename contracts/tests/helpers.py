@@ -21,7 +21,6 @@ from functools import cache
 from pathlib import Path
 from types import ModuleType
 from typing import Any, NamedTuple
-from urllib.parse import urljoin
 
 import pytest
 from jsonschema import Draft202012Validator
@@ -32,6 +31,7 @@ from referencing.jsonschema import DRAFT202012
 
 from veridicus_contracts.loaders import LoadError, load_file
 from veridicus_contracts.registry import BASE_URI, build_registry
+from veridicus_contracts.registry import _uri_de as uri_del_registro
 from veridicus_contracts.validators import ValidationFailure, extract_message_payloads
 
 CONTRACTS_ROOT = Path(__file__).resolve().parent.parent
@@ -131,16 +131,19 @@ def registro_de_contratos() -> Registry[Any]:
         pytest.fail(f"el registro de esquemas no carga: {error}")
 
 
-def _uri_natural(documento: Any) -> str | None:
-    identificador = documento.get("$id") if isinstance(documento, dict) else None
-    if isinstance(identificador, str):
-        return urljoin(BASE_URI, "/" + identificador.lstrip("/"))
-    return None
+def _uri_natural(relativa: str, documento: Any) -> str | None:
+    """URI del registro para un documento con `$id`; sin regla propia (BR12.3, F-05 de T03)."""
+    if not isinstance(documento, dict) or not isinstance(documento.get("$id"), str):
+        return None
+    try:
+        return uri_del_registro(ruta_de(relativa), documento, False)
+    except LoadError:
+        return None
 
 
 def uri_de(relativa: str, documento: Any) -> str:
     """URI bajo la que se valida un documento: su `$id` bajo la base, o una URI de prueba."""
-    return _uri_natural(documento) or f"{BASE_URI}_documentos/{relativa}"
+    return _uri_natural(relativa, documento) or f"{BASE_URI}_documentos/{relativa}"
 
 
 def validador_de(relativa: str, puntero: str = "") -> Draft202012Validator:

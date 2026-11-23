@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "veridicus/contracts/analyzer/v1/entrada",
+  "title": "Entrada del contrato común del analizador",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contrato",
+    "transcripcion",
+    "modo",
+    "perfil"
+  ],
+  "properties": {
+    "contrato": {
+      "const": "1.0.0"
+    },
+    "transcripcion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entrevista",
+        "origen",
+        "turnos"
+      ],
+      "properties": {
+        "entrevista": {
+          "type": "string",
+          "minLength": 1,
+          "description": "p. ej. \"414-AA-00001\" o el id de una entrevista guiada"
+        },
+        "origen": {
+          "enum": [
+            "corpus",
+            "guiada",
+            "sintetico"
+          ]
+        },
+        "consentimiento": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tipo",
+            "version_texto",
+            "autoriza_transferencia",
+            "autoriza_voz",
+            "autoriza_conservar_audio",
+            "requiere_mandato",
+            "registrado_en"
+          ],
+          "properties": {
+            "tipo": {
+              "enum": [
+                "persona",
+                "autoridad"
+              ]
+            },
+            "version_texto": {
+              "type": "string",
+              "minLength": 1
+            },
+            "autoriza_transferencia": {
+              "type": "boolean",
+              "description": "Transferencia a un proveedor comercial, siempre seudonimizada"
+            },
+            "autoriza_voz": {
+              "type": "boolean"
+            },
+            "autoriza_conservar_audio": {
+              "type": "boolean"
+            },
+            "constancia": {
+              "type": "string",
+              "description": "Identificador de la constancia de la autoridad; nunca un nombre"
+            },
+            "requiere_mandato": {
+              "type": "boolean",
+              "description": "La persona es compareciente o tercero civil (VE-06)"
+            },
+            "constancia_mandato": {
+              "type": "string",
+              "description": "Identificador de la constancia de mandato y garantías legales de la entidad; nunca un nombre"
+            },
+            "registrado_en": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "tipo": {
+                    "const": "autoridad"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "constancia"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "requiere_mandato": {
+                    "const": true
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "constancia_mandato"
+                ]
+              }
+            }
+          ]
+        },
+        "turnos": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "n",
+              "hablante",
+              "texto"
+            ],
+            "properties": {
+              "n": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Se cita como \"T<n>\""
+              },
+              "hablante": {
+                "enum": [
+                  "ENT",
+                  "TEST"
+                ]
+              },
+              "pagina": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "pagina_fin": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "texto": {
+                "type": "string"
+              },
+              "estado": {
+                "enum": [
+                  "visible",
+                  "plegado"
+                ],
+                "default": "visible"
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "origen": {
+                "enum": [
+                  "corpus",
+                  "guiada"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "consentimiento"
+            ]
+          }
+        }
+      ]
+    },
+    "modo": {
+      "enum": [
+        "final",
+        "incremental"
+      ]
+    },
+    "hasta_turno": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Incremental; analiza hasta aquí"
+    },
+    "desde_turno": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Incremental; solo contradicciones con al menos una cita en un turno >= desde_turno"
+    },
+    "perfil": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre de un perfil aprobado (C18)"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "modo": {
+            "const": "incremental"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hasta_turno",
+          "desde_turno"
+        ]
+      }
+    }
+  ]
+}

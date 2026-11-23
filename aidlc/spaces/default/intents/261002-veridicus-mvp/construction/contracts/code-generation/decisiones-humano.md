@@ -33,6 +33,7 @@ Las fuentes aprobadas ya las deciden.
 | P-T07-1 | `anonymizer.incident` no es respuesta de ninguna ruta: por CD-11, la corrida rechazada es `409 session.blocked` y `anonymizer.incident` es su causa (`blocked_code`) y el `codigo` de C6. Va con `http: false` y sin estado (ronda 1 de U01-T07, F-04) |
 | P-T08-1 | El caso `c13-llamada` de `test_autonomia_03.py` lee también C8, que se escribe en el paso 13. CA-2 de T08 lo excluye y la tarea que escribe C8 debe correrlo en verde. La verificación del paso 10 del plan no cambia |
 | P-T07-2 | Errata en una tabla de U12: «413 \| `research.invalid_type`» frente al 415 de NFR-U12-02. Manda NFR-U12-02 (415). La tabla se corrige al cerrar la etapa |
+| P-T14-1 | `test_los_enum_copiados_de_c6_son_iguales[c1]` (T03) exige que C1 declare el enum `tipo` de C6, pero BR3.2 solo lo pide en C7 (`tipo`) y C19 (`fact_type`); en C1 nombra `ModelCall.papel` y `Run`, y contract-summary C1 lleva `ReviewSuggestion` por `$ref` a C7. Manda BR3.2: la aserción de presencia de `tipo` se limita a C7 y C19 y la igualdad de todo enum copiado sigue en los tres. T14 hace esa edición única de la prueba de T03 (ronda 1 de U01-T14) |
 | NFR-U11-10 | La cifra N = 300 s no se lleva a `team.md`, que remite esa cifra a NFR Requirements |
 
 ## Cómo se llevan las precisiones a sus originales

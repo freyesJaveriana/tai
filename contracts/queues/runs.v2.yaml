@@ -1,0 +1,205 @@
+asyncapi: 3.0.0
+info:
+  title: Veridicus runs
+  version: 2.0.0
+  description: >-
+    C2, cola de corridas. El sobre es de Veridicus y `entrada` es exactamente la entrada de C6.
+    Los mensajes con versión menor mayor que la propia se aceptan y los campos nuevos se
+    ignoran (BR1.3); una versión mayor desconocida se rechaza (BR1.2). Las entradas de
+    `veridicus:runs:failed` son la excepción estricta a BR1.3 (NFRD-U1-07).
+servers:
+  redis:
+    host: 'veridicus-redis:6379'
+    protocol: redis
+    description: Redis interno del clúster; ningún destino externo (AUTONOMIA-04)
+channels:
+  runs:
+    address: 'veridicus:runs'
+    description: Redis Stream; grupo de consumidores `semantic-agent`
+    messages:
+      RunRequested:
+        $ref: '#/components/messages/RunRequested'
+  runsFailed:
+    address: 'veridicus:runs:failed'
+    description: Mensajes que no se pudieron analizar; solo IDs y `code`, recortado a 1 000 entradas (NFR-U4-07)
+    messages:
+      RunFailed:
+        $ref: '#/components/messages/RunFailed'
+operations:
+  publishRun:
+    action: send
+    channel:
+      $ref: '#/channels/runs'
+    summary: InterviewSession publica una corrida (y cada reintento humano con attempt + 1)
+  analyzeRun:
+    action: receive
+    channel:
+      $ref: '#/channels/runs'
+    summary: AnalysisWorker llama a la biblioteca (C17) y hace XACK solo después de publicar el resultado (C3)
+  failRun:
+    action: send
+    channel:
+      $ref: '#/channels/runsFailed'
+    summary: AnalysisWorker deja el mensaje en fallidos sin texto del testimonio
+components:
+  messages:
+    RunRequested:
+      contentType: application/json
+      payload:
+        type: object
+        additionalProperties: true
+        required:
+          - schema_version
+          - message_id
+          - run_id
+          - session_id
+          - attempt
+          - effective_config
+          - config_sha256
+          - entrada
+          - enqueued_at
+          - deadline_at
+        properties:
+          schema_version:
+            type: string
+            pattern: '^2\.[0-9]+\.[0-9]+$'
+          message_id:
+            type: string
+            format: uuid
+          run_id:
+            type: string
+            format: uuid
+          session_id:
+            type: string
+            format: uuid
+          attempt:
+            type: integer
+            minimum: 1
+          effective_config:
+            $ref: '#/components/schemas/EffectiveConfig'
+            description: Configuración efectiva fijada al crear la sesión (ADR-006, C18)
+          config_sha256:
+            type: string
+            pattern: '^[a-f0-9]{64}$'
+            description: SHA-256 JCS de effective_config (BR9.7)
+          entrada:
+            $ref: '/veridicus/contracts/analyzer/v1/entrada'
+            description: Entrada de C6 con la transcripción hasta hasta_turno y el bloque consentimiento
+          enqueued_at:
+            type: string
+            format: date-time
+          deadline_at:
+            type: string
+            format: date-time
+            description: Plazo de la corrida (C25)
+    RunFailed:
+      contentType: application/json
+      payload:
+        type: object
+        additionalProperties: false
+        required: [message_id, run_id, attempt, code]
+        properties:
+          message_id:
+            type: string
+            format: uuid
+          run_id:
+            type: string
+            format: uuid
+          attempt:
+            type: integer
+            minimum: 1
+          code:
+            type: string
+            pattern: '^[a-z][a-z_]*(\.[a-z][a-z_]*)+$'
+            description: Código estable del catálogo de errores; nunca texto libre
+  schemas:
+    # Copia literal del esquema de C18 (`profiles/effective-config.v1.yaml`). El registro de
+    # esquemas solo carga `*.schema.json` y un `$ref` a C18 no se resuelve con el registro cerrado
+    # (candidata de T05). Cuando el registro cargue C18, estas definiciones se sustituyen por el
+    # `$ref` canónico.
+    EffectiveConfig:
+      type: object
+      additionalProperties: false
+      required: [schema_version, analyzer_version, profile_name, profile, profile_sha256, prompt_sha256, limits]
+      properties:
+        schema_version:
+          const: "1.0.0"
+        analyzer_version:
+          type: string
+          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+        profile_name:
+          type: string
+          pattern: '^[a-z0-9-]{1,48}$'
+        profile:
+          $ref: '#/components/schemas/Profile'
+        profile_sha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        prompt_sha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        limits:
+          type: object
+          additionalProperties: false
+          required: [model_call_timeout_s, run_deadline_incremental_s, run_deadline_final_s, fragment_window_turns, fragment_overlap_turns]
+          properties:
+            model_call_timeout_s: {type: number, exclusiveMinimum: 0}
+            run_deadline_incremental_s: {type: number, exclusiveMinimum: 0}
+            run_deadline_final_s: {type: number, exclusiveMinimum: 0}
+            fragment_window_turns: {type: integer, minimum: 1}
+            fragment_overlap_turns: {type: integer, minimum: 0}
+    ProfileToken:
+      type: string
+      pattern: '^[A-Za-z0-9._:/@+-]{1,128}$'
+    ProfileDestination:
+      type: object
+      additionalProperties: false
+      required: [provider, model, scope]
+      properties:
+        provider: {enum: [anthropic, google, openai, local]}
+        model: {$ref: '#/components/schemas/ProfileToken'}
+        version: {$ref: '#/components/schemas/ProfileToken'}
+        family: {$ref: '#/components/schemas/ProfileToken'}
+        scope: {enum: [local, external]}
+        base_url: {type: string, format: uri}
+        api_key_ref: {type: string, pattern: '^[A-Z][A-Z0-9_]{2,63}$'}
+        parameters:
+          type: object
+          additionalProperties: false
+          properties:
+            effort: {$ref: '#/components/schemas/ProfileToken'}
+            temperature: {type: number, minimum: 0}
+            quantization: {$ref: '#/components/schemas/ProfileToken'}
+            engine: {$ref: '#/components/schemas/ProfileToken'}
+            seed: {type: integer}
+    Profile:
+      type: object
+      additionalProperties: false
+      required: [purpose, roles, role_aliases, permutation]
+      properties:
+        purpose: {enum: [evaluation, demonstration, production]}
+        roles:
+          type: object
+          additionalProperties: false
+          required: [judge, verifier]
+          properties:
+            judge: {$ref: '#/components/schemas/ProfileDestination'}
+            verifier: {$ref: '#/components/schemas/ProfileDestination'}
+        role_aliases:
+          type: object
+          additionalProperties: false
+          required: [verifier_permuted]
+          properties:
+            verifier_permuted: {const: verifier}
+        permutation: {type: boolean}
+        fallback_provider: {$ref: '#/components/schemas/ProfileDestination'}
+        chunking:
+          type: object
+          additionalProperties: false
+          required: [enabled]
+          properties:
+            enabled: {type: boolean}
+            window: {type: integer, minimum: 1}
+            overlap: {type: integer, minimum: 0}
+        same_family_declared: {type: boolean}
+        batch_only: {type: boolean}

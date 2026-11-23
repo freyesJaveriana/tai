@@ -1,6 +1,6 @@
 """C18, perfiles y configuración efectiva: fixtures, huella JCS y reglas del esquema (BR9.1–BR9.7).
 
-Rojo hasta T09. La forma del perfil (`roles`, `role_aliases`, `purpose`, `permutation`) sigue
+`effective-config.v1.yaml` es verde desde T05 (E-5); el resto, rojo hasta T09. La forma del perfil (`roles`, `role_aliases`, `purpose`, `permutation`) sigue
 FD-U1-02; T09 puede ajustar los fixtures de forma conservando el escenario y el `fixture_id`.
 """
 

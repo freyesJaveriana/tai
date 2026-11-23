@@ -1,0 +1,87 @@
+asyncapi: 3.0.0
+info:
+  title: Veridicus analysis results
+  version: 2.0.0
+  description: >-
+    C3, cola de resultados: la salida de C6 de una corrida, dentro del sobre de Veridicus.
+    `salida` va por `$ref` canónico a la copia de C6, sin redefinir el hallazgo (AUTONOMIA-05,
+    BR2.3). Las entradas de `veridicus:results:failed` son estrictas (NFRD-U1-07).
+servers:
+  redis:
+    host: 'veridicus-redis:6379'
+    protocol: redis
+    description: Redis interno del clúster; ningún destino externo (AUTONOMIA-04)
+channels:
+  results:
+    address: 'veridicus:results'
+    description: Redis Stream; grupo de consumidores `session-api`
+    messages:
+      RunResult:
+        $ref: '#/components/messages/RunResult'
+  resultsFailed:
+    address: 'veridicus:results:failed'
+    description: Resultados que no se pudieron ingerir; solo IDs y `code` (NFRD-U4-04)
+    messages:
+      ResultFailed:
+        $ref: '#/components/messages/ResultFailed'
+operations:
+  publishResult:
+    action: send
+    channel:
+      $ref: '#/channels/results'
+  ingestResult:
+    action: receive
+    channel:
+      $ref: '#/channels/results'
+    summary: InterviewSession valida la salida contra C6, la persiste de forma idempotente por (run_id, attempt) y pasa los hallazgos a HumanReview (C10)
+  failResult:
+    action: send
+    channel:
+      $ref: '#/channels/resultsFailed'
+    summary: Deja el resultado en fallidos sin texto del testimonio
+components:
+  messages:
+    RunResult:
+      contentType: application/json
+      payload:
+        type: object
+        additionalProperties: true
+        required: [schema_version, message_id, run_id, attempt, salida, finished_at]
+        properties:
+          schema_version:
+            type: string
+            pattern: '^2\.[0-9]+\.[0-9]+$'
+          message_id:
+            type: string
+            format: uuid
+          run_id:
+            type: string
+            format: uuid
+          attempt:
+            type: integer
+            minimum: 1
+          salida:
+            $ref: '/veridicus/contracts/analyzer/v1/salida'
+          finished_at:
+            type: string
+            format: date-time
+    ResultFailed:
+      contentType: application/json
+      payload:
+        type: object
+        additionalProperties: false
+        required: [message_id, run_id, attempt, code]
+        properties:
+          message_id:
+            type: string
+            format: uuid
+          run_id:
+            type: string
+            format: uuid
+          attempt:
+            type: integer
+            minimum: 1
+          code:
+            type: string
+            pattern: '^[a-z][a-z_]*(\.[a-z][a-z_]*)+$'
+            description: Código estable del catálogo de errores; nunca texto libre

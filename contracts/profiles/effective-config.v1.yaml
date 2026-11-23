@@ -1,0 +1,151 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: veridicus/contracts/profiles/effective-config.v1
+title: Configuración efectiva de una corrida (C18)
+description: >-
+  Lo que viaja en C2, lo que se guarda en la sesión y de lo que salen sus dos huellas
+  (BR9.7). `config_sha256` es el SHA-256 de la forma canónica JCS (RFC 8785) de todo el
+  objeto y `profile_sha256` el de `profile`. El perfil es el del analizador (BR9.3): papeles
+  `judge` y `verifier` y el alias `verifier_permuted` hacia `verifier`. Nunca lleva el valor
+  de una clave, solo su nombre (`api_key_ref`; BR9.4).
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - analyzer_version
+  - profile_name
+  - profile
+  - profile_sha256
+  - prompt_sha256
+  - limits
+properties:
+  schema_version:
+    const: "1.0.0"
+  analyzer_version:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+  profile_name:
+    type: string
+    pattern: '^[a-z0-9-]{1,48}$'
+  profile:
+    $ref: '#/$defs/profile'
+    description: La entrada del perfil tal como está en config/profiles.yaml, sin resolver claves
+  profile_sha256:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+    description: SHA-256 de la forma canónica de profile
+  prompt_sha256:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+  limits:
+    type: object
+    additionalProperties: false
+    description: Las cifras de C25 que cambian el resultado del análisis, ya bajadas por el entorno si aplica
+    required:
+      - model_call_timeout_s
+      - run_deadline_incremental_s
+      - run_deadline_final_s
+      - fragment_window_turns
+      - fragment_overlap_turns
+    properties:
+      model_call_timeout_s:
+        type: number
+        exclusiveMinimum: 0
+      run_deadline_incremental_s:
+        type: number
+        exclusiveMinimum: 0
+      run_deadline_final_s:
+        type: number
+        exclusiveMinimum: 0
+      fragment_window_turns:
+        type: integer
+        minimum: 1
+      fragment_overlap_turns:
+        type: integer
+        minimum: 0
+$defs:
+  token:
+    type: string
+    pattern: '^[A-Za-z0-9._:/@+-]{1,128}$'
+    description: Sin espacios; nombres de modelo, versiones y motores
+  destination:
+    type: object
+    additionalProperties: false
+    required: [provider, model, scope]
+    properties:
+      provider:
+        enum: [anthropic, google, openai, local]
+      model:
+        $ref: '#/$defs/token'
+      version:
+        $ref: '#/$defs/token'
+      family:
+        $ref: '#/$defs/token'
+      scope:
+        enum: [local, external]
+      base_url:
+        type: string
+        format: uri
+        description: Solo local; interno del clúster o de la máquina
+      api_key_ref:
+        type: string
+        pattern: '^[A-Z][A-Z0-9_]{2,63}$'
+        description: Nombre de la variable o de la clave del Secret; nunca el valor
+      parameters:
+        type: object
+        additionalProperties: false
+        properties:
+          effort:
+            $ref: '#/$defs/token'
+          temperature:
+            type: number
+            minimum: 0
+          quantization:
+            $ref: '#/$defs/token'
+          engine:
+            $ref: '#/$defs/token'
+          seed:
+            type: integer
+  profile:
+    type: object
+    additionalProperties: false
+    required: [purpose, roles, role_aliases, permutation]
+    properties:
+      purpose:
+        enum: [evaluation, demonstration, production]
+      roles:
+        type: object
+        additionalProperties: false
+        required: [judge, verifier]
+        properties:
+          judge:
+            $ref: '#/$defs/destination'
+          verifier:
+            $ref: '#/$defs/destination'
+      role_aliases:
+        type: object
+        additionalProperties: false
+        required: [verifier_permuted]
+        properties:
+          verifier_permuted:
+            const: verifier
+      permutation:
+        type: boolean
+      fallback_provider:
+        $ref: '#/$defs/destination'
+      chunking:
+        type: object
+        additionalProperties: false
+        required: [enabled]
+        properties:
+          enabled:
+            type: boolean
+          window:
+            type: integer
+            minimum: 1
+          overlap:
+            type: integer
+            minimum: 0
+      same_family_declared:
+        type: boolean
+      batch_only:
+        type: boolean

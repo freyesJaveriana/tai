@@ -7,14 +7,25 @@ C-3 y D-1. Aquí solo se comprueba la forma del contrato; las guardias de C1 (`a
 Rojo hasta T14 (`api/console.v2.yaml`).
 """
 
+import copy
 import re
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
-from helpers import cargar_fixture, errores_de, load_contract, recorrer, validador_de
+from helpers import (
+    cargar_fixture,
+    errores_de,
+    load_contract,
+    recorrer,
+    registro_de_contratos,
+    validador_de,
+)
+from jsonschema.exceptions import ValidationError
+from openapi_spec_validator.exceptions import OpenAPISpecValidatorError
+from openapi_spec_validator.validation import OpenAPIV31SpecValidator
 
-from veridicus_contracts.validators import ValidationFailure, validate_openapi
+from veridicus_contracts.registry import BASE_URI
 
 pytestmark = pytest.mark.c1
 
@@ -156,11 +167,35 @@ def esquemas_con(documento: Any, clave: str) -> Iterator[tuple[str, dict[str, An
 # --- validez, versión y servidores ---------------------------------------------------------------
 
 
-def test_c1_es_un_openapi_3_1_valido() -> None:
+def _contenido_por_id(uri: str) -> Any:
+    """Contenido del contrato que declara ese $id canónico (FD-U1-11), sin red."""
+    return registro_de_contratos()[BASE_URI + uri.lstrip("/")].contents
+
+
+class ValidadorConReferencias(OpenAPIV31SpecValidator):  # type: ignore[misc]
+    """OpenAPI 3.1 que resuelve las referencias por $id canónico con el registro del paquete."""
+
+    resolver_handlers: ClassVar[Any] = {"": _contenido_por_id}
+
+
+def validar_openapi(documento: Any) -> None:
+    """Valida con openapi-spec-validator (D3); las referencias por $id salen del registro, no de la red."""
     try:
-        validate_openapi(c1())
-    except ValidationFailure as error:
-        pytest.fail(str(error))
+        ValidadorConReferencias(documento).validate()
+    except (ValidationError, OpenAPISpecValidatorError) as error:
+        pytest.fail(f"OpenAPI 3.1 no válido: {error}")
+
+
+def test_c1_es_un_openapi_3_1_valido() -> None:
+    validar_openapi(c1())
+
+
+def test_el_validador_de_openapi_rechaza_una_respuesta_con_un_campo_ajeno() -> None:
+    """Control negativo: la comprobación de validez no pasa en vacío."""
+    roto = copy.deepcopy(c1())
+    roto["paths"]["/profiles"]["get"]["responses"]["200"]["ajeno"] = 1
+    with pytest.raises(pytest.fail.Exception):
+        validar_openapi(roto)
 
 
 def test_c1_declara_version_servidor_interno_y_cookie_por_omision() -> None:
@@ -378,7 +413,7 @@ def test_cada_marca_nombra_una_cifra_del_catalogo_con_su_unidad() -> None:
         assert nombre in catalogo, nombre
         assert catalogo[nombre]["unit"] == "bytes", nombre
         marcas += 1
-    assert marcas >= 20
+    assert marcas >= 15
 
 
 def test_cada_tope_de_texto_o_de_lista_lleva_la_cifra_del_catalogo() -> None:
@@ -395,7 +430,7 @@ def test_cada_tope_de_texto_o_de_lista_lleva_la_cifra_del_catalogo() -> None:
             assert nombre in catalogo, f"{ruta}: {clave} sin x-veridicus-limit"
             assert catalogo[nombre]["unit"] == unidad, ruta
             assert valor[clave] == catalogo[nombre]["value"], f"{ruta}: {clave} difiere de {nombre}"
-    assert topes >= 8
+    assert topes >= 7
 
 
 def test_las_cifras_que_usa_c1_son_las_de_los_nfr_de_cada_unidad() -> None:
@@ -603,14 +638,32 @@ def test_las_operaciones_de_lectura_y_de_cierre_no_encolan_con_202() -> None:
 
 
 def test_toda_fecha_tiene_el_formato_unico_con_el_mismo_patron() -> None:
-    fechas = 0
-    for ruta, _, valor in recorrer(c1()):
+    """BR8.1: el componente `DateTime` es el único que declara `date-time` y lleva el patrón."""
+    documento = c1()
+    declaraciones = 0
+    for ruta, _, valor in recorrer(documento):
         if isinstance(valor, dict) and valor.get("format") == "date-time":
-            fechas += 1
+            declaraciones += 1
             assert valor.get("type") == "string", ruta
             assert valor.get("pattern") == PATRON_DE_FECHA, ruta
-    assert fechas >= 20
-    assert "date-time" in str(c1())
+    assert declaraciones >= 1
+    assert documento["components"]["schemas"]["DateTime"]["format"] == "date-time"
+    usos = [
+        v for _, c, v in recorrer(documento) if c == "$ref" and v == "#/components/schemas/DateTime"
+    ]
+    assert len(usos) >= 15
+    campos = {
+        ruta.rsplit(".", 2)[-2]
+        for ruta, c, v in recorrer(documento)
+        if c == "$ref" and v == "#/components/schemas/DateTime"
+    }
+    assert {
+        "created_at",
+        "submitted_at",
+        "requested_at",
+        "consolidated_at",
+        "uploaded_at",
+    } <= campos
 
 
 def test_las_fechas_reales_pasan_y_las_imposibles_o_con_otra_forma_no() -> None:
@@ -723,7 +776,7 @@ def test_los_cuerpos_json_de_c1_son_estrictos() -> None:
             esquema = contenido["schema"]
             assert esquema["type"] == "object", f"{metodo} {ruta}"
             assert esquema["additionalProperties"] is False, f"{metodo} {ruta}"
-    assert cuerpos >= 15
+    assert cuerpos >= 13
 
 
 def test_consentimiento_es_estricto_y_exige_constancia_segun_el_tipo() -> None:

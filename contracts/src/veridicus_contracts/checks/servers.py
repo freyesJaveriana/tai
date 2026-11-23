@@ -59,11 +59,20 @@ ENLACE = "enlace"  # `server` de un `link` de OpenAPI
 MAL_FORMADO = "mal formado"  # `servers` que no es ni lista ni mapa
 FUERA = "fuera"  # `$ref` estructural que apunta fuera de lo que la guardia recorre
 VERSION_OPENAPI = "3.1."
-REF_ELEMENTO = re.compile(r"#/components/pathItems/[^/]+")
-REF_RESPUESTA = re.compile(r"#/components/responses/[^/]+")
-REF_ENLACE = re.compile(r"#/components/links/[^/]+")
-REF_CALLBACK = re.compile(r"#/components/callbacks/[^/]+")
-REF_SERVIDOR = re.compile(r"#/(components/)?servers/[^/]+")
+VERSION_ASYNCAPI = "3.0."
+# Un `$ref` estructural nombra `#/components/<tipo>/<nombre>` (o `#/servers/<nombre>` en AsyncAPI) y
+# el nombre solo lleva estos caracteres: `%` se decodifica antes de leerse como puntero JSON y `/`
+# o `#` salen de la estructura (RFC 6901 §6).
+NOMBRE_DE_COMPONENTE = "[A-Za-z0-9._~-]+"
+REF_DE_COMPONENTE = re.compile(
+    rf"#/components/(pathItems|responses|links|callbacks|servers)/({NOMBRE_DE_COMPONENTE})"
+)
+REF_DE_SERVIDOR_RAIZ = re.compile(rf"#/servers/({NOMBRE_DE_COMPONENTE})")
+ELEMENTO = "pathItems"
+RESPUESTA = "responses"
+ENLACE_DE_COMPONENTES = "links"
+CALLBACK = "callbacks"
+SERVIDOR = "servers"
 
 
 def es_interna(url: str) -> bool:
@@ -104,70 +113,97 @@ def _declarados(contenedor: dict[str, Any], puntero: str) -> Iterator[Servidor]:
         yield hijo, MAL_FORMADO, valor
 
 
-def _referencia(nodo: dict[str, Any], puntero: str, destino: re.Pattern[str]) -> Iterator[Servidor]:
-    """Un `$ref` estructural solo puede apuntar a lo que la guardia recorre (`components`)."""
-    if "$ref" in nodo:
-        valor = nodo["$ref"]
-        if not isinstance(valor, str) or destino.fullmatch(valor) is None:
-            yield puntero, FUERA, None
+def _desescapar(nombre: str) -> str:
+    return nombre.replace("~1", "/").replace("~0", "~")
 
 
-def _enlaces(contenedor: dict[str, Any], puntero: str) -> Iterator[Servidor]:
+def _destino_existe(valor: Any, tipo: str, raiz: dict[str, Any]) -> bool:
+    """El `$ref` apunta a un componente de ese tipo que existe en este mismo documento."""
+    if not isinstance(valor, str):
+        return False
+    if tipo == SERVIDOR:
+        en_la_raiz = REF_DE_SERVIDOR_RAIZ.fullmatch(valor)
+        if en_la_raiz is not None:
+            return _desescapar(en_la_raiz[1]) in _objeto(raiz.get("servers"))
+    en_components = REF_DE_COMPONENTE.fullmatch(valor)
+    if en_components is None or en_components[1] != tipo:
+        return False
+    existentes = _objeto(_objeto(raiz.get("components")).get(tipo))
+    return _desescapar(en_components[2]) in existentes
+
+
+def _referencia(
+    nodo: dict[str, Any], puntero: str, tipo: str, raiz: dict[str, Any]
+) -> Iterator[Servidor]:
+    """Un `$ref` estructural solo puede apuntar a un componente que la guardia recorre."""
+    if "$ref" in nodo and not _destino_existe(nodo["$ref"], tipo, raiz):
+        yield puntero, FUERA, None
+
+
+def _enlaces(contenedor: dict[str, Any], puntero: str, raiz: dict[str, Any]) -> Iterator[Servidor]:
     """El `server` de cada `link` de una respuesta o de `components`."""
     for nombre, enlace in _objeto(contenedor.get("links")).items():
         sitio = f"{puntero}/links/{_escapar(nombre)}"
         if isinstance(enlace, dict):
-            yield from _referencia(enlace, sitio, REF_ENLACE)
+            yield from _referencia(enlace, sitio, ENLACE_DE_COMPONENTES, raiz)
             if "server" in enlace:
                 yield f"{sitio}/server", ENLACE, enlace["server"]
 
 
-def _de_respuestas(respuestas: dict[str, Any], puntero: str) -> Iterator[Servidor]:
+def _de_respuestas(
+    respuestas: dict[str, Any], puntero: str, raiz: dict[str, Any]
+) -> Iterator[Servidor]:
     for estado, respuesta in respuestas.items():
         sitio = f"{puntero}/{_escapar(estado)}"
         contenido = _objeto(respuesta)
-        yield from _referencia(contenido, sitio, REF_RESPUESTA)
-        yield from _enlaces(contenido, sitio)
+        yield from _referencia(contenido, sitio, RESPUESTA, raiz)
+        yield from _enlaces(contenido, sitio, raiz)
 
 
-def _de_callbacks(callbacks: Any, puntero: str) -> Iterator[Servidor]:
+def _de_callbacks(callbacks: Any, puntero: str, raiz: dict[str, Any]) -> Iterator[Servidor]:
     for nombre, callback in _objeto(callbacks).items():
         sitio = f"{puntero}/{_escapar(nombre)}"
         contenido = _objeto(callback)
-        yield from _referencia(contenido, sitio, REF_CALLBACK)
+        yield from _referencia(contenido, sitio, CALLBACK, raiz)
         for expresion, elemento in contenido.items():
             if expresion != "$ref":
-                yield from _de_elemento(elemento, f"{sitio}/{_escapar(expresion)}")
+                yield from _de_elemento(elemento, f"{sitio}/{_escapar(expresion)}", raiz)
 
 
-def _de_canales(canales: Any) -> Iterator[Servidor]:
-    """AsyncAPI: `channels.*.servers` solo lleva `$ref` a `servers` o a `components.servers`."""
+def _de_canales(canales: Any, raiz: dict[str, Any]) -> Iterator[Servidor]:
+    """AsyncAPI: `channels.*.servers` es una lista de `$ref` a `servers` o a `components.servers`."""
     for nombre, canal in _objeto(canales).items():
-        servidores_del_canal = _objeto(canal).get("servers")
-        if not isinstance(servidores_del_canal, list):
+        contenido = _objeto(canal)
+        if "servers" not in contenido:
             continue
-        for indice, referencia in enumerate(servidores_del_canal):
-            sitio = f"/channels/{_escapar(nombre)}/servers/{indice}"
+        sitio = f"/channels/{_escapar(nombre)}/servers"
+        del_canal = contenido["servers"]
+        if not isinstance(del_canal, list):
+            yield sitio, MAL_FORMADO, del_canal
+            continue
+        for indice, referencia in enumerate(del_canal):
             if not isinstance(referencia, dict) or "$ref" not in referencia:
-                yield sitio, FUERA, None
+                yield f"{sitio}/{indice}", FUERA, None
             else:
-                yield from _referencia(referencia, sitio, REF_SERVIDOR)
+                yield from _referencia(referencia, f"{sitio}/{indice}", SERVIDOR, raiz)
 
 
-def _de_operacion(operacion: dict[str, Any], puntero: str) -> Iterator[Servidor]:
+def _de_operacion(
+    operacion: dict[str, Any], puntero: str, raiz: dict[str, Any]
+) -> Iterator[Servidor]:
     yield from _declarados(operacion, puntero)
-    yield from _de_respuestas(_objeto(operacion.get("responses")), f"{puntero}/responses")
-    yield from _de_callbacks(operacion.get("callbacks"), f"{puntero}/callbacks")
+    yield from _de_respuestas(_objeto(operacion.get("responses")), f"{puntero}/responses", raiz)
+    yield from _de_callbacks(operacion.get("callbacks"), f"{puntero}/callbacks", raiz)
 
 
-def _de_elemento(elemento: Any, puntero: str) -> Iterator[Servidor]:
+def _de_elemento(elemento: Any, puntero: str, raiz: dict[str, Any]) -> Iterator[Servidor]:
     """Un elemento de ruta: sus `servers` y los de cada operación."""
     contenido = _objeto(elemento)
-    yield from _referencia(contenido, puntero, REF_ELEMENTO)
+    yield from _referencia(contenido, puntero, ELEMENTO, raiz)
     yield from _declarados(contenido, puntero)
     for metodo in METODOS:
         if isinstance(contenido.get(metodo), dict):
-            yield from _de_operacion(contenido[metodo], f"{puntero}/{metodo}")
+            yield from _de_operacion(contenido[metodo], f"{puntero}/{metodo}", raiz)
 
 
 def servidores(documento: Any) -> Iterator[Servidor]:
@@ -180,17 +216,19 @@ def servidores(documento: Any) -> Iterator[Servidor]:
     raiz = _objeto(documento)
     yield from _declarados(raiz, "")
     for ruta, elemento in _objeto(raiz.get("paths")).items():
-        yield from _de_elemento(elemento, f"/paths/{_escapar(ruta)}")
+        yield from _de_elemento(elemento, f"/paths/{_escapar(ruta)}", raiz)
     for nombre, elemento in _objeto(raiz.get("webhooks")).items():
-        yield from _de_elemento(elemento, f"/webhooks/{_escapar(nombre)}")
+        yield from _de_elemento(elemento, f"/webhooks/{_escapar(nombre)}", raiz)
     componentes = _objeto(raiz.get("components"))
     for nombre, elemento in _objeto(componentes.get("pathItems")).items():
-        yield from _de_elemento(elemento, f"/components/pathItems/{_escapar(nombre)}")
-    yield from _de_callbacks(componentes.get("callbacks"), "/components/callbacks")
-    yield from _enlaces(componentes, "/components")
-    yield from _de_respuestas(_objeto(componentes.get("responses")), "/components/responses")
+        yield from _de_elemento(elemento, f"/components/pathItems/{_escapar(nombre)}", raiz)
+    yield from _de_callbacks(componentes.get("callbacks"), "/components/callbacks", raiz)
+    yield from _enlaces(componentes, "/components", raiz)
+    yield from _de_respuestas(
+        _objeto(componentes.get("responses")), "/components/responses", raiz
+    )
     yield from _declarados(componentes, "/components")
-    yield from _de_canales(raiz.get("channels"))
+    yield from _de_canales(raiz.get("channels"), raiz)
 
 
 def _urls_resultantes(servidor: dict[str, Any]) -> list[str]:
@@ -260,14 +298,32 @@ def _variables_validas(servidor: dict[str, Any]) -> bool:
     )
 
 
+def _version_admitida(raiz: dict[str, Any], clave: str, prefijo: str) -> bool:
+    version = raiz[clave]
+    return isinstance(version, str) and version.startswith(prefijo)
+
+
+def comprobar_version(nombre: str, documento: Any) -> list[str]:
+    """Solo `openapi: 3.1.x` o `asyncapi: 3.0.x`: otras versiones traen nodos que no se recorren.
+
+    (OpenAPI 3.2 añade `query` y `additionalOperations`; Swagger 2 declara `host`.) Sin la clave, con
+    `swagger` o con las dos claves a la vez, el documento no se admite.
+    """
+    raiz = _objeto(documento)
+    es_openapi = "openapi" in raiz
+    if "swagger" in raiz or es_openapi == ("asyncapi" in raiz):
+        return [f"{nombre}: /: versión no admitida ({REGLA})"]
+    if es_openapi and not _version_admitida(raiz, "openapi", VERSION_OPENAPI):
+        return [f"{nombre}: /openapi: versión de OpenAPI no admitida ({REGLA})"]
+    if not es_openapi and not _version_admitida(raiz, "asyncapi", VERSION_ASYNCAPI):
+        return [f"{nombre}: /asyncapi: versión de AsyncAPI no admitida ({REGLA})"]
+    return []
+
+
 def comprobar_documento(nombre: str, documento: Any) -> list[str]:
     """Problemas de un contrato ya cargado: sin servidores, o con alguno que no es interno."""
     raiz = _objeto(documento)
     problemas: list[str] = []
-    version = raiz.get("openapi")
-    if "openapi" in raiz and not (isinstance(version, str) and version.startswith(VERSION_OPENAPI)):
-        # Otras versiones traen nodos con `servers` que esta guardia no recorre (3.2: `query`).
-        problemas.append(f"{nombre}: /openapi: versión de OpenAPI no admitida ({REGLA})")
     problemas.extend(
         f"{nombre}: {puntero}: {regla} ({REGLA})"
         for puntero, forma, servidor in servidores(documento)
@@ -294,5 +350,6 @@ def comprobar(contracts_root: Path, contratos: tuple[str, ...] = CONTRATOS) -> l
         except LoadError:
             problemas.append(f"{relativa}: contrato ilegible, no se pudo interpretar ({REGLA})")
             continue
+        problemas.extend(comprobar_version(relativa, documento))
         problemas.extend(comprobar_documento(relativa, documento))
     return problemas

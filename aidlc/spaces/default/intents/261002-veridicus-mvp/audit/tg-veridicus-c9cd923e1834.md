@@ -44119,3 +44119,154 @@
 **Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:31:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a49b4c4a7881be1f6
+**Message**: Mutation-testing suggestion_conditions.py guard
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:31:54Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7c6ef4d0a1effb0b
+**Message**: Reading libs/errors .gitignore and tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a27ad109a99546ddb
+**Message**: Running mutants 2–6 against _declara
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3d911852089da058
+**Message**: Measuring registry.py branch coverage
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:25Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a372134545ba84dfc
+**Message**: Searching contract-summary for C1 error statuses
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3e957c3674a5fc39
+**Message**: Mutating _problemas_del_fixture reject_reason check
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a648697ee7cbcdcce
+**Message**: Running failing registry tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:32:57Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a48e6eb15b146f4b4
+**Message**: Comparing error statuses against error-codes.v2.yaml
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:16Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3b4450f07593d5ad
+**Message**: Running mutants on suggestion_conditions.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a1eda261a4abb831e
+**Message**: Running full contracts test suite
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:29Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa569e64fcd77748f
+**Message**: Extracting status tables from functional-spec.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aabf354ab8512a85b
+**Message**: Checking tests/checks folder contents
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:33:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aaba9fd6e82058250
+**Message**: Reading U01-T05 bitácora
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:34:01Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5d1afa3f3744d356
+**Message**: Checking uv.lock in libs/errors
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:34:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a92702db7e7714bfb
+**Message**: TAREA: U01-T05 (ronda 2)\nRAMA: tarea/U01-T05   SHA: 76c713d\nCRITERIOS: 5 de 5 verificados, más el criterio nuevo de `registry.py` verificado en su archivo pero no con el comando literal (ver BLOQUEOS)
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T19:34:15Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:34:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a6b78ea8ea0940ce0
+**Message**: # Ronda 1 — U01-T06\n\nVEREDICTO: NO-VERDE\n\nHay dos NARANJA y ningún ROJO. Los seis criterios pasan con mis propias corridas. C7 es idéntico al bloque C7 de `contract-summary.md` (líneas 1682–1714). El 
+
+---

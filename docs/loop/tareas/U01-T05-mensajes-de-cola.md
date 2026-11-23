@@ -120,7 +120,7 @@ En la ronda 1, el codificador copió el esquema de C18 dentro de `runs.v2.yaml` 
   - Pruebas en rojo primero; `registry` sigue al 100 % de ramas.
 - `effective_config` de C2 pasa a `$ref: /veridicus/contracts/profiles/effective-config.v1` (o el `$id` que lleve C18), y se borra la copia de `components/schemas`.
 - Ninguna tarea vecina de la ola 5 ni de la ola 6 toca `registry.py`.
-- Criterio adicional: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_registry.py --cov=veridicus_contracts.registry --cov-branch --cov-fail-under=100` → verde.
+- Criterio adicional, en dos comandos. Primero `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_registry.py --cov-fail-under=0` → verde. Después `uv run --frozen --offline --directory contracts coverage report --include=src/veridicus_contracts/registry.py --fail-under=100` → 100 %. El total del paquete no cuenta aquí: `addopts` ya mide todo el paquete. Corrección del orquestador tras la ronda 2.
 
 ### Decisión tomada (2026-11-23)
 

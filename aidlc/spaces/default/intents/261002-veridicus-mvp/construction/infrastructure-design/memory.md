@@ -64,6 +64,26 @@
 - 2026-11-23T01:10:01Z — Segunda pasada sin preguntas: U4 adopta los recursos que ya fijó U2 para el trabajador y semantic-agent (caben con el /tmp en memoria de 16 MiB) y solo pide a U2 lo que falta, sin darlo por aplicado (IDS-U4-01, -02, -03, -07, -10, -14).
 <!-- aidlc-wave-memory:text-flow:2c60cb25b061fed80c5abc5e6ba51c2f274eebb0864eea0a7c781a796ca410b4 -->
 
+
+- 2026-11-23T01:26:02Z — La memoria de la API que fijó U2 (1 152 MiB = 1,2 × 944) no incluye las subidas de U12: con dos subidas no cabe ni sin margen (1 404 MiB); se pide a U2 1 792 MiB (IDS-U12-01), sin tocar `requests`.
+<!-- aidlc-wave-memory:research-reports:53431723caed19d55ccbba04244710a864437acfa6a035242c397108a7d98d5e -->
+
+
+- 2026-11-23T01:26:02Z — NFR-U12-06 deja abierto imagen o ConfigMap: perfiles y precios desde `veridicus-profiles` (lo mismo que corre `semantic-agent`) y etiquetas en la imagen, para no ampliar `check-no-data.sh` (IDS-U12-03).
+<!-- aidlc-wave-memory:research-reports:d5e57735708a07e916fff7f55609896beb2785eb11f43e253a885e4f538c22b4 -->
+
+
+- 2026-11-23T01:30:59Z — Segunda pasada sin preguntas: P1 = A pierde su objeto con el cambio 01 (no hay extras que encender) y U8 no añade nada al despliegue salvo la migración, dos contadores y dos paneles (IDS-U8-01).
+<!-- aidlc-wave-memory:assistant-extras:cc37ecf85be4fee5903d2e6858b539bdd6a2043345e125bab12cf9b695a5216f -->
+
+
+- 2026-11-23T01:27:06Z — Segunda pasada sin preguntas: U6 no cambia ninguna cifra de pod; con sus +100 MiB la API queda en ≈ 826 MiB frente a 1,125 GiB, aun con tres consolidaciones de U7 a la vez.
+<!-- aidlc-wave-memory:session-lifecycle:2145c011d94a346a9ac9995eb5e792be62ed4cfbba22c7fe2c6d0a70f679e030 -->
+
+
+- 2026-11-23T01:31:23Z — Segunda pasada sin preguntas: U5 no añade procesos, memoria fuera del límite de 1,125 GiB de U2, red ni Secrets; su código corre en la API, el trabajador (propose) y el Job de retención (purge_session), y solo pide a U2 VERIDICUS_DB_LOCK_TIMEOUT_MS en cada contenedor de session-api que abre conexiones (IDS-U5-02).
+<!-- aidlc-wave-memory:human-review:d7b85d333c8e0ca30c71c25afe3a4479133e25b10309a1278ab3d9ee7fc06744 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -114,6 +134,18 @@
 
 - 2026-11-23T01:10:01Z — semantic-agent y el trabajador van con Recreate en vez del RollingUpdate de U2 §5: con maxSurge 1 convivirían dos consumidores de C2 (contra NFR8.7) y el trabajador abriría 8 conexiones; cierra R-01 de la revisión 1.
 <!-- aidlc-wave-memory:text-flow:b32172c1fcd6ed74f727238cccdac77d0c16bcf61db3205223234472e20b3548 -->
+
+
+- 2026-11-23T01:30:59Z — La medición de todo-local de B8 detiene Minikube (sin delete) mientras el juez y el verificador corren en la anfitriona: el procedimiento de U11 solo levanta el verificador, y con Minikube encendido los 38 GiB de modelos no caben en WSL2 (IDS-U8-08).
+<!-- aidlc-wave-memory:assistant-extras:883e29baeec4acb9ab3c5f19fe437d2eeee4bfd260b28d613f65cad25599d667 -->
+
+
+- 2026-11-23T01:27:06Z — El plazo de inactividad de la revisión 1 («5 s» sin alcance en veridicus-pg) pasa a SET LOCAL por transacción en shared/db.py, que acepta idle_timeout_s para U7 (NFRD-U7-01, NFRD-U7-03; IDS-U6-02).
+<!-- aidlc-wave-memory:session-lifecycle:da078335394eb977d044eace7ae2e38887d1b9cdf0fc48d889e5c24df286b5d8 -->
+
+
+- 2026-11-23T01:31:23Z — El sensor de trazabilidad tomó NFR3.13 de reliability-design §3, que cita la consolidación de U7; entró como N/A justificado.
+<!-- aidlc-wave-memory:human-review:ff3b3be4b4fb619e9ae3700d82189088df170fd785031e2fd5b18bdeb21737a2 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -193,6 +225,34 @@
 
 - 2026-11-23T01:10:01Z — Un despliegue de semantic-agent a mitad de corrida reenvía el mismo cuerpo seudonimizado dentro del tope de 3 entregas; se acepta con un paso del runbook (desplegar sin corridas en processing) en vez de un periodo de gracia de horas.
 <!-- aidlc-wave-memory:text-flow:aee22c5003becec5540a7fe68d5e4e298055c8aa69215bd4afc2866cca9c6701 -->
+
+
+- 2026-11-23T01:26:02Z — Los `limits` de Minikube suben a ≈ 52,4 GiB (2,4 GiB sobre 50) a cambio de no subir `requests` por un pico raro; se apoya en el sobrecompromiso que U2 ya aceptó y en sus recortes.
+<!-- aidlc-wave-memory:research-reports:f33b2c63ccd240bc3f8f174b59c553d6f1f6c009c45501308bd18f947e11b726 -->
+
+
+- 2026-11-23T01:26:02Z — T3 fija `idle_in_transaction_session_timeout` de 5 s con `SET LOCAL` (respuesta a la nota NFRD-U7-02): no tiene huecos sin sentencias, así que no corta escrituras legítimas (IDS-U12-06).
+<!-- aidlc-wave-memory:research-reports:66da2e807f5e05b20ca30f2e863025c71d88fe55e64da3d21c1cd13758cc0e44 -->
+
+
+- 2026-11-23T01:30:59Z — session-api pasa a depender de libs-incoherence-analyzer para la segunda línea; se pide un job lock-boundary sin libs-anonymizer en vez de copiar el validador, a costa de una dependencia más en la imagen con la base (IDS-U8-03).
+<!-- aidlc-wave-memory:assistant-extras:5ad4f65b5c194bf3d98a04b6f4c1733b09f585cdb7372cbeb320bddc50ed5651 -->
+
+
+- 2026-11-23T01:30:59Z — El margen de semantic-agent queda en 13 MiB (947 de 960 MiB) con el módulo; se acepta sin pedir más memoria a U2 y cualquier pico mayor medido en B8 sube el límite por PR (IDS-U8-02).
+<!-- aidlc-wave-memory:assistant-extras:14b5a44b95082f1c9f53a555e36c73a5165d5ed7a9f2369a0a6f278df1b06803 -->
+
+
+- 2026-11-23T01:27:06Z — El tope del Ingress iguala import_body_max_bytes, así que un cuerpo mayor recibe el 413 de nginx sin Problem Details; se acepta porque la consola nunca lo envía y el 413 de la API se prueba en nivel 1 (IDS-U6-09).
+<!-- aidlc-wave-memory:session-lifecycle:497fa16db1969c0ccee7499584c52e9ccfc53e9a2069a1135d4a3b38dbd3cb37 -->
+
+
+- 2026-11-23T01:31:23Z — Se mantuvo lock_timeout = statement_timeout = 2 000 ms (valor aprobado del que dependen U7 y U13) con una prueba del empate, en vez de bajar el lock_timeout a 1 500 ms como sugería R-03: las dos cancelaciones dan el mismo 503.
+<!-- aidlc-wave-memory:human-review:caa2eaa6248db3551140f50af7bba2f39f1beab4ea1e27f7f3f93afd2cb1355d -->
+
+
+- 2026-11-23T01:31:23Z — Se retiró la precisión max by (session_id) de la revisión 1: la regla AIR es de U2 con > 0.25, y la alerta doble de ≤ 60 s durante el relevo de pods queda como riesgo aceptado porque nadie recibe notificaciones.
+<!-- aidlc-wave-memory:human-review:3e2701b278b11bebb01a03de1b1ae71b30d1b9876e19a77c65124ad9f015ae74 -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

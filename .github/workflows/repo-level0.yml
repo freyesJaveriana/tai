@@ -1,0 +1,55 @@
+# Comprobaciones de nivel 0 de todo el repositorio (tarea previa P0.1).
+# Corre en todo PR y en cada push a main, sin filtro de rutas, para que la
+# comprobación obligatoria «repo-level0» nunca quede pendiente.
+# La CI no despliega: sin credenciales del clúster (AUTONOMIA-01).
+name: repo-level0
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repo-level0-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repo-level0:
+    name: repo-level0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Obtener el repositorio con todo su historial
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Instalar gitleaks 8.30.1 verificado por SHA-256
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+          archivo="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$archivo" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archivo}"
+          echo "${GITLEAKS_SHA256}  ${archivo}" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xzf "$archivo" -C "$RUNNER_TEMP/bin" gitleaks
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Buscar secretos en todo el historial (NFR12.2)
+        run: gitleaks git --redact --no-banner --exit-code 1 .
+
+      - name: Validar el YAML de .github
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --disable-pip-version-check "yamllint==1.38.0"
+          yamllint -s .github/
+
+      - name: Ningún workflow ni script aplica cambios al clúster ni envía trabajos a ZINE (AUTONOMIA-01)
+        run: bash scripts/check-no-cluster-apply.sh

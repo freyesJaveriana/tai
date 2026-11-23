@@ -1,0 +1,12 @@
+---
+# Configuración de yamllint del repositorio (tarea previa P0.1).
+extends: default
+
+rules:
+  document-start: disable
+  truthy:
+    check-keys: false
+  line-length:
+    max: 120
+  comments:
+    min-spaces-from-content: 1

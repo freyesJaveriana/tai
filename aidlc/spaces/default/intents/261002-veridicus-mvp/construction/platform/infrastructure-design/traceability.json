@@ -1,116 +1,61 @@
 {
   "stage": "infrastructure-design",
   "unit": "platform",
+  "revision": 2,
   "upstream_ids": [
-    "NFR1.1",
-    "NFR1.2",
-    "NFR1.3",
+    "NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4", "NFR1.5", "NFR1.6", "NFR1.7",
     "NFR2.1",
-    "NFR8.1",
-    "NFR10.1",
-    "NFR10.2",
-    "NFR10.3",
-    "NFR10.4",
-    "NFR10.5",
-    "NFR10.6",
-    "NFR10.7",
-    "NFR10.8",
-    "NFR10.9",
-    "NFR10.10",
-    "NFR11.1",
-    "NFR12.1",
-    "NFR15.1"
+    "NFR8.1", "NFR8.2", "NFR8.3",
+    "NFR10.1", "NFR10.2", "NFR10.3", "NFR10.4", "NFR10.5", "NFR10.6", "NFR10.7", "NFR10.8", "NFR10.9", "NFR10.10",
+    "NFR10.11", "NFR10.12", "NFR10.13", "NFR10.14", "NFR10.15", "NFR10.16", "NFR10.17", "NFR10.18", "NFR10.19",
+    "NFR11.1", "NFR11.2",
+    "NFR12.1", "NFR12.2",
+    "NFR15.1", "NFR15.2",
+    "NFR1.8", "NFR1.9", "NFR3.3", "NFR10.23", "NFR10.24", "NFR15.4", "NFR15.5"
   ],
   "coverage": [
-    {
-      "id": "NFR1.1",
-      "status": "OK",
-      "target": "infrastructure-specification §1 y §3: Calico hace cumplir la NetworkPolicy, veridicus-default-deny y reglas por dependencia; monitoring-design §4: verificación manual del bloqueo a internet"
-    },
-    {
-      "id": "NFR1.2",
-      "status": "OK",
-      "target": "infrastructure-specification §2.3: fetch-models.sh en la anfitriona, PersistentVolume estático de solo lectura; cicd-pipeline §2: check-no-downloads.sh"
-    },
-    {
-      "id": "NFR1.3",
-      "status": "OK",
-      "target": "infrastructure-specification §2.2: URL de modelos en *.svc.cluster.local con la política internal-model-urls"
-    },
-    {
-      "id": "NFR2.1",
-      "status": "OK",
-      "target": "infrastructure-specification §1 y §4: values-cpu.yaml por defecto sin GPU; values-gpu.yaml pide nvidia.com/gpu solo para el juez"
-    },
-    {
-      "id": "NFR8.1",
-      "status": "OK",
-      "target": "infrastructure-specification §4: requests y limits por contenedor dentro de 18 GiB y 10 CPU; monitoring-design §2: memoria frente al límite"
-    },
-    {
-      "id": "NFR10.1",
-      "status": "OK",
-      "target": "cicd-pipeline §3: imagen con etiqueta SHA, Trivy y digest en values; infrastructure-specification §1: GHCR privado con ghcr-pull"
-    },
-    {
-      "id": "NFR10.2",
-      "status": "OK",
-      "target": "infrastructure-specification §1: namespace veridicus con Pod Security restricted; volumen de modelos por PVC en vez de hostPath"
-    },
-    {
-      "id": "NFR10.3",
-      "status": "OK",
-      "target": "cicd-pipeline §8: Secrets solo desde el .env del humano con create-secrets.sh; gitleaks en cada PR"
-    },
-    {
-      "id": "NFR10.4",
-      "status": "OK",
-      "target": "infrastructure-specification §2.3: initContainer verify-model; cicd-pipeline §2: deploy-level1 con archivo correcto y alterado"
-    },
-    {
-      "id": "NFR10.5",
-      "status": "OK",
-      "target": "cicd-pipeline §1, §2 y §4.1: la CI no tiene kubeconfig, check-no-cluster-apply.sh y aplicación manual documentada en docs/operacion/instalacion.md"
-    },
-    {
-      "id": "NFR10.6",
-      "status": "OK",
-      "target": "infrastructure-specification §2.1 y §3: Redis 7.2 con requirepass, protected-mode y entrada solo desde session-api, semantic-agent y audio-worker"
-    },
-    {
-      "id": "NFR10.7",
-      "status": "OK",
-      "target": "infrastructure-specification §2.1 y §3: enableSuperuserAccess false, TLS verify-full, roles veridicus_owner, veridicus_app y veridicus_judge_ro, entrada al 5432 solo de sus clientes"
-    },
-    {
-      "id": "NFR10.8",
-      "status": "OK",
-      "target": "infrastructure-specification §2.1 y §3: llama-server con --api-key desde Secret y NetworkPolicy de entrada por cliente"
-    },
-    {
-      "id": "NFR10.9",
-      "status": "OK",
-      "target": "infrastructure-specification §1: Pod Security restricted y pods sin token de cuenta de servicio (security-design §5)"
-    },
-    {
-      "id": "NFR10.10",
-      "status": "OK",
-      "target": "cicd-pipeline §5: migraciones solo en migrations-job con veridicus_owner; infrastructure-specification §5: Job versionado en onda -1"
-    },
-    {
-      "id": "NFR11.1",
-      "status": "OK",
-      "target": "cicd-pipeline §4.2: Application de Argo CD con prune false y anotación Prune=false sobre Cluster y PVC; deploy key de solo lectura"
-    },
-    {
-      "id": "NFR12.1",
-      "status": "OK",
-      "target": "infrastructure-specification §6: el volcado va a backups/ ignorado por git; cicd-pipeline §2: gitleaks sobre todo el repositorio"
-    },
-    {
-      "id": "NFR15.1",
-      "status": "OK",
-      "target": "monitoring-design §1 y §3: PrometheusRule VeridicusAirThresholdProposal que solo propone, con promtool test rules"
-    }
+    { "id": "NFR1.1", "status": "OK", "target": "infrastructure-specification §1 y §3: Calico con default-deny por namespace y reglas de network-deps.yaml; monitoring-design §4: verificación manual del bloqueo a internet" },
+    { "id": "NFR1.2", "status": "OK", "target": "infrastructure-specification §2.3: fetch-models.sh en WSL2 contra models.lock y PersistentVolume estático; cicd-pipeline §2: check-no-downloads.sh" },
+    { "id": "NFR1.3", "status": "OK", "target": "infrastructure-specification §2.2: URL de model-judge, model-verifier, model-whisper y model-tts en *.svc.cluster.local con internal-model-urls" },
+    { "id": "NFR1.4", "status": "OK", "target": "infrastructure-specification §2.1: Corefile de deploy/coredns aplicado por el humano; cicd-pipeline §2: check-coredns-domains.sh" },
+    { "id": "NFR1.5", "status": "OK", "target": "infrastructure-specification §2.1 y §3: anonymizer-proxy único pod con salida 443, entrada de semantic-agent en 8080 y de Prometheus en 9090" },
+    { "id": "NFR1.6", "status": "OK", "target": "monitoring-design §1: Grafana sin conexión, sin plugins ni análisis de uso; infrastructure-specification §1: default-deny en los namespaces de operadores" },
+    { "id": "NFR1.7", "status": "OK", "target": "infrastructure-specification §3 y cicd-pipeline §4.2: argocd-repo-server con salida 22 y 443 y solo github.com resuelve" },
+    { "id": "NFR2.1", "status": "OK", "target": "infrastructure-specification §1, §2.1 y §4: values-cpu.yaml único con todo-local en CPU; política no-gpu-requests en todo render; values-gpu.yaml Retirado (IDS-U2-02)" },
+    { "id": "NFR8.1", "status": "OK", "target": "infrastructure-specification §4: requests y limits por contenedor con 1,2 por el pico, dentro de 50 GiB y 16 CPU; monitoring-design §2: memoria frente al límite y memoria pedida del nodo" },
+    { "id": "NFR8.2", "status": "Deferred", "target": "Build and Test mide el 98 por ciento con el chart de U2 sobre el equipo de 64 GB" },
+    { "id": "NFR8.3", "status": "OK", "target": "monitoring-design §4 y cicd-pipeline §4.1: smoke.sh con healthz, readyz y smoke.spec.ts con N de 300 s, más check-ingress-routes.sh" },
+    { "id": "NFR10.1", "status": "OK", "target": "cicd-pipeline §3: imagen con etiqueta SHA, Trivy y digest en values-cpu.yaml; infrastructure-specification §1: GHCR privado con ghcr-pull" },
+    { "id": "NFR10.2", "status": "OK", "target": "infrastructure-specification §1 y §10: Pod Security restricted y runAsUser fijo en imágenes de terceros (IDS-U2-09)" },
+    { "id": "NFR10.3", "status": "OK", "target": "cicd-pipeline §4.1 y §8: create-secrets.sh con salida 0600 fuera del repositorio, que no aplica nada; gitleaks en cada PR" },
+    { "id": "NFR10.4", "status": "OK", "target": "infrastructure-specification §2.3: initContainer verify-model; cicd-pipeline §2: deploy-level1 con archivo correcto y alterado" },
+    { "id": "NFR10.5", "status": "OK", "target": "cicd-pipeline §1, §2 y §4.1: CI sin kubeconfig, check-no-cluster-apply.sh y aplicación manual en docs/operacion/instalacion.md" },
+    { "id": "NFR10.6", "status": "OK", "target": "infrastructure-specification §2.1: Redis 7.2 con redis.conf, contraseña por include y sondas sin argumento (IDS-U2-10); cicd-pipeline §2: check-redis-conf.sh" },
+    { "id": "NFR10.7", "status": "OK", "target": "infrastructure-specification §2.1: tres roles en managed.roles, sin pgvector ni superusuario, TLS verify-full y parámetros de log" },
+    { "id": "NFR10.8", "status": "OK", "target": "infrastructure-specification §2.1 y §3: LLAMA_API_KEY por secretKeyRef y entrada a los modelos solo desde su cliente, sin raspado" },
+    { "id": "NFR10.9", "status": "OK", "target": "infrastructure-specification §3: entrada a la síntesis solo desde la API de veridicus-session-api; pods sin token salvo las exenciones de CloudNativePG" },
+    { "id": "NFR10.10", "status": "OK", "target": "infrastructure-specification §5 y cicd-pipeline §4 y §5: migrations-job aparte, instalación en dos pasos y hook Sync en Argo CD" },
+    { "id": "NFR10.11", "status": "OK", "target": "infrastructure-specification §2.3: PersistentVolume veridicus-models ReadOnlyMany montado con readOnly" },
+    { "id": "NFR10.12", "status": "OK", "target": "cicd-pipeline §8: veridicus-provider-keys solo en anonymizer-proxy; create-secrets.sh falla si falta una clave externa" },
+    { "id": "NFR10.13", "status": "OK", "target": "cicd-pipeline §8: secret-consumers.yaml con veridicus-auth y veridicus-bootstrap-admin (IDS-U2-14)" },
+    { "id": "NFR10.14", "status": "OK", "target": "infrastructure-specification §2.4: tres Ingress con veridicus-tls, sin disco y con tope; cicd-pipeline §2: check-ingress-limits.sh" },
+    { "id": "NFR10.15", "status": "OK", "target": "cicd-pipeline §2: check-config-copy.sh para profiles.yaml, prices.yaml y el panel del anonimizador" },
+    { "id": "NFR10.16", "status": "OK", "target": "cicd-pipeline §4.2: deploy/jobs fuera de la Application; infrastructure-specification §2.5: check-limits-env.sh sin VERIDICUS_LIMIT_RETENTION_MAX_DAYS" },
+    { "id": "NFR10.17", "status": "OK", "target": "monitoring-design §6: sondas de cada servicio y startupProbe de 120 s del proxy y de 600 s de los modelos" },
+    { "id": "NFR10.18", "status": "OK", "target": "infrastructure-specification §3 y §3.1: network-ranges.yaml; cicd-pipeline §2: check-network-deps.sh sobre el render" },
+    { "id": "NFR10.19", "status": "OK", "target": "monitoring-design §7: logs sin cuerpos, log_error_verbosity terse y captura de nivel 1 con el canary" },
+    { "id": "NFR11.1", "status": "OK", "target": "cicd-pipeline §4.2: prune false y Prune=false en la base, Redis, reportes y audio" },
+    { "id": "NFR11.2", "status": "OK", "target": "infrastructure-specification §2.1: AOF everysec en PVC de 2 GiB; cicd-pipeline §2: prueba de nivel 1 de 10 entradas" },
+    { "id": "NFR12.1", "status": "OK", "target": "infrastructure-specification §6: backup-db.sh hacia backups ignorado con poda; cicd-pipeline §2: check-no-data.sh y gitleaks" },
+    { "id": "NFR12.2", "status": "OK", "target": "cicd-pipeline §2: política no-corpus-mounts dentro de kyverno test" },
+    { "id": "NFR15.1", "status": "OK", "target": "monitoring-design §3: VeridicusAirThresholdProposal que solo propone, con promtool y fixtures de U2 y de U5" },
+    { "id": "NFR15.2", "status": "OK", "target": "monitoring-design §1 y §2: ServiceMonitor del puerto de métricas de los servicios y del proxy en 9090, sin ruta en el Ingress" },
+    { "id": "NFR1.8", "status": "OK", "target": "infrastructure-specification §3: la única salida externa de datos es anonymizer-proxy por 443 con el except completo; ningún otro pod tiene ipBlock externo" },
+    { "id": "NFR1.9", "status": "N/A", "target": "Retirado en el NFR Design de U2 revisión 2 (NFRD-U2-03); lo sustituye el raspado del proxy en 9090" },
+    { "id": "NFR3.3", "status": "OK", "target": "monitoring-design §6: startupProbe del anonymizer-proxy hasta 120 s por la carga del NER" },
+    { "id": "NFR10.23", "status": "OK", "target": "infrastructure-specification §2.4: /metrics no se enruta en ningún Ingress" },
+    { "id": "NFR10.24", "status": "OK", "target": "infrastructure-specification §2.1: PVC veridicus-audio de 3 GiB montado solo por la API de veridicus-session-api y retention-job" },
+    { "id": "NFR15.4", "status": "OK", "target": "monitoring-design §5: panel del anonimizador copiado con el mismo SHA-256 y comprobado por check-config-copy.sh" },
+    { "id": "NFR15.5", "status": "OK", "target": "monitoring-design §3: reglas informativas de las unidades en el subchart monitoring-rules con su prueba promtool" }
   ]
 }

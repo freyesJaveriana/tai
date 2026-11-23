@@ -40,6 +40,22 @@
 - 2026-10-03T11:51:00Z — El aprovisionador hostPath de Minikube ignora fsGroup y no publica kubelet_volume_stats: VERIDICUS_REPORTS_DIR pasa a ser un subdirectorio reports/ 0700 que crea el proceso, y el llenado se mide con la cuota propia de P3 = A.
 <!-- aidlc-wave-memory:forensic-report:5e0548fae1af4d166053aff1ed58a02c1b2582a2e6387ab6a9875b93b39066d8 -->
 
+
+- 2026-11-23T00:47:00Z — Segunda pasada sin preguntas: la red, CoreDNS, el Secret, el endurecimiento y los requests/limits pasan a U2, así que U10 solo fija lo que necesita del pod y del anfitrión de la CLI y lo propone a U2 (IDS-U10-02 a IDS-U10-06); máquina supuesta de 64 GB solo CPU.
+<!-- aidlc-wave-memory:anonymizer:605a345e7e572a2dec9593263587bcb20188f72f6211bb379bfe9cde71e34370 -->
+
+
+- 2026-11-23T00:43:37Z — Segunda pasada sin preguntas: la sonda de disponibilidad pasa al /readyz completo porque NFR10.13 revisión 2, C16 v2 y el NFR Design revisión 2 lo fijan después de P1 = B, que queda Retirado (IDS-U3-01).
+<!-- aidlc-wave-memory:identity-access:23223549f5481b64e9cac2d9830ccc8ae81db0d22e020116a639556dd99bd8aa -->
+
+
+- 2026-11-23T00:43:37Z — Se usa el supuesto de una sola máquina de 64 GB solo CPU con Minikube por decidir en U2; la parte de U3 en session-api no cambia (384/768 MiB).
+<!-- aidlc-wave-memory:identity-access:141f75b9d0edec3bf883cc31780f1b2b2b1c9a3a1336d504c076268eded561a4 -->
+
+
+- 2026-11-23T00:41:02Z — Segunda pasada: el cambio de máquinas (sin GPU, un solo equipo de 64 GB con WSL2) cambia los recursos, así que se preguntó (P6–P8) y no se generaron artefactos; el juez de todo-local entró como pregunta porque NFR-U11-07 deja su archivo a U2 y fija casi la mitad de la memoria.
+<!-- aidlc-wave-memory:platform:16e60c2d50e0784c439cce07b89a7a02a8dbe2c9ac4aa4d075fae0f7b6d35c3d -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -78,6 +94,10 @@
 
 - 2026-10-03T11:51:00Z — El PVC queda en 2 GiB (reserva de U2) en lugar del 1 GiB de NFR8.5, y la API pasa a Recreate frente al RollingUpdate de U2/U3/U5/U6; ambas quedaron en la tabla de precisiones sin editar los originales.
 <!-- aidlc-wave-memory:forensic-report:81fc409341616282e139ee6b6df4cbbcaa8064f4450664488271a59c2cb19bb1 -->
+
+
+- 2026-11-23T00:47:00Z — El mamparo de 4 se limita a POST /v1/generate (IDS-U10-04), porque con 4 llamadas en curso una sonda sin cupo haría que la livenessProbe reiniciara el pod a mitad de una llamada.
+<!-- aidlc-wave-memory:anonymizer:c08f56d8e430ea1b179767e8e873b47de46ab0f6fd5ef5c58cc4cde055cfad1c -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -130,8 +150,29 @@
 - 2026-10-03T11:51:00Z — verify_store usa un rol nuevo veridicus_report_ro de solo SELECT (un Secret más) en vez de reutilizar veridicus_app, por mínimo privilegio; el respaldo usa export_store en Python para no exigir tar en la imagen mínima.
 <!-- aidlc-wave-memory:forensic-report:d559307b1bfe64b4390bf06009222a91c8c7a0657fbd6cf2ded16ec8b37f9609 -->
 
+
+- 2026-11-23T00:47:00Z — La prueba de 0 fugas con el NER real corre en la CI con el NER aprovisionado y verificado por sha256 antes de las pruebas (IDS-U10-07), y el rendimiento se mide en la máquina de desarrollo con una puerta que exige el reporte, porque los runners no son comparables.
+<!-- aidlc-wave-memory:anonymizer:f2144d96bdfe77603c513663d853013cb74239356c7b20e97f4117d94bf6144b -->
+
+
+- 2026-11-23T00:47:00Z — El modelo NER no se fija por nombre y hash en esta etapa sino por criterios y orden de candidatos (IDS-U10-01); su revisión y sha256 se fijan en B10 con la prueba de 0 fugas como compuerta.
+<!-- aidlc-wave-memory:anonymizer:6ab770f668091f139ecab4f53eec9eaa7d98ea9bab1ea8cfa04f6d93308686e1 -->
+
+
+- 2026-11-23T00:41:02Z — El humano delegó P6–P8 («ahora tengo 64, así que puedes ajustar lo que sea necesario»): Minikube 50 GiB y 16 CPU, WSL2 56 GB y 20 procesadores, juez Qwen3.6-35B-A3B Q4_K_M; los limits (≈ 51,8 GiB) superan a Minikube porque los pesos de llama-server son memoria recuperable y juez y verificador no generan a la vez.
+<!-- aidlc-wave-memory:platform:7e83e3301fb5d00c36becaec84a9f29795e40a21479e60be1e6a20b8df6213e6 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
 - 2026-10-03T10:20:04Z — La memoria de GPU de la máquina GPU no se conoce; values-gpu.yaml asume que el juez de 7B cabe entero (≥ 6 GiB de VRAM) y U4 la confirma al elegir modelos más grandes para la evaluación.
 <!-- aidlc-wave-memory:platform:763ba9cccd310ade902e0fcc321d49355d24a6398f2f413a3f05e0ed11e82064 -->
+
+- 2026-11-23T00:43:37Z — Quedan cuatro peticiones a U2 para su Infrastructure Design: nombre del contenedor, consumidores de veridicus-auth y veridicus-bootstrap-admin, entrada de veridicus_app en managed.roles y smoke.sh con port-forward al /readyz (IDS-U3-03 a IDS-U3-06).
+<!-- aidlc-wave-memory:identity-access:53eaa501c76f7c9e653bef00c79e78458a627b3ae231805e83cfe33cac18763a -->
+
+- 2026-11-23T00:41:02Z — El contenedor ve un i7-14700KF pero WSL2 solo le entrega 8 procesadores y unos 3,8 GiB; P8 pide confirmar que el equipo de la demo es el mismo antes de fijar processors y --cpus.
+<!-- aidlc-wave-memory:platform:1c57ce094e1bc2f55f7f120fdca33ede002109c8665d9af1103f90cf05cf76ac -->
+
+- 2026-11-23T00:41:02Z — Con el driver Docker en WSL2 la minikube ip no se alcanza desde Windows: el runbook usará kubectl port-forward del ingress a 127.0.0.1:8443 y los modelos vivirán en el ext4 de la distribución, no en /mnt/c (se aplica sin preguntar).
+<!-- aidlc-wave-memory:platform:f10794c1052edb5ffa13ddcba8837b33c4ee0de8834813c2311f95f5c45599e8 -->

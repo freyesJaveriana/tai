@@ -5,6 +5,7 @@
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 
 - 2026-10-03T10:20:04Z — P3 («una cifra intermedia, como 24 gb», partición Ubuntu con Docker) se leyó como Ubuntu nativo con 24 GB; con P5 = B se dieron 18 GiB y 10 CPU a Minikube y 6 GiB al sistema.
+- 2026-11-23T00:41:02Z — Segunda pasada: el cambio de máquinas (sin GPU, un solo equipo de 64 GB con WSL2) cambia los recursos, así que se preguntó (P6–P8) y no se generaron artefactos; el juez de todo-local entró como pregunta porque NFR-U11-07 deja su archivo a U2 y fija casi la mitad de la memoria.
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
@@ -14,10 +15,14 @@
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 
+- 2026-11-23T00:41:02Z — El humano delegó P6–P8 («ahora tengo 64, así que puedes ajustar lo que sea necesario»): Minikube 50 GiB y 16 CPU, WSL2 56 GB y 20 procesadores, juez Qwen3.6-35B-A3B Q4_K_M; los limits (≈ 51,8 GiB) superan a Minikube porque los pesos de llama-server son memoria recuperable y juez y verificador no generan a la vez.
+
 - 2026-10-03T10:20:04Z — La suma de los limits (≈ 19 GiB) supera los 18 GiB de Minikube y la de los requests (≈ 13,7 GiB) cabe; se aceptó porque solo el juez se acerca a su pico, y el primer recorte ante presión es apagar el monitoreo durante NFR8.
 - 2026-10-03T10:20:04Z — Sin Alertmanager, Loki ni redis_exporter: el MVP no notifica a nadie y cada pieza cuesta memoria en una sola máquina; las alertas se ven en el panel.
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
+- 2026-11-23T00:41:02Z — El contenedor ve un i7-14700KF pero WSL2 solo le entrega 8 procesadores y unos 3,8 GiB; P8 pide confirmar que el equipo de la demo es el mismo antes de fijar processors y --cpus.
+- 2026-11-23T00:41:02Z — Con el driver Docker en WSL2 la minikube ip no se alcanza desde Windows: el runbook usará kubectl port-forward del ingress a 127.0.0.1:8443 y los modelos vivirán en el ext4 de la distribución, no en /mnt/c (se aplica sin preguntar).
 - 2026-10-03T10:20:04Z — La memoria de GPU de la máquina GPU no se conoce; values-gpu.yaml asume que el juez de 7B cabe entero (≥ 6 GiB de VRAM) y U4 la confirma al elegir modelos más grandes para la evaluación.

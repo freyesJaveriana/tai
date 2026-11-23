@@ -45496,3 +45496,651 @@
 **Context**: construction > contracts > code-generation > decisiones-humano.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:14:30Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aff7267ebc091ea0c
+**Message**: Verificando estado limpio del worktree
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:14:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab784066e800c84bf
+**Message**: Extending mutants to RELACIONES_OBLIGATORIAS
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:14:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa652f6f51e88ee8a
+**Message**: Revisando el diff de model_calls.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:15:02Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af28b823e86f7c7fb
+**Message**: Validando mutante de prices.schema.v1.yaml
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:15:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a939f34cefba4d753
+**Message**: Midiendo cobertura de protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:15:34Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9a08e27c7fe92321
+**Message**: Reading test_limits_catalog.py derivative tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:15:34Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8281d17e4f4dc872
+**Message**: Confirmando muerte del mutante en test_profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:15:50Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: af0d5699e409ca2bf
+**Message**: # Ronda 2 — U01-T09\n\nVEREDICTO: NO-VERDE\n\nEl código y los esquemas cierran F-01 a F-07, y en mi mutación no sobrevive ningún mutante no equivalente que afecte a un nombre o a una fuga de datos. El ver
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:15:50Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:15:52Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac442c3ca1806d283
+**Message**: Leyendo test_package_map.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:16:05Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3d02fd68cdb203db
+**Message**: Checking merge conflicts with git merge-tree
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:16:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae91ee0c8b1eeb1f0
+**Message**: Extrayendo la rueda de veridicus_contracts
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:16:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae65fb0f14d09df29
+**Message**: ¿Cuánto falta para terminar U1?
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:16:37Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ade3e6ea4594117b9
+**Message**: Running base contracts test suite
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:16:54Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac0d64ff2a987c18a
+**Message**: Running profiles tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:16:56Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a95318d02a41d2b44
+**Message**: Leyendo model_calls en instalación editable
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:17:10Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: acd5db6ba1086f294
+**Message**: Verifying worktree HEAD after tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:17:25Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6501ba026a6cc7cb
+**Message**: Editing U01-T09 bitácora log
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:17:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: acc7138fbde69a7a1
+**Message**: Preparando mutantes de protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:17:36Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a1e8ce3f1feb0c9ce
+**Message**: # Ronda 1 — U01-T10\n\nVEREDICTO: NO-VERDE\n\nLos 6 criterios pasan con mis propias corridas. El empaquetado de F-12 es correcto y la suite no tiene ningún fallo nuevo. El veredicto queda en NO-VERDE porq
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:17:37Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:17:50Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a3a4d57063da7c64b
+**Message**: TAREA: U01-T09 (ronda 3)\nRAMA: tarea/U01-T09   SHA: dc174d3\nCRITERIOS: 6 de 6 verificados en esta ronda.\n- CA-1: 68 pruebas pasan.\n- CA-2: `profiles.py` queda en 100 % de líneas y de ramas (95 sentenc
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:18:01Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a28a31d734e12d407
+**Message**: Corriendo mutantes contra test_protocol_surface.py
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:18:21Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:18:34Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: afb6ba1606690d016
+**Message**: Clasificando mutantes vivos de protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:18:52Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6a30a16f397d9208
+**Message**: Searching purity tests for socket.socket
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:18:59Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8098028e94abf092
+**Message**: Verificando el diff de profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:19:06Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a1cec58c102400b7c
+**Message**: Comprobando fusión sin conflictos con merge-tree
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:19:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a65d97ebb789c8a89
+**Message**: Adding purity tests to test_limits.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:19:37Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7d6e5048d134132a
+**Message**: Contando «revisión 4» en contract-summary.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:19:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a4cd7d7bf241a2474
+**Message**: Testing mutants in limits_catalog.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:20:01Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: acb986943dd676eb8
+**Message**: Corriendo mypy estricto sobre src
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:20:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a78477cf8d073db50
+**Message**: Cotejando revisión de C13 en model_calls.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:20:19Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: ad95fad22f4768b28
+**Message**: # Ronda 1 — U01-T08\n\nVEREDICTO: NO-VERDE\n\nLos seis criterios y la verificación del paso 10 pasan con mis propias corridas. El veredicto es NO-VERDE por dos hallazgos NARANJA en la guardia `protocol_su
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:20:19Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:20:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: af0d5699e409ca2bf
+**Message**: # Ronda 3 — U01-T09\n\nVEREDICTO: VERDE\n\nCorrí yo mismo los 6 criterios y pasan todos. R-01 y R-02 están cerrados, y no queda ningún hallazgo ROJO ni NARANJA. La fusión la decides tú.\n\nComprobaciones pr
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:20:27Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a749a8118afbb9ee2
+**Message**: Checking mypy on contracts src
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:20:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a454bf9dacafc74e2
+**Message**: Committing limits catalog mutant tests
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:21:02Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:21:04Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a6e63c8940e187bc0
+**Message**: TAREA: U01-T10 (ronda 2)\nRAMA: tarea/U01-T10   SHA: f300a47\nCRITERIOS: 6 de 6 verificados\nBITACORA: <project-dir>/.worktrees/U01-T10/docs/loop/bitacoras/U01-T10.md (sección Ronda 2)\nRESPUESTA: <project-dir>
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:21:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a134f198223b43760
+**Message**: Reading test_protocol_surface.py
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:21:33Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:22:04Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac3a5cc3d4ccfd5b1
+**Message**: Adding checks to protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:22:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8f7f3228ab9f30f4
+**Message**: Running test_limits.py and test_limits_catalog.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:22:35Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a700843451c235669
+**Message**: Fixing ruff lint in test_protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:22:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a08decfd655b07b3a
+**Message**: Comparing mutation copies' src directories
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:23:06Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aff1de0132ba7b16c
+**Message**: Committing protocol_surface guard fixes
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:23:14Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: ae6447958247ef922
+**Message**: TAREA: U01-T08 (ronda 2)\nRAMA: tarea/U01-T08   SHA: 8e05132 (subida con push)\nCRITERIOS: 6 de 6 en verde, con CA-2 excluyendo `c13-llamada` (P-T08-1)\nBITACORA: <project-dir>/.worktrees/U01-T08/docs/loop/
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:23:15Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:23:16Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad8c80f4af4070c57
+**Message**: Syncing mut2 mutation venv
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:23:54Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a15784502126060d6
+**Message**: Probando variantes de F-01 contra protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:24:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3416fc19e210ab7f
+**Message**: Repitiendo mutantes de protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:24:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a139794fc02044d17
+**Message**: Rearmando la rueda de veridicus_contracts
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:25:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa641967cc1bfac89
+**Message**: Leyendo la bitácora U01-T08.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:25:48Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: ad95fad22f4768b28
+**Message**: # Ronda 2 — U01-T08\n\nVEREDICTO: VERDE\n\nLos cuatro hallazgos de la ronda 1 están cerrados (F-05 lo retiraste tú y no lo cuento). No queda ningún ROJO ni NARANJA, y todos los criterios pasan con mis pro
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:25:48Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:26:19Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8ec3aef3c4409397
+**Message**: Isolating load purity test mutants
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:26:50Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6b34c15236702f00
+**Message**: Testing socket call in load
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:27:22Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af6432ac57b14d93f
+**Message**: Comparing contracts against base snapshot
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:27:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a06c059969dfa209a
+**Message**: Comparando fallos JUnit con la base
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:27:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a1e8ce3f1feb0c9ce
+**Message**: # Ronda 2 — U01-T10\n\nVEREDICTO: VERDE\n\nCorrí todo yo mismo y nada bloquea. Los 6 criterios pasan. De 95 mutantes muere todo lo que no es equivalente. La prueba de pureza hace fallar de verdad `open`, 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:27:59Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:31:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad85a671aa18a3f7f
+**Message**: Estamos construyendo la unidad U1 de contratos de Veridicus, y la ola 6 (T08, T09 y T10) ya salió en VERDE. Lo siguiente es que fusiones los PR #13, #14 y #15 con el comando que te dejé; mientras tant
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:35Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:37Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:39Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:40Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:42Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:43Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:44Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:46Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:47Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:36:49Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---

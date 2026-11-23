@@ -350,18 +350,18 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 10 — Tipos de llamadas a modelos y puerta única (implementar y probar) · tarea T08
 
-- [ ] `contracts/src/veridicus_contracts/model_calls.py`: tipos de C13 con `Role` como `str` con patrón
+- [x] `contracts/src/veridicus_contracts/model_calls.py`: tipos de C13 con `Role` como `str` con patrón
   `^[a-z][a-z0-9_]{0,31}$` (FD-U1-01, BR9.1); `GenerateRequest`, `GenerateResult`, `ModelCall`;
   `ModelCallError` y sus cinco subclases (`ContentBlocked`, `Timeout`, `ProviderError` e `InvalidOutput`
   con `call: ModelCall`; `AnonymizerUnavailable` sin él); `Protocol` `AnonymizingProvider` con solo
   `generate(self, request: GenerateRequest) -> GenerateResult`, sin importar nada fuera de
   `veridicus_contracts`, `typing`, `dataclasses`, `enum` y `datetime` (BR9.9, revisión 3 de C13).
-- [ ] `contracts/model_calls/model-call.v1.yaml` (estricto, `role` con patrón) y `role-translation.v1.yaml`
+- [x] `contracts/model_calls/model-call.v1.yaml` (estricto, `role` con patrón) y `role-translation.v1.yaml`
   (solo los tres papeles del analizador a `registro.llamadas` de C6, BR9.6).
-- [ ] `src/veridicus_contracts/checks/protocol_surface.py` (módulo guardia, §4.17) y `tests/typing/`: doble
+- [x] `src/veridicus_contracts/checks/protocol_surface.py` (módulo guardia, §4.17) y `tests/typing/`: doble
   con solo `generate` → 0 errores de `mypy.api.run --strict`; doble sin él → el error esperado (E42);
   `check_ready()` en el `Protocol` o una importación ajena → rojo (E43); E27 (`role: "Prueba A"`).
-- [ ] `tests/typing/test_anonymizing_provider.py` y `tests/checks/test_protocol_surface.py` (5–8 pruebas);
+- [x] `tests/typing/test_anonymizing_provider.py` y `tests/checks/test_protocol_surface.py` (5–8 pruebas);
   `tests/contracts/test_model_call.py` ya existe (paso 5).
 - Cubre: definición de terminado 6 de B1; C13 (tipos); BR9.1, BR9.6, BR9.9; NFR1.2. Fuera: el
   ModelGateway y los adaptadores (U11, U10).
@@ -370,18 +370,18 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 11 — Perfiles, configuración efectiva y `profiles.validate` (implementar y probar) · tarea T09
 
-- [ ] `contracts/profiles/profile-base.schema.v1.yaml` (abierto: al menos un papel, `role_aliases`, un
+- [x] `contracts/profiles/profile-base.schema.v1.yaml` (abierto: al menos un papel, `role_aliases`, un
   `fallback_provider`, `api_key_ref` con `^[A-Z][A-Z0-9_]{2,63}$`, `purpose` con patrón) y
   `profiles.schema.v1.yaml` (especialización del analizador cerrada con `unevaluatedProperties: false`:
   exactamente `judge` y `verifier`, alias `verifier_permuted → verifier`, `purpose` en su enum)
   (FD-U1-02, FD-U1-12, BR9.2–BR9.5).
-- [ ] `contracts/profiles/prices.schema.v1.yaml` (C18, estricto). `effective-config.v1.yaml` ya lo
+- [x] `contracts/profiles/prices.schema.v1.yaml` (C18, estricto). `effective-config.v1.yaml` ya lo
   escribió el paso 7 (E-5).
-- [ ] `contracts/src/veridicus_contracts/profiles.py`: `validate(data, *, key_prefix, kind)` sin E/S — sobre
+- [x] `contracts/src/veridicus_contracts/profiles.py`: `validate(data, *, key_prefix, kind)` sin E/S — sobre
   (`schema_version: 1.0.0`, nombres `^[a-z0-9-]{1,48}$`), referencias cruzadas de alias, prefijo de
   `api_key_ref` y especialización con `kind: analyzer`; `ProfileValidationError`
   (`config.invalid_profile`) que nombra perfil, papel y ajuste, nunca su valor (F8, BR9.8, §4.15).
-- [ ] Pruebas (módulo guardia, 100 % de ramas): E21–E26, E38, E39; pureza con `open`, `os.environ` y
+- [x] Pruebas (módulo guardia, 100 % de ramas): E21–E26, E38, E39; pureza con `open`, `os.environ` y
   `socket.socket` sustituidos; *canary* en `api_key_ref` ausente de todo mensaje.
 - Cubre: C18; AC13.3.1; BR9.2–BR9.5, BR9.7, BR9.8; NFR10.13, NFR10.15. Fuera: claves presentes y
   anonimizador obligatorio (U11).
@@ -390,17 +390,17 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 12 — Catálogo de límites C25 y `limits.load` (implementar y probar) · tarea T10
 
-- [ ] `contracts/limits.v1.yaml`: las cifras de security-design §5 más `transcript_body_max_bytes`
+- [x] `contracts/limits.v1.yaml`: las cifras de security-design §5 más `transcript_body_max_bytes`
   (1 004 096) e `import_body_max_bytes` (2 113 536) con `import_file_max_bytes` < `import_body_max_bytes`
   (NFRD-U6-01), `cursor_max_chars` (128, U4, NFRD-U7-04), `voice_body_max_bytes` (6 016 384,
   NFRD-U9-03) y `research_report_read_timeout_s` (30, NFRD-U12-02); cada entrada con `value`, `unit` de la
   lista cerrada, `owner`, `used_in` y `derived_from` opcional; sección `relations` (§4.4, NFRD-U1-01,
   NFRD-U1-02).
-- [ ] `contracts/src/veridicus_contracts/limits.py`: `load(environ)` lee el catálogo empaquetado una vez y aplica
+- [x] `contracts/src/veridicus_contracts/limits.py`: `load(environ)` lee el catálogo empaquetado una vez y aplica
   `VERIDICUS_LIMIT_<NOMBRE>` solo para bajar; rechaza subir, nombre inexistente, variable
   `VERIDICUS_LIMIT_*` desconocida, valor inválido para su unidad y relación rota con `LimitsConfigError`
   (`config.invalid_limit`) (BR11.1, §4.15, NFRD-U1-09).
-- [ ] `src/veridicus_contracts/checks/limits_catalog.py` (módulo guardia): forma, tipos (entero salvo
+- [x] `src/veridicus_contracts/checks/limits_catalog.py` (módulo guardia): forma, tipos (entero salvo
   `ratio` y `s`), derivadas (`audio_base64_max_chars` = 8 000 000) y relaciones. Pruebas con E33 y E37.
 - Cubre: C25; BR11.1; NFR10.14; DS1. Fuera: marcas `x-veridicus-limit` en C1 (paso 16).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_limits.py tests/checks/test_limits_catalog.py --no-cov`

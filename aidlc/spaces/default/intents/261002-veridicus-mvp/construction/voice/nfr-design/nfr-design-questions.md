@@ -60,3 +60,57 @@ C. Se mantiene lo aprobado: solo el umbral de 16 MB, y el riesgo de tiempo indef
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Requirements revisión vigente (2026-11-22)
+
+**Por qué hay segunda pasada.** La revisión 1 (2026-10-03) diseñó la voz con la pregunta sugerida del
+Paquete de Contexto de Traspaso, el `DeadlineSweeper` de U4 ampliado, 3 entregas y cifras en variables
+de entorno. El cambio 01 y la adenda 02 cambian el objeto de la síntesis (la aclaración aprobada de U8 con
+plantilla versionada), añaden la autorización de voz, el audio conservado, la espera en orden de las
+corridas y la retirada del consentimiento. El Functional Design revisión 2 (F1–F8, FD-U9-01 a FD-U9-14) y el
+NFR Requirements revisión 2 (tabla NFR-U9-01 a NFR-U9-09) ya están aprobados.
+
+## Lo que ya está decidido
+
+| Tema | Qué queda fijo | Fuente |
+|---|---|---|
+| P1 y P2 de la revisión 1 | P1 = A sigue, ahora con el lector `multipart` en memoria compartido de `session_api/shared/` (U6). P2 = A sigue: `audio-worker` pide `BGREWRITEAOF` con la cola vacía, como mucho cada 60 s; NFR10.4 revisión 2 fija además la cota por tamaño, que sigue valiendo como cota superior | Revisión 1; NFR10.4 |
+| Requisitos | NFR1.1–NFR1.4, NFR2.1–NFR2.2, NFR3.1–NFR3.16, NFR4.1–NFR4.4, NFR5.1, NFR8.1–NFR8.12, NFR10.1–NFR10.27, NFR11.1–NFR11.2, NFR12.1, NFR13.1–NFR13.3, NFR14.1–NFR14.3, NFR15.1–NFR15.4; decisiones D1–D16 | `nfr-requirements/`, revisión 2 |
+| Métodos de voz | `transcribe` y `synthesize` en el puerto de U11, escritos por U9 en B9 | NFR-U9-01; NFRD-U11-01 |
+| Supervisor | El `run-supervisor` de U4 vence los turnos de voz y libera las esperas; el código lo escribe U9 en B9 | NFR-U9-07; NFRD-U4-06 |
+| Cifras de C25 | Las de NFR-U9-02, por PR de U1; el entorno solo baja | NFRD-U1-09 |
+| Métricas | En `contracts/metrics/voice.v1.yaml`, con la lista cerrada de etiquetas de U1 | NFRD-U1-05 |
+| Red, Secret, volúmenes e Ingress | `NetworkPolicy`, `veridicus-speech-token`, PVC `veridicus-audio` y Ingress `veridicus-voice` son de U2 | NFRD-U2-03, NFRD-U2-06, NFRD-U2-15 |
+| Hardware | Todo en CPU; ninguna meta depende del perfil GPU | NFR2.2; `team.md` |
+
+## Cómo se registra la revisión
+
+- Los seis documentos y `traceability.json` pasan a la revisión 2 en el mismo archivo, con una nota de
+  cabecera que dice qué cambia. La revisión 1 queda en el historial de Git.
+- Las secciones conservan su número cuando siguen; las que salen quedan «Retirado» sin renumerar y lo
+  nuevo toma números nuevos.
+- Las precisiones a artefactos aprobados van en la tabla NFRD-U9-xx de `security-design.md`. Ningún
+  original se edita.
+
+## Lo que el diseño resolverá sin preguntar
+
+1. **Hallazgos de la revisión 1 de esta etapa.** R-01 (latido independiente de la duración de la
+   transcripción), R-02 (recorte por `MINID` desde el supervisor para que el audio no dependa del
+   consumidor), R-03 (lo cierran NFR-U9-07 y NFRD-U4-06), R-04 (centinela buscado en base64 en sus tres
+   alineaciones) y R-05 (memoria contada con el cliente de Redis y un solo *timeout* de Redis).
+2. **Orden de la clave de entrega doble.** BR3.6 dice «justo antes de publicar» y NFR10.14 dice «publicar y
+   luego `MULTI`». Se sigue NFR10.14: un corte entre los dos pasos produce, como mucho, una segunda llamada
+   a Whisper dentro del clúster, que la ingesta descarta (BR4.3); al revés, el turno perdería su resultado.
+   No sale ningún dato.
+3. **Quién libera las esperas.** BR9.2 y NFR10.26 liberan en la transacción que resuelve el turno de voz;
+   el `HoldReleaser` de U4 sondea cada 500 ms. Se combinan: la liberación es de la transacción que resuelve
+   el turno, con un módulo único; el `HoldReleaser` queda como red de seguridad con el mismo módulo.
+4. **Cifra del cuerpo de la subida.** `voice_body_max_bytes` (`audio_max_bytes` + 16 384) entra en C25,
+   como `import_body_max_bytes` de U6, porque toda operación con tope declara su nombre de C25.
+5. **Transiciones de la sesión.** Pausar, terminar y retirar cancelan las esperas y, con la retirada, cierran
+   los turnos de voz, dentro de la función de cancelación de InterviewSession que ya usan U4 y U6; así no
+   aparece una arista voice → session-lifecycle.
+
+Ningún punto cambia el alcance ni deja salir del clúster algo que hoy no sale.
+
+Sin preguntas: todo lo fijan las fuentes.

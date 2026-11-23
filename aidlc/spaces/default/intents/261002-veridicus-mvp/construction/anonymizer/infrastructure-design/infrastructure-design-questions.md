@@ -49,3 +49,43 @@ C. Aceptar el riesgo residual: CoreDNS queda como está y la tabla de fronteras 
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Design revisión vigente (2026-11-23)
+
+## Lo que ya está decidido
+
+- **U10 es MUST y forma parte del despliegue base** (D1 de `tech-stack-decisions.md` revisión 2): el
+  proxy ya no se entrega apagado, y el chart que lo genera es de U2. La CLI usa el mismo módulo en su
+  proceso.
+- **Pasan a U2** (security-design §5 «Retirado», logical-components §4 y §5): la `NetworkPolicy` de
+  salida (`0.0.0.0/0` con `except` de los rangos privados, solo 443) y la de entrada (`semantic-agent`
+  a 8080 y Prometheus a 9090), la lista blanca de CoreDNS (`deploy/coredns/Corefile`, unión de
+  `allowed-domains.v1.yaml` y `infra-domains.yaml`), el Secret `veridicus-provider-keys`, el
+  endurecimiento del pod, el volumen de solo lectura del NER y los `requests`/`limits`. La respuesta
+  P1 = A de la revisión 1 queda cumplida por U2 (NFR1.4 de U2).
+- Puertos 8080 (C21, `/healthz` y `/readyz`) y 9090 (`/metrics`); el panel se empaqueta con su SHA-256
+  (NFRD-U10-09); nombres de NFRD-U10-11; `VERIDICUS_ANONYMIZER_NER_THREADS` (NFRD-U10-07); Anthropic
+  como primer proveedor (D10); pico de RSS ≤ 1,5 GiB (scalability-design §4); arranque ≤ 60 s y sonda
+  de arranque ≥ 90 s (NFRD-U2-08).
+- **Supuesto de máquina** (brief del 2026-11-22): una sola máquina de 64 GB, solo CPU, sin máquina
+  GPU; el tamaño de Minikube lo decide U2, que es la única unidad que lo pregunta.
+
+## Cómo se registra la revisión
+
+Revisión 2 de los cuatro artefactos de esta carpeta, que sustituye a la revisión 1 del 2026-10-03 (queda
+en el historial de Git). Lo que sale queda «Retirado» con su número; las precisiones nuevas son
+IDS-U10-01 en adelante, en §6 de `infrastructure-specification.md`.
+
+## Lo que el diseño resolverá sin preguntar
+
+- El modelo NER concreto y sus criterios (lo pide D2 a esta etapa); su revisión y su `sha256` se fijan
+  en `deploy/models.lock` dentro de B10.
+- Las cifras que U10 propone a U2 para el pod (memoria, CPU, plazo de terminación, sondas) a partir del
+  pico medido y de `model_call_timeout_s` = 270 s.
+- Que el mamparo de 4 no cubra las sondas, los hilos de `torch` fijados por entorno y la puerta de CI del
+  NER real.
+- La retirada de lo que la revisión 1 ponía en U10 y ahora es de U2 (§1 a §5 de la revisión 1).
+
+Sin preguntas: todo lo fijan las fuentes.

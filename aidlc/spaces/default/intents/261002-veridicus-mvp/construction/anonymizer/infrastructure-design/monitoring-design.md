@@ -1,85 +1,88 @@
 # Diseño de monitoreo — U10 anonymizer
 
-**Insumos.** De `nfr-design/` de esta unidad: observability-design §1–§3 (logs, métricas, SLI, alertas
-informativas y panel), performance-design §1 y §5 (presupuesto de 250 ms y pico de memoria),
-scalability-design §4 y §5 (corrida de NFR8.4 y señal para escalar), reliability-design §2 y §5
-(plazos y sondas), security-design §2 y §5 (comprobación final y entrada de Prometheus) y
-logical-components §2 (dominios de falla). También: `functional-design/functional-spec.md`
-(functional-spec, máquina de estados), la frontera del clúster de `inception/domain-design/components.md`
-(components), C15 y C16 de `inception/contract-design/contract-summary.md` (contract-summary), la
-respuesta **P1 = A** de `infrastructure-design-questions.md` (CoreDNS con lista blanca), el diseño de
-monitoreo de U2 (`kube-prometheus-stack` sin Alertmanager en el módulo 8, logs por `kubectl logs`) y
-`infrastructure-specification.md` de esta carpeta.
+**Revisión 2 (2026-11-23): segunda pasada por el cambio 01, la adenda 02 y el NFR Design revisión 2.**
+Sustituye a la revisión 1 del 2026-10-03. Las métricas pasan al catálogo de
+`contracts/metrics/anonymizer.v1.yaml` con las etiquetas `outcome` y `error_code` (NFRD-U10-02), el puerto
+de métricas pasa de 8081 a 9090 (NFRD-U10-11) y el proxy ya no se entrega apagado, así que todo lo de
+este documento rige desde que el módulo 8 instala Prometheus y Grafana. La alerta de DNS externo y su
+indicador salen (§2 y §3, «Retirado»): la lista blanca de CoreDNS es de U2.
 
-Todo lo de este documento se renderiza solo con `anonymizer.enabled: true` y `monitoring.enabled:
-true`, salvo la alerta de CoreDNS (§2), que rige siempre desde el módulo 8 porque protege a todo el
-namespace. Con el proxy apagado, la observabilidad de U10 se prueba en los niveles 0 y 1 de cada PR.
+**Insumos.** De `nfr-design/` de esta unidad: observability-design §1–§7 (logs, catálogo de métricas,
+salud, correlación, panel e indicadores), performance-design §1 y §6 (metas de 20 s y prueba de NFR8),
+scalability-design §2 y §4 (mamparo y memoria), reliability-design §1 y §4 (estados y sondas),
+security-design §7 (códigos de error) y logical-components §3 (dominios de falla). También:
+functional-spec (§3.1, estados de una llamada), la tabla de fronteras de components, C16 y C21 de
+contract-summary, la observabilidad de U2 (`platform/nfr-design/security-design.md` §11: raspado,
+reglas informativas sin Alertmanager, sin Loki) e `infrastructure-specification.md` de esta carpeta.
+
+Sin Alertmanager ni notificaciones en el MVP (`project.md`): cada alerta se ve en Prometheus y en el panel,
+y la respuesta siempre es un PR. Ninguna regla cambia configuración ni apaga el proxy (AUTONOMIA-01).
 
 ## 1. Métricas y KPI
 
-Recogidas por un `ServiceMonitor` del puerto `metrics` (8081) cada 30 s; las etiquetas solo llevan
-valores de enum (observability-design §2).
+Recogidas por el `ServiceMonitor` de U2 sobre el puerto `metrics` (9090) cada 30 s. Todas las etiquetas
+son enum de la lista cerrada de U1; nunca `run_id`, `model` ni `profile_name` (observability-design §3).
 
-| Métrica | Fuente | Umbral | Por qué importa |
+| Metric | Source | Threshold | Why it matters |
 |---|---|---|---|
-| `veridicus_anonymizer_requests_total{operation,result}` | Proxy | `result="busy"` = 0 en la corrida de NFR8.4 | Volumen y desenlace de cada llamada; `busy` sostenido es la señal para escalar por PR |
-| `veridicus_anonymizer_failed_closed_total{reason}` | Proxy | 0 en una corrida de nivel 2; cada caso es un hallazgo | Muestra en qué rama se cerró una llamada sin enviar nada |
-| `veridicus_anonymizer_failed_closed_total{reason="outbound_check"}` | Proxy | 0 siempre | Si sube, el enmascarado tiene un defecto que la segunda barrera atajó |
-| `veridicus_anonymizer_replacements_total{category}` | Proxy | Informativo | Una caída a 0 con tráfico indica reglas o listas vacías |
-| `veridicus_anonymizer_masking_seconds{operation}` | Proxy (histograma) | p95 `judge` ≤ 0,25 s | Sobrecosto del proxy en el turno (NFR3.3) |
-| `veridicus_anonymizer_upstream_seconds{operation,result}` | Proxy (histograma) | p95 `judge` ≤ 170 s; `result="timeout"` = 0 en nivel 2 | Separa la latencia del proveedor de la del proxy |
-| `veridicus_anonymizer_unknown_markers_total` | Proxy | ≤ 3 en 15 min | El destino inventa o altera marcadores |
-| `veridicus_anonymizer_rules_info{schema_version}` | Proxy | Exactamente 1 serie | Qué versión de reglas corre (NFR10.11) |
-| `container_memory_working_set_bytes` del proxy | kubelet (cAdvisor) | < 85 % de `limits.memory` (≈ 272 MiB) | Margen frente al corte por memoria (NFR8.1) |
-| `kube_pod_container_status_restarts_total` del proxy | kube-state-metrics | 0 en 1 h | Reinicios por memoria o por configuración inválida |
-| `coredns_dns_responses_total{zone=".",rcode="NXDOMAIN"}` | CoreDNS (9153) | 0 en 15 min | Un pod intentó resolver un nombre fuera de la lista blanca (T15) |
+| `veridicus_anonymizer_requests_total{outcome,error_code,provider,role,slot}` | Proxy | `outcome="failed_closed"` < 1 % por día; cada caso se mira | Volumen y desenlace; un cierre es un hallazgo de configuración o de detección aunque nada haya salido |
+| `veridicus_anonymizer_requests_total{outcome="rejected"}` | Proxy | 0 en la corrida de NFR8 | `409`, `413` o `422` previos a `generate`: perfil desalineado o cuerpo demasiado grande |
+| `veridicus_anonymizer_masking_seconds` (histograma) | Proxy | p95 ≤ 20 s con 250 000 caracteres; nunca cerca de 40,5 s | Presupuesto de seudonimización (NFR3.1, NFR3.5) |
+| `veridicus_anonymizer_upstream_seconds{provider,role}` (histograma) | Proxy | Informativo; p95 frente a `model_call_timeout_s` = 270 s | Separa el tiempo del proveedor del propio (NFR3.6) |
+| `veridicus_anonymizer_replacements_total{category}` | Proxy | Informativo | Una caída a 0 con tráfico indica datos o NER mal cargados |
+| `veridicus_anonymizer_altered_markers_total{provider,role}` | Proxy | Informativo; la tasa la mide el nivel 2 de B11 | El modelo inventa o altera marcas (NFR6.2) |
+| `veridicus_anonymizer_input_tokens_total`, `_output_tokens_total` | Proxy | Informativo | Costo por proveedor |
+| `veridicus_anonymizer_inflight` | Proxy | Nunca 4 en el MVP (una corrida a la vez) | Saturación del mamparo (NFR8.2) |
+| `veridicus_anonymizer_ready` | Proxy | 1 | Igual a `/readyz` 200 (NFR15.3) |
+| `up{job="veridicus-anonymizer-proxy"}` | Prometheus | 1 | El raspado llega al pod |
+| `container_memory_working_set_bytes{container="anonymizer-proxy"}` | kubelet (U2 lo raspa en 10250) | < 85 % del límite que renderiza el chart (≈ 1 825 361 101 bytes con 2 GiB) | Margen frente a `OOMKilled` (NFR8.1, NFR8.3) |
 
 ## 2. Alertas
 
-Reglas en un `PrometheusRule` (`veridicus-anonymizer`), validadas con `promtool test rules` en
-`deploy-level0.yml`. Sin Alertmanager: ninguna despierta a nadie, se ven en Prometheus y en el panel.
-Ninguna regla cambia configuración ni apaga el proxy (AUTONOMIA-01); la respuesta siempre es un PR.
+Un `PrometheusRule` `veridicus-anonymizer` en el subchart de reglas de U2, con su prueba `promtool test
+rules`: por cada alerta, un caso que dispara y otro que no. El límite de memoria se inyecta desde los
+*values* del proxy, para no depender de `kube-state-metrics` (IDS-U10-10).
 
-| Alerta | Condición | Severidad | Va a |
+| Alert | Condition | Severity | Routes to |
 |---|---|---|---|
-| `VeridicusAnonymizerFailedClosed` | `increase(veridicus_anonymizer_failed_closed_total[15m]) > 0` | `info` | Prometheus y fila «Anonimizador»; el humano revisa las reglas |
-| `VeridicusAnonymizerOutboundCheck` | `increase(veridicus_anonymizer_failed_closed_total{reason="outbound_check"}[15m]) > 0` | `warning` | Ídem; hallazgo del enmascarado aunque nada haya salido |
-| `VeridicusAnonymizerUnknownMarkers` | `increase(veridicus_anonymizer_unknown_markers_total[15m]) > 3` | `info` | Ídem |
-| `VeridicusAnonymizerBusy` | `increase(veridicus_anonymizer_requests_total{result="busy"}[15m]) > 0` | `info` | Ídem; evaluar subir la concurrencia por PR con nueva medición |
-| `VeridicusAnonymizerMemoryHigh` | `max(container_memory_working_set_bytes{container="anonymizer-proxy"}) / max(kube_pod_container_resource_limits{resource="memory",container="anonymizer-proxy"}) > 0.85` durante 5 min | `warning` | Ídem; nueva medición de pico y PR |
-| `VeridicusAnonymizerDown` | `up{job="veridicus-anonymizer-proxy"} == 0` durante 5 min con el proxy habilitado | `warning` | Ídem; los turnos terminan en error, nada sale |
-| `VeridicusExternalDnsBlocked` | `increase(coredns_dns_responses_total{zone=".",rcode="NXDOMAIN"}[15m]) > 0` | `warning` | Ídem; revisar qué pod consulta nombres externos (configuración nueva o intento de exfiltración) |
+| `VeridicusAnonymizerFailedClosed` | `increase(veridicus_anonymizer_requests_total{outcome="failed_closed"}[15m]) > 0` | `info` | Prometheus y panel; el humano revisa el log `anonymizer.call` por `run_id` |
+| `VeridicusAnonymizerOutboundCheck` · Retirado | — | — | Retirado: el paso `outbound_check` ya no es etiqueta de métrica; queda en el log (security-design §3) y lo cubre `FailedClosed` |
+| `VeridicusAnonymizerUnknownMarkers` → `VeridicusAnonymizerAlteredMarkers` | `increase(veridicus_anonymizer_altered_markers_total[15m]) > 3` | `info` | Ídem; U11 ya invalidó los hallazgos afectados |
+| `VeridicusAnonymizerBusy` | `max_over_time(veridicus_anonymizer_inflight[15m]) >= 4` | `info` | Ídem; con una corrida a la vez no debería pasar nunca |
+| `VeridicusAnonymizerMemoryHigh` | `max(container_memory_working_set_bytes{container="anonymizer-proxy"}) > 0.85 * <limits.memory en bytes>` durante 5 min | `warning` | Ídem; nueva medición del pico y PR de U2 |
+| `VeridicusAnonymizerDown` | `up{job="veridicus-anonymizer-proxy"} == 0 or veridicus_anonymizer_ready == 0` durante 5 min | `warning` | Ídem; las corridas comerciales del clúster terminan en `anonimizador_no_disponible` y nada sale |
+| `VeridicusAnonymizerProviderErrors` (nueva) | `increase(veridicus_anonymizer_requests_total{error_code=~"analysis.provider\|analysis.timeout"}[15m]) > 2` | `info` | Ídem; límite de tasa o caída del proveedor, sin reintento (reliability-design §3) |
+| `VeridicusExternalDnsBlocked` · Retirado | — | — | Retirado: CoreDNS y su lista blanca son de U2 (con el hallazgo R-04 de la revisión 1) |
 
-## 3. SLI y SLO
+## 3. SLIs / SLOs
 
-U10 no tiene objetivo de disponibilidad (COULD); sus objetivos son de confidencialidad y sobrecosto, y
-solo rigen con el proxy habilitado.
+U10 no tiene objetivo de disponibilidad (una réplica en una máquina, reliability-design). Sus objetivos son
+de confidencialidad y de tiempo, y son informativos salvo el de fugas, que bloquea en CI.
 
-| SLI | SLO | Ventana de medición |
+| SLI | SLO target | Measurement window |
 |---|---|---|
-| p95 de `veridicus_anonymizer_masking_seconds{operation="judge"}` | ≤ 0,25 s | Corrida de nivel 2 del PR de habilitación y ventana móvil de 1 h en el clúster |
-| `failed_closed_total{reason="outbound_check"}` | 0 | Cada corrida de nivel 2 y cada día de uso |
-| `failed_closed_total` (todas las razones) | 0 en el Golden Dataset | Cada corrida de nivel 2 |
-| `requests_total{result="busy"}` | 0 | Corrida de NFR8.4 (50 sesiones, concurrencia 3) |
-| Sesiones sin turnos en error con el proxy en el camino | ≥ 98 % | Corrida de NFR8.4 |
-| p95 de `evaluated_at − submitted_at` con el proxy | ≤ 60 s | Corrida de nivel 2 del PR de habilitación (NFR3.5) |
-| Consultas NXDOMAIN de la zona raíz en CoreDNS | 0 | Ventana móvil de 24 h desde el módulo 8 |
+| Valores sembrados en los cuerpos salientes (prueba de NFR1.3 con el NER real) | 0, bloqueante | Cada PR que toca `libs/anonymizer/**` (`cicd-pipeline.md` §2) |
+| `requests_total{outcome="failed_closed"}` / total | < 1 % | Ventana móvil de 24 h en el clúster |
+| p95 de `veridicus_anonymizer_masking_seconds` | ≤ 20 s | Reporte `-m perf` con 250 000 caracteres y ventana móvil de 24 h |
+| `requests_total{error_code="analysis.anonymizer_unavailable"}` durante la prueba de NFR8 | 0 | Prueba de carga de NFR8 (50 sesiones en tandas de 3) |
+| `OOMKilled` del proxy | 0 | Prueba de carga de NFR8 |
+| `altered_markers_total` / llamadas restauradas | Se informa | Nivel 2 de B11 (NFR4.1) |
+| Consultas NXDOMAIN de la zona raíz · Retirado | — | Retirado con la alerta de DNS (U2) |
 
 ## 4. Logs y trazas
 
 | Aspecto | Decisión |
 |---|---|
-| Formato | JSON por la salida estándar con el formateador de lista blanca de `libs/` (U3) y el perfil de U10: `request_id`, `operation`, `replacements`, `result`, `code`, `reason`, `upstream_status`, `unknown_markers`, `masking_ms`, `upstream_ms` |
-| Volumen | Una línea por llamada, emitida tras borrar la tabla; `WARNING` para `failed_closed`, `rejected` y `failed`; `ERROR` al no arrancar, con el nombre del ajuste y nunca su valor |
-| Agregación | `kubectl logs` con la rotación del kubelet de U2 (10 MiB × 5); sin Loki |
-| Datos | Nunca texto del testimonio, nombres, marcadores restaurados, credencial, host del proveedor ni URL con parámetros; prueba *canary* de nivel 1 en cada PR |
-| Correlación | `X-Request-Id` por llamada; `AnonymizerGateway` registra `turn_id` y `request_id`; el proxy registra `request_id` y no lo reenvía |
-| Trazas distribuidas | No en el MVP; basta la correlación por `request_id` |
-| Auditoría | Cabeceras `X-Veridicus-Masking-Rules` y `X-Veridicus-Model`; el SHA-256 del modelo queda en `model_digest` de C3 (NFR11.1) |
+| Formato | JSON por línea en `stdout`, con el formateador de lista blanca tipada de `libs/` y el perfil de U10 (observability-design §1): `anonymizer.call`, `anonymizer.startup` y `anonymizer.startup_failed` |
+| Agregación | `kubectl logs` con la rotación del kubelet de U2; sin Loki |
+| Datos | Nunca testimonio, nombres, marcas restauradas, claves, cuerpos del proveedor ni mensajes de excepción; prueba *canary* de niveles 0 y 1 en cada PR, y la captura de logs de todos los contenedores de U2 en nivel 1 |
+| Correlación | `run_id` del cuerpo de C21, solo en el log del proxy; nunca va al proveedor. `X-Request-Id` de entrada se ignora |
+| Trazas distribuidas | No en el MVP: con una llamada a la vez, `run_id`, `masking_ms` y `upstream_ms` bastan |
+| Auditoría | Cada llamada queda en el `ModelCall` que U11 registra con `anonymized: true`; el arranque deja los SHA-256 de los datos y del NER (NFR11.1) |
 
 ## 5. Paneles
 
 | Panel | Contenido | Dónde |
 |---|---|---|
-| Fila «Anonimizador» del panel de U4 | Llamadas por `result`; cierres por `reason`; p95 de enmascarado y de destino; `busy`; memoria frente al límite; versión de reglas | JSON en `deploy/veridicus/dashboards/`, `ConfigMap` con `grafana_dashboard: "1"`; visible solo con el proxy habilitado |
-| Fila «DNS externo» del panel de plataforma | NXDOMAIN de la zona raíz y consultas reenviadas por zona (`github.com`, host del ADR) | Mismo mecanismo; desde el módulo 8, con el proxy encendido o apagado |
+| «Anonimizador» | Llamadas por `outcome` y `provider`; p95 de `masking_seconds` con líneas en 20 s y 40,5 s; p95 de `upstream_seconds` por proveedor; reemplazos por categoría; marcas alteradas; `inflight` frente a 4; *tokens* por proveedor; `ready` | Fuente: `services/anonymizer-proxy/observability/grafana-dashboard.json`. U2 lo copia a `charts/monitoring-rules/dashboards/` con el mismo SHA-256 (NFRD-U10-09, IDS-U10-08) |
+| Fila «DNS externo» · Retirado | — | Retirado: es de U2 |

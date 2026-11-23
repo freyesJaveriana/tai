@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "/veridicus/contracts/prueba/a",
+  "$defs": {
+    "cita": {
+      "type": "object",
+      "required": ["texto", "turno"],
+      "properties": {
+        "texto": {"type": "string"},
+        "turno": {"type": "integer"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

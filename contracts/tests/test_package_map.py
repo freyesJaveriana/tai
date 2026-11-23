@@ -27,10 +27,11 @@ DIRECTORIOS_DE_DATOS = (
     "queues",
     "transcript",
     "ui",
+    "vendor",
 )
 
 # Directorios de la raíz de contracts/ que no se empaquetan como datos.
-NO_EMPAQUETADOS = {"src", "tests", "ts", "vendor", "fixtures", "build", "dist"}
+NO_EMPAQUETADOS = {"src", "tests", "ts", "fixtures", "build", "dist"}
 
 IGNORAR_EN_COPIA = shutil.ignore_patterns(
     ".venv", "__pycache__", ".*_cache", ".coverage", ".hypothesis", "build", "dist"
@@ -64,6 +65,13 @@ def test_inventario_del_mapa_coincide_con_el_arbol_y_con_pyproject(contracts_roo
     mapa = {k: v for k, v in rueda["sources"].items() if k != "src"}
     assert mapa == {n: f"veridicus_contracts/{n}" for n in DIRECTORIOS_DE_DATOS}
     assert rueda["sources"]["src"] == ""
+    # F-11: la copia editable se refresca por cache-keys; cada directorio necesita el suyo.
+    claves = {
+        k["file"].removesuffix("/**")
+        for k in configuracion["tool"]["uv"]["cache-keys"]
+        if k["file"].endswith("/**")
+    }
+    assert claves == set(DIRECTORIOS_DE_DATOS), "cache-keys no coincide con el inventario"
 
 
 def test_los_subpaquetes_del_esqueleto_se_importan_con_su_nombre_de_paquete() -> None:

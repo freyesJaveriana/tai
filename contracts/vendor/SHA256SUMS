@@ -1,0 +1,10 @@
+1786a007ac00344a8f529e5a6fc5db786b0be6757e0b94a8b95a8a6a52b7fe9a  asyncapi-3.0.0.schema.json
+bf273b26f9f735b93ece78f2b61b36676e1d122ce78ab37ad5a2e45dfa1ca2b1  json-schema-2020-12-applicator.schema.json
+a10456605b2b5bb12a1b4dcfc0300f02f54d3e8bb3646bed7724583866627682  json-schema-2020-12-content.schema.json
+21f79d143fab1f180245c331e5657057045b36794d41fe151e6e4fed65035299  json-schema-2020-12-core.schema.json
+5c79404f831dd905c0f40fefac7c6f3e51bf3729b4a876a5c2020178d97f3bcc  json-schema-2020-12-format-annotation.schema.json
+c664d438a84d58889c8edecd248ce2f945a4bc0e3b087323b11303dc136abfbe  json-schema-2020-12-meta-data.schema.json
+fc99f32188da41689a9382af174dd42e8b255e4374965c157b8286556b4ab2bc  json-schema-2020-12-unevaluated.schema.json
+e921c5b79264d3689af01c1af1ffdf692e09f1c45df90a0f08eb7288c9acdeab  json-schema-2020-12-validation.schema.json
+41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f  json-schema-2020-12.schema.json
+da01ba28852cac0de53893797cb8d1942bc3b05084f526dcc216717dec314ed0  openapi-3.1.schema.json

@@ -180,7 +180,7 @@ Per unit: [TBD]
 - **Current Stage**: nfr-design
 - **Next Stage**: infrastructure-design
 - **Status**: Running
-- **Last Updated**: 2026-11-23T00:13:19Z
+- **Last Updated**: 2026-11-23T00:30:43Z
 
 - **Construction Autonomy Mode**: gated
 

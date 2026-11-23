@@ -100,6 +100,10 @@
 - 2026-11-23T00:12:37Z — La contradicción 5 s (U6) / 15 s (U7) del plazo de inactividad era de alcance, no de valor: U4 y U6 lo fijan con SET LOCAL en sus transacciones y NFR10.17 fija 15 s para U7; se aplicó SET LOCAL en consolidar y exportar, sin valor por conexión, y no se preguntó (NFRD-U7-01).
 <!-- aidlc-wave-memory:forensic-report:24db2f44243e1cfcc5ec97735c4ce223c53ab35b5f26c6c4bc0231e10acac098 -->
 
+
+- 2026-11-23T00:29:34Z — El orden de controles de NFR10.1 se leyó como el de GuardedRoute de U3: da el mismo resultado (0 filas y cuerpo sin leer) con una sola entrada para todas las unidades (NFRD-U13-01).
+<!-- aidlc-wave-memory:ethics-governance:722d55fdeff0593e92bd5927df17d22f5ed3aacfdd9b42d953bf6e3d406a8ebd -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -166,6 +170,10 @@
 
 - 2026-11-23T00:12:37Z — C1 revisión 3 no llevó el cuerpo expected_cursor de P1 = A; como ninguna fuente aprobada retiró la respuesta del humano, se mantuvo y se volvió a pedir a U1 (NFRD-U7-04) en vez de abandonarla.
 <!-- aidlc-wave-memory:forensic-report:e8bde93ba1aa51ccab70e0968a7256aa625ce30fe02a8950cbfa8f71c3360857 -->
+
+
+- 2026-11-23T00:29:34Z — PostgreSQL exige UPDATE para SELECT FOR UPDATE y veridicus_retention no lo tiene: el Job bloquea con funciones SECURITY DEFINER que solo bloquean, pedidas a U4 y U7 (NFRD-U13-05, NFRD-U13-07).
+<!-- aidlc-wave-memory:ethics-governance:1d1d4f2532647ec7066468d1d5afe752c7ab377a6512d6c156c74a3fab832e4c -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -278,6 +286,10 @@
 - 2026-11-23T00:12:37Z — Ante un COMMIT fallido el archivo no se borra (resultado desconocido) y lo resuelve el barrido, que borra solo sin fila: nunca se pierde el archivo de una versión confirmada, a costa de un huérfano de hasta 6 minutos (DS4, cierra R-01).
 <!-- aidlc-wave-memory:forensic-report:58970e7fabaa53ffbcbdf6f6d69a6c76c17a83f63591d96ae6c5dcdb7226d435 -->
 
+
+- 2026-11-23T00:29:34Z — Las claves de cancelación se escriben antes del borrado y dentro de la transacción de la sesión: una sesión revertida queda con sus corridas canceladas sin daño, a cambio de que ninguna llamada salga tras el COMMIT.
+<!-- aidlc-wave-memory:ethics-governance:2d96bc0e1bb476e9185ecf76aeb00c32ec97b8af826d623b161eb757b90da226 -->
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 
@@ -292,3 +304,6 @@
 
 - 2026-11-22T15:46:13Z — El escrito de la revisión 2 de security-design.md se revirtió a la revisión 1, byte a byte, al detectar la contradicción, para no dejar artefactos antes de la respuesta.
 <!-- aidlc-wave-memory:anonymizer:8a55eaedc1e777dd5b8e15194210b5f39ae6082e50f605ed1884cefa7c14f385 -->
+
+- 2026-11-23T00:29:34Z — El acta de la sesión máxima ronda 0,8 MiB frente al tope de 1 MiB (NFR3.9); se confirma con la medición en B13.
+<!-- aidlc-wave-memory:ethics-governance:25ac7d8e7aba1fcfb0cc0619db97e5ba0d0d1846aaf87e79280bf278f4a8605c -->

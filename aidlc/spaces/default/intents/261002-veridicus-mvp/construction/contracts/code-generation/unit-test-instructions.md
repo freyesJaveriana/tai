@@ -41,8 +41,8 @@ corre la suite de otra unidad. Se ejecutan desde la raíz del repositorio.
 | Excepciones de `libs/errors/` (PD-7) | `timeout 60 uv run --frozen --offline --directory libs/errors pytest`, `... mypy --strict src`, `... ruff check .` | Verde, ≥ 80 % de líneas; 0 errores; 0 hallazgos |
 | Una capa (pasos 3–22) | El comando `Verificación:` del paso | Verde |
 | Suite Python completa | `timeout 60 uv run --frozen --offline --directory contracts pytest` | Verde, ≤ 60 s (meta ≤ 20 s), ≥ 80 % de líneas |
-| Ramas de los módulos guardia | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,python/profiles.py,python/limits.py,python/canonical.py,python/registry.py" --fail-under=100` | 100 % |
-| Tipos | `uv run --frozen --offline --directory contracts mypy --strict src python` | 0 errores |
+| Ramas de los módulos guardia | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,src/veridicus_contracts/profiles.py,src/veridicus_contracts/limits.py,src/veridicus_contracts/canonical.py,src/veridicus_contracts/registry.py" --fail-under=100` | 100 % |
+| Tipos | `uv run --frozen --offline --directory contracts mypy --strict src` | 0 errores |
 | *Lint* | `uv run --frozen --offline --directory contracts ruff check .` | 0 hallazgos |
 | Mitad TypeScript | `timeout 60 npm --prefix contracts/ts test`, `npm --prefix contracts/ts run typecheck`, `npm --prefix contracts/ts run lint` | Verde, ≤ 60 s, ≥ 80 % de líneas; 0 errores |
 | Generados sin diferencias | `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check`, `... tools.gen_jcs_vectors --check`, `npm --prefix contracts/ts run gen:check` | Sin diferencias |

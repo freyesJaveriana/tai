@@ -9,6 +9,7 @@
 | C-3 | `PATCH /sessions/{session_id}/analysis` (NFR-U6-03, NFRD-U6-02) | Se confirma, con respuesta `202` | Deja de estar abierta (PD-3). Entra en C1 en el paso 16 |
 | D-1 | `GET /notice` (FD-U4-08) | Pública, sin sesión; solo devuelve el texto versionado del aviso | Deja de estar abierta (PD-3). Entra en la lista pública de C1 en el paso 16, con su motivo |
 | D-3 | NFRD-U3-09 | Queda decidida por D-1 | Ninguno |
+| E-1 | Mapa `python/` → `veridicus_contracts` (functional-spec §1, D1, D15). Tres rondas NO-VERDE de U01-T01 por la misma causa: el mapa no lo ven la instalación editable (F-01), el sdist con enlaces (F-05) ni mypy (F-08) | Los módulos se mueven a `contracts/src/veridicus_contracts/`; el nombre de importación no cambia (decidido el 2026-11-23) | PD-9: cambian V-GUARD, V-TYPES y las rutas de los pasos 3, 10, 11, 12, 17 y 19. Exige un nuevo `Approve Plan`. Los originales que citan `contracts/python/` (functional-spec §1 y `entities.md` de U1, contract-summary, components, bolt-plan, unit-of-work-dependency y artefactos de U10, U7 y U9) se ponen al día al cerrar la etapa si el humano lo decide |
 | D-2 | FD-U1-14 | Opción (b): un tramo entre «» que es solo un término prohibido **sí** se escanea. FD-U11-20 queda resuelta con esta misma decisión | Deja de estar abierta (PD-3). C8 (`excluded_spans`) y sus casos de escaneo la reflejan en el paso 13 |
 
 ## Precisiones que el agente resuelve sin preguntar

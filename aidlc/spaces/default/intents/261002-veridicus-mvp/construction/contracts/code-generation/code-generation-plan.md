@@ -49,6 +49,7 @@ a `main` con *squash-merge*. `Approve Plan` lo elige el humano (team.md, Mandate
 | PD-6 | El escáner `scan(text, literal_sources)` es de U11 (FD-U1-09). U1 publica `integrity/scan-cases.v1.yaml` y valida solo su forma (BR5.8); no reimplementa el escáner. `checks/veracity.py` compara nombres, rótulos y enum por igualdad de palabras (BR3.3, BR6.3). | Un comparador propio de texto libre en U1 | Un solo escáner en el sistema; los casos E10–E14, E30 y E40 los ejecuta U11 en B11. |
 | PD-7 | `libs/errors/` es una distribución aparte, `veridicus-errors` (importada como `veridicus_errors`), con su `pyproject.toml`, su `uv.lock`, sus pruebas y sus compuertas (V-ERRORS). `contracts/` **no** la importa ni la incluye en su rueda: `checks/error_codes.py` lee sus fuentes por ruta con `ast` (nombre de clase, base y atributo `code`) y las compara con el catálogo. | Dependencia por ruta en `uv` desde `contracts/`; meter las clases en la rueda de contratos | `check_package` (paso 22) y BR12.1 no cambian; `libs/errors` tiene sus propios tipos, *lint* y cobertura del 80 % (team.md) (R-03 de la revisión 1). |
 | PD-8 | Los pasos que escriben un contrato antes de C25 (pasos 7, 8 y 11) o de C1 (pasos 13–15) solo prueban su forma y sus *fixtures*; las marcas `x-veridicus-limit` y `x-veridicus-max-bytes` se comprueban contra el catálogo en el paso 16 (`limits_match`), y las guardias que miran C1 pasan a verde en el paso 16. Cada guardia del paso 5 marca sus pruebas con un marcador de pytest por contrato (`c1`, `c6`, `c7`, `c13`, `c16`, `c18`, `c19`, `c21`, `c8`, `labels`, `speech`, `asyncapi`) para poder acotarlas con `-m`. | Mover C25 y C1 al principio | Se conserva el orden de bolt-plan; ninguna verificación exige verde a una prueba cuyo contrato aún no existe (R-01, R-02, R-11). C7 va antes que C8 porque su esquema no depende del vocabulario (R-12). |
+| PD-9 | Los módulos Python de contratos viven en `contracts/src/veridicus_contracts/<módulo>.py` y no en `contracts/python/`; el nombre de importación (`veridicus_contracts.<módulo>`) no cambia. Los esquemas y catálogos siguen en sus directorios de `contracts/` y entran a la rueda como datos (decisión del humano el 2026-11-23, tras tres rondas NO-VERDE de U01-T01: F-01, F-05, F-08). | Mantener `python/` con un mapa de desarrollo propio (`__path__` ampliado y lector de recursos sustituido): funciona al importar, pero mypy no resuelve las importaciones cruzadas (F-08) | Cambian las rutas de V-GUARD y V-TYPES y las de los pasos 3, 10, 11, 12, 17 y 19. Los artefactos aprobados que citan `contracts/python/` (functional-spec §1, contract-summary, components, bolt-plan y otros) no se editan: la precisión queda en `decisiones-humano.md` y se lleva a los originales si el humano lo decide al cerrar la etapa. |
 
 ## Dependencias y punto de partida
 
@@ -145,8 +146,8 @@ Todos corren desde la raíz del repositorio, en CPU. Las suites no tienen red; s
 |---|---|---|
 | V-INSTALL | `uv sync --frozen --directory contracts` (con red) | Código 0; `uv.lock` con *hashes* coincide |
 | V-SUITE | `timeout 60 uv run --frozen --offline --directory contracts pytest` | Verde, ≤ 60 s (meta ≤ 20 s), ≥ 80 % de líneas |
-| V-GUARD | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,python/profiles.py,python/limits.py,python/canonical.py,python/registry.py" --fail-under=100` | 100 % de ramas |
-| V-TYPES | `uv run --frozen --offline --directory contracts mypy --strict src python` | 0 errores |
+| V-GUARD | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,src/veridicus_contracts/profiles.py,src/veridicus_contracts/limits.py,src/veridicus_contracts/canonical.py,src/veridicus_contracts/registry.py" --fail-under=100` | 100 % de ramas |
+| V-TYPES | `uv run --frozen --offline --directory contracts mypy --strict src` | 0 errores |
 | V-LINT | `uv run --frozen --offline --directory contracts ruff check .` | 0 hallazgos (reglas `S` incluidas) |
 | V-AUDIT | `uv run --frozen --directory contracts pip-audit --format json --output build/pip-audit.json` (con red) y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.audit_gate build/pip-audit.json --ignore .pip-audit-ignore.yaml` | 0 vulnerabilidades con versión corregida fuera de excepciones vigentes |
 | V-GEN | `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check` y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_jcs_vectors --check` | Sin diferencias |
@@ -166,14 +167,15 @@ misma ola no dependen entre sí.
 ### Paso 1 — Estructura del paquete y configuración · tarea T01
 
 - [ ] `contracts/pyproject.toml`: distribución `veridicus-contracts` con `hatchling` y el mapa de rutas de
-  functional-spec §1 (`python/` a la raíz del paquete, esquemas y catálogos como datos, `*/fixtures/`
-  fuera) (D1, D15); dependencias de tech-stack-decisions §3 más `yamllint` en el grupo de desarrollo;
+  functional-spec §1 con la precisión PD-9 (módulos en `src/veridicus_contracts/`, esquemas y catálogos
+  como datos, `*/fixtures/` fuera) (D1, D15); la rueda, construida por `uv build` (sdist → rueda) o por
+  `uv build --wheel`, y la instalación editable ven los mismos módulos y datos; dependencias de tech-stack-decisions §3 más `yamllint` en el grupo de desarrollo;
   `uv lock --directory contracts` (con red) genera `uv.lock` con *hashes*, que se versiona.
 - [ ] `build/` en `.gitignore`; `tools/audit_gate.py` y el paso de `pip-audit` crean `build/` si falta.
 - [ ] Configuración en `pyproject.toml`: mypy estricto; Ruff con reglas por defecto + `S` (toda
   supresión `# noqa: S…` con motivo); cobertura con ramas y exclusión declarada solo para `ts/generated/`.
 - [ ] Directorios del inventario: `api/`, `errors/`, `queues/`, `analyzer/v1/`, `integrity/`, `ui/`,
-  `profiles/`, `model_calls/`, `cli/`, `metrics/`, `health/`, `format/`, `transcript/`, `python/`,
+  `profiles/`, `model_calls/`, `cli/`, `metrics/`, `health/`, `format/`, `transcript/`,
   `vendor/`, `fixtures/`, `src/veridicus_contracts/{checks,tools}/`, `tests/`; `py.typed`.
 - [ ] Fuera de `contracts/`: `.gitattributes` con `contracts/** text eol=lf` (NFRD-U1-13); `.gitignore`
   con `.env`, `*.pem`, `*.key`, `kubeconfig*`, `secrets*.yaml`, `.worktrees/` y `build/` si faltan.
@@ -196,11 +198,11 @@ misma ola no dependen entre sí.
 
 - [ ] `src/veridicus_contracts/loaders.py`: único punto que crea `ruamel.yaml.YAML(typ="safe",
   pure=True)` con `allow_duplicate_keys = False` y YAML 1.2; lectura de JSON (D5, §4.1).
-- [ ] `python/registry.py`: registro `referencing` que recorre los esquemas presentes bajo `contracts/`
+- [ ] `src/veridicus_contracts/registry.py`: registro `referencing` que recorre los esquemas presentes bajo `contracts/`
   (incluido `vendor/` cuando el paso 4 lo cree) bajo `https://veridicus.invalid/` + `$id`; recuperación
   que lanza error ante cualquier URI ajena (§4.2, BR12.3, FD-U1-11). Las pruebas de este paso usan
   esquemas mínimos en `tests/data/`.
-- [ ] `python/canonical.py`: `sha256_jcs(obj)` sobre `rfc8785` (D14).
+- [ ] `src/veridicus_contracts/canonical.py`: `sha256_jcs(obj)` sobre `rfc8785` (D14).
 - [ ] Pruebas (5–8 por módulo; 100 % de ramas en `registry` y `canonical`): YAML válido; clave duplicada
   rechazada; `!!python/object` rechazado; `no`/`on` como texto; `$ref` canónico resuelto; forma antigua
   `contracts/analyzer/v1/salida.schema.json#/$defs/cita` no resuelta (E36); `https://` rechazado sin red;
@@ -346,7 +348,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 10 — Tipos de llamadas a modelos y puerta única (implementar y probar) · tarea T08
 
-- [ ] `contracts/python/model_calls.py`: tipos de C13 con `Role` como `str` con patrón
+- [ ] `contracts/src/veridicus_contracts/model_calls.py`: tipos de C13 con `Role` como `str` con patrón
   `^[a-z][a-z0-9_]{0,31}$` (FD-U1-01, BR9.1); `GenerateRequest`, `GenerateResult`, `ModelCall`;
   `ModelCallError` y sus cinco subclases (`ContentBlocked`, `Timeout`, `ProviderError` e `InvalidOutput`
   con `call: ModelCall`; `AnonymizerUnavailable` sin él); `Protocol` `AnonymizingProvider` con solo
@@ -362,7 +364,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 - Cubre: definición de terminado 6 de B1; C13 (tipos); BR9.1, BR9.6, BR9.9; NFR1.2. Fuera: el
   ModelGateway y los adaptadores (U11, U10).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/typing tests/checks/test_protocol_surface.py tests/contracts/test_model_call.py --no-cov`
-  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src python` → 0 errores.
+  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src` → 0 errores.
 
 ### Paso 11 — Perfiles, configuración efectiva y `profiles.validate` (implementar y probar) · tarea T09
 
@@ -373,7 +375,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   (FD-U1-02, FD-U1-12, BR9.2–BR9.5).
 - [ ] `contracts/profiles/effective-config.v1.yaml` y `prices.schema.v1.yaml` (C18, estrictos); la huella
   de `effective-config.valid.json` es su `sha256_jcs` (BR9.7).
-- [ ] `contracts/python/profiles.py`: `validate(data, *, key_prefix, kind)` sin E/S — sobre
+- [ ] `contracts/src/veridicus_contracts/profiles.py`: `validate(data, *, key_prefix, kind)` sin E/S — sobre
   (`schema_version: 1.0.0`, nombres `^[a-z0-9-]{1,48}$`), referencias cruzadas de alias, prefijo de
   `api_key_ref` y especialización con `kind: analyzer`; `ProfileValidationError`
   (`config.invalid_profile`) que nombra perfil, papel y ajuste, nunca su valor (F8, BR9.8, §4.15).
@@ -392,7 +394,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   NFRD-U9-03) y `research_report_read_timeout_s` (30, NFRD-U12-02); cada entrada con `value`, `unit` de la
   lista cerrada, `owner`, `used_in` y `derived_from` opcional; sección `relations` (§4.4, NFRD-U1-01,
   NFRD-U1-02).
-- [ ] `contracts/python/limits.py`: `load(environ)` lee el catálogo empaquetado una vez y aplica
+- [ ] `contracts/src/veridicus_contracts/limits.py`: `load(environ)` lee el catálogo empaquetado una vez y aplica
   `VERIDICUS_LIMIT_<NOMBRE>` solo para bajar; rechaza subir, nombre inexistente, variable
   `VERIDICUS_LIMIT_*` desconocida, valor inválido para su unidad y relación rota con `LimitsConfigError`
   (`config.invalid_limit`) (BR11.1, §4.15, NFRD-U1-09).
@@ -480,7 +482,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 17 — Interfaces en proceso C10–C12, C23 y C24 (implementar y probar) · tarea T16
 
-- [ ] `contracts/python/human_review.py` (C10), `report_ports.py` (C11), `identity.py` (C12),
+- [ ] `contracts/src/veridicus_contracts/human_review.py` (C10), `report_ports.py` (C11), `identity.py` (C12),
   `access_log.py` (C23) y `retention.py` (C24 v1.1.0 con `Purgeable.count_session(uow, session_id) ->
   Mapping[str, int]`, NFRD-U13-08) como `Protocol` tipados con su versión en el encabezado y las firmas de
   contract-summary revisión 3 y de las precisiones aprobadas (p. ej. `open_round(..., for_update=False)`,
@@ -489,7 +491,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   y uno con firma distinta falla.
 - Cubre: C10–C12, C23, C24; NFR13.2. Fuera: implementaciones (U4, U5, U7, U13).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/typing/test_protocols.py --no-cov`
-  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src python` → 0 errores.
+  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src` → 0 errores.
 
 ### Paso 18 — Métricas, formato de fecha y nombres (implementar y probar) · tarea T17
 
@@ -509,7 +511,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 - [ ] Módulos guardia: `checks/loader_usage.py` (§4.1 y §4.2: PyYAML, `YAML(...)` fuera de `loaders.py`,
   `typ` distinto de `"safe"`, `load_all`, `Loader=`, `subprocess`/`multiprocessing`/`os.system` en
-  `checks/`, `tests/` o `python/`; publicada como `scan(paths)`), `checks/refs.py` (§4.2, E36),
+  `checks/`, `tests/` o los módulos de `src/veridicus_contracts/`; publicada como `scan(paths)`), `checks/refs.py` (§4.2, E36),
   `checks/redos.py` (§4.5: recorrido completo, subconjunto portátil, entrada acotada, Hypothesis con techo
   de 1 s y prueba de versión 3.12), `checks/synthetic.py` (§4.10, publicada como `scan(paths)`),
   `checks/fixture_coverage.py` (§4.10) y `checks/ci_workflows.py` (§4.11: ningún *workflow* con

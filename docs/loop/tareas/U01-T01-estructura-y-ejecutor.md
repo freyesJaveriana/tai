@@ -2,6 +2,8 @@
 
 > El orquestador llenó esta tarea a partir del `code-generation-plan.md` aprobado de U1 (revisión 2, `Approve Plan` del 2026-11-23). El humano la revisa antes del despacho.
 >
+> **Actualización del 2026-11-23 (PD-9, E-1, plan reaprobado):** los módulos Python van en `contracts/src/veridicus_contracts/` y **no existe `contracts/python/`**. Se cambió CA-4 y se añadió CA-8.
+>
 > **Este archivo, con los pasos del plan que cita, es todo el mundo del codificador.** No va a leer el PRD.
 
 **Unidad:** U01: `contracts`   **Bolt:** B1   **Rama base:** `feat/b1-contratos`
@@ -62,7 +64,7 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-4**: tipos y *lint* sin errores sobre el esqueleto.
   ```bash
-  uv run --frozen --offline --directory contracts mypy --strict src python
+  uv run --frozen --offline --directory contracts mypy --strict src
   ```
   ```bash
   uv run --frozen --offline --directory contracts ruff check .
@@ -90,6 +92,16 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
   ```
   Esperado: `0 apariciones`, código 0.
 
+- [ ] **CA-8**: el mapa de la rueda (PD-9) es el mismo en desarrollo y en la rueda, por los dos caminos de construcción.
+  ```bash
+  timeout 120 uv run --frozen --offline --directory contracts pytest tests/test_package_map.py --no-cov
+  ```
+  Esperado: verde. Las pruebas, con lectura de vuelta, comprueban que:
+  - en la instalación editable, `importlib.resources.files("veridicus_contracts")` encuentra los directorios de datos del mapa;
+  - `uv build` (sdist → rueda) y `uv build --wheel`, sobre una copia del árbol, dan la misma lista de entradas: los directorios del mapa y ningún `/fixtures/`;
+  - mypy estricto resuelve una importación cruzada entre dos módulos de `src/veridicus_contracts/` (un módulo de prueba temporal en la copia, no en el árbol versionado);
+  - no existe `contracts/python/` y cada directorio de datos de `contracts/` está registrado en el mapa (inventario).
+
 ---
 
 ## Plan de pruebas
@@ -113,4 +125,5 @@ Según el Testing Contract, el ejecutor queda listo **antes** de la primera prue
 - `yamllint` va en el grupo de desarrollo (lo usa V-YAML en el paso 24).
 - `uv lock` necesita red una vez. El `uv.lock` resultante se versiona.
 - Con `src/veridicus_contracts/` todavía vacío, mypy necesita al menos un `__init__.py` y `py.typed`. No escribas lógica: cualquier módulo con comportamiento pertenece a otra tarea.
+- El `__init__.py` no amplía `__path__` ni sustituye lectores de recursos: con PD-9 ya no hace falta ningún mecanismo de desarrollo.
 - Conventional Commits en español, con alcance `contracts`, por ejemplo `chore(contracts): esqueleto del paquete y ejecutor de pruebas (T01)`.

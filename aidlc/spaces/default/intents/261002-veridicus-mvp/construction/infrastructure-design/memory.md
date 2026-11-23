@@ -92,6 +92,14 @@
 - 2026-11-23T01:45:49Z — Segunda pasada sin preguntas: U9 no cambia ninguna cifra de pod del presupuesto de U2; P3 = A se lee como voice.enabled en true en values-cpu.yaml de la única máquina.
 <!-- aidlc-wave-memory:voice:864d3de47a98b740a83ea46853772c7d0a4fa19434bd2c056f750d3251f25c40 -->
 
+
+- 2026-11-23T01:56:42Z — «La forma exacta de los dos manifiestos» que U13 dejó a esta etapa se fijó como dos plantillas de `deploy/jobs/` con el mismo pod; `--as-of` solo en la de simulación, para que un valor mal pasado nunca convierta una simulación en un borrado (IDS-U13-01).
+<!-- aidlc-wave-memory:ethics-governance:81ad61ec825690be6395b8a1bb3dd27040798bbfe2b2efa4cb08e65aaad284ab -->
+
+
+- 2026-11-23T01:56:42Z — El `Job` lee el `ConfigMap` de la API con `configMapKeyRef` clave por clave y no con `envFrom`: así una clave que falte impide arrancar y la comprobación de IDS-U5-02 la ve en el render (IDS-U13-03).
+<!-- aidlc-wave-memory:ethics-governance:00dc58267aaf4e011e3615610f0e82f8d6ff73f3846683ab98e7f3c0fa1a9be7 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -277,6 +285,10 @@
 
 - 2026-11-23T01:45:49Z — No se pide subir Redis a 768 MiB: el AofRewriteRequester reescribe con la cola vacía, y una prueba de nivel 1 exige un pico de RSS ≤ 427 MiB; solo si falla se pide a U2 por PR (IDS-U9-05).
 <!-- aidlc-wave-memory:voice:6a218770f575bed308ef787cba579c27e3ef1b32db506fa938457bbd52d4d37d -->
+
+
+- 2026-11-23T01:56:42Z — Sin alerta para el `Job`: lo lanza el humano y lee su salida al terminar; una regla sobre `kube_job_status_failed` avisaría a la misma persona más tarde y sin la causa.
+<!-- aidlc-wave-memory:ethics-governance:e466e7a0e683681f713df03e36e0e78e656bde2104e50f975dbee613848b5a2e -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

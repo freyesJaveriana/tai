@@ -42166,3 +42166,238 @@
 **Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:25:36Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3e02d0a460d38b1d
+**Message**: Probing validate_openapi with malformed inputs
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:26:07Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a58ef6b66a0ecd44f
+**Message**: Reading validators.py before rewriting
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:26:38Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a220e46fb621d3f7c
+**Message**: Running validators tests after rewrite
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:27:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: adde8a899ae199f46
+**Message**: Checking mypy and ruff on validators.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:27:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: abbe505a20e8d5191
+**Message**: Running full contracts test suite
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:28:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a27b938b528dbe071
+**Message**: Writing U01-T02 round-one response file
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:28:46Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5f04f33a0225e4e1
+**Message**: Appending round-two notes to bitácora.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:29:04Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: ae04b937b5082b255
+**Message**: TAREA: U01-T02 (ronda 2, retrabajo)\nRAMA: tarea/U01-T02   SHA: 830d7295eb12bbdb301b26f6a1d8c4e419af4e31 (subida a origin)\nCRITERIOS: 7 de 7 verificados de nuevo en esta ronda.\n- **CA-1:** 30 pruebas e
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T17:29:04Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:29:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8c561412224542cd
+**Message**: Running test_validators.py for CA-2
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:30:13Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad2b8b88e2c58a425
+**Message**: Installing veridicus_contracts wheel offline
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:30:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aff31b33198578f01
+**Message**: Testing extract_message_payloads with references
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T17:31:02Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:31:10Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a2a7bf77d74681b69
+**Message**: ok, avísame cuando T02 esté VERDE
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:31:14Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a41a8d8443c72d23a
+**Message**: Checking modified files against Bolt branch
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:31:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: ada05a0cdd1adeec8
+**Message**: # Ronda 2 — U01-T02\n\nVEREDICTO: VERDE\n\nCorrí yo los 7 criterios sobre `830d729` y todos pasan. Los tres NARANJA de la ronda 1 quedaron cerrados, y comprobé F-01 y F-03 corriéndolos, no leyendo el códi
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T17:31:43Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T17:35:27Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6960171c14148309
+**Message**: Estamos construyendo la unidad U1 de contratos, Bolt B1, y T02 salió VERDE en la revisión. Te toca fusionar el PR #6 (https://github.com/freyesJaveriana/tai/pull/6) y avisarme con «fusioné T02» para d
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T18:17:27Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T18:20:45Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae483d43f017dcb84
+**Message**: Construimos U1 de Veridicus (contratos, Bolt B1): T01 está fusionada y T02 está aprobada en VERDE con su PR #6 listo. Falta que fusiones el PR #6 con «Squash and merge» y su confirmación, para que yo 
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T18:21:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T18:21:37Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T18:21:38Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T18:21:40Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T18:21:41Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T18:21:42Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T18:21:43Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---

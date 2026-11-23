@@ -196,14 +196,14 @@ misma ola no dependen entre sí.
 
 ### Paso 3 — Carga, registro y huella JCS (implementar y probar) · tarea T02
 
-- [ ] `src/veridicus_contracts/loaders.py`: único punto que crea `ruamel.yaml.YAML(typ="safe",
+- [x] `src/veridicus_contracts/loaders.py`: único punto que crea `ruamel.yaml.YAML(typ="safe",
   pure=True)` con `allow_duplicate_keys = False` y YAML 1.2; lectura de JSON (D5, §4.1).
-- [ ] `src/veridicus_contracts/registry.py`: registro `referencing` que recorre los esquemas presentes bajo `contracts/`
+- [x] `src/veridicus_contracts/registry.py`: registro `referencing` que recorre los esquemas presentes bajo `contracts/`
   (incluido `vendor/` cuando el paso 4 lo cree) bajo `https://veridicus.invalid/` + `$id`; recuperación
   que lanza error ante cualquier URI ajena (§4.2, BR12.3, FD-U1-11). Las pruebas de este paso usan
   esquemas mínimos en `tests/data/`.
-- [ ] `src/veridicus_contracts/canonical.py`: `sha256_jcs(obj)` sobre `rfc8785` (D14).
-- [ ] Pruebas (5–8 por módulo; 100 % de ramas en `registry` y `canonical`): YAML válido; clave duplicada
+- [x] `src/veridicus_contracts/canonical.py`: `sha256_jcs(obj)` sobre `rfc8785` (D14).
+- [x] Pruebas (5–8 por módulo; 100 % de ramas en `registry` y `canonical`): YAML válido; clave duplicada
   rechazada; `!!python/object` rechazado; `no`/`on` como texto; `$ref` canónico resuelto; forma antigua
   `contracts/analyzer/v1/salida.schema.json#/$defs/cita` no resuelta (E36); `https://` rechazado sin red;
   vectores JCS límite (`1e21`, `-0`, `5e-324`, `0.1`).
@@ -213,12 +213,12 @@ misma ola no dependen entre sí.
 
 ### Paso 4 — Validación estándar y meta-esquemas (implementar y probar) · tarea T02
 
-- [ ] `contracts/vendor/`: meta-esquemas empaquetados de AsyncAPI 3.0.0, JSON Schema 2020-12 y OpenAPI
+- [x] `contracts/vendor/`: meta-esquemas empaquetados de AsyncAPI 3.0.0, JSON Schema 2020-12 y OpenAPI
   3.1, con `vendor/SHA256SUMS` (D4, NFR10.9).
-- [ ] `src/veridicus_contracts/validators.py`: OpenAPI 3.1 con `openapi-spec-validator` (D3); AsyncAPI
+- [x] `src/veridicus_contracts/validators.py`: OpenAPI 3.1 con `openapi-spec-validator` (D3); AsyncAPI
   3.0 contra `vendor/` y extracción de la carga de cada mensaje (D4); JSON Schema 2020-12 estricto (palabra
   clave desconocida = error, BR1.9) con formatos `uuid` y `date-time` (D2).
-- [ ] `tests/test_validators.py` (7 pruebas): `vendor/` = `SHA256SUMS`; meta-esquema alterado falla;
+- [x] `tests/test_validators.py` (7 pruebas): `vendor/` = `SHA256SUMS`; meta-esquema alterado falla;
   OpenAPI y AsyncAPI mínimos válido e inválido; carga extraída; palabra clave desconocida rechazada.
 - Cubre: BR1.9; D2–D4; NFR10.9. Fuera: reglas propias de `checks/`.
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_validators.py --no-cov`

@@ -25,7 +25,7 @@ CAMPOS = ("hecho", "observaciones", "tema")
 REGLAS = ("vocabulary", "clarification")
 MOTIVOS = ("mentions_contradiction", "phrase", "cites_turn")
 # Escenarios de functional-spec y la decisión D-2 que deben tener al menos un caso.
-ORIGENES_EXIGIDOS = ("E10", "E11", "E12", "E13", "E14", "E30", "D-2")
+ORIGENES_EXIGIDOS = ("E10", "E11", "E12", "E13", "E14", "E30", "D-2", "A-1")
 
 CLAVES_DE_CASO = frozenset(
     {"id", "source", "synthetic", "rule", "field", "text", "literal_sources", "expect"}
@@ -33,7 +33,7 @@ CLAVES_DE_CASO = frozenset(
 CLAVES_DE_VOCABULARIO = frozenset({"matches", "excluded"})
 CLAVES_DE_ACLARACION = frozenset({"valid", "reasons", "phrases"})
 IDENTIFICADOR = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
-ORIGEN = re.compile(r"E[0-9]+|BR[0-9]+\.[0-9]+|D-2")
+ORIGEN = re.compile(r"E[0-9]+|BR[0-9]+\.[0-9]+|D-2|A-[0-9]+")
 SEPARADOR_DE_DIGITOS = re.compile(r"(?<=[0-9])[ .\-](?=[0-9])")
 DIGITOS_LARGOS = re.compile(r"[0-9]{6,}")
 

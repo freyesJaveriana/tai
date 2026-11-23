@@ -38,8 +38,11 @@ ACLARACION = "integrity/neutral-clarification.v1.yaml"
 SALIDA = "analyzer/v1/salida.schema.json"
 C7 = "integrity/review-suggestion.v2.json"
 
+# E-7: los 9 términos de la primera versión más los de VE-02 con sus flexiones regulares.
 TERMINOS_APROBADOS = [
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
+    "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
+    "inculpa", "engaños", "falsos", "falsas",
 ]  # fmt: skip
 CATEGORIAS_APROBADAS = ["veracity_score", "is_lying", "truthfulness", "veracidad", "credibilidad"]
 ROTULOS_APROBADOS = {
@@ -136,6 +139,28 @@ def test_los_rotulos_versionados_son_los_nueve_aprobados() -> None:
     documento = load_contract(ROTULOS)
     assert documento["schema_version"] == "2.0.0"
     assert documento["labels"] == ROTULOS_APROBADOS
+
+
+def test_a1_el_aviso_dice_prueba_y_c8_lo_excluye_entero() -> None:
+    """A-1: «prueba» está en el aviso de VE-01; solo el aviso y los textos del analista se excluyen."""
+    aviso = load_contract(AVISO)
+    palabras = {normalizar(p) for p in "".join(c if c.isalpha() else " " for c in aviso["text"]).split()}
+    assert {"prueba"} == palabras & {normalizar(t) for t in veracity.TERMINOS}
+    match = load_contract(C8)["match"]
+    assert "aviso.text" in match["excluded_whole_texts"]
+    assert "notice_text" in match["excluded_spans"]
+    assert "prueba" in veracity.TERMINOS
+
+
+@pytest.mark.parametrize("nombre", ["prueba", "Pruebas", "esProbatorio", "pliego_de_cargos", "inculpa", "falsos"])
+def test_los_terminos_de_ve02_fuera_del_aviso_se_marcan_en_los_nombres(nombre: str) -> None:
+    assert con_veracidad(nombre)
+
+
+@pytest.mark.parametrize("nombre", ["probar", "comprueba", "reprueba", "pliegue", "inculpar", "engañar", "pruebaz"])
+def test_e14_las_flexiones_no_fijadas_son_una_limitacion_declarada(nombre: str) -> None:
+    """E14: ninguna fuente fija estas formas; la lista no las cubre y eso queda a la vista."""
+    assert not con_veracidad(nombre)
 
 
 def test_el_aviso_versionado_trae_version_y_frase_base() -> None:

@@ -49,6 +49,8 @@ cases:
     text: "Mintio sobre la fecha del viaje."
     literal_sources: []
     expect: {matches: [mintió], excluded: []}
+  # E14 es una limitación declarada: la lista solo trae las flexiones regulares de género y número
+  # de E-7, no las verbales («mienten») ni las subcadenas («falsete»); cada ampliación entra por su PR.
   - id: e14-falsete-no-coincide
     source: E14
     synthetic: true
@@ -155,6 +157,111 @@ cases:
     text: "Habla de un ENGANO en la venta del terreno."
     literal_sources: []
     expect: {matches: [engaño], excluded: []}
+  # --- E-7: un caso por término de VE-02 y por flexión regular (BR5.1, BR5.8, E40) ---
+  - id: termino-prueba
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Esto es una prueba de lo que contó sobre la tienda."
+    literal_sources: []
+    expect: {matches: [prueba], excluded: []}
+  - id: termino-pruebas
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Hay pruebas de que el camino estaba cerrado."
+    literal_sources: []
+    expect: {matches: [pruebas], excluded: []}
+  - id: termino-probatorio
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Un valor probatorio sobre la hora de llegada."
+    literal_sources: []
+    expect: {matches: [probatorio], excluded: []}
+  - id: termino-probatoria
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Una fuerza probatoria sobre la hora de llegada."
+    literal_sources: []
+    expect: {matches: [probatoria], excluded: []}
+  - id: termino-probatorios
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Unos datos probatorios sobre la hora de llegada."
+    literal_sources: []
+    expect: {matches: [probatorios], excluded: []}
+  - id: termino-probatorias
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Unas notas probatorias sobre la hora de llegada."
+    literal_sources: []
+    expect: {matches: [probatorias], excluded: []}
+  - id: termino-pliego
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se menciona un pliego sobre la compra del terreno."
+    literal_sources: []
+    expect: {matches: [pliego], excluded: []}
+  - id: termino-pliegos
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "Se mencionan dos pliegos sobre la compra del terreno."
+    literal_sources: []
+    expect: {matches: [pliegos], excluded: []}
+  - id: termino-inculpa
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Dice que él inculpa al vecino de la esquina."
+    literal_sources: []
+    expect: {matches: [inculpa], excluded: []}
+  - id: termino-enganos-sin-tilde
+    source: BR5.2
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Habla de dos ENGAÑOS en la venta del terreno."
+    literal_sources: []
+    expect: {matches: [engaños], excluded: []}
+  - id: termino-falsos
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Los datos de la hora son falsos según el texto."
+    literal_sources: []
+    expect: {matches: [falsos], excluded: []}
+  - id: termino-falsas
+    source: BR5.1
+    synthetic: true
+    rule: vocabulary
+    field: hecho
+    text: "Las versiones de la hora son falsas según el texto."
+    literal_sources: []
+    expect: {matches: [falsas], excluded: []}
+  - id: a1-prueba-fuera-del-aviso
+    source: A-1
+    synthetic: true
+    rule: vocabulary
+    field: observaciones
+    text: "No son prueba, dijo el vecino, sino un relato de la tarde."
+    literal_sources: []
+    expect: {matches: [prueba], excluded: []}
   - id: termino-en-tema
     source: BR5.4
     synthetic: true

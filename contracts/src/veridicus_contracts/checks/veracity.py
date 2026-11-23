@@ -61,6 +61,8 @@ CARPETA_EXCLUIDA = "fixtures"
 
 TERMINOS = (
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
+    "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
+    "inculpa", "engaños", "falsos", "falsas",
 )  # fmt: skip
 CATEGORIAS = ("veracity_score", "is_lying", "truthfulness", "veracidad", "credibilidad")
 ESCANEADOS = (

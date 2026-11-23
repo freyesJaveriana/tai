@@ -26,9 +26,14 @@ from veridicus_contracts.checks.scan_cases import (
 CASOS = "integrity/scan-cases.v1.yaml"
 TESTIMONIO = "integrity/testimony-warning-cases.v1.yaml"
 LIMITES = "limits.v1.yaml"
-TERMINOS = ("mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño")  # fmt: skip
+# E-7: los 9 términos de la primera versión más los de VE-02 con sus flexiones regulares.
+TERMINOS = (
+    "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
+    "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
+    "inculpa", "engaños", "falsos", "falsas",
+)  # fmt: skip
 FRASES = ("antes dijo", "dijo antes", "se contradice", "antes mencionó", "había dicho")
-ORIGENES = ("E10", "E11", "E12", "E13", "E14", "E30", "D-2")
+ORIGENES = ("E10", "E11", "E12", "E13", "E14", "E30", "D-2", "A-1")
 CANARIO = "canario-de-testimonio-sintetico"
 ESPACIOS = [
     9, 10, 11, 12, 13, 28, 29, 30, 31, 32, 133, 160, 5760, 8192, 8193, 8194, 8195, 8196, 8197, 8198,
@@ -160,7 +165,9 @@ def test_un_id_repetido() -> None:
     assert validar(documento) == ["BR5.8: casos[1]: id repetido"]
 
 
-@pytest.mark.parametrize("origen", ["", "e10", "E", "E1x", "BR5", "BR5.8.1", "D-3", "otro", 5])
+@pytest.mark.parametrize(
+    "origen", ["", "e10", "E", "E1x", "BR5", "BR5.8.1", "D-3", "otro", 5, "A-", "A-1x", "a-1", "A1"]
+)
 def test_un_origen_que_no_es_valido(origen: Any) -> None:
     documento = casos()
     documento["cases"][0]["source"] = origen
@@ -168,7 +175,7 @@ def test_un_origen_que_no_es_valido(origen: Any) -> None:
     assert "BR5.8: casos[0]: source no es un origen válido" in problemas
 
 
-@pytest.mark.parametrize("origen", ["E1", "E40", "BR5.8", "BR12.3", "D-2"])
+@pytest.mark.parametrize("origen", ["E1", "E40", "BR5.8", "BR12.3", "D-2", "A-1", "A-12"])
 def test_los_origenes_validos(origen: str) -> None:
     documento = casos()
     documento["cases"][-1]["source"] = origen

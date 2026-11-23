@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "veridicus-contracts"
+version = "0.1.0"
+description = "Contratos de Veridicus: esquemas, catálogos, tipos y comprobaciones transversales."
+requires-python = ">=3.12"
+dependencies = [
+    "jsonschema[format]>=4.23",
+    "referencing>=0.35",
+    "ruamel.yaml>=0.18",
+    "rfc8785>=0.1.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "pytest-socket>=0.7",
+    "hypothesis>=6.120",
+    "openapi-spec-validator>=0.7",
+    "mypy>=1.13",
+    "ruff>=0.8",
+    "pip-audit>=2.7",
+    "hatchling>=1.26",
+    "yamllint>=1.35",
+]
+
+# Mapa de rutas de functional-spec §1 (D1, D15): los módulos de python/ quedan
+# en la raíz del paquete; esquemas y catálogos van como datos con la misma ruta
+# relativa; los fixtures no se empaquetan.
+[tool.hatch.build.targets.wheel]
+packages = ["src/veridicus_contracts"]
+exclude = ["**/fixtures/**"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"python" = "veridicus_contracts"
+"api" = "veridicus_contracts/api"
+"errors" = "veridicus_contracts/errors"
+"queues" = "veridicus_contracts/queues"
+"analyzer" = "veridicus_contracts/analyzer"
+"integrity" = "veridicus_contracts/integrity"
+"ui" = "veridicus_contracts/ui"
+"profiles" = "veridicus_contracts/profiles"
+"model_calls" = "veridicus_contracts/model_calls"
+"cli" = "veridicus_contracts/cli"
+"metrics" = "veridicus_contracts/metrics"
+"health" = "veridicus_contracts/health"
+"format" = "veridicus_contracts/format"
+"transcript" = "veridicus_contracts/transcript"
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+mypy_path = "src"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["vendor", "ts"]
+
+[tool.ruff.lint]
+# Reglas por defecto más S (bandit). Toda supresión "# noqa: S..." lleva su motivo.
+extend-select = ["S"]
+
+[tool.ruff.lint.per-file-ignores]
+# assert es el idioma de pytest.
+"tests/**" = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--disable-socket --cov=veridicus_contracts --cov-branch --cov-fail-under=80"
+
+[tool.coverage.run]
+branch = true
+source = ["veridicus_contracts"]
+
+[tool.coverage.report]
+# Única exclusión declarada: el código generado de la mitad TypeScript.
+omit = ["ts/generated/*"]

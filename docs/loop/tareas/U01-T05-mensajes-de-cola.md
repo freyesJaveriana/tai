@@ -21,6 +21,7 @@
 - `queues/indexing.v1.yaml` (C4): **no** se entrega. Tampoco el umbral ni las calificaciones retiradas (BR2.2, BR2.4 y BR2.5 «Retirado»).
 - Comprobar las marcas `x-veridicus-limit` contra C25: es `checks/limits_match.py` en T15 (paso 16, PD-8). Aquí la marca solo se escribe.
 - El resto de `profiles/` (`profile-base`, `profiles.schema`, `prices.schema`) y `profiles.validate`: es T09 (paso 11).
+- Excepción a «no editar las pruebas de T03»: solo los textos que siguen citando E-2 o T09 para C18 (docstrings de `tests/contracts/test_queue_messages.py:9,120` y `test_profiles_contract.py:3`) se ponen al día con E-5 (F-07 de la ronda 2 de U01-T03). Ninguna aserción cambia.
 - Lógica de productores y consumidores (U4, U9).
 - Editar los *fixtures* o las pruebas de T03. Si una prueba parece mal, el codificador para y lo informa al orquestador (`docs/loop/CANDIDATAS.md`); no la cambia.
 - **Archivos de las tareas vecinas de la ola 5**, que corren en paralelo y no se pisan:

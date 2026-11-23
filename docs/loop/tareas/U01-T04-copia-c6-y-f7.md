@@ -37,7 +37,7 @@ Solo entonces el orquestador despacha al codificador sobre ese worktree.
 - Leer o copiar nada de `/insumos`. Las huellas se comparan solo contra los archivos del worktree.
 - Las pruebas `c7` de `tests/guards/test_autonomia_05.py`: pasan a verde en T06 (paso 8, PD-8).
 - Cualquier otro contrato (T05 a T14) y cualquier módulo de `checks/`.
-- Cambiar la `expectation` o el `reject_reason` de un *fixture* de T03. Para el `payload` de los *fixtures* de C6, ver la decisión pendiente A-4 de T03.
+- Cambiar la `expectation` o el `reject_reason` de un *fixture* de T03. Los `payload` de los *fixtures* de C6 ya salieron de los esquemas reales (E-3); si aun así no coinciden con la copia, el codificador para y lo informa.
 
 ---
 

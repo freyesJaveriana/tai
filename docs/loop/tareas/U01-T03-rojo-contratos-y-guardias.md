@@ -50,9 +50,9 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-1**: la recolección no tiene errores (paso 5, primera parte).
   ```bash
-  timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts tests/guards --co -q
+  timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts tests/guards --co -q --no-cov
   ```
-  Esperado: código 0 y ningún `error` de recolección. Ver la decisión pendiente A-1 en Notas.
+  Esperado: código 0 y ningún `error` de recolección.
 
 - [ ] **CA-2**: la suite de contratos y guardias está en rojo por fallos, no por errores (paso 5, segunda parte).
   ```bash
@@ -148,15 +148,16 @@ Marcadores (PD-8): cada prueba lleva el marcador del contrato que lee (`c1`, `c6
 - `check_red` lee un XML que produce pytest en la propia máquina. Si usa `xml.etree`, Ruff marca `S314`: la supresión lleva su motivo («informe JUnit local generado por pytest, no es entrada externa»). No añadas `defusedxml` ni otra dependencia.
 - `build/red.xml` queda bajo `contracts/build/`, que ignora `.gitignore`; pytest crea la carpeta si falta. No se versiona.
 - Los archivos de prueba tienen nombres únicos en todo `tests/` y sus subcarpetas no llevan `__init__.py` (modo de importación por defecto, igual que hoy).
-- Los *payloads* de C6 se escriben con la forma que da contract-summary §C6. La copia real llega en T04; ver la decisión pendiente A-4.
+- Los *payloads* de C6 toman su forma de los dos `*.schema.json` de `/insumos/app/contratos/analizador/v1/`, que el codificador **solo lee** (E-3). Nunca los copia, ni enteros ni en parte, y no copia nada más de `/insumos`: la copia es del humano en T04 (PD-4). Los valores de los *payloads* son sintéticos (`synthetic-names.yaml`).
+- El caso de C2 que valida `effective_config` contra C18 lleva el marcador `c18` (E-2); pasa a verde en T09.
 - F-11: corre siempre con `uv run` y nunca con `--no-sync`.
 - PD-9: el único módulo nuevo es `contracts/src/veridicus_contracts/tools/check_red.py`. No crees `src/veridicus_contracts/__init__.py`.
 - Desde esta tarea y hasta T15, la suite completa (`pytest` sin rutas, V-SUITE) queda en rojo a propósito. Ninguna tarea intermedia usa V-SUITE como criterio.
 - Conventional Commits en español con alcance `contracts`, por ejemplo `test(contracts): pruebas en rojo de contratos de datos y guardias AUTONOMIA (T03)`.
 
-### Decisiones pendientes para el humano (antes del despacho)
+### Decisiones tomadas (2026-11-23)
 
-- **A-1.** El comando de recolección del plan (`--co -q`) no lleva `--no-cov`. Con `--cov-fail-under=80` en `addopts`, pytest-cov puede dar código 1 por cobertura aunque no haya errores de recolección. Propuesta: añadir `--no-cov` a CA-1. Si se deja tal cual y falla solo por cobertura, el codificador no baja el umbral; lo anota en la bitácora y para.
-- **A-2.** El paso 5 lista `tests/contracts/test_model_call.py` pero no nombra *fixtures* de C13. Propuesta: `model_calls/fixtures/` con una llamada válida y E27 (`role: "Prueba A"`, rechazo por BR9.1).
-- **A-3.** El plan no nombra las pruebas de `check_red`. CA-4 las propone (5–8 pruebas por componente, Testing Contract).
-- **A-4.** Sin la copia de C6, los *payloads* de C6 se escriben desde contract-summary y pueden no coincidir con la copia real. Opciones: (a) permitir al codificador **leer** (nunca copiar) los dos `*.schema.json` de `/insumos/app/contratos/analizador/v1/`; (b) permitir que T04 ajuste solo el `payload` de los *fixtures* de C6, nunca su `expectation` ni su `reject_reason`, con cada ajuste justificado en su bitácora.
+- **A-1.** `--no-cov` en el `--co -q` de CA-1; el plan ya lo lleva.
+- **A-2.** `model_calls/fixtures/` con una llamada válida y E27 (`role: "Prueba A"`, rechazo por BR9.1).
+- **A-3.** CA-4: pruebas propias de `check_red` (5–8, Testing Contract).
+- **A-4.** E-3: lectura sin copia de los esquemas de C6 en `/insumos` (ver Notas).

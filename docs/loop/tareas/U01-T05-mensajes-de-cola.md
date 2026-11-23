@@ -7,8 +7,7 @@
 **Unidad:** U01: `contracts`   **Bolt:** B1   **Rama base:** `feat/b1-contratos`
 **Pasos del plan que cubre:** paso 7 de `aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md`
 **Historias que implementa:** ninguna propia (U1 es `spec`). Respalda AC3.2.1 y AC3.6.2.
-**Depende de:** U01-T04 (ola 5, en paralelo con U01-T06 y U01-T07). **Ver la decisión pendiente A-5 antes del despacho.**
-
+**Depende de:** U01-T04 (ola 5, en paralelo con U01-T06 y U01-T07).
 ---
 
 ## Alcance
@@ -21,7 +20,7 @@
 
 - `queues/indexing.v1.yaml` (C4): **no** se entrega. Tampoco el umbral ni las calificaciones retiradas (BR2.2, BR2.4 y BR2.5 «Retirado»).
 - Comprobar las marcas `x-veridicus-limit` contra C25: es `checks/limits_match.py` en T15 (paso 16, PD-8). Aquí la marca solo se escribe.
-- Escribir C18 (`profiles/effective-config.v1.yaml`): es T09 (paso 11). Ver A-5.
+- Escribir C18 (`profiles/effective-config.v1.yaml`): es T09 (paso 11). El `$ref` de `effective_config` apunta a C18 aunque aún no exista; el caso que lo valida lleva el marcador `c18` y pasa a verde en T09 (E-2).
 - Lógica de productores y consumidores (U4, U9).
 - Editar los *fixtures* o las pruebas de T03. Si una prueba parece mal, el codificador para y lo informa al orquestador (`docs/loop/CANDIDATAS.md`); no la cambia.
 - **Archivos de las tareas vecinas de la ola 5**, que corren en paralelo y no se pisan:
@@ -55,7 +54,7 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-1**: los mensajes de cola aceptan y rechazan sus *fixtures* (verificación del paso 7).
   ```bash
-  timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py --no-cov
+  timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py -m "not c18" --no-cov
   ```
   Esperado: verde. Cada *fixture* de `queues/fixtures/runs/`, `results/` y `speech/` se acepta, o se rechaza por su `reject_reason`: E1 sin `entrada` (BR2.1), E2 mayor desconocido (BR1.2), E3 menor con campo nuevo aceptado (BR1.3), `salida` que no cumple C6 (BR2.3) y fallido con un campo `text` (NFRD-U1-07).
 
@@ -110,6 +109,6 @@ El rojo es de T03. Antes de escribir el primer contrato, corre CA-1 y pega la sa
 - F-11: corre siempre con `uv run` y nunca con `--no-sync`.
 - Conventional Commits en español con alcance `contracts`, por ejemplo `feat(contracts): mensajes de cola C2, C3 y C5 v2 (T05)`.
 
-### Decisión pendiente para el humano (antes del despacho)
+### Decisión tomada (2026-11-23)
 
-- **A-5.** El paso 7 valida `effective_config` de C2 contra C18 (F2 paso 3, BR9.7), pero C18 (`profiles/effective-config.v1.yaml`) lo escribe el paso 11, en T09 (ola 6). PD-8 solo aplaza C25 y C1, no C18. Con el registro cerrado de T02, un `$ref` a un esquema ausente es un error y el *fixture* válido de C2 no puede pasar a verde en esta ola. Opciones: (a) adelantar a T05 solo `profiles/effective-config.v1.yaml` (T09 conserva `profile-base`, `profiles.schema`, `prices` y `profiles.validate`); (b) mover T05 a la ola 6, después de T09; (c) aplazar el caso de C2 con `effective_config` como PD-8 hace con C25. Las tres cambian el plan aprobado y piden volver a aprobarlo. Mientras no se decida, si el verde depende de C18, el codificador para y lo informa: no escribe C18.
+- **A-5 → E-2: opción (c), aplazar como PD-8.** Contexto: el paso 7 valida `effective_config` de C2 contra C18 (F2 paso 3, BR9.7), pero C18 (`profiles/effective-config.v1.yaml`) lo escribe el paso 11, en T09 (ola 6). PD-8 solo aplaza C25 y C1, no C18. Con el registro cerrado de T02, un `$ref` a un esquema ausente es un error y el *fixture* válido de C2 no puede pasar a verde en esta ola. Opciones: (a) adelantar a T05 solo `profiles/effective-config.v1.yaml` (T09 conserva `profile-base`, `profiles.schema`, `prices` y `profiles.validate`); (b) mover T05 a la ola 6, después de T09; (c) aplazar el caso de C2 con `effective_config` como PD-8 hace con C25. Las tres cambian el plan aprobado y piden volver a aprobarlo. Mientras no se decida, si el verde depende de C18, el codificador para y lo informa: no escribe C18.

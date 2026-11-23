@@ -40941,3 +40941,424 @@
 **Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
 
 ---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:23Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:26Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:28Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:30Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:32Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:34Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:35Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:38Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:39Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:41Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:42Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-plan.md
+**Context**: construction > contracts > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:47Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/unit-test-instructions.md
+**Context**: construction > contracts > code-generation > unit-test-instructions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:34:53Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:35:09Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Context**: construction > contracts > code-generation > code-generation-questions.md
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T16:36:28Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:36:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Context**: construction > contracts > code-generation > code-generation-questions.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:36:56Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5c0f917818c2d692
+**Message**: ! aidlc engine log decision --checkpoint plan-approval --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contrac
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T16:37:08Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --checkpoint plan-approval --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md --unit contracts
+**Error**: Missing --stage <slug>
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:37:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0dca7d4609e6fe56
+**Message**: ! aidlc engine log decision --stage code-generation --checkpoint plan-approval --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file <project-dir>/aidlc/spaces/default/intents/261002-veridicus-
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T16:37:16Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage code-generation --checkpoint plan-approval --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md --unit
+**Error**: --unit expects a value, got end of arguments.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T16:37:23Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage code-generation --checkpoint plan-approval --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md --unit contracts
+**Error**: Missing --decision <text>
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:40:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a437fefc8ad420dec
+**Message**: Seguimos construyendo los contratos de Veridicus (U1) y estamos registrando tu nueva aprobación del plan, que ahora pone los módulos en `src/`. Lo siguiente es correr con `!` el comando `aidlc engine 
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T16:43:00Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage code-generation --checkpoint plan-approval --decision Approve Plan --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md --unit contracts
+**Error**: Plan Approval questions file must contain exactly [Answer]: (blank)
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:43:03Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Context**: construction > contracts > code-generation > code-generation-questions.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:43:07Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad2c3c97372108445
+**Message**: ! aidlc engine log decision --stage code-generation --checkpoint plan-approval --decision "Approve Plan" --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file <project-dir>/aidlc/spaces/default
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T16:43:15Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage code-generation --checkpoint plan-approval --decision Approve Plan --session 5399d6a8-973e-4041-af9d-c81b243406a0 --questions-file
+**Error**: --questions-file expects a value, got end of arguments.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:43:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8b648f8337868e85
+**Message**: ! cd <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:43:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a40bfa184add698a7
+**Message**: ! aidlc engine log decision --stage code-generation --checkpoint plan-approval --decision "Approve Plan" --session 5399d6a8-973e-4041-af9d-c81b243406a0 --unit contracts --questions-file code-generatio
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:43:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac599d585a33d520d
+**Message**: ! cd <project-dir>
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:43:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aaf4e0df2925d673b
+**Message**: ! aidlc engine log decision --stage code-generation --checkpoint plan-approval --decision "Approve Plan" --session 5399d6a8-973e-4041-af9d-c81b243406a0 --unit contracts --questions-file aidlc/spaces/d
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-23T16:44:08Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: Approve Plan
+**Checkpoint**: Code Generation Plan Approval
+**Plan Target**: unit:contracts
+**Intent**: 01a0fd86-74f4-753c-96a3-c16f1e06ab6e
+**Directive Epoch**: sha256:4b7ef8ef4eed44746d60c75e1ee50226ff056c841b3f9d6d96dbf6575a4870c2
+**Run floor**: STAGE_JUMPED:2026-11-23T04:11:40Z#4
+**Approval Fingerprint**: sha256:v3:b0203d49b237e2f3207f4dd15a076500addc9bc044df64c07c30c202ccc17905
+**Questions File**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Questions SHA-256**: d35ae3b9e1373dc81fa3809dcb641e90f8fd1c018edd8fb24cec64040c5ff7c7
+**Prompt SHA-256**: d35ae3b9e1373dc81fa3809dcb641e90f8fd1c018edd8fb24cec64040c5ff7c7
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+**Unit**: contracts
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T16:44:08Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage code-generation --checkpoint plan-approval --decision Approve Plan --session 5399d6a8-973e-4041-af9d-c81b243406a0 --unit contracts --questions-file aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Error**: Plan Approval decision requires exactly two offered options
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:44:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a33cc9ad179090768
+**Message**: ok, espero el comando
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:44:34Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: Explore
+**Agent ID**: ab05718d96b20a21e
+**Message**: La opción que falta es **`--options`**, con las dos opciones ofrecidas en un solo valor separado por comas. No es una opción repetida, ni existen `--offered` u `--option`.\n\n**Ejemplo literal**, en `/w
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T16:44:35Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:44:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aebed28001318b3bb
+**Message**: ! aidlc engine log decision --stage code-generation --checkpoint plan-approval
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-23T16:44:56Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: Approve this exact Code Generation plan?
+**Options**: Approve Plan,Request Changes
+**Checkpoint**: Code Generation Plan Approval
+**Plan Target**: unit:contracts
+**Intent**: 01a0fd86-74f4-753c-96a3-c16f1e06ab6e
+**Directive Epoch**: sha256:4b7ef8ef4eed44746d60c75e1ee50226ff056c841b3f9d6d96dbf6575a4870c2
+**Run floor**: STAGE_JUMPED:2026-11-23T04:11:40Z#4
+**Approval Fingerprint**: sha256:v3:b0203d49b237e2f3207f4dd15a076500addc9bc044df64c07c30c202ccc17905
+**Questions File**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Questions SHA-256**: d35ae3b9e1373dc81fa3809dcb641e90f8fd1c018edd8fb24cec64040c5ff7c7
+**Prompt SHA-256**: d35ae3b9e1373dc81fa3809dcb641e90f8fd1c018edd8fb24cec64040c5ff7c7
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+**Unit**: contracts
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T16:44:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a59f0d119cf761a28
+**Message**: Approve Plan
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T16:45:07Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Error Logged
+**Timestamp**: 2026-11-23T16:45:09Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage code-generation --checkpoint plan-approval --session 5399d6a8-973e-4041-af9d-c81b243406a0 --unit contracts --details Approve Plan --questions-file <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Error**: Plan Approval questions file must contain exactly [Answer]: Approve Plan
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T16:45:12Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Context**: construction > contracts > code-generation > code-generation-questions.md
+
+---
+
+## Plan Approval Recorded
+**Timestamp**: 2026-11-23T16:45:13Z
+**Event**: PLAN_APPROVAL_RECORDED
+**Stage**: code-generation
+**Details**: Approve Plan
+**Unit**: contracts
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+**Checkpoint**: Code Generation Plan Approval
+**Plan Target**: unit:contracts
+**Intent**: 01a0fd86-74f4-753c-96a3-c16f1e06ab6e
+**Directive Epoch**: sha256:4b7ef8ef4eed44746d60c75e1ee50226ff056c841b3f9d6d96dbf6575a4870c2
+**Run floor**: STAGE_JUMPED:2026-11-23T04:11:40Z#4
+**Approval Fingerprint**: sha256:v3:b0203d49b237e2f3207f4dd15a076500addc9bc044df64c07c30c202ccc17905
+**Questions File**: aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/code-generation-questions.md
+**Questions SHA-256**: 6394493f0d5205e0749ea82cea77bbca4c243bee27dd8e708c14c916068d8751
+**Prompt SHA-256**: d35ae3b9e1373dc81fa3809dcb641e90f8fd1c018edd8fb24cec64040c5ff7c7
+
+---

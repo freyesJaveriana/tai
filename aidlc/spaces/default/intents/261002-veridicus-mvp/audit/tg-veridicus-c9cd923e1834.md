@@ -44822,3 +44822,677 @@
 **Context**: construction > contracts > code-generation > code-generation-plan.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:55:59Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7c2d6714aabb74e0
+**Message**: Reading pyproject.toml packaging config
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:56:07Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab4c4eb6a17571fda
+**Message**: Reading rules for profiles.validate
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:56:13Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae7b680d3867cb4e6
+**Message**: Reading loaders.py and error_codes.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:56:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0d3b5ea19066e41c
+**Message**: Reading salida.schema.json llamadas
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:56:38Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aba45c14f04a17cce
+**Message**: Checking error-codes.v2.yaml for invalid_profile.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:56:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac6c3b1bad87169ed
+**Message**: Checking LimitsConfigError in libs/errors.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:57:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a21457e89e4e5133b
+**Message**: Running profiles contract tests.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:57:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a58b32a613f13e85e
+**Message**: Reading limits security-design sections
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:57:46Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae371d8786f13ac5d
+**Message**: Checking worktree git status.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:58:10Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac27d10177e43f139
+**Message**: Reading C18 prices schema spec
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:58:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aaa8bc3729d3eceb3
+**Message**: Writing test_limits.py tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:58:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af379458e23dde6ab
+**Message**: Writing test_profiles.py tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:58:48Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab84ad7fc69a8b123
+**Message**: Running red pytest on limits
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:59:13Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a21f0f5f8c7a611fb
+**Message**: Writing profile schema files
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:59:19Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7545bb2cd12c0804
+**Message**: Locating yamllint config for limits.v1.yaml
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:59:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a86b1d9920979489d
+**Message**: Fixing key-prefix assertion in test_profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T19:59:50Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: afc0692969a84c810
+**Message**: Writing limits.py loader
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:00:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a76b75db484a95d03
+**Message**: Running queue message contract tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:00:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aaa0d54b414e299d6
+**Message**: Editing include list in pyproject.toml
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:00:46Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3cfa9b963a90efde
+**Message**: Writing U01-T09 bitácora entries
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:00:52Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aab2930fe8202351a
+**Message**: Running ruff and package-map checks
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:01:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a1283264c28b77828
+**Message**: Pushing U01-T09 to origin.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:01:18Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a3a4d57063da7c64b
+**Message**: TAREA: U01-T09\nRAMA: tarea/U01-T09   SHA: dcc2b16\nCRITERIOS: 6 de 6 verificados en mi worktree. Todos los comandos salieron verdes.\n- CA-1: 54 pruebas pasan.\n- CA-2: `profiles.py` queda en 100 % de lí
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:01:18Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:01:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8e72a595dc0b38db
+**Message**: Updating hatch_build.py force-include
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:01:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3cd5fe29ba2e32c1
+**Message**: Verifying limits.py coverage report
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:02:00Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af7e5d2246e757264
+**Message**: Leyendo el paso F8 de functional-spec.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:02:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: afa4b96b2c2bff4ee
+**Message**: Linting limits.v1.yaml braces
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:02:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af049f3dab31bb6be
+**Message**: Leyendo C18 en contract-summary.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:02:57Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a87df9f409c7e7058
+**Message**: Rerunning limits and catalog tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:03:04Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9cd56f35d59ad901
+**Message**: Midiendo cobertura de profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:03:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: afb814f0c9a5b5d01
+**Message**: Appending to the U01-T10.md bitácora
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:03:36Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a997d88997c882223
+**Message**: Listando fixtures de perfiles C18
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:03:53Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a6e63c8940e187bc0
+**Message**: TAREA: U01-T10\nRAMA: tarea/U01-T10   SHA: 7b4bd48\nCRITERIOS: 6 de 6 verificados (CA-1 a CA-6; cada comando y su salida están en la bitácora)\nBITACORA: <project-dir>/.worktrees/U01-T10/docs/loop/bitacoras
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:03:53Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:04:08Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a1cfc6dbcf3d50ece
+**Message**: Comparando effective-config.v1.yaml con profiles.schema
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:04:39Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad7220fccd3b83ae8
+**Message**: Reading limits_catalog.py guard module
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:04:40Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab2eb88e408ebc84a
+**Message**: Sondeando fugas en profiles.validate
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:05:11Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae98326f661c44ac6
+**Message**: Grepping step 12 in code-generation-plan.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:05:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: afd781e756e54f323
+**Message**: Preparando mutantes de profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:05:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a2020f20591c35361
+**Message**: Running test_limits.py and test_limits_catalog.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:06:13Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aaf20d579b3f1d26a
+**Message**: Probando mensajes de profiles.validate
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:06:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab1bb025cfb4cca63
+**Message**: Inspecting limits.v1.yaml wheel packaging
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:06:45Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a585f95ae5c0249fd
+**Message**: Validando prices.schema.v1.yaml manualmente
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:06:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8fead24a3d5bd0b0
+**Message**: Checking worktree status after builds
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:07:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a428f2bea76c91617
+**Message**: Comprobando prices.schema sin pruebas
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:07:19Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0720fa382a508bf4
+**Message**: Archiving contracts tree for pyproject.toml test
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:07:34Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: af0d5699e409ca2bf
+**Message**: # Ronda 1 — U01-T09\n\nVEREDICTO: NO-VERDE\n\nLos 6 criterios pasan en mi propia ejecución. El veredicto es NO-VERDE porque quedan 5 hallazgos NARANJA, dos de ellos en el saneamiento de mensajes del módul
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:07:34Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:07:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac53f9da3c52063d7
+**Message**: Extracting contracts copy for pyproject.toml test
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:08:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a826087ca7f07ad13
+**Message**: Checking test limits in plan
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:09:18Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac80bc76a8497f165
+**Message**: Editing error naming in profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:09:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5f37538ad80bfedc
+**Message**: Checking registry.py URI rules.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:09:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a94d8c49b43b54cd5
+**Message**: Mutating prices.schema.v1.yaml token ref
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:09:53Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a37c94cbbaf44c3fa
+**Message**: Confirming limits.v1.yaml lands at wheel root
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:10:02Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a4aecae833c5f8265
+**Message**: Running tests for model_calls
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:10:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0fdbd45613ff4716
+**Message**: Fixing mypy errors in profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:11:04Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab9cb307b98b2f5b8
+**Message**: Drafting test_protocol_surface.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:11:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a3a4d57063da7c64b
+**Message**: TAREA: U01-T09 (ronda 2)\nRAMA: tarea/U01-T09   SHA: ca4175b\nCRITERIOS: 6 de 6 verificados en esta ronda, tras el merge de `origin/feat/b1-contratos` (limpio).\n- CA-1: 67 pruebas pasan.\n- CA-2: `profil
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:11:09Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:11:25Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad4354da6c374f478
+**Message**: Syncing mutation-testing venv copy
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:11:35Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aab909e7f8573f690
+**Message**: Running red CA-1 tests
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:11:49Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: adb38fbdaea9b1a88
+**Message**: Revisando el diff de test_profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:11:57Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad87944acb485a8f7
+**Message**: Mutating limits.py and limits_catalog.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:12:06Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a27440054946eab3e
+**Message**: Editing test_anonymizing_provider.py imports
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:12:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac131781e7ca224cf
+**Message**: Reproduciendo el rojo de test_profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:12:37Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a940289f34049b13a
+**Message**: Linting model-call.v1.yaml with yamllint.
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:12:53Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9453a43e71980c14
+**Message**: Probando casos adversos en profiles.validate
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:13:08Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a610c8d6a2a3a644c
+**Message**: Running contracts regression suites
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:13:25Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad3bbe283cd55923b
+**Message**: Escribiendo mut_runner4.py para mutar esquemas
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:13:39Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a89a7263941443ca3
+**Message**: Pushing tarea/U01-T08 upstream
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:13:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: ae6447958247ef922
+**Message**: TAREA: U01-T08\nRAMA: tarea/U01-T08   SHA: f8bea7b (subida con push)\nCRITERIOS: 5 de 6 verificados. CA-1, CA-3, CA-4, CA-5 y CA-6 dan verde. CA-2 tiene 3 de 4 pruebas en verde y el cuarto caso no puede
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-23T20:13:41Z
+**Event**: HUMAN_TURN
+**Session**: 5399d6a8-973e-4041-af9d-c81b243406a0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:13:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5eb89e89f2187548
+**Message**: Corriendo mutantes sobre profiles.py
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-23T20:13:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: abee590c2af4301a4
+**Message**: Triaging surviving limits_catalog.py mutants
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-23T20:14:02Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---

@@ -1,0 +1,8 @@
+# Tabla fija de BR9.6: del papel de una llamada de Veridicus al papel de `registro.llamadas`
+# de C6. Solo los tres papeles del analizador se traducen; un papel sin fila no puede aparecer
+# en una salida de C6. Es la única traducción entre los dos idiomas (regla 8 de C13).
+version: "1.0.0"
+translation:
+  judge: juez
+  verifier: verificador
+  verifier_permuted: verificador_permutado

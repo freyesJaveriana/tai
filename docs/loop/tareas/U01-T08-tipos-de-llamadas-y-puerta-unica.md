@@ -72,9 +72,9 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-2**: las guardias que leen C13 pasan a verde.
   ```bash
-  timeout 60 uv run --frozen --offline --directory contracts pytest tests/guards -m c13 --no-cov
+  timeout 60 uv run --frozen --offline --directory contracts pytest tests/guards -m c13 --no-cov --deselect "tests/guards/test_autonomia_03.py::test_ningun_nombre_ni_enum_declara_veracidad[c13-llamada]"
   ```
-  Esperado: verde.
+  Esperado: verde. El caso excluido necesita también C8 (`integrity/forbidden-vocabulary.v2.yaml`, paso 13) y pasa a verde en la tarea que escribe C8. Este criterio lo añadió el orquestador: la verificación del paso 10 en el plan no incluye las guardias (precisión P-T08-1, ronda 1).
 
 - [ ] **CA-3**: 100 % de ramas en `checks/protocol_surface.py` (módulo guardia).
   ```bash

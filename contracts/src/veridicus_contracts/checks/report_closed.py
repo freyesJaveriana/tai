@@ -43,7 +43,7 @@ LIMITE_DECLARADO_DEL_CANARY = (
     "campo con patrón y pasa el esquema; que no aparezca en filas ni en logs lo cierra U12."
 )
 
-_COMPOSICION = ("type", "$ref", "enum", "const", "allOf", "anyOf", "oneOf")
+_CIERRES = ("type", "$ref", "enum", "const")
 _ESPACIO = re.compile(r"\s")
 # La ronda 2 sondeaba cuatro caracteres: espacio, tabulador,"\u00a0", salto de línea y NBSP; ahora son todos los de isspace().
 # Todo carácter para el que `str.isspace()` es verdadero (el último es U+3000).
@@ -54,7 +54,7 @@ _RANGOS = (("a", "z"), ("A", "Z"), ("0", "9"))
 _LITERALES_FUERA_DE_CLASE = frozenset(_LETRAS_Y_CIFRAS + "_-:/@")
 _LITERALES_EN_CLASE = frozenset(_LETRAS_Y_CIFRAS + "._:/@+")
 _ESCAPES_BLANCOS = frozenset(".-+")
-_OPERADORES = frozenset("()|?*+")
+_CLASE = re.compile(r"\[((?:\\.|[^\]\\])*)\]")
 _CUANTIFICADOR = re.compile(r"\{[0-9]{1,3}(,[0-9]{0,3})?\}")
 
 
@@ -136,15 +136,13 @@ def _clase_valida(cuerpo: str) -> bool:
     posicion = 0
     while posicion < len(cuerpo):
         if cuerpo[posicion] == "\\":
-            if cuerpo[posicion + 1 : posicion + 2] not in _ESCAPES_BLANCOS or posicion + 1 >= len(cuerpo):
+            if cuerpo[posicion + 1 : posicion + 2] not in _ESCAPES_BLANCOS:
                 return False
             elementos.append((cuerpo[posicion + 1], True))
             posicion += 2
         else:
             elementos.append((cuerpo[posicion], False))
             posicion += 1
-    if not elementos:
-        return False
     indice = 0
     while indice < len(elementos):
         letra, escapado = elementos[indice]
@@ -162,40 +160,53 @@ def _clase_valida(cuerpo: str) -> bool:
     return True
 
 
-def _cierre_de_clase(cuerpo: str, inicio: int) -> int:
-    """Posición del `]` que cierra la clase abierta en `inicio`; -1 si no cierra."""
-    posicion = inicio + 1
-    while posicion < len(cuerpo):
-        if cuerpo[posicion] == "\\":
-            posicion += 2
-        elif cuerpo[posicion] == "]":
-            return posicion
-        else:
-            posicion += 1
-    return -1
-
-
 def _en_la_gramatica_blanca(patron: str) -> bool:
     """Solo `^`, `$`, clases con rangos de A-Za-z0-9, `\\.`, `\\-`, `\\+`, literales, `( ) | ?` y cuantificadores."""
+    try:
+        re.compile(patron)
+    except re.error:
+        return False
     cuerpo = patron.removeprefix("^").removesuffix("$")
+    grupos: list[bool] = []  # por grupo abierto: ¿ya contiene un cuantificador?
     posicion = 0
     while posicion < len(cuerpo):
         letra = cuerpo[posicion]
-        if letra == "[":
-            cierre = _cierre_de_clase(cuerpo, posicion)
-            if cierre < 0 or not _clase_valida(cuerpo[posicion + 1 : cierre]):
+        if letra == "(":
+            grupos.append(False)
+            posicion += 1
+        elif letra == ")":
+            interno = grupos.pop()  # re.compile ya garantizó que los paréntesis cuadran
+            cuantificado = cuerpo[posicion + 1 : posicion + 2] in ("*", "+", "{")
+            if interno and cuantificado:
+                return False  # cuantificador anidado: ReDoS
+            if grupos:
+                grupos[-1] = grupos[-1] or interno or cuantificado
+            posicion += 1
+        elif letra == "|":
+            if not grupos:
+                return False  # una alternancia fuera de un grupo burla el anclaje
+            posicion += 1
+        elif letra in ("*", "+"):
+            if grupos:
+                grupos[-1] = True
+            posicion += 1
+        elif letra == "[":
+            clase = _CLASE.match(cuerpo, posicion)
+            if clase is None or not _clase_valida(clase.group(1)):
                 return False
-            posicion = cierre + 1
+            posicion = clase.end()
         elif letra == "\\":
-            if cuerpo[posicion + 1 : posicion + 2] not in _ESCAPES_BLANCOS or posicion + 1 >= len(cuerpo):
+            if cuerpo[posicion + 1 : posicion + 2] not in _ESCAPES_BLANCOS:
                 return False
             posicion += 2
-        elif letra in _LITERALES_FUERA_DE_CLASE or letra in _OPERADORES:
+        elif letra in _LITERALES_FUERA_DE_CLASE or letra == "?":
             posicion += 1
         elif letra == "{":
             cuantificador = _CUANTIFICADOR.match(cuerpo, posicion)
             if cuantificador is None:
                 return False
+            if grupos:
+                grupos[-1] = True
             posicion = cuantificador.end()
         else:
             return False
@@ -235,7 +246,23 @@ def _esquema_abierto(esquema: Any) -> bool:
     """`true` o un subesquema sin `type`, `$ref`, enum, const ni composición: acepta cualquier valor."""
     if esquema is True:
         return True
-    return isinstance(esquema, dict) and not any(k in esquema for k in _COMPOSICION)
+    return isinstance(esquema, dict) and not _cierra(esquema)
+
+
+def _cierra(esquema: Any) -> bool:
+    """Un nodo se cierra con `type`, `$ref`, `enum` o `const`; `allOf` basta con una rama que cierre."""
+    if not isinstance(esquema, dict):
+        return False
+    if any(k in esquema for k in _CIERRES):
+        return True
+    todas = esquema.get("allOf")
+    if isinstance(todas, list) and any(_cierra(rama) for rama in todas):
+        return True
+    for palabra in ("anyOf", "oneOf"):
+        ramas = esquema.get(palabra)
+        if isinstance(ramas, list) and ramas and all(_cierra(rama) for rama in ramas):
+            return True
+    return False
 
 
 def _cerrado_por_nombres(nombres: Any) -> bool:
@@ -251,7 +278,13 @@ def _problemas_de_subesquemas(
 ) -> list[str]:
     """`items`, `additionalProperties`, `anyOf` y `oneOf` no admiten un subesquema abierto."""
     abiertos: list[str] = []
-    for palabra in ("items", "contains", "additionalItems"):
+    for palabra in (
+        "items",
+        "contains",
+        "additionalItems",
+        "unevaluatedItems",
+        "unevaluatedProperties",
+    ):
         if _esquema_abierto(nodo.get(palabra)):
             abiertos.append(f"{sitio}.{palabra}")
     posicionales = nodo.get("prefixItems")

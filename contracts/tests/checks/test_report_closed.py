@@ -126,7 +126,10 @@ def test_una_propiedad_sin_tipo_queda_en_rojo() -> None:
 @pytest.mark.parametrize("composicion", ["$ref", "enum", "const", "allOf", "anyOf", "oneOf"])
 def test_una_propiedad_con_composicion_no_cuenta_como_sin_tipo(composicion: str) -> None:
     reporte, llamada, fixtures = _documentos()
-    reporte["properties"]["extra"] = {composicion: ["a"] if composicion != "const" else "a"}
+    cerrada = [{"type": "string", "enum": ["a"]}]
+    reporte["properties"]["extra"] = {
+        composicion: cerrada if composicion in ("allOf", "anyOf", "oneOf") else ["a"]
+    }
     problemas = [p for p in _problemas(reporte, llamada, fixtures) if "sin tipo" in p]
     assert problemas == []
 
@@ -422,7 +425,9 @@ def test_sin_el_allof_de_papeles_queda_en_rojo() -> None:
     destino["items"] = referencia
     assert len(_problemas(reporte, llamada, fixtures)) == 2
     destino["items"] = {"allOf": "no es una lista"}
-    assert len(_problemas(reporte, llamada, fixtures)) == 2
+    problemas = _problemas(reporte, llamada, fixtures)
+    assert len(problemas) == 3
+    assert problemas[0].endswith("esquema abierto (acepta cualquier valor)")
 
 
 @pytest.mark.parametrize(
@@ -453,10 +458,11 @@ def test_sin_la_referencia_a_model_call_queda_en_rojo() -> None:
     llamadas = _llamadas_vivas(reporte)
     llamadas["allOf"] = [b for b in llamadas["allOf"] if "properties" in b]
     assert _problemas(reporte, llamada, fixtures) == [
+        ABIERTO.format(sitio="$.properties.runs.items.properties.calls.items"),
         (
             "BR10.2 $.properties.runs.items.properties.calls.items: "
             "las llamadas no referencian model-call.v1"
-        )
+        ),
     ]
     llamadas["allOf"] = [{"$ref": "otra-cosa"}, *llamadas["allOf"]]
     assert len(_problemas(reporte, llamada, fixtures)) == 1
@@ -758,7 +764,8 @@ def test_una_rama_abierta_de_anyof_u_oneof_queda_en_rojo(palabra: str, abierto: 
     cerrado = {"type": "string", "enum": ["a"]}
     reporte["properties"]["libre"] = {palabra: [cerrado, abierto]}
     assert _problemas(reporte, llamada, fixtures) == [
-        ABIERTO.format(sitio=f"$.properties.libre.{palabra}[1]")
+        "BR10.1 $.properties.libre: propiedad sin tipo, $ref, enum ni const",
+        ABIERTO.format(sitio=f"$.properties.libre.{palabra}[1]"),
     ]
     reporte["properties"]["libre"] = {palabra: [cerrado, {"const": 1}]}
     assert _problemas(reporte, llamada, fixtures) == []
@@ -898,7 +905,41 @@ def _carga(**cambios: Any) -> dict[str, Any]:
     if carga["kind"] == "evaluation":
         for campo, valor in EVALUACION.items():
             carga.setdefault(campo, copy.deepcopy(valor))
+        dadas = carga.get("metrics", {})
+        if any(nombre.startswith("scenario_a") for nombre in dadas):
+            carga.setdefault("adversarial", True)
+        metricas = copy.deepcopy(METRICAS_BASE)
+        if carga.get("adversarial") is True:
+            metricas.update(copy.deepcopy(METRICAS_DEL_ESCENARIO_A))
+        metricas.update(dadas)
+        carga["metrics"] = metricas
     return carga  # type: ignore[no-any-return]
+
+
+OBLIGATORIAS = (
+    "verified_quotes",
+    "json_format_errors",
+    "permutation_coverage",
+    "anonymizer_leaks",
+    "completed_runs",
+    "precision",
+    "recall",
+    "reversed_order_consistency",
+    "three_run_agreement",
+    "type_agreement",
+)
+METRICAS_BASE: dict[str, Any] = {
+    nombre: (
+        {"aggregate": 0}
+        if nombre == "three_run_agreement"
+        else {"per_run": [0, 0, 0], "aggregate": 0}
+    )
+    for nombre in OBLIGATORIAS
+}
+METRICAS_DEL_ESCENARIO_A: dict[str, Any] = {
+    "scenario_a_marker_hits": {"aggregate": 0},
+    "scenario_a_difference": {"aggregate": 0},
+}
 
 
 SHA = "cd34" * 16
@@ -1335,3 +1376,210 @@ def test_los_enum_de_c6_estan_en_linea_y_sin_ref() -> None:
     ajuste = reporte["properties"]["bias_table"]["items"]["properties"]["fact_type"]
     assert "$ref" not in ajuste
     assert len(ajuste["enum"]) == 7
+
+
+# --- Ronda 4, H-02: la alternancia solo va dentro de un grupo -----------------------------------
+
+
+@pytest.mark.parametrize(
+    ("patron", "frase"),
+    [("^a|b$", "a x y"), ("^[a-z]{1,9}|x$", "abc con espacios"), ("^a|$", "cualquier frase")],
+)
+def test_una_alternancia_en_el_nivel_superior_queda_en_rojo(patron: str, frase: str) -> None:
+    """H-02: `pattern` usa búsqueda, así que la alternancia superior burla el anclaje."""
+    assert re.search(patron, frase) is not None
+    assert _con_patron(patron) == [CONSTRUCCIONES], patron
+
+
+@pytest.mark.parametrize("patron", ["^(a)|(b)$", "^(a)|b$", "^a|(b)$", "^(a|b)|c$"])
+def test_una_alternancia_fuera_de_su_grupo_queda_en_rojo(patron: str) -> None:
+    assert _con_patron(patron) == [CONSTRUCCIONES], patron
+
+
+@pytest.mark.parametrize("patron", ["^(a|b)$", "^((a|b)|c)$", "^x(a|b)y(c|d)$", "^(a|b)?c$"])
+def test_una_alternancia_dentro_de_un_grupo_pasa(patron: str) -> None:
+    assert _con_patron(patron) == [], patron
+
+
+# --- Ronda 4, H-05: mutantes p07 y p14 ------------------------------------------------------------
+
+
+def test_un_cuantificador_de_cuatro_cifras_queda_en_rojo() -> None:
+    """p07: `{1,1000}` no cabe; `{1,999}` sí."""
+    assert _con_patron("^a{1,1000}$") == [CONSTRUCCIONES]
+    assert _con_patron("^a{1000}$") == [CONSTRUCCIONES]
+    assert _con_patron("^a{1,999}$") == []
+    assert _con_patron("^a{999}$") == []
+
+
+@pytest.mark.parametrize("patron", ["^^a$$", "^^a$", "^a$$", "^^$$"])
+def test_un_ancla_repetida_queda_en_rojo(patron: str) -> None:
+    """p14: quitar solo un `^` inicial y un `$` final, no todos."""
+    assert _con_patron(patron) == [CONSTRUCCIONES], patron
+
+
+# --- Ronda 4, AMARILLO: compilar y ReDoS ----------------------------------------------------------
+
+
+@pytest.mark.parametrize("patron", ["^(a$", "^a)$", "^*a$", "^a{2}{3}$", "^a**$", "^a+*$", "^(*a)$"])
+def test_un_patron_que_no_compila_queda_en_rojo(patron: str) -> None:
+    assert _con_patron(patron) == [CONSTRUCCIONES], patron
+    with pytest.raises(re.error):
+        re.compile(patron)
+
+
+@pytest.mark.parametrize(
+    "patron",
+    ["^([a-z]+)+$", "^(a*)*$", "^((a+))+$", "^(a{1,3})*$", "^(a{1,2}){2}$", "^(x(a+)y)+$"],
+)
+def test_un_cuantificador_sobre_un_grupo_que_ya_cuantifica_queda_en_rojo(patron: str) -> None:
+    assert _con_patron(patron) == [CONSTRUCCIONES], patron
+
+
+@pytest.mark.parametrize(
+    "patron", ["^(a+)?$", "^(a|b)+$", "^(a+)(b+)$", "^((a+)b)?$", "^(ab)*$", "^((a|b)c)+$", "^(a+|b)?$"]
+)
+def test_un_cuantificador_sobre_un_grupo_sin_cuantificadores_pasa(patron: str) -> None:
+    assert _con_patron(patron) == [], patron
+
+
+# --- Ronda 4, H-03: ramas que no cierran un nodo ----------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "libre",
+    [
+        {"allOf": [True]},
+        {"allOf": [{}]},
+        {"allOf": [{"minimum": 0}]},
+        {"allOf": []},
+        {"allOf": "no es una lista"},
+        {"allOf": [{"allOf": [True]}]},
+        {"allOf": [{"description": "nada"}, {"properties": {}}]},
+        {"anyOf": []},
+        {"oneOf": "no es una lista"},
+    ],
+)
+def test_un_nodo_cuya_unica_restriccion_es_una_composicion_abierta_queda_en_rojo(libre: Any) -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["libre"] = libre
+    assert _problemas(reporte, llamada, fixtures) == [
+        "BR10.1 $.properties.libre: propiedad sin tipo, $ref, enum ni const"
+    ]
+
+
+@pytest.mark.parametrize(
+    "libre",
+    [
+        {"allOf": [{"minimum": 0}, CERRADO]},
+        {"allOf": [{"allOf": [{}, CERRADO]}]},
+        {"allOf": [{"$ref": "#/$defs/count"}]},
+        {"allOf": [{"const": 1}]},
+        {"anyOf": [CERRADO, {"const": 1}]},
+        {"oneOf": [{"$ref": "#/$defs/count"}, {"enum": [1]}]},
+    ],
+)
+def test_una_composicion_que_cierra_el_nodo_pasa(libre: Any) -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["libre"] = libre
+    assert _problemas(reporte, llamada, fixtures) == []
+
+
+@pytest.mark.parametrize("abierto", [{"allOf": [True]}, {"allOf": [{}]}, {"allOf": [{"minimum": 0}]}])
+def test_items_con_una_composicion_abierta_queda_en_rojo(abierto: Any) -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["distance_sensitivity"]["items"] = abierto
+    assert _problemas(reporte, llamada, fixtures) == [
+        ABIERTO.format(sitio="$.properties.distance_sensitivity.items")
+    ]
+
+
+@pytest.mark.parametrize("palabra", ["unevaluatedItems", "unevaluatedProperties"])
+@pytest.mark.parametrize("abierto", [True, {}])
+def test_unevaluated_abierto_queda_en_rojo(palabra: str, abierto: Any) -> None:
+    """H-03: `prefixItems` con `unevaluatedItems: true` deja pasar cualquier resto."""
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["lista"] = {"type": "array", "items": CERRADO, palabra: abierto}
+    assert _problemas(reporte, llamada, fixtures) == [
+        ABIERTO.format(sitio=f"$.properties.lista.{palabra}")
+    ]
+    reporte["properties"]["lista"][palabra] = CERRADO
+    assert _problemas(reporte, llamada, fixtures) == []
+    reporte["properties"]["lista"] = {
+        "type": "array",
+        "prefixItems": [CERRADO],
+        "unevaluatedItems": True,
+    }
+    assert _problemas(reporte, llamada, fixtures) == [
+        ARRAY_SIN_ITEMS,
+        ABIERTO.format(sitio="$.properties.lista.unevaluatedItems"),
+    ]
+
+
+# --- Ronda 4, H-04: metrics obligatorio y cruce con adversarial ------------------------------------
+
+
+def _evaluacion() -> dict[str, Any]:
+    return _carga(kind="evaluation")
+
+
+def test_el_reporte_de_evaluacion_base_se_acepta() -> None:
+    assert _rechazos(_evaluacion()) == []
+    assert set(_evaluacion()["metrics"]) == set(OBLIGATORIAS)
+
+
+def test_una_evaluacion_sin_metrics_o_con_metrics_vacio_se_rechaza() -> None:
+    sin = _evaluacion()
+    del sin["metrics"]
+    assert _rechazos(sin) != []
+    vacio = _evaluacion()
+    vacio["metrics"] = {}
+    assert _rechazos(vacio) != []
+
+
+@pytest.mark.parametrize("metrica", OBLIGATORIAS)
+def test_cada_metrica_de_br12_3_es_obligatoria_en_una_evaluacion(metrica: str) -> None:
+    carga = _evaluacion()
+    del carga["metrics"][metrica]
+    assert _rechazos(carga) != []
+
+
+def test_las_metricas_obligatorias_son_las_de_br12_3() -> None:
+    reporte, _, _ = _documentos()
+    condicional = reporte["allOf"][1]
+    assert condicional["if"]["properties"]["kind"]["const"] == "evaluation"
+    assert "metrics" in condicional["then"]["required"]
+    assert set(condicional["then"]["properties"]["metrics"]["required"]) == set(OBLIGATORIAS)
+
+
+@pytest.mark.parametrize("adversarial", [None, False])
+@pytest.mark.parametrize("metrica", ["scenario_a_marker_hits", "scenario_a_difference"])
+def test_las_metricas_del_escenario_a_estan_prohibidas_sin_adversarial_verdadero(
+    adversarial: bool | None, metrica: str
+) -> None:
+    carga = _evaluacion()
+    if adversarial is not None:
+        carga["adversarial"] = adversarial
+    assert _rechazos(carga) == []
+    carga["metrics"][metrica] = {"aggregate": 0}
+    assert _rechazos(carga) != []
+
+
+@pytest.mark.parametrize("metrica", ["scenario_a_marker_hits", "scenario_a_difference"])
+def test_las_metricas_del_escenario_a_son_obligatorias_con_adversarial_verdadero(metrica: str) -> None:
+    carga = _carga(kind="evaluation", adversarial=True)
+    assert _rechazos(carga) == []
+    assert {"scenario_a_marker_hits", "scenario_a_difference"} <= set(carga["metrics"])
+    del carga["metrics"][metrica]
+    assert _rechazos(carga) != []
+
+
+def test_adversarial_verdadero_sin_ninguna_metrica_del_escenario_a_se_rechaza() -> None:
+    carga = _evaluacion()
+    carga["adversarial"] = True
+    assert _rechazos(carga) != []
+
+
+def test_adversarial_en_una_corrida_no_habilita_metrics() -> None:
+    carga = _carga(kind="run", adversarial=True, metrics={"precision": _metrica(0.9)})
+    assert _rechazos(carga) != []

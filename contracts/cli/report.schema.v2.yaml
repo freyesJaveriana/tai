@@ -33,6 +33,42 @@ allOf:
         - thresholds_sha256
         - role_families
         - generator_family
+        - metrics
+      properties:
+        metrics:
+          $ref: '#/properties/metrics'
+          required:
+            - verified_quotes
+            - json_format_errors
+            - permutation_coverage
+            - anonymizer_leaks
+            - completed_runs
+            - precision
+            - recall
+            - reversed_order_consistency
+            - three_run_agreement
+            - type_agreement
+  - if:
+      properties:
+        adversarial:
+          const: true
+      required: [adversarial]
+    then:
+      required: [metrics]
+      properties:
+        metrics:
+          $ref: '#/properties/metrics'
+          required: [scenario_a_marker_hits, scenario_a_difference]
+    else:
+      properties:
+        metrics:
+          $ref: '#/properties/metrics'
+          not:
+            anyOf:
+              - $ref: '#/properties/metrics'
+                required: [scenario_a_marker_hits]
+              - $ref: '#/properties/metrics'
+                required: [scenario_a_difference]
 required:
   - schema_version
   - kind

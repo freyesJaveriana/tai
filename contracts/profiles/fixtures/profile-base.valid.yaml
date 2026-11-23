@@ -1,0 +1,15 @@
+# E21 (BR9.1, BR9.2): perfil genérico con papeles de prueba y destinos locales.
+fixture_id: c18-profile-base-valid
+contract: C18.profile-base
+synthetic: true
+expectation: accept
+mentions: []
+payload:
+  schema_version: "1.0.0"
+  profiles:
+    prueba-generica:
+      purpose: demonstration
+      roles:
+        prueba_a: {provider: local, model: modelo-prueba-a, scope: local, base_url: "http://veridicus-llm-a:8080"}
+        prueba_b: {provider: local, model: modelo-prueba-b, scope: local, base_url: "http://veridicus-llm-b:8080"}
+      role_aliases: {prueba_b_permutada: prueba_b}

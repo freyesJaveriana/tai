@@ -1,0 +1,13 @@
+# NFRD-U1-07: la entrada fallida es estricta; un campo `text` se rechaza.
+fixture_id: c2-failed-con-texto
+contract: C2.RunFailed
+synthetic: true
+expectation: reject
+reject_reason: NFRD-U1-07
+mentions: [Villa Rocamora]
+payload:
+  message_id: a3f1c9d2-7b4e-4c8a-9e5f-b2d6a1c7e3f0
+  run_id: c4e8b1f7-2d9a-4a6c-8b3e-d5f0a9c2e1b4
+  attempt: 1
+  code: analysis.system
+  text: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana."

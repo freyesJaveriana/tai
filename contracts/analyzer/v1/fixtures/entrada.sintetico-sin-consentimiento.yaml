@@ -1,0 +1,16 @@
+# E19 (BR3.5): origen sintetico se acepta sin consentimiento.
+fixture_id: c6-entrada-sintetico-sin-consentimiento
+contract: C6.entrada
+synthetic: true
+expectation: accept
+mentions: [Villa Rocamora]
+payload:
+  contrato: "1.0.0"
+  transcripcion:
+    entrevista: SINT-0003
+    origen: sintetico
+    turnos:
+      - {n: 1, hablante: ENT, texto: "¿Dónde pasó usted la noche del suceso?"}
+      - {n: 2, hablante: TEST, texto: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana."}
+  modo: final
+  perfil: todo-local

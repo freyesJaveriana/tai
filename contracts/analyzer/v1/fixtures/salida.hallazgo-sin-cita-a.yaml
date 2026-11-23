@@ -1,0 +1,29 @@
+# BR3.1: hallazgo sin `cita_a`.
+fixture_id: c6-salida-hallazgo-sin-cita-a
+contract: C6.salida
+synthetic: true
+expectation: reject
+reject_reason: BR3.1
+mentions: [Puerto Altamira]
+payload:
+  contrato: "1.0.0"
+  analizador: incoherencias
+  version: "0.1.0"
+  entrevista: SINT-0001
+  prompt_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12
+  perfil: todo-local
+  config_sha256: cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34
+  fecha: "2026-11-23T15:00:00Z"
+  estado: ok
+  hallazgos:
+    - id: SINT-0001-C01
+      hecho: Lugar donde pasó la noche del suceso
+      tipo: lugar
+      cita_b: {cita: "Yo estaba en Puerto Altamira esa noche, trabajando en el muelle.", turno: T4}
+      observaciones: Las dos citas ubican la noche del suceso en lugares distintos.
+  registro:
+    llamadas: []
+    descartes: []
+    fragmentado: {activo: false}
+    tokens_entrada: 0
+    tokens_salida: 0

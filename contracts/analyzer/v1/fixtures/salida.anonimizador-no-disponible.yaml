@@ -1,0 +1,24 @@
+# CD-01: salida válida con `anonimizador_no_disponible` (estado error, sin hallazgos).
+fixture_id: c6-salida-anonimizador-no-disponible
+contract: C6.salida
+synthetic: true
+expectation: accept
+mentions: []
+payload:
+  contrato: "1.0.0"
+  analizador: incoherencias
+  version: "0.1.0"
+  entrevista: SINT-0001
+  prompt_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12
+  perfil: comercial-piloto
+  config_sha256: cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34
+  fecha: "2026-11-23T15:00:00Z"
+  estado: error
+  error: {codigo: anonimizador_no_disponible}
+  hallazgos: []
+  registro:
+    llamadas: []
+    descartes: []
+    fragmentado: {activo: false}
+    tokens_entrada: 0
+    tokens_salida: 0

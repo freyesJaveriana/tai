@@ -1,0 +1,29 @@
+fixture_id: c6-salida-valid
+contract: C6.salida
+synthetic: true
+expectation: accept
+mentions: [Villa Rocamora, Puerto Altamira]
+payload:
+  contrato: "1.0.0"
+  analizador: incoherencias
+  version: "0.1.0"
+  entrevista: SINT-0001
+  prompt_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12
+  perfil: todo-local
+  config_sha256: cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34
+  fecha: "2026-11-23T15:00:00Z"
+  estado: ok
+  hallazgos:
+    - id: SINT-0001-C01
+      hecho: Lugar donde pasó la noche del suceso
+      tipo: lugar
+      cita_a: {cita: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana.", turno: T2, pagina: 1}
+      cita_b: {cita: "Yo estaba en Puerto Altamira esa noche, trabajando en el muelle.", turno: T4}
+      observaciones: Las dos citas ubican la noche del suceso en lugares distintos.
+  registro:
+    llamadas:
+      - {papel: juez, proveedor: local, modelo: modelo-juez-prueba, tokens_entrada: 1200, tokens_salida: 140, proveedor_alterno: false, anonimizado: false, fecha: "2026-11-23T14:59:50Z"}
+    descartes: []
+    fragmentado: {activo: false}
+    tokens_entrada: 1200
+    tokens_salida: 140

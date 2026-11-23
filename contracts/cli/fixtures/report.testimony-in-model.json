@@ -1,0 +1,32 @@
+{
+  "fixture_id": "c19-report-testimony-in-model",
+  "contract": "C19",
+  "synthetic": true,
+  "expectation": "reject",
+  "reject_reason": "BR10.1",
+  "mentions": ["Villa Rocamora"],
+  "payload": {
+    "schema_version": "2.0.0",
+    "kind": "run",
+    "origin": "local",
+    "blocking": false,
+    "analyzer_version": "0.1.0",
+    "contract_version": "1.0.0",
+    "profile_name": "todo-local",
+    "config_sha256": "b22a9783ba236cb406fd82682080d1646d0e4aa0986f933af8df08ca32787553",
+    "prompt_sha256": "ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12",
+    "created_at": "2026-11-23T15:00:00Z",
+    "runs": [
+      {
+        "interview_sha256": "ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56",
+        "status": "ok",
+        "findings": 0,
+        "discards": {},
+        "calls": [
+          {"role": "judge", "provider": "local", "model": "Esa noche dormí en Villa Rocamora, en la casa de mi hermana.", "input_tokens": 1200, "output_tokens": 140, "fallback_provider": false, "anonymized": false, "at": "2026-11-23T14:59:50Z"}
+        ]
+      }
+    ],
+    "totals": {"input_tokens": 1200, "output_tokens": 140}
+  }
+}

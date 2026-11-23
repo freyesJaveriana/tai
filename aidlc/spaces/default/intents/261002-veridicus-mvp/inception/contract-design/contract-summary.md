@@ -1,5 +1,20 @@
 # Contratos — Veridicus (MVP)
 
+**Revisión 4 (2026-11-23): se integran las precisiones aprobadas en Construction (tablas FD, NFR, NFRD e
+IDS), por decisión del humano; cada cambio cita su ID de origen.** Es la excepción explícita a la regla de
+no editar artefactos aprobados (`project.md`: la precisión que el humano decide llevar al original entra
+en su propio commit). Ningún contrato cambia de número ni de dueño, y no se retira ninguno.
+- **Decisiones del humano del 2026-11-23** (`construction/contracts/code-generation/decisiones-humano.md`):
+  C-3 (`PATCH /sessions/{session_id}/analysis` responde `202`), D-1 (`GET /notice` pública) y D-2 (un tramo
+  entre «» que es solo un término prohibido sí se escanea; resuelve también FD-U11-20).
+- **Cómo se lee.** Los cambios de forma pequeños van dentro del bloque del contrato, con su ID en un
+  comentario o en la descripción. Los que cambian prosa o reglas van en un apartado **«Revisión 4»** al
+  final de cada contrato. Las formas completas las publica U1 en B1 (`construction/contracts/`), según
+  PD-1 y PD-2 de su plan de código; si este resumen y el contrato publicado difieren, manda el publicado.
+- **C6 no cambia de esquema** (ADR-017): solo entran reglas que el esquema no puede expresar y el cierre
+  de su pregunta abierta.
+- **C25** pasa a su contenido v1 entregado (NFRD-U1-02).
+
 **Revisión 3 (2026-11-21), revalidación.** Ratifica en bloque lo que aprobaste el 21/11/2026 en las
 etapas anteriores (preguntas 15 a 17 = A). Ningún contrato cambia de número ni de dueño:
 - **User Stories, revisión 3:** CD-02 y CD-04 en AC3.2.5, AC11.3.3, AC11.3.7, AC11.6.2, AC11.6.4 y
@@ -83,7 +98,7 @@ sus contratos C17–C24. Por primera vez un contrato **cruza la frontera del cl�
 | C8 | U1 (IntegrityPolicy) | U4, U7, U8, U9, U11, U13, `frontend` | Esquema compartido (YAML versionado): vocabulario prohibido, regla de DT23 y aviso de VE-01 | U1 |
 | C9 | — | — | **Retirado** (cambio 01): sale la lectura de pasajes con `pgvector` | — |
 | C10 | U5 (HumanReview) | U4 (InterviewSession), U5 (ConsoleApi) | Interfaz en proceso (`Protocol`) | U5 |
-| C11 | U5 (HumanReview), U4 y U6 (InterviewSession) | U7 (ReviewReport) | Interfaces en proceso (`Protocol`) | U5, U4 |
+| C11 | U5 (HumanReview), U4 y U6 (InterviewSession) | U7 (ReviewReport); ConsoleApi (U3 y U6) para `PendingSessions` y `pending_count(s)` (FD-U3-04, FD-U6-20, NFR-U6-04) | Interfaces en proceso (`Protocol`) | U5, U4 |
 | C12 | U3 (IdentityAccess) | U3 (ConsoleApi) | Interfaz en proceso (`Protocol`) | U3 |
 | C13 | U11 (ModelGateway, `libs/`); tipos compartidos en U1 (`contracts/python/model_calls.py`) | U11 (IncoherenceAnalyzer), U9 (SpeechProcessing); los tipos, también U10 | Interfaz en proceso (`Protocol`) | U11 (puerto), U1 (tipos) |
 | C14 | External: servidores de modelos locales (juez y verificador locales, Whisper, TTS) | U11, U9 (adaptadores locales de ModelGateway) | REST síncrono compatible con OpenAI | U2 despliega los servidores; U11 fija el subconjunto usado |
@@ -102,6 +117,24 @@ sus contratos C17–C24. Por primera vez un contrato **cruza la frontera del cl�
 Todos los archivos de especificación viven en `contracts/` (U1). La columna **Owner** dice qué unidad
 decide los cambios del contrato; U1 los guarda, los versiona y prueba sus *fixtures* válidos e
 inválidos.
+
+**Archivos de `contracts/` sin número de contrato (revisión 4).** No son fronteras nuevas entre unidades
+del grafo, sino datos versionados que comparten productor y consumidor; los guarda U1 con su prueba:
+
+| Archivo | Qué contiene | Dueño | Origen |
+|---|---|---|---|
+| `contracts/api/speech-internal.v1.yaml` | Ruta interna `POST /internal/v1/speech` de `audio-worker`: `bearerAuth` con `VERIDICUS_SPEECH_TOKEN`, cuerpo estricto (`observation_id`, `tema`, `template_version`), `200 audio/wav` con `x-veridicus-max-bytes: speech_audio_max_bytes`, `401` sin token, `422` con `rule_id` de la lista cerrada (`template_version`, `dt23`, `vocabulary`, `length`), `503`, `servers` internos y concurrencia 1. No es C1 (no hay cookie) ni C16 (no es salud) | U9 | FD-U9-04, NFR-U9-04, NFRD-U1-08 |
+| `contracts/transcript/speaker-markers.v1.yaml` | Marcas literales de hablante, alias («Entrevistador», «Analista» → ENT; «Testimonio», «Compareciente» → TEST) y ejemplos versionados y sintéticos de la división de un bloque | U6 | FD-U6-08 |
+| `contracts/integrity/clarification-speech.v1.yaml` | Plantilla de la aclaración en voz con un único marcador `{tema}` (frase propuesta: «¿Podría contarnos un poco más sobre {tema}?»); pasa la regla de DT23 y el escaneo con un caso positivo y uno negativo | U9 | FD-U9-05 |
+| `contracts/integrity/usage-rules.v1.yaml` | Reglas de uso de VE-04, con `version` y exactamente tres puntos; texto excluido del escaneo como `notice_text` | U13 | FD-U13-02 |
+| `contracts/integrity/testimony-warning-cases.v1.yaml` | Casos sintéticos de BR3.6 de U13 (8 palabras, 7, dos turnos, espacios distintos) con `synthetic: true` y `whitespace_code_points`, más los casos U+00A0, U+3000, U+FEFF, tabulador y salto de línea; los comparten servidor y consola | U13 | NFR-U13-10, NFRD-U13-13 |
+| `contracts/integrity/scan-cases.v1.yaml` | Casos de escaneo del vocabulario prohibido con sus `literal_sources`; los ejecuta el escáner de U11 | U1 | FD-U1-09, D-2 |
+| `contracts/ui/result-labels.v2.yaml` | Rótulos «Sugerencia de revisión», «Contradicción en el relato» y los 7 tipos: «Fecha», «Número», «Lugar», «Persona», «Negación», «Secuencia», «Otro» | U1 | FD-U1-08, FD-U1-09 |
+| `contracts/format/datetime.v1.yaml` | Formato único de fecha `AAAA-MM-DDTHH:MM:SSZ` | U1 | FD-U1-09 |
+| `contracts/metrics/<slug>.v1.yaml` | Métricas de U4, U6, U8, U9 y U10 (ver C15) | Cada unidad | NFRD-U1-05 |
+| `contracts/errors/error-codes.v2.yaml` | Catálogo único de `code` con un solo `status` por `code`, su clase y su unidad dueña (regla 6) | U1 | NFR-U1-03, FD-U1-10 |
+| `contracts/ts/` | Mitad TypeScript: validación ajv `strict`, JCS y las mismas *fixtures*; la consola importa de ahí | U1 | NFR-U1-04 |
+| `contracts/security-surface.json`, `contracts/fixtures/jcs-vectors.json`, `contracts/.pip-audit-ignore.yaml` | Huella de seguridad versionada, vectores JCS y excepciones de `pip-audit` con caducidad | U1 | NFRD-U1-13 |
 
 ### Datos sensibles por contrato y frontera del clúster (AUTONOMIA-04)
 
@@ -130,8 +163,25 @@ consentimiento, la importación, el modo final, las corridas con su registro de 
 terminación, la retirada del consentimiento, la exportación, la consola del investigador y la
 demostración ética. Reglas comunes:
 
-- Toda ruta exige la cookie `veridicus_session` salvo `POST /api/v1/auth/login`, `/healthz` y
-  `/readyz` (AC8.1.4). Sin cookie válida o con usuario desactivado: `401` (AC8.2.3).
+- Toda ruta exige la cookie `veridicus_session` salvo `POST /api/v1/auth/login`, `GET /api/v1/notice`
+  (pública: solo devuelve el texto versionado del aviso, para que se vea también al iniciar sesión,
+  AC15.5.1; D-1, FD-U4-08), `/healthz` y `/readyz` (AC8.1.4). Sin cookie válida o con usuario
+  desactivado: `401` (AC8.2.3).
+- Toda operación declara `x-veridicus-roles`, salvo `/auth/login`, `/auth/logout`, `/auth/me` y la lista
+  pública: la autorización de U3 niega por defecto una ruta sin roles (NFRD-U1-12). Toda operación con
+  seguridad declara `401` y la que declara roles, además `403`, las dos con `$ref` a `Problem`;
+  `/auth/logout` y `/auth/me` declaran `401` y no `403` (NFRD-U1-12).
+- Solo se admiten las extensiones `x-veridicus-roles`, `x-veridicus-owner-only`,
+  `x-veridicus-owner-only-for-role`, `x-veridicus-access-log`, `x-veridicus-demo`, `x-veridicus-priority`,
+  `x-veridicus-limit` (en un esquema: `maxLength` o `maxItems`) y `x-veridicus-max-bytes` (en un
+  `requestBody` o en el contenido de una respuesta), y `x-veridicus-cookie` en `sessionCookie`
+  (NFRD-U1-03, NFRD-U1-04, NFR-U1-08). Cada tope nombra su cifra de C25.
+- Todo cuerpo `multipart` declara `413` y `415` (NFR-U1-08). El tipo declarado de la parte de archivo no
+  es obligatorio en el contrato: U6 y U12 deciden por el contenido (NFRD-U1-10).
+- Las seis operaciones que encolan trabajo de IA (turno, bloque pegado, reintento, modo final,
+  «Reanudar análisis» y turno de voz) solo declaran `202` como 2xx (NFR-U6-03, NFRD-U6-02, C-3).
+- Todo `pattern` usa el subconjunto portátil entre Python y JavaScript: anclado, sin `\d`, `\w`, `\s`,
+  `\b`, grupos con nombre, banderas en línea ni miradas atrás (NFRD-U1-14).
 - Toda petición que cambia estado (`POST`, `PATCH`) lleva `X-CSRF-Token` con el valor que entrega
   `GET /api/v1/auth/me`; sin él o con otro valor: `403` con `code: auth.csrf`.
 - ConsoleApi aplica rol y propiedad de la sesión antes de delegar (ADR-009). `x-veridicus-roles` dice
@@ -141,7 +191,14 @@ demostración ética. Reglas comunes:
 - **No existe ninguna ruta que escriba perfiles, proveedores, *prompts*, precios ni límites** (FR9.2,
   AC8.3.1): solo cambian por PR.
 - Cada lectura de una sesión, de un hallazgo o de un reporte, y cada exportación, pasa por el puerto
-  `AccessLog` (C23) antes de responder (VE-11, A-3).
+  `AccessLog` (C23) (VE-11, A-3). **Revisión 4 (FD-U3-05):** la lectura que se registra la marca la
+  extensión `x-veridicus-access-log: session | suggestion | report_version`, declarada en
+  `GET /sessions/{session_id}` (`session`, solo sin `since`), `POST /suggestions/{suggestion_id}/observation-views`
+  (`suggestion`) y `GET /reports/{report_version_id}/download` (`report_version`); no se declara en la
+  lista de sesiones, en la lista de versiones ni en la exportación. Se registra tras un 2xx y antes de
+  responder; si falla el registro de una lectura, la respuesta sale igual (demostración). La exportación
+  llama al puerto ella misma y no entrega si falla: revierte la transacción y responde `503`
+  `report.export_not_recorded` (NFR-U7-09).
 - Los campos que vienen del contrato común (`hecho`, `tipo`, `cita_a`, `cita_b`, `observaciones`,
   `actos`) conservan su nombre en español (P14); todo lo demás va en inglés.
 - Las fechas van en ISO 8601 UTC (`2026-11-09T21:40:00Z`); la consola las muestra en hora de Colombia.
@@ -159,10 +216,15 @@ security:
   - sessionCookie: []
 components:
   securitySchemes:
-    sessionCookie: { type: apiKey, in: cookie, name: veridicus_session }
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: veridicus_session
+      x-veridicus-cookie: { http_only: true, secure: true, same_site: Strict, path: /, max_age_limit: web_session_max_s, idle_limit: web_session_idle_s }   # NFRD-U1-03, NFR-U3-01
   parameters:
     CsrfToken: { name: X-CSRF-Token, in: header, required: true, schema: { type: string, minLength: 32 } }
     SessionId: { name: session_id, in: path, required: true, schema: { type: string, format: uuid } }
+    Since: { name: since, in: query, schema: { $ref: '#/components/schemas/Cursor' } }   # NFRD-U4-05, NFRD-U7-04
     RunId: { name: run_id, in: path, required: true, schema: { type: string, format: uuid } }
     SuggestionId: { name: suggestion_id, in: path, required: true, schema: { type: string, format: uuid } }
   responses:
@@ -189,13 +251,27 @@ components:
         - auth.unauthenticated
         - auth.forbidden
         - auth.csrf
+        - auth.too_many_attempts           # 429 con Retry-After (FD-U3-02)
         - validation.invalid_request
-        - limits.exceeded                  # una cifra del catálogo C25
+        - limits.exceeded                  # una cifra del catálogo C25; siempre 413 (NFR-U1-03)
+        - route.not_found                  # 404: ruta o método inexistente (NFRD-U3-10)
+        - system.internal                  # 500: excepción fuera de la jerarquía (FD-U3-03)
+        - system.unavailable               # 503: falla una dependencia (FD-U3-03)
+        - user.duplicate_username          # 409 (FD-U3-02)
+        - user.self_deactivation           # 409 (FD-U3-02)
+        - user.last_admin                  # 409 (FD-U3-02)
+        - user.has_pending_sessions        # 409; sustituye a validation.invalid_request en el cambio de rol (FD-U3-02)
+        - user.not_found                   # 404 (FD-U3-02)
+        - user.weak_password               # 422 (FD-U3-02)
         - profile.not_approved
         - profile.transfer_not_authorized  # perfil con proveedor comercial sin autorización de transferencia (VE-07)
         - session.not_owner
         - session.finalized
         - session.not_suspended
+        - session.not_paused               # 409: «Reanudar análisis» sin pausa (FD-U6-01)
+        - session.not_finalized            # 409: modo final en una guiada sin finalizar (FD-U6-02)
+        - session.suspended                # 409: turno sobre una sesión suspendida (FD-U4-07)
+        - session.consolidated             # 409: reintento o corrida sobre una sesión consolidada (FD-U4-05)
         - session.closed_to_new_turns      # importada, terminada o con consentimiento retirado
         - session.paused                   # la sesión está en pausa: los turnos se guardan sin encolar
         - session.terminated
@@ -203,9 +279,14 @@ components:
         - session.consent_missing
         - session.consent_withdrawn
         - session.voice_not_authorized
-        - import.invalid_type
+        - import.invalid_type              # 415 (FD-U6-03)
         - import.invalid_transcript        # no cumple C6 (entrada) o su modo no es final
         - import.profile_mismatch          # el perfil del archivo no es el elegido en el formulario
+        - retention.above_maximum          # FD-U13-04
+        - retention.below_minimum          # FD-U13-04
+        - retention.cannot_extend          # FD-U13-04
+        - ethics.text_version_outdated     # FD-U13-04
+        - problem_report.ids_mismatch      # FD-U13-04
         - run.not_in_error
         - run.final_in_progress            # segundo lanzamiento simultáneo del modo final (409)
         - analysis.invalid_output          # contrato: salida_invalida
@@ -217,21 +298,33 @@ components:
         - anonymizer.profile_mismatch      # C21 (409); la corrida termina en analysis.anonymizer_unavailable
         - anonymizer.destination_rejected  # C21 (422); la corrida termina en analysis.anonymizer_unavailable
         - analysis.system                  # la corrida no volvió a tiempo o agotó sus entregas (C2)
+        - suggestion.not_found             # 404 (FD-U5-01)
         - review.observations_not_viewed
         - review.note_required
         - review.invalid_transition
         - review.round_locked
         - report.session_not_finalized
+        - report.final_mode_not_launched   # en el orden de BR2.5 de U7 (FD-U7-04)
         - report.runs_in_progress
         - report.pending_suggestions
         - report.forbidden_vocabulary
         - report.conflict
+        - report.view_outdated             # 409: el resumen cambió desde que se abrió el diálogo (NFRD-U7-04)
         - report.integrity_mismatch
         - report.not_consolidated
+        - report.not_found                 # 404 (FD-U7-05)
+        - report.export_not_recorded       # 503: AccessLog falló o venció (FD-U7-05, NFR-U7-09)
         - research.invalid_report          # no cumple C19 o trae un campo no permitido (P12)
+        - research.invalid_type            # 415: la petición no es multipart/form-data (NFR-U12-02)
+        - research.not_found               # 404 (FD-U12-04)
         - research.duplicate
         - research.not_comparable
         - conductor_observation.not_approved
+        - conductor_observation.not_found         # 404 (FD-U8-02)
+        - conductor_observation.already_decided   # 409 (FD-U8-02)
+        - conductor_observation.session_closed    # 409 (FD-U8-02)
+        - speech.unavailable               # 503 (FD-U9-02)
+        - speech.text_rejected             # 409 (FD-U9-02)
     Role: { type: string, enum: [analista, admin, investigador] }
     Me:
       type: object
@@ -251,6 +344,15 @@ components:
         role: { $ref: '#/components/schemas/Role' }
         active: { type: boolean }
         created_at: { type: string, format: date-time }
+        pending_sessions: { type: integer, minimum: 0, description: 'Solo en GET /users y en la respuesta del PATCH; sesiones del usuario en cualquier estado distinto de consolidated, para la confirmación de M6 (FD-U3-04)' }
+    Cursor:
+      type: string
+      maxLength: 128
+      x-veridicus-limit: cursor_max_chars
+      description: >
+        Opaco: v1.<session_id>.<n> en base64url, donde n es el change_cursor de la sesión leído en la
+        instantánea del sondeo. Uno mal formado, de otra sesión o mayor que el actual se trata como
+        ausente (vista completa); la consola aplica cada respuesta como upsert por ID (NFRD-U4-05, NFRD-U7-04)
     Notice:
       type: object
       required: [text, version]
@@ -315,6 +417,7 @@ components:
         estado: { type: string, enum: [visible, plegado] }
         origin: { type: string, enum: [typed, pasted, voice, imported] }
         voice_status: { type: string, enum: [transcribing, transcribed, error], description: Solo turnos de voz (SHOULD) }
+        voice_error_code: { $ref: '#/components/schemas/ErrorCode', description: 'Solo turnos de voz en error: un code de C5 o session.consent_withdrawn (FD-U9-03)' }
         submitted_at: { type: string, format: date-time }
     Run:
       type: object
@@ -329,7 +432,8 @@ components:
         attempt: { type: integer, minimum: 1 }
         profile_name: { type: string }
         config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
-        fragmentado: { $ref: 'contracts/analyzer/v1/salida.schema.json#/$defs/registro/properties/fragmentado', description: Copia tal cual de registro.fragmentado de C6 (regla 8) }
+        fragmentado: { $ref: '/veridicus/contracts/analyzer/v1/salida#/$defs/registro/properties/fragmentado', description: 'Copia tal cual de registro.fragmentado de C6 (regla 8). session-api lo llena al crear la corrida final con la configuración efectiva y al ingerir lo sustituye la copia de C6, con los mismos valores (NFRD-U6-18). Referencia canónica por $id (FD-U1-11)' }
+        anonymized: { type: boolean, description: 'Verdadero solo si todas las llamadas externas pasaron por el anonimizador; ausente si la corrida fue solo local (FD-U4-20, AC11.3.8)' }
         requested_at: { type: string, format: date-time }
         finished_at: { type: string, format: date-time }
     ModelCall:
@@ -349,16 +453,18 @@ components:
         proveedor_alterno: { type: boolean }
         anonimizado: { type: boolean }
         fecha: { type: string, format: date-time }
-    ReviewSuggestion: { $ref: 'contracts/integrity/review-suggestion.v2.json' }   # C7
+    ReviewSuggestion: { $ref: '/veridicus/contracts/integrity/review-suggestion/v2' }   # C7; referencia canónica por $id (FD-U1-11)
     ConductorObservation:
       type: object
-      required: [observation_id, run_id, tema, turnos, status]
+      additionalProperties: false                                # NFR-U8-04
+      required: [observation_id, run_id, tema, turnos, status, created_at]
       properties:
         observation_id: { type: string, format: uuid }
         run_id: { type: string, format: uuid }
         tema: { type: string, description: Nunca contiene el texto de las citas (AC10.3.2) }
         turnos: { type: array, items: { type: string, pattern: '^T[0-9]+$' } }
         status: { type: string, enum: [proposed, approved, discarded] }
+        created_at: { type: string, format: date-time }          # NFR-U8-04
     SessionSummary:
       type: object
       required: [session_id, entrevista, owner_user_id, status, profile_name, created_at, pending_suggestions]
@@ -380,8 +486,11 @@ components:
           required: [config_sha256, cursor, closed_to_new_turns, turns, runs, suggestions, can_consolidate]
           properties:
             config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
-            cursor: { type: string, description: Opaco; se devuelve en el siguiente sondeo }
+            cursor: { $ref: '#/components/schemas/Cursor', description: Opaco; se devuelve en el siguiente sondeo }
             closed_to_new_turns: { type: boolean }
+            retention_days: { type: integer, description: FD-U13-04 }
+            retention_until: { type: string, format: date-time, description: FD-U13-04 }
+            retention_default: { type: boolean, description: FD-U13-04 }
             consent_withdrawn_at: { type: string, format: date-time }
             blocked_code: { $ref: '#/components/schemas/ErrorCode' }
             turns: { type: array, items: { $ref: '#/components/schemas/Turn' } }
@@ -405,8 +514,18 @@ components:
     ResearchReportSummary:
       type: object
       required: [research_report_id, kind, profile_name, config_sha256, prompt_sha256, analyzer_version, source_sha256, uploaded_at]
+      description: >
+        Revisión 4 (FD-U12-05): suma schema_version, origin (local | zine, opcional), dataset_sha256
+        (opcional), measurement_valid, uploaded_by_username (lo resuelve ConsoleApi con IdentityAccess,
+        porque el investigador no puede leer /users) y report_created_at. Entra con C19 v2
       properties:
         research_report_id: { type: string, format: uuid }
+        schema_version: { type: string }                               # FD-U12-05
+        origin: { type: string, enum: [local, zine] }                  # FD-U12-05, FD-U12-07
+        dataset_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }    # FD-U12-05
+        measurement_valid: { type: boolean }                           # FD-U12-05
+        uploaded_by_username: { type: string }                         # FD-U12-05
+        report_created_at: { type: string, format: date-time }         # FD-U12-05
         kind: { type: string, enum: [run, evaluation] }
         profile_name: { type: string }
         config_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
@@ -420,8 +539,19 @@ components:
       allOf:
         - $ref: '#/components/schemas/ResearchReportSummary'
         - type: object
-          description: Solo cifras de C19; ningún texto de transcripciones, hallazgos ni citas (NFR12)
+          description: >
+            Solo cifras de C19; ningún texto de transcripciones, hallazgos ni citas (NFR12). Revisión 4
+            (FD-U12-05): suma run_summary, price_table_version, currency y overall_passes; en metrics, el
+            threshold y el passes de cada métrica cuando el reporte los trae; bias_table se devuelve con
+            story_fact_type y persona_profile ya separados. Se guarda blocking (booleano opcional) y la
+            latencia p50 y p95 por papel en el registro de modelos; clarifications no se guarda ni se
+            muestra (NFR-U12-04)
           properties:
+            run_summary: { type: object }                     # FD-U12-05
+            price_table_version: { type: string }             # FD-U12-05
+            currency: { type: string }                        # FD-U12-05
+            overall_passes: { type: boolean }                 # FD-U12-05
+            blocking: { type: boolean }                       # NFR-U12-04
             calls: { type: array, items: { $ref: 'contracts/model_calls/model-call.v1.yaml' } }
             totals: { $ref: 'contracts/cli/report.schema.v1.yaml#/properties/totals' }
             metrics: { $ref: 'contracts/cli/report.schema.v1.yaml#/properties/metrics' }
@@ -432,6 +562,7 @@ components:
       properties:
         status: { type: string, enum: [valid, missing, expired, text_changed], description: 'Solo avisa; nunca impide abrir sesiones (VE-04, demostración)' }
         text_version: { type: string }
+        current_text_version: { type: string, description: FD-U13-04 }
         at: { type: string, format: date-time }
 paths:
   /auth/login:
@@ -446,11 +577,13 @@ paths:
               required: [username, password]
               additionalProperties: false
               properties:
-                username: { type: string, minLength: 1 }
-                password: { type: string, minLength: 1 }
+                username: { type: string, minLength: 1, maxLength: 32, x-veridicus-limit: username_max_chars }    # NFR-U3-01
+                password: { type: string, minLength: 1, maxLength: 128, x-veridicus-limit: password_max_chars }   # NFR-U3-01
       responses:
         '204': { description: 'Sesión creada; responde Set-Cookie veridicus_session (HttpOnly, Secure, SameSite=Strict)' }
         '401': { $ref: '#/components/responses/Problem' }
+        '429': { description: 'auth.too_many_attempts, con Retry-After (FD-U3-02)', headers: { Retry-After: { schema: { type: integer } } }, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '503': { description: 'Cola del semáforo llena; documenta Retry-After (FD-U3-02, NFRD-U3-10)', headers: { Retry-After: { schema: { type: integer } } }, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /auth/logout:
     post:
       parameters: [{ $ref: '#/components/parameters/CsrfToken' }]
@@ -479,12 +612,14 @@ paths:
               required: [username, password, role]
               additionalProperties: false
               properties:
-                username: { type: string, minLength: 1 }
-                password: { type: string, minLength: 1 }
+                username: { type: string, minLength: 1, maxLength: 32, x-veridicus-limit: username_max_chars }    # NFR-U3-01
+                password: { type: string, minLength: 1, maxLength: 128, x-veridicus-limit: password_max_chars }   # NFR-U3-01
                 role: { $ref: '#/components/schemas/Role' }
       responses:
         '201': { description: 'Usuario creado', content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
         '403': { $ref: '#/components/responses/Problem' }
+        '409': { description: 'user.duplicate_username (FD-U3-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '422': { description: 'user.weak_password o validation.invalid_request (FD-U3-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /users/{user_id}:
     patch:
       x-veridicus-roles: [admin]
@@ -505,9 +640,12 @@ paths:
       responses:
         '200': { description: 'Usuario actualizado; deja fila en el historial de usuario', content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
         '403': { $ref: '#/components/responses/Problem' }
-        '409': { description: Cambio de rol con sesiones pendientes (validation.invalid_request) }
+        '404': { description: 'user.not_found (FD-U3-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '409': { description: 'user.has_pending_sessions (cambio de rol con sesiones pendientes), user.self_deactivation o user.last_admin; deja de citar validation.invalid_request (FD-U3-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '422': { description: 'user.weak_password o validation.invalid_request (FD-U3-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /notice:
     get:
+      security: []                        # pública: solo el texto versionado del aviso (D-1, FD-U4-08; lista pública de NFRD-U1-12)
       responses:
         '200': { description: 'Texto y versión del aviso de VE-01', content: { application/json: { schema: { $ref: '#/components/schemas/Notice' } } } }
   /profiles:
@@ -538,6 +676,7 @@ paths:
                 entrevista: { type: string, minLength: 1 }
                 profile_name: { type: string }
                 consentimiento: { $ref: '#/components/schemas/Consent' }
+                retention_days: { type: integer, description: 'Opcional; lo valida EthicsGovernance contra C25 (FD-U13-04)' }
       responses:
         '201': { description: 'Sesión abierta y ligada al perfil y a su config_sha256 (FR3.1)', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
         '422': { $ref: '#/components/responses/Problem' }
@@ -549,19 +688,23 @@ paths:
         `modo` debe ser `final` (si no, `import.invalid_transcript`) y `perfil` debe ser igual a
         `profile_name` del formulario (si no, `422` `import.profile_mismatch`); `hasta_turno` y
         `desde_turno`, si vienen, se ignoran. La sesión nace cerrada a turnos nuevos (FR3.6) y sus
-        corridas son siempre de modo final, que se puede lanzar enseguida.
+        corridas son siempre de modo final, que se puede lanzar enseguida. El archivo es solo JSON;
+        otro tipo responde 415 `import.invalid_type` (FD-U6-03). No lleva `client_request_id`: un doble
+        envío crea dos sesiones, límite declarado, y M7 deshabilita «Importar» mientras crea (FD-U6-23).
       x-veridicus-roles: [analista]
       parameters: [{ $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
         required: true
+        x-veridicus-max-bytes: import_body_max_bytes                 # NFRD-U6-01
         content:
           multipart/form-data:
             schema:
               type: object
               required: [file, profile_name]
               properties:
-                file: { type: string, format: binary, description: JSON o YAML de la entrada de C6 }
-                profile_name: { type: string }
+                file: { type: string, format: binary, description: JSON de la entrada de C6 (FD-U6-03) }
+                profile_name: { type: string, pattern: '^[a-z0-9-]{1,48}$' }   # patrón de nombre de perfil de C18 (NFRD-U6-01)
+                retention_days: { type: integer, description: 'Opcional (FD-U13-04)' }
       responses:
         '201': { description: 'Sesión importada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
         '413': { $ref: '#/components/responses/Problem' }
@@ -571,11 +714,13 @@ paths:
     get:
       description: >
         Sondeo de la consola. Con `since` devuelve solo lo que cambió desde ese cursor. Cada llamada del
-        dueño con la sesión abierta cuenta como latido (AC7.1.1). Registra el acceso (C23).
+        dueño con la sesión abierta cuenta como latido (AC7.1.1). Registra el acceso (C23) solo sin
+        `since` (FD-U3-05).
       x-veridicus-roles: [analista, admin]
+      x-veridicus-access-log: session                                 # FD-U3-05
       parameters:
         - { $ref: '#/components/parameters/SessionId' }
-        - { name: since, in: query, schema: { type: string } }
+        - { $ref: '#/components/parameters/Since' }                   # NFRD-U4-05
       responses:
         '200': { description: 'Vista de la sesión', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
   /sessions/{session_id}/heartbeat:
@@ -601,7 +746,7 @@ paths:
               additionalProperties: false
               properties:
                 hablante: { type: string, enum: [ENT, TEST] }
-                texto: { type: string, minLength: 1 }
+                texto: { type: string, minLength: 1, maxLength: 20000, x-veridicus-limit: turn_max_chars }   # NFR-U4-01
                 client_request_id: { type: string, format: uuid, description: Evita turnos duplicados si el navegador reenvía }
       responses:
         '202':
@@ -624,6 +769,7 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
         required: true
+        x-veridicus-max-bytes: transcript_body_max_bytes          # cubre también el campo text (NFRD-U6-01)
         content:
           application/json:
             schema:
@@ -645,7 +791,7 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
         '202': { description: 'Corrida final en cola', content: { application/json: { schema: { $ref: '#/components/schemas/Run' } } } }
-        '409': { $ref: '#/components/responses/Problem' }
+        '409': { description: 'Code de la situación (FD-U6-17): run.final_in_progress, session.not_finalized (guiada sin finalizar, FD-U6-02), session.paused, session.suspended, session.consolidated, session.blocked, session.terminated o session.consent_withdrawn', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /sessions/{session_id}/runs/{run_id}/retry:
     post:
       x-veridicus-roles: [analista]
@@ -653,7 +799,7 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/RunId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
         '202': { description: 'Misma corrida, mismo tramo, attempt + 1', content: { application/json: { schema: { $ref: '#/components/schemas/Run' } } } }
-        '409': { description: 'La corrida no está en error (run.not_in_error) o la sesión no admite corridas (session.blocked, session.consent_withdrawn, session.terminated)' }
+        '409': { description: 'La corrida no está en error (run.not_in_error) o la sesión no admite corridas (session.blocked, session.consent_withdrawn, session.terminated, session.paused, session.consolidated; FD-U4-05)' }
   /sessions/{session_id}/runs/{run_id}/model-calls:
     get:
       x-veridicus-roles: [analista, admin]
@@ -666,7 +812,8 @@ paths:
         Pausar o reanudar el análisis. Con `paused` en true la sesión pasa de `open` a `paused`, y con
         false vuelve a `open`, con actor y hora (SessionStatusChange); desde cualquier otro estado
         responde 409. En pausa los turnos se guardan sin encolar y las corridas en cola se cancelan sin
-        llamar a modelos (DD-06).
+        llamar a modelos (DD-06). «Reanudar análisis» encola una corrida, así que la ruta responde `202`
+        con `SessionView` como única 2xx, en las dos direcciones (C-3, NFR-U6-03, NFRD-U6-02).
       x-veridicus-roles: [analista]
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
@@ -676,7 +823,8 @@ paths:
           application/json:
             schema: { type: object, required: [paused], additionalProperties: false, properties: { paused: { type: boolean } } }
       responses:
-        '200': { description: 'Sesión actualizada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '202': { description: 'Sesión actualizada; al reanudar, la corrida queda en cola (C-3)', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '409': { description: 'Code de la situación (FD-U6-17): session.not_paused al reanudar sin pausa (FD-U6-01), session.suspended, session.consolidated y los demás estados que no admiten el cambio', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /sessions/{session_id}/terminate:
     post:
       description: Terminar sesión. Cancela lo encolado y cierra la sesión a turnos nuevos; se puede consolidar después.
@@ -685,6 +833,7 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
         '200': { description: 'Sesión terminada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '409': { description: 'Code de la situación de la tabla §3 del Functional Design de U6 (FD-U6-17)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /sessions/{session_id}/consent-withdrawal:
     post:
       description: Registra la retirada del consentimiento con actor y hora (AC15.2.3). Desde ese momento no se encola ni se analiza ninguna corrida (VE-10 (a)).
@@ -693,6 +842,7 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
         '200': { description: 'Retirada registrada', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '409': { description: 'Code de la situación de la tabla §3 del Functional Design de U6 (FD-U6-17)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /sessions/{session_id}/resume:
     post:
       x-veridicus-roles: [analista]
@@ -708,12 +858,19 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
         '200': { description: 'Sesión finalizada (también desde suspendida); empieza la medición de MTTV', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '403': { $ref: '#/components/responses/Problem' }    # NFR-U7-02
+        '409': { $ref: '#/components/responses/Problem' }    # NFR-U7-02
+        '422': { $ref: '#/components/responses/Problem' }    # NFR-U7-02
+        '503': { $ref: '#/components/responses/Problem' }    # NFR-U7-02
   /suggestions/{suggestion_id}/observation-views:
     post:
       x-veridicus-roles: [analista, admin]
+      x-veridicus-access-log: suggestion                          # FD-U3-05
       parameters: [{ $ref: '#/components/parameters/SuggestionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
         '204': { description: «Observaciones desplegadas» registradas (solo inserción) y acceso registrado (C23) }
+        '403': { $ref: '#/components/responses/Problem' }        # NFR-U5-05
+        '404': { description: 'suggestion.not_found (FD-U5-01, NFR-U5-05)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /suggestions/{suggestion_id}/decisions:
     post:
       x-veridicus-roles: [analista]
@@ -721,6 +878,7 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SuggestionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
         required: true
+        x-veridicus-max-bytes: review_body_max_bytes              # FD-U5-02, NFR-U5-01
         content:
           application/json:
             schema:
@@ -729,11 +887,15 @@ paths:
               additionalProperties: false
               properties:
                 state: { type: string, enum: [accepted, edited, dismissed] }
-                note: { type: string, description: Obligatoria y no vacía si state es dismissed }
-                reformulation: { type: string, description: 'Obligatoria si state es edited; nunca cambia hecho, tipo, citas ni observaciones' }
+                note: { type: string, maxLength: 2000, x-veridicus-limit: review_text_max_chars, description: Obligatoria y no vacía si state es dismissed }   # NFR-U5-01
+                reformulation: { type: string, maxLength: 2000, x-veridicus-limit: review_text_max_chars, description: 'Obligatoria si state es edited; nunca cambia hecho, tipo, citas ni observaciones' }   # NFR-U5-01
       responses:
         '201': { description: 'Decisión registrada en la ronda abierta', content: { application/json: { schema: { $ref: '#/components/schemas/ReviewSuggestion' } } } }
+        '403': { description: 'auth.forbidden, session.not_owner o auth.csrf (NFR-U5-05)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '404': { description: 'suggestion.not_found (FD-U5-01, NFR-U5-05)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
         '409': { description: 'Ronda bloqueada, observaciones no desplegadas, nota faltante o transición inválida' }
+        '413': { description: 'limits.exceeded (FD-U5-02, NFR-U1-03, NFR-U5-05)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '422': { description: 'review.note_required o validation.invalid_request (NFR-U5-05)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /sessions/{session_id}/reports:
     get:
       x-veridicus-roles: [analista, admin]
@@ -741,13 +903,27 @@ paths:
       responses:
         '200': { description: 'Versiones del reporte', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ReportVersion' } } } } }
     post:
-      description: Consolidar. De dos consolidaciones simultáneas solo una gana; la otra recibe 409 report.conflict.
+      description: >
+        Consolidar. De dos consolidaciones simultáneas solo una gana; la otra recibe 409 report.conflict.
+        Lleva el cuerpo obligatorio { expected_cursor }, el cursor congelado al abrir el diálogo; si el
+        resumen cambió, 409 report.view_outdated con el detail «El resumen cambió desde que abriste el
+        diálogo. Revísalo de nuevo antes de consolidar.» (NFRD-U7-04). Un Markdown que pasa de
+        report_max_bytes responde 413 limits.exceeded antes de escribir, con 0 filas y 0 archivos (NFR-U7-01).
       x-veridicus-roles: [analista]
       x-veridicus-owner-only: true
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
+      requestBody:                                               # NFRD-U7-04
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [expected_cursor], additionalProperties: false, properties: { expected_cursor: { $ref: '#/components/schemas/Cursor' } } }
       responses:
         '201': { description: 'Reporte consolidado, guardado y con su SHA-256', content: { application/json: { schema: { $ref: '#/components/schemas/ReportVersion' } } } }
+        '403': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
         '409': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }       # NFR-U7-01, NFR-U7-02, NFRD-U7-04
+        '422': { $ref: '#/components/responses/Problem' }       # NFR-U7-02, NFRD-U7-04
+        '503': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
   /sessions/{session_id}/correction-rounds:
     post:
       x-veridicus-roles: [analista]
@@ -755,18 +931,42 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       responses:
         '201': { description: 'Abre o retoma la única ronda de corrección, que parte de la versión vigente' }
+        '403': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+        '409': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+        '422': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+        '503': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+  /sessions/{session_id}/correction-rounds/current/discard:      # FD-U7-09 (recoge X6 de U7)
+    post:
+      description: Descarta la ronda de corrección abierta (estado discarded, con quién y cuándo; FD-U5-04). Sin copia abierta, 409 report.conflict.
+      x-veridicus-roles: [analista]
+      x-veridicus-owner-only: true
+      parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
+      responses:
+        '204': { description: Ronda de corrección descartada }
+        '403': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+        '409': { $ref: '#/components/responses/Problem' }       # FD-U7-09, NFR-U7-02
+        '422': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+        '503': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
   /reports/{report_version_id}/download:
     get:
+      description: >
+        Lectura de la vista previa: Content-Disposition inline; la consola no ofrece guardar el archivo.
+        «Descargar reporte» llama a /exports (FD-U7-01).
       x-veridicus-roles: [analista, admin]
+      x-veridicus-access-log: report_version                      # FD-U3-05, FD-U7-01
       parameters: [{ name: report_version_id, in: path, required: true, schema: { type: string, format: uuid } }]
       responses:
         '200':
           description: Markdown del reporte; el servidor recalcula el SHA-256 antes de enviarlo
           headers:
             X-Veridicus-SHA256: { schema: { type: string, pattern: '^[a-f0-9]{64}$' } }
+            Content-Disposition: { schema: { type: string, const: inline } }   # FD-U7-01, NFR-U7-02
           content:
             text/markdown: { schema: { type: string } }
+        '403': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
         '409': { description: El archivo no coincide con el SHA-256 registrado (report.integrity_mismatch) o no hay versión (report.not_consolidated) }
+        '422': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+        '503': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
   /reports/{report_version_id}/exports:
     post:
       description: Exportación con marca visible de usuario y hora, y el SHA-256 de la versión en la cabecera (US15.8). Solo el dueño y el admin; el investigador no (A-3).
@@ -780,7 +980,11 @@ paths:
             X-Veridicus-Export-SHA256: { schema: { type: string, pattern: '^[a-f0-9]{64}$' } }
           content:
             text/markdown: { schema: { type: string } }
-  /conductor-observations/{observation_id}/decision:
+        '403': { $ref: '#/components/responses/Problem' }       # FD-U7-05
+        '404': { description: 'report.not_found (FD-U7-05)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '409': { $ref: '#/components/responses/Problem' }       # FD-U7-05
+        '422': { $ref: '#/components/responses/Problem' }       # NFR-U7-02
+        '503': { description: 'report.export_not_recorded: AccessLog falló o venció en 500 ms y se revirtió la transacción (FD-U7-05, NFR-U7-09)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }  /conductor-observations/{observation_id}/decision:
     post:
       x-veridicus-priority: SHOULD
       x-veridicus-roles: [analista]
@@ -790,11 +994,16 @@ paths:
         - { $ref: '#/components/parameters/CsrfToken' }
       requestBody:
         required: true
+        x-veridicus-max-bytes: review_body_max_bytes               # NFRD-U8-05 (sin cifra nueva)
         content:
           application/json:
             schema: { type: object, required: [status], additionalProperties: false, properties: { status: { type: string, enum: [approved, discarded] } } }
       responses:
         '200': { description: 'Decisión del analista sobre la aclaración', content: { application/json: { schema: { $ref: '#/components/schemas/ConductorObservation' } } } }
+        '403': { description: 'session.not_owner, auth.forbidden o auth.csrf (FD-U8-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '404': { description: 'conductor_observation.not_found (FD-U8-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '409': { description: 'conductor_observation.already_decided o conductor_observation.session_closed (FD-U8-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '413': { description: 'limits.exceeded (NFRD-U8-05)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /conductor-observations/{observation_id}/audio:
     get:
       x-veridicus-priority: SHOULD
@@ -802,8 +1011,15 @@ paths:
       x-veridicus-owner-only: true
       parameters: [{ name: observation_id, in: path, required: true, schema: { type: string, format: uuid } }]
       responses:
-        '200': { description: 'Audio sintetizado en el clúster solo para una aclaración aprobada que cumple DT23', content: { audio/wav: { schema: { type: string, format: binary } } } }
-        '409': { description: La aclaración no está aprobada (conductor_observation.not_approved) }
+        '200':
+          description: 'Audio sintetizado en el clúster solo para una aclaración aprobada que cumple DT23'
+          headers:
+            Cache-Control: { schema: { type: string, const: no-store } }   # NFRD-U9-15
+          content: { audio/wav: { schema: { type: string, format: binary } } }
+        '403': { $ref: '#/components/responses/Problem' }        # FD-U9-02
+        '404': { description: 'conductor_observation.not_found (FD-U9-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '409': { description: 'La aclaración no está aprobada (conductor_observation.not_approved), el texto se rechazó (speech.text_rejected) o el estado de la sesión no lo admite (BR5.7 de U9) (FD-U9-02)' }
+        '503': { description: 'speech.unavailable (FD-U9-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /sessions/{session_id}/voice-turns:
     post:
       x-veridicus-priority: SHOULD
@@ -812,30 +1028,41 @@ paths:
       parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
         required: true
+        x-veridicus-max-bytes: voice_body_max_bytes                # NFRD-U9-03
         content:
           multipart/form-data:
             schema: { type: object, required: [audio, hablante, client_request_id], properties: { audio: { type: string, format: binary, description: WAV mono de 16 kHz o MP3 }, hablante: { type: string, enum: [ENT, TEST] }, client_request_id: { type: string, format: uuid } } }
       responses:
         '202': { description: 'Turno de voz numerado en transcribing', content: { application/json: { schema: { $ref: '#/components/schemas/Turn' } } } }
         '409': { description: Sin autorización de voz (session.voice_not_authorized) }
+        '413': { description: 'limits.exceeded por voice_body_max_bytes o audio_max_bytes (NFRD-U9-03)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '415': { $ref: '#/components/responses/Problem' }       # NFR-U1-08
   /research-reports:
     get:
       x-veridicus-roles: [investigador]
       responses:
         '200': { description: 'Reportes subidos', content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ResearchReportSummary' } } } } }
+        '403': { $ref: '#/components/responses/Problem' }       # FD-U12-04
     post:
-      description: Sube un reporte de la CLI (C19). Lo que no cumple el esquema se rechaza con 422 research.invalid_report sin guardar nada (P12).
+      description: >
+        Sube un reporte de la CLI (C19). Lo que no cumple el esquema se rechaza con 422
+        research.invalid_report sin guardar nada (P12). Si la petición no es multipart/form-data, 415
+        research.invalid_type; sin parte file, o con otra parte, 422 validation.invalid_request (NFR-U12-02).
+        ConsoleApi pasa el catálogo de referencia de C18 en cada subida (FD-U12-06).
       x-veridicus-roles: [investigador]
       parameters: [{ $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
         required: true
+        x-veridicus-max-bytes: research_report_max_bytes           # NFR-U1-08
         content:
           multipart/form-data:
-            schema: { type: object, required: [file], properties: { file: { type: string, format: binary, description: JSON de C19 } } }
+            schema: { type: object, required: [file], additionalProperties: false, properties: { file: { type: string, format: binary, description: JSON de C19 } } }
       responses:
         '201': { description: 'Reporte guardado (solo cifras)', content: { application/json: { schema: { $ref: '#/components/schemas/ResearchReportDetail' } } } }
+        '403': { $ref: '#/components/responses/Problem' }       # FD-U12-04
         '409': { description: El mismo archivo ya se subió (research.duplicate) }
         '413': { $ref: '#/components/responses/Problem' }
+        '415': { description: 'research.invalid_type (NFR-U12-02)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
         '422': { $ref: '#/components/responses/Problem' }
   /research-reports/{research_report_id}:
     get:
@@ -843,6 +1070,8 @@ paths:
       parameters: [{ name: research_report_id, in: path, required: true, schema: { type: string, format: uuid } }]
       responses:
         '200': { description: 'Detalle', content: { application/json: { schema: { $ref: '#/components/schemas/ResearchReportDetail' } } } }
+        '403': { $ref: '#/components/responses/Problem' }       # FD-U12-04
+        '404': { description: 'research.not_found (FD-U12-04)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /research-reports/compare:
     get:
       x-veridicus-priority: SHOULD
@@ -852,7 +1081,28 @@ paths:
         - { name: b, in: query, required: true, schema: { type: string, format: uuid } }
       responses:
         '200': { description: 'Las cifras de los dos reportes lado a lado', content: { application/json: { schema: { type: array, minItems: 2, maxItems: 2, items: { $ref: '#/components/schemas/ResearchReportDetail' } } } } }
+        '403': { $ref: '#/components/responses/Problem' }       # FD-U12-04
+        '404': { description: 'research.not_found (FD-U12-04)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
         '409': { description: Reportes de tipo distinto (research.not_comparable) }
+        '422': { description: 'validation.invalid_request cuando a = b (FD-U12-04)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+  /sessions/{session_id}/retention:                               # FD-U13-05
+    patch:
+      description: Cambia el plazo de retención de la sesión; lo valida EthicsGovernance contra C25 y lo escribe por EthicsSessionPort (FD-U13-08).
+      x-veridicus-demo: true
+      x-veridicus-roles: [analista, admin]
+      x-veridicus-owner-only-for-role: analista
+      parameters: [{ $ref: '#/components/parameters/SessionId' }, { $ref: '#/components/parameters/CsrfToken' }]
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: ethics_body_max_bytes               # NFR-U13-03
+        content:
+          application/json:
+            schema: { type: object, required: [retention_days], additionalProperties: false, properties: { retention_days: { type: integer } } }
+      responses:
+        '200': { description: 'Plazo actualizado', content: { application/json: { schema: { $ref: '#/components/schemas/SessionView' } } } }
+        '403': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }       # NFR-U13-03
+        '422': { description: 'retention.above_maximum, retention.below_minimum o retention.cannot_extend (FD-U13-04)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
   /acknowledgements:
     post:
       x-veridicus-demo: true
@@ -860,11 +1110,14 @@ paths:
       parameters: [{ $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
         required: true
+        x-veridicus-max-bytes: ethics_body_max_bytes               # NFR-U13-03
         content:
           application/json:
             schema: { type: object, required: [text_version], additionalProperties: false, properties: { text_version: { type: string } } }
       responses:
         '201': { description: 'Reconocimiento registrado (VE-04)', content: { application/json: { schema: { $ref: '#/components/schemas/AcknowledgementStatus' } } } }
+        '409': { description: 'ethics.text_version_outdated (FD-U13-04)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '413': { $ref: '#/components/responses/Problem' }       # NFR-U13-03
   /problem-reports:
     post:
       x-veridicus-demo: true
@@ -872,18 +1125,23 @@ paths:
       parameters: [{ $ref: '#/components/parameters/CsrfToken' }]
       requestBody:
         required: true
+        x-veridicus-max-bytes: ethics_body_max_bytes               # NFR-U13-03
         content:
           application/json:
             schema:
               type: object
-              required: [category, note]
+              required: [category]                                   # FD-U13-06
               additionalProperties: false
               properties:
-                category: { type: string, description: Catálogo de categorías de VE-15 }
+                category: { type: string, enum: [harmful_finding, improper_vocabulary, mismatched_quote, interviewee_distress, anonymization_failure, misuse] }   # FD-U13-06
                 session_id: { type: string, format: uuid }
-                suggestion_id: { type: string, format: uuid, description: 'Si viene, session_id se deriva de la sugerencia (UG-01)' }
-                note: { type: string, minLength: 1 }
+                suggestion_id: { type: string, format: uuid, description: 'Si viene, session_id se deriva de la sugerencia; si los dos vienen y no coinciden, 422 problem_report.ids_mismatch (FD-U13-04, FD-U13-07)' }
+                note: { type: string, maxLength: 2000, x-veridicus-limit: problem_report_note_max_chars, description: Opcional (FD-U13-06) }
       responses:
+        '403': { $ref: '#/components/responses/Problem' }       # FD-U13-06
+        '404': { $ref: '#/components/responses/Problem' }       # FD-U13-06
+        '413': { $ref: '#/components/responses/Problem' }       # NFR-U13-03
+        '422': { $ref: '#/components/responses/Problem' }       # FD-U13-06
         '201':
           description: Reporte guardado; avisa, sin rechazar, si la nota trae testimony_warning_words (C25) o más palabras seguidas de un turno (VE-15)
           content:
@@ -899,11 +1157,11 @@ paths:
 | U4 | `/notice`, `/profiles`, `POST /sessions`, `GET /sessions/{id}`, `/turns`, `/runs/{id}/retry`, `/runs/{id}/model-calls` |
 | U5 | `/suggestions/*/observation-views`, `/suggestions/*/decisions` |
 | U6 | `GET /sessions`, `/sessions/import`, `/transcript`, `/final-runs`, `/heartbeat`, `/resume`, `/analysis`, `/terminate`, `/consent-withdrawal` |
-| U7 | `/finalize`, `/reports`, `/correction-rounds`, `/download`, `/exports` |
+| U7 | `/finalize` (finalizar es de U7, FD-U6-12), `/reports`, `/correction-rounds`, `/correction-rounds/current/discard` (FD-U7-09), `/download`, `/exports` |
 | U8 | `/conductor-observations/*/decision` |
 | U9 | `/voice-turns`, `/conductor-observations/*/audio` |
 | U12 | `/research-reports*` |
-| U13 | `/acknowledgements`, `/problem-reports`, el estado del reconocimiento en `/auth/me` y el adaptador real de C23 |
+| U13 | `/acknowledgements`, `/problem-reports`, `/sessions/{id}/retention` (FD-U13-05), el estado del reconocimiento en `/auth/me` y el adaptador real de C23 |
 
 El catálogo `ErrorCode` es uno solo (regla 6). Los seis valores de `error.codigo` de C6 se traducen
 uno a uno (P8):
@@ -919,6 +1177,20 @@ uno a uno (P8):
 
 `analysis.system` no viene de C6: lo pone InterviewSession cuando la corrida no vuelve a tiempo o agota
 sus entregas (C2).
+
+**Revisión 4 de C1 (resto).**
+- `SessionView.consolidation_blockers` incluye `report.final_mode_not_launched`, en el orden de BR2.5 de
+  U7 (FD-U7-04).
+- Las importaciones de los modelos generados son `veridicus_contracts.<módulo>` y no
+  `contracts.python.<módulo>` ni `contracts.analyzer.v1` (FD-U1-04); vale para todos los bloques de este
+  documento.
+- Las referencias entre esquemas van por `$id` canónico, p. ej.
+  `/veridicus/contracts/analyzer/v1/salida#/$defs/cita` (FD-U1-11).
+- `config.invalid_profile` y `config.invalid_limit` (FD-U1-10) y `run.publish_failed` (NFR-U6-10) entran al
+  catálogo de errores con `http: false`: son de arranque o internos y nunca salen en una respuesta.
+- La respuesta de `/exports` declara las cabeceras de NFR10.4 de U7 (NFR-U7-02).
+- `limits.exceeded` se declara siempre como `413` (NFR-U1-03, P7 = A); donde un artefacto de unidad decía
+  `422` para ese code (FD-U5-02), manda `413`.
 
 ---
 
@@ -1010,6 +1282,21 @@ ingesta (C3) descarta en todo caso el resultado de una corrida `cancelled`.
 
 El tamaño máximo del mensaje lo acota C25.
 
+**Revisión 4 de C2.**
+- Una sola cola FIFO para corridas incrementales y finales, sin prioridad por modo (FD-U4-09).
+- `deadline_at = enqueued_at + plazo propio + min(suma de los plazos de las corridas por delante en todo
+  el sistema, run_queue_wait_max_s)`; el reintento lo calcula igual (NFR-U4-04).
+- El trabajador renueva el reclamo cada 15 s con `XCLAIM … JUSTID`, que no suma entregas (NFR-U4-06).
+- Con `XAUTOCLAIM`, si el contador de entregas pasa de `run_max_deliveries`, el mensaje va a fallidos sin
+  llamar a nada: el mismo cuerpo seudonimizado sale como mucho 3 veces, y eso se declara en el ADR del
+  proveedor (NFRD-U4-01).
+- Tras `XACK`, `XDEL`. Los fallidos llevan solo `message_id`, `run_id`, `attempt` y `code`, y se recortan
+  a 1 000 entradas (NFR-U4-07); son la excepción estricta a BR1.3 (NFRD-U1-07).
+- `semantic-agent` comprueba que `config_sha256` coincide con `sha256_jcs(effective_config)`; si no, el
+  mensaje va a fallidos sin llamar a ningún modelo (NFRD-U4-15).
+- Republicar en Redis es idempotente y se permite; «el trabajador no reintenta por su cuenta» se lee como
+  no repetir llamadas a modelos (NFRD-U4-03).
+
 ## C3 — Cola de resultados · se reescribe
 
 **Antes:** las calificaciones de un turno y los candidatos a alerta. **Ahora:** la salida de C6 de una
@@ -1061,6 +1348,20 @@ bloqueo, que la consola muestra como causa del estado `bloqueada`) y registra el
 pregunta 15 = A). Las `observaciones_conductor` se guardan
 como ConductorObservation (U8).
 
+**Revisión 4 de C3.**
+- Versión **2.1.0**: suma el mensaje `RunStarted` (`kind: run_started`, `run_id`, `attempt`,
+  `started_at`); `RunResult` admite `kind: run_result` opcional, así que los mensajes 2.0.0 siguen
+  validando (FD-U4-02).
+- Si `propose` rechaza en la ingesta, la corrida pasa a `error` con `analysis.system`, se hace `XACK` y no
+  se guarda ninguna sugerencia (FD-U4-06).
+- Un resultado que se descarta (tardío, duplicado o de otro intento) se revisa igual en busca de un
+  incidente de anonimización antes de descartarlo (FD-U4-11).
+- Cuando el resultado no se puede ingerir entero, hay una ruta mínima que solo registra el incidente y
+  bloquea la sesión (NFRD-U4-04).
+- La ingesta no consume mientras PostgreSQL no responde; los fallidos son estrictos (solo IDs y `code`) y
+  cada resultado ingerido se borra con `XDEL` (NFRD-U4-04, NFRD-U1-07).
+- La referencia a `salida` va por `$id` canónico (FD-U1-11).
+
 ## C4 — Cola de indexación de escenarios · Retirado
 
 Sale con TruthFrame (cambio 01). El *stream* `veridicus:indexing` no se crea.
@@ -1092,7 +1393,7 @@ channels:
             session_id: { type: string, format: uuid }
             attempt: { type: integer, minimum: 1 }
             audio_format: { type: string, enum: [wav, mp3] }
-            audio_base64: { type: string, description: Tamaño máximo en C25 (ver pregunta abierta) }
+            audio_base64: { type: string, maxLength: 8000000, x-veridicus-limit: audio_base64_max_chars }   # NFR-U9-03
             retain_audio: { type: boolean, description: 'Copia de autoriza_conservar_audio (VE-08); el trabajador nunca guarda audio, solo lo indica a InterviewSession' }
             deadline_at: { type: string, format: date-time }
   transcripts:
@@ -1111,7 +1412,7 @@ channels:
             attempt: { type: integer, minimum: 1 }
             outcome: { type: string, enum: [transcribed, error] }
             text: { type: string, description: Solo si outcome es transcribed }
-            error_code: { type: string, enum: [analysis.system, analysis.timeout] }
+            error_code: { type: string, enum: [analysis.system, analysis.timeout, analysis.invalid_output] }   # FD-U9-01, versión 1.2.0
             model_digest: { type: string }
 operations:
   sendAudio: { action: send, channel: { $ref: '#/channels/audio' } }
@@ -1124,6 +1425,19 @@ Tras confirmar un audio, el trabajador lo borra del *stream* (`XDEL`). Sin `reta
 crudo no se conserva en ninguna parte (VE-08); con él, lo guarda InterviewSession en su volumen
 (TurnAudio), nunca el trabajador. Whisper caído no se reintenta: el turno queda en error y el analista
 graba de nuevo (regla de `project.md`).
+
+**Revisión 4 de C5.**
+- Versión **1.2.0**: `TranscriptResult.error_code` suma `analysis.invalid_output` (FD-U9-01).
+- Claves `veridicus:voice-cancelled:{session_id}` (la retirada del consentimiento cancela la
+  transcripción) y `veridicus:transcribed:{turn_id}:{attempt}` (idempotencia), las dos con TTL
+  `voice_key_ttl_s` de C25 (FD-U9-06, NFR-U9-03).
+- La reentrega se corta en `audio_max_deliveries` (2); la siguiente va a `veridicus:audio:failed` con
+  `analysis.system`. Los fallidos llevan solo IDs y `code`, y cada resultado ingerido se borra con `XDEL`
+  (NFR-U9-03, NFRD-U1-07).
+- InterviewSession escribe el audio (TurnAudio) al recibirlo, antes de encolar; `retain_audio` del
+  mensaje es solo informativo (FD-U9-12).
+- Las cifras de tamaño quedan en C25 (`audio_max_bytes`, `audio_base64_max_chars`,
+  `voice_body_max_bytes`), lo que cierra la pregunta abierta de C5 (NFR-U9-03, NFRD-U9-03).
 
 ## C6 — Contrato común del analizador v1.0.0 · se reescribe
 
@@ -1339,6 +1653,20 @@ AUTONOMIA-05 con 100 % de ramas):
 3. Ningún campo de veracidad ni etiqueta sobre la persona; `hecho`, `observaciones` y `tema` pasan el
    escaneo de C8.
 4. Dos corridas con la misma configuración dan el mismo `config_sha256` (FR14.2).
+5. El juez no devuelve `id`, `pagina`, `avisos` ni `actos`: el núcleo pone los tres primeros y `actos` no
+   se emite (FD-U11-12; revisión 4).
+6. Con `estado: error`, `registro.descartes` va vacío (FD-U11-13; revisión 4).
+7. Con `modo: incremental`, `desde_turno ≤ hasta_turno` y los dos son turnos existentes de la entrada
+   (FD-U11-15; revisión 4).
+8. `observaciones_conductor` solo sale en `modo: incremental` con `estado: ok`; lo arma el módulo de U8
+   dentro de la biblioteca, no el juez (C-1: FD-U11-03 unida con FD-U8-01; revisión 4).
+9. Limitación declarada: si un trabajador muere a mitad de una corrida, el costo de las llamadas ya
+   hechas no queda en ningún `registro`, porque el resultado nunca se publica (FD-U4-10; revisión 4).
+
+**Revisión 4, sin cambio de esquema** (ADR-017):
+- La copia versionada en `contracts/analyzer/v1/` solo trae los dos esquemas; la prueba de nivel 0 compara
+  su contenido con `SHA256SUMS` y no solo la versión (FD-U1-06).
+- La pregunta abierta de C6 queda cerrada: el autor aprobó la v1.0.0 el 2026-11-09 sin cambios (FD-U1-07).
 
 **Fixtures** en `contracts/analyzer/v1/fixtures/`: una entrada y una salida válidas por modo, y una
 inválida por cada campo obligatorio, por `tipo` fuera del enum, por `estado: error` con hallazgos, por
@@ -1366,8 +1694,8 @@ properties:
   hecho: { type: string, minLength: 1 }
   tipo: { enum: [fecha, numero, lugar, persona, negacion, secuencia, otro] }
   actos: { type: array, items: { type: string } }
-  cita_a: { $ref: 'contracts/analyzer/v1/salida.schema.json#/$defs/cita' }
-  cita_b: { $ref: 'contracts/analyzer/v1/salida.schema.json#/$defs/cita' }
+  cita_a: { $ref: '/veridicus/contracts/analyzer/v1/salida#/$defs/cita' }   # $id canónico (FD-U1-11)
+  cita_b: { $ref: '/veridicus/contracts/analyzer/v1/salida#/$defs/cita' }   # $id canónico (FD-U1-11)
   observaciones: { type: string, minLength: 1 }
   state: { enum: [pending, accepted, edited, dismissed] }
   note: { type: string }
@@ -1375,6 +1703,14 @@ properties:
   observations_viewed: { type: boolean, description: El usuario actual desplegó las observaciones (FR6.2) }
   decided_by: { type: string, format: uuid }
   decided_at: { type: string, format: date-time }
+allOf:                                     # revisión 4 (FD-U1-13)
+  - if: { properties: { state: { const: pending } } }
+    then: { not: { anyOf: [{ required: [decided_by] }, { required: [decided_at] }] } }
+    else: { required: [decided_by, decided_at] }
+  - if: { properties: { state: { const: dismissed } } }
+    then: { required: [note] }
+  - if: { properties: { state: { const: edited } } }
+    then: { required: [reformulation] }
 ```
 
 `pair_key` (el par no ordenado de (turno, cita normalizada en espacios), FR4.9) es interno de
@@ -1395,6 +1731,8 @@ match:
   case_insensitive: true
   accent_insensitive: true
   excluded_spans: [cita_literal, analyst_text, notice_text]
+  quote_delimiters: ["«", "»"]           # revisión 4 (FD-U1-09): cita literal en hecho, observaciones y tema
+  scan_bare_term_spans: true             # revisión 4 (D-2 = b, FD-U1-14, FD-U11-20): un tramo «…» que es solo un término prohibido sí se escanea
 terms:                                   # 1.0.0 conserva 9 términos (regla de project.md); cada ampliación, su PR con control negativo
   - mentiroso
   - mentirosa
@@ -1414,10 +1752,10 @@ scanned:
   - catálogo de mensajes de la consola
 ---
 # contracts/integrity/neutral-clarification.v1.yaml  (VE-05, DT23)
-schema_version: 1.0.0
+schema_version: 1.1.0                    # revisión 4 (FD-U8-04)
 reject_if:
   mentions_contradiction: true           # «contradicción», «contradice», «incoherencia»
-  phrases: ["antes dijo", "dijo antes", "se contradice"]
+  phrases: ["antes dijo", "dijo antes", "se contradice", "antes mencionó", "había dicho"]   # FD-U8-04
   cites_turn: true                       # «T<n>» o «turno <n>» dentro de tema
 ---
 # contracts/integrity/notice.v1.yaml  (VE-01)
@@ -1429,6 +1767,17 @@ text: >
 ```
 
 El texto exacto del aviso lo fija el autor en el PR de U1 (lo redacta y versiona el TG, VE-07).
+
+**Revisión 4 de C8.**
+- Una cita literal dentro de `hecho`, `observaciones` o `tema` se marca con «…» y su tramo se excluye del
+  escaneo como `cita_literal` (FD-U1-09). Excepción, por D-2 = (b): un tramo entre «» que es solo un
+  término prohibido **sí** se escanea, con su caso negativo en `scan-cases.v1.yaml` (FD-U1-14, FD-U11-20).
+- El escáner es `scan(text, literal_sources)` y vive en U11 (`libs/integrity_policy`); el catálogo de
+  rótulos (`ui/result-labels.v2.yaml`) y el formato de fecha pasan a ser contratos de U1 (FD-U1-09).
+- `neutral-clarification` sube a 1.1.0 con «antes mencionó» y «había dicho» (FD-U8-04).
+- Archivos nuevos de `contracts/integrity/` y `contracts/transcript/` (plantilla de voz, reglas de uso,
+  casos del aviso de testimonio, marcas de hablante y casos de escaneo): ver la tabla de archivos sin
+  número al inicio (FD-U9-05, FD-U13-02, NFR-U13-10, NFRD-U13-13, FD-U6-08).
 
 ## C9 — Lectura de pasajes del evaluador · Retirado
 
@@ -1470,8 +1819,12 @@ class ReviewCommands(Protocol):
                note: str | None, reformulation: str | None, actor: Actor) -> UUID:
         """El actor ya viene autorizado como dueño (ADR-009).
         Errores: review.observations_not_viewed, review.note_required,
-        review.invalid_transition, review.round_locked."""
+        review.invalid_transition, review.round_locked, suggestion.not_found y
+        limits.exceeded (revisión 4, FD-U5-01)."""
 ```
+
+**Revisión 4 de C10.** `decide` suma `suggestion.not_found` y `limits.exceeded` (FD-U5-01). Las
+importaciones son `veridicus_contracts.human_review` y `veridicus_contracts.analyzer.v1` (FD-U1-04).
 
 ## C11 — Lo que ReviewReport usa de los demás módulos (en proceso) · cambia
 
@@ -1506,6 +1859,25 @@ del reporte y bloquea la ronda en una sola transacción (ADR-001, AC6.1.6). Ning
 propia transacción dentro de estas llamadas. `for_update` sale de las precisiones de NFR Requirements
 de la primera pasada (regla de `project.md`) y aquí entra al contrato.
 
+**Revisión 4 de C11.**
+- `open_round(for_update=True)`: si la sesión no tiene ronda, abre la 1 y la devuelve; la docstring lo
+  dice (FD-U5-03).
+- `discard_correction_round(uow, session_id, actor) -> None` y estado `discarded` de la ronda: solo sobre
+  una ronda de corrección abierta, guarda quién y cuándo y nunca vuelve a `open`; sin copia abierta,
+  `report.conflict` (FD-U5-04).
+- Docstring de `decisions`: devuelve el estado vigente de cada sugerencia con su propia nota, y la
+  reformulación solo si el estado es `edited` (FD-U5-05).
+- `pending_count` vale también para `pending_suggestions` de la vista (FD-U6-20), y se suma
+  `pending_counts(uow, session_ids) -> dict[UUID, int]` para la lista de sesiones (NFR-U6-04).
+- `SessionSnapshot` suma `consent_withdrawn_at` y conserva `terminated` (FD-U6-21), y declara origen,
+  `blocked_code`, terminación y retirada con su hora, estado del último modo final y perfil con la marca
+  de misma familia (FD-U7-03).
+- Puerto nuevo `SessionLifecycle` (dueño InterviewSession): `finalize(uow, session_id, actor)` y
+  `mark_consolidated(uow, session_id, report_version_id, actor, finalize_first=False)` (FD-U7-02).
+- Puerto nuevo `PendingSessions.count_pending(uow, owner_user_id) -> int`, que usa ConsoleApi al cambiar
+  un rol; el adaptador por defecto devuelve 0 hasta que U4 cree la tabla de sesiones (FD-U3-04).
+- Importaciones `veridicus_contracts.report_ports` (FD-U1-04).
+
 ## C12 — IdentityAccess hacia ConsoleApi (en proceso) · cambia
 
 **Se mantiene** la forma; **cambia** el conjunto de roles: entra `investigador` (FR1.2).
@@ -1533,6 +1905,10 @@ class UserAdmin(Protocol):
         """Desactivar revoca todas las sesiones del usuario. Deja fila en UserChange."""
 ```
 
+**Revisión 4 de C12.** `UserChange` lleva `[user_id, change, old_value, new_value, actor_kind,
+actor_user_id, actor_system, at]`; el alta del primer admin lleva `actor_kind: system` y
+`actor_system: create-admin` (FD-U3-06). Importaciones `veridicus_contracts.identity` (FD-U1-04).
+
 ## C13 — Puerto ModelGateway · se reescribe
 
 **Antes:** `judge`, `embed`, `transcribe` y `synthesize`, con destino siempre interno. **Ahora:** una
@@ -1546,7 +1922,7 @@ para que U10 no importe nada de U11 (el grafo aprobado: `anonymizer` solo depend
 from typing import Protocol, Literal, Any
 from datetime import datetime
 
-Role = Literal["judge", "verifier", "verifier_permuted"]
+Role = str   # revisión 4 (FD-U1-01): texto con patrón ^[a-z][a-z0-9_]{0,31}$; el analizador lo restringe a judge, verifier y verifier_permuted (C18, C19)
 DestinationSlot = Literal["primary", "fallback"]   # primary: el destino del papel; fallback: fallback_provider del perfil
 
 class Destination(Protocol):             # un destino ya resuelto de C18; nunca lleva el valor de una clave
@@ -1580,14 +1956,14 @@ class ModelCall(Protocol):               # misma forma que contracts/model_calls
 
 class GenerateResult(Protocol):
     content: dict[str, Any]              # ya parseado; quien llama lo valida contra su esquema
-    altered_markers: list[str]           # rutas JSON de las partes cuya marca alteró el modelo (C20)
+    altered_markers: list[str]           # punteros JSON (RFC 6901) a la cadena afectada, sin repetidos y en orden de recorrido (FD-U10-08)
     call: ModelCall
 
 class ModelCallError(Exception): ...
-class ContentBlocked(ModelCallError): ...
-class Timeout(ModelCallError): ...
-class ProviderError(ModelCallError): ...
-class InvalidOutput(ModelCallError): ...
+class ContentBlocked(ModelCallError): call: ModelCall    # revisión 4 (FD-U10-04)
+class Timeout(ModelCallError): call: ModelCall           # revisión 4 (FD-U10-04)
+class ProviderError(ModelCallError): call: ModelCall     # revisión 4 (FD-U10-04)
+class InvalidOutput(ModelCallError): call: ModelCall     # revisión 4 (FD-U10-04)
 class AnonymizerUnavailable(ModelCallError):
     """Fallo cerrado: no salió ninguna llamada fuera del clúster o de la máquina."""
 
@@ -1664,6 +2040,8 @@ directamente los errores tipados de `contracts.python.model_calls`, sin códigos
 | `local` | *Timeout* de la llamada o salida que no cumple el esquema | Sin reintento: `Timeout` o `InvalidOutput` |
 | `anonymizer` | No puede conectar con el proxy, o `503` | Sin reintento: `AnonymizerUnavailable` (fallo cerrado) |
 | `anonymizer` | `422` o `409` del proxy | Sin reintento: `AnonymizerUnavailable` (no salió ninguna llamada) |
+| `anonymizer` | `413` o `3xx` del proxy (revisión 4, NFRD-U11-05) | Sin reintento: `AnonymizerUnavailable` |
+| `anonymizer` | Antes de enviar, el cuerpo serializado con `ensure_ascii=False` pasa de `anonymizer_request_max_bytes` (revisión 4, NFRD-U11-05) | No se envía: `AnonymizerUnavailable` |
 | `anonymizer` | `504` | Sin reintento: `Timeout` |
 | `anonymizer` | `451` con `destination_slot: primary` | Sin reintento del mismo destino: `ContentBlocked`. Si el perfil tiene `fallback_provider`, el núcleo hace una sola llamada nueva con el mismo `role` y `destination_slot: fallback`, y la registra con `fallback_provider: true` (FR15.2); si no, la corrida termina en `bloqueo_contenido` |
 | `anonymizer` | `451` con `destination_slot: fallback` | Sin reintento: `ContentBlocked` y la corrida termina en `bloqueo_contenido` |
@@ -1671,6 +2049,21 @@ directamente los errores tipados de `contracts.python.model_calls`, sin códigos
 
 `anonymizer-proxy` tampoco reintenta hacia el proveedor: cada petición de C21 produce como mucho una
 llamada externa.
+
+**Revisión 4 de C13.**
+- `Role` pasa a `str` con el patrón `^[a-z][a-z0-9_]{0,31}$`; los tres papeles del analizador los fija la
+  especialización de C18 (FD-U1-01).
+- El módulo neutral se importa como `veridicus_contracts.model_calls`, no `contracts.python.model_calls`
+  (FD-U1-04, FD-U10-17); vale para todos los bloques de C13, C17 y C20.
+- `ContentBlocked`, `Timeout`, `ProviderError` e `InvalidOutput` llevan `call: ModelCall`;
+  `AnonymizerUnavailable` no, porque no salió ninguna llamada. Los cuerpos `451`, `502` y `504` de C21
+  incluyen `call`. Una salida que no valida da `502` `analysis.invalid_output` y el cliente HTTP la
+  traduce a `InvalidOutput` (FD-U10-04).
+- `altered_markers` son punteros JSON (RFC 6901) a la cadena afectada, sin repetidos y en orden de
+  recorrido (FD-U10-08).
+- El adaptador nativo valida la respuesta contra `req.schema` antes de devolverla (FD-U10-10).
+- El contrato de import-linter que impide a `semantic-agent` importar `libs.anonymizer` se llama
+  `semantic-agent-no-anonymizer` (FD-U10-03).
 
 **Prueba compuesta de AUTONOMIA-04 (U11; revisión 3, pregunta 16 = A).** Con el ModelGateway real, su
 adaptador `anonymizer` sobre el módulo de C20 y el analizador, U11 verifica AC11.3.3 (anonimizador
@@ -1754,6 +2147,17 @@ metrics:
 
 Las etiquetas solo llevan identificadores y enumeraciones, nunca texto (NFR10).
 
+**Revisión 4 de C15.**
+- Ventana de `veridicus_session_dismissal_ratio`: cuentan las sugerencias con estado vigente decidido en
+  la ronda `open`, incluidas las heredadas, ordenadas por `change_seq`; la serie se retira al bloquear o
+  descartar la ronda y al purgar la sesión. La métrica de rechazos no entra en la razón (NFR-U5-04).
+- Las métricas de otras unidades no se suman a `review.v2.yaml`: cada una va en
+  `contracts/metrics/<slug>.v1.yaml` (`text-flow`, `session-lifecycle`, `assistant-extras`, `voice` y
+  `anonymizer`) con la misma regla de etiquetas (NFRD-U1-05, NFRD-U4-08, NFRD-U6-12, NFRD-U8-06,
+  NFRD-U9-10, NFRD-U10-02). NFR-U4-08 («métricas en C15») queda superada por NFRD-U4-08.
+- Etiquetas permitidas además de las de arriba: `provider`, `role`, `slot`, `category` y `origin`, todas
+  enumeraciones cerradas (NFRD-U1-05).
+
 ## C16 — Salud de cada servicio · cambia
 
 **Se mantiene** la forma; **cambia** lo que comprueba `/readyz` (perfiles y anonimizador en lugar del
@@ -1788,6 +2192,13 @@ paths:
 
 `semantic-agent`, `audio-worker` y `anonymizer-proxy` exponen estas dos rutas en un puerto interno
 aunque no tengan API de negocio.
+
+**Revisión 4 de C16.**
+- `/readyz` de `anonymizer-proxy` comprueba perfiles, claves, el modelo NER (por `sha256`), las listas y
+  la tabla de capacidades de C22, y **nunca** llama a un proveedor (FD-U10-11).
+- La ruta interna `POST /internal/v1/speech` de `audio-worker` no es de salud: va en
+  `contracts/api/speech-internal.v1.yaml` (tabla de archivos sin número al inicio) (NFRD-U1-08, FD-U9-04,
+  NFR-U9-04).
 
 ## C17 — API pública de la biblioteca del analizador (en proceso) · nuevo
 
@@ -1824,6 +2235,10 @@ class ProfileResolver(Protocol):         # para la CLI: del nombre del perfil a 
 eso no debería ocurrir (InterviewSession ya validó); si ocurre, la corrida pasa a `error` con
 `analysis.system` y el mensaje va a fallidos.
 
+**Revisión 4 de C17.** La cancelación y el plazo se comprueban antes de cada llamada; una salida inválida
+del verificador invalida la corrida (FD-U11-28). Importaciones `veridicus_contracts.analyzer.v1`
+(FD-U1-04).
+
 ## C18 — Perfiles de ejecución y tabla de precios · nuevo
 
 Archivos versionados que solo cambian por PR (FR9.2, ADR-012). Los esquemas viven en
@@ -1857,7 +2272,7 @@ $defs:
       family: { $ref: '#/$defs/token', description: Para la regla de familias distintas (FR14.4) }
       scope: { enum: [local, external] }
       base_url: { type: string, format: uri, description: Solo local; interno del clúster o de la máquina }
-      api_key_ref: { type: string, pattern: '^VERIDICUS_[A-Z0-9_]+$', description: 'Nombre de la variable o de la clave del Secret; nunca el valor' }
+      api_key_ref: { type: string, pattern: '^[A-Z][A-Z0-9_]{2,63}$', description: 'Nombre de la variable o de la clave del Secret; nunca el valor. El prefijo VERIDICUS_ es un argumento de la validación (revisión 4, FD-U1-02)' }
       parameters:
         type: object
         additionalProperties: false
@@ -1976,6 +2391,30 @@ properties:
 `config/profiles.yaml` trae al menos `comercial-piloto` y `todo-local` (FR14.1). Los nombres de perfil
 son valores, no campos, y no se traducen. Los modelos concretos los fija NFR Requirements.
 
+**Revisión 4 de C18.**
+- **Esquema partido** (FD-U1-02, FD-U1-12): `profile-base.schema.v1.yaml` (base abierta: `roles`,
+  `role_aliases` y un `fallback_provider`; `purpose` es texto con patrón) y `profiles.schema.v1.yaml`
+  (especialización del analizador, cerrada con `unevaluatedProperties: false`: `judge`, `verifier`, el
+  alias `verifier_permuted → verifier` y `purpose` como enum). El sobre del archivo es el mismo para todos.
+  El bloque de arriba muestra la vista del analizador.
+- `api_key_ref` sigue `^[A-Z][A-Z0-9_]{2,63}$`; el prefijo `VERIDICUS_` lo exige la validación como
+  argumento (FD-U1-02).
+- Las reglas de `anonymizer-proxy` se leen sobre `roles` y `role_aliases`, no sobre `judge` y `verifier`
+  (FD-U1-02, FD-U10-17). El proxy calcula `profile_sha256` con JCS usando una función pura que publica U1
+  (FD-U10-12).
+- En `purpose: evaluation`, el `fallback_provider` (alterno) es de una tercera familia, distinta de la del
+  juez y la del verificador (FD-U11-05), y `family` es obligatoria en juez, verificador y alterno
+  (FD-U11-22).
+- Ventanas por posición, con paso `W − O`; la última ventana se desplaza para terminar en el último turno
+  (FD-U11-26).
+- Perfiles iniciales (NFR-U11-07): `comercial-piloto` y `evaluacion-comercial` con juez de Anthropic y
+  verificador local gpt-oss-20b Q8_0 (`family: openai`), sin alterno (NFR-U11-01); `todo-local` con
+  ventana 40 y solapamiento 10; `evaluacion-local-zine` con juez Qwen3.6-35B-A3B Q8_0, `batch_only`,
+  ventana 60 y solapamiento 20. El generador del conjunto sintético es de Google (NFR-U10-07). Esto
+  cierra la pregunta abierta de C18.
+- Los pisos (p. ej. 270 s de `model_call_timeout_s` con perfil comercial) viven como constantes en
+  `libs/execution_profiles`, no en C25 (NFRD-U11-03).
+
 ## C19 — Reporte de la CLI y códigos de salida · nuevo
 
 El reporte que escribe la CLI (corrida por lotes o evaluación) y que el investigador sube a la consola
@@ -1992,7 +2431,7 @@ type: object
 additionalProperties: false
 required: [role, provider, model, input_tokens, output_tokens, fallback_provider, anonymized, at]
 properties:
-  role: { enum: [judge, verifier, verifier_permuted] }
+  role: { type: string, pattern: '^[a-z][a-z0-9_]{0,31}$' }   # revisión 4 (FD-U1-03); el allOf de abajo lo restringe a los tres papeles
   provider: { enum: [anthropic, google, openai, local] }
   model: { $ref: 'contracts/profiles/profiles.schema.v1.yaml#/$defs/token' }
   version: { $ref: 'contracts/profiles/profiles.schema.v1.yaml#/$defs/token' }
@@ -2004,10 +2443,12 @@ properties:
   fallback_provider: { type: boolean }
   anonymized: { type: boolean }
   at: { type: string, format: date-time }
+allOf:                                   # revisión 4 (FD-U1-03)
+  - properties: { role: { enum: [judge, verifier, verifier_permuted] } }
 ```
 
 ```yaml
-# contracts/cli/report.schema.v1.yaml
+# contracts/cli/report.schema.v1.yaml  (la revisión 4 lo lleva a v2; ver abajo)
 $schema: https://json-schema.org/draft/2020-12/schema
 type: object
 additionalProperties: false
@@ -2093,7 +2534,25 @@ nada.
 | 2 | Argumento inválido, archivo de entrada que no cumple C6 o transcripción sin consentimiento (antes de cualquier llamada) |
 | 3 | Perfil inválido, destino externo sin anonimizador, clave ausente o transferencia no autorizada (antes de cualquier llamada) |
 | 4 | Una corrida terminó con `incidente_anonimizacion`: el lote se detiene sin lanzar más corridas |
-| 5 | Error inesperado del proceso |
+| 5 | Error inesperado del proceso, o interrupción por SIGINT o SIGTERM (revisión 4, FD-U11-10) |
+| 6 | Evaluación terminada con alguna métrica bajo su umbral (revisión 4, FD-U11-10) |
+
+**Revisión 4 de C19.**
+- **C19 v2, cambio mayor** (FD-U11-09): suma `dataset_sha256`, valores por corrida, umbrales y `passes`
+  por métrica, `permutation_coverage`, `type_agreement`, `completed_runs`, sensibilidad por distancia
+  entre citas, la sección adversarial y la validez de la medición (`measurement_valid`).
+- `origin` (`enum [local, zine]`, obligatorio) (FD-U12-07).
+- `blocking` y la latencia p50 y p95 por papel (NFR-U11-14); la latencia se mide en memoria y solo sus
+  agregados van al reporte, porque C6 no cambia (NFRD-U11-07).
+- Sección `clarifications` con `emitted`, `discarded` por cada una de las 7 reglas y `quote_matches`
+  opcional (FD-U8-09, NFR-U1-05, NFRD-U8-09).
+- Todo entero lleva `minimum` y `maximum` entre 0 y 2^53 − 1 (`seed` admite también negativos);
+  `estimated_cost` ≤ 10^9 (NFRD-U1-06).
+- Toda cadena lleva `maxLength: 128` con `x-veridicus-limit: report_token_max_chars` (NFRD-U1-06).
+- `synthetic_set` se forma como `<tipo_hecho>__<perfil_persona>` (FD-U11-07); la consola la separa en
+  `story_fact_type` y `persona_profile` (FD-U12-05).
+- El archivo de entrada de la CLI es el objeto `transcripcion` de C6 (FD-U11-23).
+- `model-call.v1`: `role` es texto con patrón y un `allOf` lo restringe a los tres papeles (FD-U1-03).
 
 ## C20 — Módulo del anonimizador (en proceso) · nuevo
 
@@ -2144,6 +2603,17 @@ HTTP *fake* de cada adaptador nativo (US11.3):
 
 La prueba compuesta con el ModelGateway real y el analizador (AC11.3.3, AC11.3.7) es de U11 (C13).
 
+**Revisión 4 de C20.**
+- El subpaquete de adaptadores nativos es `libs/anonymizer/providers/`, y el contrato de import-linter que
+  separa sus capas se llama `anonymizer-layers` (FD-U10-03). Cierra la pregunta abierta de C20.
+- Marcas coherentes dentro de cada llamada, numeradas de forma determinista por primera aparición
+  (FD-U10-01); cuatro categorías (`PERSONA`, `LUGAR`, `EXPEDIENTE`, `IDENTIFICADOR`) más la red `ENTIDAD`,
+  que no se aplica a los mensajes `system` (FD-U10-02).
+- Un texto del testimonio con forma de marca se trata como un valor más y se seudonimiza (FD-U10-07).
+- Con contenido JSON se seudonimizan los valores de cadena ya decodificados y se vuelve a serializar sin
+  escapar caracteres no ASCII; la restauración solo toca valores de cadena (FD-U10-15).
+- Importaciones `veridicus_contracts.model_calls` (FD-U10-17, FD-U1-04).
+
 ## C21 — `anonymizer-proxy` por HTTP dentro del clúster · nuevo
 
 La misma operación de C20 por la red (P13). Solo la llama `semantic-agent`; la `NetworkPolicy` de U2
@@ -2182,7 +2652,7 @@ paths:
                 run_id: { type: string, format: uuid, description: Solo para logs con IDs }
                 profile_name: { type: string, pattern: '^[a-z0-9-]{1,48}$' }
                 profile_sha256: { type: string, pattern: '^[a-f0-9]{64}$', description: Huella de la entrada del perfil (C18) }
-                role: { enum: [judge, verifier, verifier_permuted] }
+                role: { type: string, pattern: '^[a-z][a-z0-9_]{0,31}$', description: 'Se valida contra roles y role_aliases del perfil (revisión 4, FD-U10-17)' }
                 destination_slot: { enum: [primary, fallback] }
                 messages:
                   type: array
@@ -2211,12 +2681,28 @@ paths:
                   altered_markers: { type: array, items: { type: string }, description: Rutas JSON de las partes invalidadas }
                   call: { $ref: 'contracts/model_calls/model-call.v1.yaml' }
         '409': { description: 'profile_sha256 no coincide con la copia del proxy; no salió ninguna llamada: { "code": "anonymizer.profile_mismatch" }' }
+        '413': { description: 'Cuerpo mayor que anonymizer_request_max_bytes; no salió ninguna llamada: { "code": "limits.exceeded" } (revisión 4, NFRD-U10-17)' }
         '422': { description: 'Petición inválida, perfil o papel inexistente, ranura fallback sin fallback_provider, destino local o dominio fuera de la lista; no salió ninguna llamada: { "code": "anonymizer.destination_rejected" }' }
-        '451': { description: 'Bloqueo de contenido del proveedor: { "code": "analysis.content_blocked" }' }
-        '502': { description: 'Error del proveedor; la llamada ya salió: { "code": "analysis.provider" }' }
-        '503': { description: 'Anonimizador no disponible; no salió ninguna llamada: { "code": "analysis.anonymizer_unavailable" }' }
-        '504': { description: 'Tiempo agotado: { "code": "analysis.timeout" }' }
+        '451': { description: 'Bloqueo de contenido del proveedor: { "code": "analysis.content_blocked", "call": … } (call: FD-U10-04)' }
+        '502': { description: 'Error del proveedor o salida que no valida (analysis.invalid_output); la llamada ya salió: { "code": "analysis.provider", "call": … } (FD-U10-04)' }
+        '503': { description: 'Anonimizador no disponible, o cupo de concurrencia lleno (al instante, NFR-U10-08); no salió ninguna llamada: { "code": "analysis.anonymizer_unavailable" }' }
+        '504': { description: 'Tiempo agotado: { "code": "analysis.timeout", "call": … } (FD-U10-04)' }
 ```
+
+**Revisión 4 de C21.**
+- `servers`: el nombre corto `http://veridicus-<nombre>:<puerto>` cuenta como interno (NFR-U1-06).
+- `x-veridicus-max-bytes: anonymizer_request_max_bytes` en la petición y `anonymizer_response_max_bytes`
+  en la respuesta; por encima, `413 limits.exceeded` sin llamar (NFRD-U10-17, NFRD-U1-04).
+- Con el cupo de concurrencia lleno, `503` al instante; el cupo cubre solo `POST /v1/generate` y nunca las
+  sondas (NFR-U10-08; regla de `project.md` IDS-U10-04).
+- El plazo efectivo es el menor entre `timeout_s` y `model_call_timeout_s`; el cliente espera ese plazo
+  más 10 s (NFRD-U10-10).
+- Los cuerpos `451`, `502` y `504` incluyen `call` (FD-U10-04).
+- Los logs del proxy suman la ranura, el modelo, los reemplazos por categoría, los tokens y la duración,
+  siempre sin texto (FD-U10-14).
+- El papel se valida contra `roles` y `role_aliases` del perfil (FD-U10-17).
+- El proxy no tiene disyuntor ni reintentos; la reentrega de C2 puede reenviar el mismo cuerpo
+  seudonimizado hasta 3 veces (NFRD-U10-14, NFRD-U4-01).
 
 El cliente HTTP de C21 (`libs/model_gateway/adapters/anonymizer_http.py`, U11) traduce cada respuesta
 a los errores tipados del puerto según las filas `anonymizer` de la tabla de reintentos de C13. `409`, `422`, `503` y no poder conectar terminan en `AnonymizerUnavailable` y la
@@ -2253,6 +2739,19 @@ pod `anonymizer-proxy` (FR12.4, P13); en la CLI, en variables de entorno de la m
 repositorio. El bloqueo de contenido del proveedor se traduce a `bloqueo_contenido`, y el núcleo usa el
 `fallback_provider` del perfil si lo hay (FR15.2).
 
+**Revisión 4 de C22.**
+- Sin redirecciones, sin otra URL base y sin desactivar la verificación de TLS; los adaptadores usan
+  `httpx` directo, no los SDK de los proveedores (FD-U10-05; regla de `project.md`).
+- La lista de dominios vive en `libs/anonymizer/data/allowed-domains.v1.yaml`, con una función de
+  comparación publicada (FD-U10-06).
+- Operaciones (FD-U10-09, cierra la pregunta abierta): Google `generateContent` con `responseSchema`;
+  OpenAI Responses API con `json_schema` estricto; Anthropic con salida estructurada o herramienta
+  forzada. Una tabla versionada de capacidades decide el modo por modelo.
+- Traducción de Anthropic (NFRD-U10-13): `refusal` → `451`; `max_tokens` o salida que no valida → `502`
+  `InvalidOutput`; `429`, `5xx` y `529` → `502`; `3xx` → `ProviderError`.
+- Cabeceras salientes en lista permitida: nunca salen `X-Request-Id`, `run_id`, cookies ni la
+  autorización del cliente (NFR-U10-09).
+
 ## C23 — Puerto `AccessLog` (en proceso) · nuevo
 
 La interfaz la define U7 y el adaptador real lo aporta U13; ConsoleApi la cablea y la llama
@@ -2272,6 +2771,11 @@ class AccessLog(Protocol):
 arrancar y en cada exportación, y `/readyz` informa `access_log: not_configured` sin dejar de responder
 200 (C16). La prueba de nivel 0 de U7 lo verifica; la de nivel 1 de U13 verifica que el adaptador real
 está conectado y que la exportación queda registrada.
+
+**Revisión 4 de C23.** El adaptador real lanza una excepción ante un fallo o un *timeout* y no reintenta
+(FD-U13-11). En la exportación tiene 500 ms: si falla o vence, la exportación revierte la transacción y
+responde `503 report.export_not_recorded` (NFR-U7-09). En las lecturas marcadas con
+`x-veridicus-access-log` la respuesta sale igual (FD-U3-05).
 
 ## C24 — Puertos de borrado para la retención (en proceso) · nuevo
 
@@ -2294,40 +2798,132 @@ class Purgeable(Protocol):
 Solo el usuario de base de datos del Job tiene `DELETE` (A-2). El acta (RetentionAct) y el registro de
 acceso sobreviven sin clave foránea.
 
+**Revisión 4 de C24.**
+- v1.1.0 suma `count_session(uow, session_id) -> Mapping[str, int]` (NFRD-U13-08).
+- `AnonymizationIncident` no se borra: sobrevive sin clave foránea, solo con IDs (FD-U4-12).
+- `purge_session` de InterviewSession borra `TranscriptPaste` antes que `Turn` (FD-U6-22), y los
+  archivos de TurnAudio antes que su fila; el acta lleva `audio_id` y `sha256` (FD-U9-09).
+- El recibo de ReviewReport lleva por versión `report_version_id`, `sha256` y `file_missing` (FD-U7-12).
+- Los ProblemReport sin sesión se borran cuando `reported_at` + máximo ≤ `as_of`, con un acta de
+  `deleted_session_id` nulo y la regla `sessionless_problem_report_expired` (FD-U13-07).
+- `veridicus_retention` tiene `SELECT` en todo, `DELETE` solo en las tablas purgables, `INSERT` solo en
+  `RetentionAct` y nunca `UPDATE`. No son purgables `User`, `UserChange`, `WebSession`,
+  `AnalystAcknowledgement`, `AccessLogEntry` ni `RetentionAct` (FD-U3-09). Como PostgreSQL exige
+  `UPDATE` para `SELECT FOR UPDATE`, el Job bloquea con funciones `SECURITY DEFINER` que solo bloquean,
+  pedidas a U4 y U7 (NFRD-U13-05, NFRD-U13-07).
+- Con Redis caído, el Job no borra la sesión (`failed`, `system.unavailable`) (NFR-U13-05).
+
 ## C25 — Catálogo único de límites · nuevo
 
 Toda cifra de límite vive aquí; el contrato y los servicios la leen de este archivo y una variable de
 entorno solo puede bajarla, nunca subirla (regla de `project.md`). Las cifras las fija NFR Requirements.
 
+**Revisión 4: contenido v1 entregado** (§5 de `construction/contracts/nfr-design/security-design.md`;
+NFRD-U1-01, NFRD-U1-02). Cada entrada es `{ value, unit, owner, used_in, derived_from? }`; aquí se
+muestran `value`, `unit` y `owner` (la unidad dueña), y `used_in` lo trae el archivo publicado. Sin
+nulos: NFR-U1-07 queda superada por NFRD-U1-02. Las cifras de cada unidad salen de sus filas NFR-U*.
+
 ```yaml
-# contracts/limits.v1.yaml — forma; los valores son de NFR Requirements
+# contracts/limits.v1.yaml — revisión 4 (NFRD-U1-01, NFRD-U1-02)
 schema_version: 1.0.0
+units: [chars, turns, bytes, s, ms, deliveries, suggestions, words, ratio, days, levels]   # lista cerrada
 limits:
-  turn_max_chars: { value: null, unit: chars }
-  transcript_max_turns: { value: null, unit: turns }
-  transcript_max_chars: { value: null, unit: chars }
-  import_file_max_bytes: { value: null, unit: bytes }
-  audio_max_bytes: { value: null, unit: bytes }
-  audio_max_seconds: { value: null, unit: s }
-  run_message_max_bytes: { value: null, unit: bytes }
-  run_deadline_incremental_s: { value: null, unit: s }
-  run_deadline_final_s: { value: null, unit: s }
-  model_call_timeout_s: { value: null, unit: s }
-  claim_idle_ms: { value: null, unit: ms }
-  run_max_deliveries: { value: null, unit: deliveries }
-  cancel_key_margin_s: { value: null, unit: s }
-  poll_interval_s: { value: null, unit: s }
-  heartbeat_timeout_s: { value: null, unit: s }
-  web_session_max_s: { value: null, unit: s }
-  fragment_window_turns: { value: null, unit: turns }
-  fragment_overlap_turns: { value: null, unit: turns }
-  dismissal_window_w: { value: null, unit: suggestions }
-  research_report_max_bytes: { value: null, unit: bytes }
-  testimony_warning_words: { value: null, unit: words }
+  # U3 identity-access
+  web_session_max_s:               { value: 43200, unit: s, owner: U3 }
+  web_session_idle_s:              { value: 1800, unit: s, owner: U3 }
+  username_max_chars:              { value: 32, unit: chars, owner: U3 }
+  password_max_chars:              { value: 128, unit: chars, owner: U3 }
+  # U4 text-flow
+  turn_max_chars:                  { value: 20000, unit: chars, owner: U4 }
+  transcript_max_turns:            { value: 2000, unit: turns, owner: U4 }
+  transcript_max_chars:            { value: 250000, unit: chars, owner: U4 }
+  run_message_max_bytes:           { value: 2097152, unit: bytes, owner: U4 }
+  claim_idle_ms:                   { value: 60000, unit: ms, owner: U4 }
+  run_max_deliveries:              { value: 3, unit: deliveries, owner: U4 }
+  cancel_key_margin_s:             { value: 120, unit: s, owner: U4 }
+  poll_interval_s:                 { value: 15, unit: s, owner: U4 }
+  poll_interval_active_s:          { value: 2, unit: s, owner: U4 }
+  run_queue_wait_max_s:            { value: 10800, unit: s, owner: U4 }
+  cursor_max_chars:                { value: 128, unit: chars, owner: U4 }
+  # U5 human-review
+  review_text_max_chars:           { value: 2000, unit: chars, owner: U5 }
+  review_body_max_bytes:           { value: 65536, unit: bytes, owner: U5 }
+  dismissal_window_w:              { value: 8, unit: suggestions, owner: U5 }
+  # U6 session-lifecycle
+  import_file_max_bytes:           { value: 2097152, unit: bytes, owner: U6 }
+  heartbeat_timeout_s:             { value: 180, unit: s, owner: U6 }
+  session_sweep_interval_s:        { value: 30, unit: s, owner: U6 }
+  heartbeat_write_min_s:           { value: 15, unit: s, owner: U6 }
+  transcript_body_max_bytes:       { value: 1004096, unit: bytes, owner: U6 }
+  import_body_max_bytes:           { value: 2113536, unit: bytes, owner: U6 }
+  # U7 forensic-report
+  report_max_bytes:                { value: 8388608, unit: bytes, owner: U7 }
+  # U9 voice
+  audio_max_bytes:                 { value: 6000000, unit: bytes, owner: U9 }
+  audio_max_seconds:               { value: 120, unit: s, owner: U9 }
+  audio_base64_max_chars:          { value: 8000000, unit: chars, owner: U9, derived_from: audio_max_bytes }
+  voice_deadline_base_s:           { value: 360, unit: s, owner: U9 }
+  voice_deadline_max_s:            { value: 1800, unit: s, owner: U9 }
+  transcription_timeout_s:         { value: 90, unit: s, owner: U9 }
+  audio_claim_idle_ms:             { value: 120000, unit: ms, owner: U9 }
+  audio_max_deliveries:            { value: 2, unit: deliveries, owner: U9 }
+  voice_key_ttl_s:                 { value: 1920, unit: s, owner: U9 }
+  tts_timeout_s:                   { value: 12, unit: s, owner: U9 }
+  speech_route_timeout_s:          { value: 15, unit: s, owner: U9 }
+  speech_text_max_chars:           { value: 400, unit: chars, owner: U9 }
+  speech_audio_max_bytes:          { value: 4194304, unit: bytes, owner: U9 }
+  audio_store_max_bytes:           { value: 2147483648, unit: bytes, owner: U9 }
+  voice_body_max_bytes:            { value: 6016384, unit: bytes, owner: U9 }
+  # U10 anonymizer
+  anonymizer_request_max_bytes:    { value: 2097152, unit: bytes, owner: U10 }
+  anonymizer_masking_budget_ratio: { value: 0.15, unit: ratio, owner: U10 }
+  anonymizer_response_max_bytes:   { value: 2097152, unit: bytes, owner: U10 }
+  # U11 incoherence-analyzer
+  model_call_timeout_s:            { value: 3600, unit: s, owner: U11 }
+  run_deadline_incremental_s:      { value: 1200, unit: s, owner: U11 }
+  run_deadline_final_s:            { value: 43200, unit: s, owner: U11 }
+  fragment_window_turns:           { value: 60, unit: turns, owner: U11 }
+  fragment_overlap_turns:          { value: 20, unit: turns, owner: U11 }
+  model_response_max_bytes:        { value: 2097152, unit: bytes, owner: U11 }
+  # U12 research-reports
+  research_report_max_bytes:       { value: 8388608, unit: bytes, owner: U12 }
+  research_report_max_json_depth:  { value: 8, unit: levels, owner: U12 }
+  research_report_write_timeout_s: { value: 15, unit: s, owner: U12 }
+  research_report_read_timeout_s:  { value: 30, unit: s, owner: U12 }
+  # U13 ethics-governance
+  retention_max_days:              { value: 90, unit: days, owner: U13 }
+  retention_min_days:              { value: 1, unit: days, owner: U13 }
+  acknowledgement_validity_days:   { value: 90, unit: days, owner: U13 }
+  testimony_warning_words:         { value: 8, unit: words, owner: U13 }
+  problem_report_note_max_chars:   { value: 2000, unit: chars, owner: U13 }
+  wellness_reminder_interval_s:    { value: 2700, unit: s, owner: U13 }   # propuesta
+  ethics_body_max_bytes:           { value: 32768, unit: bytes, owner: U13 }
+  # U1 contracts
+  report_token_max_chars:          { value: 128, unit: chars, owner: U1 }
+relations:
+  - fragment_overlap_turns < fragment_window_turns
+  - retention_min_days <= retention_max_days
+  - heartbeat_write_min_s < heartbeat_timeout_s
+  - poll_interval_active_s <= poll_interval_s
+  - voice_deadline_base_s <= voice_deadline_max_s
+  - run_deadline_incremental_s <= run_deadline_final_s
+  - import_file_max_bytes <= run_message_max_bytes
+  - import_file_max_bytes < import_body_max_bytes
 ```
 
 Una prueba de nivel 0 falla si un servicio usa una cifra de límite que no viene de este archivo, o si
 una variable de entorno intenta subir una.
+
+**Revisión 4 de C25.**
+- Los nombres provisionales de la revisión 1 quedan **Retirado**, sin reutilizarse:
+  `turn_text_max_chars`, `scenario_name_max_chars`, `scenario_file_max_bytes`, `voice_audio_max_bytes`,
+  `voice_audio_base64_max_chars` y `web_session_max_age_s` (NFRD-U1-01).
+- El techo empaquetado solo se baja con `VERIDICUS_LIMIT_<NOMBRE>`; una variable que sube el techo
+  impide arrancar con `config.invalid_limit` (NFRD-U1-09, FD-U1-10).
+- `limits.load` admite decimales en las unidades `ratio` y `s` (NFR-U1-01).
+- Los pisos (p. ej. 270 s de `model_call_timeout_s` con perfil comercial) no van aquí: C25 solo guarda
+  techos (NFRD-U11-03).
+- Se cierra la pregunta abierta de C25.
 
 ---
 
@@ -2374,6 +2970,22 @@ una variable de entorno intenta subir una.
    | `Role`: `judge` / `verifier` / `verifier_permuted` | `papel`: `juez` / `verificador` / `verificador_permutado` | Tabla de C13 |
    | `code` de Problem Details | `error.codigo` | Tabla al final de C1 |
 
+**Revisión 4 de las reglas de propiedad.**
+- Regla 1: cada esquema declara un `$id` canónico (p. ej. `/veridicus/contracts/analyzer/v1/salida`) y
+  las referencias van por ese `$id`, no por ruta de archivo (FD-U1-11). Los `pattern` usan el subconjunto
+  portátil entre Python y JavaScript: anclados, sin `\d`, `\w`, `\s`, `\b`, grupos con nombre, banderas
+  en línea ni miradas atrás (NFRD-U1-14).
+- Regla 1: U1 publica también la mitad TypeScript en `contracts/ts/` (validación ajv `strict`, JCS y las
+  mismas *fixtures*); la consola importa de ahí (NFR-U1-04). Los módulos Python se importan como
+  `veridicus_contracts.<módulo>` (FD-U1-04).
+- Regla 3: la prueba de nivel 0 de C6 compara el contenido con `SHA256SUMS`, no solo la versión
+  (FD-U1-06).
+- Regla 4: los mensajes de las colas de fallidos (`<cola>:failed`) son estrictos y solo llevan IDs y
+  `code`; es la excepción declarada a BR1.3 (NFRD-U1-07).
+- Regla 6: el catálogo `contracts/errors/error-codes.v2.yaml` declara un solo `status` por `code`
+  (`limits.exceeded` = 413) y marca con `http: false` los códigos que nunca salen en una respuesta
+  (NFR-U1-03, FD-U1-10, NFR-U6-10).
+
 ## Decisiones que precisan artefactos ya aprobados
 
 No edité ningún artefacto aprobado (regla de `project.md`). En la aprobación decides cuáles se llevan al
@@ -2391,17 +3003,17 @@ original, cada uno en su propio commit.
 | CD-08 | `refined-mockups/interaction-spec.md` | Los errores de análisis se muestran por corrida con los códigos `analysis.*` y `anonymizer.incident` de C1 | P8 |
 | CD-09 | `units-generation/unit-of-work-dependency.md` (puntos de integración U10–U11) y `domain-design/components.md` (ModelGateway, ExecutionProfiles, Anonymizer) | Los tipos de la llamada a un modelo (`contracts/python/model_calls.py`), el registro de llamadas (`contracts/model_calls/`) y los esquemas de perfiles (`contracts/profiles/`) viven en U1. Así U10 solo depende de `contracts`, como dice el grafo, y `anonymizer-proxy` valida perfiles sin ExecutionProfiles. No cambia ninguna arista | Esta etapa (C13, C18, C20) |
 | CD-10 | `requirements-analysis/requirements-adenda-02.md` (A-4) | El bloque `consentimiento` suma `requiere_mandato` y `constancia_mandato` (VE-06: compareciente o tercero civil) | Esta etapa (C6, cambio 8) |
-| CD-11 | `domain-design/components.md` (ConsoleApi, revisión 3) | «Rechaza las corridas nuevas con `anonymizer.incident`» pasa a «rechaza las corridas nuevas con `409` `session.blocked`; `anonymizer.incident` es el código del bloqueo, que la consola muestra como causa» | Revisión 3, pregunta 15 = A; Domain Design revisión 05, R-08 |
+| CD-11 | `domain-design/components.md` (ConsoleApi, revisión 3) | «Rechaza las corridas nuevas con `anonymizer.incident`» pasa a «rechaza las corridas nuevas con `409` `session.blocked`; `anonymizer.incident` es el código del bloqueo, que la consola muestra como causa» | Revisión 3, pregunta 15 = A; Domain Design revisión 05, R-08. **Llevada al original en la revisión 4 (2026-11-23)** |
 
 ## Preguntas abiertas
 
 | Contract | Question | Blocks |
 |---|---|---|
-| C6 | Aprobación de la v1.0.0 en el repositorio principal del TG; hasta entonces la copia en `contracts/` lleva la versión aprobada aquí por el autor. | U1 (Code Generation), U11 |
-| C25 | Todas las cifras del catálogo (plazos de corrida, *timeout* por llamada, ventana y solapamiento del modo fragmentado, tamaños máximos, *W* de descartes). | U4, U6, U9, U11, U12 (NFR Requirements) |
-| C5 | Tamaño máximo del audio en el mensaje; si supera lo razonable para Redis, cambiar a una referencia a un volumen temporal con borrado tras transcribir. | U9 |
-| C18 | Modelos concretos de `comercial-piloto` y `todo-local`, y modelo local de demostración. | U11 (NFR Requirements) |
-| C22 | Forma exacta de forzar la salida JSON y el esfuerzo en cada proveedor, y si Responses o Chat Completions con OpenAI. | U10 (Functional Design) |
-| C20 | Nombre del subpaquete de los adaptadores nativos dentro de `libs/anonymizer/` y del contrato de import-linter que lo excluye de `semantic-agent`. | U10, U4 (Functional Design) |
+| C6 | ~~Aprobación de la v1.0.0 en el repositorio principal del TG~~. **Cerrada en la revisión 4:** aprobada el 2026-11-09 sin cambios (FD-U1-07). | — |
+| C25 | ~~Todas las cifras del catálogo~~. **Cerrada en la revisión 4:** contenido v1 en C25 (NFRD-U1-01, NFRD-U1-02). | — |
+| C5 | ~~Tamaño máximo del audio en el mensaje~~. **Cerrada en la revisión 4:** se queda en base64 dentro del *stream*, con `audio_max_bytes` = 6 000 000 y `audio_base64_max_chars` = 8 000 000 (NFR-U9-03). | — |
+| C18 | ~~Modelos concretos de los perfiles~~. **Cerrada en la revisión 4:** ver C18 (NFR-U11-01, NFR-U11-07, NFR-U10-07). | — |
+| C22 | ~~Forma de forzar la salida JSON por proveedor~~. **Cerrada en la revisión 4:** ver C22 (FD-U10-09). | — |
+| C20 | ~~Nombre del subpaquete y del contrato de import-linter~~. **Cerrada en la revisión 4:** `libs/anonymizer/providers/`, `anonymizer-layers` y `semantic-agent-no-anonymizer` (FD-U10-03). | — |
 | C14 | Servidor concreto de cada modelo local y adaptador del TTS. | U9, U2 (Infrastructure Design) |
 | C8 | Texto exacto del aviso de VE-01 (lo redacta el TG). | U1 |

@@ -60,6 +60,10 @@
 - 2026-11-23T00:57:53Z — «Reporte adjunto al PR» se lee como un par versionado (C19 v2 y una evidencia con el commit evaluado) en evaluation/reports/level2/, porque C19 no tiene campo de commit y la CI no puede leer adjuntos (IDS-U11-04).
 <!-- aidlc-wave-memory:incoherence-analyzer:46eeeb6ab83e7c302a623d29bcfcb67e717a3561091fe92d1683009056b22345 -->
 
+
+- 2026-11-23T01:10:01Z — Segunda pasada sin preguntas: U4 adopta los recursos que ya fijó U2 para el trabajador y semantic-agent (caben con el /tmp en memoria de 16 MiB) y solo pide a U2 lo que falta, sin darlo por aplicado (IDS-U4-01, -02, -03, -07, -10, -14).
+<!-- aidlc-wave-memory:text-flow:2c60cb25b061fed80c5abc5e6ba51c2f274eebb0864eea0a7c781a796ca410b4 -->
+
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 
@@ -106,6 +110,10 @@
 
 - 2026-11-23T00:57:53Z — U11 es library: solo cicd-pipeline.md y traceability.json (produces_kinds), aunque el brief nombraba los cuatro artefactos; máquina de la CLI, ZINE y frontera van en §5–§7 (IDS-U11-01).
 <!-- aidlc-wave-memory:incoherence-analyzer:eb1639c526e17c07afd32d29f5194433bf50e608ec219aababe3ea66ddd74b8c -->
+
+
+- 2026-11-23T01:10:01Z — semantic-agent y el trabajador van con Recreate en vez del RollingUpdate de U2 §5: con maxSurge 1 convivirían dos consumidores de C2 (contra NFR8.7) y el trabajador abriría 8 conexiones; cierra R-01 de la revisión 1.
+<!-- aidlc-wave-memory:text-flow:b32172c1fcd6ed74f727238cccdac77d0c16bcf61db3205223234472e20b3548 -->
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
@@ -177,6 +185,14 @@
 
 - 2026-11-23T00:57:53Z — El verificador del nivel 2 en la anfitriona reutiliza la imagen de llama-server de U2 por digest solo en loopback; conserva la salida de la red puente de Docker, riesgo residual igual al de la propia CLI (IDS-U11-05).
 <!-- aidlc-wave-memory:incoherence-analyzer:64f9533ea232f59ae2ef51c5f7d0406e954245c779859a193f484b75e00be0bb -->
+
+
+- 2026-11-23T01:10:01Z — Con el cuarto hilo del trabajador el pico de veridicus_app iguala el connectionLimit de 25 (API 20 en rodadura, trabajador 4, create-admin 1); se pide 30 a U2 en vez de bajar el pool de la API de U3, a costa de 5 conexiones más dentro de max_connections 50.
+<!-- aidlc-wave-memory:text-flow:ccd496941f793e82a73439425d4aa567c54eef05bd117b48a88b0abc250ba373 -->
+
+
+- 2026-11-23T01:10:01Z — Un despliegue de semantic-agent a mitad de corrida reenvía el mismo cuerpo seudonimizado dentro del tope de 3 entregas; se acepta con un paso del runbook (desplegar sin corridas en processing) en vez de un periodo de gracia de horas.
+<!-- aidlc-wave-memory:text-flow:aee22c5003becec5540a7fe68d5e4e298055c8aa69215bd4afc2866cca9c6701 -->
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

@@ -50,3 +50,48 @@ B. Mantener 18 GiB en la máquina de desarrollo: los límites con el 20 % la sup
 X. Other (please specify)
 
 [Answer]: A **Mode:** guided
+
+---
+
+# Segunda pasada — cambio 01, adenda 02 y NFR Design revisión vigente (2026-11-23)
+
+## Lo que ya está decidido
+
+- **U4 ya no tiene juez, *embeddings*, umbral ni escenario** (cambio 01). Orquesta las corridas de la
+  biblioteca de U11 (C17) en `semantic-agent`, con la cola C2/C3 en Redis, y despliega la API y el
+  trabajador de `session-api` y la consola. Lo fija el NFR Design revisión 2 de U4: dos procesos de la
+  misma imagen, una réplica de cada uno, una corrida a la vez, `semantic-agent` sin base ni claves de
+  proveedor y sin `libs-anonymizer`, y los picos de `performance-design.md` §7.
+- **Lo que trae el NFR Design de otras unidades a U4:** el cuarto hilo `SessionSupervisor` y el *pool* de 4
+  del trabajador (NFRD-U6-05); `XTRIM` del *stream* de audio desde el supervisor (NFRD-U9-05); el piso de
+  270 s (NFRD-U4-09); `VERIDICUS_RELEASE_POLL_MS` y `VERIDICUS_PUBLISH_RETRIES` (NFRD-U4-14); las métricas en
+  `contracts/metrics/text-flow.v1.yaml` (NFRD-U4-08); y las peticiones de U5, U6, U8, U9 y U13 (NFRD-U5-07,
+  NFRD-U6-06/07/15, NFRD-U8-02/08/11/12, NFRD-U9-01/05/08, NFRD-U13-05/06).
+- **Lo que ya fijaron en esta etapa U2, U3, U10 y U11:** recursos del trabajador (0,25/384 MiB → 1/640 MiB) y
+  de `semantic-agent` (0,25/512 MiB → 1/960 MiB), `veridicus-session-api` y `connectionLimit: 25`
+  (IDS-U2-14), el `ConfigMap` `veridicus-profiles` montado en `session-api` y `semantic-agent`, los
+  servidores locales con 8 hilos (IDS-U2-03), y la sustitución de `libs.yml` y `ai-eval-gate.yml` por los
+  *workflows* de U11 (IDS-U11-08), con el nivel 2 como par versionado en `evaluation/reports/level2/`
+  (IDS-U11-04).
+- **Supuesto de máquina** (brief del 2026-11-22): una sola máquina de 64 GB, solo CPU, sin máquina GPU. El
+  tamaño de Minikube lo decidió U2 (50 GiB y 16 CPU), que es la única unidad que lo pregunta.
+
+## Cómo se registra la revisión
+
+Revisión 2 de los cuatro artefactos de esta carpeta, que sustituye a la revisión 1 del 2026-10-03 (queda en
+el historial de Git). Lo que sale queda «Retirado» con su número. Las precisiones nuevas son IDS-U4-01 en
+adelante, en §7 de `infrastructure-specification.md`, y los hallazgos R-01 a R-07 de `reviews/review-01.md`
+se cierran en §8.
+
+## Lo que el diseño resolverá sin preguntar
+
+- La estrategia de actualización de `semantic-agent` y del trabajador, y su apagado ordenado, para respetar
+  una corrida a la vez (NFR8.7) y cerrar R-01 de la revisión 1.
+- El presupuesto de conexiones de `veridicus_app` con el cuarto hilo del trabajador, frente al
+  `connectionLimit: 25` de U3 y U2.
+- Las sondas, el `/tmp` en memoria y los ajustes `VERIDICUS_*` de cada proceso a partir del NFR Design.
+- La retirada de lo que la revisión 1 ponía en U4 y ahora es de U11 o sale (juez, *embeddings*, *prompt*,
+  indexación, nivel 2 por `port-forward`, `libs.yml`, `ai-eval-gate.yml`).
+- Lo que U4 pide a U2 y no está en su revisión 2, como petición sin darlo por aplicado.
+
+Sin preguntas: todo lo fijan las fuentes.

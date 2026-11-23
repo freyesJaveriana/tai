@@ -1,326 +1,96 @@
 {
   "stage": "infrastructure-design",
   "unit": "session-lifecycle",
+  "revision": 2,
+  "date": "2026-11-23",
   "upstream_ids": [
-    "NFR1.1",
-    "NFR1.2",
-    "NFR2.1",
-    "NFR2.2",
-    "NFR3.1",
-    "NFR3.2",
-    "NFR3.3",
-    "NFR3.4",
-    "NFR3.5",
-    "NFR3.6",
-    "NFR3.7",
-    "NFR3.8",
-    "NFR3.9",
-    "NFR3.10",
-    "NFR3.11",
-    "NFR3.12",
-    "NFR9.1",
-    "NFR8.1",
-    "NFR8.2",
-    "NFR8.3",
-    "NFR8.4",
-    "NFR8.5",
-    "NFR8.6",
-    "NFR8.7",
-    "NFR8.8",
-    "NFR8.9",
-    "NFR8.10",
-    "NFR8.11",
-    "NFR8.12",
+    "NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4",
+    "NFR2.1", "NFR2.2",
+    "NFR3.1", "NFR3.2", "NFR3.3", "NFR3.4", "NFR3.5", "NFR3.6", "NFR3.7", "NFR3.8", "NFR3.9",
+    "NFR3.10", "NFR3.11", "NFR3.12", "NFR3.13", "NFR3.14", "NFR3.15", "NFR3.16", "NFR3.17",
     "NFR4.1",
-    "NFR10.1",
-    "NFR10.2",
-    "NFR10.3",
-    "NFR10.4",
-    "NFR10.5",
-    "NFR10.6",
-    "NFR10.7",
-    "NFR10.8",
-    "NFR10.9",
-    "NFR10.10",
-    "NFR10.11",
-    "NFR10.12",
-    "NFR11.1",
-    "NFR11.2",
+    "NFR8.1", "NFR8.2", "NFR8.3", "NFR8.4", "NFR8.5", "NFR8.6", "NFR8.7", "NFR8.8", "NFR8.9",
+    "NFR8.10", "NFR8.11", "NFR8.12", "NFR8.13", "NFR8.14",
+    "NFR9.1",
+    "NFR10.1", "NFR10.2", "NFR10.3", "NFR10.4", "NFR10.5", "NFR10.6", "NFR10.7", "NFR10.8",
+    "NFR10.9", "NFR10.10", "NFR10.11", "NFR10.12", "NFR10.13", "NFR10.14", "NFR10.15", "NFR10.16",
+    "NFR10.17", "NFR10.18",
+    "NFR11.1", "NFR11.2", "NFR11.3",
     "NFR12.1",
-    "NFR13.1",
-    "NFR13.2",
-    "NFR14.1",
-    "NFR14.2",
-    "NFR15.1",
-    "NFR15.2",
-    "NFR15.3",
-    "NFR15.4"
+    "NFR13.1", "NFR13.2",
+    "NFR14.1", "NFR14.2",
+    "NFR15.1", "NFR15.2", "NFR15.3", "NFR15.4", "NFR15.5"
   ],
   "coverage": [
-    {
-      "id": "NFR1.1",
-      "status": "OK",
-      "target": "Sin destinos nuevos: API y trabajador bajo veridicus-default-deny y deny-external-egress de U2 (infrastructure-specification §1 Red, §3)"
-    },
-    {
-      "id": "NFR1.2",
-      "status": "OK",
-      "target": "Vista previa local en frontend, 0 peticiones; Vitest en frontend.yml (cicd-pipeline §1)"
-    },
-    {
-      "id": "NFR2.1",
-      "status": "OK",
-      "target": "Niveles 0 y 1 en session-api.yml con fakes, PostgreSQL y Redis en contenedor, sin GPU (cicd-pipeline §2)"
-    },
-    {
-      "id": "NFR2.2",
-      "status": "OK",
-      "target": "Metas medidas con values-cpu.yaml en la máquina de desarrollo (monitoring-design §3)"
-    },
-    {
-      "id": "NFR3.1",
-      "status": "OK",
-      "target": "Job test-perf de session-api.yml; SLO y alerta VeridicusPasteSlow sobre veridicus_transcript_paste_seconds"
-    },
-    {
-      "id": "NFR3.2",
-      "status": "OK",
-      "target": "test-perf con 500 sesiones; consulta única en veridicus-pg"
-    },
-    {
-      "id": "NFR3.3",
-      "status": "OK",
-      "target": "Latido con SKIP LOCKED; test-perf; métrica veridicus_session_heartbeat_writes_total"
-    },
-    {
-      "id": "NFR3.4",
-      "status": "OK",
-      "target": "test-perf de la reanudación (p95 ≤ 300 ms)"
-    },
-    {
-      "id": "NFR3.5",
-      "status": "OK",
-      "target": "test-perf con versión de 1 MB; Ingress proxy-body-size ≥ 1 MiB"
-    },
-    {
-      "id": "NFR3.6",
-      "status": "OK",
-      "target": "Vitest de la vista previa en frontend.yml"
-    },
-    {
-      "id": "NFR3.7",
-      "status": "OK",
-      "target": "ConfigMap: VERIDICUS_HEARTBEAT_TIMEOUT_SECONDS=180 y VERIDICUS_SUSPENSION_SWEEP_SECONDS=30 en API y trabajador (infrastructure-specification §1.2)"
-    },
-    {
-      "id": "NFR3.8",
-      "status": "OK",
-      "target": "VERIDICUS_HEARTBEAT_WRITE_MIN_SECONDS=15; prueba de nivel 1 con reloj controlado"
-    },
-    {
-      "id": "NFR3.9",
-      "status": "OK",
-      "target": "Índice parcial de expresión en la migración de U6; alerta VeridicusSuspensionSweepSlow"
-    },
-    {
-      "id": "NFR3.10",
-      "status": "OK",
-      "target": "Plazos calculados en la transacción (nivel 0); TURN_DEADLINE_* de U4 en el ConfigMap"
-    },
-    {
-      "id": "NFR3.11",
-      "status": "OK",
-      "target": "Corrida de nivel 2 golden.paste_max antes de cada entrega etiquetada (cicd-pipeline §2)"
-    },
-    {
-      "id": "NFR3.12",
-      "status": "OK",
-      "target": "Sondeo de 2 s de U4; E2E session-lifecycle.spec.ts en nivel 3"
-    },
-    {
-      "id": "NFR9.1",
-      "status": "OK",
-      "target": "Indexador de U4 en session-api-worker con veridicus-embeddings; medición de nivel 2"
-    },
-    {
-      "id": "NFR8.1",
-      "status": "OK",
-      "target": "Recursos de API (768 MiB) y trabajador (960 MiB) con margen (infrastructure-specification §1.1); alerta de memoria de U2"
-    },
-    {
-      "id": "NFR8.2",
-      "status": "OK",
-      "target": "Réplicas con SKIP LOCKED, restricción única y WATCH; RollingUpdate maxSurge 1 tolerado"
-    },
-    {
-      "id": "NFR8.3",
-      "status": "OK",
-      "target": "Límites en contracts/limits.v1.yaml dentro de la imagen; Ingress proxy-body-size"
-    },
-    {
-      "id": "NFR8.4",
-      "status": "OK",
-      "target": "Métricas veridicus_transcript_paste_turns y veridicus_turn_queue_depth; corrida de 60 turnos"
-    },
-    {
-      "id": "NFR8.5",
-      "status": "OK",
-      "target": "Consulta única sin paginar; disparador de > 1 000 sesiones en scalability-design §3"
-    },
-    {
-      "id": "NFR8.6",
-      "status": "OK",
-      "target": "Latido ≤ 1 UPDATE cada 15 s; métrica de latidos por result"
-    },
-    {
-      "id": "NFR8.7",
-      "status": "OK",
-      "target": "Sin PVC nuevos; tablas de solo inserción en veridicus-pg; marca de Redis de 24 h"
-    },
-    {
-      "id": "NFR8.8",
-      "status": "OK",
-      "target": "Prueba de nivel 1 de reanudación sin pérdida en session-api.yml"
-    },
-    {
-      "id": "NFR8.9",
-      "status": "OK",
-      "target": "SKIP LOCKED y UPDATE condicional; nivel 1 con dos revisiones"
-    },
-    {
-      "id": "NFR8.10",
-      "status": "OK",
-      "target": "Transacción única y restricción (session_id, client_request_id) en la migración; Redis noeviction y AOF everysec"
-    },
-    {
-      "id": "NFR8.11",
-      "status": "OK",
-      "target": "Ingesta y plazos de U4 en session-api-worker sin mirar el estado; nivel 1"
-    },
-    {
-      "id": "NFR8.12",
-      "status": "OK",
-      "target": "Restricción única (scenario_id, version_number); permisos sin DELETE en veridicus-pg"
-    },
-    {
-      "id": "NFR4.1",
-      "status": "OK",
-      "target": "Nivel 1 con fake en cada PR y nivel 2 --paste-parity fuera de la CI"
-    },
-    {
-      "id": "NFR10.1",
-      "status": "OK",
-      "target": "Corte del cuerpo a 524 288 bytes en la API y proxy-body-size del Ingress; nivel 1 con 5 MB"
-    },
-    {
-      "id": "NFR10.2",
-      "status": "OK",
-      "target": "authorize de U3 en las rutas de la API; pruebas 403 de nivel 1"
-    },
-    {
-      "id": "NFR10.3",
-      "status": "OK",
-      "target": "Condición owner_user_id en el latido; nivel 1"
-    },
-    {
-      "id": "NFR10.4",
-      "status": "OK",
-      "target": "Lista blanca del formateador y prueba centinela (monitoring-design §4)"
-    },
-    {
-      "id": "NFR10.5",
-      "status": "OK",
-      "target": "XACK + XDEL de U4 en veridicus:turns; marca con solo el UUID"
-    },
-    {
-      "id": "NFR10.6",
-      "status": "OK",
-      "target": "Comprobación del OpenAPI de C1 en nivel 0"
-    },
-    {
-      "id": "NFR10.7",
-      "status": "OK",
-      "target": "Constructor único de C2 con instantánea del umbral; nivel 1"
-    },
-    {
-      "id": "NFR10.8",
-      "status": "OK",
-      "target": "scan de integrity_policy en nivel 0 y E2E de nivel 3"
-    },
-    {
-      "id": "NFR10.9",
-      "status": "OK",
-      "target": "statement_timeout 2 s / 5 s y socket_timeout 0,5 s (infrastructure-specification §2)"
-    },
-    {
-      "id": "NFR10.10",
-      "status": "OK",
-      "target": "Ajustes validados al arrancar; readinessProbe /readyz?probe=kubernetes; deploy-level0.yml compara los ConfigMap"
-    },
-    {
-      "id": "NFR10.11",
-      "status": "OK",
-      "target": "publish_batch con marca veridicus:paste-published en Redis noeviction; alerta VeridicusPastePublishFailed"
-    },
-    {
-      "id": "NFR10.12",
-      "status": "OK",
-      "target": "Hilo SuspensionSweeper supervisado en session-api-worker (cuarto hilo en /readyz); alerta VeridicusSuspensionSweepErrors"
-    },
-    {
-      "id": "NFR11.1",
-      "status": "OK",
-      "target": "Permisos de veridicus_app sin UPDATE/DELETE sobre pasajes ni DELETE sobre versiones"
-    },
-    {
-      "id": "NFR11.2",
-      "status": "OK",
-      "target": "transcript_paste y session_status_change con INSERT, SELECT en la migración de U6"
-    },
-    {
-      "id": "NFR12.1",
-      "status": "OK",
-      "target": "Fixtures sintéticos; comprobación de marcas en nivel 0"
-    },
-    {
-      "id": "NFR13.1",
-      "status": "OK",
-      "target": "Puerta de cobertura ≥ 80 % en session-api.yml y frontend.yml"
-    },
-    {
-      "id": "NFR13.2",
-      "status": "OK",
-      "target": "Filtro de rutas de frontend.yml con contracts/fixtures/transcript-split.v1.json; mismos ejemplos en pytest y Vitest"
-    },
-    {
-      "id": "NFR14.1",
-      "status": "OK",
-      "target": "Literales fuera del catálogo = fallo en frontend.yml"
-    },
-    {
-      "id": "NFR14.2",
-      "status": "OK",
-      "target": "axe en E2E de nivel 3"
-    },
-    {
-      "id": "NFR15.1",
-      "status": "OK",
-      "target": "Métricas en el puerto 8081 con los ServiceMonitor de U4; panel veridicus-sessions.json"
-    },
-    {
-      "id": "NFR15.2",
-      "status": "OK",
-      "target": "Formateador JSON de U3 con la lista blanca ampliada"
-    },
-    {
-      "id": "NFR15.3",
-      "status": "OK",
-      "target": "Correlación por paste_batch_id; prueba de reconstrucción de nivel 1"
-    },
-    {
-      "id": "NFR15.4",
-      "status": "OK",
-      "target": "Eventos con nombre propio y métricas por code y result (monitoring-design §1 y §4)"
-    }
+    { "id": "NFR1.1", "status": "OK", "target": "Sin destinos nuevos: API y trabajador bajo la salida negada de U2; readyz con la política aplicada (infrastructure-specification §1 Red, §3)" },
+    { "id": "NFR1.2", "status": "OK", "target": "Vista previa y Web Worker en frontend con 0 peticiones; Vitest en frontend.yml (cicd-pipeline §1)" },
+    { "id": "NFR1.3", "status": "OK", "target": "Claves veridicus:run-cancelled por CancellationKeys de U4 tras COMMIT en veridicus-redis; nivel 1 con 0 llamadas del fake (infrastructure-specification §2; cicd-pipeline §1)" },
+    { "id": "NFR1.4", "status": "OK", "target": "Consentimiento y transferencia antes de la transacción; nivel 1 con 0 filas (cicd-pipeline §1, §6)" },
+    { "id": "NFR2.1", "status": "OK", "target": "Niveles 0 y 1 con el fake de C17 y PostgreSQL/Redis en contenedor, sin GPU ni red (cicd-pipeline §1)" },
+    { "id": "NFR2.2", "status": "OK", "target": "Una máquina de 64 GB solo CPU con values-cpu.yaml; perf en el runner de IDS-U3-09 (infrastructure-specification §1; monitoring-design §3; IDS-U6-08)" },
+    { "id": "NFR3.1", "status": "OK", "target": "test-perf; SLO y regla VeridicusPasteSlow sobre veridicus_transcript_paste_seconds (monitoring-design §2, §3)" },
+    { "id": "NFR3.2", "status": "OK", "target": "test-perf con 500 sesiones y dos sentencias en veridicus-pg (monitoring-design §3)" },
+    { "id": "NFR3.3", "status": "OK", "target": "Latido con SKIP LOCKED en veridicus-pg; test-perf con fila retenida 3 s (monitoring-design §3)" },
+    { "id": "NFR3.4", "status": "OK", "target": "test-perf de la reanudación con una sesión de 2 000 turnos (monitoring-design §3)" },
+    { "id": "NFR3.5", "status": "N/A", "target": "Retirado: sale la versión nueva de un escenario (IDS-U6-03)" },
+    { "id": "NFR3.6", "status": "OK", "target": "Vitest de la vista previa en frontend.yml (cicd-pipeline §1)" },
+    { "id": "NFR3.7", "status": "OK", "target": "heartbeat_timeout_s y session_sweep_interval_s de C25 en la imagen; SessionSupervisor como hilo 4 del trabajador; nivel 1 con reloj controlado (infrastructure-specification §1, §1.2; monitoring-design §3)" },
+    { "id": "NFR3.8", "status": "OK", "target": "heartbeat_write_min_s de C25 validado al arrancar en API y trabajador (infrastructure-specification §1.2)" },
+    { "id": "NFR3.9", "status": "OK", "target": "Índice parcial de expresión en la migración de B7; regla VeridicusSessionSweepSlow (infrastructure-specification §2.1; monitoring-design §2)" },
+    { "id": "NFR3.10", "status": "N/A", "target": "Retirado: el plazo de la corrida lo pone RunEnqueuer de U4 (IDS-U6-03)" },
+    { "id": "NFR3.11", "status": "N/A", "target": "Retirado: un bloque es una corrida; sale golden.paste_max de nivel 2 (IDS-U6-03)" },
+    { "id": "NFR3.12", "status": "OK", "target": "Sondeo de 2 s de U4; E2E session-lifecycle.spec.ts de nivel 3 (cicd-pipeline §2)" },
+    { "id": "NFR3.13", "status": "OK", "target": "test-perf de la importación; regla VeridicusImportSlow; Ingress sin disco con tope de 2 113 536 (monitoring-design §2; infrastructure-specification §1 Entrada HTTP)" },
+    { "id": "NFR3.14", "status": "OK", "target": "Vitest del Web Worker de importación en frontend.yml (cicd-pipeline §1)" },
+    { "id": "NFR3.15", "status": "OK", "target": "test-perf del modo final con el fake bloqueado (monitoring-design §3)" },
+    { "id": "NFR3.16", "status": "OK", "target": "test-perf de pausa, terminación y retirada con 20 corridas y claves en una canalización de Redis (monitoring-design §3)" },
+    { "id": "NFR3.17", "status": "OK", "target": "final_run_max.py a demanda desde WSL2 contra la API, con todo-local y comercial-piloto (cicd-pipeline §2; IDS-U6-06)" },
+    { "id": "NFR4.1", "status": "OK", "target": "Equivalencia escrito, pegado e importado en test-level1 con el fake (cicd-pipeline §1)" },
+    { "id": "NFR8.1", "status": "OK", "target": "API 1,125 GiB y trabajador 640 MiB de U2 con U6 incluido (infrastructure-specification §1.1); reglas de memoria de U2 y U4" },
+    { "id": "NFR8.2", "status": "OK", "target": "Réplicas de 1; RollingUpdate en la API y Recreate en el trabajador; bump y restricción única (infrastructure-specification §1; IDS-U6-10)" },
+    { "id": "NFR8.3", "status": "OK", "target": "Cifras de C25 en contracts/limits.v1.yaml dentro de la imagen; check-limits-env.sh y test_session_lifecycle_limits.py (infrastructure-specification §1.2; IDS-U6-04)" },
+    { "id": "NFR8.4", "status": "N/A", "target": "Retirado: sale el plazo por turno (IDS-U6-03)" },
+    { "id": "NFR8.5", "status": "OK", "target": "Lista sin paginar en veridicus-pg con disparador medible (infrastructure-specification §2)" },
+    { "id": "NFR8.6", "status": "OK", "target": "Latido acotado en veridicus-pg; regla VeridicusOpenSessionsHigh para el supuesto de ≤ 50 abiertas (monitoring-design §2; IDS-U6-14)" },
+    { "id": "NFR8.7", "status": "OK", "target": "Peor caso de turnos ≈ 0,3 GiB en el PVC de 10 GiB de veridicus-pg; sin prefijos de Redis (infrastructure-specification §2; IDS-U6-15)" },
+    { "id": "NFR8.8", "status": "OK", "target": "Reanudación sin pérdida en test-level1; comportamiento tras minikube stop (infrastructure-specification §5)" },
+    { "id": "NFR8.9", "status": "OK", "target": "SessionSupervisor con bump sin esperar y un solo trabajador por Recreate; nivel 1 con dos supervisores (infrastructure-specification §1; IDS-U6-10)" },
+    { "id": "NFR8.10", "status": "OK", "target": "Transacción única e índice único (session_id, client_request_id) en la migración de B7 (infrastructure-specification §2.1)" },
+    { "id": "NFR8.11", "status": "OK", "target": "Ingesta y supervisor de U4 en el trabajador sin mirar la suspensión; nivel 1 (cicd-pipeline §1)" },
+    { "id": "NFR8.12", "status": "N/A", "target": "Retirado: sale la versión de escenario (IDS-U6-03)" },
+    { "id": "NFR8.13", "status": "OK", "target": "Tabla de comportamientos operativos y sección de U6 en run_batches.py (infrastructure-specification §5; cicd-pipeline §2)" },
+    { "id": "NFR8.14", "status": "OK", "target": "Sección de U6 en el reporte de run_batches.py con control negativo (cicd-pipeline §2; monitoring-design §3)" },
+    { "id": "NFR9.1", "status": "N/A", "target": "Retirado: sale la indexación de escenarios con veridicus-embeddings (IDS-U6-03)" },
+    { "id": "NFR10.1", "status": "OK", "target": "transcript_body_max_bytes en la API por debajo del tope del Ingress veridicus-web; nivel 1 con 5 MB (infrastructure-specification §1 Entrada HTTP; IDS-U6-09)" },
+    { "id": "NFR10.2", "status": "OK", "target": "authorize de U3 en la API; pruebas 403 en test-level1 (cicd-pipeline §1)" },
+    { "id": "NFR10.3", "status": "OK", "target": "Dueño en la condición del latido; lista cerrada; test-level1 (cicd-pipeline §1)" },
+    { "id": "NFR10.4", "status": "OK", "target": "Lista blanca del formateador y prueba centinela, también en el nombre del archivo (monitoring-design §4)" },
+    { "id": "NFR10.5", "status": "OK", "target": "C2 por RunEnqueuer con XDEL de U4; claves con solo 1 en veridicus-redis (infrastructure-specification §2)" },
+    { "id": "NFR10.6", "status": "OK", "target": "OpenAPI de C1 sin status y tabla de transiciones con 100 % de ramas (cicd-pipeline §1, §2)" },
+    { "id": "NFR10.7", "status": "OK", "target": "lint-imports con el contrato de U6 frente a U11 y la ingesta (cicd-pipeline §1)" },
+    { "id": "NFR10.8", "status": "OK", "target": "Escáner en nivel 0 sobre el catálogo y en el E2E de nivel 3 (cicd-pipeline §2, §6)" },
+    { "id": "NFR10.9", "status": "OK", "target": "SET LOCAL de 5 s por transacción en session_api/shared/db.py, nunca en el Cluster veridicus-pg; socket_timeout 0,5 s (infrastructure-specification §2; IDS-U6-02)" },
+    { "id": "NFR10.10", "status": "OK", "target": "Proceso que termina antes de abrir el puerto; RollingUpdate conserva el pod anterior; test_session_lifecycle_limits.py (infrastructure-specification §1, §1.2; IDS-U6-04)" },
+    { "id": "NFR10.11", "status": "OK", "target": "202 con run.publish_failed y cierre por el supervisor de U4; regla VeridicusRunSystemError de U4 (monitoring-design §1)" },
+    { "id": "NFR10.12", "status": "OK", "target": "Hilo 4 en el /healthz del trabajador (IDS-U4-06); regla VeridicusSessionSweepErrors (monitoring-design §2)" },
+    { "id": "NFR10.13", "status": "OK", "target": "Lector multipart en memoria con /tmp de 16 MiB y readOnlyRootFilesystem; Ingress sin disco (infrastructure-specification §1 Almacenamiento y Entrada HTTP)" },
+    { "id": "NFR10.14", "status": "OK", "target": "code de cada respuesta en nivel 0 y nivel 1; 413 del Ingress documentado (cicd-pipeline §1; IDS-U6-09)" },
+    { "id": "NFR10.15", "status": "OK", "target": "Importación en una transacción con 0 corridas; fallo inyectado en test-level1 (cicd-pipeline §1)" },
+    { "id": "NFR10.16", "status": "OK", "target": "Modo final simultáneo en test-level1 con una sola corrida (cicd-pipeline §1)" },
+    { "id": "NFR10.17", "status": "OK", "target": "Pares concurrentes con 0 40P01; lock_timeout 2 s en veridicus-pg (cicd-pipeline §1; infrastructure-specification §2)" },
+    { "id": "NFR10.18", "status": "OK", "target": "Reescritura de claves por SessionSupervisor; regla VeridicusCancelKeyDeferred (infrastructure-specification §5; monitoring-design §2)" },
+    { "id": "NFR11.1", "status": "OK", "target": "Disparadores y transcript_paste de solo inserción; DELETE solo para veridicus_retention (infrastructure-specification §2.1; IDS-U6-12)" },
+    { "id": "NFR11.2", "status": "OK", "target": "session-supervisor en actor_system por la migración de B7; veridicus_session_transitions_total (infrastructure-specification §2.1; monitoring-design §1)" },
+    { "id": "NFR11.3", "status": "OK", "target": "Retirada con hora de la base y dueño autenticado; test-level1 (cicd-pipeline §1)" },
+    { "id": "NFR12.1", "status": "OK", "target": "Datos sintéticos verificados en nivel 0; las entrevistas del piloto solo en el Minikube local (cicd-pipeline §5)" },
+    { "id": "NFR13.1", "status": "OK", "target": "Cobertura ≥ 80 % y job guards con 100 % de ramas en session_transitions.py y run_admission.py (cicd-pipeline §1, §2)" },
+    { "id": "NFR13.2", "status": "OK", "target": "frontend.yml con contracts/** en su filtro; mismos ejemplos en pytest y Vitest (cicd-pipeline §1)" },
+    { "id": "NFR14.1", "status": "OK", "target": "Literal visible fuera del catálogo = fallo en frontend.yml (cicd-pipeline §1)" },
+    { "id": "NFR14.2", "status": "OK", "target": "axe y teclado en el E2E de nivel 3 (cicd-pipeline §2)" },
+    { "id": "NFR15.1", "status": "OK", "target": "Métricas de session-lifecycle.v1.yaml en el puerto 8081 de API y trabajador; ServiceMonitor de U3 y U4; fila del panel (monitoring-design §1, §5)" },
+    { "id": "NFR15.2", "status": "OK", "target": "Formateador JSON de U3 con la lista blanca de U6 (monitoring-design §4)" },
+    { "id": "NFR15.3", "status": "OK", "target": "Correlación session_id → paste_batch_id → run_id; reconstrucción por logs en nivel 1 (monitoring-design §4)" },
+    { "id": "NFR15.4", "status": "OK", "target": "WARNING y ERROR con code; eventos de U4 para publicación y claves (monitoring-design §4)" },
+    { "id": "NFR15.5", "status": "OK", "target": "Raspado de los dos /metrics con centinela en nivel 1; comprobación de U1 en nivel 0 (monitoring-design §1)" }
   ]
 }

@@ -1,91 +1,126 @@
 # Diseño de monitoreo — U6 session-lifecycle
 
-**Insumos.** Eventos, métricas, SLI, panel y reglas informativas de `nfr-design/observability-design.md`
-(observability-design); presupuestos de `nfr-design/performance-design.md` (performance-design);
-señales de escalado de `nfr-design/scalability-design.md` (scalability-design); fallos de publicación y
-de la revisión de `nfr-design/reliability-design.md` (reliability-design); lista blanca de logs y
-prueba centinela de `nfr-design/security-design.md` (security-design); dominios de falla de
-`nfr-design/logical-components.md` (logical-components); estados de la sesión de
-`functional-design/functional-spec.md` (functional-spec); procesos de
-`inception/domain-design/components.md` (components); C15 y C16 de
-`inception/contract-design/contract-summary.md` (contract-summary); pila común de
-`platform/infrastructure-design/monitoring-design.md` (U2), formateador de U3
-(`identity-access/infrastructure-design/monitoring-design.md`) y `ServiceMonitor` y paneles de U4
-(`text-flow/infrastructure-design/monitoring-design.md`); `infrastructure-specification.md` de esta
-carpeta.
+**Revisión 2 (2026-11-23): segunda pasada por el cambio 01 (DT27), la adenda 02 y el NFR Design
+revisión 2.** Sustituye a la revisión 1 del 2026-10-03, que queda en el historial de Git.
+- **Qué cambia.** Salen las métricas de publicación por lote, de latidos, de turnos por pegado y de la
+  revisión con nombre viejo, y las que dependían de la cola de turnos de U4. Entran las métricas de
+  `contracts/metrics/session-lifecycle.v1.yaml` (NFRD-U6-12): importaciones por `origin`, transiciones,
+  revisión de suspensión y cancelaciones, con la etiqueta `error_code`.
+- **Numeración.** §1–§5 conservan su tema; §6 (nueva) lista lo retirado.
 
-U6 usa la pila de U2 (Prometheus y Grafana desde el módulo 8, `PrometheusRule` **sin Alertmanager**,
-logs JSON por salida estándar, sin trazas) y los `ServiceMonitor` de U4 sobre el puerto `metrics` 8081
-de la API y del trabajador, con *scrape* cada 30 s. No añade exportadores ni objetivos de *scrape*.
+**Insumos.** Eventos, métricas, SLI, panel y reglas informativas de `nfr-design/observability-design.md`
+(observability-design §1–§4); presupuestos de `nfr-design/performance-design.md` (performance-design §1–§4,
+§8–§10); señales de escalado de `nfr-design/scalability-design.md` (scalability-design §4, §5); fallos de la
+revisión, de la publicación y de las claves de `nfr-design/reliability-design.md` (reliability-design §2, §3,
+§11, §12); lista blanca y prueba centinela de `nfr-design/security-design.md` (security-design §4); radio de
+impacto de `nfr-design/logical-components.md` (logical-components §2); estados de la sesión de
+`functional-design/functional-spec.md` (functional-spec §3); procesos de
+`inception/domain-design/components.md` (components); C15 y C16 de
+`inception/contract-design/contract-summary.md` (contract-summary); pila común de U2
+(`platform/infrastructure-design/monitoring-design.md`), `ServiceMonitor` de U3 y de U4;
+`infrastructure-specification.md` de esta carpeta.
+
+U6 usa la pila de U2: Prometheus y Grafana desde el módulo 8 (SHOULD), `PrometheusRule` **sin
+Alertmanager**, sin Loki y sin trazas; logs JSON por salida estándar con la rotación del kubelet. No añade
+exportadores ni `ServiceMonitor`: la API la raspa `veridicus-session-api` de U3 y el trabajador el
+`ServiceMonitor` de U4, los dos en el puerto `metrics` 8081 cada 30 s. Las reglas y la fila del panel de U6
+solo se renderizan con `monitoring.enabled: true`, porque antes del módulo 8 el CRD no existe (IDS-U6-07).
 
 ## 1. Métricas y KPI
 
-| Métrica | Fuente | Umbral | Por qué importa |
-|---|---|---|---|
-| p95 de `veridicus_transcript_paste_seconds` | API | > 2 s en 1 h | NFR3.1: presupuesto del pegado de peor caso |
-| `veridicus_transcript_pastes_total{outcome, code}` | API | `outcome="rejected"` se muestra por `code`; sin umbral | NFR15.4: separa tamaño, turno largo y sesión no abierta |
-| `veridicus_transcript_publish_total{result}` | API (`publish_batch`) | `result="failed"` > 0 en 15 min | NFR10.11: Redis no aceptó un lote confirmado |
-| `veridicus_transcript_paste_turns{role}` | API | p95 de `testimony` ≥ 45 | NFR8.4: un pegado así llega al tope del plazo en CPU |
-| `veridicus_session_heartbeat_writes_total{result}` | API (`HeartbeatWriter`) | `result="error"` > 5 en 15 min; `skipped_locked` se muestra | NFR3.3, NFR3.8, NFR8.6: el latido es barato y no espera bloqueos |
-| `veridicus_session_status_changes_total{to_status, actor_kind}` | API y trabajador | Sin umbral; se muestra por hora | NFR11.2: cada transición tiene actor |
-| `veridicus_sessions{status}` | Trabajador (`SuspensionSweeper`) | `open` > 50 | NFR8.6, NFR8.7: supuesto de capacidad del latido y de la revisión |
-| p95 de `veridicus_suspension_sweep_seconds{result="ok"}` | Trabajador | > 0,1 s en 1 h | NFR3.9: el índice parcial mantiene barata la revisión |
-| `veridicus_suspension_sweep_seconds_count{result="error"}` | Trabajador | > 2 en 5 min | NFR10.12: un fallo de la revisión se ve y no se acumula |
-| `veridicus_turn_latency_seconds{origin="pasted"}` (C15) | Trabajador (ingesta de U4) | Sin umbral (incluye cola) | NFR3.10, NFR3.11: no se compara con la meta de 60 s de los turnos escritos |
-| `veridicus_turn_queue_depth` (U4) | Trabajador | > 30 durante 10 min (regla de U4) | scalability-design §5: señal para perfil GPU o bajar el límite |
-| Memoria de API y trabajador / su límite | cAdvisor (U2) | > 0,9 durante 5 min (regla de U2) | NFR8.1 |
-| `/readyz` completo de la API y del trabajador | Sonda de `smoke.sh` y *scrape* cada 30 s (U3/U4) | ≠ 200 | NFR10.10: un ajuste de U6 inválido impide arrancar |
+Todas declaradas en `contracts/metrics/session-lifecycle.v1.yaml`; la comprobación de U1 en nivel 0 falla
+ante una métrica, etiqueta o valor fuera del archivo. Ninguna etiqueta lleva `session_id` ni texto.
 
-Las etiquetas son enums cerrados; la prueba de nivel 0 que recorre el registro (U4) falla con una
-etiqueta nueva sin declarar.
+| Metric | Source | Threshold | Why it matters |
+|---|---|---|---|
+| p95 de `veridicus_transcript_paste_seconds` | API | > 2,5 s en 1 h | NFR3.1: presupuesto del pegado con el bloque máximo |
+| `veridicus_transcript_pastes_total{outcome, error_code}` | API | `rejected` se muestra por `error_code`; sin umbral | NFR15.4: separa tamaño, estado y consentimiento |
+| p95 de `veridicus_session_import_seconds` | API | > 3 s en 1 h | NFR3.13 con el archivo máximo |
+| `veridicus_session_imports_total{outcome, error_code, origin}` | API | `origin` se muestra; sin umbral | T10 de security-design: importaciones declaradas `sintetico` auditables |
+| `veridicus_session_transitions_total{state}` | API y trabajador | Sin umbral; por hora | NFR11.2: cada transición queda en el historial con su actor |
+| `veridicus_sessions{state}` | Trabajador (caché de 15 s) | `open` > 50 durante 15 min | scalability-design §4: supuesto de capacidad del latido y de la revisión (IDS-U6-14) |
+| p95 de `veridicus_session_sweep_seconds{outcome="ok"}` | Trabajador (`SessionSupervisor`) | > 0,1 s en 1 h | NFR3.9: el índice parcial mantiene barata la vuelta (scalability-design §5) |
+| `veridicus_session_sweep_seconds_count{outcome="error"}` | Trabajador | > 2 en 5 min | NFR10.12: una vuelta fallida se ve y no se acumula |
+| `veridicus_run_cancellations_total{outcome}` | API (`SessionLifecycle`) | Cualquier aumento de `key_deferred` | NFR10.18 (a): una clave quedó para reescribir |
+| `veridicus_runs_total{error_code="analysis.system"}` (U4) | Trabajador | La regla de U4 | Una publicación fallida de un bloque o de un modo final la cierra el supervisor de U4 (NFRD-U6-13) |
+| `veridicus_run_queue_depth` (U4) | Trabajador | La regla de U4 | scalability-design §5: señal para ajustar perfil o plazo (IDS-U6-08) |
+| Memoria de la API y del trabajador frente a su límite | cAdvisor (U2) | > 0,9 durante 5 min (reglas de U2 y U4) | NFR8.1 (`infrastructure-specification.md` §1.1) |
+| `/readyz` de la API y `/healthz` del trabajador | Sondas de Kubernetes y `smoke.sh` | ≠ 200 | NFR10.10: una cifra fuera de regla impide arrancar; el hilo 4 entra en `/healthz` |
 
 ## 2. Alertas
 
-Todas son P3 (panel), como en U2: nadie recibe una notificación y ninguna cambia el estado de una
-sesión. Cada regla lleva en su anotación el requisito y la acción por PR.
+Reglas informativas en el subchart de reglas de U2, cada una con su anotación `runbook` y su prueba
+`promtool test rules` con un caso que dispara y otro que no. Todas son P3 (panel): nadie recibe una
+notificación y ninguna cambia el estado de una sesión (FR9.1).
 
-| Alerta | Condición | Severidad | Va a |
+| Alert | Condition | Severity | Routes to |
 |---|---|---|---|
-| `VeridicusPastePublishFailed` | `increase(veridicus_transcript_publish_total{result="failed"}[15m]) > 0` | warning (P3) | Panel «Veridicus — sesiones» |
-| `VeridicusSuspensionSweepErrors` | `increase(veridicus_suspension_sweep_seconds_count{result="error"}[5m]) > 2` | warning (P3) | Panel «Veridicus — sesiones» |
-| `VeridicusSuspensionSweepSlow` | p95 de `veridicus_suspension_sweep_seconds{result="ok"}` > 0,1 s en 1 h | info (P3) | Panel «Veridicus — sesiones» |
-| `VeridicusPasteSlow` | p95 de `veridicus_transcript_paste_seconds` > 2 s en 1 h | info (P3) | Panel «Veridicus — sesiones» |
-| `VeridicusHeartbeatErrors` | `increase(veridicus_session_heartbeat_writes_total{result="error"}[15m]) > 5` | info (P3) | Panel «Veridicus — sesiones» |
-| Reglas de U2 y U4 (`VeridicusContainerRestarting`, `VeridicusPodNotReady`, `VeridicusTurnQueueBacklog`, `VeridicusDatabaseDown`) | Sin cambio | Las de U2/U4 | Sus paneles |
+| `VeridicusSessionSweepErrors` | `increase(veridicus_session_sweep_seconds_count{outcome="error"}[5m]) > 2` | warning (P3) | Panel «Veridicus — sesiones»; el runbook pide buscar `session.sweep_failed` en los logs del trabajador |
+| `VeridicusCancelKeyDeferred` | `increase(veridicus_run_cancellations_total{outcome="key_deferred"}[15m]) > 0` | warning (P3) | Panel «Veridicus — sesiones»; el runbook pide buscar `run.cancel_key_failed` y confirmar que la clave existe tras la siguiente vuelta |
+| `VeridicusOpenSessionsHigh` | `veridicus_sessions{state="open"} > 50` durante 15 min | info (P3) | Panel «Veridicus — sesiones» (IDS-U6-14) |
+| `VeridicusSessionSweepSlow` | p95 de `veridicus_session_sweep_seconds{outcome="ok"}` > 0,1 s en 1 h | info (P3) | Panel «Veridicus — sesiones» |
+| `VeridicusPasteSlow` | p95 de `veridicus_transcript_paste_seconds` > 2,5 s en 1 h | info (P3) | Panel «Veridicus — sesiones» |
+| `VeridicusImportSlow` | p95 de `veridicus_session_import_seconds` > 3 s en 1 h | info (P3) | Panel «Veridicus — sesiones» |
+| Reglas de U2 y U4 (`VeridicusRunSystemError`, `VeridicusRunQueueBacklog`, `VeridicusU4PodNearMemoryLimit` y las de plataforma) | Sin cambio | Las suyas | Sus paneles |
 
-## 3. SLI y SLO
+Las dos primeras son las reglas que pide observability-design §4; las otras cuatro solo hacen visibles en el
+panel los umbrales de §1.
 
-Objetivos del MVP medidos en la máquina de desarrollo con `values-cpu.yaml` (NFR2.2).
+## 3. SLIs / SLOs
 
-| SLI | SLO | Ventana de medición |
+Objetivos de verificación del MVP en el perfil CPU (NFR2.2), no SLO con ventana de producción. Las pruebas
+`perf` corren en el *runner* `ubuntu-24.04` de 4 vCPU (IDS-U3-09): una sola corrida, sin reintentos; una
+falla sospechosa de inestable se pone en cuarentena con un *issue* enlazado y el umbral nunca se baja.
+
+| SLI | SLO target | Measurement window |
 |---|---|---|
-| Latencia del pegado (p95 de `veridicus_transcript_paste_seconds`) | ≤ 2 s con 200 turnos; ≤ 0,5 s con 15 turnos | Corrida de `pytest -m perf` de cada PR |
-| Sondeo con latido (p95 de `GET /sessions/{id}`) | ≤ 200 ms con un pegado de peor caso en paralelo | Ídem |
-| Lista y reanudación (p95) | ≤ 300 ms con 500 sesiones / 60 turnos | Ídem |
-| Detección de la suspensión (`suspended_at − last_heartbeat_at`) | 180–210 s; nunca con 179 s | Prueba de nivel 1 con reloj controlado |
-| Revisiones con error | 0 | Corridas de NFR8 y de humo |
-| Publicaciones por lote en la prueba de reenvío | Exactamente 1 por `paste_batch_id` | Prueba de nivel 1 de cada PR |
-| Pegado de 60 turnos | 0 `turn.error.timeout` | Corrida de nivel 2 antes de cada entrega etiquetada |
+| p95 del pegado | ≤ 2,5 s con 2 000 turnos y 250 000 caracteres; ≤ 0,5 s con 60 turnos; bloqueo de la sesión ≤ 1 s (NFR3.1) | `pytest -m perf` de cada PR |
+| p95 del sondeo con latido | ≤ 200 ms, también con otra transacción que retiene la fila 3 s (NFR3.3) | Ídem |
+| p95 de la lista y de la reanudación | ≤ 300 ms con 500 sesiones y una sesión de 2 000 turnos (NFR3.2, NFR3.4) | Ídem |
+| p95 de la importación | ≤ 3 s con 2 MiB y 2 000 turnos; ≤ 1 s con 312 turnos (NFR3.13) | Ídem |
+| p95 del modo final y de pausa, terminación y retirada | ≤ 1 s y ≤ 500 ms con 20 corridas (NFR3.15, NFR3.16) | Ídem |
+| Detección de la suspensión | `SessionStatusChange.at` − `coalesce(last_heartbeat_at, created_at)` entre 180 y 210 s; nunca con 179 s (NFR3.7) | Prueba de nivel 1 con reloj controlado |
+| Vueltas de la revisión con error | 0 (NFR10.12) | Corrida de NFR8 y prueba de humo |
+| Claves de cancelación diferidas | 0 en la demostración (NFR10.18) | Ídem |
+| Rutas de U6 en la prueba de NFR8 | 0 respuestas 5xx en `/transcript` y `/final-runs`; 0 suspensiones de sesiones sondeadas (NFR8.13, NFR8.14) | Sección de U6 del reporte de `run_batches.py` |
+| Duración del modo final máximo | Comparada con `run_deadline_final_s` efectivo por perfil, sin umbral (NFR3.17) | Reporte de `final_run_max.py`, a demanda |
 
-## 4. Logs y trazas
+Si la corrida de carga aprieta la memoria, el primer recorte de U2 es apagar el monitoreo; entonces los SLI
+de U6 salen del reporte de `run_batches.py`.
+
+## 4. Logs & Tracing
 
 | Aspecto | Diseño |
 |---|---|
-| Formato | Una línea JSON por evento con el formateador de U3; la lista blanca suma `paste_batch_id`, `scenario_id`, `turn_count`, `testimony_count`, `char_count` e `idle_seconds`. Nunca texto pegado, texto de un turno ni nombre de hablante (NFR10.4, NFR15.2) |
-| Eventos | `transcript.pasted`, `transcript.rejected`, `transcript.republish_skipped`, `transcript.publish_failed` (API); `session.suspended`, `suspension.sweep_failed` (trabajador); `session.resumed`, `heartbeat.write_failed`, `scenario.version_created` (API) (NFR15.3, NFR15.4) |
-| Ruido | El latido omitido por `SKIP LOCKED` no se registra; solo se cuenta |
-| Correlación | `paste_batch_id` → `turn_id` + `attempt` + `message_id` de U4; basta para seguir un lote hasta cada resultado sin trazas distribuidas |
-| Recolección | `kubectl logs` y la salida estándar de los pods; sin Loki en el MVP (U2) |
-| Control | Prueba centinela de nivel 1: 0 coincidencias de la cadena sembrada en logs de API y trabajador y en Problem Details |
+| Formato | Una línea JSON por evento con el formateador único de `libs/` (U3) y la lista blanca de U4 más `paste_batch_id`, `origin`, tamaños en bytes, `turn_count`, `char_count`, `problem_count`, `idle_seconds`, `cancelled_runs` y `code`. Nunca el texto pegado o importado, el nombre del archivo, el mensaje de un `ImportProblem` ni datos del consentimiento (NFR10.4) |
+| Eventos de la API | `transcript.pasted`, `transcript.rejected`, `transcript.replayed`, `session.imported`, `session.import_rejected`, `final_run.requested`, `session.paused`, `session.analysis_resumed`, `session.terminated`, `session.consent_withdrawn`, `session.resumed`, `heartbeat.write_failed`; de U4, `run.publish_failed` y `run.cancel_key_failed` con `session_id` y `run_id` (NFRD-U6-17) |
+| Eventos del trabajador | `session.suspended` (con `actor_system = session-supervisor` e `idle_seconds`) y `session.sweep_failed` |
+| Ruido | El latido omitido por `SKIP LOCKED` no se registra |
+| Correlación | `session_id` → `paste_batch_id` → `run_id` + `attempt` (U4); basta para seguir un bloque hasta su resultado |
+| Dónde se leen | `kubectl logs -n veridicus deploy/veridicus-session-api` y `deploy/veridicus-session-api-worker` (solo lectura); sin Loki en el MVP (U2) |
+| Control | Prueba centinela de nivel 1: 0 apariciones de la cadena sembrada (bloque, archivo, nombre del archivo, `constancia`) en los logs de la API y del trabajador y en los Problem Details |
+| Trazas | Sin trazas distribuidas (observability-design §4) |
 
 ## 5. Paneles
 
-Un JSON versionado en `deploy/veridicus/dashboards/veridicus-sessions.json`, publicado como `ConfigMap`
-con `grafana_dashboard: "1"` (mecanismo de U2, módulo 8):
-
-| Fila del panel «Veridicus — sesiones» | Contenido |
+| Panel | Contenido de U6 |
 |---|---|
-| Estado | `veridicus_sessions` por `status`; suspensiones y reanudaciones por hora (`to_status`, `actor_kind`) |
-| Pegado | Aceptados y rechazados por `code`; p50/p95 de duración; turnos por pegado por `role`; publicaciones por `result` |
-| Latido y revisión | Latidos por `result`; p95 y errores de la revisión |
-| Contexto | Enlace al panel «Veridicus — latencia» de U4 (cola, latencia `origin="pasted"`) |
+| Veridicus — sesiones (fila de U6 en el chart de U2) | Sesiones por `state`; transiciones por hora; pegados e importaciones por `outcome` y `error_code`; importaciones por `origin`; p50/p95 del pegado y de la importación; vueltas de la revisión por `outcome` y su p95; cancelaciones por `outcome` |
+| Veridicus — corridas (U4) | Enlace: la cola y las corridas de los bloques y del modo final |
+| Veridicus — plataforma (U2) | CPU y memoria de la API y del trabajador frente a su límite |
+
+El original vive en `services/session-api/observability/` y se empaqueta en el chart de U2 con el mismo
+SHA-256, comprobado por `check-config-copy.sh` (petición IDS-U6-07). Solo muestra contadores y etiquetas de
+enum cerradas.
+
+## 6. Retirado de la revisión 1
+
+Salen `veridicus_transcript_publish_total`, `veridicus_transcript_paste_turns`,
+`veridicus_session_heartbeat_writes_total`, `veridicus_session_status_changes_total` (lo sustituye
+`veridicus_session_transitions_total{state}`), `veridicus_suspension_sweep_seconds` (lo sustituye
+`veridicus_session_sweep_seconds`), `veridicus_turn_latency_seconds` y `veridicus_turn_queue_depth` (U4 los
+retiró); las alertas `VeridicusPastePublishFailed`, `VeridicusSuspensionSweepErrors`,
+`VeridicusSuspensionSweepSlow` y `VeridicusHeartbeatErrors` con su nombre viejo; los eventos
+`transcript.republish_skipped`, `transcript.publish_failed`, `suspension.sweep_failed` y
+`scenario.version_created`; el SLO «exactamente 1 publicación por lote» y el del pegado de 60 turnos en nivel 2;
+y el JSON `deploy/veridicus/dashboards/veridicus-sessions.json` como archivo propio del chart.

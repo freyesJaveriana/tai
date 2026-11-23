@@ -19,9 +19,6 @@ from typing import Any
 
 from jsonschema import Draft7Validator, Draft202012Validator
 from jsonschema.exceptions import ValidationError
-from openapi_spec_validator import validate as validar_openapi_spec
-from openapi_spec_validator.exceptions import OpenAPISpecValidatorError
-from openapi_spec_validator.validation import OpenAPIV31SpecValidator
 from referencing import Registry
 from referencing.exceptions import Unresolvable
 
@@ -71,25 +68,38 @@ def _carpeta_vendor() -> Traversable:
     return importlib.resources.files("veridicus_contracts") / "vendor"
 
 
-def verify_vendor(vendor: Traversable | None = None) -> None:
-    """Comprueba que cada archivo de `vendor/` coincide con `SHA256SUMS` y no sobra ninguno."""
-    carpeta = vendor if vendor is not None else _carpeta_vendor()
+def _leer_sumas(carpeta: Traversable) -> dict[str, str]:
+    """Pares nombre -> hash de SHA256SUMS; una línea mal formada es un error."""
     try:
         sumas = (carpeta / ARCHIVO_DE_SUMAS).read_text(encoding="utf-8")
     except FileNotFoundError as error:
         raise ValidationFailure(f"falta {ARCHIVO_DE_SUMAS} en vendor/") from error
-    listados: set[str] = set()
+    except UnicodeDecodeError as error:
+        raise ValidationFailure(f"{ARCHIVO_DE_SUMAS} no es texto UTF-8") from error
+    pares: dict[str, str] = {}
     for linea in filter(None, sumas.splitlines()):
-        esperado, _, nombre = linea.partition("  ")
-        listados.add(nombre)
+        esperado, separador, nombre = linea.partition("  ")
+        if not separador or not nombre or "/" in nombre or "\\" in nombre:
+            raise ValidationFailure(f"línea mal formada en {ARCHIVO_DE_SUMAS}: {linea!r}")
+        pares[nombre] = esperado
+    return pares
+
+
+def verify_vendor(vendor: Traversable | None = None) -> None:
+    """Comprueba que cada archivo de `vendor/` coincide con `SHA256SUMS` y no sobra ninguno."""
+    carpeta = vendor if vendor is not None else _carpeta_vendor()
+    listados = _leer_sumas(carpeta)
+    for nombre, esperado in listados.items():
         try:
             real = hashlib.sha256((carpeta / nombre).read_bytes()).hexdigest()
-        except FileNotFoundError as error:
-            raise ValidationFailure(f"vendor/{nombre} figura en {ARCHIVO_DE_SUMAS} y no existe") from error
+        except OSError as error:
+            raise ValidationFailure(
+                f"vendor/{nombre} figura en {ARCHIVO_DE_SUMAS} y no se puede leer"
+            ) from error
         if real != esperado:
             raise ValidationFailure(f"vendor/{nombre} no coincide con {ARCHIVO_DE_SUMAS}")
     presentes = {e.name for e in carpeta.iterdir() if e.is_file()} - {ARCHIVO_DE_SUMAS}
-    sobrantes = sorted(presentes - listados)
+    sobrantes = sorted(presentes - listados.keys())
     if sobrantes:
         raise ValidationFailure(f"vendor/{sobrantes[0]} no figura en {ARCHIVO_DE_SUMAS}")
 
@@ -138,13 +148,20 @@ def validate_json_schema(esquema: Any) -> None:
     if isinstance(esquema, dict) and esquema.get("$schema", META_2020_12) != META_2020_12:
         raise ValidationFailure(f"el esquema declara un $schema distinto de 2020-12: {esquema['$schema']}")
     problemas = _errores(validator_for(_meta_registro(), META_2020_12), esquema)
-    _desconocidas(esquema, "$", _palabras_conocidas(), problemas)
+    if not problemas:
+        # Solo se recorre un esquema que el meta-esquema ya aceptó: sus tipos son los esperados.
+        _desconocidas(esquema, "$", _palabras_conocidas(), problemas)
     if problemas:
         raise ValidationFailure("esquema no válido: " + "; ".join(problemas))
 
 
 def validate_instance(esquema: Any, instancia: Any, registro: Registry[Any] | None = None) -> None:
-    """Valida una instancia contra un esquema 2020-12, con los formatos `uuid` y `date-time`."""
+    """Valida una instancia contra un esquema 2020-12, con los formatos `uuid` y `date-time`.
+
+    El esquema también debe ser válido y estricto (`validate_json_schema`): un esquema mal
+    formado es un `ValidationFailure`, no una excepción del validador.
+    """
+    validate_json_schema(esquema)
     validador = Draft202012Validator(
         esquema,
         registry=registro if registro is not None else build_registry(),
@@ -156,7 +173,23 @@ def validate_instance(esquema: Any, instancia: Any, registro: Registry[Any] | No
 
 
 def validate_openapi(documento: Any) -> None:
-    """Valida un documento OpenAPI 3.1."""
+    """Valida un documento OpenAPI 3.1 con `openapi-spec-validator` (D3).
+
+    Esa biblioteca es solo de desarrollo (tech-stack §3), así que se importa aquí y no al
+    cargar el módulo; si falta, es un `ValidationFailure` con el motivo. Usa los esquemas
+    que la propia biblioteca empaqueta, no `vendor/openapi-3.1.schema.json`: ambos llevan
+    el mismo `$id` (`.../oas/3.1/schema/2022-10-07`) pero el de la biblioteca difiere en
+    `path-item-or-reference` y en un `if/then` de `responses`. D3 fija la biblioteca; la copia
+    de `vendor/` se empaqueta y se verifica con `SHA256SUMS` (paso 4) y queda como referencia.
+    """
+    try:
+        from openapi_spec_validator import validate as validar_openapi_spec
+        from openapi_spec_validator.exceptions import OpenAPISpecValidatorError
+        from openapi_spec_validator.validation import OpenAPIV31SpecValidator
+    except ImportError as error:
+        raise ValidationFailure(
+            "validate_openapi necesita openapi-spec-validator (dependencia de desarrollo, D3)"
+        ) from error
     try:
         validar_openapi_spec(documento, cls=OpenAPIV31SpecValidator)
     except (ValidationError, OpenAPISpecValidatorError) as error:
@@ -171,21 +204,41 @@ def validate_asyncapi(documento: Any) -> None:
         raise ValidationFailure("AsyncAPI 3.0 no válido: " + "; ".join(problemas[:5]))
 
 
-def _carga_de(mensaje: Any, ruta: str) -> Any:
-    if "payload" not in mensaje:
-        raise ValidationFailure(f"{ruta}: mensaje sin carga (payload)")
-    return mensaje["payload"]
+def _objeto(valor: Any, ruta: str) -> dict[str, Any]:
+    """El valor como objeto; si falta (None) es vacío; cualquier otro tipo es un error."""
+    if valor is None:
+        return {}
+    if not isinstance(valor, dict):
+        raise ValidationFailure(f"{ruta}: debe ser un objeto")
+    return valor
+
+
+def _mensajes(mensajes: Any, prefijo: str, cargas: dict[str, Any]) -> None:
+    """Agrega la carga de cada mensaje; un Reference Object (`$ref`) se omite."""
+    for nombre, mensaje in _objeto(mensajes, prefijo).items():
+        ruta = f"{prefijo}/{nombre}"
+        mensaje = _objeto(mensaje, ruta)
+        if "$ref" in mensaje:
+            continue
+        if "payload" not in mensaje:
+            raise ValidationFailure(f"{ruta}: mensaje sin carga (payload)")
+        cargas[ruta] = mensaje["payload"]
 
 
 def extract_message_payloads(documento: Any) -> dict[str, Any]:
-    """Carga (esquema) de cada mensaje de un AsyncAPI 3.0, por ruta; omite las referencias."""
+    """Carga (esquema) de cada mensaje de un AsyncAPI 3.0, por ruta; omite las referencias.
+
+    Un Reference Object es válido tanto en `channels/*/messages` como en
+    `components/messages`; su definición se extrae donde está. Toda forma que no sea la
+    esperada sale como `ValidationFailure`.
+    """
     cargas: dict[str, Any] = {}
-    for canal, definicion in (documento.get("channels") or {}).items():
-        for nombre, mensaje in (definicion.get("messages") or {}).items():
-            if "$ref" not in mensaje:
-                ruta = f"channels/{canal}/messages/{nombre}"
-                cargas[ruta] = _carga_de(mensaje, ruta)
-    for nombre, mensaje in ((documento.get("components") or {}).get("messages") or {}).items():
-        ruta = f"components/messages/{nombre}"
-        cargas[ruta] = _carga_de(mensaje, ruta)
+    if not isinstance(documento, dict):
+        raise ValidationFailure("documento: debe ser un objeto")
+    raiz = documento
+    for canal, definicion in _objeto(raiz.get("channels"), "channels").items():
+        canal_obj = _objeto(definicion, f"channels/{canal}")
+        _mensajes(canal_obj.get("messages"), f"channels/{canal}/messages", cargas)
+    componentes = _objeto(raiz.get("components"), "components")
+    _mensajes(componentes.get("messages"), "components/messages", cargas)
     return cargas

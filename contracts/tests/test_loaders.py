@@ -62,3 +62,9 @@ def test_load_file_elige_el_lector_por_sufijo(tmp_path: Path) -> None:
     assert load_file(tmp_path / "c.json") == {"x": 1}
     with pytest.raises(LoadError, match="sufijo"):
         load_file(tmp_path / "d.txt")
+
+
+def test_un_archivo_que_no_es_utf8_sale_como_load_error(tmp_path: Path) -> None:
+    (tmp_path / "e.json").write_bytes(b"\xff\xfe{}")
+    with pytest.raises(LoadError, match="UTF-8"):
+        load_file(tmp_path / "e.json")

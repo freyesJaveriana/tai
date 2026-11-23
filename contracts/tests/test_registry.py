@@ -78,6 +78,15 @@ def test_id_ausente_o_ajeno_fuera_de_vendor_se_rechaza(tmp_path: Path) -> None:
         build_registry(tmp_path / "ajeno")
 
 
+def test_un_schema_que_no_es_texto_se_rechaza_como_error_de_carga(tmp_path: Path) -> None:
+    for valor in ([], 5, {"a": 1}):
+        _esquema(
+            tmp_path / "x" / "a.schema.json", {"$id": "/veridicus/contracts/x/a", "$schema": valor}
+        )
+        with pytest.raises(ValueError, match=r"\$schema"):
+            build_registry(tmp_path / "x")
+
+
 def test_un_id_absoluto_solo_se_admite_bajo_vendor(tmp_path: Path) -> None:
     _esquema(
         tmp_path / "vendor" / "meta.schema.json",

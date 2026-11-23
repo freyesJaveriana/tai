@@ -79,7 +79,10 @@ def load_json_text(texto: str) -> Any:
 def load_file(ruta: Traversable) -> Any:
     """Lee un archivo `.yaml`, `.yml` o `.json` según su sufijo."""
     nombre = ruta.name
-    texto = ruta.read_text(encoding="utf-8")
+    try:
+        texto = ruta.read_text(encoding="utf-8")
+    except UnicodeDecodeError as error:
+        raise LoadError(f"{nombre} no es texto UTF-8") from error
     if nombre.endswith((".yaml", ".yml")):
         return load_yaml_text(texto)
     if nombre.endswith(".json"):

@@ -2,6 +2,7 @@
 
 import importlib.resources
 import shutil
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -143,3 +144,94 @@ def test_los_formatos_uuid_y_date_time_se_comprueban() -> None:
         validate_instance(esquema, {"id": "x"})
     with pytest.raises(ValidationFailure, match="date-time"):
         validate_instance(esquema, {"cuando": "ayer"})
+
+
+def test_el_modulo_se_importa_sin_openapi_spec_validator(monkeypatch: pytest.MonkeyPatch) -> None:
+    """F-01: openapi-spec-validator es solo de desarrollo; el módulo no la importa al cargarse."""
+    for nombre in (
+        "openapi_spec_validator",
+        "openapi_spec_validator.exceptions",
+        "openapi_spec_validator.validation",
+    ):
+        monkeypatch.setitem(sys.modules, nombre, None)  # None hace que import falle
+    monkeypatch.delitem(sys.modules, "veridicus_contracts.validators")
+    modulo = importlib.import_module("veridicus_contracts.validators")
+    modulo.validate_json_schema({"type": "object"})
+    modulo.validate_asyncapi(ASYNCAPI_MINIMO)
+    modulo.validate_instance({"type": "string"}, "x")
+    with pytest.raises(modulo.ValidationFailure, match="openapi-spec-validator"):
+        modulo.validate_openapi(OPENAPI_MINIMO)
+
+
+@pytest.mark.parametrize(
+    "esquema",
+    [
+        {"allOf": 5},
+        {"allOf": {"a": {"type": "string"}}},
+        {"properties": [1, 2]},
+        {"properties": {"a": 5}},
+        {"$defs": ["x"]},
+        {"items": [{"type": "string"}]},
+        {"not": "x"},
+        5,
+        None,
+        [],
+    ],
+)
+def test_un_esquema_mal_formado_sale_como_validation_failure(esquema: Any) -> None:
+    with pytest.raises(ValidationFailure):
+        validate_json_schema(esquema)
+    with pytest.raises(ValidationFailure):
+        validate_instance(esquema, {})
+
+
+@pytest.mark.parametrize(
+    "documento",
+    [
+        [],
+        None,
+        "texto",
+        {"channels": []},
+        {"channels": 5},
+        {"channels": {"c": 5}},
+        {"channels": {"c": []}},
+        {"channels": {"c": {"messages": []}}},
+        {"channels": {"c": {"messages": {"m": 5}}}},
+        {"channels": {"c": {"messages": {"m": []}}}},
+        {"components": 5},
+        {"components": {"messages": []}},
+        {"components": {"messages": {"m": 5}}},
+    ],
+)
+def test_un_asyncapi_mal_formado_sale_como_validation_failure(documento: Any) -> None:
+    with pytest.raises(ValidationFailure):
+        extract_message_payloads(documento)
+
+
+@pytest.mark.parametrize("contenido", [b"\xff\xfe", b"sin separador\n", b"abc  ../fuera.json\n",
+                                       b"abc  \n", b"abc  subdir\n"])
+def test_un_sha256sums_mal_formado_sale_como_validation_failure(
+    tmp_path: Path, contenido: bytes
+) -> None:
+    (tmp_path / "subdir").mkdir()
+    (tmp_path / "SHA256SUMS").write_bytes(contenido)
+    with pytest.raises(ValidationFailure):
+        verify_vendor(tmp_path)
+
+
+def test_un_mensaje_de_components_escrito_como_referencia_se_omite() -> None:
+    """F-03: AsyncAPI 3.0 admite un Reference Object en components.messages."""
+    documento = {
+        **ASYNCAPI_MINIMO,
+        "components": {
+            "messages": {
+                "fin": {"payload": {"type": "object"}},
+                "alias": {"$ref": "#/components/messages/fin"},
+            }
+        },
+    }
+    validate_asyncapi(documento)
+    assert set(extract_message_payloads(documento)) == {
+        "channels/turnos/messages/turno",
+        "components/messages/fin",
+    }

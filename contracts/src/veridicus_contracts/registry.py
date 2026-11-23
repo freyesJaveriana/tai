@@ -46,6 +46,8 @@ def _uri_de(archivo: Traversable, contenido: Any, en_vendor: bool) -> str:
     identificador = contenido.get("$id") if isinstance(contenido, dict) else None
     if not isinstance(identificador, str):
         raise LoadError(f"{archivo.name}: el esquema no tiene $id de texto")
+    if not isinstance(contenido.get("$schema", ""), str):
+        raise LoadError(f"{archivo.name}: $schema debe ser texto")
     if identificador.startswith("/"):
         return urljoin(BASE_URI, identificador)
     if en_vendor:
@@ -60,8 +62,9 @@ def build_registry(raiz: Traversable | None = None) -> Registry[Any]:
     recursos = []
     for archivo, en_vendor in _esquemas(raiz, raiz.name == "vendor"):
         contenido = load_file(archivo)
+        uri = _uri_de(archivo, contenido, en_vendor)
         recurso = Resource.from_contents(contenido, default_specification=DRAFT202012)
-        recursos.append((_uri_de(archivo, contenido, en_vendor), recurso))
+        recursos.append((uri, recurso))
     vacio: Registry[Any] = Registry(retrieve=_no_recuperar)  # type: ignore[call-arg]  # motivo: referencing declara retrieve como parámetro público pero el plugin de attrs de mypy no lo ve
     return vacio.with_resources(recursos)
 

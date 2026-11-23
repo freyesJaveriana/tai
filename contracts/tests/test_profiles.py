@@ -389,6 +389,20 @@ def test_un_minimo_incumplido_tiene_su_motivo() -> None:
     )
 
 
+def test_los_motivos_de_minproperties_y_de_const_son_exactos() -> None:
+    """R-02: `roles: {}` y una versión de esquema distinta."""
+    datos = _base()
+    _perfil(datos, "prueba-generica")["roles"] = {}
+    assert _rechaza(datos, kind="base").problems == (
+        "perfil prueba-generica, papel -, ajuste roles: debe tener al menos un elemento",
+    )
+    datos = _base()
+    datos["schema_version"] = "2.0.0"
+    assert _rechaza(datos, kind="base").problems == (
+        "perfil -, papel -, ajuste schema_version: valor distinto del exigido",
+    )
+
+
 def test_los_problemas_del_esquema_salen_ordenados_por_ruta() -> None:
     """F-06: `permutation` va antes que `purpose` aunque el esquema declare `purpose` primero."""
     datos = _analizador()

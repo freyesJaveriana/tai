@@ -1,0 +1,35 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: veridicus/contracts/profiles/prices.schema.v1
+title: Tabla de precios de los modelos (C18)
+description: >-
+  Esquema de `config/prices.yaml` (FR15.4). Estricto: solo estos campos. Los precios son USD por
+  millón de tokens; un modelo local se lista con precio 0. La versión de la tabla viaja en el
+  reporte de la CLI como `price_table_version`.
+type: object
+additionalProperties: false
+required: [schema_version, version, currency, prices]
+properties:
+  schema_version:
+    const: "1.0.0"
+  version:
+    type: string
+    pattern: '^[A-Za-z0-9._-]{1,32}$'
+  currency:
+    const: USD
+  prices:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [provider, model, input_per_million, output_per_million]
+      properties:
+        provider:
+          enum: [anthropic, google, openai, local]
+        model:
+          $ref: '/veridicus/contracts/profiles/profiles.schema.v1#/$defs/token'
+        input_per_million:
+          type: number
+          minimum: 0
+        output_per_million:
+          type: number
+          minimum: 0

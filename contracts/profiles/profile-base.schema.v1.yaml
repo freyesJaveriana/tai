@@ -1,0 +1,93 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: veridicus/contracts/profiles/profile-base.schema.v1
+title: Archivo de perfiles de ejecución, forma genérica (C18)
+description: >-
+  Sobre del archivo (`schema_version` y `profiles`) y perfil genérico (FD-U1-02, FD-U1-12). Un
+  perfil declara al menos un papel con su destino, alias de papeles y como mucho un
+  `fallback_provider`, que sirve a cualquier papel (BR9.2, BR9.5). Es abierto: otra
+  especialización, como la del analizador, añade sus campos y se cierra por su cuenta. El prefijo
+  de `api_key_ref` no va en el archivo: lo exige `profiles.validate` como argumento (BR9.4). Las
+  referencias cruzadas de los alias también las comprueba la función (BR9.2).
+type: object
+required: [schema_version, profiles]
+properties:
+  schema_version:
+    const: "1.0.0"
+  profiles:
+    type: object
+    minProperties: 1
+    propertyNames:
+      pattern: '^[a-z0-9-]{1,48}$'
+    additionalProperties:
+      $ref: '#/$defs/profile'
+$defs:
+  role_name:
+    type: string
+    pattern: '^[a-z][a-z0-9_]{0,31}$'
+    description: Nombre de un papel o de un alias (BR9.1)
+  token:
+    type: string
+    pattern: '^[A-Za-z0-9._:/@+-]{1,128}$'
+    description: Sin espacios; nombres de modelo, versiones y motores
+  destination:
+    type: object
+    additionalProperties: false
+    required: [provider, model, scope]
+    description: Un destino cerrado; no admite un `fallback` propio (BR9.5)
+    properties:
+      provider:
+        enum: [anthropic, google, openai, local]
+      model:
+        $ref: '#/$defs/token'
+      version:
+        $ref: '#/$defs/token'
+      family:
+        $ref: '#/$defs/token'
+      scope:
+        enum: [local, external]
+      base_url:
+        type: string
+        format: uri
+        description: Solo local; interno del clúster o de la máquina
+      api_key_ref:
+        type: string
+        pattern: '^[A-Z][A-Z0-9_]{2,63}$'
+        description: Nombre de la variable o de la clave del Secret; nunca el valor
+      parameters:
+        type: object
+        additionalProperties: false
+        properties:
+          effort:
+            $ref: '#/$defs/token'
+          temperature:
+            type: number
+            minimum: 0
+          quantization:
+            $ref: '#/$defs/token'
+          engine:
+            $ref: '#/$defs/token'
+          seed:
+            type: integer
+  profile:
+    type: object
+    required: [purpose, roles]
+    properties:
+      purpose:
+        type: string
+        pattern: '^[a-z][a-z0-9-]{0,31}$'
+        description: Texto con patrón; cada especialización puede cerrarlo en un enum
+      roles:
+        type: object
+        minProperties: 1
+        propertyNames:
+          $ref: '#/$defs/role_name'
+        additionalProperties:
+          $ref: '#/$defs/destination'
+      role_aliases:
+        type: object
+        propertyNames:
+          $ref: '#/$defs/role_name'
+        additionalProperties:
+          $ref: '#/$defs/role_name'
+      fallback_provider:
+        $ref: '#/$defs/destination'

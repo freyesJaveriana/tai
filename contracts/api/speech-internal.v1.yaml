@@ -1,0 +1,67 @@
+openapi: 3.1.0
+info:
+  title: Veridicus audio-worker, ruta interna de voz
+  version: 1.0.0
+  description: >-
+    Ruta interna `POST /internal/v1/speech` de `audio-worker` (FD-U9-04, NFR-U9-04, NFRD-U1-08).
+    La llama `session-api` con `bearerAuth` (`VERIDICUS_SPEECH_TOKEN`). No es C1 (no hay cookie ni
+    CSRF) ni C16 (no es salud). Atiende una sola síntesis a la vez (concurrencia 1). El cuerpo es
+    estricto y la respuesta tiene tope de bytes.
+servers:
+  - url: http://veridicus-audio-worker:8080
+paths:
+  /internal/v1/speech:
+    post:
+      operationId: synthesizeSpeech
+      summary: Sintetiza la aclaración aprobada de una observación del conductor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [observation_id, tema, template_version]
+              properties:
+                observation_id:
+                  type: string
+                  format: uuid
+                tema:
+                  type: string
+                  minLength: 1
+                template_version:
+                  type: string
+                  pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+      responses:
+        '200':
+          description: Audio de la aclaración
+          content:
+            audio/wav:
+              x-veridicus-max-bytes: speech_audio_max_bytes
+              schema:
+                type: string
+                contentMediaType: audio/wav
+                contentEncoding: binary
+        '401':
+          description: Sin token o con un token que no es el configurado (auth.unauthenticated)
+        '422':
+          description: El texto no pasa una regla de la aclaración; no salió ninguna llamada
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [rule_id]
+                properties:
+                  rule_id:
+                    enum: [template_version, dt23, vocabulary, length]
+        '503':
+          description: El motor de voz no está disponible (speech.unavailable)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Token compartido `VERIDICUS_SPEECH_TOKEN`, en un Secret que crea el humano

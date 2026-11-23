@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "veridicus/contracts/integrity/review-suggestion/v2",
+  "title": "Sugerencia de revisión (C7 v2)",
+  "description": "El hallazgo de C6 convertido en sugerencia con estado editable; sin campos de veracidad (AUTONOMIA-03).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "suggestion_id",
+    "session_id",
+    "first_run_id",
+    "hecho",
+    "tipo",
+    "cita_a",
+    "cita_b",
+    "observaciones",
+    "state",
+    "observations_viewed"
+  ],
+  "properties": {
+    "suggestion_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "session_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "first_run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "hallazgo_id": {
+      "type": "string",
+      "description": "id del hallazgo en C6 de la corrida que lo propuso"
+    },
+    "hecho": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tipo": {
+      "enum": [
+        "fecha",
+        "numero",
+        "lugar",
+        "persona",
+        "negacion",
+        "secuencia",
+        "otro"
+      ]
+    },
+    "actos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cita_a": {
+      "$ref": "/veridicus/contracts/analyzer/v1/salida#/$defs/cita"
+    },
+    "cita_b": {
+      "$ref": "/veridicus/contracts/analyzer/v1/salida#/$defs/cita"
+    },
+    "observaciones": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "pending",
+        "accepted",
+        "edited",
+        "dismissed"
+      ]
+    },
+    "note": {
+      "type": "string"
+    },
+    "reformulation": {
+      "type": "string",
+      "description": "Del analista; nunca reemplaza hecho, tipo, citas ni observaciones"
+    },
+    "observations_viewed": {
+      "type": "boolean",
+      "description": "El usuario actual desplegó las observaciones (FR6.2)"
+    },
+    "decided_by": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "pending"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "decided_by"
+              ]
+            },
+            {
+              "required": [
+                "decided_at"
+              ]
+            }
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "decided_by",
+          "decided_at"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "dismissed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "note"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "edited"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "reformulation"
+        ]
+      }
+    }
+  ]
+}

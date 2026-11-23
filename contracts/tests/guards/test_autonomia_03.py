@@ -29,7 +29,9 @@ C1 = "api/console.v2.yaml"
 
 TERMINOS_DE_C8 = {
     "mentiroso", "mentirosa", "miente", "mintió", "falso", "falsa", "verdadero", "verdadera", "engaño",
-}  # fmt: skip
+    "prueba", "pruebas", "probatorio", "probatoria", "probatorios", "probatorias", "pliego", "pliegos",
+    "inculpa", "engaños", "falsos", "falsas",
+}  # fmt: skip  # E-7: los 9 de la primera versión y los de VE-02 con sus flexiones regulares
 CATEGORIAS_PROHIBIDAS = {"veracity_score", "is_lying", "truthfulness", "veracidad", "credibilidad"}
 ROTULOS_FIJOS = {"Sugerencia de revisión", "Contradicción en el relato"}
 ROTULOS_DE_TIPO = {
@@ -166,10 +168,10 @@ def test_ningun_nombre_ni_enum_declara_veracidad(ruta: str) -> None:
 
 
 @pytest.mark.c8
-def test_c8_tiene_exactamente_los_nueve_terminos() -> None:
-    """BR5.1: la lista aprobada y las categorías prohibidas en esquemas."""
+def test_c8_tiene_exactamente_los_terminos_aprobados() -> None:
+    """BR5.1 y E-7: la lista aprobada (21 términos) y las categorías prohibidas en esquemas."""
     c8 = load_contract(C8)
-    assert len(c8["terms"]) == 9
+    assert len(c8["terms"]) == len(TERMINOS_DE_C8) == 21
     assert set(c8["terms"]) == TERMINOS_DE_C8
     assert set(c8["categories_forbidden_in_schemas"]) == CATEGORIAS_PROHIBIDAS
 

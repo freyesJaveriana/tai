@@ -269,8 +269,8 @@ SIN_NOMBRES = "BR10.1 {sitio}: additionalProperties sin propertyNames cerrado (e
 ABIERTO = "BR10.1 {sitio}: esquema abierto (acepta cualquier valor)"
 ESPACIOS = "BR10.1 $.$defs.token: el patrón admite espacios"
 CONSTRUCCIONES = (
-    "BR10.1 $.$defs.token: el patrón usa construcciones abiertas "
-    "(., [^, \\W, \\D, \\S, \\x, \\u, \\p)"
+    "BR10.1 $.$defs.token: el patrón sale de la gramática cerrada (anclas, clases con rangos de "
+    "A-Za-z0-9, \\., \\-, \\+, ( ) | ?, cuantificadores)"
 )
 
 
@@ -728,7 +728,6 @@ def test_los_patrones_cerrados_del_contrato_no_se_marcan() -> None:
         "^[0-9]+\\.[0-9]+\\.[0-9]+$",
         "^[0-9]{4}-[0-9]{2}(\\.[0-9]{1,9})?(Z|[+-][0-9]{2}:[0-9]{2})$",
         "^[a-z0-9-]{1,23}__[a-z0-9-]{1,23}$",
-        "^[a-z]\\d{1,5}$",
     ):
         reporte["$defs"]["token"]["pattern"] = patron
         assert _problemas(reporte, llamada, fixtures) == [], patron
@@ -796,9 +795,12 @@ def test_additionalproperties_abierto_queda_en_rojo() -> None:
     ]
     _discards(reporte)["additionalProperties"] = original
     assert _problemas(reporte, llamada, fixtures) == []
-    reporte["if"]["additionalProperties"] = True
-    assert _problemas(reporte, llamada, fixtures) == [ABIERTO.format(sitio="$.if.additionalProperties")]
-    reporte["if"]["additionalProperties"] = False
+    condicion = reporte["allOf"][0]["if"]
+    condicion["additionalProperties"] = True
+    assert _problemas(reporte, llamada, fixtures) == [
+        ABIERTO.format(sitio="$.allOf[0].if.additionalProperties")
+    ]
+    condicion["additionalProperties"] = False
     assert _problemas(reporte, llamada, fixtures) == []
 
 
@@ -893,7 +895,21 @@ def _carga(**cambios: Any) -> dict[str, Any]:
     fixture = load_contract(f"{DIRECTORIO_DE_FIXTURES}/report.valid.json")
     carga = copy.deepcopy(fixture["payload"])
     carga.update(cambios)
+    if carga["kind"] == "evaluation":
+        for campo, valor in EVALUACION.items():
+            carga.setdefault(campo, copy.deepcopy(valor))
     return carga  # type: ignore[no-any-return]
+
+
+SHA = "cd34" * 16
+EVALUACION: dict[str, Any] = {
+    "dataset_version": "1.0.0",
+    "dataset_sha256": SHA,
+    "profile_sha256": SHA,
+    "thresholds_sha256": SHA,
+    "role_families": {"judge": "anthropic", "verifier": "openai", "verifier_permuted": "openai"},
+    "generator_family": "google",
+}
 
 
 def _rechazos(carga: dict[str, Any]) -> list[str]:
@@ -910,10 +926,50 @@ def test_metrics_lleva_valor_por_corrida_agregado_umbral_y_passes() -> None:
         metrics={
             "precision": {"per_run": [0.9, 0.8, 1.0], "aggregate": 0.9, "threshold": 0.8, "passes": True},
             "three_run_agreement": {"aggregate": 0.7},
+            "scenario_a_difference": {"aggregate": 0.1, "threshold": 0.3, "passes": True},
+            "scenario_a_marker_hits": {"aggregate": 0, "threshold": 0, "passes": True},
             "anonymizer_leaks": {"per_run": [0, 0, 0], "aggregate": 0, "threshold": 0, "passes": True},
         },
     )
     assert _rechazos(carga) == []
+
+
+SIN_CORRIDAS = ("three_run_agreement", "scenario_a_difference", "scenario_a_marker_hits")
+CON_CORRIDAS = (
+    "verified_quotes",
+    "json_format_errors",
+    "permutation_coverage",
+    "anonymizer_leaks",
+    "completed_runs",
+    "precision",
+    "recall",
+    "reversed_order_consistency",
+    "type_agreement",
+)
+
+
+@pytest.mark.parametrize("metrica", CON_CORRIDAS)
+def test_per_run_es_obligatorio_salvo_en_tres_metricas(metrica: str) -> None:
+    """G-04: BR12.3, entities.md:391 y BR12.6 solo eximen a tres métricas."""
+    assert _rechazos(_carga(kind="evaluation", metrics={metrica: {"aggregate": 0}})) != []
+    bueno = {"per_run": [0, 0, 0], "aggregate": 0}
+    assert _rechazos(_carga(kind="evaluation", metrics={metrica: bueno})) == []
+
+
+@pytest.mark.parametrize("metrica", SIN_CORRIDAS)
+def test_las_tres_metricas_sin_corridas_no_llevan_per_run(metrica: str) -> None:
+    assert _rechazos(_carga(kind="evaluation", metrics={metrica: {"aggregate": 0}})) == []
+    con = {"per_run": [0, 0, 0], "aggregate": 0}
+    assert _rechazos(_carga(kind="evaluation", metrics={metrica: con})) != []
+    reporte, _, _ = _documentos()
+    sin = reporte["properties"]["metrics"]["properties"][metrica]["$ref"]
+    assert sin.endswith("_without_runs")
+
+
+def test_los_conjuntos_de_metricas_cubren_las_doce() -> None:
+    reporte, _, _ = _documentos()
+    assert set(SIN_CORRIDAS) | set(CON_CORRIDAS) == set(reporte["properties"]["metrics"]["properties"])
+    assert not set(SIN_CORRIDAS) & set(CON_CORRIDAS)
 
 
 @pytest.mark.parametrize(
@@ -945,13 +1001,16 @@ def test_metrics_solo_se_acepta_con_kind_evaluation() -> None:
     assert _rechazos(_carga(kind="run")) == []
 
 
-def test_el_escenario_a_tiene_una_sola_ubicacion() -> None:
+def test_el_escenario_a_tiene_una_sola_ubicacion_y_un_indicador_booleano() -> None:
     reporte, _, _ = _documentos()
-    assert "adversarial" not in reporte["properties"]
+    assert reporte["properties"]["adversarial"]["type"] == "boolean"
     assert {"scenario_a_marker_hits", "scenario_a_difference"} <= set(
         reporte["properties"]["metrics"]["properties"]
     )
     assert _rechazos(_carga(adversarial={"scenario": "scenario_a", "marker_hits": 0})) != []
+    assert _rechazos(_carga(kind="evaluation", adversarial=True)) == []
+    assert _rechazos(_carga(kind="evaluation", adversarial=False)) == []
+    assert _rechazos(_carga(kind="evaluation", adversarial="scenario_a")) != []
 
 
 @pytest.mark.parametrize(
@@ -1023,3 +1082,256 @@ def test_synthetic_set_es_tipo_hecho_doble_guion_bajo_perfil_persona(conjunto: s
     assert _rechazos(_carga(bias_table=[fila])) != []
     bueno = {**fila, "synthetic_set": "x" * 23 + "__" + "y-1" * 7}
     assert _rechazos(_carga(bias_table=[bueno])) == []
+
+
+# --- Ronda 3, G-01: gramática blanca de patrones ----------------------------------------------
+
+
+def _con_patron(patron: str) -> list[str]:
+    reporte, llamada, fixtures = _documentos()
+    reporte["$defs"]["token"]["pattern"] = patron
+    return _problemas(reporte, llamada, fixtures)
+
+
+@pytest.mark.parametrize(
+    ("patron", "espacio", "mensaje"),
+    [
+        ("^a\\040$", " ", CONSTRUCCIONES),
+        ("^a\\N{SPACE}$", " ", CONSTRUCCIONES),
+        ("^a\\U00000020$", " ", CONSTRUCCIONES),
+        ("^a\\r$", "\r", ESPACIOS),
+        ("^a\\v$", "\v", ESPACIOS),
+        ("^a\\f$", "\f", ESPACIOS),
+        ("^a $", " ", ESPACIOS),
+        ("^a　$", "　", ESPACIOS),
+    ],
+)
+def test_los_ocho_rodeos_de_un_espacio_quedan_en_rojo(patron: str, espacio: str, mensaje: str) -> None:
+    """G-01: cada uno acepta de verdad un texto con espacio en blanco y la guardia lo ve."""
+    assert re.fullmatch(patron, "a" + espacio) is not None
+    assert espacio.isspace()
+    assert _con_patron(patron) == [mensaje], patron
+
+
+def test_un_rango_de_clase_entre_simbolos_queda_en_rojo() -> None:
+    """G-01 (AMARILLO): `[+-z]` acepta `<>;=?[\\]^_` además de las letras."""
+    assert re.fullmatch("[+-z]", "<") is not None
+    assert _con_patron("^[+-z]{1,5}$") == [CONSTRUCCIONES]
+
+
+@pytest.mark.parametrize(
+    "patron",
+    [
+        "^[a-Z]{1,3}$",
+        "^[z-a]{1,3}$",
+        "^[0-z]{1,3}$",
+        "^[A-z]{1,3}$",
+        "^[._-z]{1,3}$",
+        "^[a-z-9]{1,3}$",
+        "^[a-z\\d]{1,3}$",
+        "^[a-z\\\\]{1,3}$",
+        "^[a-z!]{1,3}$",
+        "^[é]{1,3}$",
+        "^é$",
+        "^a\\/b$",
+        "^a\\\\b$",
+        "^a\\wb$",
+        "^a,b$",
+        "^a=b$",
+        "^a!b$",
+        "^a{,3}$",
+        "^a{1,2,3}$",
+        "^a{1,2$",
+        "^a{x}$",
+        "^a^b$",
+        "^a$b$",
+        "^[a-z$",
+        "^[a-z\\$",
+        "^a<b$",
+    ],
+)
+def test_lo_que_sale_de_la_gramatica_blanca_queda_en_rojo(patron: str) -> None:
+    assert _con_patron(patron) == [CONSTRUCCIONES], patron
+
+
+@pytest.mark.parametrize(
+    "patron",
+    [
+        "^[a-f]{1,3}$",
+        "^[A-Z]{1,3}$",
+        "^[0-9]{1,3}$",
+        "^[a-z0-9-]{1,3}$",
+        "^[-a-z]{1,3}$",
+        "^[+-]{1,3}$",
+        "^[\\.\\-\\+]{1,3}$",
+        "^[A-Za-z0-9._:/@+-]{1,128}$",
+        "^a\\.b\\-c\\+d$",
+        "^a_b-c:d/e@f$",
+        "^(a|b)?c*d+e{2}f{1,3}$",
+        "^[a-z]{1,3}(\\.[0-9]{1,9})?$",
+        "[a-z]{1,3}",
+    ],
+)
+def test_lo_que_cabe_en_la_gramatica_blanca_pasa(patron: str) -> None:
+    problemas = _con_patron(patron)
+    assert [p for p in problemas if "gramática" in p or "espacios" in p] == [], patron
+
+
+def test_las_sondas_son_todos_los_caracteres_de_espacio_en_blanco() -> None:
+    sondas = set(guardia.SONDAS)
+    assert sondas == {chr(i) for i in range(0x110000) if chr(i).isspace()}
+
+
+def test_los_patrones_del_contrato_pasan_la_gramatica_nueva() -> None:
+    """G-01: todos los patrones de C19 y de model-call.v1 siguen pasando."""
+    reporte, llamada, _ = _documentos()
+    patrones = [
+        n["pattern"]
+        for documento in (reporte, llamada)
+        for n in _nodos(documento)
+        if isinstance(n, dict) and isinstance(n.get("pattern"), str)
+    ]
+    assert len(patrones) >= 8
+    for patron in patrones:
+        reporte["$defs"]["token"]["pattern"] = patron
+        assert _problemas(reporte, llamada, _documentos()[2]) == [], patron
+
+
+# --- Ronda 3, G-02: arrays abiertos ------------------------------------------------------------
+
+CERRADO = {"type": "string", "enum": ["a"]}
+ARRAY_SIN_ITEMS = "BR10.1 $.properties.lista: array sin items cerrado"
+
+
+@pytest.mark.parametrize(
+    "lista",
+    [
+        {"type": "array"},
+        {"type": ["array", "null"]},
+        {"type": "array", "contains": CERRADO},
+        {"type": "array", "prefixItems": [CERRADO]},
+    ],
+)
+def test_un_array_sin_items_queda_en_rojo(lista: dict[str, Any]) -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["lista"] = lista
+    assert _problemas(reporte, llamada, fixtures) == [ARRAY_SIN_ITEMS]
+    reporte["properties"]["lista"] = {**lista, "items": CERRADO}
+    assert _problemas(reporte, llamada, fixtures) == []
+
+
+@pytest.mark.parametrize("palabra", ["contains", "additionalItems"])
+@pytest.mark.parametrize("abierto", [True, {}])
+def test_contains_y_additionalitems_abiertos_quedan_en_rojo(palabra: str, abierto: Any) -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["lista"] = {"type": "array", "items": CERRADO, palabra: abierto}
+    assert _problemas(reporte, llamada, fixtures) == [
+        ABIERTO.format(sitio=f"$.properties.lista.{palabra}")
+    ]
+    reporte["properties"]["lista"][palabra] = CERRADO
+    assert _problemas(reporte, llamada, fixtures) == []
+
+
+@pytest.mark.parametrize("abierto", [True, {}])
+def test_prefixitems_abierto_queda_en_rojo(abierto: Any) -> None:
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["lista"] = {
+        "type": "array",
+        "items": CERRADO,
+        "prefixItems": [CERRADO, abierto],
+    }
+    assert _problemas(reporte, llamada, fixtures) == [
+        ABIERTO.format(sitio="$.properties.lista.prefixItems[1]")
+    ]
+    reporte["properties"]["lista"]["prefixItems"] = "no es una lista"
+    assert _problemas(reporte, llamada, fixtures) == []
+
+
+# --- Ronda 3, G-03: mutantes n03 y n19 ----------------------------------------------------------
+
+
+def test_un_salto_de_linea_literal_en_el_patron_se_prueba_como_espacio() -> None:
+    """n03: sin `re.DOTALL` el salto literal desaparece del tokenizador y cae en otro mensaje."""
+    assert _con_patron("^[a-z]\n{1,3}$") == [ESPACIOS]
+    assert _con_patron("^a\nb$") == [ESPACIOS]
+
+
+@pytest.mark.parametrize("valor", ["a\tb", "a\nb", "a b", "a b", "a\rb"])
+def test_un_valor_de_enum_con_cualquier_espacio_en_blanco_queda_en_rojo(valor: str) -> None:
+    """n19: `" " in valor` no ve el tabulador."""
+    reporte, llamada, fixtures = _documentos()
+    reporte["properties"]["kind"] = {"enum": ["run", valor]}
+    assert _problemas(reporte, llamada, fixtures) == [
+        "BR10.1 $.properties.kind: un valor de enum o const lleva espacios o pasa de 128 caracteres"
+    ]
+
+
+# --- Ronda 3, G-05: campos de U11 ---------------------------------------------------------------
+
+CAMPOS_DE_EVALUACION = (
+    "dataset_version",
+    "dataset_sha256",
+    "profile_sha256",
+    "thresholds_sha256",
+    "role_families",
+    "generator_family",
+)
+FAMILIAS = ["anthropic", "openai", "qwen", "google"]
+
+
+@pytest.mark.parametrize("campo", CAMPOS_DE_EVALUACION)
+def test_un_reporte_de_evaluacion_exige_los_campos_de_u11(campo: str) -> None:
+    carga = _carga(kind="evaluation")
+    assert _rechazos(carga) == []
+    del carga[campo]
+    assert _rechazos(carga) != []
+    corrida = _carga(kind="run", **{campo: EVALUACION[campo]})
+    assert _rechazos(corrida) == []
+
+
+@pytest.mark.parametrize("campo", ["profile_sha256", "thresholds_sha256", "dataset_sha256"])
+@pytest.mark.parametrize("huella", ["abc", "G" * 64, "a" * 63, "a" * 65, "A" * 64])
+def test_las_huellas_nuevas_usan_el_patron_sha256(campo: str, huella: str) -> None:
+    assert _rechazos(_carga(kind="evaluation", **{campo: huella})) != []
+
+
+def test_la_familia_de_cada_papel_y_la_del_generador_son_cerradas() -> None:
+    reporte, _, _ = _documentos()
+    assert reporte["$defs"]["family"]["enum"] == FAMILIAS
+    familias = reporte["properties"]["role_families"]
+    assert set(familias["properties"]) == set(PAPELES)
+    assert set(familias["required"]) == set(PAPELES)
+    assert familias["additionalProperties"] is False
+    completo = EVALUACION["role_families"]
+    for familia in FAMILIAS:
+        assert _rechazos(_carga(kind="evaluation", generator_family=familia)) == []
+        assert _rechazos(_carga(kind="evaluation", role_families={**completo, "judge": familia})) == []
+    assert _rechazos(_carga(kind="evaluation", generator_family="meta")) != []
+    assert _rechazos(_carga(kind="evaluation", role_families={**completo, "judge": "meta"})) != []
+    assert _rechazos(_carga(kind="evaluation", role_families={**completo, "extra": "openai"})) != []
+    for papel in PAPELES:
+        incompleto = {k: v for k, v in completo.items() if k != papel}
+        assert _rechazos(_carga(kind="evaluation", role_families=incompleto)) != []
+
+
+def test_las_familias_viven_en_la_raiz_y_no_en_model_call() -> None:
+    _, llamada, _ = _documentos()
+    assert "family" not in llamada["properties"]
+    reporte, _, _ = _documentos()
+    assert {"role_families", "generator_family"} <= set(reporte["properties"])
+
+
+# --- Aviso de integración con T11 (BR3.2): enums de C6 en línea ---------------------------------
+
+
+def test_los_enum_de_c6_estan_en_linea_y_sin_ref() -> None:
+    reporte, _, _ = _documentos()
+    corrida = reporte["properties"]["runs"]["items"]["properties"]
+    assert "$ref" not in corrida["status"]
+    assert corrida["status"]["enum"] == ["ok", "error"]
+    assert "$ref" not in corrida["error_code"]
+    assert "$ref" not in corrida["discards"]["propertyNames"]
+    assert len(corrida["discards"]["propertyNames"]["enum"]) == 8
+    ajuste = reporte["properties"]["bias_table"]["items"]["properties"]["fact_type"]
+    assert "$ref" not in ajuste
+    assert len(ajuste["enum"]) == 7

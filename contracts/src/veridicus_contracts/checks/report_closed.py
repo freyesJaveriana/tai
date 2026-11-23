@@ -12,6 +12,7 @@ filas ni en logs).
 """
 
 import re
+import string
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -44,10 +45,17 @@ LIMITE_DECLARADO_DEL_CANARY = (
 
 _COMPOSICION = ("type", "$ref", "enum", "const", "allOf", "anyOf", "oneOf")
 _ESPACIO = re.compile(r"\s")
-_SONDAS = (" ", "\t", "\u00a0", "\n")  # espacio, tabulador, NBSP y salto de línea
+# La ronda 2 sondeaba cuatro caracteres: espacio, tabulador,"\u00a0", salto de línea y NBSP; ahora son todos los de isspace().
+# Todo carácter para el que `str.isspace()` es verdadero (el último es U+3000).
+SONDAS = tuple(c for c in map(chr, range(0x3100)) if c.isspace())
 _FRAGMENTO_DE_PATRON = re.compile(r"\[[^\]]*\]|\\.|.", re.DOTALL)
-_CLASE_BLANCA = re.compile(r"[A-Za-z0-9._:/@+\-]+")
-_ESCAPES_ABIERTOS = frozenset({"\\W", "\\D", "\\S", "\\x", "\\u", "\\p", "\\P"})
+_LETRAS_Y_CIFRAS = string.ascii_letters + string.digits
+_RANGOS = (("a", "z"), ("A", "Z"), ("0", "9"))
+_LITERALES_FUERA_DE_CLASE = frozenset(_LETRAS_Y_CIFRAS + "_-:/@")
+_LITERALES_EN_CLASE = frozenset(_LETRAS_Y_CIFRAS + "._:/@+")
+_ESCAPES_BLANCOS = frozenset(".-+")
+_OPERADORES = frozenset("()|?*+")
+_CUANTIFICADOR = re.compile(r"\{[0-9]{1,3}(,[0-9]{0,3})?\}")
 
 
 def _recorrer(nodo: Any, sitio: str = "$", clave: str | None = None) -> Iterator[tuple[str, str | None, Any]]:
@@ -111,29 +119,100 @@ def _problemas_de_numero(
 
 
 def _fragmento_admite_espacio(fragmento: str) -> bool:
-    """Un fragmento del patrón (clase, escape o carácter) acepta un espacio, un tabulador, un NBSP o un salto."""
+    """Un fragmento del patrón (clase, escape o carácter) acepta algún carácter de espacio en blanco."""
     try:
-        return any(re.fullmatch(fragmento, sonda) for sonda in _SONDAS)
+        return any(re.fullmatch(fragmento, sonda) for sonda in SONDAS)
     except re.error:
         return False  # fragmento que solo existe dentro de una construcción mayor: no acepta por sí solo
 
 
-def _fragmento_abierto(fragmento: str) -> bool:
-    """Construcción que acepta un conjunto que la guardia no puede acotar: `.`, `[^`, `\\W`, etc."""
-    if fragmento == "." or fragmento in _ESCAPES_ABIERTOS or fragmento == "[":
-        return True
-    if fragmento.startswith("["):
-        return not _CLASE_BLANCA.fullmatch(fragmento[1:-1])
-    return False
+def _rango_valido(inicio: str, fin: str) -> bool:
+    return any(bajo <= inicio <= fin <= alto for bajo, alto in _RANGOS)
+
+
+def _clase_valida(cuerpo: str) -> bool:
+    """Clase con rangos dentro de A-Za-z0-9, los literales de la lista y los escapes `\\.`, `\\-`, `\\+`."""
+    elementos: list[tuple[str, bool]] = []
+    posicion = 0
+    while posicion < len(cuerpo):
+        if cuerpo[posicion] == "\\":
+            if cuerpo[posicion + 1 : posicion + 2] not in _ESCAPES_BLANCOS or posicion + 1 >= len(cuerpo):
+                return False
+            elementos.append((cuerpo[posicion + 1], True))
+            posicion += 2
+        else:
+            elementos.append((cuerpo[posicion], False))
+            posicion += 1
+    if not elementos:
+        return False
+    indice = 0
+    while indice < len(elementos):
+        letra, escapado = elementos[indice]
+        guion = indice + 1 < len(elementos) and elementos[indice + 1] == ("-", False)
+        if guion and indice + 2 < len(elementos):
+            fin, fin_escapado = elementos[indice + 2]
+            if escapado or fin_escapado or not _rango_valido(letra, fin):
+                return False
+            indice += 3
+            continue
+        extremo = indice in (0, len(elementos) - 1)
+        if not (escapado or letra in _LITERALES_EN_CLASE or (letra == "-" and extremo)):
+            return False
+        indice += 1
+    return True
+
+
+def _cierre_de_clase(cuerpo: str, inicio: int) -> int:
+    """Posición del `]` que cierra la clase abierta en `inicio`; -1 si no cierra."""
+    posicion = inicio + 1
+    while posicion < len(cuerpo):
+        if cuerpo[posicion] == "\\":
+            posicion += 2
+        elif cuerpo[posicion] == "]":
+            return posicion
+        else:
+            posicion += 1
+    return -1
+
+
+def _en_la_gramatica_blanca(patron: str) -> bool:
+    """Solo `^`, `$`, clases con rangos de A-Za-z0-9, `\\.`, `\\-`, `\\+`, literales, `( ) | ?` y cuantificadores."""
+    cuerpo = patron.removeprefix("^").removesuffix("$")
+    posicion = 0
+    while posicion < len(cuerpo):
+        letra = cuerpo[posicion]
+        if letra == "[":
+            cierre = _cierre_de_clase(cuerpo, posicion)
+            if cierre < 0 or not _clase_valida(cuerpo[posicion + 1 : cierre]):
+                return False
+            posicion = cierre + 1
+        elif letra == "\\":
+            if cuerpo[posicion + 1 : posicion + 2] not in _ESCAPES_BLANCOS or posicion + 1 >= len(cuerpo):
+                return False
+            posicion += 2
+        elif letra in _LITERALES_FUERA_DE_CLASE or letra in _OPERADORES:
+            posicion += 1
+        elif letra == "{":
+            cuantificador = _CUANTIFICADOR.match(cuerpo, posicion)
+            if cuantificador is None:
+                return False
+            posicion = cuantificador.end()
+        else:
+            return False
+    return True
 
 
 def _problema_de_alfabeto(patron: str, rotulo: str) -> list[str]:
-    """El patrón se juzga por lo que acepta: sin espacios y solo con clases de una lista blanca."""
-    fragmentos = _FRAGMENTO_DE_PATRON.findall(patron)
-    if any(_fragmento_admite_espacio(f) for f in fragmentos):
+    """El patrón se juzga por lo que acepta (sondas) y por una gramática blanca, no por una lista negra."""
+    if any(_fragmento_admite_espacio(f) for f in _FRAGMENTO_DE_PATRON.findall(patron)):
         return [f"BR10.1 {rotulo}: el patrón admite espacios"]
-    if any(_fragmento_abierto(f) for f in fragmentos):
-        return [f"BR10.1 {rotulo}: el patrón usa construcciones abiertas (., [^, \\W, \\D, \\S, \\x, \\u, \\p)"]
+    if not _en_la_gramatica_blanca(patron):
+        return [
+            (
+                f"BR10.1 {rotulo}: el patrón sale de la gramática cerrada (anclas, clases con rangos de "
+                "A-Za-z0-9, \\., \\-, \\+, ( ) | ?, cuantificadores)"
+            )
+        ]
     return []
 
 
@@ -172,8 +251,13 @@ def _problemas_de_subesquemas(
 ) -> list[str]:
     """`items`, `additionalProperties`, `anyOf` y `oneOf` no admiten un subesquema abierto."""
     abiertos: list[str] = []
-    if _esquema_abierto(nodo.get("items")):
-        abiertos.append(f"{sitio}.items")
+    for palabra in ("items", "contains", "additionalItems"):
+        if _esquema_abierto(nodo.get(palabra)):
+            abiertos.append(f"{sitio}.{palabra}")
+    posicionales = nodo.get("prefixItems")
+    for indice, rama in enumerate(posicionales if isinstance(posicionales, list) else []):
+        if _esquema_abierto(rama):
+            abiertos.append(f"{sitio}.prefixItems[{indice}]")
     adicionales = nodo.get("additionalProperties")
     if _esquema_abierto(adicionales) and (adicionales is not True or "object" not in tipos):
         abiertos.append(f"{sitio}.additionalProperties")
@@ -199,6 +283,8 @@ def _problemas_de_nodo(
         problemas.append(
             f"BR10.1 {rotulo}: additionalProperties sin propertyNames cerrado (enum o const)"
         )
+    if "array" in tipos and "items" not in nodo:
+        problemas.append(f"BR10.1 {rotulo}: array sin items cerrado")
     if "patternProperties" in nodo:
         problemas.append(f"BR10.1 {rotulo}: patternProperties no se admite")
     problemas.extend(_problemas_de_subesquemas(nodo, sitio, prefijo, tipos))

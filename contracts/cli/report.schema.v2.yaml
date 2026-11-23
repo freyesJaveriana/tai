@@ -11,14 +11,28 @@ description: >-
   alfabeto permitido cabe en un campo con patrón; el canary de AC12.6.1 lo cierra U12.
 type: object
 additionalProperties: false
-if:
-  properties:
-    kind:
-      const: run
-  required: [kind]
-then:
-  not:
-    required: [metrics]
+allOf:
+  - if:
+      properties:
+        kind:
+          const: run
+      required: [kind]
+    then:
+      not:
+        required: [metrics]
+  - if:
+      properties:
+        kind:
+          const: evaluation
+      required: [kind]
+    then:
+      required:
+        - dataset_version
+        - dataset_sha256
+        - profile_sha256
+        - thresholds_sha256
+        - role_families
+        - generator_family
 required:
   - schema_version
   - kind
@@ -52,10 +66,31 @@ properties:
     $ref: '#/$defs/sha256'
   prompt_sha256:
     $ref: '#/$defs/sha256'
+  profile_sha256:
+    $ref: '#/$defs/sha256'
+  thresholds_sha256:
+    $ref: '#/$defs/sha256'
   dataset_sha256:
     $ref: '#/$defs/sha256'
   dataset_version:
     $ref: '#/$defs/semver'
+  role_families:
+    type: object
+    description: Familia de modelo de cada papel (NFR5.2, Escenario B); solo evaluación
+    additionalProperties: false
+    required: [judge, verifier, verifier_permuted]
+    properties:
+      judge:
+        $ref: '#/$defs/family'
+      verifier:
+        $ref: '#/$defs/family'
+      verifier_permuted:
+        $ref: '#/$defs/family'
+  generator_family:
+    $ref: '#/$defs/family'
+  adversarial:
+    type: boolean
+    description: true si la evaluación corrió con --adversarial escenario-a (EvaluationRun.adversarial)
   created_at:
     type: string
     format: date-time
@@ -155,15 +190,15 @@ properties:
       reversed_order_consistency:
         $ref: '#/$defs/metric_ratio'
       three_run_agreement:
-        $ref: '#/$defs/metric_ratio'
+        $ref: '#/$defs/metric_ratio_without_runs'
       type_agreement:
         $ref: '#/$defs/metric_ratio'
       scenario_a_difference:
-        $ref: '#/$defs/metric_ratio'
+        $ref: '#/$defs/metric_ratio_without_runs'
       anonymizer_leaks:
         $ref: '#/$defs/metric_count'
       scenario_a_marker_hits:
-        $ref: '#/$defs/metric_count'
+        $ref: '#/$defs/metric_count_without_runs'
   distance_sensitivity:
     type: array
     description: Sensibilidad por tramo de distancia entre citas; se reporta sin umbral
@@ -267,7 +302,7 @@ $defs:
     type: object
     description: Métrica con valor en [0, 1] (BR12.3, MetricResult)
     additionalProperties: false
-    required: [aggregate]
+    required: [per_run, aggregate]
     properties:
       per_run:
         type: array
@@ -281,11 +316,25 @@ $defs:
         $ref: '#/$defs/ratio'
       passes:
         type: boolean
-  metric_count:
+  metric_ratio_without_runs:
     type: object
-    description: Métrica entera acotada (anonymizer_leaks, scenario_a_marker_hits)
+    description: >-
+      Fracción sin valor por corrida: three_run_agreement, scenario_a_difference (entities.md
+      MetricResult, BR12.6)
     additionalProperties: false
     required: [aggregate]
+    properties:
+      aggregate:
+        $ref: '#/$defs/ratio'
+      threshold:
+        $ref: '#/$defs/ratio'
+      passes:
+        type: boolean
+  metric_count:
+    type: object
+    description: 'Métrica entera acotada con valor por corrida (anonymizer_leaks)'
+    additionalProperties: false
+    required: [per_run, aggregate]
     properties:
       per_run:
         type: array
@@ -299,3 +348,17 @@ $defs:
         $ref: '#/$defs/count'
       passes:
         type: boolean
+  metric_count_without_runs:
+    type: object
+    description: 'Entero sin valor por corrida (scenario_a_marker_hits, BR12.6)'
+    additionalProperties: false
+    required: [aggregate]
+    properties:
+      aggregate:
+        $ref: '#/$defs/count'
+      threshold:
+        $ref: '#/$defs/count'
+      passes:
+        type: boolean
+  family:
+    enum: [anthropic, openai, qwen, google]

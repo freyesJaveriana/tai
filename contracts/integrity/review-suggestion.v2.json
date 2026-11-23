@@ -74,10 +74,12 @@
       ]
     },
     "note": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1
     },
     "reformulation": {
       "type": "string",
+      "minLength": 1,
       "description": "Del analista; nunca reemplaza hecho, tipo, citas ni observaciones"
     },
     "observations_viewed": {

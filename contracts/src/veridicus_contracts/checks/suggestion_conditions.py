@@ -1,7 +1,7 @@
 """Guardia de las condiciones de C7 (functional-spec FD-U1-13, E35; security-design §4.8, NFR11.5).
 
-C7 debe declarar las cuatro condiciones `if/then` de BR4.4 y llevar un *fixture* negativo por
-cada una. Quitar una condición del esquema, o su *fixture*, deja la suite en rojo. Solo lee.
+C7 debe declarar las cuatro condiciones `if/then` de BR4.4, exigir que `note` y `reformulation`
+no estén vacías (`minLength`), y llevar un *fixture* negativo por cada una de las seis. Quitar una condición del esquema, o su *fixture*, deja la suite en rojo. Solo lee.
 """
 
 from collections.abc import Mapping
@@ -23,6 +23,19 @@ class Condicion(NamedTuple):
     fixture: str
     campo: str
     presente: bool  # el fixture negativo trae el campo (pending) o le falta (resto)
+    vacio: bool = False  # la condición es «no vacío»: el fixture trae el campo con "" (BR4.4)
+
+    def exigencia(self) -> str:
+        """Lo que el fixture negativo debe hacer con su campo."""
+        if self.vacio:
+            return f"traer {self.campo} vacío"
+        return f"{'traer' if self.presente else 'no traer'} {self.campo}"
+
+    def cumple(self, carga: Mapping[str, Any]) -> bool:
+        """La carga del fixture negativo ejerce la condición."""
+        if self.vacio:
+            return carga.get(self.campo) == ""
+        return (self.campo in carga) == self.presente
 
 
 CONDICIONES = (
@@ -30,6 +43,10 @@ CONDICIONES = (
     Condicion("decidida_con_quien", "accepted", "accepted-sin-decided-by.yaml", "decided_by", False),
     Condicion("dismissed_con_nota", "dismissed", "dismissed-sin-note.yaml", "note", False),
     Condicion("edited_con_reformulacion", "edited", "edited-sin-reformulation.yaml", "reformulation", False),
+    Condicion("note_no_vacia", "dismissed", "dismissed-note-vacia.yaml", "note", True, True),
+    Condicion(
+        "reformulation_no_vacia", "edited", "edited-reformulation-vacia.yaml", "reformulation", True, True
+    ),
 )
 
 
@@ -59,6 +76,9 @@ def _declara(esquema: Mapping[str, Any], condicion: Condicion) -> bool:
         return _prohibidos(_bloque(esquema, "pending").get("then")) == {"decided_by", "decided_at"}
     if condicion.nombre == "decidida_con_quien":
         return _requeridos(_bloque(esquema, "pending").get("else")) == {"decided_by", "decided_at"}
+    if condicion.vacio:
+        propiedad = esquema.get("properties", {}).get(condicion.campo, {})
+        return bool(propiedad.get("minLength", 0) >= 1)
     return condicion.campo in _requeridos(_bloque(esquema, condicion.estado).get("then"))
 
 
@@ -72,9 +92,8 @@ def _problemas_del_fixture(condicion: Condicion, fixture: Any) -> list[str]:
     carga = fixture["payload"]
     if carga.get("state") != condicion.estado:
         problemas.append(f"{nombre}: {condicion.fixture} debe tener state {condicion.estado}")
-    if (condicion.campo in carga) != condicion.presente:
-        accion = "traer" if condicion.presente else "no traer"
-        problemas.append(f"{nombre}: {condicion.fixture} debe {accion} {condicion.campo}")
+    if not condicion.cumple(carga):
+        problemas.append(f"{nombre}: {condicion.fixture} debe {condicion.exigencia()}")
     return problemas
 
 

@@ -1,4 +1,4 @@
-"""Guardia de las cuatro condiciones de C7 (BR4.4, E35, NFR11.5) y sus controles negativos.
+"""Guardia de las condiciones de C7 (BR4.4, E35, NFR11.5) y sus controles negativos.
 
 Los controles negativos trabajan sobre copias en memoria o en `tmp_path`, nunca sobre el contrato
 versionado.
@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from helpers import CONTRACTS_ROOT, load_contract
+from helpers import CONTRACTS_ROOT, cargar_fixture, errores_de, load_contract, validador_de
 
 from veridicus_contracts.checks.suggestion_conditions import (
     C7,
@@ -24,7 +24,7 @@ NOMBRES = [c.nombre for c in CONDICIONES]
 
 
 def _documentos() -> tuple[dict[str, Any], dict[str, Any]]:
-    """Copia en memoria de C7 y de sus cuatro fixtures negativos."""
+    """Copia en memoria de C7 y de sus seis fixtures negativos."""
     esquema = copy.deepcopy(load_contract(C7))
     fixtures = {
         c.fixture: copy.deepcopy(load_contract(f"{DIRECTORIO_DE_FIXTURES}/{c.fixture}"))
@@ -33,30 +33,38 @@ def _documentos() -> tuple[dict[str, Any], dict[str, Any]]:
     return esquema, fixtures
 
 
-def _quitar_condicion(esquema: dict[str, Any], nombre: str) -> None:
+def _quitar_condicion(esquema: dict[str, Any], condicion: Any) -> None:
     bloques = esquema["allOf"]
     pending = next(b for b in bloques if b["if"]["properties"]["state"]["const"] == "pending")
-    if nombre == "pending_sin_decision":
+    if condicion.nombre == "pending_sin_decision":
         del pending["then"]
-    elif nombre == "decidida_con_quien":
+    elif condicion.nombre == "decidida_con_quien":
         del pending["else"]
+    elif condicion.vacio:
+        del esquema["properties"][condicion.campo]["minLength"]
     else:
-        estado = "dismissed" if nombre == "dismissed_con_nota" else "edited"
-        bloques[:] = [b for b in bloques if b["if"]["properties"]["state"]["const"] != estado]
+        bloques[:] = [
+            b for b in bloques if b["if"]["properties"]["state"]["const"] != condicion.estado
+        ]
 
 
-def test_c7_versionado_declara_las_cuatro_condiciones_y_tiene_su_fixture_negativo() -> None:
-    assert len(CONDICIONES) == 4
+def test_c7_versionado_declara_las_condiciones_y_cada_fixture_negativo_se_rechaza_por_su_regla() -> None:
+    """Las seis condiciones (cuatro de BR4.4 y las dos de «no vacío») y C7 rechaza cada fixture."""
+    assert len(CONDICIONES) == 6
     assert comprobar(CONTRACTS_ROOT) == []
+    validador = validador_de(C7)
+    for condicion in CONDICIONES:
+        fixture = cargar_fixture(f"{DIRECTORIO_DE_FIXTURES}/{condicion.fixture}", "C7")
+        assert errores_de(validador, fixture["payload"]), condicion.fixture
 
 
-@pytest.mark.parametrize("nombre", NOMBRES)
-def test_c7_sin_una_de_las_condiciones_queda_en_rojo(nombre: str) -> None:
+@pytest.mark.parametrize("condicion", CONDICIONES, ids=NOMBRES)
+def test_c7_sin_una_de_las_condiciones_queda_en_rojo(condicion: Any) -> None:
     esquema, fixtures = _documentos()
     assert comprobar_documentos(esquema, fixtures) == [], "la base debe pasar"
-    _quitar_condicion(esquema, nombre)
+    _quitar_condicion(esquema, condicion)
     problemas = comprobar_documentos(esquema, fixtures)
-    assert problemas == [f"{nombre}: C7 no declara la condición de BR4.4"]
+    assert problemas == [f"{condicion.nombre}: C7 no declara la condición de BR4.4"]
 
 
 @pytest.mark.parametrize("condicion", CONDICIONES, ids=NOMBRES)
@@ -73,7 +81,7 @@ def test_un_fixture_negativo_que_no_ejerce_su_condicion_queda_en_rojo(condicion:
     fixture = fixtures[condicion.fixture]
     fixture["expectation"] = "accept"
     fixture["payload"]["state"] = "pending" if condicion.estado != "pending" else "accepted"
-    if condicion.presente:
+    if condicion.presente and not condicion.vacio:
         del fixture["payload"][condicion.campo]
     else:
         fixture["payload"][condicion.campo] = "x"
@@ -81,8 +89,18 @@ def test_un_fixture_negativo_que_no_ejerce_su_condicion_queda_en_rojo(condicion:
     assert len(problemas) == 3, problemas
     assert "debe rechazarse con reject_reason BR4.4" in problemas[0]
     assert f"debe tener state {condicion.estado}" in problemas[1]
-    accion = "traer" if condicion.presente else "no traer"
-    assert f"debe {accion} {condicion.campo}" in problemas[2]
+    assert f"debe {condicion.exigencia()}" in problemas[2]
+
+
+def test_un_fixture_que_se_rechaza_por_otra_regla_queda_en_rojo() -> None:
+    """F-02: `expectation: reject` con un `reject_reason` distinto de BR4.4 no ejerce la condición."""
+    esquema, fixtures = _documentos()
+    condicion = CONDICIONES[2]
+    fixtures[condicion.fixture]["reject_reason"] = "BR4.1"
+    problemas = comprobar_documentos(esquema, fixtures)
+    assert problemas == [
+        f"{condicion.nombre}: {condicion.fixture} debe rechazarse con reject_reason BR4.4"
+    ]
 
 
 def test_un_fixture_que_no_es_un_fixture_queda_en_rojo() -> None:
@@ -114,7 +132,7 @@ def test_comprobar_informa_de_los_archivos_ausentes_ilegibles_o_mal_formados(tmp
     assert comprobar(tmp_path) == ["C7 no es un objeto JSON"]
     shutil.copy(CONTRACTS_ROOT / C7, tmp_path / C7)
     ausentes = comprobar(tmp_path)
-    assert len(ausentes) == 4
+    assert len(ausentes) == 6
     assert all("falta el fixture negativo" in p for p in ausentes)
     carpeta = tmp_path / DIRECTORIO_DE_FIXTURES
     carpeta.mkdir(parents=True)

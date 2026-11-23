@@ -3,7 +3,11 @@
 `load` se prueba con un `environ` en memoria, nunca con `os.environ`.
 """
 
+import builtins
 import importlib.resources
+import io
+import os
+import socket
 from types import ModuleType
 from typing import Any
 
@@ -140,6 +144,52 @@ def test_el_catalogo_se_lee_una_sola_vez(monkeypatch: pytest.MonkeyPatch) -> Non
 
     monkeypatch.setattr(limits, "load_file", fallar)
     assert limits.load({})["turn_max_chars"] == 20000
+
+
+@pytest.mark.parametrize("valor", ["5abc", "5.", "007.5", ".5", "5.5.5", "5,5", "1e3"])
+def test_un_decimal_mal_formado_es_un_error_de_limites_y_no_un_valueerror(valor: str) -> None:
+    _rechaza({"VERIDICUS_LIMIT_POLL_INTERVAL_S": valor}, "VERIDICUS_LIMIT_POLL_INTERVAL_S")
+
+
+def test_un_decimal_entero_se_devuelve_como_entero() -> None:
+    limits = _limits()
+    efectivo = limits.load({"VERIDICUS_LIMIT_POLL_INTERVAL_ACTIVE_S": "1.0"})["poll_interval_active_s"]
+    assert efectivo == 1
+    assert type(efectivo) is int
+    efectivo = limits.load({"VERIDICUS_LIMIT_POLL_INTERVAL_ACTIVE_S": "1.5"})["poll_interval_active_s"]
+    assert efectivo == 1.5
+    assert type(efectivo) is float
+
+
+def _fallar(*_args: Any, **_kwargs: Any) -> None:
+    raise AssertionError("limits.load no debe tocar archivos, entorno ni red (§4.15)")
+
+
+class _EntornoQueFalla:
+    def __getitem__(self, _clave: str) -> str:
+        return _fallar()  # type: ignore[no-any-return]
+
+    def get(self, *_args: Any) -> str:
+        return _fallar()  # type: ignore[no-any-return]
+
+    def __iter__(self) -> Any:
+        return _fallar()
+
+    def __contains__(self, _clave: object) -> bool:
+        return _fallar()  # type: ignore[no-any-return]
+
+
+def test_load_es_pura_sin_open_ni_entorno_ni_red(monkeypatch: pytest.MonkeyPatch) -> None:
+    limits = _limits()
+    esperado = limits.load({"VERIDICUS_LIMIT_TURN_MAX_CHARS": "10"})
+    with monkeypatch.context() as parche:
+        parche.setattr(builtins, "open", _fallar)
+        parche.setattr(io, "open", _fallar)
+        parche.setattr(os, "environ", _EntornoQueFalla())
+        parche.setattr(os, "getenv", _fallar)
+        parche.setattr(socket, "socket", _fallar)
+        assert limits.load({"VERIDICUS_LIMIT_TURN_MAX_CHARS": "10"}) == esperado
+        assert limits.load({})["turn_max_chars"] == 20000
 
 
 def test_load_no_toca_el_entorno_del_proceso(monkeypatch: pytest.MonkeyPatch) -> None:

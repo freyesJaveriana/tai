@@ -10,8 +10,8 @@
 schema_version: 1.0.0
 limits:
   # U3: sesión web y credenciales (NFR-U3-01)
-  web_session_max_s: {value: 43200, unit: s, owner: U3, used_in: []}
-  web_session_idle_s: {value: 1800, unit: s, owner: U3, used_in: []}
+  web_session_max_s: {value: 43200, unit: s, owner: U3, used_in: [C1]}
+  web_session_idle_s: {value: 1800, unit: s, owner: U3, used_in: [C1]}
   username_max_chars: {value: 32, unit: chars, owner: U3, used_in: [C1]}
   password_max_chars: {value: 128, unit: chars, owner: U3, used_in: [C1]}
   # U4: turnos, corridas y sondeo (NFR-U4-01, -04, -05; NFRD-U7-04)

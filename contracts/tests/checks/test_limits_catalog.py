@@ -337,6 +337,162 @@ def test_una_relacion_rota_en_el_catalogo_se_reporta(nombre: str, valor: int) ->
     assert any(nombre in p and "relación" in p for p in problemas), problemas
 
 
+# ---- mutantes de la ronda 1 (F-01): las listas y fórmulas se fijan con literales de la prueba ----
+
+RELACIONES_DEL_DISENO = [
+    ("fragment_overlap_turns", "<", "fragment_window_turns"),
+    ("retention_min_days", "<=", "retention_max_days"),
+    ("heartbeat_write_min_s", "<", "heartbeat_timeout_s"),
+    ("poll_interval_active_s", "<=", "poll_interval_s"),
+    ("voice_deadline_base_s", "<=", "voice_deadline_max_s"),
+    ("run_deadline_incremental_s", "<=", "run_deadline_final_s"),
+    ("import_file_max_bytes", "<=", "run_message_max_bytes"),
+    ("import_file_max_bytes", "<", "import_body_max_bytes"),
+]
+
+
+@pytest.mark.parametrize("relacion", RELACIONES_DEL_DISENO, ids=lambda r: f"{r[0]}-{r[2]}")
+def test_quitar_una_relacion_obligatoria_del_yaml_se_reporta(relacion: tuple[str, str, str]) -> None:
+    doc = _doc()
+    doc["relations"] = [r for r in doc["relations"] if tuple(r) != relacion]
+    assert len(doc["relations"]) == len(RELACIONES_DEL_DISENO) - 1
+    _con(doc, "obligatoria sin declarar", relacion[0], relacion[2])
+
+
+def test_la_guardia_exige_exactamente_las_relaciones_del_diseno() -> None:
+    assert sorted(_guardia().RELACIONES_OBLIGATORIAS) == sorted(RELACIONES_DEL_DISENO)
+
+
+def test_la_lista_cerrada_de_unidades() -> None:
+    assert _guardia().UNIDADES == frozenset(
+        {"chars", "turns", "bytes", "s", "ms", "deliveries", "suggestions", "words", "ratio", "days", "levels"}
+    )
+
+
+@pytest.mark.parametrize("uso", ["C", "Cx", "C1x", "x1", ""])
+def test_el_patron_de_contrato_exige_digitos(uso: str) -> None:
+    doc = _doc()
+    doc["limits"]["turn_max_chars"]["used_in"] = [uso]
+    _con(doc, "turn_max_chars", "used_in")
+
+
+@pytest.mark.parametrize("dueno", ["U", "Ux", "U1x", "xU1"])
+def test_el_patron_de_dueno_exige_digitos(dueno: str) -> None:
+    doc = _doc()
+    doc["limits"]["turn_max_chars"]["owner"] = dueno
+    _con(doc, "turn_max_chars", "owner")
+
+
+OBLIGATORIAS_DEL_DISENO = [
+    "transcript_body_max_bytes",
+    "import_body_max_bytes",
+    "import_file_max_bytes",
+    "cursor_max_chars",
+    "voice_body_max_bytes",
+    "research_report_read_timeout_s",
+    "audio_max_bytes",
+    "audio_base64_max_chars",
+]
+
+
+@pytest.mark.parametrize("nombre", OBLIGATORIAS_DEL_DISENO)
+def test_cada_cifra_obligatoria_borrada_se_reporta_como_tal(nombre: str) -> None:
+    doc = _doc()
+    del doc["limits"][nombre]
+    _con(doc, f"{nombre}: cifra obligatoria ausente")
+
+
+def test_la_guardia_exige_exactamente_las_cifras_obligatorias() -> None:
+    assert sorted(_guardia().OBLIGATORIAS) == sorted(OBLIGATORIAS_DEL_DISENO)
+
+
+@pytest.mark.parametrize("audio", [6_000_001, 6_000_002, 6_000_003])
+def test_la_formula_de_audio_base64_con_origenes_que_no_son_multiplos_de_3(audio: int) -> None:
+    doc = _doc()
+    doc["limits"]["audio_max_bytes"]["value"] = audio
+    doc["limits"]["audio_base64_max_chars"]["value"] = 4 * -(-audio // 3)
+    doc["limits"]["voice_body_max_bytes"]["value"] = audio + 16384
+    assert _problemas(doc) == []
+    doc["limits"]["audio_base64_max_chars"]["value"] = 4 * (audio // 3)
+    if audio % 3:
+        _con(doc, "audio_base64_max_chars")
+
+
+def test_las_derivadas_siguen_a_su_origen_cuando_este_cambia() -> None:
+    doc = _doc()
+    doc["limits"]["transcript_max_chars"]["value"] = 250_001
+    doc["limits"]["transcript_body_max_bytes"]["value"] = 4 * 250_001 + 4096
+    doc["limits"]["import_file_max_bytes"]["value"] = 2_097_153
+    doc["limits"]["run_message_max_bytes"]["value"] = 2_097_153
+    doc["limits"]["import_body_max_bytes"]["value"] = 2_097_153 + 16384
+    doc["limits"]["audio_max_bytes"]["value"] = 6_000_300
+    doc["limits"]["audio_base64_max_chars"]["value"] = 8_000_400
+    doc["limits"]["voice_body_max_bytes"]["value"] = 6_000_300 + 16384
+    assert _problemas(doc) == []
+
+
+@pytest.mark.parametrize(
+    ("origen", "derivada"),
+    [
+        ("transcript_max_chars", "transcript_body_max_bytes"),
+        ("import_file_max_bytes", "import_body_max_bytes"),
+        ("audio_max_bytes", "voice_body_max_bytes"),
+    ],
+)
+def test_cambiar_solo_el_origen_de_cada_derivada_se_reporta(origen: str, derivada: str) -> None:
+    doc = _doc()
+    doc["limits"][origen]["value"] += 1
+    if origen == "import_file_max_bytes":
+        doc["limits"]["run_message_max_bytes"]["value"] += 1
+    problemas = _problemas(doc)
+    assert any(p.startswith(f"{derivada}: vale") for p in problemas), problemas
+
+
+@pytest.mark.parametrize(
+    "relacion",
+    [
+        ["fragment_overlap_turns", "<", "fragment_window_turns", "extra"],
+        ["fragment_overlap_turns", "<"],
+        [["fragment_overlap_turns"], "<", "fragment_window_turns"],
+        ["fragment_overlap_turns", ["<"], "fragment_window_turns"],
+        ["fragment_overlap_turns", "<", {"a": 1}],
+        [None, None, None],
+        [1, 2, 3],
+    ],
+)
+def test_una_relacion_mal_formada_se_reporta_sin_excepcion(relacion: Any) -> None:
+    doc = _doc()
+    doc["relations"].append(relacion)
+    assert any("relations" in p for p in _problemas(doc))
+
+
+@pytest.mark.parametrize("origen", ["turn_max_chars", "no_existe", "", "cursor_max_chars"])
+def test_derived_from_con_nombre_propio_o_inexistente_lo_reporta_la_forma(origen: str) -> None:
+    doc = _doc()
+    doc["limits"]["cursor_max_chars"]["derived_from"] = origen
+    forma = _guardia().comprobar_forma(doc)
+    if origen == "turn_max_chars":
+        assert forma == []  # nombra otra entrada que existe: lo tapa la etapa de derivadas
+    else:
+        assert any("cursor_max_chars: derived_from debe nombrar otra entrada" in p for p in forma)
+    assert _problemas(doc)
+
+
+def test_derived_from_hacia_un_origen_que_falta_se_reporta_sin_keyerror() -> None:
+    doc = _doc()
+    del doc["limits"]["transcript_max_chars"]
+    forma = _guardia().comprobar_forma(doc)
+    assert any("transcript_body_max_bytes: derived_from debe nombrar" in p for p in forma)
+    assert _problemas(doc) == forma
+
+
+def test_la_etapa_de_derivadas_no_lanza_si_el_origen_falta() -> None:
+    doc = _doc()
+    del doc["limits"]["transcript_max_chars"]
+    doc["limits"]["transcript_body_max_bytes"]["derived_from"] = "audio_max_bytes"
+    assert _guardia().comprobar_catalogo(doc)
+
+
 def test_e33_e37_el_catalogo_alterado_tambien_lo_ve_la_guardia(tmp_path: Path) -> None:
     ruta = tmp_path / "limits.yaml"
     texto = (CONTRACTS_ROOT / CATALOGO).read_text(encoding="utf-8")

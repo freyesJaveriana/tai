@@ -30,6 +30,10 @@ DIRECTORIOS_DE_DATOS = (
     "vendor",
 )
 
+# Archivos sueltos de la raíz de contracts/ que entran como datos (F-12 de U01-T01, T10),
+# por `force-include` de la rueda y por el hook de la instalación editable.
+ARCHIVOS_DE_DATOS = ("limits.v1.yaml",)
+
 # Directorios de la raíz de contracts/ que no se empaquetan como datos.
 NO_EMPAQUETADOS = {"src", "tests", "ts", "fixtures", "build", "dist"}
 
@@ -64,6 +68,11 @@ def test_inventario_del_mapa_coincide_con_el_arbol_y_con_pyproject(contracts_roo
     assert incluidos == {"src/veridicus_contracts", *DIRECTORIOS_DE_DATOS}
     mapa = {k: v for k, v in rueda["sources"].items() if k != "src"}
     assert mapa == {n: f"veridicus_contracts/{n}" for n in DIRECTORIOS_DE_DATOS}
+    # Un archivo suelto no puede ir en include/sources (sources solo reasigna directorios y
+    # include lo duplicaría en la raíz de la rueda): va en force-include.
+    assert rueda["force-include"] == {n: f"veridicus_contracts/{n}" for n in ARCHIVOS_DE_DATOS}
+    for archivo in ARCHIVOS_DE_DATOS:
+        assert (contracts_root / archivo).is_file(), archivo
     assert rueda["sources"]["src"] == ""
     # F-11: la copia editable se refresca por cache-keys; cada directorio necesita el suyo.
     claves = {
@@ -72,6 +81,10 @@ def test_inventario_del_mapa_coincide_con_el_arbol_y_con_pyproject(contracts_roo
         if k["file"].endswith("/**")
     }
     assert claves == set(DIRECTORIOS_DE_DATOS), "cache-keys no coincide con el inventario"
+    sueltas = {
+        k["file"] for k in configuracion["tool"]["uv"]["cache-keys"] if not k["file"].endswith("/**")
+    }
+    assert sueltas == {"pyproject.toml", "hatch_build.py", *ARCHIVOS_DE_DATOS}
 
 
 def test_los_subpaquetes_del_esqueleto_se_importan_con_su_nombre_de_paquete() -> None:
@@ -85,6 +98,15 @@ def test_datos_visibles_con_importlib_resources_en_la_instalacion_editable() -> 
     raiz = importlib.resources.files("veridicus_contracts")
     for nombre in DIRECTORIOS_DE_DATOS:
         assert (raiz / nombre).is_dir(), nombre
+
+
+def test_archivos_sueltos_visibles_con_importlib_resources_en_la_instalacion_editable(
+    contracts_root: Path,
+) -> None:
+    raiz = importlib.resources.files("veridicus_contracts")
+    for nombre in ARCHIVOS_DE_DATOS:
+        leido = (raiz / nombre).read_text(encoding="utf-8")
+        assert leido == (contracts_root / nombre).read_text(encoding="utf-8"), nombre
 
 
 def _construir(contracts_root: Path, tmp_path: Path, argumentos: list[str]) -> set[str]:
@@ -116,6 +138,9 @@ def test_la_rueda_trae_el_mapa_completo_y_sin_fixtures(
             directorio,
             sorted(nombres),
         )
+    for archivo in ARCHIVOS_DE_DATOS:
+        assert f"veridicus_contracts/{archivo}" in nombres, (archivo, sorted(nombres))
+        assert archivo not in nombres, f"{archivo} duplicado en la raíz de la rueda"
 
 
 def test_las_dos_vias_de_construccion_dan_la_misma_rueda(

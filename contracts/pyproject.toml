@@ -34,7 +34,7 @@ dev = [
 # que entran a la rueda como datos con la misma ruta relativa (include + sources:
 # hatchling aplica exclude, a diferencia de force-include). `uv build` y
 # `uv build --wheel` dan la misma rueda y los fixtures no se empaquetan.
-# Un directorio de datos nuevo se añade a include, a sources y a la prueba de
+# Un directorio de datos nuevo se añade a include, a sources, a cache-keys y a la prueba de
 # inventario (tests/test_package_map.py). veridicus_contracts no tiene
 # __init__.py (paquete de espacios de nombres): es lo que permite a
 # importlib.resources unir src/veridicus_contracts/ con la copia editable de los
@@ -80,11 +80,19 @@ dev-mode-dirs = ["src"]
 "ui" = "veridicus_contracts/ui"
 "vendor" = "veridicus_contracts/vendor"
 
+# Archivos sueltos de la raíz de contracts/ (F-12 de U01-T01). `sources` solo reasigna
+# directorios (hatchling normaliza sus claves con una barra final) y `include` de un archivo
+# lo dejaría también en la raíz de la rueda; `force-include` lo coloca bajo el paquete.
+# Un archivo suelto nuevo va aquí, a cache-keys y a ARCHIVOS_DE_DATOS de tests/test_package_map.py.
+[tool.hatch.build.targets.wheel.force-include]
+"limits.v1.yaml" = "veridicus_contracts/limits.v1.yaml"
+
 # La copia editable de los datos se rehace cuando cambia un archivo de datos.
 [tool.uv]
 cache-keys = [
     { file = "pyproject.toml" },
     { file = "hatch_build.py" },
+    { file = "limits.v1.yaml" },
     { file = "analyzer/**" },
     { file = "api/**" },
     { file = "cli/**" },

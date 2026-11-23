@@ -161,7 +161,7 @@ Per unit: [TBD]
 - [x] functional-design — EXECUTE
 - [x] nfr-requirements — EXECUTE
 - [x] nfr-design — EXECUTE
-- [-] infrastructure-design — EXECUTE
+- [?] infrastructure-design — EXECUTE
 - [ ] code-generation — EXECUTE
 - [ ] build-and-test — EXECUTE
 - [ ] ci-pipeline — SKIP
@@ -180,7 +180,7 @@ Per unit: [TBD]
 - **Current Stage**: infrastructure-design
 - **Next Stage**: code-generation
 - **Status**: Running
-- **Last Updated**: 2026-11-23T02:03:03Z
+- **Last Updated**: 2026-11-23T03:39:45Z
 
 - **Construction Autonomy Mode**: gated
 

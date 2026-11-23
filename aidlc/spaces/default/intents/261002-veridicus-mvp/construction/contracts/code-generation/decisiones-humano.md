@@ -1,0 +1,29 @@
+# Decisiones del humano antes de la Parte 2 — U1 contracts
+
+**Fecha:** 2026-11-23. **Origen:** el triage de las precisiones pendientes, que se hizo después de `Approve Plan`.
+
+## Decisiones
+
+| ID | Tema | Decisión | Efecto en el plan aprobado |
+|---|---|---|---|
+| C-3 | `PATCH /sessions/{session_id}/analysis` (NFR-U6-03, NFRD-U6-02) | Se confirma, con respuesta `202` | Deja de estar abierta (PD-3). Entra en C1 en el paso 16 |
+| D-1 | `GET /notice` (FD-U4-08) | Pública, sin sesión; solo devuelve el texto versionado del aviso | Deja de estar abierta (PD-3). Entra en la lista pública de C1 en el paso 16, con su motivo |
+| D-3 | NFRD-U3-09 | Queda decidida por D-1 | Ninguno |
+| D-2 | FD-U1-14 | Opción (b): un tramo entre «» que es solo un término prohibido **sí** se escanea. FD-U11-20 queda resuelta con esta misma decisión | Deja de estar abierta (PD-3). C8 (`excluded_spans`) y sus casos de escaneo la reflejan en el paso 13 |
+
+## Precisiones que el agente resuelve sin preguntar
+
+Las fuentes aprobadas ya las deciden.
+
+| ID | Resolución |
+|---|---|
+| C-1 | FD-U11-03 y FD-U8-01 se unen siguiendo a FD-U8-01: `observaciones_conductor` lo arma el módulo de U8 dentro de la biblioteca, solo en modo incremental |
+| C-2 | FD-U3-01 y NFR-U5-03 se unen en un solo texto de AC5.4.4 |
+| C-4 | `connectionLimit` de `veridicus_app` es 30 (IDS-U4-03, `project.md`); IDS-U2-14 queda superada |
+| NFR-U11-10 | La cifra N = 300 s no se lleva a `team.md`, que remite esa cifra a NFR Requirements |
+
+## Cómo se llevan las precisiones a sus originales
+
+- **Ahora, en commits propios, antes del código de U1:** `inception/contract-design/contract-summary.md` y `inception/domain-design/components.md`.
+- **Con cada Bolt:** los demás originales de Inception y los artefactos de Construction de cada unidad se ponen al día como tarea previa de ese Bolt.
+- **`team.md`:** las filas que le tocan, más el cambio a «`aidlc/` y `docs/` también por PR» (protección total de P0.1), se proponen como aprendizajes en la aprobación de Code Generation.

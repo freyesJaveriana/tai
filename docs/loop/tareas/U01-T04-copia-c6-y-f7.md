@@ -126,7 +126,9 @@ F7 se escribe como una función que recibe los bytes de los dos esquemas y el te
 
 ## Notas
 
-- Archivos que se **modifican en su sitio**: `contracts/tests/conftest.py` (añadir F7 sin romper la resolución de rutas de T01).
+- Archivos que se **modifican en su sitio**: `contracts/tests/conftest.py` (añadir F7 sin romper la resolución de rutas de T01) y `contracts/tests/helpers.py`.
+- **F-05 de la ronda 1 de U01-T03 entra aquí:** `helpers._uri_natural` repite la regla de URI del registro. Con T02b fusionada, debe usar la función del registro (`registry._uri_de` o la pública que exista), sin regla propia (BR12.3).
+- Supuesto de T03 para esta tarea: una función `check_c6_copy(carpeta: Path) -> list[str]` en `conftest`, compatible con F7 en `pytest_sessionstart`. Úsala si encaja; si no, explícalo en la bitácora.
 - La copia llega con la forma que fijó el TG. Si un `$id` o un `$ref` canónico no se resuelve con el registro de T02, el codificador para y lo informa: no se adapta la copia, se revisa el registro o se lleva al humano.
 - F-11: corre siempre con `uv run` y nunca con `--no-sync`.
 - Conventional Commits en español con alcance `contracts`, por ejemplo `test(contracts): F7 comprueba la copia del contrato común (T04)`. El commit de copia es del humano.

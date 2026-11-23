@@ -228,10 +228,10 @@ misma ola no dependen entre sí.
 
 Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contract, PD-5).
 
-- [ ] Formato de *fixture* (§4.10): YAML o JSON con `fixture_id`, `contract`, `synthetic: true`,
+- [x] Formato de *fixture* (§4.10): YAML o JSON con `fixture_id`, `contract`, `synthetic: true`,
   `expectation: accept|reject`, `reject_reason` (ID de regla, obligatorio en `reject`), `mentions` y
   `payload`. Catálogo `contracts/fixtures/synthetic-names.yaml` con nombres y lugares inventados.
-- [ ] *Fixtures* de datos, uno por escenario como mínimo:
+- [x] *Fixtures* de datos, uno por escenario como mínimo:
   - C6 `analyzer/v1/fixtures/`: salida válida; E5 `estado: error` con un hallazgo (BR3.6); E7
     `is_truthful` en un hallazgo (BR3.1, BR3.3); E8 `tipo: falso` (BR3.2); hallazgo sin cada uno de
     `hecho`, `tipo`, `cita_a`, `cita_b`, `observaciones` (BR3.1); E19 `origen: corpus` sin consentimiento
@@ -248,24 +248,24 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   - C19 `cli/fixtures/`: válido; E28 papel `prueba_a` (BR10.2); E29 frase en `model` y en
     `price_table_version` (BR10.1).
   - C21 `api/fixtures/anonymizer-proxy/`: válido; con `destination`; con `api_key_ref` (NFR1.3).
-- [ ] `tests/contracts/test_analyzer_copy.py`, `test_queue_messages.py`, `test_review_suggestion.py`,
+- [x] `tests/contracts/test_analyzer_copy.py`, `test_queue_messages.py`, `test_review_suggestion.py`,
   `test_profiles_contract.py`, `test_cli_report.py`, `test_anonymizer_proxy.py`, `test_model_call.py`:
   cargan cada *fixture*, validan contra su contrato y exigen aceptar o rechazar **por su**
   `reject_reason` (NFR10.10, F1).
-- [ ] `tests/helpers.py`: `load_contract(path)` convierte un contrato ausente en `pytest.fail("contrato
+- [x] `tests/helpers.py`: `load_contract(path)` convierte un contrato ausente en `pytest.fail("contrato
   ausente: <ruta>")`, para que el rojo sea un fallo y no un error; marcadores por contrato de PD-8
   registrados en `pyproject.toml` (`--strict-markers`).
-- [ ] `tests/guards/test_autonomia_03.py`: ningún nombre de propiedad, parámetro, enum o rótulo con un
+- [x] `tests/guards/test_autonomia_03.py`: ningún nombre de propiedad, parámetro, enum o rótulo con un
   término de C8 o de `categories_forbidden_in_schemas` (BR3.3); enum de C6 iguales en C1, C7 y C19
   (BR3.2); C8 con exactamente sus 9 términos (BR5.1); exactamente nueve rótulos (BR6.1–BR6.3); 0
   operaciones de C1 que escriban perfiles, proveedores, *prompts*, precios o límites, con control E15
   (`PUT /profiles`) (BR7.1, AC8.3.1); C7 con quién y cuándo (BR4.4).
-- [ ] `tests/guards/test_autonomia_04.py`: `servers` internos en C1, C16, C21, ruta interna de voz y
+- [x] `tests/guards/test_autonomia_04.py`: `servers` internos en C1, C16, C21, ruta interna de voz y
   AsyncAPI, con control de C21 con `https://api.openai.com` (NFR1.1); `AnonymizingProvider` con un solo
   `generate` (BR9.9, NFR1.2); C21 estricto (NFR1.3); C19 sin texto libre (NFR1.4).
-- [ ] `tests/guards/test_autonomia_05.py`: C6 rechaza el hallazgo sin cada campo obligatorio y la salida
+- [x] `tests/guards/test_autonomia_05.py`: C6 rechaza el hallazgo sin cada campo obligatorio y la salida
   `error` con hallazgos (BR3.1, BR3.6); C7 rechaza los *fixtures* de E9; F7 detecta E18 (BR1.7).
-- [ ] Correr y guardar la salida en rojo en la bitácora de la tarea.
+- [x] Correr y guardar la salida en rojo en la bitácora de la tarea.
 - Cubre: definición de terminado 2–5 de B1; AC3.2.1, AC3.6.2, AC5.5.3, AC8.3.1, AC12.6.1, AC13.3.1,
   AC15.4.7; BR1.2, BR1.3, BR1.7, BR2.1, BR2.3, BR3.1–BR3.6, BR4.1–BR4.4, BR5.1, BR6.1–BR6.3, BR7.1,
   BR9.3, BR9.9, BR10.1, BR10.2; NFR1.1–NFR1.4, NFR10.2, NFR10.8, NFR10.10, NFR11.3–NFR11.5. Fuera:

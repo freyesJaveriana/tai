@@ -28,14 +28,51 @@ dev = [
     "yamllint>=1.35",
 ]
 
-# Mapa de rutas de functional-spec §1 (D1, D15). Los directorios de datos y los
-# módulos de python/ aparecen en src/veridicus_contracts/ como enlaces simbólicos
-# versionados, así que la instalación editable y la rueda ven el mismo paquete
-# (hatchling no admite en modo editable un `sources` que cambie de prefijo, y
-# `exclude` no se aplica a `force-include`). Los fixtures no se empaquetan.
+# Mapa de rutas de functional-spec §1 (D1, D15). La rueda parte del árbol real de
+# contracts/ con include + sources (hatchling aplica exclude, a diferencia de
+# force-include): `uv build` y `uv build --wheel` dan la misma rueda y los
+# fixtures no se empaquetan. dev-mode-dirs fuerza la instalación editable simple,
+# porque con un `sources` que cambia de prefijo hatchling no admite otra; en
+# desarrollo, src/veridicus_contracts/__init__.py expone python/ y los datos.
+# Un directorio de datos nuevo se añade a include, a sources y a la prueba de
+# inventario (tests/test_package_map.py).
 [tool.hatch.build.targets.wheel]
-packages = ["src/veridicus_contracts"]
+include = [
+    "/src/veridicus_contracts",
+    "/python",
+    "/analyzer",
+    "/api",
+    "/cli",
+    "/errors",
+    "/format",
+    "/health",
+    "/integrity",
+    "/metrics",
+    "/model_calls",
+    "/profiles",
+    "/queues",
+    "/transcript",
+    "/ui",
+]
 exclude = ["fixtures"]
+dev-mode-dirs = ["src"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+"python" = "veridicus_contracts"
+"analyzer" = "veridicus_contracts/analyzer"
+"api" = "veridicus_contracts/api"
+"cli" = "veridicus_contracts/cli"
+"errors" = "veridicus_contracts/errors"
+"format" = "veridicus_contracts/format"
+"health" = "veridicus_contracts/health"
+"integrity" = "veridicus_contracts/integrity"
+"metrics" = "veridicus_contracts/metrics"
+"model_calls" = "veridicus_contracts/model_calls"
+"profiles" = "veridicus_contracts/profiles"
+"queues" = "veridicus_contracts/queues"
+"transcript" = "veridicus_contracts/transcript"
+"ui" = "veridicus_contracts/ui"
 
 [tool.mypy]
 strict = true

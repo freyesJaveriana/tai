@@ -96,6 +96,37 @@ def test_un_id_absoluto_solo_se_admite_bajo_vendor(tmp_path: Path) -> None:
     assert registro.get_or_retrieve("https://json-schema.org/draft/2020-12/schema").value
 
 
+RELATIVOS = Path(__file__).resolve().parent / "data" / "registro_relativo"
+EJEMPLO_A = BASE_URI + "veridicus/contracts/ejemplo/v1/a"
+EJEMPLO_B = BASE_URI + "veridicus/contracts/ejemplo/v1/b"
+
+
+def test_un_id_relativo_sin_barra_se_registra_bajo_la_base() -> None:
+    registro = build_registry(RELATIVOS)
+    recurso = registro.get_or_retrieve(EJEMPLO_A).value
+    assert recurso.contents["$id"] == "veridicus/contracts/ejemplo/v1/a"
+
+
+def test_una_referencia_hacia_un_id_relativo_se_resuelve_y_valida() -> None:
+    validador = validator_for(build_registry(RELATIVOS), EJEMPLO_B)
+    assert validador.is_valid({"cita": {"texto": "hola"}})
+    assert not validador.is_valid({"cita": {"texto": 5}})
+    assert not validador.is_valid({"cita": {"texto": "hola", "extra": 1}})
+
+
+def test_un_id_relativo_que_sale_de_la_base_se_rechaza(tmp_path: Path) -> None:
+    for identificador in ("../x", "a/../../x", "//example.com/x"):
+        _esquema(tmp_path / "a.schema.json", {"$id": identificador})
+        with pytest.raises(ValueError, match=r"\$id"):
+            build_registry(tmp_path)
+
+
+def test_un_id_absoluto_ajeno_fuera_de_vendor_sigue_rechazado(tmp_path: Path) -> None:
+    _esquema(tmp_path / "a.schema.json", {"$id": "https://example.com/x"})
+    with pytest.raises(ValueError, match="vendor"):
+        build_registry(tmp_path)
+
+
 def test_sin_raiz_usa_los_datos_del_paquete_incluido_vendor() -> None:
     registro = build_registry()
     meta = registro.get_or_retrieve("https://json-schema.org/draft/2020-12/schema")

@@ -1,7 +1,7 @@
 """Registro de esquemas de los contratos (functional-spec §4.2, BR12.3, FD-U1-11).
 
 Recorre los archivos `*.schema.json` y registra cada uno bajo `https://veridicus.invalid/`
-más su `$id`, sin tocar el archivo. Toda referencia entre esquemas usa el `$id` del destino
+más su `$id` (relativo, con o sin barra inicial), sin tocar el archivo. Toda referencia entre esquemas usa el `$id` del destino
 como ruta absoluta (BR12.3). Los meta-esquemas de `vendor/` se registran bajo su propio
 `$id` absoluto. El dominio `.invalid` está reservado y nunca se consulta por red, y la
 función de recuperación del registro rechaza cualquier URI que no esté registrada
@@ -12,7 +12,7 @@ import importlib.resources
 from collections.abc import Iterator
 from importlib.resources.abc import Traversable
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
@@ -48,11 +48,16 @@ def _uri_de(archivo: Traversable, contenido: Any, en_vendor: bool) -> str:
         raise LoadError(f"{archivo.name}: el esquema no tiene $id de texto")
     if not isinstance(contenido.get("$schema", ""), str):
         raise LoadError(f"{archivo.name}: $schema debe ser texto")
-    if identificador.startswith("/"):
-        return urljoin(BASE_URI, identificador)
-    if en_vendor:
-        return identificador
-    raise LoadError(f"{archivo.name}: un $id absoluto solo se admite bajo vendor/: {identificador}")
+    partes = urlsplit(identificador)
+    if partes.scheme:
+        if en_vendor:
+            return identificador
+        raise LoadError(
+            f"{archivo.name}: un $id absoluto solo se admite bajo vendor/: {identificador}"
+        )
+    if partes.netloc or ".." in partes.path.split("/"):
+        raise LoadError(f"{archivo.name}: el $id relativo sale de la base: {identificador}")
+    return urljoin(BASE_URI, identificador)
 
 
 def build_registry(raiz: Traversable | None = None) -> Registry[Any]:

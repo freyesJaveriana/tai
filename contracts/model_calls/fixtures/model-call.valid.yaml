@@ -1,0 +1,15 @@
+# BR9.1: el papel es una cadena con patrón; `prueba_a` se acepta.
+fixture_id: model-call-valid
+contract: model-call
+synthetic: true
+expectation: accept
+mentions: []
+payload:
+  role: prueba_a
+  provider: local
+  model: modelo-prueba-a
+  input_tokens: 100
+  output_tokens: 12
+  fallback_provider: false
+  anonymized: false
+  at: "2026-11-23T15:00:00Z"

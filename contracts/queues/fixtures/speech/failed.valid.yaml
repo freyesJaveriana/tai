@@ -1,0 +1,11 @@
+# NFRD-U1-07: entrada de veridicus:audio:failed con solo message_id, turn_id, attempt y code.
+fixture_id: c5-failed-valid
+contract: C5.AudioFailed
+synthetic: true
+expectation: accept
+mentions: []
+payload:
+  message_id: 55555555-aaaa-4bbb-8ccc-000000000005
+  turn_id: 66666666-aaaa-4bbb-8ccc-000000000006
+  attempt: 2
+  code: analysis.system

@@ -1,0 +1,24 @@
+# BR2.3: la `salida` no cumple C6 (falta `registro`); el resultado es inválido.
+fixture_id: c3-result-salida-no-cumple-c6
+contract: C3.RunResult
+synthetic: true
+expectation: reject
+reject_reason: BR2.3
+mentions: []
+payload:
+  schema_version: "2.0.0"
+  message_id: 44444444-aaaa-4bbb-8ccc-000000000004
+  run_id: 22222222-aaaa-4bbb-8ccc-000000000002
+  attempt: 1
+  salida:
+    contrato: "1.0.0"
+    analizador: incoherencias
+    version: "0.1.0"
+    entrevista: SINT-0001
+    prompt_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12
+    perfil: todo-local
+    config_sha256: cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34
+    fecha: "2026-11-23T15:00:00Z"
+    estado: ok
+    hallazgos: []
+  finished_at: "2026-11-23T15:00:30Z"

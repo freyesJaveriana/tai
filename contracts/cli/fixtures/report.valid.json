@@ -1,0 +1,32 @@
+{
+  "fixture_id": "c19-report-valid",
+  "contract": "C19",
+  "synthetic": true,
+  "expectation": "accept",
+  "mentions": [],
+  "payload": {
+    "schema_version": "2.0.0",
+    "kind": "run",
+    "origin": "local",
+    "blocking": false,
+    "analyzer_version": "0.1.0",
+    "contract_version": "1.0.0",
+    "profile_name": "todo-local",
+    "config_sha256": "b22a9783ba236cb406fd82682080d1646d0e4aa0986f933af8df08ca32787553",
+    "prompt_sha256": "ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12",
+    "created_at": "2026-11-23T15:00:00Z",
+    "runs": [
+      {
+        "interview_sha256": "ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56ef56",
+        "status": "ok",
+        "findings": 1,
+        "discards": {"cita_no_verificada": 1},
+        "calls": [
+          {"role": "judge", "provider": "local", "model": "modelo-juez-prueba", "input_tokens": 1200, "output_tokens": 140, "fallback_provider": false, "anonymized": false, "at": "2026-11-23T14:59:50Z"},
+          {"role": "verifier_permuted", "provider": "local", "model": "modelo-verificador-prueba", "input_tokens": 600, "output_tokens": 20, "fallback_provider": false, "anonymized": false, "at": "2026-11-23T14:59:55Z"}
+        ]
+      }
+    ],
+    "totals": {"input_tokens": 1800, "output_tokens": 160, "estimated_cost": 0, "price_table_version": "2026-11"}
+  }
+}

@@ -1,0 +1,27 @@
+# E2 (BR1.2): versión mayor 3.0.0 que el consumidor 2.x no conoce.
+fixture_id: c2-run-mayor-desconocido
+contract: C2.RunRequested
+synthetic: true
+expectation: reject
+reject_reason: BR1.2
+mentions: [Villa Rocamora]
+payload:
+  schema_version: "3.0.0"
+  message_id: 11111111-aaaa-4bbb-8ccc-000000000001
+  run_id: 22222222-aaaa-4bbb-8ccc-000000000002
+  session_id: 33333333-aaaa-4bbb-8ccc-000000000003
+  attempt: 1
+  effective_config: {schema_version: "1.0.0", analyzer_version: "0.1.0", profile_name: todo-local, profile: {purpose: demonstration, roles: {judge: {provider: local, model: modelo-juez-prueba, family: familia-a, scope: local, base_url: "http://veridicus-llm-judge:8080"}, verifier: {provider: local, model: modelo-verificador-prueba, family: familia-a, scope: local, base_url: "http://veridicus-llm-verifier:8080"}}, role_aliases: {verifier_permuted: verifier}, permutation: true, same_family_declared: true}, profile_sha256: d53a44b5d42ef2504d2f77ee2302bae86e7099536d6945908507f35b9ca3a50e, prompt_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12, limits: {model_call_timeout_s: 120, run_deadline_incremental_s: 300, run_deadline_final_s: 900, fragment_window_turns: 40, fragment_overlap_turns: 10}}
+  config_sha256: b22a9783ba236cb406fd82682080d1646d0e4aa0986f933af8df08ca32787553
+  entrada:
+    contrato: "1.0.0"
+    transcripcion:
+      entrevista: SINT-0003
+      origen: sintetico
+      turnos:
+        - {n: 1, hablante: ENT, texto: "¿Dónde pasó usted la noche del suceso?"}
+        - {n: 2, hablante: TEST, texto: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana."}
+    modo: final
+    perfil: todo-local
+  enqueued_at: "2026-11-23T15:00:00Z"
+  deadline_at: "2026-11-23T15:15:00Z"

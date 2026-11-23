@@ -1,0 +1,11 @@
+# NFRD-U1-07: entrada de veridicus:results:failed con solo message_id, run_id, attempt y code.
+fixture_id: c3-failed-valid
+contract: C3.ResultFailed
+synthetic: true
+expectation: accept
+mentions: []
+payload:
+  message_id: 44444444-aaaa-4bbb-8ccc-000000000004
+  run_id: 22222222-aaaa-4bbb-8ccc-000000000002
+  attempt: 1
+  code: analysis.invalid_output

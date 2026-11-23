@@ -1,0 +1,18 @@
+# E9 (BR4.1): `cita_b` vacía (sin texto ni turno).
+fixture_id: c7-vacio-cita-b
+contract: C7
+synthetic: true
+expectation: reject
+reject_reason: BR4.1
+mentions: [Villa Rocamora]
+payload:
+  suggestion_id: 88888888-aaaa-4bbb-8ccc-000000000008
+  session_id: 33333333-aaaa-4bbb-8ccc-000000000003
+  first_run_id: 22222222-aaaa-4bbb-8ccc-000000000002
+  hecho: Lugar donde pasó la noche del suceso
+  tipo: lugar
+  cita_a: {cita: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana.", turno: T2}
+  cita_b: {}
+  observaciones: Las dos citas ubican la noche del suceso en lugares distintos.
+  state: pending
+  observations_viewed: false

@@ -1,0 +1,12 @@
+# Catálogo de nombres y lugares inventados para los fixtures (NFR12.1, BR1.6, security-design §4.10).
+# Ninguno corresponde a una persona, un lugar ni un expediente reales. Todo fixture que mencione un
+# nombre o un lugar en `mentions` debe tomarlo de aquí y hacerlo aparecer en su texto.
+schema_version: "1.0.0"
+personas:
+  - Aurelio Benavides
+  - Casilda Roncancio
+  - Eufrasio Mendivelso
+lugares:
+  - Villa Rocamora
+  - Puerto Altamira
+  - Cañada del Sauce

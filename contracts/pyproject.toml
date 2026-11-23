@@ -124,7 +124,22 @@ extend-select = ["S"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--disable-socket --cov=veridicus_contracts --cov-branch --cov-fail-under=80"
+addopts = "--strict-markers --disable-socket --cov=veridicus_contracts --cov-branch --cov-fail-under=80"
+# Un marcador por contrato (PD-8) para acotar las pruebas con -m.
+markers = [
+    "c1: API de la consola (C1)",
+    "c6: contrato común del analizador (C6)",
+    "c7: sugerencia de revisión (C7)",
+    "c8: vocabulario prohibido, aclaraciones y aviso (C8)",
+    "c13: tipos de llamadas a modelos y puerta única (C13)",
+    "c16: salud de cada servicio (C16)",
+    "c18: perfiles de ejecución y configuración efectiva (C18)",
+    "c19: reporte de la CLI (C19)",
+    "c21: anonymizer-proxy por HTTP (C21)",
+    "labels: catálogo de rótulos de resultado",
+    "speech: ruta interna de voz",
+    "asyncapi: mensajes de cola C2, C3 y C5 (AsyncAPI)",
+]
 
 [tool.coverage.run]
 branch = true

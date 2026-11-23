@@ -1,0 +1,13 @@
+fixture_id: c5-transcript-valid
+contract: C5.TranscriptResult
+synthetic: true
+expectation: accept
+mentions: [Villa Rocamora]
+payload:
+  schema_version: "1.2.0"
+  message_id: 77777777-aaaa-4bbb-8ccc-000000000007
+  turn_id: 66666666-aaaa-4bbb-8ccc-000000000006
+  attempt: 1
+  outcome: transcribed
+  text: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana."
+  model_digest: modelo-voz-prueba

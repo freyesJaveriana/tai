@@ -1,0 +1,19 @@
+# NFR1.3: quien llama no puede elegir clave; un campo `api_key_ref` se rechaza.
+fixture_id: c21-request-with-api-key-ref
+contract: C21.request
+synthetic: true
+expectation: reject
+reject_reason: NFR1.3
+mentions: []
+payload:
+  schema_version: "1.0.0"
+  run_id: 22222222-aaaa-4bbb-8ccc-000000000002
+  profile_name: comercial-piloto
+  profile_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12
+  role: judge
+  destination_slot: primary
+  api_key_ref: VERIDICUS_CLAVE_PRUEBA
+  messages:
+    - {role: user, content: "Texto seudonimizado de prueba."}
+  schema: {type: object}
+  timeout_s: 120

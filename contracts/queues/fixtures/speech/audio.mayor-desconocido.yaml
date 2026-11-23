@@ -1,0 +1,17 @@
+# BR1.2: versión mayor 2.0.0 que el consumidor 1.x no conoce.
+fixture_id: c5-audio-mayor-desconocido
+contract: C5.AudioToTranscribe
+synthetic: true
+expectation: reject
+reject_reason: BR1.2
+mentions: []
+payload:
+  schema_version: "2.0.0"
+  message_id: 55555555-aaaa-4bbb-8ccc-000000000005
+  turn_id: 66666666-aaaa-4bbb-8ccc-000000000006
+  session_id: 33333333-aaaa-4bbb-8ccc-000000000003
+  attempt: 1
+  audio_format: wav
+  audio_base64: UklGRgAAAAA=
+  retain_audio: false
+  deadline_at: "2026-11-23T15:15:00Z"

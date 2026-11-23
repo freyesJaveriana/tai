@@ -1,0 +1,1 @@
+"""Comprobaciones transversales (módulos guardia)."""

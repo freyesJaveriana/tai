@@ -28,18 +28,19 @@ dev = [
     "yamllint>=1.35",
 ]
 
-# Mapa de rutas de functional-spec §1 (D1, D15). La rueda parte del árbol real de
-# contracts/ con include + sources (hatchling aplica exclude, a diferencia de
-# force-include): `uv build` y `uv build --wheel` dan la misma rueda y los
-# fixtures no se empaquetan. dev-mode-dirs fuerza la instalación editable simple,
-# porque con un `sources` que cambia de prefijo hatchling no admite otra; en
-# desarrollo, src/veridicus_contracts/__init__.py expone python/ y los datos.
+# Mapa de rutas de functional-spec §1 con PD-9 (D1, D15): los módulos viven en
+# src/veridicus_contracts/; los esquemas y catálogos, en directorios de contracts/
+# que entran a la rueda como datos con la misma ruta relativa (include + sources:
+# hatchling aplica exclude, a diferencia de force-include). `uv build` y
+# `uv build --wheel` dan la misma rueda y los fixtures no se empaquetan.
 # Un directorio de datos nuevo se añade a include, a sources y a la prueba de
-# inventario (tests/test_package_map.py).
+# inventario (tests/test_package_map.py). veridicus_contracts no tiene
+# __init__.py (paquete de espacios de nombres): es lo que permite a
+# importlib.resources unir src/veridicus_contracts/ con la copia editable de los
+# datos (hatch_build.py). Los módulos nuevos van en src/veridicus_contracts/.
 [tool.hatch.build.targets.wheel]
 include = [
     "/src/veridicus_contracts",
-    "/python",
     "/analyzer",
     "/api",
     "/cli",
@@ -57,9 +58,11 @@ include = [
 exclude = ["fixtures"]
 dev-mode-dirs = ["src"]
 
+[tool.hatch.build.hooks.custom]
+# hatch_build.py: copia de los datos del mapa solo en la instalación editable.
+
 [tool.hatch.build.targets.wheel.sources]
 "src" = ""
-"python" = "veridicus_contracts"
 "analyzer" = "veridicus_contracts/analyzer"
 "api" = "veridicus_contracts/api"
 "cli" = "veridicus_contracts/cli"
@@ -74,10 +77,33 @@ dev-mode-dirs = ["src"]
 "transcript" = "veridicus_contracts/transcript"
 "ui" = "veridicus_contracts/ui"
 
+# La copia editable de los datos se rehace cuando cambia un archivo de datos.
+[tool.uv]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "hatch_build.py" },
+    { file = "analyzer/**" },
+    { file = "api/**" },
+    { file = "cli/**" },
+    { file = "errors/**" },
+    { file = "format/**" },
+    { file = "health/**" },
+    { file = "integrity/**" },
+    { file = "metrics/**" },
+    { file = "model_calls/**" },
+    { file = "profiles/**" },
+    { file = "queues/**" },
+    { file = "transcript/**" },
+    { file = "ui/**" },
+]
+
 [tool.mypy]
 strict = true
 python_version = "3.12"
 mypy_path = "src"
+# veridicus_contracts es un paquete de espacios de nombres (sin __init__.py): los
+# nombres de módulo se toman de mypy_path.
+explicit_package_bases = true
 
 [tool.ruff]
 target-version = "py312"

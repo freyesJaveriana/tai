@@ -356,10 +356,11 @@ def test_e28_br1_1_la_cubren_dos_fixtures_reject_de_la_cola_de_corridas(guardia:
     }
 
 
-VERSION_SEMANTICA = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
+VERSION_SEMANTICA = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)")
 
 
 MAYOR_DEL_ID = re.compile(r"[./]v([0-9]+)$")
+MAYOR_DEL_NOMBRE = re.compile(r"\.v([0-9]+)\.[A-Za-z]+$")
 
 
 def _version_del_encabezado(documento: Any) -> Any:
@@ -381,15 +382,23 @@ def _version_del_encabezado(documento: Any) -> Any:
     return None
 
 
-def _tiene_version_semantica(documento: Any) -> bool:
-    """MAYOR.MENOR.PARCHE y, en un esquema con `$id`, una mayor igual al `.vN` o `/vN` de su `$id`."""
+def _tiene_version_semantica(documento: Any, ruta: str = "") -> bool:
+    """MAYOR.MENOR.PARCHE y las mayores que el contrato declara en su nombre.
+
+    En un esquema con `$id`, la mayor es la del `.vN` o `/vN` de su `$id`. Además (K-57, E-33), en todo
+    contrato cuyo nombre de archivo lleve `.vN`, la mayor es la de ese nombre.
+    """
     version = _version_del_encabezado(documento)
     if not isinstance(version, str) or VERSION_SEMANTICA.fullmatch(version) is None:
+        return False
+    mayor_declarada = version.split(".")[0]
+    en_nombre = MAYOR_DEL_NOMBRE.search(ruta.rsplit("/", 1)[-1])
+    if en_nombre is not None and en_nombre.group(1) != mayor_declarada:
         return False
     if "$id" not in documento:
         return True
     mayor = MAYOR_DEL_ID.search(str(documento["$id"]))
-    return mayor is not None and mayor.group(1) == version.split(".")[0]
+    return mayor is not None and mayor.group(1) == mayor_declarada
 
 
 def test_e28_el_control_de_la_version_detecta_la_falta_y_la_forma_rota() -> None:
@@ -434,8 +443,29 @@ def test_e28_todo_contrato_propio_declara_su_version_semantica_en_el_encabezado(
         if legible and not ruta.startswith("analyzer/")
     ]
     assert len(propios) >= 30, "la prueba no pasa en vacío"
-    sin_version = [ruta for ruta, documento in propios if not _tiene_version_semantica(documento)]
+    sin_version = [ruta for ruta, documento in propios if not _tiene_version_semantica(documento, ruta)]
     assert sin_version == [], "contratos propios sin versión semántica en el encabezado"
+
+
+def test_k57_la_mayor_de_la_version_es_la_del_nombre_del_archivo() -> None:
+    """K-57 (E-33): la mayor coincide con el `.vN` del nombre, no solo con el `$id`; sin ceros a la izquierda."""
+    # La forma buena: la mayor del nombre y la de la versión coinciden, con o sin `$id`.
+    assert _tiene_version_semantica({"info": {"version": "2.0.0"}}, "queues/speech.v2.yaml")
+    assert _tiene_version_semantica({"schema_version": "1.0.0"}, "limits.v1.yaml")
+    assert _tiene_version_semantica({"$id": "veridicus/contracts/x.v2", "x-veridicus-version": "2.0.1"}, "x.v2.json")
+    # Un nombre sin `.vN` no impone mayor, y la ruta vacía tampoco.
+    assert _tiene_version_semantica({"$id": "veridicus/contracts/x.v1", "x-veridicus-version": "1.0.0"}, "x.schema.json")
+    assert _tiene_version_semantica({"info": {"version": "1.2.0"}})
+    # Controles negativos: copias en memoria con la mayor distinta de la del nombre.
+    assert not _tiene_version_semantica({"info": {"version": "1.2.0"}}, "queues/speech.v2.yaml")
+    assert not _tiene_version_semantica(
+        {"$id": "veridicus/contracts/x.v1", "x-veridicus-version": "1.0.0"}, "contracts/x.v2.json"
+    )
+    # Ceros a la izquierda: no son versión semántica.
+    for cero in ("01.0.0", "1.00.0", "1.0.01", "00.0.0"):
+        assert not _tiene_version_semantica({"info": {"version": cero}}, ""), cero
+    assert _tiene_version_semantica({"info": {"version": "0.0.0"}})
+    assert _tiene_version_semantica({"info": {"version": "10.20.30"}})
 
 
 # F-01 de la ronda 3 (E-31): lista exacta de `REGLAS`, con cada regla (también las NFR, que la unión de las

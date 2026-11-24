@@ -19,12 +19,21 @@ MENSAJE_F7 = (
 )
 ESQUEMAS_C6 = ("entrada.schema.json", "salida.schema.json")
 
+# Huellas SHA-256 de los bytes de la copia aprobada de C6 (R-04, E-32). Solo cambian con un cambio de
+# contrato aprobado en el repositorio principal, es decir, con una v2 nueva; nunca porque un PR
+# recalcule `SHA256SUMS`.
+HUELLAS_APROBADAS_C6 = {
+    "entrada.schema.json": "28606016b51dd19d873e7ee8fae7d959f0a98c225ab2690d0fd935296c3c41a8",
+    "salida.schema.json": "e1528b7de1db9b5a3ca8c6f3e8eacb0eeec92522423014d6644ab39918bedeaf",
+}
+
 
 def check_c6_copy(carpeta: Path) -> list[str]:
     """F7 (BR1.7): comprueba la copia de C6 en `carpeta`; lista vacía si es la aprobada.
 
     Exige `SHA256SUMS` de exactamente dos líneas, el SHA-256 de los bytes de cada esquema igual
-    a su línea y `contrato: { const: "1.0.0" }` en los dos. Solo lee; nunca escribe.
+    a su línea y a su huella aprobada (`HUELLAS_APROBADAS_C6`), cada línea de `SHA256SUMS` igual a
+    esa huella y `contrato: { const: "1.0.0" }` en los dos. Solo lee; nunca escribe.
     """
     problemas: list[str] = []
     try:
@@ -44,8 +53,13 @@ def check_c6_copy(carpeta: Path) -> list[str]:
         except OSError as error:
             problemas.append(f"{nombre} ilegible: {error}")
             continue
-        if hashlib.sha256(datos).hexdigest() != esperadas.get(nombre):
+        huella = hashlib.sha256(datos).hexdigest()
+        if huella != esperadas.get(nombre):
             problemas.append(f"{nombre}: su SHA-256 no coincide con SHA256SUMS")
+        if huella != HUELLAS_APROBADAS_C6[nombre]:
+            problemas.append(f"{nombre}: su SHA-256 no es el de la versión aprobada")
+        if esperadas.get(nombre) != HUELLAS_APROBADAS_C6[nombre]:
+            problemas.append(f"{nombre}: su línea de SHA256SUMS no es la huella de la versión aprobada")
         try:
             contrato = json.loads(datos)["properties"]["contrato"]
         except (ValueError, KeyError, TypeError):

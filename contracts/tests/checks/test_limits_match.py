@@ -477,7 +477,8 @@ def test_comprobar_con_contratos_ausentes_o_ilegibles(guardia: ModuleType, tmp_p
         destino = tmp_path / relativa
         destino.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(CONTRACTS_ROOT / relativa, destino)
-    sin_esquemas = [r for r in guardia.ESQUEMAS_ESTRICTOS if r not in guardia.ARCHIVOS]
+    estrictos = importar_o_fallar("veridicus_contracts.checks.strict_bodies", "T15, paso 16")
+    sin_esquemas = [r for r in estrictos.ESQUEMAS_ESTRICTOS if r not in guardia.ARCHIVOS]
     assert sin_esquemas
     assert sorted(guardia.comprobar(tmp_path)) == sorted(
         f"{r}: contrato ausente (§4.4)" for r in sin_esquemas

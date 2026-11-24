@@ -46,6 +46,8 @@ const SOLO_PYTHON: Record<string, string> = {};
 // Archivos de `fixtures/` que no son fixtures de contrato (no llevan `contract` y `expectation`).
 const NO_SON_FIXTURES = new Set(["fixtures/synthetic-names.yaml", "fixtures/jcs-vectors.json"]);
 
+const RECUENTO_DE_PYTHON = 67;
+
 interface Fixture {
   fixture_id: string;
   contract: string;
@@ -117,7 +119,10 @@ describe("verdicts: la lista de fixtures", () => {
       else if (!NO_SON_FIXTURES.has(archivo)) sueltos.push(archivo);
     }
     expect(sueltos).toEqual([]);
-    expect(fixtures).toBeGreaterThan(0);
+    // F-04: recuento de Python (`fixtures(Path('.'))` de checks/fixture_coverage.py) fijado a mano; un
+    // fixture nuevo exige subirlo aquí y que Python lo cuente igual.
+    expect(fixtures).toBe(RECUENTO_DE_PYTHON);
+    expect(archivos).toHaveLength(RECUENTO_DE_PYTHON + NO_SON_FIXTURES.size);
     // El recuento de esta mitad se compara a mano con el de Python en la bitácora (CA-3).
     console.info(`verdicts: ${fixtures} fixtures de contrato en ${archivos.length} archivos`);
   });

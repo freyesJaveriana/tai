@@ -5,7 +5,7 @@ import http from "node:http";
 import https from "node:https";
 import net from "node:net";
 
-export const MENSAJE_SIN_RED = "red bloqueada por el setup de las pruebas (NFR10.4)";
+import { MENSAJE_SIN_RED } from "./sin-red";
 
 function bloqueada(): never {
   throw new Error(MENSAJE_SIN_RED);

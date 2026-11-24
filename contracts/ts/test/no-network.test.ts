@@ -5,9 +5,15 @@ import http from "node:http";
 import https from "node:https";
 import net from "node:net";
 import { describe, expect, it } from "vitest";
-import { MENSAJE_SIN_RED } from "./setup-no-network";
+import config from "../vitest.config";
+import { MENSAJE_SIN_RED } from "./sin-red";
 
+// Esta prueba NO importa el setup: solo ve el bloqueo si `setupFiles` lo carga (F-01).
 describe("sin red", () => {
+  it("vitest.config.ts carga el setup sin red en setupFiles", () => {
+    expect(config.test?.setupFiles).toContain("test/setup-no-network.ts");
+  });
+
   it("un fetch de control lanza el error del setup", async () => {
     await expect(async () => fetch("https://veridicus.invalid/")).rejects.toThrow(MENSAJE_SIN_RED);
   });

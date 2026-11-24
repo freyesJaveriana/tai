@@ -59,7 +59,7 @@ limits:
   # U10: anonimizador (NFR-U10-01 a -03)
   anonymizer_request_max_bytes: {value: 2097152, unit: bytes, owner: U10, used_in: [C21]}
   anonymizer_masking_budget_ratio: {value: 0.15, unit: ratio, owner: U10, used_in: []}
-  anonymizer_response_max_bytes: {value: 2097152, unit: bytes, owner: U10, used_in: []}
+  anonymizer_response_max_bytes: {value: 2097152, unit: bytes, owner: U10, used_in: [C21]}
   # U11: analizador (NFR-U11-05, -06)
   model_call_timeout_s: {value: 3600, unit: s, owner: U11, used_in: []}
   run_deadline_incremental_s: {value: 1200, unit: s, owner: U11, used_in: []}
@@ -68,7 +68,7 @@ limits:
   fragment_overlap_turns: {value: 20, unit: turns, owner: U11, used_in: []}
   model_response_max_bytes: {value: 2097152, unit: bytes, owner: U11, used_in: []}
   # U12: reportes del investigador (NFR-U12-01; NFRD-U12-02)
-  research_report_max_bytes: {value: 8388608, unit: bytes, owner: U12, used_in: []}
+  research_report_max_bytes: {value: 8388608, unit: bytes, owner: U12, used_in: [C1]}
   research_report_max_json_depth: {value: 8, unit: levels, owner: U12, used_in: []}
   research_report_write_timeout_s: {value: 15, unit: s, owner: U12, used_in: []}
   research_report_read_timeout_s: {value: 30, unit: s, owner: U12, used_in: []}

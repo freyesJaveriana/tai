@@ -245,6 +245,10 @@ REGLAS_CON_CODIGO: dict[str, tuple[tuple[str, str], ...]] = {
         ("tests/guards/test_autonomia_03.py", "test_c8_tiene_exactamente_los_terminos_aprobados"),
         ("tests/checks/test_veracity.py", "test_c8_con_un_termino_nuevo_o_repetido_da_br51"),
     ),
+    "BR8.2": (
+        ("tests/checks/test_metrics.py", "test_una_metrica_sin_prefijo_o_con_forma_rota_es_rojo"),
+        ("tests/checks/test_metrics.py", "test_una_etiqueta_sin_values_o_de_texto_libre_es_rojo"),
+    ),
     "BR8.1": (
         (_CONSOLA, "test_toda_fecha_tiene_el_formato_unico_con_el_mismo_patron"),
         (_CONSOLA, "test_las_fechas_reales_pasan_y_las_imposibles_o_con_otra_forma_no"),

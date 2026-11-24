@@ -12,20 +12,33 @@ Módulo guardia (100 % de ramas). Comprueba, sobre los contratos ya cargados:
 - las entradas de mensajes fallidos de C2, C3 y C5: esquema estricto y sin campos de texto libre
   (NFRD-U1-07, NFR-U4-07, NFR-U9-03).
 
-Un objeto es un esquema con `type: object` o con `properties`. Se recorren `properties`, `items`,
-`prefixItems`, `allOf`, `anyOf`, `oneOf` y `$defs`; las condiciones `if/then/else` no declaran
-objetos propios. Las referencias locales se siguen y las de otro contrato se dejan a la guardia de
-ese contrato. Los mensajes dicen dónde falla y qué regla, nunca copian un valor del contrato.
+Un objeto es un esquema con `type: object` (o una lista de tipos que lo incluye) o con
+`properties`. Se baja por todo subesquema (`_openapi.hijas`): `properties`, `$defs`,
+`patternProperties`, `items`, `prefixItems`, `additionalProperties` cuando es un esquema, `allOf`,
+`anyOf`, `oneOf`, `if`, `then` y `else`. Las referencias locales se siguen y las de otro contrato
+se dejan a la guardia de ese contrato.
+
+Un objeto está cerrado con `additionalProperties: false`, con `unevaluatedProperties: false` o, solo
+si los valores también son un esquema que la guardia revisa, con `propertyNames.enum` (P-T15-1). Una
+rama de `allOf`, `if`, `then` o `else` que solo trae `properties` refina al objeto padre únicamente
+si el padre está cerrado y declara cada propiedad de la rama; en cualquier otro caso es un objeto
+abierto. En `anyOf` y `oneOf` no hay refinamiento: cada rama es un objeto (P-T15-2). Los objetos
+abiertos que un contrato admite a propósito están en `ABIERTOS_ADMITIDOS`, cada uno con su motivo
+(E-13). Los mensajes dicen dónde falla y qué regla, nunca copian un valor del contrato.
 """
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 from veridicus_contracts.checks._openapi import (
+    REFINA,
     cargar,
     cuerpos,
+    es_tipo,
     escapar,
+    hijas,
     objeto,
     operaciones,
     resolver,
@@ -53,59 +66,84 @@ FALLIDOS = {
 }
 ACOTADO = ("maxLength", "pattern", "format", "enum", "const")
 TEXTO_LIBRE = ("pattern", "format", "enum", "const")
-SIN_ESQUEMAS_HIJOS = ("items",)
-LISTAS_DE_ESQUEMAS = ("prefixItems", "allOf", "anyOf", "oneOf")
-MAPAS_DE_ESQUEMAS = ("properties", "$defs")
+C21 = "api/anonymizer-proxy.v1.yaml"
+# E-13: los únicos objetos abiertos admitidos, por (contrato, sitio en la operación). C21 lleva en
+# `schema` el esquema de salida que pide el llamador y en `content` la salida del modelo; ninguno
+# de los dos tiene forma propia que cerrar. Cada entrada nueva se justifica en el PR.
+ABIERTOS_ADMITIDOS = {
+    (C21, "POST /v1/generate /requestBody/application/json/properties/schema"): (
+        "es el esquema de salida del llamador (JSON Schema): su forma la fija cada análisis"
+    ),
+    (C21, "POST /v1/generate /responses/200/application/json/properties/content"): (
+        "es la salida del modelo, validada después contra el esquema de salida del llamador"
+    ),
+}
 
-
-def _hijas(esquema: dict[str, Any], puntero: str) -> Iterator[tuple[Any, str, bool]]:
-    """Los subesquemas por los que se baja: (esquema, puntero, ¿refina al objeto padre?)."""
-    for clave in MAPAS_DE_ESQUEMAS:
-        for nombre, hija in objeto(esquema.get(clave)).items():
-            yield hija, f"{puntero}/{clave}/{escapar(nombre)}", False
-    for clave in SIN_ESQUEMAS_HIJOS:
-        yield esquema.get(clave), f"{puntero}/{clave}", False
-    for clave in LISTAS_DE_ESQUEMAS:
-        for indice, hija in enumerate(esquema.get(clave, [])):
-            yield hija, f"{puntero}/{clave}/{indice}", clave != "prefixItems"
+Nodo = tuple[dict[str, Any], str, bool]
+SIN_PADRE: Mapping[str, Any] = MappingProxyType({})
 
 
 def _recorrer(
-    raiz: Any, esquema: Any, puntero: str, vistos: set[int], refina: bool = False
-) -> Iterator[tuple[dict[str, Any], str, bool]]:
-    """Cada esquema alcanzable, resuelto, con su puntero; una vez por esquema."""
+    raiz: Any,
+    esquema: Any,
+    puntero: str,
+    vistos: set[int],
+    anfitrion: Mapping[str, Any] = SIN_PADRE,
+    papel: str = "",
+) -> Iterator[Nodo]:
+    """Cada esquema alcanzable, resuelto, con su puntero; una vez por esquema.
+
+    El tercer valor dice si el esquema es un refinamiento válido del objeto al que se aplica, su
+    anfitrión (P-T15-2). Las ramas de `allOf`, `if`, `then` y `else` se aplican al mismo objeto
+    que su padre: si el padre es a su vez una de ellas, el anfitrión es el del padre.
+    """
     esquema = resolver(raiz, esquema)
     if not isinstance(esquema, dict) or id(esquema) in vistos:
         return
     vistos.add(id(esquema))
-    yield esquema, puntero, refina
-    for hija, sitio, refina_a_su_padre in _hijas(esquema, puntero):
-        yield from _recorrer(raiz, hija, sitio, vistos, refina_a_su_padre)
+    yield esquema, puntero, papel == REFINA and _refina(esquema, anfitrion)
+    propio = anfitrion if papel == REFINA else esquema
+    for hija, sitio, papel_de_hija in hijas(esquema, puntero):
+        yield from _recorrer(raiz, hija, sitio, vistos, propio, papel_de_hija)
 
 
-def _esta_cerrado(nodo: dict[str, Any]) -> bool:
-    """`additionalProperties` o `unevaluatedProperties` en `false`, o claves cerradas por un `enum`."""
+def _refina(rama: Mapping[str, Any], anfitrion: Mapping[str, Any]) -> bool:
+    """Una rama sin `type` con `properties` que el anfitrión cerrado ya declara lo refina."""
+    if "type" in rama or "properties" not in rama or not _esta_cerrado(anfitrion):
+        return False
+    declaradas = objeto(anfitrion.get("properties"))
+    return all(nombre in declaradas for nombre in objeto(rama["properties"]))
+
+
+def _esta_cerrado(nodo: Mapping[str, Any]) -> bool:
+    """`additionalProperties` o `unevaluatedProperties` en `false`, o claves cerradas por un `enum`.
+
+    Con `propertyNames.enum` los valores deben ser un esquema no vacío (P-T15-1); `_recorrer` baja
+    a revisarlo.
+    """
+    valores = nodo.get("additionalProperties")
     return (
-        nodo.get("additionalProperties") is False
+        valores is False
         or nodo.get("unevaluatedProperties") is False
-        or "enum" in objeto(nodo.get("propertyNames"))
+        or ("enum" in objeto(nodo.get("propertyNames")) and isinstance(valores, dict) and bool(valores))
     )
 
 
 def _objetos_abiertos(raiz: Any, esquema: Any) -> Iterator[str]:
     """Los punteros de los objetos que no están cerrados.
 
-    Un objeto es un esquema con `type: object` o con `properties`; una rama de `allOf`, `anyOf` o
-    `oneOf` que solo trae `properties` refina al objeto padre y no declara uno nuevo.
+    Un objeto es un esquema con `type: object` o con `properties`; una rama de `allOf`, `if`,
+    `then` o `else` que solo trae `properties` refina al objeto padre y no declara uno nuevo solo
+    en las condiciones de `_refina`.
     """
     for nodo, puntero, refina in _recorrer(raiz, esquema, "", set()):
-        es_objeto = nodo.get("type") == "object" or ("properties" in nodo and not refina)
-        if es_objeto and not _esta_cerrado(nodo):
+        es_objeto = es_tipo(nodo, "object") or "properties" in nodo
+        if es_objeto and not refina and not _esta_cerrado(nodo):
             yield puntero
 
 
 def _parte_sin_acotar(parte: dict[str, Any]) -> bool:
-    es_texto = parte.get("type") == "string" and parte.get("format") != "binary"
+    es_texto = es_tipo(parte, "string") and parte.get("format") != "binary"
     return es_texto and not any(clave in parte for clave in ACOTADO)
 
 
@@ -143,19 +181,20 @@ def comprobar_openapi_interno(nombre: str, documento: Any) -> list[str]:
     """C21 o la ruta de voz: todos los objetos de la petición y de las respuestas son cerrados."""
     problemas: list[str] = []
     for ruta, metodo, operacion in operaciones(documento):
-        donde = f"{nombre}: {metodo.upper()} {ruta}"
-        for medio, _, esquema in cuerpos(documento, operacion):
-            problemas.extend(
-                f"{donde} /requestBody/{medio}{p}: objeto sin additionalProperties: false ({REGLA})"
-                for p in _objetos_abiertos(documento, esquema)
-            )
+        operacion_en_texto = f"{metodo.upper()} {ruta}"
+        sitios: list[tuple[str, Any]] = [
+            (f"/requestBody/{medio}", esquema) for medio, _, esquema in cuerpos(documento, operacion)
+        ]
         for estado, respuesta in objeto(operacion.get("responses")).items():
             for medio, contenido in objeto(objeto(respuesta).get("content")).items():
-                problemas.extend(
-                    f"{donde} /responses/{estado}/{medio}{p}: objeto sin additionalProperties: "
-                    f"false ({REGLA})"
-                    for p in _objetos_abiertos(documento, objeto(contenido).get("schema"))
-                )
+                sitios.append((f"/responses/{estado}/{medio}", objeto(contenido).get("schema")))
+        for lugar, esquema in sitios:
+            problemas.extend(
+                f"{nombre}: {operacion_en_texto} {lugar}{p}: objeto sin additionalProperties: "
+                f"false ({REGLA})"
+                for p in _objetos_abiertos(documento, esquema)
+                if (nombre, f"{operacion_en_texto} {lugar}{p}") not in ABIERTOS_ADMITIDOS
+            )
     return problemas
 
 
@@ -171,7 +210,7 @@ def comprobar_fallidos(nombre: str, documento: Any, mensaje: str) -> list[str]:
     ]
     for campo, hija in objeto(esquema.get("properties")).items():
         propiedad = objeto(resolver(documento, hija))
-        if propiedad.get("type") == "string" and not any(c in propiedad for c in TEXTO_LIBRE):
+        if es_tipo(propiedad, "string") and not any(c in propiedad for c in TEXTO_LIBRE):
             problemas.append(
                 f"{nombre}: {mensaje}: {campo} es un campo de texto libre ({REGLA_FALLIDOS})"
             )

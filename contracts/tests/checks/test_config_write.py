@@ -117,8 +117,8 @@ def test_los_parametros_de_nivel_de_ruta_valen_para_cada_escritura_de_la_ruta(
     guardia: ModuleType,
 ) -> None:
     documento = _c1()
-    ruta = documento["paths"]["/users/{user_id}"]
-    assert "get" in ruta and "patch" in ruta
+    ruta = documento["paths"]["/users"]
+    assert "get" in ruta and "post" in ruta
     ruta["parameters"] = [
         {"name": "price_limit", "in": "query", "schema": {"type": "integer"}},
         {"$ref": "#/components/parameters/ProveedorQuery"},
@@ -126,11 +126,11 @@ def test_los_parametros_de_nivel_de_ruta_valen_para_cada_escritura_de_la_ruta(
     documento["components"]["parameters"]["ProveedorQuery"] = {"name": "provider", "in": "query"}
     # La lectura de la misma ruta puede nombrarlos; la escritura no.
     assert guardia.comprobar_documento(documento) == [
-        "PATCH /users/{user_id}: nombra «price» en un parámetro (BR7.1)",
-        "PATCH /users/{user_id}: nombra «provider» en un parámetro (BR7.1)",
+        "POST /users: nombra «price» en un parámetro (BR7.1)",
+        "POST /users: nombra «provider» en un parámetro (BR7.1)",
     ]
     sin_parametros = _c1()
-    sin_parametros["paths"]["/users/{user_id}"]["parameters"] = "no es una lista"
+    sin_parametros["paths"]["/users"]["parameters"] = "no es una lista"
     assert guardia.comprobar_documento(sin_parametros) == []
 
 

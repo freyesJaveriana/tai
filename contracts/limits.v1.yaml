@@ -15,7 +15,7 @@ limits:
   username_max_chars: {value: 32, unit: chars, owner: U3, used_in: [C1]}
   password_max_chars: {value: 128, unit: chars, owner: U3, used_in: [C1]}
   # U4: turnos, corridas y sondeo (NFR-U4-01, -04, -05; NFRD-U7-04)
-  turn_max_chars: {value: 20000, unit: chars, owner: U4, used_in: [C1, C2, C5]}
+  turn_max_chars: {value: 20000, unit: chars, owner: U4, used_in: [C1, C5]}
   session_body_max_bytes: {value: 32768, unit: bytes, owner: U4, used_in: [C1]}
   transcript_max_turns: {value: 2000, unit: turns, owner: U4, used_in: []}
   transcript_max_chars: {value: 250000, unit: chars, owner: U4, used_in: []}

@@ -22,7 +22,8 @@ from veridicus_contracts.checks._openapi import cargar, es_problem, objeto, oper
 from veridicus_contracts.loaders import load_file
 
 CODE = re.compile(r"^[a-z][a-z_]*\.[a-z][a-z_]*$")
-# Un `code` dentro de un texto (la descripción de una respuesta).
+# Un token con la forma de un `code` dentro de un texto (la descripción de una respuesta). Solo
+# cuenta si su dominio (lo que va antes del punto) existe en el catálogo (P-T15-4): «e.g.» no.
 CODE_EN_TEXTO = re.compile(r"\b[a-z][a-z_]*\.[a-z][a-z_]*\b")
 # Claves de los contratos bajo las que se nombra un `code` del catálogo (C2, C3, C5, C21...);
 # `ErrorCode` es el esquema cuyo `enum` los lista en C1.
@@ -235,13 +236,15 @@ def comprobar_respuestas(
     `exigir_problem`, toda 4xx y 5xx debe ser una referencia a `Problem` (C1).
     """
     problemas: list[str] = []
+    dominios = {code.split(".")[0] for code in catalogo}
     for ruta, metodo, operacion in operaciones(documento):
         for clave, respuesta in objeto(operacion.get("responses")).items():
             estado = str(clave)
             donde = f"{nombre}: {metodo.upper()} {ruta} {estado}"
             descripcion = objeto(respuesta).get("description")
             texto = descripcion if isinstance(descripcion, str) else ""
-            for code in dict.fromkeys(CODE_EN_TEXTO.findall(texto)):
+            citados = [c for c in CODE_EN_TEXTO.findall(texto) if c.split(".")[0] in dominios]
+            for code in dict.fromkeys(citados):
                 entrada = catalogo.get(code)
                 if entrada is None:
                     problemas.append(f"{donde}: el code {code} no está en el catálogo (BR7.2, E44)")

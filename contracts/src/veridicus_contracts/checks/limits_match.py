@@ -5,10 +5,11 @@ interna de voz, y comprueba contra `limits.v1.yaml`:
 
 - (a) todo campo de texto libre de un cuerpo de C1 o de C21 (salvo que el `requestBody` declare
   `x-veridicus-max-bytes`, que lo acota) y de un mensaje de C2 o C5 lleva su `x-veridicus-limit`;
+  se busca bajo todo subesquema (`_openapi.hijas`) y `type` puede ser una lista con `string`;
   la ruta interna de voz queda fuera de (a): su `tema` no necesita marca (K-15);
 - (b) el valor del contrato (`maxLength`, `maxItems`) es igual al del catálogo;
-- (c) la unidad es coherente con la palabra clave (`chars` con `maxLength`, `turns` con `maxItems`,
-  `bytes` con `x-veridicus-max-bytes`, `s` con las cifras de la cookie);
+- (c) la unidad es coherente con la palabra clave (`chars` con `maxLength`, `turns` o `runs` con
+  `maxItems`, `bytes` con `x-veridicus-max-bytes`, `s` con las cifras de la cookie);
 - todo `maxLength` y `maxItems` lleva su marca, y toda marca de `x-veridicus-limit` acompaña a una
   de las dos palabras (K-16);
 - comprobación inversa: toda entrada con `used_in: [Cn]` aparece marcada al menos una vez en `Cn`,
@@ -24,9 +25,12 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 from veridicus_contracts.checks._openapi import (
+    DEFINICION,
     cargar,
     cuerpos,
+    es_tipo,
     escapar,
+    hijas,
     objeto,
     operaciones,
     resolver,
@@ -47,7 +51,12 @@ CONTRATOS: dict[str, tuple[str, ...]] = {
 ARCHIVOS = tuple(archivo for archivos in CONTRATOS.values() for archivo in archivos)
 CON_CUERPOS_DE_PETICION = ("C1", "C21")  # (a) en los cuerpos de petición
 CON_MENSAJES = ("C2", "C5")  # (a) en los mensajes de cola
-PALABRAS = (("maxLength", "chars"), ("maxItems", "turns"))
+# Palabra clave -> unidades del catálogo con las que es coherente (§4.4 c). `runs` mide las corridas
+# de un reporte (P-T15b-1).
+PALABRAS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("maxLength", ("chars",)),
+    ("maxItems", ("turns", "runs")),
+)
 ACOTADO = ("enum", "const", "format", "pattern")
 COOKIE = ("max_age_limit", "idle_limit")
 
@@ -111,9 +120,9 @@ def _de_marca(catalogo: Mapping[str, Any], marca: Marca) -> Iterator[str]:
             yield (
                 f"{donde}: la marca {marca.nombre} no acompaña a maxLength ni a maxItems ({REGLA})"
             )
-        for palabra, unidad in presentes:
-            if entrada.get("unit") != unidad:
-                yield _unidad(donde, marca.nombre, unidad, palabra)
+        for palabra, unidades in presentes:
+            if entrada.get("unit") not in unidades:
+                yield _unidad(donde, marca.nombre, " o ".join(unidades), palabra)
             if marca.nodo[palabra] != entrada.get("value"):
                 yield f"{donde}: valor distinto del catálogo C25 ({marca.nombre}, {REGLA} b)"
     else:
@@ -135,12 +144,12 @@ def _textos_libres(raiz: Any, esquema: Any, puntero: str, vistos: set[int]) -> I
     if not isinstance(esquema, dict) or id(esquema) in vistos:
         return
     vistos.add(id(esquema))
-    es_libre = esquema.get("type") == "string" and not any(c in esquema for c in ACOTADO)
+    es_libre = es_tipo(esquema, "string") and not any(c in esquema for c in ACOTADO)
     if es_libre and "x-veridicus-limit" not in esquema:
         yield puntero
-    for nombre, hija in objeto(esquema.get("properties")).items():
-        yield from _textos_libres(raiz, hija, f"{puntero}/properties/{escapar(nombre)}", vistos)
-    yield from _textos_libres(raiz, esquema.get("items"), f"{puntero}/items", vistos)
+    for hija, sitio, papel in hijas(esquema, puntero):
+        if papel != DEFINICION:  # los `$defs` se alcanzan por su `$ref`
+            yield from _textos_libres(raiz, hija, sitio, vistos)
 
 
 def _texto_de_cuerpos(archivo: str, documento: Any) -> Iterator[str]:

@@ -44,7 +44,12 @@ def test_cuerpo_json_sin_estrictez_en_la_raiz_o_anidado(guardia: ModuleType) -> 
     cambiado = copy.deepcopy(original)
     del _cuerpo_json(cambiado, "/users", "post")["additionalProperties"]
     cambiado["components"]["schemas"]["Consent"]["additionalProperties"] = True
+    # Con `Consent` abierto, sus condiciones `if` ya no refinan a un objeto cerrado (P-T15-2).
     assert sorted(_nuevos(guardia.comprobar_c1, original, cambiado)) == [
+        ("api/console.v2.yaml: POST /sessions /requestBody/application/json/properties/"
+        "consentimiento/allOf/0/if: objeto sin additionalProperties: false (§4.3)"),
+        ("api/console.v2.yaml: POST /sessions /requestBody/application/json/properties/"
+        "consentimiento/allOf/1/if: objeto sin additionalProperties: false (§4.3)"),
         ("api/console.v2.yaml: POST /sessions /requestBody/application/json/properties/"
         "consentimiento: objeto sin additionalProperties: false (§4.3)"),
         ("api/console.v2.yaml: POST /users /requestBody/application/json: objeto sin "
@@ -320,6 +325,20 @@ def test_if_then_else_refinan_con_las_mismas_condiciones_que_allof(guardia: Modu
         **{"else": {"properties": {"x": {}}}},
     )
     assert _abiertos(guardia, mal) == [_aviso("/else"), _aviso("/if"), _aviso("/then")]
+
+
+def test_las_condiciones_anidadas_en_una_rama_se_aplican_al_mismo_objeto_anfitrion(
+    guardia: ModuleType,
+) -> None:
+    anidada = {"if": {"properties": {"a": {"const": "x"}}}, "then": {"properties": {"b": {}}}}
+    assert _abiertos(guardia, _padre(allOf=[anidada])) == []
+    sin_declarar = {"if": {"properties": {"a": {}}}, "then": {"properties": {"z": {}}}}
+    assert _abiertos(guardia, _padre(allOf=[sin_declarar])) == [_aviso("/allOf/0/then")]
+    # Una rama de oneOf es un objeto nuevo: sus propias condiciones se miden contra ella.
+    rama = {**CERRADO, "properties": {"c": {}}, "if": {"properties": {"c": {}}}}
+    assert _abiertos(guardia, _padre(oneOf=[rama])) == []
+    ajena = {**CERRADO, "properties": {"c": {}}, "if": {"properties": {"a": {}}}}
+    assert _abiertos(guardia, _padre(oneOf=[ajena])) == [_aviso("/oneOf/0/if")]
 
 
 def test_en_oneof_y_anyof_cada_rama_es_un_objeto_que_debe_cerrarse(guardia: ModuleType) -> None:

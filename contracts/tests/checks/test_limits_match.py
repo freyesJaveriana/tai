@@ -85,6 +85,9 @@ def test_la_unidad_debe_ser_coherente_con_la_palabra_clave(guardia: ModuleType) 
         ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
         "properties/password: la unidad de password_max_chars debe ser turns o runs con maxItems "
         "(§4.4 c)"),
+        # T15b (E-15) marcó `TranscriptResult.text` con turn_max_chars.
+        ("queues/speech.v2.yaml: /components/messages/TranscriptResult/payload/properties/text: la "
+        "unidad de turn_max_chars debe ser chars con maxLength (§4.4 c)"),
     ]
 
 
@@ -166,6 +169,18 @@ def test_un_texto_sin_tope_dentro_de_una_forma_de_subesquema_es_rojo(
 
     esperados = [f"{CONSOLA}: {BASE}{sitio}: {TEXTO}" for sitio in sitios]
     assert _nuevos(guardia, cambiar) == esperados
+
+
+def test_un_def_solo_cuenta_si_alguien_lo_referencia(guardia: ModuleType) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        propiedades = _propiedades_de_crear_usuario(documentos)
+        propiedades["con_defs"] = {"type": "object", "$defs": {"suelto": {"type": "string"}}}
+        propiedades["via_ref"] = {"$ref": "#/components/schemas/Suelto"}
+        documentos[CONSOLA]["components"]["schemas"]["Suelto"] = {"type": "string"}
+
+    assert _nuevos(guardia, cambiar) == [
+        f"{CONSOLA}: {BASE[: -len('nota')]}via_ref: {TEXTO}",
+    ]
 
 
 def test_un_texto_acotado_dentro_de_una_forma_de_subesquema_no_es_rojo(

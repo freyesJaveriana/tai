@@ -3,7 +3,8 @@
 Módulo guardia (100 % de ramas). Sustituye a `checks/threshold.py`, retirado con el cambio 01 (el
 umbral de similitud salió): comprueba que ninguna operación `POST`, `PUT`, `PATCH` o `DELETE` de
 `api/console.v2.yaml` nombra perfiles, proveedores, *prompts*, precios ni límites (ni sus formas en
-español) en la ruta, en un parámetro o en el cuerpo, sin distinguir mayúsculas ni tildes. La
+español) en la ruta, en un parámetro (de la ruta o de la operación) o en el cuerpo, bajo todo
+subesquema, sin distinguir mayúsculas ni tildes. La
 excepción explícita es `profile_name`, que elige un perfil al crear o importar una sesión y no lo
 escribe. Las lecturas (`GET`) pueden nombrarlos. Control negativo: E15 (`PUT /profiles`).
 
@@ -15,7 +16,16 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-from veridicus_contracts.checks._openapi import cargar, cuerpos, objeto, operaciones, resolver
+from veridicus_contracts.checks._openapi import (
+    DEFINICION,
+    PROPIEDAD,
+    cargar,
+    cuerpos,
+    hijas,
+    objeto,
+    operaciones,
+    resolver,
+)
 
 CONTRATO = "api/console.v2.yaml"
 REGLA = "BR7.1"
@@ -32,8 +42,6 @@ TERMINOS = (
     "limite",
 )
 EXCEPCION = "profile_name"
-CLAVES_CON_ESQUEMAS = ("items", "additionalProperties")
-CLAVES_CON_LISTA_DE_ESQUEMAS = ("allOf", "anyOf", "oneOf")
 
 
 def _normalizar(texto: str) -> str:
@@ -58,11 +66,13 @@ def _nombres_del_esquema(raiz: Any, esquema: Any, vistos: set[int]) -> Iterator[
     for nombre, hija in objeto(esquema.get("properties")).items():
         yield nombre
         yield from _nombres_del_esquema(raiz, hija, vistos)
-    for clave in CLAVES_CON_ESQUEMAS:
-        yield from _nombres_del_esquema(raiz, esquema.get(clave), vistos)
-    for clave in CLAVES_CON_LISTA_DE_ESQUEMAS:
-        for hija in esquema.get(clave, []):
+    for hija, _, papel in hijas(esquema, ""):
+        if papel not in (PROPIEDAD, DEFINICION):  # los `$defs` se alcanzan por su `$ref`
             yield from _nombres_del_esquema(raiz, hija, vistos)
+
+
+def _parametros(valor: Any) -> list[Any]:
+    return valor if isinstance(valor, list) else []
 
 
 def _de_operacion(
@@ -70,7 +80,8 @@ def _de_operacion(
 ) -> Iterator[str]:
     nombre = f"{metodo.upper()} {ruta}"
     sitios: list[tuple[str, str]] = [(ruta, "la ruta")]
-    for parametro in operacion.get("parameters", []):
+    de_la_ruta = objeto(objeto(documento.get("paths")).get(ruta)).get("parameters")
+    for parametro in (*_parametros(de_la_ruta), *_parametros(operacion.get("parameters"))):
         resuelto = objeto(resolver(documento, parametro))
         sitios.append((str(resuelto.get("name", "")), "un parámetro"))
     for _, _, esquema in cuerpos(documento, operacion):

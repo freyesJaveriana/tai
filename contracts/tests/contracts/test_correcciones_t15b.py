@@ -73,7 +73,9 @@ def comprobar_used_in_c5(catalogo: Any) -> list[str]:
 def test_c25_marca_c5_en_turn_max_chars_y_report_token_max_chars() -> None:
     catalogo = load_contract(LIMITES)
     assert comprobar_used_in_c5(catalogo) == []
-    assert catalogo["limits"]["turn_max_chars"]["used_in"] == ["C1", "C2", "C5"]
+    # C2 no marca turn_max_chars (queues/runs.v2.yaml no tiene ninguna x-veridicus-limit): §4.4,
+    # comprobación inversa, rechaza un used_in que la nombre.
+    assert catalogo["limits"]["turn_max_chars"]["used_in"] == ["C1", "C5"]
     assert catalogo["limits"]["report_token_max_chars"]["used_in"] == ["C19", "C5"]
 
 

@@ -321,10 +321,10 @@ def test_los_codes_de_c1_se_buscan_en_el_enum_y_en_las_descripciones(tmp_path: P
     documento = _c1()
     documento["paths"]["/users"]["get"]["responses"]["403"] = {
         **PROBLEM,
-        "description": "auth.forbidden o inventado.code (E44)",
+        "description": "auth.forbidden o auth.inventado (E44)",
     }
     assert _nuevas(antes, _respuestas(documento)) == [
-        ("api/console.v2.yaml: GET /users 403: el code inventado.code no está en el catálogo "
+        ("api/console.v2.yaml: GET /users 403: el code auth.inventado no está en el catálogo "
         "(BR7.2, E44)")
     ]
 

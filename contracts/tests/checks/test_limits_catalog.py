@@ -365,8 +365,29 @@ def test_la_guardia_exige_exactamente_las_relaciones_del_diseno() -> None:
 
 def test_la_lista_cerrada_de_unidades() -> None:
     assert _guardia().UNIDADES == frozenset(
-        {"chars", "turns", "bytes", "s", "ms", "deliveries", "suggestions", "words", "ratio", "days", "levels"}
+        {
+            "chars",
+            "turns",
+            "bytes",
+            "s",
+            "ms",
+            "deliveries",
+            "suggestions",
+            "words",
+            "ratio",
+            "days",
+            "levels",
+            "runs",
+        }
     )
+
+
+def test_p_t15b_1_runs_es_una_unidad_valida_y_una_unidad_ajena_no() -> None:
+    doc = _doc()
+    doc["limits"]["report_per_run_items"] = {"value": 3, "unit": "runs", "owner": "U1", "used_in": ["C19"]}
+    assert _problemas(doc) == []
+    doc["limits"]["report_per_run_items"]["unit"] = "corridas"
+    _con(doc, "report_per_run_items")
 
 
 @pytest.mark.parametrize("uso", ["C", "Cx", "C1x", "x1", ""])

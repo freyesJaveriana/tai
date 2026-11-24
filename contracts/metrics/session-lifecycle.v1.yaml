@@ -1,0 +1,100 @@
+# Métricas de U6 session-lifecycle (NFRD-U6-12; observability-requirements §2). Forma de C15
+# (checks/metrics.py). `origin` ya está en la lista cerrada de etiquetas. `state` es el de
+# SessionStatus de C1 (P-T17-7) y `outcome` de importación sigue al del pegado (P-T17-6).
+# `error_code` de pegado e importación sale de las fuentes de U6 más `none` (E-20, P-T17-13):
+#   pegado: limits.exceeded (BR2.3, NFR10.14); los 409 de BR2.7 (consent_missing, blocked,
+#     consent_withdrawn, terminated, finalized, closed_to_new_turns, suspended); not_owner (BR10.1);
+#   importación: limits.exceeded, import.invalid_type, import.invalid_transcript,
+#     import.profile_mismatch, profile.not_approved y profile.transfer_not_authorized (NFR10.14,
+#     BR7.x); auth.forbidden del rol (BR10.1);
+#   y los genéricos de autenticación, validación y sistema de C1.
+schema_version: 1.0.0
+endpoint: GET /metrics  # session-api, puerto interno
+metrics:
+  - name: veridicus_transcript_pastes_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+      - name: error_code
+        values:
+          - none
+          - limits.exceeded
+          - session.consent_missing
+          - session.blocked
+          - session.consent_withdrawn
+          - session.terminated
+          - session.finalized
+          - session.closed_to_new_turns
+          - session.suspended
+          - session.not_owner
+          - auth.unauthenticated
+          - auth.forbidden
+          - auth.csrf
+          - validation.invalid_request
+          - system.internal
+          - system.unavailable
+    description: Pegados de transcripción respondidos, por resultado y code (API).
+  - name: veridicus_transcript_paste_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+    description: Duración de la ruta completa de un pegado (API).
+  - name: veridicus_session_imports_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+      - name: error_code
+        values:
+          - none
+          - limits.exceeded
+          - import.invalid_type
+          - import.invalid_transcript
+          - import.profile_mismatch
+          - profile.not_approved
+          - profile.transfer_not_authorized
+          - auth.unauthenticated
+          - auth.forbidden
+          - auth.csrf
+          - validation.invalid_request
+          - system.internal
+          - system.unavailable
+      - name: origin
+        values: [corpus, sintetico]
+    description: Importaciones de sesión respondidas, por resultado, code y origen (API).
+  - name: veridicus_session_import_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+    description: Duración de la ruta completa de una importación (API).
+  - name: veridicus_session_transitions_total
+    type: counter
+    labels:
+      - name: state
+        values: [open, paused, suspended, finalized, terminated, blocked, consolidated]
+    description: Transiciones de sesión, por estado de destino (API y trabajador).
+  - name: veridicus_sessions
+    type: gauge
+    labels:
+      - name: state
+        values: [open, paused, suspended, finalized, terminated, blocked, consolidated]
+    description: >-
+      Sesiones por estado; el trabajador la calcula al rasparla, con un COUNT por estado y una
+      caché de 15 s.
+  - name: veridicus_session_sweep_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [ok, error]
+    description: Duración de cada vuelta de SessionSupervisor (trabajador).
+  - name: veridicus_run_cancellations_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [key_written, key_deferred]
+    description: >-
+      Cancelaciones de corridas tras cada escritura de la clave de cancelación; key_deferred se
+      investiga si pasa de 0 (API).

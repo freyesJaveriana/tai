@@ -1,0 +1,11 @@
+# Formato único de fecha de Veridicus (BR8.1, NFR11.2). Los contratos propios llevan este mismo
+# `pattern` en todo `format: date-time`; `checks/datetime_format.py` lo exige. La copia de C6 no
+# se toca (BR1.8): su `format: date-time` admite esta forma.
+schema_version: 1.0.0
+type: string
+format: date-time
+pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'
+description: >-
+  RFC 3339 en UTC con Z, con precisión de segundos y sin fracciones ni desfases:
+  AAAA-MM-DDTHH:MM:SSZ. Una fecha con esta forma pero imposible (30 de febrero, hora 25) la rechaza
+  la validación del formato date-time (E16).

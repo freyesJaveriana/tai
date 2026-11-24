@@ -1,0 +1,54 @@
+# C15 v2: métrica de descartes y de corridas de session-api (U5; contract-summary C15, revisión 4).
+# Forma de C15; cada etiqueta declara `values` (enum cerrado) salvo `session_id`, que declara el
+# patrón de un UUID (NFRD-U1-05, checks/metrics.py). `error_code` toma un `code` del catálogo o
+# `none` (E-20): C15 decía «vacío si ok». `veridicus_runs_total` suma `outcome` (E-26). Las
+# etiquetas solo llevan identificadores y enumeraciones, nunca texto (NFR10).
+schema_version: 2.0.0
+endpoint: GET /metrics  # session-api, puerto interno, sin autenticación de usuario, no expuesto al navegador
+metrics:
+  - name: veridicus_review_decisions_total
+    type: counter
+    labels:
+      - name: state
+        values: [accepted, edited, dismissed]
+    description: Decisiones de revisión tomadas por el analista, por estado de la sugerencia.
+  - name: veridicus_session_dismissal_ratio
+    type: gauge
+    labels:
+      - name: session_id
+        pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    description: >-
+      Fracción de sugerencias descartadas entre las últimas W decididas de la sesión (W en C25).
+      Cuentan las sugerencias con estado vigente decidido en la ronda open, incluidas las heredadas,
+      ordenadas por change_seq; la serie se retira al bloquear o descartar la ronda y al purgar la
+      sesión. La métrica de rechazos no entra en la razón (NFR-U5-04). La regla de U2 alerta por
+      encima de 0.25 (AC10.8.1): es el umbral de esa alerta, no un límite, y vive en la regla de U2,
+      no en C25. Nunca cambia un perfil ni un prompt (AC10.8.2).
+  - name: veridicus_run_duration_seconds
+    type: histogram
+    labels:
+      - name: mode
+        values: [incremental, final]
+      - name: outcome
+        values: [ok, error]
+    description: Duración de una corrida, por modo y resultado.
+  - name: veridicus_runs_total
+    type: counter
+    labels:
+      - name: mode
+        values: [incremental, final]
+      - name: outcome
+        values: [completed, error, cancelled]
+      - name: error_code
+        values:
+          - none
+          - analysis.invalid_output
+          - analysis.content_blocked
+          - analysis.timeout
+          - analysis.provider
+          - analysis.anonymizer_unavailable
+          - analysis.system
+          - anonymizer.incident
+    description: >-
+      Corridas terminadas, por modo, resultado y code del error; none si la corrida terminó bien
+      (E-20). Serie única de U4 y U5 (E-26); completed es el estado done (NFRD-U4-08).

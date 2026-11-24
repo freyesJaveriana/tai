@@ -3,11 +3,13 @@
 Los controles negativos trabajan sobre copias en `tmp_path`; nunca se toca un archivo versionado.
 """
 
+import copy
 import json
 import shutil
 from pathlib import Path
+from typing import Any
 
-from helpers import CONTRACTS_ROOT
+from helpers import CONTRACTS_ROOT, load_contract
 
 from veridicus_contracts.checks import error_codes as guardia
 
@@ -251,3 +253,185 @@ def test_comprobar_sobre_una_copia_limpia_y_con_un_defecto_por_subcomprobacion(
     codigo = init.read_text(encoding="utf-8")
     init.write_text(codigo.replace('code: ClassVar[str] = "auth.csrf"', "pass"), encoding="utf-8")
     assert [p for p in guardia.comprobar(contracts, src) if "auth.csrf" in p]
+
+
+# --- Parte de C1 y C21 (§4.7 a-d; paso 16, T15; K-05, K-18, K-19, E44) ---
+
+CONSOLA = "api/console.v2.yaml"
+PROBLEM = {"$ref": "#/components/responses/Problem"}
+
+
+def _catalogo() -> dict[str, dict[str, Any]]:
+    return guardia.cargar_catalogo(CATALOGO)
+
+
+def _c1() -> dict[str, Any]:
+    return copy.deepcopy(load_contract(CONSOLA))
+
+
+def _respuestas(documento: dict[str, Any], nombre: str = CONSOLA, problem: bool = True) -> set[str]:
+    return set(guardia.comprobar_respuestas(_catalogo(), nombre, documento, problem))
+
+
+def _nuevas(antes: set[str], despues: set[str]) -> list[str]:
+    return sorted(despues - antes)
+
+
+def test_el_enum_de_error_code_es_el_de_los_codes_http_del_catalogo() -> None:
+    catalogo = _catalogo()
+    assert guardia.comprobar_enum_error_code(catalogo, CONSOLA, _c1()) == []
+    sin_uno = _c1()
+    sin_uno["components"]["schemas"]["ErrorCode"]["enum"].remove("speech.unavailable")
+    de_mas = _c1()
+    de_mas["components"]["schemas"]["ErrorCode"]["enum"] += ["inventado.code", "anonymizer.incident"]
+    assert guardia.comprobar_enum_error_code(catalogo, CONSOLA, sin_uno) == [
+        "api/console.v2.yaml: el enum ErrorCode no trae speech.unavailable (§4.7 a)"
+    ]
+    assert guardia.comprobar_enum_error_code(catalogo, CONSOLA, de_mas) == [
+        ("api/console.v2.yaml: el enum ErrorCode trae anonymizer.incident y el catálogo no lo "
+        "declara con http: true (§4.7 a)"),
+        ("api/console.v2.yaml: el enum ErrorCode trae inventado.code y el catálogo no lo declara "
+        "con http: true (§4.7 a)"),
+    ]
+    sin_enum = _c1()
+    del sin_enum["components"]["schemas"]["ErrorCode"]
+    assert guardia.comprobar_enum_error_code(catalogo, CONSOLA, sin_enum)[0] == (
+        "api/console.v2.yaml: el enum ErrorCode no trae auth.invalid_credentials (§4.7 a)"
+    )
+
+
+def test_c21_y_la_ruta_de_voz_usan_los_estados_del_catalogo() -> None:
+    for relativa in ("api/anonymizer-proxy.v1.yaml", "api/speech-internal.v1.yaml"):
+        documento = load_contract(relativa)
+        assert guardia.comprobar_respuestas(_catalogo(), relativa, documento, False) == [], relativa
+
+
+def test_los_codes_de_c1_se_buscan_en_el_enum_y_en_las_descripciones(tmp_path: Path) -> None:
+    catalogo = _catalogo()
+    archivo = tmp_path / "console.yaml"
+    archivo.write_text(
+        "components:\n  schemas:\n    ErrorCode:\n      type: string\n"
+        "      enum: [analysis.system, inventado.code]\n",
+        encoding="utf-8",
+    )
+    assert guardia.comprobar_codes_usados(catalogo, [archivo]) == [
+        "console.yaml: el code inventado.code no está en el catálogo (BR7.2)"
+    ]
+    antes = _respuestas(_c1())
+    documento = _c1()
+    documento["paths"]["/users"]["get"]["responses"]["403"] = {
+        **PROBLEM,
+        "description": "auth.forbidden o auth.inventado (E44)",
+    }
+    assert _nuevas(antes, _respuestas(documento)) == [
+        ("api/console.v2.yaml: GET /users 403: el code auth.inventado no está en el catálogo "
+        "(BR7.2, E44)")
+    ]
+
+
+def test_un_code_con_otro_estado_que_el_del_catalogo_es_rojo() -> None:
+    antes = _respuestas(_c1())
+    documento = _c1()
+    respuestas = documento["paths"]["/users"]["post"]["responses"]
+    respuestas["422"]["description"] = "user.weak_password o session.blocked (K-18)"
+    respuestas["409"]["description"] = "anonymizer.incident no tiene estado HTTP"
+    assert _nuevas(antes, _respuestas(documento)) == [
+        ("api/console.v2.yaml: POST /users 409: el code anonymizer.incident no tiene estado HTTP "
+        "en el catálogo (§4.7 c)"),
+        ("api/console.v2.yaml: POST /users 422: el code session.blocked lleva el estado 422 y el "
+        "catálogo dice 409 (§4.7 c)"),
+    ]
+    voz = load_contract("api/speech-internal.v1.yaml")
+    mal = copy.deepcopy(voz)
+    mal["paths"]["/internal/v1/speech"]["post"]["responses"]["422"]["description"] = (
+        "speech.text_rejected con rule_id"
+    )
+    assert guardia.comprobar_respuestas(_catalogo(), "voz", mal, False) == [
+        ("voz: POST /internal/v1/speech 422: el code speech.text_rejected lleva el estado 422 y el "
+        "catálogo dice 409 (§4.7 c)")
+    ]
+
+
+def test_toda_4xx_y_5xx_de_c1_es_una_referencia_a_problem() -> None:
+    antes = _respuestas(_c1())
+    documento = _c1()
+    documento["paths"]["/users"]["post"]["responses"]["409"] = {"description": "sin Problem"}
+    documento["paths"]["/users"]["post"]["responses"]["default"] = {"description": "otra"}
+    esquema = {"$ref": "#/components/schemas/Problem"}
+    cabeceras = {"Retry-After": {"schema": {"type": "integer"}}}
+    documento["paths"]["/auth/me"]["get"]["responses"]["401"] = {
+        "description": "con cabeceras propias",
+        "headers": cabeceras,
+        "content": {"application/problem+json": {"schema": esquema}},
+    }
+    assert _nuevas(antes, _respuestas(documento)) == [
+        "api/console.v2.yaml: POST /users 409: respuesta de error sin $ref a Problem (§4.7 d)"
+    ]
+    # C21 y la ruta de voz traen su propio cuerpo de error: no se les exige la referencia.
+    assert not any("sin $ref a Problem" in p for p in _respuestas(documento, "x", False))
+
+
+def test_una_respuesta_de_error_en_linea_exige_cabeceras_propias_y_problem_json() -> None:
+    """P-T15-3: un control negativo por condición del cuerpo en línea."""
+    esquema = {"$ref": "#/components/schemas/Problem"}
+    cabeceras = {"Retry-After": {"schema": {"type": "integer"}}}
+    en_linea = {
+        "completa": ({"headers": cabeceras, "content": {"application/problem+json": {"schema": esquema}}}, True),
+        "sin_cabeceras": ({"content": {"application/problem+json": {"schema": esquema}}}, False),
+        "cabeceras_vacias": (
+            {"headers": {}, "content": {"application/problem+json": {"schema": esquema}}},
+            False,
+        ),
+        "otro_tipo": ({"headers": cabeceras, "content": {"application/json": {"schema": esquema}}}, False),
+        "otro_esquema": (
+            {
+                "headers": cabeceras,
+                "content": {
+                    "application/problem+json": {"schema": {"$ref": "#/components/schemas/Otro"}}
+                },
+            },
+            False,
+        ),
+    }
+    antes = _respuestas(_c1())
+    for nombre, (respuesta, cumple) in en_linea.items():
+        documento = _c1()
+        documento["paths"]["/auth/me"]["get"]["responses"]["429"] = {
+            "description": nombre,
+            **respuesta,
+        }
+        esperado = [] if cumple else [
+            "api/console.v2.yaml: GET /auth/me 429: respuesta de error sin $ref a Problem (§4.7 d)"
+        ]
+        assert _nuevas(antes, _respuestas(documento)) == esperado, nombre
+
+
+def test_en_la_prosa_solo_cuenta_un_code_con_prefijo_de_dominio_del_catalogo() -> None:
+    """P-T15-4: «e.g.», versiones y nombres de archivo no son un `code`."""
+    antes = _respuestas(_c1())
+    ajena = _c1()
+    ajena["paths"]["/users"]["get"]["responses"]["403"] = {
+        **PROBLEM,
+        "description": "auth.forbidden; p. ej. e.g. o i.e., v1.2, console.yaml y a.b",
+    }
+    assert _nuevas(antes, _respuestas(ajena)) == []
+    # Control negativo: el prefijo existe en el catálogo y el code no.
+    propia = _c1()
+    propia["paths"]["/users"]["get"]["responses"]["403"] = {
+        **PROBLEM,
+        "description": "auth.forbidden o session.inventado",
+    }
+    assert _nuevas(antes, _respuestas(propia)) == [
+        ("api/console.v2.yaml: GET /users 403: el code session.inventado no está en el catálogo "
+        "(BR7.2, E44)")
+    ]
+
+
+def test_comprobar_api_con_contratos_ausentes_y_sobre_el_arbol_real(tmp_path: Path) -> None:
+    assert sorted(guardia.comprobar_api(tmp_path)) == [
+        "api/anonymizer-proxy.v1.yaml: contrato ausente (§4.7)",
+        "api/console.v2.yaml: contrato ausente (§4.7)",
+        "api/speech-internal.v1.yaml: contrato ausente (§4.7)",
+        "errors/error-codes.v2.yaml: contrato ausente (§4.7)",
+    ]
+    assert guardia.comprobar_api(CONTRACTS_ROOT) == []

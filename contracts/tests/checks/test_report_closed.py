@@ -181,9 +181,9 @@ def test_una_cadena_del_reporte_sin_la_marca_del_limite_queda_en_rojo() -> None:
 
 
 def test_una_cadena_de_model_call_no_exige_la_marca_pero_si_el_tope() -> None:
-    """`model-call.v1` es de otro paso: sin marca, pero cerrada y con tope de 128 como mucho."""
+    """`model-call.v1` lleva la marca `report_token_max_chars` (E-15, P-T15b-2); el reporte no se la exige a esa cadena, pero sí cerrada y con tope de 128 como mucho."""
     reporte, llamada, fixtures = _documentos()
-    assert "x-veridicus-limit" not in llamada["$defs"]["token"]
+    assert llamada["$defs"]["token"]["x-veridicus-limit"] == "report_token_max_chars"
     llamada["$defs"]["token"]["maxLength"] = 200
     assert _problemas(reporte, llamada, fixtures) == [
         "BR10.1 model-call $.$defs.token: maxLength ausente o mayor que 128"

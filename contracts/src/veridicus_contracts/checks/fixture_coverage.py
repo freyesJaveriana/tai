@@ -50,6 +50,8 @@ MOTIVOS_DE_EXCLUSION: dict[str, str] = {
 
 # Regla -> palabras clave del validador por las que su `reject` puede fallar.
 REGLAS: dict[str, frozenset[str]] = {
+    # E-28: la cubren dos reject de queues/fixtures/runs/ (sin schema_version, y con «2.0»).
+    "BR1.1": frozenset({"required", "pattern"}),
     "BR1.2": frozenset({"pattern"}),
     "BR2.1": frozenset({"required"}),
     "BR2.3": frozenset({"required"}),
@@ -228,7 +230,6 @@ _UNA_PRUEBA: dict[str, tuple[str, str]] = {
     "BR12.3": ("tests/test_registry.py", "test_la_forma_antigua_del_ref_no_se_resuelve_e36"),
 }
 
-_COLAS = "tests/contracts/test_queue_messages.py"
 _CONSOLA = "tests/contracts/test_console.py"
 _CODES = "tests/checks/test_error_codes.py"
 
@@ -236,7 +237,6 @@ _CODES = "tests/checks/test_error_codes.py"
 # P-T18-10: no hay una tercera lista; toda regla de §4.10 tiene sus fixtures o una prueba aquí.
 REGLAS_CON_CODIGO: dict[str, tuple[tuple[str, str], ...]] = {
     **{regla: (prueba,) for regla, prueba in _UNA_PRUEBA.items()},
-    "BR1.1": ((_COLAS, "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),),
     "BR3.4": (
         (_CODES, "test_tabla_c6_del_arbol_real_completa"),
         (_CODES, "test_e34_codigo_de_c6_sin_code"),

@@ -12,9 +12,16 @@ from collections.abc import Iterable
 from pathlib import Path
 
 REGLA = "(AUTONOMIA-01, §4.11)"
+# Límites declarados (P-T18-12 y P-T18-16): el análisis es de texto, no de shell.
+LIMITACIONES = (
+    "una herramienta invocada por una variable o un alias (`$K apply`) no se detecta",
+    "un valor de opción entre comillas con espacios (`--namespace \"a b\"`) no se detecta",
+)
 # Entre la herramienta y el verbo pueden ir opciones globales (`-n x`, `--context=x`, `--namespace x`,
-# `--dry-run`): cada opción es un guion o dos, su nombre y, a lo sumo, un valor tras `=` o un espacio.
-_OPCIONES = r"(?:\s+-{1,2}[\w.-]+(?:[= ]\S+)?)*"
+# `--dry-run`): cada opción es un guion o dos, su nombre y, a lo sumo, un valor tras `=` o un valor tras un
+# espacio que no empieza por guion. Así un `-a` que sigue a una opción solo puede ser una opción nueva y el
+# motor no retrocede de forma exponencial (F-02 de la ronda 2).
+_OPCIONES = r"(?:\s+-{1,2}[\w.-]+(?:=\S+|\s+[^\s-]\S*)?)*"
 PROHIBIDOS = (
     ("--write", re.compile(r"--write\b")),
     ("kubectl apply", re.compile(rf"kubectl{_OPCIONES}\s+apply\b", re.IGNORECASE)),

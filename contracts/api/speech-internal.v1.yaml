@@ -34,6 +34,8 @@ paths:
                 template_version:
                   type: string
                   pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+                  maxLength: 128
+                  x-veridicus-limit: report_token_max_chars
       responses:
         '200':
           description: Audio de la aclaración
@@ -67,6 +69,8 @@ paths:
                   code:
                     type: string
                     pattern: '^[a-z][a-z_]*\.[a-z][a-z_]*$'
+                    maxLength: 128
+                    x-veridicus-limit: report_token_max_chars
                   detail:
                     type: string
                   instance:

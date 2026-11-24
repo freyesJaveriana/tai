@@ -469,7 +469,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   `POST /sessions/{session_id}/reports` (NFRD-U7-04); tope y `413` en la decisión (NFRD-U8-05);
   respuestas de NFR-U5-05, NFR-U7-02, NFR-U12-02 y NFR-U13-03; `x-veridicus-cookie` en `sessionCookie`;
   fechas con el formato único. Si dos precisiones chocan, el paso se detiene y lo anota en el PR.
-- [ ] T15 — módulos guardia, uno por regla: `checks/auth_surface.py` (§4.6, con la constante de seis
+- [x] T15 — módulos guardia, uno por regla: `checks/auth_surface.py` (§4.6, con la constante de seis
   `operationId` que encolan), `checks/strict_bodies.py` (§4.3), `checks/config_write.py` (§4.8, BR7.1,
   con la excepción `profile_name`; `checks/threshold.py` queda «Retirado»), `checks/limits_match.py`
   (§4.4, comprobación en los dos sentidos) y la parte de C1 de `checks/error_codes.py`; 5–8 pruebas por

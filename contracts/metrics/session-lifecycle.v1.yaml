@@ -1,0 +1,221 @@
+# Métricas de U6 session-lifecycle (NFRD-U6-12; observability-requirements §2). Forma de C15
+# (checks/metrics.py). `origin` ya está en la lista cerrada de etiquetas. `error_code` de pegado e
+# importación toma los code con `http: true` del catálogo más `none` (E-20, P-T17-5); `state` es el de
+# SessionStatus de C1 (P-T17-7); `outcome` de importación sigue al del pegado (P-T17-6).
+schema_version: 1.0.0
+endpoint: GET /metrics  # session-api, puerto interno
+metrics:
+  - name: veridicus_transcript_pastes_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+      - name: error_code
+        values:
+          - none
+          - auth.invalid_credentials
+          - auth.unauthenticated
+          - auth.forbidden
+          - auth.csrf
+          - auth.too_many_attempts
+          - validation.invalid_request
+          - limits.exceeded
+          - route.not_found
+          - system.internal
+          - system.unavailable
+          - user.duplicate_username
+          - user.self_deactivation
+          - user.last_admin
+          - user.has_pending_sessions
+          - user.not_found
+          - user.weak_password
+          - profile.not_approved
+          - profile.transfer_not_authorized
+          - session.not_owner
+          - session.finalized
+          - session.not_suspended
+          - session.not_paused
+          - session.not_finalized
+          - session.suspended
+          - session.consolidated
+          - session.closed_to_new_turns
+          - session.paused
+          - session.terminated
+          - session.blocked
+          - session.consent_missing
+          - session.consent_withdrawn
+          - session.voice_not_authorized
+          - import.invalid_type
+          - import.invalid_transcript
+          - import.profile_mismatch
+          - retention.above_maximum
+          - retention.below_minimum
+          - retention.cannot_extend
+          - ethics.text_version_outdated
+          - problem_report.ids_mismatch
+          - run.not_in_error
+          - run.final_in_progress
+          - analysis.invalid_output
+          - analysis.content_blocked
+          - analysis.timeout
+          - analysis.provider
+          - analysis.anonymizer_unavailable
+          - anonymizer.profile_mismatch
+          - anonymizer.destination_rejected
+          - analysis.system
+          - suggestion.not_found
+          - review.observations_not_viewed
+          - review.note_required
+          - review.invalid_transition
+          - review.round_locked
+          - report.session_not_finalized
+          - report.final_mode_not_launched
+          - report.runs_in_progress
+          - report.pending_suggestions
+          - report.forbidden_vocabulary
+          - report.conflict
+          - report.view_outdated
+          - report.integrity_mismatch
+          - report.not_consolidated
+          - report.not_found
+          - report.export_not_recorded
+          - research.invalid_report
+          - research.invalid_type
+          - research.not_found
+          - research.duplicate
+          - research.not_comparable
+          - conductor_observation.not_approved
+          - conductor_observation.not_found
+          - conductor_observation.already_decided
+          - conductor_observation.session_closed
+          - speech.unavailable
+          - speech.text_rejected
+    description: Pegados de transcripción respondidos, por resultado y code (API).
+  - name: veridicus_transcript_paste_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+    description: Duración de la ruta completa de un pegado (API).
+  - name: veridicus_session_imports_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+      - name: error_code
+        values:
+          - none
+          - auth.invalid_credentials
+          - auth.unauthenticated
+          - auth.forbidden
+          - auth.csrf
+          - auth.too_many_attempts
+          - validation.invalid_request
+          - limits.exceeded
+          - route.not_found
+          - system.internal
+          - system.unavailable
+          - user.duplicate_username
+          - user.self_deactivation
+          - user.last_admin
+          - user.has_pending_sessions
+          - user.not_found
+          - user.weak_password
+          - profile.not_approved
+          - profile.transfer_not_authorized
+          - session.not_owner
+          - session.finalized
+          - session.not_suspended
+          - session.not_paused
+          - session.not_finalized
+          - session.suspended
+          - session.consolidated
+          - session.closed_to_new_turns
+          - session.paused
+          - session.terminated
+          - session.blocked
+          - session.consent_missing
+          - session.consent_withdrawn
+          - session.voice_not_authorized
+          - import.invalid_type
+          - import.invalid_transcript
+          - import.profile_mismatch
+          - retention.above_maximum
+          - retention.below_minimum
+          - retention.cannot_extend
+          - ethics.text_version_outdated
+          - problem_report.ids_mismatch
+          - run.not_in_error
+          - run.final_in_progress
+          - analysis.invalid_output
+          - analysis.content_blocked
+          - analysis.timeout
+          - analysis.provider
+          - analysis.anonymizer_unavailable
+          - anonymizer.profile_mismatch
+          - anonymizer.destination_rejected
+          - analysis.system
+          - suggestion.not_found
+          - review.observations_not_viewed
+          - review.note_required
+          - review.invalid_transition
+          - review.round_locked
+          - report.session_not_finalized
+          - report.final_mode_not_launched
+          - report.runs_in_progress
+          - report.pending_suggestions
+          - report.forbidden_vocabulary
+          - report.conflict
+          - report.view_outdated
+          - report.integrity_mismatch
+          - report.not_consolidated
+          - report.not_found
+          - report.export_not_recorded
+          - research.invalid_report
+          - research.invalid_type
+          - research.not_found
+          - research.duplicate
+          - research.not_comparable
+          - conductor_observation.not_approved
+          - conductor_observation.not_found
+          - conductor_observation.already_decided
+          - conductor_observation.session_closed
+          - speech.unavailable
+          - speech.text_rejected
+      - name: origin
+        values: [corpus, sintetico]
+    description: Importaciones de sesión respondidas, por resultado, code y origen (API).
+  - name: veridicus_session_import_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [accepted, rejected]
+    description: Duración de la ruta completa de una importación (API).
+  - name: veridicus_session_transitions_total
+    type: counter
+    labels:
+      - name: state
+        values: [open, paused, suspended, finalized, terminated, blocked, consolidated]
+    description: Transiciones de sesión, por estado de destino (API y trabajador).
+  - name: veridicus_sessions
+    type: gauge
+    labels:
+      - name: state
+        values: [open, paused, suspended, finalized, terminated, blocked, consolidated]
+    description: >-
+      Sesiones por estado; el trabajador la calcula al rasparla, con un COUNT por estado y una
+      caché de 15 s.
+  - name: veridicus_session_sweep_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [ok, error]
+    description: Duración de cada vuelta de SessionSupervisor (trabajador).
+  - name: veridicus_run_cancellations_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [key_written, key_deferred]
+    description: >-
+      Cancelaciones de corridas tras cada escritura de la clave de cancelación; key_deferred se
+      investiga si pasa de 0 (API).

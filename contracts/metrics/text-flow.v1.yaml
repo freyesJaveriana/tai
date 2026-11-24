@@ -1,0 +1,51 @@
+# Métricas de U4 text-flow (NFRD-U4-08; observability-requirements §2). Forma de C15 (checks/metrics.py).
+# `provider` y `role` son los de C18. `veridicus_runs_total` va solo en review.v2.yaml (C15): el
+# nombre es único entre archivos (§4.12), y NFRD-U4-08 lo suma a este archivo (P-T17-9, abierto).
+schema_version: 1.0.0
+endpoint: GET /metrics  # session-api, puerto interno
+metrics:
+  - name: veridicus_run_latency_seconds
+    type: histogram
+    labels:
+      - name: mode
+        values: [incremental, final]
+      - name: outcome
+        values: [completed, error, cancelled]
+    description: >-
+      Latencia de una corrida, medida al ingerir su resultado; completed es el estado done.
+  - name: veridicus_run_queue_depth
+    type: gauge
+    labels: []
+    description: Corridas queued más processing.
+  - name: veridicus_run_queue_wait_seconds
+    type: histogram
+    labels:
+      - name: mode
+        values: [incremental, final]
+    description: Espera de una corrida, de enqueued_at a RunStarted.
+  - name: veridicus_ingest_duration_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [ok, discarded, invalid_output, rolled_back]
+    description: Duración de la ingesta de un resultado por el trabajador de session-api.
+  - name: veridicus_model_input_tokens_total
+    type: counter
+    labels:
+      - name: provider
+        values: [anthropic, google, openai, local]
+      - name: role
+        values: [judge, verifier, verifier_permuted]
+    description: Tokens de entrada de las llamadas a modelos, desde ModelCall.
+  - name: veridicus_model_output_tokens_total
+    type: counter
+    labels:
+      - name: provider
+        values: [anthropic, google, openai, local]
+      - name: role
+        values: [judge, verifier, verifier_permuted]
+    description: Tokens de salida de las llamadas a modelos, desde ModelCall.
+  - name: veridicus_sessions_blocked_total
+    type: counter
+    labels: []
+    description: Sesiones bloqueadas por un incidente de anonimización (BR16.3, NFR15.5).

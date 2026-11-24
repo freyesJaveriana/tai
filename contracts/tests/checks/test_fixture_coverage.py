@@ -269,16 +269,20 @@ def test_p_t18_10_las_listas_juntas_suman_todas_las_reglas_vigentes_de_rules_md(
     vigentes = _reglas_vigentes()
     assert len(vigentes) == 53, "rules.md: 56 reglas menos 3 retiradas"
     listadas = {r for r in (*guardia.REGLAS, *guardia.REGLAS_CON_CODIGO, *guardia.EXCLUIDAS) if r.startswith("BR")}
-    assert sorted(vigentes - listadas) == [], "reglas vigentes que ninguna lista cubre"
-    assert sorted(listadas - vigentes) == [], "reglas listadas que rules.md no tiene vigentes"
+    faltan, sobran = _diferencia(vigentes, listadas)
+    assert faltan == [], "reglas vigentes que ninguna lista cubre"
+    assert sobran == [], "reglas listadas que rules.md no tiene vigentes"
 
 
-def test_p_t18_10_el_control_de_la_union_detecta_una_regla_que_falta(guardia: ModuleType) -> None:
-    vigentes = _reglas_vigentes()
-    listadas = {r for r in (*guardia.REGLAS, *guardia.REGLAS_CON_CODIGO, *guardia.EXCLUIDAS) if r.startswith("BR")}
-    # Control negativo de la propia prueba: quitar una regla de la unión deja una vigente sin cubrir.
-    assert vigentes - (listadas - {"BR1.1"}) == {"BR1.1"}
-    assert (listadas | {"BR99.9"}) - vigentes == {"BR99.9"}
+def _diferencia(vigentes: set[str], listadas: set[str]) -> tuple[list[str], list[str]]:
+    return sorted(vigentes - listadas), sorted(listadas - vigentes)
+
+
+def test_p_t18_10_el_control_de_la_union_detecta_una_regla_que_falta_o_sobra() -> None:
+    vigentes = {"BR1.1", "BR1.2", "BR2.1"}
+    assert _diferencia(vigentes, {"BR1.1", "BR1.2", "BR2.1"}) == ([], [])
+    assert _diferencia(vigentes, {"BR1.1", "BR2.1"}) == (["BR1.2"], [])
+    assert _diferencia(vigentes, {"BR1.1", "BR1.2", "BR2.1", "BR99.9"}) == ([], ["BR99.9"])
 
 
 def test_e24_cada_prueba_de_la_lista_existe(guardia: ModuleType) -> None:

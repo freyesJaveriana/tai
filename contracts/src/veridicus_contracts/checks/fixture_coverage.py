@@ -186,7 +186,7 @@ def comprobar(raiz: Path, reglas: dict[str, frozenset[str]] | None = None) -> li
 # E-24: las reglas de nivel 0 que se prueban con código y no con documentos, cada una con la prueba que la
 # cubre: (archivo bajo contracts/, nombre de la prueba). Lista cerrada: una prueba fija su contenido exacto
 # y añadir una entrada exige una precisión aprobada. `comprobar_pruebas` verifica que cada prueba existe.
-REGLAS_CON_CODIGO: dict[str, tuple[str, str]] = {
+_UNA_PRUEBA: dict[str, tuple[str, str]] = {
     "BR1.3": ("tests/contracts/test_queue_messages.py", "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),
     "BR1.6": ("tests/checks/test_synthetic.py", "test_los_archivos_reales_de_contracts_son_sinteticos_y_sin_numeros_largos"),
     "BR1.7": ("tests/contracts/test_analyzer_copy.py", "test_sha256sums_tiene_dos_lineas_y_coincide_con_los_bytes"),
@@ -216,10 +216,28 @@ REGLAS_CON_CODIGO: dict[str, tuple[str, str]] = {
     "BR12.3": ("tests/test_registry.py", "test_la_forma_antigua_del_ref_no_se_resuelve_e36"),
 }
 
-# Reglas de nivel 0 sin una prueba que las cubra entera hoy: se informan, no se listan. BR8.1 y BR8.2 las
-# traerá T17; BR1.1 (versión de todo contrato) y BR1.4 (un cambio de forma es mayor y entra en un PR) no
-# tienen una prueba única que las demuestre.
-SIN_PRUEBA = ("BR1.1", "BR1.4", "BR8.1", "BR8.2")
+_COLAS = "tests/contracts/test_queue_messages.py"
+_CONSOLA = "tests/contracts/test_console.py"
+_CODES = "tests/checks/test_error_codes.py"
+
+# Cada regla cita una prueba o más: la primera es la positiva y las siguientes, sus controles negativos.
+# P-T18-10: no hay una tercera lista; toda regla de §4.10 tiene sus fixtures o una prueba aquí.
+REGLAS_CON_CODIGO: dict[str, tuple[tuple[str, str], ...]] = {
+    **{regla: (prueba,) for regla, prueba in _UNA_PRUEBA.items()},
+    "BR1.1": ((_COLAS, "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),),
+    "BR3.4": (
+        (_CODES, "test_tabla_c6_del_arbol_real_completa"),
+        (_CODES, "test_e34_codigo_de_c6_sin_code"),
+    ),
+    "BR5.1": (
+        ("tests/guards/test_autonomia_03.py", "test_c8_tiene_exactamente_los_terminos_aprobados"),
+        ("tests/checks/test_veracity.py", "test_c8_con_un_termino_nuevo_o_repetido_da_br51"),
+    ),
+    "BR8.1": (
+        (_CONSOLA, "test_toda_fecha_tiene_el_formato_unico_con_el_mismo_patron"),
+        (_CONSOLA, "test_las_fechas_reales_pasan_y_las_imposibles_o_con_otra_forma_no"),
+    ),
+}
 
 
 def _define(raiz: Path, archivo: str, nombre: str) -> bool:
@@ -235,12 +253,13 @@ def _define(raiz: Path, archivo: str, nombre: str) -> bool:
 
 
 def comprobar_pruebas(
-    raiz: Path, reglas: dict[str, tuple[str, str]] | None = None
+    raiz: Path, reglas: dict[str, tuple[tuple[str, str], ...]] | None = None
 ) -> list[str]:
-    """Las reglas de `REGLAS_CON_CODIGO` cuya prueba no existe en su archivo (E-24)."""
+    """Las pruebas de `REGLAS_CON_CODIGO` (y sus controles negativos) que no existen en su archivo (E-24)."""
     reglas = REGLAS_CON_CODIGO if reglas is None else reglas
     return [
         f"{regla}: la prueba {nombre} no existe en {archivo} ({REGLA}, §4.10)"
-        for regla, (archivo, nombre) in sorted(reglas.items())
+        for regla, pruebas in sorted(reglas.items())
+        for archivo, nombre in pruebas
         if not _define(raiz, archivo, nombre)
     ]

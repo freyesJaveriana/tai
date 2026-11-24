@@ -8,7 +8,8 @@ corran sobre sus `tests/`. Exige:
 - cada mención está en `fixtures/synthetic-names.yaml` y aparece en el texto del fixture;
 - ningún campo de texto ni `example` contiene secuencias de 6 a 10 dígitos ni de 23 dígitos, con o sin
   separadores. Se eximen, por su forma completa, los uuid y las huellas de 64 caracteres hexadecimales
-  (K-04) y las fechas ISO 8601, incluido el año-mes de `price_table_version` (P-T18-5).
+  (K-04) y las fechas ISO 8601 que existen, con una fracción de hasta 6 dígitos, incluido el año-mes de
+  `price_table_version` (P-T18-5 corregida por P-T18-11).
 
 El alcance de los campos de texto es todo el *fixture*, y en los demás documentos los valores bajo
 `example`, `examples`, `literal_sources`, `text`, `note` y `turns` (las `literal_sources` de
@@ -20,6 +21,7 @@ import json
 import os
 import re
 from collections.abc import Iterable, Iterator
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -40,10 +42,12 @@ _SECUENCIA = re.compile(r"[0-9](?:[ .\-/]?[0-9])*")
 _EXENTOS = (
     re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.IGNORECASE),
     re.compile(r"[a-f0-9]{64}"),
-    re.compile(
-        r"[0-9]{4}-[0-9]{2}(?:-[0-9]{2}"
-        r"(?:[Tt ][0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]+)?)?(?:[Zz]|[+-][0-9]{2}:[0-9]{2})?)?)?"
-    ),
+)
+# Una fecha ISO 8601: año-mes, fecha o fecha con hora, con una fracción de hasta 6 dígitos. La forma sola no
+# basta: `_es_fecha` exige que la fecha y la hora existan (F-03).
+_FECHA = re.compile(
+    r"(?P<anio>[0-9]{4})-(?P<mes>[0-9]{2})(?:-(?P<dia>[0-9]{2})"
+    r"(?P<hora>[Tt ][0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,6})?)?(?:[Zz]|[+-][0-9]{2}:[0-9]{2})?)?)?"
 )
 
 
@@ -109,8 +113,25 @@ def _textos(valor: Any, puntero: str, dentro: bool) -> Iterator[tuple[str, str]]
             yield from _textos(hijo, f"{puntero}/{indice}", dentro)
 
 
+def _es_fecha(texto: str) -> bool:
+    """Una fecha ISO 8601 que existe: año-mes, fecha, o fecha con hora y fracción de hasta 6 dígitos."""
+    forma = _FECHA.fullmatch(texto)
+    if forma is None:
+        return False
+    try:
+        if forma["dia"] is None:
+            date(int(forma["anio"]), int(forma["mes"]), 1)
+        elif forma["hora"] is None:
+            date.fromisoformat(texto)
+        else:
+            datetime.fromisoformat(texto.upper())
+    except ValueError:
+        return False
+    return True
+
+
 def _sospechoso(texto: str) -> bool:
-    if any(forma.fullmatch(texto) for forma in _EXENTOS):
+    if _es_fecha(texto) or any(forma.fullmatch(texto) for forma in _EXENTOS):
         return False
     for secuencia in _SECUENCIA.finditer(texto):
         digitos = sum(c.isdigit() for c in secuencia.group())

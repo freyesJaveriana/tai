@@ -135,11 +135,16 @@ def test_el_campo_lleva_date_time_y_el_patron_de_c1(campo: Campo) -> None:
     assert comprobar_forma(load_contract(campo.archivo), campo, _patron_de_c1()) == []
 
 
-def test_at_de_la_llamada_a_modelo_lleva_el_tope_de_la_longitud_exacta_del_patron() -> None:
-    """P-T17b-1: la guardia BR10.1 exige `maxLength` a toda cadena con patron; 20 es la longitud exacta."""
-    campo = next(c for c in CAMPOS if c.id == "llamada.at")
-    esquema = _esquema_del_campo(load_contract(campo.archivo), campo)
-    assert esquema.get("maxLength") == len(VALIDA) == 20
+def test_at_de_la_llamada_a_modelo_toma_el_tope_y_la_marca_de_created_at_de_c19() -> None:
+    """P-T17b-1: `at` lleva la misma forma que `created_at` de C19 (BR10.1 y K-16 exigen tope y marca)."""
+    at = next(c for c in CAMPOS if c.id == "llamada.at")
+    creado = next(c for c in CAMPOS if c.id == "C19.created_at")
+    esquema = _esquema_del_campo(load_contract(at.archivo), at)
+    referencia = _esquema_del_campo(load_contract(creado.archivo), creado)
+    assert referencia["maxLength"] == 128
+    assert referencia["x-veridicus-limit"] == "report_token_max_chars"
+    for clave in ("format", "pattern", "maxLength", "x-veridicus-limit"):
+        assert esquema.get(clave) == referencia.get(clave), clave
 
 
 def test_control_negativo_c2_sin_pattern_en_deadline_at_se_detecta() -> None:

@@ -29,7 +29,7 @@ def _modulo(raiz: Path, relativa: str, codigo: str) -> Path:
 
 def _problemas(guardia: ModuleType, raiz: Path, relativa: str, codigo: str) -> list[str]:
     archivo = _modulo(raiz, relativa, codigo)
-    problemas: list[str] = guardia.scan([archivo])
+    problemas: list[str] = guardia.scan([archivo], raiz=raiz)
     for problema in problemas:
         assert problema.startswith(f"{archivo.as_posix()}:"), problema
     return problemas
@@ -68,6 +68,10 @@ def test_yaml_solo_se_crea_en_loaders_y_con_typ_safe(guardia: ModuleType, tmp_pa
     # Fuera de loaders.py, aun con typ="safe", la llamada es un defecto.
     fuera = _problemas(guardia, tmp_path, "tests/otro.py", seguro)
     assert len(fuera) == 1 and "YAML(...) fuera de loaders.py" in fuera[0]
+    # La ruta completa a contracts/ es la que cuenta, no el final de la ruta.
+    for parecida in ("src/otro/veridicus_contracts/loaders.py", "otro/src/veridicus_contracts/loaders.py"):
+        problemas = _problemas(guardia, tmp_path, parecida, seguro)
+        assert len(problemas) == 1 and "YAML(...) fuera de loaders.py" in problemas[0]
     # Dentro de loaders.py, sin typ, con otro typ o con un typ calculado, falla por el typ.
     for codigo in (
         "import ruamel.yaml\n\nlector = ruamel.yaml.YAML()\n",
@@ -134,10 +138,23 @@ def test_e19_cada_excepcion_admite_solo_su_modulo(guardia: ModuleType, tmp_path:
             assert len(problemas) == 1 and modulo in problemas[0]
         # La excepción no exime lo demás de la regla de carga segura.
         assert len(_problemas(guardia, tmp_path, excepcion.ruta, "import yaml\n")) == 1
-    # Otro archivo de tests con subprocess sigue en rojo, aunque se llame parecido.
-    for relativa in ("tests/test_otro.py", "tests/checks/test_package_map.py", "tests/test_package_map.pyi.py"):
+    # Otro archivo con subprocess sigue en rojo, aunque se llame o termine igual (P-T18-7 no aceptada:
+    # la excepción se compara por la ruta relativa completa a contracts/).
+    for relativa in (
+        "tests/test_otro.py",
+        "tests/checks/test_package_map.py",
+        "tests/test_package_map.pyi.py",
+        "otro/tests/test_package_map.py",
+        "services/x/tests/test_package_map.py",
+        "otro/src/veridicus_contracts/tools/check_package.py",
+    ):
         problemas = _problemas(guardia, tmp_path, relativa, "import subprocess\n")
-        assert len(problemas) == 1 and "subprocess" in problemas[0]
+        assert len(problemas) == 1 and "subprocess" in problemas[0], relativa
+    # Sin una raíz, la excepción no exime nada: U10 y U11 no heredan las de contracts/.
+    archivo = _modulo(tmp_path, "tests/test_package_map.py", "import subprocess\n")
+    assert len(guardia.scan([archivo])) == 1
+    # Una raíz que no contiene el archivo tampoco lo exime.
+    assert len(guardia.scan([archivo], raiz=tmp_path / "otra")) == 1
 
 
 def test_un_archivo_que_no_se_puede_interpretar_es_un_problema(guardia: ModuleType, tmp_path: Path) -> None:

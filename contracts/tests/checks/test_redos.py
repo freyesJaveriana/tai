@@ -13,7 +13,7 @@ from pathlib import Path
 from types import ModuleType
 
 import pytest
-from helpers import CONTRACTS_ROOT, importar_o_fallar
+from helpers import CONTRACTS_ROOT, importar_o_fallar, load_contract
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -161,6 +161,68 @@ def test_comprobar_documento_recorre_todo_el_arbol_con_puntero(guardia: ModuleTy
     assert all("^" not in p for p in problemas), "el mensaje no repite el patrón"
 
 
+C6 = "analyzer/v1/salida.schema.json"
+PUNTEROS_DE_C6 = [
+    "/$defs/cita/properties/turno",
+    "/$defs/hallazgo/properties/id",
+    "/$defs/registro/properties/descartes/items/properties/turno_a",
+    "/$defs/registro/properties/descartes/items/properties/turno_b",
+    "/properties/observaciones_conductor/items/properties/turnos/items",
+]
+
+
+def test_e23_la_lista_de_excepciones_de_c6_es_cerrada_y_exacta(guardia: ModuleType) -> None:
+    assert isinstance(guardia.EXCEPCIONES, tuple)
+    assert [(e.ruta, e.puntero) for e in guardia.EXCEPCIONES] == [(C6, p) for p in PUNTEROS_DE_C6]
+    assert all("BR1.7" in e.motivo for e in guardia.EXCEPCIONES)
+
+
+def test_e23_la_copia_de_c6_pasa_solo_por_sus_cinco_punteros(guardia: ModuleType) -> None:
+    documento = load_contract(C6)
+    # Sin la lista no pasaría: las cinco son repeticiones ilimitadas sin maxLength.
+    sin_lista = guardia.comprobar_documento(documento, "otro/propio.schema.json")
+    assert sorted(m.split(": ", 1)[0].split("#", 1)[1] for m in sin_lista) == sorted(PUNTEROS_DE_C6)
+    assert guardia.comprobar_documento(documento, C6) == []
+
+
+def test_e23_el_mismo_patron_en_un_contrato_propio_sigue_en_rojo(guardia: ModuleType) -> None:
+    nodo = {"properties": {"turno": {"type": "string", "pattern": "^T[0-9]+$"}}}
+    assert guardia.comprobar_documento(nodo, "queues/runs.v2.yaml") == [
+        "queues/runs.v2.yaml#/properties/turno: repetición ilimitada sin maxLength (NFR10.6)"
+    ]
+    cita = {"$defs": {"cita": {"properties": {"turno": {"type": "string", "pattern": "^T[0-9]+$"}}}}}
+    assert guardia.comprobar_documento(cita, C6) == []
+    # Con el mismo contenido pero en otro archivo de analyzer/v1/ la excepción no vale.
+    assert len(guardia.comprobar_documento(cita, "analyzer/v1/entrada.schema.json")) == 1
+
+
+def test_e23_la_excepcion_no_cubre_otro_puntero_de_c6_ni_otra_regla(guardia: ModuleType) -> None:
+    otro = {"$defs": {"cita": {"properties": {"texto": {"type": "string", "pattern": "^T[0-9]+$"}}}}}
+    problemas = guardia.comprobar_documento(otro, C6)
+    assert [p.split(": ", 1)[0] for p in problemas] == [f"{C6}#/$defs/cita/properties/texto"]
+    # En un puntero exceptuado, la repetición anidada y lo no portátil siguen en rojo.
+    anidada = {"$defs": {"cita": {"properties": {"turno": {"pattern": "^(a+)+$"}}}}}
+    problemas = guardia.comprobar_documento(anidada, C6)
+    assert len(problemas) == 1 and "dentro de otra repetición" in problemas[0]
+    no_portatil = {"$defs": {"cita": {"properties": {"turno": {"pattern": "^T\\d+$"}}}}}
+    problemas = guardia.comprobar_documento(no_portatil, C6)
+    assert len(problemas) == 1 and "no portátil" in problemas[0]
+
+
+def test_las_claves_de_pattern_properties_tambien_son_patrones(guardia: ModuleType) -> None:
+    documento = {"properties": {"m": {"patternProperties": {"^(a+)+$": {}, "^[a-z]{1,8}$": {}, "a": {}}}}}
+    problemas = guardia.comprobar_documento(documento, "c.json")
+    assert problemas == [
+        "c.json#/properties/m/patternProperties/^(a+)+$: repetición ilimitada dentro de otra repetición ilimitada (NFR10.6)",
+        "c.json#/properties/m/patternProperties/a: patrón sin anclar con ^ y $ (NFR10.6)",
+    ]
+    assert guardia.patrones_de_nodo(documento["properties"]["m"]) == ["^(a+)+$", "^[a-z]{1,8}$", "a"]
+    assert guardia.patrones_de_nodo({"patternProperties": 3, "pattern": 4}) == []
+    assert guardia.patrones_de_nodo({"pattern": "^a$"}) == ["^a$"]
+
+
+# Lo que queda en rojo tras la excepción de C6 son los defectos de los contratos que corrige U01-T18b
+# (C2, C3, C5, C18, C21 y la ruta de voz). Esta prueba pasa a verde cuando T18b se fusiona.
 def test_los_patrones_de_los_contratos_versionados_son_seguros(guardia: ModuleType) -> None:
     patrones = guardia.patrones(CONTRACTS_ROOT)
     assert len(patrones) >= 10, "la guardia no pasa en vacío"

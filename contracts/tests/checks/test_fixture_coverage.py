@@ -176,3 +176,76 @@ def test_lo_que_no_es_un_fixture_o_no_declara_su_regla_se_ignora(guardia: Module
 def test_las_reglas_por_omision_son_las_de_regla(guardia: ModuleType, tmp_path: Path) -> None:
     assert guardia.comprobar(tmp_path / "vacio") != []
     assert len(guardia.comprobar(tmp_path / "vacio")) == 2 * len(guardia.REGLAS)
+
+
+# E-24: las reglas de nivel 0 que se prueban con código y no con documentos, cada una con la prueba que la
+# cubre (archivo bajo contracts/ y nombre de la prueba). Añadir una entrada requiere una precisión.
+CON_CODIGO = {
+    "BR1.3": ("tests/contracts/test_queue_messages.py", "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),
+    "BR1.6": ("tests/checks/test_synthetic.py", "test_los_archivos_reales_de_contracts_son_sinteticos_y_sin_numeros_largos"),
+    "BR1.7": ("tests/contracts/test_analyzer_copy.py", "test_sha256sums_tiene_dos_lineas_y_coincide_con_los_bytes"),
+    "BR1.9": ("tests/test_validators.py", "test_una_palabra_clave_desconocida_se_rechaza"),
+    "BR3.3": ("tests/guards/test_autonomia_03.py", "test_ningun_nombre_ni_enum_declara_veracidad"),
+    "BR3.4": ("tests/checks/test_error_codes.py", "test_tabla_c6_del_arbol_real_completa"),
+    "BR4.3": ("tests/contracts/test_review_suggestion.py", "test_las_citas_referencian_la_definicion_de_c6_por_id_canonico"),
+    "BR5.1": ("tests/guards/test_autonomia_03.py", "test_c8_tiene_exactamente_los_terminos_aprobados"),
+    "BR5.7": ("tests/checks/test_veracity.py", "test_el_aviso_versionado_trae_version_y_frase_base"),
+    "BR5.8": ("tests/checks/test_scan_cases.py", "test_el_conjunto_versionado_cubre_cada_termino_y_cada_frase"),
+    "BR6.1": ("tests/guards/test_autonomia_03.py", "test_hay_exactamente_nueve_rotulos_y_uno_por_tipo"),
+    "BR6.2": ("tests/checks/test_veracity.py", "test_rotulos_con_una_fila_type_que_no_es_de_c6"),
+    "BR6.3": ("tests/guards/test_autonomia_03.py", "test_los_rotulos_no_contienen_vocabulario_prohibido"),
+    "BR7.1": ("tests/checks/test_config_write.py", "test_e15_put_profiles_nombra_perfil_en_la_ruta"),
+    "BR7.2": ("tests/checks/test_error_codes.py", "test_toda_4xx_y_5xx_de_c1_es_una_referencia_a_problem"),
+    "BR7.3": ("tests/contracts/test_console.py", "test_los_cuerpos_json_de_c1_son_estrictos"),
+    "BR7.4": ("tests/checks/test_error_codes.py", "test_e31_code_sin_clase"),
+    "BR9.2": ("tests/test_profiles.py", "test_e23_un_alias_a_un_papel_que_no_existe_se_rechaza"),
+    "BR9.4": ("tests/test_profiles.py", "test_e24_otro_clave_se_rechaza_con_un_prefijo_y_se_acepta_con_otro"),
+    "BR9.5": ("tests/test_profiles.py", "test_e26_un_papel_con_su_propio_fallback_se_rechaza"),
+    "BR9.6": ("tests/typing/test_role_translation.py", "test_la_tabla_traduce_solo_los_tres_papeles_del_analizador_y_coincide_con_c6"),
+    "BR9.7": ("tests/contracts/test_profiles_contract.py", "test_la_huella_jcs_de_la_configuracion_efectiva_es_la_del_fixture"),
+    "BR9.8": ("tests/test_profiles.py", "test_validate_no_hace_entrada_salida_ni_lee_el_entorno"),
+    "BR9.9": ("tests/typing/test_anonymizing_provider.py", "test_un_doble_con_solo_generate_pasa_mypy_estricto"),
+    "BR11.1": ("tests/test_limits.py", "test_e33_una_variable_que_sube_la_cifra_se_rechaza"),
+    "BR12.1": ("tests/test_package_map.py", "test_la_rueda_trae_el_mapa_completo_y_sin_fixtures"),
+    "BR12.3": ("tests/test_registry.py", "test_la_forma_antigua_del_ref_no_se_resuelve_e36"),
+}
+
+
+def test_e24_la_lista_de_reglas_con_codigo_es_cerrada_y_exacta(guardia: ModuleType) -> None:
+    assert guardia.REGLAS_CON_CODIGO == CON_CODIGO
+    assert len(guardia.REGLAS_CON_CODIGO) == 27
+    # Ninguna regla está a la vez en la lista de fixtures, en la de código y en las excluidas.
+    assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.REGLAS)
+    assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.EXCLUIDAS)
+
+
+def test_e24_las_reglas_sin_prueba_localizada_se_informan_y_no_se_listan(guardia: ModuleType) -> None:
+    # BR8.1 y BR8.2 esperan a T17; BR1.1 y BR1.4 no tienen una prueba que las cubra entera.
+    assert guardia.SIN_PRUEBA == ("BR1.1", "BR1.4", "BR8.1", "BR8.2")
+    assert not set(guardia.SIN_PRUEBA) & set(guardia.REGLAS_CON_CODIGO)
+    assert not set(guardia.SIN_PRUEBA) & set(guardia.REGLAS)
+
+
+def test_e24_cada_prueba_de_la_lista_existe(guardia: ModuleType) -> None:
+    assert guardia.comprobar_pruebas(CONTRACTS_ROOT) == []
+
+
+def test_e24_una_prueba_inexistente_o_un_archivo_ausente_es_rojo(guardia: ModuleType, tmp_path: Path) -> None:
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_a.py").write_text(
+        "def test_existe() -> None:\n    pass\n\n\nclass TestX:\n    def test_en_clase(self) -> None:\n        pass\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "tests" / "test_roto.py").write_text("def (:\n", encoding="utf-8")
+    reglas = {
+        "BR1.3": ("tests/test_a.py", "test_existe"),
+        "BR1.6": ("tests/test_a.py", "test_en_clase"),
+        "BR1.7": ("tests/test_a.py", "test_no_existe"),
+        "BR1.9": ("tests/test_ausente.py", "test_existe"),
+        "BR3.3": ("tests/test_roto.py", "test_existe"),
+    }
+    assert guardia.comprobar_pruebas(tmp_path, reglas=reglas) == [
+        "BR1.7: la prueba test_no_existe no existe en tests/test_a.py (NFR12.1, §4.10)",
+        "BR1.9: la prueba test_existe no existe en tests/test_ausente.py (NFR12.1, §4.10)",
+        "BR3.3: la prueba test_existe no existe en tests/test_roto.py (NFR12.1, §4.10)",
+    ]

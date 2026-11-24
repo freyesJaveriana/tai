@@ -1,0 +1,91 @@
+# C8: vocabulario prohibido (AUTONOMIA-03, BR5.1–BR5.5). Lo lee el escáner de U11 y lo valida
+# checks/veracity.py. Cada ampliación de la lista entra por su propio PR con su control negativo.
+# La lista es plana: ninguna fuente asigna una categoría a cada término.
+schema_version: 2.0.0
+match:
+  whole_word: true
+  case_insensitive: true
+  accent_insensitive: true
+  # Tramos que el escáner no recorre (BR5.3, BR5.5): la cita literal, el texto del analista y el aviso.
+  excluded_spans: [cita_literal, analyst_text, notice_text]
+  # Cita literal dentro de hecho, observaciones y tema (FD-U1-09): el texto entre «…» que aparece
+  # carácter a carácter (salvo espacios) en un turno de la entrada.
+  quote_delimiters: ["«", "»"]
+  quote_fields: [hecho, observaciones, tema]
+  # D-2: un tramo «…» que es solo un término prohibido sí se escanea (FD-U1-14, FD-U11-20).
+  scan_bare_term_spans: true
+  # Textos que se excluyen enteros del escaneo (BR5.5).
+  excluded_whole_texts:
+    - salida.hallazgos[].cita_a.texto
+    - salida.hallazgos[].cita_b.texto
+    - sugerencia.note
+    - sugerencia.reformulation
+    - aviso.text
+terms:
+  - mentiroso
+  - mentirosa
+  - miente
+  - mintió
+  - falso
+  - falsa
+  - verdadero
+  - verdadera
+  - engaño
+  # E-7 (2026-11-23): términos de VE-02 (adenda 02) con sus flexiones regulares de género y número.
+  # Ninguna fuente fija más variantes de género y número.
+  # E-8 (2026-11-23): formas verbales comunes de «mentir», «inculpar» y «engañar»: presente, pretérito
+  # (perfecto e imperfecto) e infinitivo. Del imperfecto solo «mentía» y «mentían». «miente», «mintió»,
+  # «inculpa» y «engaño» ya estaban. Quedan fuera las formas de «probar» («pruebe», «probó», «probar»):
+  # falsos positivos en los textos de la interfaz.
+  - prueba
+  - pruebas
+  - probatorio
+  - probatoria
+  - probatorios
+  - probatorias
+  - pliego
+  - pliegos
+  - inculpa
+  - engaños
+  - falsos
+  - falsas
+  - miento
+  - mientes
+  - mienten
+  - mentimos
+  - mentís
+  - mentí
+  - mentiste
+  - mentisteis
+  - mintieron
+  - mentir
+  - mentía
+  - mentían
+  - inculpas
+  - inculpamos
+  - inculpáis
+  - inculpan
+  - inculpé
+  - inculpaste
+  - inculpasteis
+  - inculpó
+  - inculparon
+  - inculpar
+  - engañas
+  - engaña
+  - engañamos
+  - engañáis
+  - engañan
+  - engañé
+  - engañaste
+  - engañasteis
+  - engañó
+  - engañaron
+  - engañar
+categories_forbidden_in_schemas: [veracity_score, is_lying, truthfulness, veracidad, credibilidad]
+scanned:
+  - salida.hallazgos[].hecho
+  - salida.hallazgos[].observaciones
+  - salida.observaciones_conductor[].tema
+  - reporte consolidado
+  - catálogo de mensajes de la consola

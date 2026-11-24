@@ -1,0 +1,13 @@
+# Catálogo de rótulos de resultado (FD-U1-08, BR6.1–BR6.3): exactamente nueve. La consola no define otros.
+# Un rótulo por cada valor de tipo de C6 (type_<tipo>) y los dos fijos.
+schema_version: 2.0.0
+labels:
+  suggestion: Sugerencia de revisión
+  finding: Contradicción en el relato
+  type_fecha: Fecha
+  type_numero: Número
+  type_lugar: Lugar
+  type_persona: Persona
+  type_negacion: Negación
+  type_secuencia: Secuencia
+  type_otro: Otro

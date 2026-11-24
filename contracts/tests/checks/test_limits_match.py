@@ -227,6 +227,7 @@ def test_todo_campo_de_texto_de_un_cuerpo_o_un_mensaje_lleva_su_marca(guardia: M
             "items": {"type": "string"},
         }
         _propiedades_de_crear_usuario(documentos)["fecha"] = {"type": "string", "format": "date"}
+        _sin_tope_de_runs(catalogo, documentos)  # P-T15-8: el tope del payload acotaría el texto
         runs = documentos["queues/runs.v2.yaml"]["components"]["messages"]["RunRequested"]
         runs["payload"]["properties"]["comentario"] = {"type": "string"}
         runs["payload"]["properties"]["vuelta"] = {"$ref": "#/components/messages/RunRequested/payload"}
@@ -370,6 +371,12 @@ def _payload_de_runs(documentos: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
+def _sin_tope_de_runs(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+    """Quita el tope del `payload` de `RunRequested` y su `used_in`: una copia sin tope (P-T15-8)."""
+    del _payload_de_runs(documentos)["x-veridicus-max-bytes"]
+    catalogo["run_message_max_bytes"]["used_in"] = []
+
+
 def test_c2_con_la_rama_de_refinamiento_da_por_bueno_el_texto_de_turno_de_c6(
     guardia: ModuleType,
 ) -> None:
@@ -395,6 +402,7 @@ def test_un_ref_externo_se_sigue_con_las_referencias_locales_de_su_propio_docume
     guardia: ModuleType,
 ) -> None:
     def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        _sin_tope_de_runs(catalogo, documentos)  # P-T15-8
         documentos["externo.schema.json"] = _externo()
         _payload_de_runs(documentos)["properties"]["ext"] = {"$ref": f"/{EXTERNO}"}
 
@@ -428,6 +436,7 @@ def test_la_marca_de_una_rama_hermana_en_la_misma_posicion_acota_el_texto_extern
 
     def en_otra_posicion(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
         cambiar(catalogo, documentos)
+        _sin_tope_de_runs(catalogo, documentos)  # P-T15-8
         _payload_de_runs(documentos)["properties"]["ext"]["allOf"][1] = {
             "properties": {"b": {"properties": {"a": marca}}}
         }
@@ -501,6 +510,15 @@ def test_c2_sin_el_tope_del_payload_los_cinco_textos_de_c6_son_rojo(guardia: Mod
         "run_message_max_bytes: used_in nombra C2 y C2 no la marca (§4.4, comprobación inversa)",
     ]
     assert _nuevos_con_c6(guardia, cambiar) == sorted(esperados)
+
+
+def test_la_lista_de_marca_propia_obligatoria_es_exactamente_turnos_texto_de_run_requested(
+    guardia: ModuleType,
+) -> None:
+    # P-T15-8: añadir otra entrada requiere una precisión del humano.
+    lista = getattr(guardia, "MARCA_PROPIA_OBLIGATORIA", {})
+    assert set(lista) == {(RUNS, "RunRequested", "entrada.transcripcion.turnos[].texto")}
+    assert all(len(motivo.split()) >= 5 for motivo in lista.values())
 
 
 def test_c5_un_texto_sin_marca_solo_se_acota_con_el_tope_de_bytes_del_payload(

@@ -19,6 +19,14 @@ MENSAJE_F7 = (
 )
 ESQUEMAS_C6 = ("entrada.schema.json", "salida.schema.json")
 
+# Huellas SHA-256 de los bytes de la copia aprobada de C6 (R-04, E-32). Solo cambian con un cambio de
+# contrato aprobado en el repositorio principal, es decir, con una v2 nueva; nunca porque un PR
+# recalcule `SHA256SUMS`.
+HUELLAS_APROBADAS_C6 = {
+    "entrada.schema.json": "28606016b51dd19d873e7ee8fae7d959f0a98c225ab2690d0fd935296c3c41a8",
+    "salida.schema.json": "e1528b7de1db9b5a3ca8c6f3e8eacb0eeec92522423014d6644ab39918bedeaf",
+}
+
 
 def check_c6_copy(carpeta: Path) -> list[str]:
     """F7 (BR1.7): comprueba la copia de C6 en `carpeta`; lista vacía si es la aprobada.

@@ -1,0 +1,3206 @@
+{
+  "cookie": {
+    "sessionCookie": {
+      "in": "cookie",
+      "name": "veridicus_session",
+      "x-veridicus-cookie": {
+        "http_only": true,
+        "idle_limit": "web_session_idle_s",
+        "max_age_limit": "web_session_max_s",
+        "path": "/",
+        "same_site": "Strict",
+        "secure": true
+      }
+    }
+  },
+  "integrity": {
+    "analyzer_v1_sha256sums": "98fd33f1008efe2b10ce6b09155f4fe01c82f11786b0f50b4a32796e79364c18",
+    "error_codes": "ba2c008fb0a343ac1004d34a0570939383ac10bf1f7aef6fd7483a3eade6263c",
+    "forbidden_vocabulary": "4b3d4ba149ffef5601f78a56063a226adddb873b2213a111565f3ec6a6a6dcef",
+    "limits": "91adfdc4f9046974c02991daf165ac17982e4d942bf0715a0862c1cc0ae8a259",
+    "result_labels": "71146ea55c275b9044cdf96a7a9731286418f7f17a61d708de309a1aa7db48ae"
+  },
+  "limits": {
+    "limits": {
+      "acknowledgement_validity_days": {
+        "owner": "U13",
+        "unit": "days",
+        "used_in": [],
+        "value": 90
+      },
+      "anonymizer_masking_budget_ratio": {
+        "owner": "U10",
+        "unit": "ratio",
+        "used_in": [],
+        "value": 0.15
+      },
+      "anonymizer_request_max_bytes": {
+        "owner": "U10",
+        "unit": "bytes",
+        "used_in": [
+          "C21"
+        ],
+        "value": 2097152
+      },
+      "anonymizer_response_max_bytes": {
+        "owner": "U10",
+        "unit": "bytes",
+        "used_in": [
+          "C21"
+        ],
+        "value": 2097152
+      },
+      "audio_base64_max_chars": {
+        "derived_from": "audio_max_bytes",
+        "owner": "U9",
+        "unit": "chars",
+        "used_in": [
+          "C5"
+        ],
+        "value": 8000000
+      },
+      "audio_claim_idle_ms": {
+        "owner": "U9",
+        "unit": "ms",
+        "used_in": [],
+        "value": 120000
+      },
+      "audio_max_bytes": {
+        "owner": "U9",
+        "unit": "bytes",
+        "used_in": [],
+        "value": 6000000
+      },
+      "audio_max_deliveries": {
+        "owner": "U9",
+        "unit": "deliveries",
+        "used_in": [],
+        "value": 2
+      },
+      "audio_max_seconds": {
+        "owner": "U9",
+        "unit": "s",
+        "used_in": [],
+        "value": 120
+      },
+      "audio_store_max_bytes": {
+        "owner": "U9",
+        "unit": "bytes",
+        "used_in": [],
+        "value": 2147483648
+      },
+      "cancel_key_margin_s": {
+        "owner": "U4",
+        "unit": "s",
+        "used_in": [],
+        "value": 120
+      },
+      "claim_idle_ms": {
+        "owner": "U4",
+        "unit": "ms",
+        "used_in": [],
+        "value": 60000
+      },
+      "cursor_max_chars": {
+        "owner": "U4",
+        "unit": "chars",
+        "used_in": [
+          "C1"
+        ],
+        "value": 128
+      },
+      "dismissal_window_w": {
+        "owner": "U5",
+        "unit": "suggestions",
+        "used_in": [],
+        "value": 8
+      },
+      "ethics_body_max_bytes": {
+        "owner": "U13",
+        "unit": "bytes",
+        "used_in": [
+          "C1"
+        ],
+        "value": 32768
+      },
+      "fragment_overlap_turns": {
+        "owner": "U11",
+        "unit": "turns",
+        "used_in": [],
+        "value": 20
+      },
+      "fragment_window_turns": {
+        "owner": "U11",
+        "unit": "turns",
+        "used_in": [],
+        "value": 60
+      },
+      "heartbeat_timeout_s": {
+        "owner": "U6",
+        "unit": "s",
+        "used_in": [],
+        "value": 180
+      },
+      "heartbeat_write_min_s": {
+        "owner": "U6",
+        "unit": "s",
+        "used_in": [],
+        "value": 15
+      },
+      "import_body_max_bytes": {
+        "derived_from": "import_file_max_bytes",
+        "owner": "U6",
+        "unit": "bytes",
+        "used_in": [
+          "C1"
+        ],
+        "value": 2113536
+      },
+      "import_file_max_bytes": {
+        "owner": "U6",
+        "unit": "bytes",
+        "used_in": [],
+        "value": 2097152
+      },
+      "model_call_role_max_chars": {
+        "owner": "U1",
+        "unit": "chars",
+        "used_in": [
+          "C19"
+        ],
+        "value": 32
+      },
+      "model_call_timeout_s": {
+        "owner": "U11",
+        "unit": "s",
+        "used_in": [],
+        "value": 3600
+      },
+      "model_response_max_bytes": {
+        "owner": "U11",
+        "unit": "bytes",
+        "used_in": [],
+        "value": 2097152
+      },
+      "password_max_chars": {
+        "owner": "U3",
+        "unit": "chars",
+        "used_in": [
+          "C1"
+        ],
+        "value": 128
+      },
+      "poll_interval_active_s": {
+        "owner": "U4",
+        "unit": "s",
+        "used_in": [],
+        "value": 2
+      },
+      "poll_interval_s": {
+        "owner": "U4",
+        "unit": "s",
+        "used_in": [],
+        "value": 15
+      },
+      "problem_report_note_max_chars": {
+        "owner": "U13",
+        "unit": "chars",
+        "used_in": [
+          "C1"
+        ],
+        "value": 2000
+      },
+      "report_max_bytes": {
+        "owner": "U7",
+        "unit": "bytes",
+        "used_in": [],
+        "value": 8388608
+      },
+      "report_per_run_items": {
+        "owner": "U1",
+        "unit": "runs",
+        "used_in": [
+          "C19"
+        ],
+        "value": 3
+      },
+      "report_token_max_chars": {
+        "owner": "U1",
+        "unit": "chars",
+        "used_in": [
+          "C19",
+          "C2",
+          "C21",
+          "C5"
+        ],
+        "value": 128
+      },
+      "research_report_max_bytes": {
+        "owner": "U12",
+        "unit": "bytes",
+        "used_in": [
+          "C1"
+        ],
+        "value": 8388608
+      },
+      "research_report_max_json_depth": {
+        "owner": "U12",
+        "unit": "levels",
+        "used_in": [],
+        "value": 8
+      },
+      "research_report_read_timeout_s": {
+        "owner": "U12",
+        "unit": "s",
+        "used_in": [],
+        "value": 30
+      },
+      "research_report_write_timeout_s": {
+        "owner": "U12",
+        "unit": "s",
+        "used_in": [],
+        "value": 15
+      },
+      "retention_max_days": {
+        "owner": "U13",
+        "unit": "days",
+        "used_in": [],
+        "value": 90
+      },
+      "retention_min_days": {
+        "owner": "U13",
+        "unit": "days",
+        "used_in": [],
+        "value": 1
+      },
+      "review_body_max_bytes": {
+        "owner": "U5",
+        "unit": "bytes",
+        "used_in": [
+          "C1"
+        ],
+        "value": 65536
+      },
+      "review_text_max_chars": {
+        "owner": "U5",
+        "unit": "chars",
+        "used_in": [
+          "C1"
+        ],
+        "value": 2000
+      },
+      "run_deadline_final_s": {
+        "owner": "U11",
+        "unit": "s",
+        "used_in": [],
+        "value": 43200
+      },
+      "run_deadline_incremental_s": {
+        "owner": "U11",
+        "unit": "s",
+        "used_in": [],
+        "value": 1200
+      },
+      "run_max_deliveries": {
+        "owner": "U4",
+        "unit": "deliveries",
+        "used_in": [],
+        "value": 3
+      },
+      "run_message_max_bytes": {
+        "owner": "U4",
+        "unit": "bytes",
+        "used_in": [
+          "C2"
+        ],
+        "value": 2097152
+      },
+      "run_queue_wait_max_s": {
+        "owner": "U4",
+        "unit": "s",
+        "used_in": [],
+        "value": 10800
+      },
+      "session_body_max_bytes": {
+        "owner": "U4",
+        "unit": "bytes",
+        "used_in": [
+          "C1"
+        ],
+        "value": 32768
+      },
+      "session_sweep_interval_s": {
+        "owner": "U6",
+        "unit": "s",
+        "used_in": [],
+        "value": 30
+      },
+      "speech_audio_max_bytes": {
+        "owner": "U9",
+        "unit": "bytes",
+        "used_in": [],
+        "value": 4194304
+      },
+      "speech_route_timeout_s": {
+        "owner": "U9",
+        "unit": "s",
+        "used_in": [],
+        "value": 15
+      },
+      "speech_text_max_chars": {
+        "owner": "U9",
+        "unit": "chars",
+        "used_in": [],
+        "value": 400
+      },
+      "testimony_warning_words": {
+        "owner": "U13",
+        "unit": "words",
+        "used_in": [],
+        "value": 8
+      },
+      "transcript_body_max_bytes": {
+        "derived_from": "transcript_max_chars",
+        "owner": "U6",
+        "unit": "bytes",
+        "used_in": [
+          "C1"
+        ],
+        "value": 1004096
+      },
+      "transcript_max_chars": {
+        "owner": "U4",
+        "unit": "chars",
+        "used_in": [],
+        "value": 250000
+      },
+      "transcript_max_turns": {
+        "owner": "U4",
+        "unit": "turns",
+        "used_in": [],
+        "value": 2000
+      },
+      "transcription_timeout_s": {
+        "owner": "U9",
+        "unit": "s",
+        "used_in": [],
+        "value": 90
+      },
+      "tts_timeout_s": {
+        "owner": "U9",
+        "unit": "s",
+        "used_in": [],
+        "value": 12
+      },
+      "turn_max_chars": {
+        "owner": "U4",
+        "unit": "chars",
+        "used_in": [
+          "C1",
+          "C2",
+          "C5"
+        ],
+        "value": 20000
+      },
+      "username_max_chars": {
+        "owner": "U3",
+        "unit": "chars",
+        "used_in": [
+          "C1"
+        ],
+        "value": 32
+      },
+      "voice_body_max_bytes": {
+        "derived_from": "audio_max_bytes",
+        "owner": "U9",
+        "unit": "bytes",
+        "used_in": [
+          "C1"
+        ],
+        "value": 6016384
+      },
+      "voice_deadline_base_s": {
+        "owner": "U9",
+        "unit": "s",
+        "used_in": [],
+        "value": 360
+      },
+      "voice_deadline_max_s": {
+        "owner": "U9",
+        "unit": "s",
+        "used_in": [],
+        "value": 1800
+      },
+      "voice_key_ttl_s": {
+        "owner": "U9",
+        "unit": "s",
+        "used_in": [],
+        "value": 1920
+      },
+      "web_session_idle_s": {
+        "owner": "U3",
+        "unit": "s",
+        "used_in": [
+          "C1"
+        ],
+        "value": 1800
+      },
+      "web_session_max_s": {
+        "owner": "U3",
+        "unit": "s",
+        "used_in": [
+          "C1"
+        ],
+        "value": 43200
+      },
+      "wellness_reminder_interval_s": {
+        "owner": "U13",
+        "unit": "s",
+        "used_in": [],
+        "value": 2700
+      }
+    },
+    "relations": [
+      [
+        "fragment_overlap_turns",
+        "<",
+        "fragment_window_turns"
+      ],
+      [
+        "heartbeat_write_min_s",
+        "<",
+        "heartbeat_timeout_s"
+      ],
+      [
+        "import_file_max_bytes",
+        "<",
+        "import_body_max_bytes"
+      ],
+      [
+        "import_file_max_bytes",
+        "<=",
+        "run_message_max_bytes"
+      ],
+      [
+        "poll_interval_active_s",
+        "<=",
+        "poll_interval_s"
+      ],
+      [
+        "retention_min_days",
+        "<=",
+        "retention_max_days"
+      ],
+      [
+        "run_deadline_incremental_s",
+        "<=",
+        "run_deadline_final_s"
+      ],
+      [
+        "voice_deadline_base_s",
+        "<=",
+        "voice_deadline_max_s"
+      ]
+    ],
+    "schema_version": "1.0.0"
+  },
+  "metrics": {
+    "veridicus_anonymizer_altered_markers_total": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {
+        "provider": {
+          "values": [
+            "anthropic",
+            "google",
+            "openai"
+          ]
+        },
+        "role": {
+          "values": [
+            "judge",
+            "verifier",
+            "verifier_permuted"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_anonymizer_inflight": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {},
+      "type": "gauge"
+    },
+    "veridicus_anonymizer_input_tokens_total": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {
+        "provider": {
+          "values": [
+            "anthropic",
+            "google",
+            "openai"
+          ]
+        },
+        "role": {
+          "values": [
+            "judge",
+            "verifier",
+            "verifier_permuted"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_anonymizer_masking_seconds": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "failed_after_send",
+            "failed_closed",
+            "rejected",
+            "restored"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_anonymizer_output_tokens_total": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {
+        "provider": {
+          "values": [
+            "anthropic",
+            "google",
+            "openai"
+          ]
+        },
+        "role": {
+          "values": [
+            "judge",
+            "verifier",
+            "verifier_permuted"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_anonymizer_ready": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {},
+      "type": "gauge"
+    },
+    "veridicus_anonymizer_replacements_total": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {
+        "category": {
+          "values": [
+            "ENTIDAD",
+            "EXPEDIENTE",
+            "IDENTIFICADOR",
+            "LUGAR",
+            "PERSONA"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_anonymizer_requests_total": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {
+        "error_code": {
+          "values": [
+            "analysis.anonymizer_unavailable",
+            "analysis.content_blocked",
+            "analysis.invalid_output",
+            "analysis.provider",
+            "analysis.timeout",
+            "anonymizer.destination_rejected",
+            "anonymizer.profile_mismatch",
+            "limits.exceeded",
+            "none"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "failed_after_send",
+            "failed_closed",
+            "rejected",
+            "restored"
+          ]
+        },
+        "provider": {
+          "values": [
+            "anthropic",
+            "google",
+            "openai"
+          ]
+        },
+        "role": {
+          "values": [
+            "judge",
+            "verifier",
+            "verifier_permuted"
+          ]
+        },
+        "slot": {
+          "values": [
+            "fallback",
+            "primary"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_anonymizer_upstream_seconds": {
+      "file": "metrics/anonymizer.v1.yaml",
+      "labels": {
+        "provider": {
+          "values": [
+            "anthropic",
+            "google",
+            "openai"
+          ]
+        },
+        "role": {
+          "values": [
+            "judge",
+            "verifier",
+            "verifier_permuted"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_aof_rewrite_requests_total": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "error",
+            "in_progress",
+            "requested"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_audio_queue_depth": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {},
+      "type": "gauge"
+    },
+    "veridicus_audio_store_bytes": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {},
+      "type": "gauge"
+    },
+    "veridicus_clarification_audio_requests_total": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "forbidden",
+            "not_approved",
+            "not_found",
+            "ok",
+            "session_state",
+            "text_rejected",
+            "unavailable"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_conductor_observation_decisions_total": {
+      "file": "metrics/assistant-extras.v1.yaml",
+      "labels": {
+        "state": {
+          "values": [
+            "approved",
+            "discarded"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_conductor_observations_ingested_total": {
+      "file": "metrics/assistant-extras.v1.yaml",
+      "labels": {},
+      "type": "counter"
+    },
+    "veridicus_ingest_duration_seconds": {
+      "file": "metrics/text-flow.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "discarded",
+            "invalid_output",
+            "ok",
+            "rolled_back"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_model_input_tokens_total": {
+      "file": "metrics/text-flow.v1.yaml",
+      "labels": {
+        "provider": {
+          "values": [
+            "anthropic",
+            "google",
+            "local",
+            "openai"
+          ]
+        },
+        "role": {
+          "values": [
+            "judge",
+            "verifier",
+            "verifier_permuted"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_model_output_tokens_total": {
+      "file": "metrics/text-flow.v1.yaml",
+      "labels": {
+        "provider": {
+          "values": [
+            "anthropic",
+            "google",
+            "local",
+            "openai"
+          ]
+        },
+        "role": {
+          "values": [
+            "judge",
+            "verifier",
+            "verifier_permuted"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_review_decisions_total": {
+      "file": "metrics/review.v2.yaml",
+      "labels": {
+        "state": {
+          "values": [
+            "accepted",
+            "dismissed",
+            "edited"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_run_cancellations_total": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "key_deferred",
+            "key_written"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_run_duration_seconds": {
+      "file": "metrics/review.v2.yaml",
+      "labels": {
+        "mode": {
+          "values": [
+            "final",
+            "incremental"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "error",
+            "ok"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_run_hold_wait_seconds": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "cancelled",
+            "error",
+            "timeout",
+            "transcribed",
+            "withdrawn"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_run_holds_active": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {},
+      "type": "gauge"
+    },
+    "veridicus_run_latency_seconds": {
+      "file": "metrics/text-flow.v1.yaml",
+      "labels": {
+        "mode": {
+          "values": [
+            "final",
+            "incremental"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "cancelled",
+            "completed",
+            "error"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_run_queue_depth": {
+      "file": "metrics/text-flow.v1.yaml",
+      "labels": {},
+      "type": "gauge"
+    },
+    "veridicus_run_queue_wait_seconds": {
+      "file": "metrics/text-flow.v1.yaml",
+      "labels": {
+        "mode": {
+          "values": [
+            "final",
+            "incremental"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_runs_total": {
+      "file": "metrics/review.v2.yaml",
+      "labels": {
+        "error_code": {
+          "values": [
+            "analysis.anonymizer_unavailable",
+            "analysis.content_blocked",
+            "analysis.invalid_output",
+            "analysis.provider",
+            "analysis.system",
+            "analysis.timeout",
+            "anonymizer.incident",
+            "none"
+          ]
+        },
+        "mode": {
+          "values": [
+            "final",
+            "incremental"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "cancelled",
+            "completed",
+            "error"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_session_dismissal_ratio": {
+      "file": "metrics/review.v2.yaml",
+      "labels": {
+        "session_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        }
+      },
+      "type": "gauge"
+    },
+    "veridicus_session_import_seconds": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "accepted",
+            "rejected"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_session_imports_total": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "error_code": {
+          "values": [
+            "auth.csrf",
+            "auth.forbidden",
+            "auth.unauthenticated",
+            "import.invalid_transcript",
+            "import.invalid_type",
+            "import.profile_mismatch",
+            "limits.exceeded",
+            "none",
+            "profile.not_approved",
+            "profile.transfer_not_authorized",
+            "system.internal",
+            "system.unavailable",
+            "validation.invalid_request"
+          ]
+        },
+        "origin": {
+          "values": [
+            "corpus",
+            "sintetico"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "accepted",
+            "rejected"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_session_sweep_seconds": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "error",
+            "ok"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_session_transitions_total": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "state": {
+          "values": [
+            "blocked",
+            "consolidated",
+            "finalized",
+            "open",
+            "paused",
+            "suspended",
+            "terminated"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_sessions": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "state": {
+          "values": [
+            "blocked",
+            "consolidated",
+            "finalized",
+            "open",
+            "paused",
+            "suspended",
+            "terminated"
+          ]
+        }
+      },
+      "type": "gauge"
+    },
+    "veridicus_sessions_blocked_total": {
+      "file": "metrics/text-flow.v1.yaml",
+      "labels": {},
+      "type": "counter"
+    },
+    "veridicus_speech_synthesis_seconds": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "error",
+            "ok",
+            "rejected",
+            "timeout"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_transcript_paste_seconds": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "outcome": {
+          "values": [
+            "accepted",
+            "rejected"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_transcript_pastes_total": {
+      "file": "metrics/session-lifecycle.v1.yaml",
+      "labels": {
+        "error_code": {
+          "values": [
+            "auth.csrf",
+            "auth.forbidden",
+            "auth.unauthenticated",
+            "limits.exceeded",
+            "none",
+            "session.blocked",
+            "session.closed_to_new_turns",
+            "session.consent_missing",
+            "session.consent_withdrawn",
+            "session.finalized",
+            "session.not_owner",
+            "session.suspended",
+            "session.terminated",
+            "system.internal",
+            "system.unavailable",
+            "validation.invalid_request"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "accepted",
+            "rejected"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_transcription_seconds": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {},
+      "type": "histogram"
+    },
+    "veridicus_transcriptions_total": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {
+        "error_code": {
+          "values": [
+            "analysis.invalid_output",
+            "analysis.system",
+            "analysis.timeout",
+            "none"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "cancelled",
+            "dead_letter",
+            "duplicate",
+            "failed",
+            "transcribed"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_turn_latency_seconds": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {
+        "origin": {
+          "values": [
+            "voice"
+          ]
+        }
+      },
+      "type": "histogram"
+    },
+    "veridicus_voice_submissions_total": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {
+        "error_code": {
+          "values": [
+            "analysis.system",
+            "auth.forbidden",
+            "conductor_observation.not_approved",
+            "conductor_observation.not_found",
+            "limits.exceeded",
+            "none",
+            "session.blocked",
+            "session.closed_to_new_turns",
+            "session.consent_missing",
+            "session.consent_withdrawn",
+            "session.finalized",
+            "session.suspended",
+            "session.terminated",
+            "session.voice_not_authorized",
+            "speech.text_rejected",
+            "speech.unavailable",
+            "validation.invalid_request"
+          ]
+        },
+        "outcome": {
+          "values": [
+            "accepted",
+            "duplicate",
+            "rejected"
+          ]
+        }
+      },
+      "type": "counter"
+    },
+    "veridicus_voice_upload_bytes": {
+      "file": "metrics/voice.v1.yaml",
+      "labels": {},
+      "type": "histogram"
+    }
+  },
+  "operations": {
+    "C1": {
+      "GET /auth/me": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "get_me",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /conductor-observations/{observation_id}/audio": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-priority": "SHOULD",
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "get_conductor_observation_audio",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "404",
+          "409",
+          "503"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /notice": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "get_notice",
+        "request_bodies": {},
+        "responses": [
+          "200"
+        ],
+        "security": []
+      },
+      "GET /profiles": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "admin",
+            "analista",
+            "investigador"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "list_profiles",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /reports/{report_version_id}/download": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-access-log": "report_version",
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "download_report",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "409",
+          "422",
+          "503"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /research-reports": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "investigador"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "list_research_reports",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /research-reports/compare": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-priority": "SHOULD",
+          "x-veridicus-roles": [
+            "investigador"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "compare_research_reports",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "404",
+          "409",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /research-reports/{research_report_id}": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "investigador"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "get_research_report",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /sessions": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "list_sessions",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /sessions/{session_id}": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-access-log": "session",
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "get_session",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /sessions/{session_id}/reports": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "list_report_versions",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /sessions/{session_id}/runs/{run_id}/model-calls": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "list_model_calls",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "GET /users": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "admin"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "list_users",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "PATCH /sessions/{session_id}/analysis": {
+        "csrf": true,
+        "encola": true,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "set_analysis_paused",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "paused"
+            ],
+            "strict": true,
+            "text_fields": {}
+          }
+        },
+        "responses": [
+          "202",
+          "401",
+          "403",
+          "409"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "PATCH /sessions/{session_id}/retention": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-demo": true,
+          "x-veridicus-owner-only-for-role": "analista",
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "ethics_body_max_bytes"
+          ]
+        },
+        "operation_id": "update_retention",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "retention_days"
+            ],
+            "strict": true,
+            "text_fields": {}
+          }
+        },
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "413",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "PATCH /users/{user_id}": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "admin"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "update_user",
+        "request_bodies": {
+          "application/json": {
+            "required": [],
+            "strict": true,
+            "text_fields": {}
+          }
+        },
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "404",
+          "409",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /acknowledgements": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-demo": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "ethics_body_max_bytes"
+          ]
+        },
+        "operation_id": "create_acknowledgement",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "text_version"
+            ],
+            "strict": true,
+            "text_fields": {
+              "text_version": {
+                "limit": null,
+                "max_length": null
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "413",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /auth/login": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [
+            "password_max_chars",
+            "username_max_chars"
+          ],
+          "max_bytes": []
+        },
+        "operation_id": "login",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "password",
+              "username"
+            ],
+            "strict": true,
+            "text_fields": {
+              "password": {
+                "limit": "password_max_chars",
+                "max_length": 128
+              },
+              "username": {
+                "limit": "username_max_chars",
+                "max_length": 32
+              }
+            }
+          }
+        },
+        "responses": [
+          "204",
+          "401",
+          "413",
+          "429",
+          "503"
+        ],
+        "security": []
+      },
+      "POST /auth/logout": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "logout",
+        "request_bodies": {},
+        "responses": [
+          "204",
+          "401"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /conductor-observations/{observation_id}/decision": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-priority": "SHOULD",
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "review_body_max_bytes"
+          ]
+        },
+        "operation_id": "decide_conductor_observation",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "status"
+            ],
+            "strict": true,
+            "text_fields": {}
+          }
+        },
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "404",
+          "409",
+          "413"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /problem-reports": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-demo": true,
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [
+            "problem_report_note_max_chars"
+          ],
+          "max_bytes": [
+            "ethics_body_max_bytes"
+          ]
+        },
+        "operation_id": "create_problem_report",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "category"
+            ],
+            "strict": true,
+            "text_fields": {
+              "note": {
+                "limit": "problem_report_note_max_chars",
+                "max_length": 2000
+              },
+              "session_id": {
+                "limit": null,
+                "max_length": null
+              },
+              "suggestion_id": {
+                "limit": null,
+                "max_length": null
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "404",
+          "413",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /reports/{report_version_id}/exports": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only-for-role": "analista",
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "export_report",
+        "request_bodies": {},
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "404",
+          "409",
+          "422",
+          "503"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /research-reports": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "investigador"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "research_report_max_bytes"
+          ]
+        },
+        "operation_id": "upload_research_report",
+        "request_bodies": {
+          "multipart/form-data": {
+            "required": [
+              "file"
+            ],
+            "strict": true,
+            "text_fields": {
+              "file": {
+                "limit": null,
+                "max_length": null
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "409",
+          "413",
+          "415",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "session_body_max_bytes"
+          ]
+        },
+        "operation_id": "create_session",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "consentimiento",
+              "entrevista",
+              "profile_name"
+            ],
+            "strict": true,
+            "text_fields": {
+              "entrevista": {
+                "limit": null,
+                "max_length": null
+              },
+              "profile_name": {
+                "limit": null,
+                "max_length": null
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "413",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/import": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "import_body_max_bytes"
+          ]
+        },
+        "operation_id": "import_session",
+        "request_bodies": {
+          "multipart/form-data": {
+            "required": [
+              "file",
+              "profile_name"
+            ],
+            "strict": true,
+            "text_fields": {
+              "file": {
+                "limit": null,
+                "max_length": null
+              },
+              "profile_name": {
+                "limit": null,
+                "max_length": null
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "413",
+          "415",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/consent-withdrawal": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "withdraw_consent",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "409"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/correction-rounds": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "open_correction_round",
+        "request_bodies": {},
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "409",
+          "422",
+          "503"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/correction-rounds/current/discard": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "discard_correction_round",
+        "request_bodies": {},
+        "responses": [
+          "204",
+          "401",
+          "403",
+          "409",
+          "422",
+          "503"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/final-runs": {
+        "csrf": true,
+        "encola": true,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "launch_final_run",
+        "request_bodies": {},
+        "responses": [
+          "202",
+          "401",
+          "403",
+          "409"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/finalize": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "finalize_session",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "409",
+          "422",
+          "503"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/heartbeat": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "heartbeat_session",
+        "request_bodies": {},
+        "responses": [
+          "204",
+          "401",
+          "403"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/reports": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "consolidate_report",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "expected_cursor"
+            ],
+            "strict": true,
+            "text_fields": {
+              "expected_cursor": {
+                "limit": "cursor_max_chars",
+                "max_length": 128
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "409",
+          "413",
+          "422",
+          "503"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/resume": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "resume_session",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "409"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/runs/{run_id}/retry": {
+        "csrf": true,
+        "encola": true,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "retry_run",
+        "request_bodies": {},
+        "responses": [
+          "202",
+          "401",
+          "403",
+          "409"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/terminate": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "terminate_session",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "401",
+          "403",
+          "409"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/transcript": {
+        "csrf": true,
+        "encola": true,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "transcript_body_max_bytes"
+          ]
+        },
+        "operation_id": "paste_transcript",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "client_request_id",
+              "text"
+            ],
+            "strict": true,
+            "text_fields": {
+              "client_request_id": {
+                "limit": null,
+                "max_length": null
+              },
+              "text": {
+                "limit": null,
+                "max_length": null
+              }
+            }
+          }
+        },
+        "responses": [
+          "202",
+          "401",
+          "403",
+          "409",
+          "413"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/turns": {
+        "csrf": true,
+        "encola": true,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [
+            "turn_max_chars"
+          ],
+          "max_bytes": []
+        },
+        "operation_id": "create_turn",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "client_request_id",
+              "hablante",
+              "texto"
+            ],
+            "strict": true,
+            "text_fields": {
+              "client_request_id": {
+                "limit": null,
+                "max_length": null
+              },
+              "texto": {
+                "limit": "turn_max_chars",
+                "max_length": 20000
+              }
+            }
+          }
+        },
+        "responses": [
+          "202",
+          "401",
+          "403",
+          "409",
+          "413"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /sessions/{session_id}/voice-turns": {
+        "csrf": true,
+        "encola": true,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-priority": "SHOULD",
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": [
+            "voice_body_max_bytes"
+          ]
+        },
+        "operation_id": "create_voice_turn",
+        "request_bodies": {
+          "multipart/form-data": {
+            "required": [
+              "audio",
+              "client_request_id",
+              "hablante"
+            ],
+            "strict": true,
+            "text_fields": {
+              "audio": {
+                "limit": null,
+                "max_length": null
+              },
+              "client_request_id": {
+                "limit": null,
+                "max_length": null
+              }
+            }
+          }
+        },
+        "responses": [
+          "202",
+          "401",
+          "403",
+          "409",
+          "413",
+          "415"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /suggestions/{suggestion_id}/decisions": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-owner-only": true,
+          "x-veridicus-roles": [
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [
+            "review_text_max_chars"
+          ],
+          "max_bytes": [
+            "review_body_max_bytes"
+          ]
+        },
+        "operation_id": "decide_suggestion",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "state"
+            ],
+            "strict": true,
+            "text_fields": {
+              "note": {
+                "limit": "review_text_max_chars",
+                "max_length": 2000
+              },
+              "reformulation": {
+                "limit": "review_text_max_chars",
+                "max_length": 2000
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "404",
+          "409",
+          "413",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /suggestions/{suggestion_id}/observation-views": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-access-log": "suggestion",
+          "x-veridicus-roles": [
+            "admin",
+            "analista"
+          ]
+        },
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "view_observations",
+        "request_bodies": {},
+        "responses": [
+          "204",
+          "401",
+          "403",
+          "404"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "POST /users": {
+        "csrf": true,
+        "encola": false,
+        "extensions": {
+          "x-veridicus-roles": [
+            "admin"
+          ]
+        },
+        "limit_marks": {
+          "limit": [
+            "password_max_chars",
+            "username_max_chars"
+          ],
+          "max_bytes": []
+        },
+        "operation_id": "create_user",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "password",
+              "role",
+              "username"
+            ],
+            "strict": true,
+            "text_fields": {
+              "password": {
+                "limit": "password_max_chars",
+                "max_length": 128
+              },
+              "username": {
+                "limit": "username_max_chars",
+                "max_length": 32
+              }
+            }
+          }
+        },
+        "responses": [
+          "201",
+          "401",
+          "403",
+          "409",
+          "413",
+          "422"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "C16": {
+      "GET /healthz": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "healthz",
+        "request_bodies": {},
+        "responses": [
+          "200"
+        ],
+        "security": []
+      },
+      "GET /readyz": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [],
+          "max_bytes": []
+        },
+        "operation_id": "readyz",
+        "request_bodies": {},
+        "responses": [
+          "200",
+          "503"
+        ],
+        "security": []
+      }
+    },
+    "C21": {
+      "POST /v1/generate": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [
+            "report_token_max_chars"
+          ],
+          "max_bytes": [
+            "anonymizer_request_max_bytes",
+            "anonymizer_response_max_bytes"
+          ]
+        },
+        "operation_id": "generate",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "destination_slot",
+              "messages",
+              "profile_name",
+              "profile_sha256",
+              "role",
+              "run_id",
+              "schema",
+              "schema_version",
+              "timeout_s"
+            ],
+            "strict": true,
+            "text_fields": {
+              "profile_name": {
+                "limit": null,
+                "max_length": null
+              },
+              "profile_sha256": {
+                "limit": null,
+                "max_length": null
+              },
+              "role": {
+                "limit": null,
+                "max_length": null
+              },
+              "run_id": {
+                "limit": null,
+                "max_length": null
+              },
+              "schema_version": {
+                "limit": "report_token_max_chars",
+                "max_length": 128
+              }
+            }
+          }
+        },
+        "responses": [
+          "200",
+          "409",
+          "413",
+          "422",
+          "451",
+          "502",
+          "503",
+          "504"
+        ],
+        "security": []
+      }
+    },
+    "voz_interna": {
+      "POST /internal/v1/speech": {
+        "csrf": false,
+        "encola": false,
+        "extensions": {},
+        "limit_marks": {
+          "limit": [
+            "report_token_max_chars"
+          ],
+          "max_bytes": [
+            "speech_audio_max_bytes"
+          ]
+        },
+        "operation_id": "synthesizeSpeech",
+        "request_bodies": {
+          "application/json": {
+            "required": [
+              "observation_id",
+              "tema",
+              "template_version"
+            ],
+            "strict": true,
+            "text_fields": {
+              "observation_id": {
+                "limit": null,
+                "max_length": null
+              },
+              "tema": {
+                "limit": null,
+                "max_length": null
+              },
+              "template_version": {
+                "limit": "report_token_max_chars",
+                "max_length": 128
+              }
+            }
+          }
+        },
+        "responses": [
+          "200",
+          "401",
+          "422",
+          "503"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "schema_version": "1.0.0",
+  "schemas": {
+    "C1.AcknowledgementStatus": {
+      "required": [
+        "status"
+      ],
+      "strict": false,
+      "text_fields": {
+        "at": {
+          "limit": null,
+          "max_length": null
+        },
+        "current_text_version": {
+          "limit": null,
+          "max_length": null
+        },
+        "text_version": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.ConductorObservation": {
+      "required": [
+        "created_at",
+        "observation_id",
+        "run_id",
+        "status",
+        "tema",
+        "turnos"
+      ],
+      "strict": true,
+      "text_fields": {
+        "created_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "observation_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "run_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "tema": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.Consent": {
+      "required": [
+        "autoriza_conservar_audio",
+        "autoriza_transferencia",
+        "autoriza_voz",
+        "requiere_mandato",
+        "tipo",
+        "version_texto"
+      ],
+      "strict": true,
+      "text_fields": {
+        "constancia": {
+          "limit": null,
+          "max_length": null
+        },
+        "constancia_mandato": {
+          "limit": null,
+          "max_length": null
+        },
+        "registrado_en": {
+          "limit": null,
+          "max_length": null
+        },
+        "version_texto": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.Cursor": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.DateTime": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.ErrorCode": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.Me": {
+      "required": [
+        "csrf_token",
+        "role",
+        "user_id",
+        "username"
+      ],
+      "strict": false,
+      "text_fields": {
+        "csrf_token": {
+          "limit": null,
+          "max_length": null
+        },
+        "user_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "username": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.ModelCall": {
+      "required": [
+        "anonimizado",
+        "fecha",
+        "modelo",
+        "papel",
+        "proveedor",
+        "proveedor_alterno",
+        "tokens_entrada",
+        "tokens_salida"
+      ],
+      "strict": false,
+      "text_fields": {
+        "esfuerzo_o_cuantizacion": {
+          "limit": null,
+          "max_length": null
+        },
+        "fecha": {
+          "limit": null,
+          "max_length": null
+        },
+        "modelo": {
+          "limit": null,
+          "max_length": null
+        },
+        "motor": {
+          "limit": null,
+          "max_length": null
+        },
+        "proveedor": {
+          "limit": null,
+          "max_length": null
+        },
+        "version": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.Notice": {
+      "required": [
+        "text",
+        "version"
+      ],
+      "strict": false,
+      "text_fields": {
+        "text": {
+          "limit": null,
+          "max_length": null
+        },
+        "version": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.Problem": {
+      "required": [
+        "code",
+        "detail",
+        "status",
+        "title",
+        "type"
+      ],
+      "strict": false,
+      "text_fields": {
+        "detail": {
+          "limit": null,
+          "max_length": null
+        },
+        "instance": {
+          "limit": null,
+          "max_length": null
+        },
+        "title": {
+          "limit": null,
+          "max_length": null
+        },
+        "type": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.ProfileSummary": {
+      "required": [
+        "config_sha256",
+        "profile_name",
+        "purpose",
+        "roles"
+      ],
+      "strict": false,
+      "text_fields": {
+        "config_sha256": {
+          "limit": null,
+          "max_length": null
+        },
+        "profile_name": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.ReportVersion": {
+      "required": [
+        "consolidated_at",
+        "consolidated_by",
+        "report_version_id",
+        "session_id",
+        "sha256",
+        "version_number"
+      ],
+      "strict": false,
+      "text_fields": {
+        "consolidated_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "consolidated_by": {
+          "limit": null,
+          "max_length": null
+        },
+        "notice_version": {
+          "limit": null,
+          "max_length": null
+        },
+        "report_version_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "session_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "sha256": {
+          "limit": null,
+          "max_length": null
+        },
+        "supersedes_version_id": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.ResearchReportDetail": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.ResearchReportSummary": {
+      "required": [
+        "analyzer_version",
+        "config_sha256",
+        "kind",
+        "profile_name",
+        "prompt_sha256",
+        "research_report_id",
+        "source_sha256",
+        "uploaded_at"
+      ],
+      "strict": false,
+      "text_fields": {
+        "analyzer_version": {
+          "limit": null,
+          "max_length": null
+        },
+        "config_sha256": {
+          "limit": null,
+          "max_length": null
+        },
+        "dataset_sha256": {
+          "limit": null,
+          "max_length": null
+        },
+        "dataset_version": {
+          "limit": null,
+          "max_length": null
+        },
+        "profile_name": {
+          "limit": null,
+          "max_length": null
+        },
+        "prompt_sha256": {
+          "limit": null,
+          "max_length": null
+        },
+        "report_created_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "research_report_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "schema_version": {
+          "limit": null,
+          "max_length": null
+        },
+        "source_sha256": {
+          "limit": null,
+          "max_length": null
+        },
+        "uploaded_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "uploaded_by": {
+          "limit": null,
+          "max_length": null
+        },
+        "uploaded_by_username": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.ReviewSuggestion": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.Role": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.Run": {
+      "required": [
+        "attempt",
+        "config_sha256",
+        "desde_turno",
+        "hasta_turno",
+        "mode",
+        "profile_name",
+        "requested_at",
+        "run_id",
+        "status"
+      ],
+      "strict": false,
+      "text_fields": {
+        "config_sha256": {
+          "limit": null,
+          "max_length": null
+        },
+        "finished_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "profile_name": {
+          "limit": null,
+          "max_length": null
+        },
+        "requested_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "run_id": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.SessionStatus": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.SessionSummary": {
+      "required": [
+        "created_at",
+        "entrevista",
+        "owner_user_id",
+        "pending_suggestions",
+        "profile_name",
+        "session_id",
+        "status"
+      ],
+      "strict": false,
+      "text_fields": {
+        "created_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "entrevista": {
+          "limit": null,
+          "max_length": null
+        },
+        "finalized_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "owner_user_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "owner_username": {
+          "limit": null,
+          "max_length": null
+        },
+        "profile_name": {
+          "limit": null,
+          "max_length": null
+        },
+        "session_id": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.SessionView": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    },
+    "C1.Turn": {
+      "required": [
+        "hablante",
+        "n",
+        "origin",
+        "submitted_at",
+        "texto",
+        "turn_id"
+      ],
+      "strict": false,
+      "text_fields": {
+        "submitted_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "texto": {
+          "limit": null,
+          "max_length": null
+        },
+        "turn_id": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C1.User": {
+      "required": [
+        "active",
+        "created_at",
+        "role",
+        "user_id",
+        "username"
+      ],
+      "strict": false,
+      "text_fields": {
+        "created_at": {
+          "limit": null,
+          "max_length": null
+        },
+        "user_id": {
+          "limit": null,
+          "max_length": null
+        },
+        "username": {
+          "limit": null,
+          "max_length": null
+        }
+      }
+    },
+    "C16.Checks": {
+      "required": [],
+      "strict": false,
+      "text_fields": {}
+    }
+  },
+  "servers": {
+    "C1": [
+      {
+        "url": "/api/v1",
+        "variables": {}
+      }
+    ],
+    "C16": [
+      {
+        "url": "/",
+        "variables": {}
+      }
+    ],
+    "C21": [
+      {
+        "url": "http://veridicus-anonymizer-proxy:8080",
+        "variables": {}
+      }
+    ],
+    "voz_interna": [
+      {
+        "url": "http://veridicus-audio-worker:8080",
+        "variables": {}
+      }
+    ]
+  }
+}

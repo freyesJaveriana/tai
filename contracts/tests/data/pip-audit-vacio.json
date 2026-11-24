@@ -1,0 +1,6 @@
+{
+  "dependencies": [
+    {"name": "paquete-sintetico", "version": "1.0.0", "vulns": []}
+  ],
+  "fixes": []
+}

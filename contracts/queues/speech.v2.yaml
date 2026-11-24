@@ -122,12 +122,16 @@ components:
             enum: [transcribed, error]
           text:
             type: string
+            maxLength: 20000
+            x-veridicus-limit: turn_max_chars
             description: Solo si outcome es transcribed
           error_code:
             type: string
             enum: [analysis.system, analysis.timeout, analysis.invalid_output]
           model_digest:
             type: string
+            maxLength: 128
+            x-veridicus-limit: report_token_max_chars
     AudioFailed:
       contentType: application/json
       payload:

@@ -15,7 +15,8 @@ limits:
   username_max_chars: {value: 32, unit: chars, owner: U3, used_in: [C1]}
   password_max_chars: {value: 128, unit: chars, owner: U3, used_in: [C1]}
   # U4: turnos, corridas y sondeo (NFR-U4-01, -04, -05; NFRD-U7-04)
-  turn_max_chars: {value: 20000, unit: chars, owner: U4, used_in: [C1, C2]}
+  turn_max_chars: {value: 20000, unit: chars, owner: U4, used_in: [C1, C2, C5]}
+  session_body_max_bytes: {value: 32768, unit: bytes, owner: U4, used_in: [C1]}
   transcript_max_turns: {value: 2000, unit: turns, owner: U4, used_in: []}
   transcript_max_chars: {value: 250000, unit: chars, owner: U4, used_in: []}
   run_message_max_bytes: {value: 2097152, unit: bytes, owner: U4, used_in: []}
@@ -80,7 +81,9 @@ limits:
   wellness_reminder_interval_s: {value: 2700, unit: s, owner: U13, used_in: []}
   ethics_body_max_bytes: {value: 32768, unit: bytes, owner: U13, used_in: [C1]}
   # U1: reporte de la CLI (NFR12.3)
-  report_token_max_chars: {value: 128, unit: chars, owner: U1, used_in: [C19]}
+  report_token_max_chars: {value: 128, unit: chars, owner: U1, used_in: [C19, C5]}
+  model_call_role_max_chars: {value: 32, unit: chars, owner: U1, used_in: [C19]}
+  report_per_run_items: {value: 3, unit: runs, owner: U1, used_in: [C19]}
 relations:
   - [fragment_overlap_turns, "<", fragment_window_turns]
   - [retention_min_days, "<=", retention_max_days]

@@ -344,6 +344,7 @@ $defs:
         type: array
         minItems: 3
         maxItems: 3
+        x-veridicus-limit: report_per_run_items
         items:
           $ref: '#/$defs/ratio'
       aggregate:
@@ -376,6 +377,7 @@ $defs:
         type: array
         minItems: 3
         maxItems: 3
+        x-veridicus-limit: report_per_run_items
         items:
           $ref: '#/$defs/count'
       aggregate:

@@ -74,14 +74,8 @@ def test_c25_marca_c5_en_turn_max_chars_y_report_token_max_chars() -> None:
     catalogo = load_contract(LIMITES)
     assert comprobar_used_in_c5(catalogo) == []
     assert catalogo["limits"]["turn_max_chars"]["used_in"] == ["C1", "C2", "C5"]
-    assert catalogo["limits"]["report_token_max_chars"]["used_in"] == [
-        "C2",
-        "C3",
-        "C5",
-        "C18",
-        "C19",
-        "C21",
-    ]  # E-23 (T18b): suma C2, C3, C18 y C21
+    # E-25 (T18b): suma C2 y C21, los contratos nuevos que vigila §4.4
+    assert catalogo["limits"]["report_token_max_chars"]["used_in"] == ["C2", "C5", "C19", "C21"]
 
 
 def test_c25_control_negativo_sin_c5_se_detecta() -> None:

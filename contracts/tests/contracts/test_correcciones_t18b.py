@@ -167,9 +167,10 @@ def test_los_code_llevan_exactamente_el_patron_dominio_punto_motivo(campo: Campo
     assert esquema["pattern"] == PATRON_CODE
 
 
-def test_c25_suma_los_contratos_nuevos_a_report_token_max_chars() -> None:
+def test_c25_suma_solo_los_contratos_que_vigila_4_4_a_report_token_max_chars() -> None:
+    """E-25: C3 y C18 llevan el tope y la marca (§4.5) pero no entran en `used_in` (`limits_match` no los recorre)."""
     catalogo = load_contract(LIMITES)
-    assert catalogo["limits"][MARCA]["used_in"] == ["C2", "C3", "C5", "C18", "C19", "C21"]
+    assert catalogo["limits"][MARCA]["used_in"] == ["C2", "C5", "C19", "C21"]
     assert catalogo["limits"][MARCA]["value"] == TOPE
 
 

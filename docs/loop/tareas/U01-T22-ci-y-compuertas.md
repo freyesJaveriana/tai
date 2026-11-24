@@ -33,6 +33,12 @@
 >
 > **4. `.pre-commit-config.yaml` en la raíz**, con `gitleaks`, Ruff y `yamllint`. Cada *hook* va fijado a una versión o SHA, y `gitleaks` usa `.gitleaks.toml`.
 >
+> **4b. K-69 (E-42).** Hoy, después de `npm ci`, el sdist de `contracts` arrastra `ts/node_modules`, que pesa 151 MB, y V-SUITE pasa de unos 28 s a unos 46 s. Para evitarlo:
+> - añade `ts/node_modules/` (o `node_modules/`) a `contracts/.gitignore`;
+> - añádelo también a la lista de lo que `_copiar` ignora en `contracts/tests/test_package_map.py`.
+>
+> Esa lista es lo único que cambia en ese archivo de pruebas. Rojo: con `node_modules` presente, mide `test_package_map.py` con `--durations` antes y después del cambio, y pega las dos salidas. Si hace falta un `exclude` del sdist en `pyproject.toml`, para y avisa.
+>
 > **5. El PR del Bolt.** Escribe en la bitácora, para el PR del Bolt, la petición de que `contracts-level0` sea comprobación obligatoria de `main`. La aplica el humano en GitHub.
 
 **Cuándo parar y avisar** (no lo resuelvas por tu cuenta):
@@ -48,7 +54,7 @@
 - El código de `src/`, los contratos y sus *fixtures*, y las guardias de `checks/`.
 - `pyproject.toml`, `uv.lock` y `contracts/ts/package-lock.json`.
 - `scripts/check-no-cluster-apply.sh` y `scripts/check-no-insumos.sh`. Solo se llaman.
-- El disparador por etiqueta y `check_tag.py` (eso es T26), y el README (eso es T23).
+- El disparador por etiqueta, `check_tag.py` y el README: van en T23, que ya incluye lo que era T26 (E-41).
 - La configuración de GitHub (protección de `main`, comprobaciones obligatorias). La aplica el humano.
 
 ---
@@ -107,7 +113,13 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
   ```bash
   git -C /workspace/.worktrees/U01-T22 diff --name-only feat/b1-contratos...HEAD
   ```
-  Esperado: `.github/workflows/contracts-level0.yml`, `.github/workflows/repo-level0.yml` (un paso), `.pre-commit-config.yaml` y `docs/loop/bitacoras/U01-T22.md`.
+  Esperado: `.github/workflows/contracts-level0.yml`, `.github/workflows/repo-level0.yml` (un paso), `.pre-commit-config.yaml`, `contracts/.gitignore` y `contracts/tests/test_package_map.py` (solo la lista de K-69) y `docs/loop/bitacoras/U01-T22.md`.
+
+- [ ] **CA-7**: V-SUITE con `node_modules` presente (K-69).
+  ```bash
+  timeout 60 uv run --frozen --offline --directory contracts pytest
+  ```
+  Esperado: verde. El tiempo va en la bitácora y debe quedar cerca del de antes de T20, unos 28 s.
 
 ---
 

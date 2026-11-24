@@ -213,7 +213,13 @@ def test_un_valor_de_enum_o_const_con_espacios_o_demasiado_largo_queda_en_rojo()
 def test_el_formato_date_time_solo_cierra_una_cadena_de_model_call() -> None:
     """`model-call.v1` (de T08) cierra `at` con el formato; el reporte exige patrón, tope y marca (F-04)."""
     reporte, llamada, fixtures = _documentos()
-    assert llamada["properties"]["at"] == {"type": "string", "format": "date-time"}
+    assert llamada["properties"]["at"] == {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+        "maxLength": 128,
+        "x-veridicus-limit": "report_token_max_chars",
+    }
     assert _problemas(reporte, llamada, fixtures) == []
     reporte["properties"]["created_at"] = {"type": "string", "format": "date-time"}
     assert _problemas(reporte, llamada, fixtures) == [
@@ -1073,11 +1079,14 @@ def test_created_at_rechaza_lo_que_no_es_rfc3339_aun_sin_validar_formatos(fecha:
     assert _rechazos(_carga(created_at=fecha)) != []
 
 
-@pytest.mark.parametrize(
-    "fecha", ["2026-11-23T15:00:00Z", "2026-11-23T15:00:00.123Z", "2026-11-23T15:00:00-05:00"]
-)
-def test_created_at_acepta_rfc3339(fecha: str) -> None:
-    assert _rechazos(_carga(created_at=fecha)) == []
+def test_created_at_acepta_el_formato_unico() -> None:
+    assert _rechazos(_carga(created_at="2026-11-23T15:00:00Z")) == []
+
+
+@pytest.mark.parametrize("fecha", ["2026-11-23T15:00:00.123Z", "2026-11-23T15:00:00-05:00"])
+def test_created_at_rechaza_fracciones_y_desplazamientos(fecha: str) -> None:
+    """E-22: un solo formato de fecha (BR8.1); el patron ya no admite fracciones ni desfases."""
+    assert _rechazos(_carga(created_at=fecha)) != []
 
 
 REGLAS = [

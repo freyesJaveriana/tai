@@ -18,10 +18,17 @@ LIMITACIONES = (
     "un valor de opción entre comillas con espacios (`--namespace \"a b\"`) no se detecta",
 )
 # Entre la herramienta y el verbo pueden ir opciones globales (`-n x`, `--context=x`, `--namespace x`,
-# `--dry-run`): cada opción es un guion o dos, su nombre y, a lo sumo, un valor tras `=` o un valor tras un
-# espacio que no empieza por guion. Así un `-a` que sigue a una opción solo puede ser una opción nueva y el
-# motor no retrocede de forma exponencial (F-02 de la ronda 2).
-_OPCIONES = r"(?:\s+-{1,2}[\w.-]+(?:=\S+|\s+[^\s-]\S*)?)*"
+# `--dry-run`, `--`). Cada opción es uno o dos guiones, un nombre cuyo primer carácter no es un guion, y a lo
+# sumo un valor tras `=` o un valor tras un espacio que no empieza por guion; o el `--` solo.
+#
+# Sin solapamiento, para que el motor no retroceda de forma exponencial (F-02 de las rondas 2 y 3):
+# - el nombre empieza por `[\w.]` y no por guion, así que `--a` solo se lee como `--` más `a` (antes, `-` más
+#   `-a` o `--` más `a`);
+# - un valor no puede empezar por guion, así que un `-a` que sigue a una opción solo puede ser una opción;
+# - `--` solo no es el prefijo de ninguna otra forma: un nombre exige un carácter tras los guiones y un valor
+#   exige `=` o un espacio.
+# Cada texto tiene así una sola lectura y la búsqueda es lineal.
+_OPCIONES = r"(?:\s+(?:--?[\w.][\w.-]*(?:=\S+|\s+[^\s-]\S*)?|--))*"
 PROHIBIDOS = (
     ("--write", re.compile(r"--write\b")),
     ("kubectl apply", re.compile(rf"kubectl{_OPCIONES}\s+apply\b", re.IGNORECASE)),

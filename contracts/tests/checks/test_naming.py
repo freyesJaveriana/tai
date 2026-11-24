@@ -27,6 +27,16 @@ def test_el_arbol_versionado_cumple_y_el_catalogo_se_recorre() -> None:
     consola = load_contract("api/console.v2.yaml")
     assert _problemas(consola) == []
     assert guardia.NOMBRE.fullmatch("cita_a") and guardia.NOMBRE.fullmatch("hecho")
+    # Los nombres de C6 (cita_a, observaciones, ...) ya son ASCII snake_case: la regla 8 solo
+    # exime a la copia, que no se recorre (BR1.8). Se comprueba sobre la copia real.
+    salida = load_contract("analyzer/v1/salida.schema.json")
+    assert "cita_a" in json.dumps(salida)
+    assert guardia.comprobar_documento("analyzer/v1/salida.schema.json", salida) == []
+    assert not any(
+        ruta.startswith("analyzer/") for ruta, _ in guardia.contratos_propios(CONTRACTS_ROOT)
+    )
+    # Lista exacta de lo que no es un contrato propio (F-05); toda exención nueva exige su prueba.
+    assert _contratos.EXCLUIDOS == frozenset({"analyzer", "vendor", "fixtures", "tests"})
 
 
 def test_una_propiedad_que_no_es_snake_case_ascii_es_rojo() -> None:
@@ -63,6 +73,9 @@ def test_un_parametro_de_ruta_o_consulta_en_camel_case_es_rojo() -> None:
         "api/x.yaml: /paths/~1a/get/parameters/7/name: el nombre no es ASCII snake_case (CD-05)",
         "api/x.yaml: /paths/~1a/get/parameters/8/name: el nombre no es ASCII snake_case (CD-05)",
     ]
+
+
+def test_los_parametros_de_components_parameters_tambien_se_comprueban() -> None:
     # F-01: los parámetros de un mapa (components/parameters) también se comprueban.
     mapa = {"parameters": {"A": {"name": "pageSize", "in": "query"}, "B": {"name": "ok", "in": "path"}}}
     assert _problemas(mapa) == [
@@ -171,14 +184,3 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
     ]
 
 
-def test_el_bloque_de_c6_en_espanol_es_snake_case_y_la_copia_de_c6_esta_exenta() -> None:
-    # Los nombres de C6 (cita_a, observaciones, ...) ya son ASCII snake_case: la regla 8 solo
-    # exime a la copia, que no se recorre (BR1.8). La prueba lo comprueba sobre la copia real.
-    salida = load_contract("analyzer/v1/salida.schema.json")
-    assert "cita_a" in json.dumps(salida)
-    assert guardia.comprobar_documento("analyzer/v1/salida.schema.json", salida) == []
-    assert not any(
-        ruta.startswith("analyzer/") for ruta, _ in guardia.contratos_propios(CONTRACTS_ROOT)
-    )
-    # Lista exacta de lo que no es un contrato propio (F-05); toda exención nueva exige su prueba.
-    assert _contratos.EXCLUIDOS == frozenset({"analyzer", "vendor", "fixtures", "tests"})

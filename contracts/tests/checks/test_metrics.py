@@ -96,6 +96,21 @@ def test_el_arbol_versionado_cumple_todo_y_trae_los_seis_archivos() -> None:
     ]
     assert len(nombres) == len(set(nombres)) >= 30
     assert {"veridicus_review_decisions_total", "veridicus_anonymizer_ready"} <= set(nombres)
+    c15 = load_contract("metrics/review.v2.yaml")
+    ratio = next(m for m in c15["metrics"] if m["name"] == "veridicus_session_dismissal_ratio")
+    assert "AC10.8.2" in ratio["description"]
+    assert ratio["labels"] == [{"name": "session_id", "pattern": UUID}]
+    # E-26: una sola serie veridicus_runs_total, en C15, con mode, outcome y error_code; los
+    # valores de outcome son los de NFRD-U4-08 y text-flow.v1.yaml no la repite.
+    runs = [m for m in c15["metrics"] if m["name"] == "veridicus_runs_total"]
+    assert len(runs) == 1
+    assert [e["name"] for e in runs[0]["labels"]] == ["mode", "outcome", "error_code"]
+    assert runs[0]["labels"][1]["values"] == ["completed", "error", "cancelled"]
+    text_flow = load_contract("metrics/text-flow.v1.yaml")
+    assert "veridicus_runs_total" not in [m["name"] for m in text_flow["metrics"]]
+
+
+def test_las_series_de_u9_y_u6_transcriben_sus_fuentes() -> None:
     # F-02: las 12 métricas de U9, con la de la reescritura del AOF (NFRD-U9-06, NFRD-U9-10).
     voz = load_contract("metrics/voice.v1.yaml")["metrics"]
     aof = [m for m in voz if m["name"] == "veridicus_aof_rewrite_requests_total"]
@@ -111,18 +126,6 @@ def test_el_arbol_versionado_cumple_todo_y_trae_los_seis_archivos() -> None:
     }.items():
         valores = next(e["values"] for e in u6[nombre]["labels"] if e["name"] == "error_code")
         assert valores == esperado, nombre
-    c15 = load_contract("metrics/review.v2.yaml")
-    ratio = next(m for m in c15["metrics"] if m["name"] == "veridicus_session_dismissal_ratio")
-    assert "AC10.8.2" in ratio["description"]
-    assert ratio["labels"] == [{"name": "session_id", "pattern": UUID}]
-    # E-26: una sola serie veridicus_runs_total, en C15, con mode, outcome y error_code; los
-    # valores de outcome son los de NFRD-U4-08 y text-flow.v1.yaml no la repite.
-    runs = [m for m in c15["metrics"] if m["name"] == "veridicus_runs_total"]
-    assert len(runs) == 1
-    assert [e["name"] for e in runs[0]["labels"]] == ["mode", "outcome", "error_code"]
-    assert runs[0]["labels"][1]["values"] == ["completed", "error", "cancelled"]
-    text_flow = load_contract("metrics/text-flow.v1.yaml")
-    assert "veridicus_runs_total" not in [m["name"] for m in text_flow["metrics"]]
 
 
 def test_una_metrica_sin_prefijo_o_con_forma_rota_es_rojo() -> None:
@@ -150,9 +153,7 @@ def test_una_metrica_sin_prefijo_o_con_forma_rota_es_rojo() -> None:
     sin_endpoint = _doc(_metrica())
     del sin_endpoint["endpoint"]
     assert len(_problemas({"a.yaml": sin_endpoint})) == 1
-
-
-def test_un_nombre_repetido_entre_dos_archivos_o_dentro_de_uno_es_rojo() -> None:
+    # Un nombre repetido entre dos archivos o dentro de uno.
     uno = _doc(_metrica("veridicus_a_total"), _metrica("veridicus_b_total"))
     otro = _doc(_metrica("veridicus_c_total"), _metrica("veridicus_a_total"))
     assert _problemas({"uno.yaml": uno, "otro.yaml": copy.deepcopy(otro)}) == [

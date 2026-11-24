@@ -116,9 +116,10 @@ def test_multipart_con_parte_de_texto_sin_acotar_y_sin_tope_de_bytes(guardia: Mo
 
 
 def test_esquemas_estrictos_de_c6_c7_c18_y_c19(guardia: ModuleType) -> None:
+    externos = guardia.ids_de(_copia(r) for r in guardia.ESQUEMAS_ESTRICTOS)
     for relativa in guardia.ESQUEMAS_ESTRICTOS:
         documento = _copia(relativa)
-        assert guardia.comprobar_esquema(relativa, documento) == [], relativa
+        assert guardia.comprobar_esquema(relativa, documento, externos) == [], relativa
     original = _copia("integrity/review-suggestion.v2.json")
     cambiado = copy.deepcopy(original)
     cambiado["additionalProperties"] = True
@@ -327,6 +328,55 @@ def test_if_then_else_refinan_con_las_mismas_condiciones_que_allof(guardia: Modu
     assert _abiertos(guardia, mal) == [_aviso("/else"), _aviso("/if"), _aviso("/then")]
 
 
+# ---- P-T15-5: la rama de un allOf también la admite una rama hermana cerrada --------------------
+
+HERMANA = "veridicus/contracts/otro/hermana.v1"
+
+
+def _hermana(**cambios: Any) -> dict[str, Any]:
+    cerrada = {**CERRADO, "$id": HERMANA, "properties": {"role": {"type": "string"}}}
+    return {**cerrada, **cambios}
+
+
+def _con_hermana(hermana: Any, rama: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Un anfitrión sin cierre ni propiedades y su allOf: la hermana y la rama de refinamiento."""
+    return {"allOf": [hermana, rama or {"properties": {"role": {"enum": ["judge"]}}}]}
+
+
+def test_una_rama_se_refina_con_una_hermana_cerrada_por_ref_externa_o_local(
+    guardia: ModuleType,
+) -> None:
+    externos = guardia.ids_de([_hermana()])
+    por_id = _con_hermana({"$ref": f"/{HERMANA}"})
+    assert guardia.comprobar_esquema("x", por_id, externos) == []
+    local = {**_con_hermana({"$ref": "#/$defs/h"}), "$defs": {"h": _hermana()}}
+    assert guardia.comprobar_esquema("x", local, {}) == []
+    directa = _con_hermana(_hermana())
+    assert guardia.comprobar_esquema("x", directa, {}) == []
+
+
+def test_una_hermana_abierta_o_que_no_declara_la_propiedad_deja_la_rama_en_rojo(
+    guardia: ModuleType,
+) -> None:
+    externos = guardia.ids_de([_hermana()])
+    # Control negativo 1: la hermana no está cerrada.
+    abierta = _hermana()
+    del abierta["additionalProperties"]
+    assert _abiertos(guardia, _con_hermana(abierta)) == [_aviso("/allOf/0"), _aviso("/allOf/1")]
+    # Control negativo 2: la hermana está cerrada pero no declara la propiedad de la rama.
+    sin_declarar = _hermana(properties={"otra": {"type": "string"}})
+    assert _abiertos(guardia, _con_hermana(sin_declarar)) == [_aviso("/allOf/1")]
+    # Una referencia que no se puede resolver no prueba nada.
+    sin_resolver = _con_hermana({"$ref": "/veridicus/contracts/otro/desconocida"})
+    assert guardia.comprobar_esquema("x", sin_resolver, externos) == [_aviso("/allOf/1")]
+    # `if`, `then` y `else` no son hermanas de un allOf: la regla es solo para allOf.
+    condicion = {
+        "allOf": [_hermana()],
+        "then": {"properties": {"role": {"enum": ["judge"]}}},
+    }
+    assert _abiertos(guardia, condicion) == [_aviso("/then")]
+
+
 def test_las_condiciones_anidadas_en_una_rama_se_aplican_al_mismo_objeto_anfitrion(
     guardia: ModuleType,
 ) -> None:
@@ -383,8 +433,9 @@ def test_ningun_otro_objeto_de_los_contratos_estrictos_queda_abierto(
 ) -> None:
     monkeypatch.setattr(guardia, "ABIERTOS_ADMITIDOS", {})
     abiertos: list[str] = []
+    externos = guardia.ids_de(_copia(r) for r in guardia.ESQUEMAS_ESTRICTOS)
     for relativa in guardia.ESQUEMAS_ESTRICTOS:
-        abiertos.extend(guardia.comprobar_esquema(relativa, _copia(relativa)))
+        abiertos.extend(guardia.comprobar_esquema(relativa, _copia(relativa), externos))
     for relativa in guardia.OPENAPI_INTERNOS:
         abiertos.extend(guardia.comprobar_openapi_interno(relativa, _copia(relativa)))
     abiertos.extend(guardia.comprobar_c1(_copia("api/console.v2.yaml")))

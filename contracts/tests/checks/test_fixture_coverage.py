@@ -237,6 +237,11 @@ CON_CODIGO.update(
             ("tests/contracts/test_console.py", "test_toda_fecha_tiene_el_formato_unico_con_el_mismo_patron"),
             ("tests/contracts/test_console.py", "test_las_fechas_reales_pasan_y_las_imposibles_o_con_otra_forma_no"),
         ),
+        # BR8.2 entra con las pruebas de T17 (fusionada): la positiva y su control negativo de etiquetas.
+        "BR8.2": (
+            ("tests/checks/test_metrics.py", "test_una_metrica_sin_prefijo_o_con_forma_rota_es_rojo"),
+            ("tests/checks/test_metrics.py", "test_una_etiqueta_sin_values_o_de_texto_libre_es_rojo"),
+        ),
         # F-05: BR3.4 y BR5.1 se citan con su control negativo.
         "BR3.4": (
             ("tests/checks/test_error_codes.py", "test_tabla_c6_del_arbol_real_completa"),
@@ -268,7 +273,7 @@ def _reglas_vigentes() -> set[str]:
 
 def test_e24_la_lista_de_reglas_con_codigo_es_cerrada_y_exacta(guardia: ModuleType) -> None:
     assert guardia.REGLAS_CON_CODIGO == CON_CODIGO
-    assert len(guardia.REGLAS_CON_CODIGO) == 29
+    assert len(guardia.REGLAS_CON_CODIGO) == 30
     # Ninguna regla está a la vez en dos listas.
     assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.REGLAS)
     assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.EXCLUIDAS)

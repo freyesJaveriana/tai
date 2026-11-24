@@ -54481,3 +54481,58 @@
 **Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T22:39:20Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: acbbd7f47bff48d48
+**Message**: TAREA: U01-T20 (ronda 1). Me detuve en dos condiciones de parada de la tarea. No relajé `strict`, no toqué contratos ni la mitad Python.\n\nRAMA: `tarea/U01-T20`   SHA: `ae627b8`. Subida a origin; el co
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T22:39:34Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T22:41:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a1ffb49e235352269
+**Message**: TAREA: U01-T25 (ronda 1)\nRAMA: tarea/U01-T25   SHA: ce42356c5787fb3a7a737f30f5297168437e12ff (subido; rebasada sobre 2e123ee)\nCRITERIOS: 4 de 6 verificados. CA-2 queda a medias y CA-6 no está cerrado.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T22:42:18Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T22:42:18Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T22:48:35Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-24T22:48:44Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---

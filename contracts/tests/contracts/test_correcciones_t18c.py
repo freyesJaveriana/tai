@@ -186,8 +186,11 @@ def test_validate_json_schema_acepta_x_veridicus_version_en_la_raiz() -> None:
         {"type": "object", "$defs": {"d": {"type": "string", CLAVE: "1.0.0"}}},
         {"type": "array", "items": {"type": "string", CLAVE: "1.0.0"}},
         {"allOf": [{"type": "string", CLAVE: "1.0.0"}]},
+        {"if": {"type": "string", CLAVE: "1.0.0"}},
+        {"if": {"type": "string"}, "then": {"type": "string", CLAVE: "1.0.0"}},
+        {"prefixItems": [{"type": "string", CLAVE: "1.0.0"}]},
     ],
-    ids=["properties", "defs", "items", "allOf"],
+    ids=["properties", "defs", "items", "allOf", "if", "then", "prefixItems"],
 )
 def test_control_negativo_x_veridicus_version_anidada_se_rechaza(esquema: dict[str, Any]) -> None:
     from veridicus_contracts.validators import ValidationFailure, validate_json_schema
@@ -201,3 +204,15 @@ def test_control_negativo_otra_clave_x_en_la_raiz_se_rechaza() -> None:
 
     with pytest.raises(ValidationFailure, match="palabra clave desconocida"):
         validate_json_schema({"type": "object", "x-veridicus-limit": "report_token_max_chars"})
+
+
+@pytest.mark.parametrize(
+    "clave",
+    ["X-veridicus-version", "x-veridicus-version ", " x-veridicus-version"],
+    ids=["mayuscula", "espacio-final", "espacio-inicial"],
+)
+def test_control_negativo_variantes_de_la_clave_en_la_raiz_se_rechazan(clave: str) -> None:
+    from veridicus_contracts.validators import ValidationFailure, validate_json_schema
+
+    with pytest.raises(ValidationFailure, match="palabra clave desconocida"):
+        validate_json_schema({"type": "object", clave: "1.0.0"})

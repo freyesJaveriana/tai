@@ -38,3 +38,71 @@ def test_objeto_y_escapar() -> None:
     assert ayudas.objeto({"a": 1}) == {"a": 1}
     assert ayudas.objeto(["a"]) == {}
     assert ayudas.escapar("/a~b") == "~1a~0b"
+
+
+def test_hijas_baja_por_toda_forma_de_subesquema_y_dice_su_papel() -> None:
+    esquema = {
+        "properties": {"a": {}},
+        "$defs": {"d": {}},
+        "items": {},
+        "prefixItems": [{}, {}],
+        "patternProperties": {"^p/": {}},
+        "additionalProperties": {"type": "string"},
+        "allOf": [{}],
+        "if": {},
+        "then": {},
+        "else": {},
+        "anyOf": [{}],
+        "oneOf": [{}],
+        "required": ["a"],
+    }
+    esperado = {
+        "/properties/a": ayudas.PROPIEDAD,
+        "/$defs/d": ayudas.DEFINICION,
+        "/items": ayudas.VALOR,
+        "/prefixItems/0": ayudas.VALOR,
+        "/prefixItems/1": ayudas.VALOR,
+        "/patternProperties/^p~1": ayudas.VALOR,
+        "/additionalProperties": ayudas.VALOR,
+        "/allOf/0": ayudas.REFINA,
+        "/if": ayudas.REFINA,
+        "/then": ayudas.REFINA,
+        "/else": ayudas.REFINA,
+        "/anyOf/0": ayudas.RAMA,
+        "/oneOf/0": ayudas.RAMA,
+    }
+    assert {puntero: papel for _, puntero, papel in ayudas.hijas(esquema, "")} == esperado
+
+
+def test_hijas_ignora_lo_que_no_es_un_subesquema() -> None:
+    assert list(ayudas.hijas({}, "/x")) == []
+    assert list(ayudas.hijas({"additionalProperties": False, "items": False}, "")) == []
+    assert list(ayudas.hijas({"properties": "no es un mapa", "allOf": "no es una lista"}, "")) == []
+
+
+def test_es_tipo_acepta_un_texto_o_una_lista_de_tipos() -> None:
+    assert ayudas.es_tipo({"type": "string"}, "string")
+    assert ayudas.es_tipo({"type": ["string", "null"]}, "string")
+    assert not ayudas.es_tipo({"type": ["integer", "null"]}, "string")
+    assert not ayudas.es_tipo({"type": "integer"}, "string")
+    assert not ayudas.es_tipo({}, "string")
+
+
+def test_es_problem_en_linea_exige_content_type_esquema_y_cabeceras_propias() -> None:
+    esquema = {"$ref": "#/components/schemas/Problem"}
+    cabeceras = {"Retry-After": {"schema": {"type": "integer"}}}
+    assert ayudas.es_problem({"$ref": "#/components/responses/Problem"})
+    completa = {"headers": cabeceras, "content": {"application/problem+json": {"schema": esquema}}}
+    assert ayudas.es_problem(completa)
+    sin_cabeceras = {"content": {"application/problem+json": {"schema": esquema}}}
+    assert not ayudas.es_problem(sin_cabeceras)
+    assert not ayudas.es_problem({**sin_cabeceras, "headers": {}})
+    otro_tipo = {"headers": cabeceras, "content": {"application/json": {"schema": esquema}}}
+    assert not ayudas.es_problem(otro_tipo)
+    otro_esquema = {
+        "headers": cabeceras,
+        "content": {"application/problem+json": {"schema": {"$ref": "#/components/schemas/Otro"}}},
+    }
+    assert not ayudas.es_problem(otro_esquema)
+    assert not ayudas.es_problem("texto")
+    assert not ayudas.es_problem(None)

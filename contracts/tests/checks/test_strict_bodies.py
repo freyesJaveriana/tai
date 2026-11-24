@@ -203,3 +203,191 @@ def test_comprobar_recorre_todos_los_contratos_y_avisa_si_falta_alguno(
     ]
     assert sorted(ausentes) == sorted(f"{r}: contrato ausente (§4.3)" for r in todos)
     assert guardia.comprobar(CONTRACTS_ROOT) == []
+
+
+# ---- F-04: las guardias bajan por toda forma de subesquema --------------------------------------
+
+FALTA = "objeto sin additionalProperties: false (§4.3)"
+CERRADO = {"type": "object", "additionalProperties": False}
+CUERPO_USERS = "api/console.v2.yaml: POST /users /requestBody/application/json/properties/x1"
+
+
+def _libre() -> dict[str, Any]:
+    """Un objeto sin tipo ni cierre; cada llamada trae uno distinto (la guardia no repite esquemas)."""
+    return {"properties": {"libre": {"type": "string"}}}
+
+
+FORMAS = {
+    "oneOf": ({"oneOf": [_libre()]}, ["/oneOf/0"]),
+    "anyOf": ({"anyOf": [_libre()]}, ["/anyOf/0"]),
+    "allOf": ({"allOf": [_libre()]}, ["/allOf/0"]),
+    "if_then_else": (
+        {"if": _libre(), "then": _libre(), "else": _libre()},
+        ["/else", "/if", "/then"],
+    ),
+    "patternProperties": (
+        {**CERRADO, "patternProperties": {"^a": {"type": "object", "properties": {}}}},
+        ["/patternProperties/^a"],
+    ),
+    "additionalProperties_como_esquema": (
+        {
+            "type": "object",
+            "propertyNames": {"enum": ["a"]},
+            "additionalProperties": {"type": "object", "properties": {}},
+        },
+        ["/additionalProperties"],
+    ),
+    "type_en_lista": ({"type": ["object", "null"], "properties": {}}, [""]),
+    "type_en_lista_sin_properties": ({"type": ["null", "object"]}, [""]),
+}
+
+
+@pytest.mark.parametrize("forma", sorted(FORMAS))
+def test_un_objeto_abierto_dentro_de_una_forma_de_subesquema_es_rojo(
+    guardia: ModuleType, forma: str
+) -> None:
+    esquema, sitios = FORMAS[forma]
+    original = _copia("api/console.v2.yaml")
+    cambiado = copy.deepcopy(original)
+    _cuerpo_json(cambiado, "/users", "post")["properties"]["x1"] = copy.deepcopy(esquema)
+    esperados = [f"{CUERPO_USERS}{sitio}: {FALTA}" for sitio in sitios]
+    assert sorted(_nuevos(guardia.comprobar_c1, original, cambiado)) == esperados
+
+
+def _abiertos(guardia: ModuleType, esquema: Any) -> list[str]:
+    return sorted(guardia.comprobar_esquema("x", esquema))
+
+
+def _aviso(puntero: str) -> str:
+    return f"x: {puntero or '/'}: {FALTA}"
+
+
+# ---- P-T15-1: un mapa con propertyNames.enum cuenta como cerrado solo con valores estrictos ----
+
+
+def test_propertynames_enum_cierra_el_mapa_solo_si_los_valores_son_un_esquema_estricto(
+    guardia: ModuleType,
+) -> None:
+    valores = {"type": "integer"}
+    mapa = {"type": "object", "propertyNames": {"enum": ["a", "b"]}, "additionalProperties": valores}
+    assert _abiertos(guardia, mapa) == []
+    sin_valores = {"type": "object", "propertyNames": {"enum": ["a"]}}
+    assert _abiertos(guardia, sin_valores) == [_aviso("")]
+    for abiertos in (True, {}):
+        libre = {**sin_valores, "additionalProperties": abiertos}
+        assert _abiertos(guardia, libre) == [_aviso("")], abiertos
+    sin_enum = {"type": "object", "propertyNames": {"pattern": "^a"}, "additionalProperties": valores}
+    assert _abiertos(guardia, sin_enum) == [_aviso("")]
+    de_objetos = {**mapa, "additionalProperties": {"type": "object", "properties": {"z": {}}}}
+    assert _abiertos(guardia, de_objetos) == [_aviso("/additionalProperties")]
+
+
+# ---- P-T15-2: una rama de allOf refina solo con el padre cerrado y sus propiedades declaradas ---
+
+
+def _padre(**resto: Any) -> dict[str, Any]:
+    declaradas = {"a": {"type": "string"}, "b": {"type": "string"}}
+    return {**CERRADO, "properties": declaradas, **resto}
+
+
+def test_una_rama_de_allof_con_solo_properties_refina_si_el_padre_esta_cerrado(
+    guardia: ModuleType,
+) -> None:
+    assert _abiertos(guardia, _padre(allOf=[{"properties": {"a": {"enum": ["x"]}}}])) == []
+    assert _abiertos(guardia, _padre(allOf=[{"properties": {}}, {"required": ["a"]}])) == []
+    # Control negativo 1: una propiedad que el padre no declara.
+    sin_declarar = _padre(allOf=[{"properties": {"c": {"enum": ["x"]}}}])
+    assert _abiertos(guardia, sin_declarar) == [_aviso("/allOf/0")]
+    # Control negativo 2: el padre no está cerrado (tampoco la rama se libra).
+    abierto = {"type": "object", "properties": {"a": {}}, "allOf": [{"properties": {"a": {}}}]}
+    assert _abiertos(guardia, abierto) == [_aviso(""), _aviso("/allOf/0")]
+    # Control negativo 3: una rama que declara `type: object` es un objeto, no un refinamiento.
+    con_tipo = _padre(allOf=[{"type": "object", "properties": {"a": {}}}])
+    assert _abiertos(guardia, con_tipo) == [_aviso("/allOf/0")]
+    # La rama que se cierra a sí misma no necesita el padre.
+    propia = {"type": "object", "additionalProperties": False, "properties": {"c": {}}}
+    assert _abiertos(guardia, _padre(allOf=[propia])) == []
+
+
+def test_if_then_else_refinan_con_las_mismas_condiciones_que_allof(guardia: ModuleType) -> None:
+    bien = _padre(
+        **{"if": {"properties": {"a": {"const": "x"}}}, "then": {"properties": {"b": {}}}},
+        **{"else": {"properties": {"b": {"enum": ["y"]}}}},
+    )
+    assert _abiertos(guardia, bien) == []
+    mal = _padre(
+        **{"if": {"properties": {"z": {}}}, "then": {"properties": {"y": {}}}},
+        **{"else": {"properties": {"x": {}}}},
+    )
+    assert _abiertos(guardia, mal) == [_aviso("/else"), _aviso("/if"), _aviso("/then")]
+
+
+def test_en_oneof_y_anyof_cada_rama_es_un_objeto_que_debe_cerrarse(guardia: ModuleType) -> None:
+    for clave in ("oneOf", "anyOf"):
+        solo_properties = _padre(**{clave: [{"properties": {"a": {}}}]})
+        assert _abiertos(guardia, solo_properties) == [_aviso(f"/{clave}/0")], clave
+        cerrada = _padre(**{clave: [{**CERRADO, "properties": {"a": {}}}]})
+        assert _abiertos(guardia, cerrada) == [], clave
+
+
+# ---- E-13: los dos objetos abiertos de C21, por una lista explícita con su motivo ----------------
+
+C21 = "api/anonymizer-proxy.v1.yaml"
+GENERAR = "POST /v1/generate"
+ADMITIDOS = {
+    (C21, f"{GENERAR} /requestBody/application/json/properties/schema"),
+    (C21, f"{GENERAR} /responses/200/application/json/properties/content"),
+}
+
+
+def test_la_lista_de_abiertos_admitidos_es_exactamente_schema_y_content_de_c21(
+    guardia: ModuleType,
+) -> None:
+    assert set(guardia.ABIERTOS_ADMITIDOS) == ADMITIDOS
+    assert all(len(motivo.split()) >= 5 for motivo in guardia.ABIERTOS_ADMITIDOS.values())
+
+
+def test_sin_la_lista_c21_tiene_esos_dos_objetos_abiertos_y_con_ella_ninguno(
+    guardia: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    c21 = _copia(C21)
+    assert guardia.comprobar_openapi_interno(C21, c21) == []
+    monkeypatch.setattr(guardia, "ABIERTOS_ADMITIDOS", {})
+    sin_lista = guardia.comprobar_openapi_interno(C21, c21)
+    assert sorted(sin_lista) == sorted(
+        f"{C21}: {sitio}: objeto sin additionalProperties: false (§4.3)" for _, sitio in ADMITIDOS
+    )
+
+
+def test_ningun_otro_objeto_de_los_contratos_estrictos_queda_abierto(
+    guardia: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(guardia, "ABIERTOS_ADMITIDOS", {})
+    abiertos: list[str] = []
+    for relativa in guardia.ESQUEMAS_ESTRICTOS:
+        abiertos.extend(guardia.comprobar_esquema(relativa, _copia(relativa)))
+    for relativa in guardia.OPENAPI_INTERNOS:
+        abiertos.extend(guardia.comprobar_openapi_interno(relativa, _copia(relativa)))
+    abiertos.extend(guardia.comprobar_c1(_copia("api/console.v2.yaml")))
+    assert len(abiertos) == 2
+    assert all(abierto.startswith(f"{C21}: {GENERAR} ") for abierto in abiertos)
+
+
+def test_lo_admitido_no_admite_otro_objeto_ni_otro_archivo(guardia: ModuleType) -> None:
+    c21 = _copia(C21)
+    cambiado = copy.deepcopy(c21)
+    cuerpo = cambiado["paths"]["/v1/generate"]["post"]["requestBody"]["content"]["application/json"]
+    cuerpo["schema"]["properties"]["schema"]["properties"] = {"hijo": {"type": "object"}}
+    cuerpo["schema"]["properties"]["otro"] = {"type": "object"}
+    respuesta = cambiado["paths"]["/v1/generate"]["post"]["responses"]["200"]["content"]
+    respuesta["application/json"]["schema"]["properties"]["extra"] = {"type": "object"}
+    esperados = [
+        f"{C21}: {GENERAR} /requestBody/application/json/properties/otro: {FALTA}",
+        f"{C21}: {GENERAR} /requestBody/application/json/properties/schema/properties/hijo: {FALTA}",
+        f"{C21}: {GENERAR} /responses/200/application/json/properties/extra: {FALTA}",
+    ]
+    assert sorted(_nuevos(lambda d: guardia.comprobar_openapi_interno(C21, d), c21, cambiado)) == (
+        sorted(esperados)
+    )
+    # La lista es por archivo: el mismo sitio en otro contrato no se admite.
+    assert len(guardia.comprobar_openapi_interno("otro.yaml", c21)) == 2

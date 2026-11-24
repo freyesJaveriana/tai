@@ -132,14 +132,28 @@ def test_401_y_403_con_ref_a_problem(guardia: ModuleType) -> None:
         "GET /users: 403 sin $ref a Problem (NFRD-U1-12)",
         "POST /auth/logout: 401 sin $ref a Problem (NFRD-U1-12)",
     ]
+    esquema = {"$ref": "#/components/schemas/Problem"}
     en_linea = _c1()
     en_linea["paths"]["/auth/me"]["get"]["responses"]["401"] = {
-        "description": "con cabeceras",
-        "content": {
-            "application/problem+json": {"schema": {"$ref": "#/components/schemas/Problem"}}
-        },
+        "description": "con cabeceras propias",
+        "headers": {"Retry-After": {"schema": {"type": "integer"}}},
+        "content": {"application/problem+json": {"schema": esquema}},
     }
     assert _nuevos(guardia, en_linea) == []
+    # P-T15-3: sin cabeceras propias, o con otro tipo de contenido, se exige el $ref a la respuesta.
+    sin_cabeceras = _c1()
+    sin_cabeceras["paths"]["/auth/me"]["get"]["responses"]["401"] = {
+        "description": "sin cabeceras",
+        "content": {"application/problem+json": {"schema": esquema}},
+    }
+    otro_tipo = _c1()
+    otro_tipo["paths"]["/users"]["get"]["responses"]["403"] = {
+        "description": "otro tipo",
+        "headers": {"Retry-After": {"schema": {"type": "integer"}}},
+        "content": {"application/json": {"schema": esquema}},
+    }
+    assert _nuevos(guardia, sin_cabeceras) == ["GET /auth/me: 401 sin $ref a Problem (NFRD-U1-12)"]
+    assert _nuevos(guardia, otro_tipo) == ["GET /users: 403 sin $ref a Problem (NFRD-U1-12)"]
     mal_formada = _c1()
     mal_formada["paths"]["/auth/me"]["get"]["responses"]["401"] = "texto"
     assert _nuevos(guardia, mal_formada) == ["GET /auth/me: 401 sin $ref a Problem (NFRD-U1-12)"]

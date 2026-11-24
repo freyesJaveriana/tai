@@ -83,8 +83,103 @@ def test_la_unidad_debe_ser_coherente_con_la_palabra_clave(guardia: ModuleType) 
         "application~1json/schema/properties/texto: la unidad de turn_max_chars debe ser chars "
         "con maxLength (§4.4 c)"),
         ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/password: la unidad de password_max_chars debe ser turns con maxItems (§4.4 c)"),
+        "properties/password: la unidad de password_max_chars debe ser turns o runs con maxItems "
+        "(§4.4 c)"),
     ]
+
+
+def test_maxitems_acepta_la_unidad_turns_y_la_unidad_runs_y_ninguna_otra(
+    guardia: ModuleType,
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        propiedades = _propiedades_de_crear_usuario(documentos)
+        propiedades["turnos"] = {
+            "type": "array",
+            "maxItems": 2000,
+            "x-veridicus-limit": "transcript_max_turns",
+        }
+        propiedades["corridas"] = {
+            "type": "array",
+            "maxItems": 3,
+            "x-veridicus-limit": "report_per_run_items",
+        }
+        catalogo["transcript_max_turns"]["used_in"] = ["C1"]
+        catalogo["report_per_run_items"]["used_in"] = ["C1", "C19"]
+
+    assert _nuevos(guardia, cambiar) == []
+
+    def con_otra_unidad(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        cambiar(catalogo, documentos)
+        catalogo["report_per_run_items"]["unit"] = "suggestions"
+
+    assert _nuevos(guardia, con_otra_unidad) == [
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        "properties/corridas: la unidad de report_per_run_items debe ser turns o runs con maxItems "
+        "(§4.4 c)"),
+        ("cli/report.schema.v2.yaml: /$defs/metric_count/properties/per_run: la unidad de "
+        "report_per_run_items debe ser turns o runs con maxItems (§4.4 c)"),
+        ("cli/report.schema.v2.yaml: /$defs/metric_ratio/properties/per_run: la unidad de "
+        "report_per_run_items debe ser turns o runs con maxItems (§4.4 c)"),
+    ]
+
+
+# ---- F-04: un texto sin tope se encuentra en toda forma de subesquema ----------------------------
+
+BASE = "/paths/~1users/post/requestBody/content/application~1json/schema/properties/nota"
+TEXTO = "campo de texto sin x-veridicus-limit (§4.4 a)"
+FORMAS_DE_TEXTO: dict[str, tuple[Callable[[], dict[str, Any]], list[str]]] = {
+    "oneOf": (lambda: {"oneOf": [{"type": "string"}]}, ["/oneOf/0"]),
+    "anyOf": (lambda: {"anyOf": [{"type": "string"}, {"type": "integer"}]}, ["/anyOf/0"]),
+    "allOf": (lambda: {"allOf": [{"type": "string"}]}, ["/allOf/0"]),
+    "if_then_else": (
+        lambda: {
+            "if": {"type": "string"},
+            "then": {"type": "string"},
+            "else": {"type": "string"},
+        },
+        ["/else", "/if", "/then"],
+    ),
+    "patternProperties": (
+        lambda: {"type": "object", "patternProperties": {"^a": {"type": "string"}}},
+        ["/patternProperties/^a"],
+    ),
+    "additionalProperties": (
+        lambda: {"type": "object", "additionalProperties": {"type": "string"}},
+        ["/additionalProperties"],
+    ),
+    "prefixItems": (
+        lambda: {"type": "array", "prefixItems": [{"type": "string"}]},
+        ["/prefixItems/0"],
+    ),
+    "type_en_lista": (lambda: {"type": ["string", "null"]}, [""]),
+}
+
+
+@pytest.mark.parametrize("forma", sorted(FORMAS_DE_TEXTO))
+def test_un_texto_sin_tope_dentro_de_una_forma_de_subesquema_es_rojo(
+    guardia: ModuleType, forma: str
+) -> None:
+    construir, sitios = FORMAS_DE_TEXTO[forma]
+
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        _propiedades_de_crear_usuario(documentos)["nota"] = construir()
+
+    esperados = [f"{CONSOLA}: {BASE}{sitio}: {TEXTO}" for sitio in sitios]
+    assert _nuevos(guardia, cambiar) == esperados
+
+
+def test_un_texto_acotado_dentro_de_una_forma_de_subesquema_no_es_rojo(
+    guardia: ModuleType,
+) -> None:
+    marcado = {"type": ["string", "null"], "maxLength": 32, "x-veridicus-limit": "username_max_chars"}
+
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        propiedades = _propiedades_de_crear_usuario(documentos)
+        propiedades["nota"] = {"oneOf": [copy.deepcopy(marcado), {"type": "null"}]}
+        propiedades["otra"] = {"type": ["integer", "null"]}
+        propiedades["fija"] = {"anyOf": [{"type": "string", "enum": ["a"]}]}
+
+    assert _nuevos(guardia, cambiar) == []
 
 
 def test_limite_huerfano_en_los_dos_sentidos(guardia: ModuleType) -> None:
@@ -166,6 +261,8 @@ def test_todo_maxlength_y_maxitems_llevan_marca_y_toda_marca_su_palabra_clave(
         ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
         "properties/sin_palabra: la marca username_max_chars no acompaña a maxLength ni a maxItems "
         "(§4.4)"),
+        # T15b (E-11) marcó `role`: al cambiarle la marca, la de C25 queda sin su uso.
+        "model_call_role_max_chars: used_in nombra C19 y C19 no la marca (§4.4, comprobación inversa)",
         ("model_calls/model-call.v1.yaml: /properties/role: valor distinto del catálogo C25 "
         "(report_token_max_chars, §4.4 b)"),
     ]

@@ -85,6 +85,55 @@ def test_nombres_en_parametros_y_rutas_de_escritura(guardia: ModuleType) -> None
     ]
 
 
+PRECIO = {"precio": {"type": "number"}}
+FORMAS_DE_ESQUEMA = {
+    "oneOf": {"oneOf": [{"type": "object", "properties": PRECIO}]},
+    "anyOf": {"anyOf": [{"type": "object", "properties": PRECIO}]},
+    "allOf": {"allOf": [{"type": "object", "properties": PRECIO}]},
+    "if": {"if": {"properties": PRECIO}},
+    "then": {"then": {"properties": PRECIO}},
+    "else": {"else": {"properties": PRECIO}},
+    "patternProperties": {"patternProperties": {"^a": {"type": "object", "properties": PRECIO}}},
+    "additionalProperties": {"additionalProperties": {"type": "object", "properties": PRECIO}},
+    "prefixItems": {"type": "array", "prefixItems": [{"type": "object", "properties": PRECIO}]},
+    "items": {"type": "array", "items": {"type": "object", "properties": PRECIO}},
+}
+
+
+@pytest.mark.parametrize("forma", sorted(FORMAS_DE_ESQUEMA))
+def test_un_nombre_de_configuracion_dentro_de_una_forma_de_subesquema_es_rojo(
+    guardia: ModuleType, forma: str
+) -> None:
+    documento = _c1()
+    documento["paths"]["/users"]["post"]["requestBody"] = _cuerpo(
+        ajuste=copy.deepcopy(FORMAS_DE_ESQUEMA[forma])
+    )
+    assert guardia.comprobar_documento(documento) == [
+        "POST /users: nombra «precio» en el cuerpo (BR7.1)"
+    ]
+
+
+def test_los_parametros_de_nivel_de_ruta_valen_para_cada_escritura_de_la_ruta(
+    guardia: ModuleType,
+) -> None:
+    documento = _c1()
+    ruta = documento["paths"]["/users/{user_id}"]
+    assert "get" in ruta and "patch" in ruta
+    ruta["parameters"] = [
+        {"name": "price_limit", "in": "query", "schema": {"type": "integer"}},
+        {"$ref": "#/components/parameters/ProveedorQuery"},
+    ]
+    documento["components"]["parameters"]["ProveedorQuery"] = {"name": "provider", "in": "query"}
+    # La lectura de la misma ruta puede nombrarlos; la escritura no.
+    assert guardia.comprobar_documento(documento) == [
+        "PATCH /users/{user_id}: nombra «price» en un parámetro (BR7.1)",
+        "PATCH /users/{user_id}: nombra «provider» en un parámetro (BR7.1)",
+    ]
+    sin_parametros = _c1()
+    sin_parametros["paths"]["/users/{user_id}"]["parameters"] = "no es una lista"
+    assert guardia.comprobar_documento(sin_parametros) == []
+
+
 def test_una_lectura_puede_nombrar_perfiles_y_limites(guardia: ModuleType) -> None:
     documento = _c1()
     documento["paths"]["/users"]["get"]["parameters"] = [

@@ -357,17 +357,74 @@ def test_toda_4xx_y_5xx_de_c1_es_una_referencia_a_problem() -> None:
     documento = _c1()
     documento["paths"]["/users"]["post"]["responses"]["409"] = {"description": "sin Problem"}
     documento["paths"]["/users"]["post"]["responses"]["default"] = {"description": "otra"}
+    esquema = {"$ref": "#/components/schemas/Problem"}
+    cabeceras = {"Retry-After": {"schema": {"type": "integer"}}}
     documento["paths"]["/auth/me"]["get"]["responses"]["401"] = {
-        "description": "con cabeceras",
-        "content": {
-            "application/problem+json": {"schema": {"$ref": "#/components/schemas/Problem"}}
-        },
+        "description": "con cabeceras propias",
+        "headers": cabeceras,
+        "content": {"application/problem+json": {"schema": esquema}},
     }
     assert _nuevas(antes, _respuestas(documento)) == [
         "api/console.v2.yaml: POST /users 409: respuesta de error sin $ref a Problem (§4.7 d)"
     ]
     # C21 y la ruta de voz traen su propio cuerpo de error: no se les exige la referencia.
     assert not any("sin $ref a Problem" in p for p in _respuestas(documento, "x", False))
+
+
+def test_una_respuesta_de_error_en_linea_exige_cabeceras_propias_y_problem_json() -> None:
+    """P-T15-3: un control negativo por condición del cuerpo en línea."""
+    esquema = {"$ref": "#/components/schemas/Problem"}
+    cabeceras = {"Retry-After": {"schema": {"type": "integer"}}}
+    en_linea = {
+        "completa": ({"headers": cabeceras, "content": {"application/problem+json": {"schema": esquema}}}, True),
+        "sin_cabeceras": ({"content": {"application/problem+json": {"schema": esquema}}}, False),
+        "cabeceras_vacias": (
+            {"headers": {}, "content": {"application/problem+json": {"schema": esquema}}},
+            False,
+        ),
+        "otro_tipo": ({"headers": cabeceras, "content": {"application/json": {"schema": esquema}}}, False),
+        "otro_esquema": (
+            {
+                "headers": cabeceras,
+                "content": {
+                    "application/problem+json": {"schema": {"$ref": "#/components/schemas/Otro"}}
+                },
+            },
+            False,
+        ),
+    }
+    antes = _respuestas(_c1())
+    for nombre, (respuesta, cumple) in en_linea.items():
+        documento = _c1()
+        documento["paths"]["/auth/me"]["get"]["responses"]["429"] = {
+            "description": nombre,
+            **respuesta,
+        }
+        esperado = [] if cumple else [
+            "api/console.v2.yaml: GET /auth/me 429: respuesta de error sin $ref a Problem (§4.7 d)"
+        ]
+        assert _nuevas(antes, _respuestas(documento)) == esperado, nombre
+
+
+def test_en_la_prosa_solo_cuenta_un_code_con_prefijo_de_dominio_del_catalogo() -> None:
+    """P-T15-4: «e.g.», versiones y nombres de archivo no son un `code`."""
+    antes = _respuestas(_c1())
+    ajena = _c1()
+    ajena["paths"]["/users"]["get"]["responses"]["403"] = {
+        **PROBLEM,
+        "description": "auth.forbidden; p. ej. e.g. o i.e., v1.2, console.yaml y a.b",
+    }
+    assert _nuevas(antes, _respuestas(ajena)) == []
+    # Control negativo: el prefijo existe en el catálogo y el code no.
+    propia = _c1()
+    propia["paths"]["/users"]["get"]["responses"]["403"] = {
+        **PROBLEM,
+        "description": "auth.forbidden o session.inventado",
+    }
+    assert _nuevas(antes, _respuestas(propia)) == [
+        ("api/console.v2.yaml: GET /users 403: el code session.inventado no está en el catálogo "
+        "(BR7.2, E44)")
+    ]
 
 
 def test_comprobar_api_con_contratos_ausentes_y_sobre_el_arbol_real(tmp_path: Path) -> None:

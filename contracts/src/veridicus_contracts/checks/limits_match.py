@@ -5,7 +5,9 @@ interna de voz, y comprueba contra `limits.v1.yaml`:
 
 - (a) todo campo de texto libre de un cuerpo de C1 o de C21 (salvo que el `requestBody` declare
   `x-veridicus-max-bytes`, que lo acota) y de un mensaje de C2 o C5 lleva su `x-veridicus-limit`;
-  se busca bajo todo subesquema (`_openapi.hijas`) y `type` puede ser una lista con `string`;
+  se busca bajo todo subesquema (`_openapi.hijas`) y `type` puede ser una lista con `string`; un
+  `$ref` por `$id` a otro contrato (C2 → C6) se sigue, y el texto que trae se acota con la marca de
+  una rama hermana del mismo `allOf` en el mismo campo de la instancia (P-T15-6);
   la ruta interna de voz queda fuera de (a): su `tema` no necesita marca (K-15);
 - (b) el valor del contrato (`maxLength`, `maxItems`) es igual al del catálogo;
 - (c) la unidad es coherente con la palabra clave (`chars` con `maxLength`, `turns` o `runs` con
@@ -26,8 +28,11 @@ from typing import Any, NamedTuple
 
 from veridicus_contracts.checks._openapi import (
     DEFINICION,
+    PROPIEDAD,
+    VALOR,
     cargar,
     cuerpos,
+    desescapar,
     es_tipo,
     escapar,
     hijas,
@@ -35,6 +40,7 @@ from veridicus_contracts.checks._openapi import (
     operaciones,
     resolver,
 )
+from veridicus_contracts.checks.strict_bodies import ESQUEMAS_ESTRICTOS, ids_de
 
 REGLA = "§4.4"
 CATALOGO = "limits.v1.yaml"
@@ -138,35 +144,80 @@ def _unidad(donde: str, nombre: str, unidad: str, palabra: str) -> str:
     return f"{donde}: la unidad de {nombre} debe ser {unidad} con {palabra} ({REGLA} c)"
 
 
-def _textos_libres(raiz: Any, esquema: Any, puntero: str, vistos: set[int]) -> Iterator[str]:
-    """Los campos de texto libre (sin enum, const, format ni pattern) sin `x-veridicus-limit`."""
+Ruta = tuple[str, ...]
+
+
+def _paso(puntero: str, sitio: str, papel: str) -> Ruta:
+    """El segmento que una hija añade a la ruta de la instancia: su propiedad, `items`, etc.
+
+    Una rama que refina o alterna (`allOf`, `if`, `oneOf`...) mira la misma instancia y no añade nada.
+    """
+    resto = sitio[len(puntero) + 1 :]
+    if papel == PROPIEDAD:
+        return (desescapar(resto.removeprefix("properties/")),)
+    if papel == VALOR:
+        return (resto,)
+    return ()
+
+
+def _nodos(
+    raiz: Any, esquema: Any, puntero: str, ruta: Ruta, vistos: set[int], externos: Mapping[str, Any]
+) -> Iterator[tuple[dict[str, Any], str, Ruta]]:
+    """Cada subesquema alcanzable con su puntero y su ruta de instancia, una vez por esquema.
+
+    Una `$ref` local se resuelve en `raiz`; una `$ref` por `$id` a otro contrato (`externos`, por
+    `ids_de`) se sigue y sus `$ref` locales se resuelven en ese documento (P-T15-6).
+    """
     esquema = resolver(raiz, esquema)
+    referencia = objeto(esquema).get("$ref")
+    if isinstance(referencia, str) and referencia.lstrip("/") in externos:
+        raiz = esquema = externos[referencia.lstrip("/")]
     if not isinstance(esquema, dict) or id(esquema) in vistos:
         return
     vistos.add(id(esquema))
-    es_libre = es_tipo(esquema, "string") and not any(c in esquema for c in ACOTADO)
-    if es_libre and "x-veridicus-limit" not in esquema:
-        yield puntero
+    yield esquema, puntero, ruta
     for hija, sitio, papel in hijas(esquema, puntero):
         if papel != DEFINICION:  # los `$defs` se alcanzan por su `$ref`
-            yield from _textos_libres(raiz, hija, sitio, vistos)
+            paso = _paso(puntero, sitio, papel)
+            yield from _nodos(raiz, hija, sitio, (*ruta, *paso), vistos, externos)
 
 
-def _texto_de_cuerpos(archivo: str, documento: Any) -> Iterator[str]:
+def _textos_libres(
+    raiz: Any, esquema: Any, puntero: str, externos: Mapping[str, Any]
+) -> Iterator[str]:
+    """Los campos de texto libre (sin enum, const, format ni pattern) sin `x-veridicus-limit`.
+
+    Un texto cuenta como acotado si el mismo campo de la instancia lleva la marca en otra rama del
+    mismo esquema, como la rama de refinamiento de un `allOf` que acompaña al `$ref` de otro
+    contrato (E-16, P-T15-6).
+    """
+    nodos = list(_nodos(raiz, esquema, puntero, (), set(), externos))
+    marcadas = {ruta for nodo, _, ruta in nodos if "x-veridicus-limit" in nodo}
+    for nodo, sitio, ruta in nodos:
+        es_libre = es_tipo(nodo, "string") and not any(c in nodo for c in ACOTADO)
+        if es_libre and ruta not in marcadas:
+            yield sitio
+
+
+def _texto_de_cuerpos(
+    archivo: str, documento: Any, externos: Mapping[str, Any]
+) -> Iterator[str]:
     for ruta, metodo, operacion in operaciones(documento):
         for medio, cuerpo, esquema in cuerpos(documento, operacion):
             if "x-veridicus-max-bytes" in cuerpo:
                 continue  # el tope de bytes del cuerpo acota sus textos
             base = f"/paths/{escapar(ruta)}/{metodo}/requestBody/content/{escapar(medio)}/schema"
-            for puntero in _textos_libres(documento, esquema, base, set()):
+            for puntero in _textos_libres(documento, esquema, base, externos):
                 yield f"{archivo}: {puntero}: campo de texto sin x-veridicus-limit ({REGLA} a)"
 
 
-def _texto_de_mensajes(archivo: str, documento: Any) -> Iterator[str]:
+def _texto_de_mensajes(
+    archivo: str, documento: Any, externos: Mapping[str, Any]
+) -> Iterator[str]:
     mensajes = objeto(objeto(objeto(documento).get("components")).get("messages"))
     for nombre, mensaje in mensajes.items():
         base = f"/components/messages/{escapar(nombre)}/payload"
-        for puntero in _textos_libres(documento, objeto(mensaje).get("payload"), base, set()):
+        for puntero in _textos_libres(documento, objeto(mensaje).get("payload"), base, externos):
             yield f"{archivo}: {puntero}: campo de texto sin x-veridicus-limit ({REGLA} a)"
 
 
@@ -186,6 +237,8 @@ def comprobar_documentos(catalogo: Mapping[str, Any], documentos: Mapping[str, A
     """Las comprobaciones sobre las cifras de C25 y los contratos ya cargados (por archivo)."""
     problemas: list[str] = []
     marcadas: set[tuple[str, str]] = set()
+    # Los contratos que un mensaje o cuerpo referencia por `$id` (C2 trae `entrada` de C6).
+    externos = ids_de(documentos.values())
     for contrato, archivos in CONTRATOS.items():
         for archivo in archivos:
             documento = documentos[archivo]
@@ -194,20 +247,30 @@ def comprobar_documentos(catalogo: Mapping[str, Any], documentos: Mapping[str, A
                 marcadas.add((contrato, marca.nombre))
                 problemas.extend(_de_marca(catalogo, marca))
             if contrato in CON_CUERPOS_DE_PETICION:
-                problemas.extend(_texto_de_cuerpos(archivo, documento))
+                problemas.extend(_texto_de_cuerpos(archivo, documento, externos))
             if contrato in CON_MENSAJES:
-                problemas.extend(_texto_de_mensajes(archivo, documento))
+                problemas.extend(_texto_de_mensajes(archivo, documento, externos))
     problemas.extend(_inversa(catalogo, marcadas))
     return problemas
 
 
 def comprobar(contracts_root: Path) -> list[str]:
-    """Lee el catálogo y los contratos bajo `contracts_root` y los comprueba; uno ausente es un problema."""
+    """Lee el catálogo y los contratos bajo `contracts_root` y los comprueba; uno ausente es un problema.
+
+    Además de los contratos con marcas, lee los esquemas estrictos (C6 entre ellos) para seguir los
+    `$ref` por `$id` de los mensajes (P-T15-6).
+    """
     problemas: list[str] = []
     documentos: dict[str, Any] = {}
     for relativa in (CATALOGO, *ARCHIVOS):
         documentos[relativa], faltas = cargar(contracts_root, relativa, REGLA)
         problemas.extend(faltas)
+    if problemas:
+        return problemas
+    for relativa in ESQUEMAS_ESTRICTOS:
+        if relativa not in documentos:
+            documentos[relativa], faltas = cargar(contracts_root, relativa, REGLA)
+            problemas.extend(faltas)
     if problemas:
         return problemas
     return comprobar_documentos(objeto(documentos[CATALOGO]).get("limits", {}), documentos)

@@ -25,6 +25,11 @@ def escapar(clave: Any) -> str:
     return str(clave).replace("~", "~0").replace("/", "~1")
 
 
+def desescapar(segmento: str) -> str:
+    """Un segmento de puntero JSON como nombre (RFC 6901), el inverso de `escapar`."""
+    return segmento.replace("~1", "/").replace("~0", "~")
+
+
 def resolver(raiz: Any, nodo: Any) -> Any:
     """Sigue las referencias locales `#/...` de `nodo`; deja intacta cualquier otra."""
     for _ in range(PROFUNDIDAD_MAXIMA_DE_REFERENCIAS):
@@ -33,7 +38,7 @@ def resolver(raiz: Any, nodo: Any) -> Any:
             return nodo
         destino = raiz
         for parte in referencia[2:].split("/"):
-            clave = parte.replace("~1", "/").replace("~0", "~")
+            clave = desescapar(parte)
             destino = destino.get(clave) if isinstance(destino, dict) else None
         if not isinstance(destino, dict):
             return nodo

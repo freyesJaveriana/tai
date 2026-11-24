@@ -19,10 +19,12 @@ Un objeto es un esquema con `type: object` (o una lista de tipos que lo incluye)
 se dejan a la guardia de ese contrato.
 
 Un objeto está cerrado con `additionalProperties: false`, con `unevaluatedProperties: false` o, solo
-si los valores también son un esquema que la guardia revisa, con `propertyNames.enum` (P-T15-1). Una
-rama de `allOf`, `if`, `then` o `else` que solo trae `properties` refina al objeto padre únicamente
-si el padre está cerrado y declara cada propiedad de la rama; en cualquier otro caso es un objeto
-abierto. En `anyOf` y `oneOf` no hay refinamiento: cada rama es un objeto (P-T15-2). Los objetos
+si los valores también son un esquema que la guardia revisa (con `type` o `$ref`), con
+`propertyNames.enum` (P-T15-1, P-T15-7). Una rama de `allOf`, `if`, `then` o `else` que solo trae
+`properties` refina al objeto padre únicamente si el padre (o, en un `allOf`, una rama hermana,
+también de otro contrato por `$id`) está cerrado y declara cada propiedad de la rama; en cualquier
+otro caso es un objeto abierto. Dentro de la rama, cada propiedad o `items` se contrasta del mismo
+modo con la que tiene el objeto que la admitió en ese camino (P-T15-6). En `anyOf` y `oneOf` no hay refinamiento: cada rama es un objeto (P-T15-2). Los objetos
 abiertos que un contrato admite a propósito están en `ABIERTOS_ADMITIDOS`, cada uno con su motivo
 (E-13). Los mensajes dicen dónde falla y qué regla, nunca copian un valor del contrato.
 """
@@ -36,6 +38,7 @@ from veridicus_contracts.checks._openapi import (
     REFINA,
     cargar,
     cuerpos,
+    desescapar,
     es_tipo,
     escapar,
     hijas,
@@ -80,6 +83,8 @@ ABIERTOS_ADMITIDOS = {
 }
 
 Nodo = tuple[dict[str, Any], str, bool]
+# Un esquema que cierra o contrasta una rama, con el documento raíz que resuelve sus `#/...`.
+Espejo = tuple[Mapping[str, Any], Any]
 SIN_PADRE: Mapping[str, Any] = MappingProxyType({})
 
 
@@ -98,15 +103,35 @@ def ids_de(documentos: Iterable[Any]) -> dict[str, Any]:
 
 def _hermanas(
     raiz: Any, contenedor: Mapping[str, Any], rama: Any, externos: Mapping[str, Any]
-) -> Iterator[Mapping[str, Any]]:
+) -> Iterator[Espejo]:
     """Las demás ramas del `allOf` de `contenedor`, con su `$ref` local o por `$id` resuelto."""
     for hermana in contenedor.get("allOf", []):
-        resuelta = resolver(raiz, hermana)
+        resuelta, origen = resolver(raiz, hermana), raiz
         referencia = objeto(resuelta).get("$ref")
-        if isinstance(referencia, str):
-            resuelta = externos.get(referencia.lstrip("/"), resuelta)
+        if isinstance(referencia, str) and referencia.lstrip("/") in externos:
+            origen = externos[referencia.lstrip("/")]
+            resuelta = origen
         if isinstance(resuelta, dict) and resuelta is not rama:
-            yield resuelta
+            yield resuelta, origen
+
+
+def _bajar(contraparte: Espejo | None, puntero: str, sitio: str) -> Espejo | None:
+    """La contraparte de la hija en `sitio`: la misma propiedad o `items` del esquema que contrasta.
+
+    Es lo que permite aplicar P-T15-5 en cada nivel anidado de una rama de refinamiento (P-T15-6).
+    """
+    if contraparte is None:
+        return None
+    nodo, origen = contraparte
+    resto = sitio[len(puntero) + 1 :]
+    if resto.startswith("properties/"):
+        hija = objeto(nodo.get("properties")).get(desescapar(resto[len("properties/") :]))
+    elif resto == "items":
+        hija = nodo.get("items")
+    else:
+        return None
+    hija = resolver(origen, hija)
+    return (hija, origen) if isinstance(hija, dict) else None
 
 
 def _recorrer(
@@ -118,6 +143,7 @@ def _recorrer(
     anfitrion: Mapping[str, Any] = SIN_PADRE,
     papel: str = "",
     contenedor: Mapping[str, Any] = SIN_PADRE,
+    espejo: Espejo | None = None,
 ) -> Iterator[Nodo]:
     """Cada esquema alcanzable, resuelto, con su puntero; una vez por esquema.
 
@@ -125,48 +151,60 @@ def _recorrer(
     anfitrión (P-T15-2). Las ramas de `allOf`, `if`, `then` y `else` se aplican al mismo objeto
     que su padre: si el padre es a su vez una de ellas, el anfitrión es el del padre. Si la rama
     es de un `allOf`, `contenedor` es el esquema que lo declara y sus otras ramas pueden cerrar el
-    objeto (P-T15-5).
+    objeto (P-T15-5). Dentro de la rama, cada propiedad o `items` tiene su contraparte en el objeto
+    que la admitió (`espejo`): la rama anidada solo refina si esa contraparte también está cerrada
+    y declara cada una de sus propiedades (P-T15-6).
     """
     esquema = resolver(raiz, esquema)
     if not isinstance(esquema, dict) or id(esquema) in vistos:
         return
     vistos.add(id(esquema))
-    hermanas = _hermanas(raiz, contenedor, esquema, externos)
-    yield esquema, puntero, papel == REFINA and _refina(esquema, anfitrion, hermanas)
+    if papel == REFINA:
+        hermanas = _hermanas(raiz, contenedor, esquema, externos)
+        contraparte = _admite(esquema, [(anfitrion, raiz), *hermanas])
+        refina = contraparte is not None
+    else:
+        contraparte = espejo
+        refina = espejo is not None and _admite(esquema, [espejo]) is not None
+    yield esquema, puntero, refina
     propio = anfitrion if papel == REFINA else esquema
     for hija, sitio, papel_de_hija in hijas(esquema, puntero):
         de_allof = esquema if sitio.startswith(f"{puntero}/allOf/") else SIN_PADRE
-        yield from _recorrer(raiz, hija, sitio, vistos, externos, propio, papel_de_hija, de_allof)
+        de_la_hija = _bajar(contraparte, puntero, sitio)
+        yield from _recorrer(
+            raiz, hija, sitio, vistos, externos, propio, papel_de_hija, de_allof, de_la_hija
+        )
 
 
-def _refina(
-    rama: Mapping[str, Any], anfitrion: Mapping[str, Any], hermanas: Iterable[Mapping[str, Any]]
-) -> bool:
-    """Una rama sin `type` con `properties` refina al objeto cerrado que las declara todas.
+def _admite(rama: Mapping[str, Any], candidatos: Iterable[Espejo]) -> Espejo | None:
+    """El primer candidato cerrado que declara cada propiedad de una rama sin `type` (P-T15-2).
 
-    Ese objeto es el anfitrión o, dentro de un `allOf`, una rama hermana (P-T15-2, P-T15-5).
+    Una rama sin `type` con `properties` refina al objeto cerrado que las declara todas: el
+    anfitrión o, dentro de un `allOf`, una rama hermana (P-T15-5). Si ninguno la admite, o la rama
+    no es de ese tipo, devuelve `None`.
     """
     if "type" in rama or "properties" not in rama:
-        return False
+        return None
     propias = objeto(rama["properties"])
-    return any(
-        _esta_cerrado(candidato)
-        and all(nombre in objeto(candidato.get("properties")) for nombre in propias)
-        for candidato in (anfitrion, *hermanas)
-    )
+    for candidato, origen in candidatos:
+        declaradas = objeto(candidato.get("properties"))
+        if _esta_cerrado(candidato) and all(nombre in declaradas for nombre in propias):
+            return candidato, origen
+    return None
 
 
 def _esta_cerrado(nodo: Mapping[str, Any]) -> bool:
     """`additionalProperties` o `unevaluatedProperties` en `false`, o claves cerradas por un `enum`.
 
-    Con `propertyNames.enum` los valores deben ser un esquema no vacío (P-T15-1); `_recorrer` baja
-    a revisarlo.
+    Con `propertyNames.enum` los valores deben ser un esquema con `type` o `$ref`, para que la
+    guardia pueda revisarlo (P-T15-1, P-T15-7); `_recorrer` baja a revisarlo.
     """
     valores = nodo.get("additionalProperties")
+    revisable = isinstance(valores, dict) and ("type" in valores or "$ref" in valores)
     return (
         valores is False
         or nodo.get("unevaluatedProperties") is False
-        or ("enum" in objeto(nodo.get("propertyNames")) and isinstance(valores, dict) and bool(valores))
+        or ("enum" in objeto(nodo.get("propertyNames")) and revisable)
     )
 
 

@@ -1,6 +1,6 @@
 # Métricas de U4 text-flow (NFRD-U4-08; observability-requirements §2). Forma de C15 (checks/metrics.py).
-# `provider` y `role` son los de C18. `veridicus_runs_total` va solo en review.v2.yaml (C15): el
-# nombre es único entre archivos (§4.12), y NFRD-U4-08 lo suma a este archivo (P-T17-9, abierto).
+# `provider` y `role` son los de C18. `veridicus_runs_total` va solo en review.v2.yaml (C15), con
+# mode, outcome y error_code: el nombre es único entre archivos (§4.12; E-26 precisa NFRD-U4-08).
 schema_version: 1.0.0
 endpoint: GET /metrics  # session-api, puerto interno
 metrics:

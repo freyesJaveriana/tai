@@ -1,7 +1,7 @@
 # C15 v2: métrica de descartes y de corridas de session-api (U5; contract-summary C15, revisión 4).
 # Forma de C15; cada etiqueta declara `values` (enum cerrado) salvo `session_id`, que declara el
 # patrón de un UUID (NFRD-U1-05, checks/metrics.py). `error_code` toma un `code` del catálogo o
-# `none` (E-20): C15 decía «vacío si ok». Las etiquetas solo llevan identificadores y enumeraciones,
+# `none` (E-20): C15 decía «vacío si ok». `veridicus_runs_total` suma `outcome` (E-26). Las etiquetas solo llevan identificadores y enumeraciones,
 # nunca texto (NFR10).
 schema_version: 2.0.0
 endpoint: GET /metrics  # session-api, puerto interno, sin autenticación de usuario, no expuesto al navegador
@@ -37,6 +37,8 @@ metrics:
     labels:
       - name: mode
         values: [incremental, final]
+      - name: outcome
+        values: [completed, error, cancelled]
       - name: error_code
         values:
           - none
@@ -48,4 +50,5 @@ metrics:
           - analysis.system
           - anonymizer.incident
     description: >-
-      Corridas terminadas, por modo y por code del error; none si la corrida terminó bien (E-20).
+      Corridas terminadas, por modo, resultado y code del error; none si la corrida terminó bien
+      (E-20). Serie única de U4 y U5 (E-26); completed es el estado done (NFRD-U4-08).

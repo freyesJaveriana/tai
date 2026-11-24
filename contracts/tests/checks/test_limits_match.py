@@ -6,6 +6,7 @@ la prueba.
 """
 
 import copy
+import shutil
 from collections.abc import Callable
 from pathlib import Path
 from types import ModuleType
@@ -85,6 +86,10 @@ def test_la_unidad_debe_ser_coherente_con_la_palabra_clave(guardia: ModuleType) 
         ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
         "properties/password: la unidad de password_max_chars debe ser turns o runs con maxItems "
         "(§4.4 c)"),
+        # T15c (E-16) marcó `turnos[].texto` de `RunRequested.entrada` con turn_max_chars.
+        ("queues/runs.v2.yaml: /components/messages/RunRequested/payload/properties/entrada/allOf/1/"
+        "properties/transcripcion/properties/turnos/items/properties/texto: la unidad de "
+        "turn_max_chars debe ser chars con maxLength (§4.4 c)"),
         # T15b (E-15) marcó `TranscriptResult.text` con turn_max_chars.
         ("queues/speech.v2.yaml: /components/messages/TranscriptResult/payload/properties/text: la "
         "unidad de turn_max_chars debe ser chars con maxLength (§4.4 c)"),
@@ -394,8 +399,8 @@ def test_un_ref_externo_se_sigue_con_las_referencias_locales_de_su_propio_docume
         _payload_de_runs(documentos)["properties"]["ext"] = {"$ref": f"/{EXTERNO}"}
 
     assert _nuevos(guardia, cambiar) == [
-        f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/properties/a: "
-        "campo de texto sin x-veridicus-limit (§4.4 a)"
+        (f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/properties/a: "
+        "campo de texto sin x-veridicus-limit (§4.4 a)")
     ]
 
 
@@ -428,8 +433,8 @@ def test_la_marca_de_una_rama_hermana_en_la_misma_posicion_acota_el_texto_extern
         }
 
     assert _nuevos(guardia, en_otra_posicion) == [
-        f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/allOf/0/properties/a: "
-        "campo de texto sin x-veridicus-limit (§4.4 a)"
+        (f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/allOf/0/properties/a: "
+        "campo de texto sin x-veridicus-limit (§4.4 a)")
     ]
 
 
@@ -442,16 +447,16 @@ def test_el_tope_de_bytes_de_run_requested_se_comprueba_en_valor_y_en_la_inversa
         catalogo["run_message_max_bytes"]["unit"] = "chars"
 
     assert _nuevos(guardia, con_otra_unidad) == [
-        f"{RUNS}: {payload}: la unidad de run_message_max_bytes debe ser bytes con "
-        "x-veridicus-max-bytes (§4.4 c)"
+        (f"{RUNS}: {payload}: la unidad de run_message_max_bytes debe ser bytes con "
+        "x-veridicus-max-bytes (§4.4 c)")
     ]
 
     def sin_used_in(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
         catalogo["run_message_max_bytes"]["used_in"] = []
 
     assert _nuevos(guardia, sin_used_in) == [
-        f"{RUNS}: {payload}: la marca run_message_max_bytes no está en used_in de C25 para C2 "
-        "(§4.4, comprobación inversa)"
+        (f"{RUNS}: {payload}: la marca run_message_max_bytes no está en used_in de C25 para C2 "
+        "(§4.4, comprobación inversa)")
     ]
 
     def sin_marca(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
@@ -466,6 +471,16 @@ def test_comprobar_con_contratos_ausentes_o_ilegibles(guardia: ModuleType, tmp_p
     ausentes = guardia.comprobar(tmp_path)
     assert sorted(ausentes) == sorted(
         f"{r}: contrato ausente (§4.4)" for r in ("limits.v1.yaml", *guardia.ARCHIVOS)
+    )
+    # Con los contratos de marcas completos, falta solo lo que sus `$ref` por `$id` necesitan.
+    for relativa in ("limits.v1.yaml", *guardia.ARCHIVOS):
+        destino = tmp_path / relativa
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(CONTRACTS_ROOT / relativa, destino)
+    sin_esquemas = [r for r in guardia.ESQUEMAS_ESTRICTOS if r not in guardia.ARCHIVOS]
+    assert sin_esquemas
+    assert sorted(guardia.comprobar(tmp_path)) == sorted(
+        f"{r}: contrato ausente (§4.4)" for r in sin_esquemas
     )
     (tmp_path / "limits.v1.yaml").write_text("a: 1\na: 2\n", encoding="utf-8")
     assert guardia.comprobar(tmp_path)[0] == (

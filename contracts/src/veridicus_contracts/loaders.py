@@ -7,6 +7,7 @@ modo seguro, sin claves duplicadas y sin etiquetas de objetos. Una prueba AST
 
 import json
 from datetime import date, datetime
+from functools import cache
 from importlib.resources.abc import Traversable
 from typing import Any
 
@@ -41,14 +42,29 @@ def _comprobar_json(valor: Any, ruta: str = "$") -> None:
         raise LoadError(f"valor que no es de JSON en {ruta}: {type(valor).__name__}")
 
 
-def load_yaml_text(texto: str) -> Any:
-    """Lee un documento YAML 1.2; rechaza claves duplicadas y etiquetas de objetos."""
+def _copia(valor: Any) -> Any:
+    """Copia profunda de un valor compatible con JSON (el análisis solo se hace una vez por texto)."""
+    return json.loads(json.dumps(valor))
+
+
+@cache
+def _yaml_analizado(texto: str) -> Any:
+    """Análisis de un texto YAML, recordado por texto: el análisis en Python puro es lo más lento.
+
+    Una excepción no se recuerda (`functools.cache` solo guarda resultados), así que un texto
+    inválido falla igual cada vez. Nadie recibe este valor: `load_yaml_text` entrega una copia.
+    """
     try:
         valor = _lector_yaml().load(texto)
     except YAMLError as error:
         raise LoadError(f"YAML no válido (clave duplicada o etiqueta no permitida): {error}") from error
     _comprobar_json(valor)
     return valor
+
+
+def load_yaml_text(texto: str) -> Any:
+    """Lee un documento YAML 1.2; rechaza claves duplicadas y etiquetas de objetos."""
+    return _copia(_yaml_analizado(texto))
 
 
 def _sin_claves_duplicadas(pares: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -64,8 +80,9 @@ def _constante_no_finita(nombre: str) -> Any:
     raise LoadError(f"constante no permitida en JSON: {nombre}")
 
 
-def load_json_text(texto: str) -> Any:
-    """Lee un documento JSON; rechaza claves duplicadas y NaN o Infinity."""
+@cache
+def _json_analizado(texto: str) -> Any:
+    """Análisis de un texto JSON, recordado por texto como el de YAML (nadie recibe este valor)."""
     try:
         return json.loads(
             texto,
@@ -74,6 +91,11 @@ def load_json_text(texto: str) -> Any:
         )
     except json.JSONDecodeError as error:
         raise LoadError(f"JSON no válido: {error}") from error
+
+
+def load_json_text(texto: str) -> Any:
+    """Lee un documento JSON; rechaza claves duplicadas y NaN o Infinity."""
+    return _copia(_json_analizado(texto))
 
 
 def load_file(ruta: Traversable) -> Any:

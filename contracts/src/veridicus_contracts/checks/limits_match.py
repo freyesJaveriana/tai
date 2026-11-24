@@ -155,19 +155,33 @@ def _unidad(donde: str, nombre: str, unidad: str, palabra: str) -> str:
     return f"{donde}: la unidad de {nombre} debe ser {unidad} con {palabra} ({REGLA} c)"
 
 
-Ruta = tuple[str, ...]
+# Un segmento de la ruta de la instancia lleva su clase: `("prop", nombre)` para una propiedad y,
+# para una palabra clave de valores, su nombre y su índice o patrón: `("items",)`,
+# `("prefixItems", "0")`, `("additionalProperties",)`, `("patternProperties", patrón)`. Así una
+# propiedad llamada `items` nunca coincide con la palabra clave `items`.
+Segmento = tuple[str, ...]
+Ruta = tuple[Segmento, ...]
+# Cota del trabajo de `_nodos`: un esquema compartido se revisa en cada ruta de la instancia, y
+# eso crece de forma exponencial con la profundidad de los `$ref`. Pasado el tope, la guardia da
+# un problema explícito y no sigue (nunca oculta el resto en silencio).
+TOPE_DE_NODOS = 20000
+
+
+class _TopeExcedido(Exception):
+    """`_nodos` visitó más de `TOPE_DE_NODOS` nodos (señal interna de `_textos_libres`)."""
 
 
 def _paso(puntero: str, sitio: str, papel: str) -> Ruta:
-    """El segmento que una hija añade a la ruta de la instancia: su propiedad, `items`, etc.
+    """El segmento que una hija añade a la ruta de la instancia, con su clase.
 
     Una rama que refina o alterna (`allOf`, `if`, `oneOf`...) mira la misma instancia y no añade nada.
     """
     resto = sitio[len(puntero) + 1 :]
     if papel == PROPIEDAD:
-        return (desescapar(resto.removeprefix("properties/")),)
+        return (("prop", desescapar(resto.removeprefix("properties/"))),)
     if papel == VALOR:
-        return (resto,)
+        clase, _, detalle = resto.partition("/")
+        return ((clase, desescapar(detalle)) if detalle else (clase,),)
     return ()
 
 
@@ -204,6 +218,8 @@ def _nodos(
     if not isinstance(esquema, dict) or id(esquema) in ancestros or clave in vistos:
         return
     vistos.add(clave)
+    if len(vistos) > TOPE_DE_NODOS:
+        raise _TopeExcedido
     yield esquema, puntero, ruta, efectivo
     del_camino = (vistos, ancestros | {id(esquema)})
     for hija, sitio, papel in hijas(esquema, puntero):
@@ -214,30 +230,48 @@ def _nodos(
 
 
 def _ruta_en_texto(ruta: Ruta) -> str:
-    """La ruta de la instancia como se escribe en `MARCA_PROPIA_OBLIGATORIA`: `a.b[].c`."""
+    """La ruta de la instancia como se escribe en `MARCA_PROPIA_OBLIGATORIA`: `a.b[].c`.
+
+    Una propiedad es `nombre` (con un punto si no es la primera), `items` es `[]` y cualquier otra
+    palabra clave de valores va entre ángulos, con su índice o patrón: `<prefixItems/0>`.
+    """
     texto = ""
-    for paso in ruta:
-        texto += "[]" if paso == "items" else (f".{paso}" if texto else paso)
+    for segmento in ruta:
+        if segmento[0] == "prop":
+            texto += f".{segmento[1]}" if texto else segmento[1]
+        elif segmento == ("items",):
+            texto += "[]"
+        else:
+            texto += "<" + "/".join(segmento) + ">"
     return texto
 
 
 def _textos_libres(
     raiz: Any, esquema: Any, puntero: str, externos: Mapping[str, Any]
-) -> Iterator[tuple[str, str]]:
+) -> Iterator[tuple[str, str, bool]]:
     """Los campos de texto libre (sin enum, const, format ni pattern) sin `x-veridicus-limit`.
 
-    Devuelve el puntero y la ruta de la instancia (`_ruta_en_texto`) de cada uno. Un texto cuenta
+    Devuelve el puntero, la ruta de la instancia (`_ruta_en_texto`) y `False` de cada uno; si el
+    recorrido pasa de `TOPE_DE_NODOS`, devuelve al final el puntero de la raíz con `True`. Un texto cuenta
     como acotado si lleva la marca él mismo o si el mismo campo de la instancia la lleva en una
     rama hermana de un `allOf`, como la rama de refinamiento que acompaña al `$ref` de otro
     contrato (E-16, P-T15-6). Una marca que solo está en una rama de `oneOf`, `anyOf`, `if`,
     `then` o `else` no acota la instancia y no cuenta.
     """
-    nodos = list(_nodos(raiz, esquema, puntero, (), (set(), frozenset()), externos))
-    marcadas = {ruta for nodo, _, ruta, efectivo in nodos if efectivo and "x-veridicus-limit" in nodo}
-    for nodo, sitio, ruta, _ in nodos:
-        es_libre = es_tipo(nodo, "string") and not any(c in nodo for c in ACOTADO)
-        if es_libre and "x-veridicus-limit" not in nodo and ruta not in marcadas:
-            yield sitio, _ruta_en_texto(ruta)
+    nodos: list[tuple[dict[str, Any], str, Ruta, bool]] = []
+    excedido = False
+    try:
+        # `extend` conserva lo ya visitado si el recorrido se corta por el tope.
+        nodos.extend(_nodos(raiz, esquema, puntero, (), (set(), frozenset()), externos))
+    except _TopeExcedido:
+        excedido = True
+    marcadas = {r for n, _, r, efectivo in nodos if efectivo and "x-veridicus-limit" in n}
+    for nodo_visto, sitio, ruta, _ in nodos:
+        es_libre = es_tipo(nodo_visto, "string") and not any(c in nodo_visto for c in ACOTADO)
+        if es_libre and "x-veridicus-limit" not in nodo_visto and ruta not in marcadas:
+            yield sitio, _ruta_en_texto(ruta), False
+    if excedido:
+        yield puntero, "", True
 
 
 def _textos_sin_marca(
@@ -258,8 +292,13 @@ def _textos_sin_marca(
     """
     con_tope = any("x-veridicus-max-bytes" in objeto(acota) for acota in acotan)
     propias = {r for a, d, r in MARCA_PROPIA_OBLIGATORIA if (a, d) == (archivo, donde)}
-    for puntero, ruta in _textos_libres(documento, esquema, base, externos):
-        if not con_tope or ruta in propias:
+    for puntero, ruta, excedido in _textos_libres(documento, esquema, base, externos):
+        if excedido:
+            yield (
+                f"{archivo}: {puntero}: la guardia superó el tope de {TOPE_DE_NODOS} nodos de "
+                f"esquema y no revisa el resto ({REGLA} a)"
+            )
+        elif not con_tope or ruta in propias:
             yield f"{archivo}: {puntero}: campo de texto sin x-veridicus-limit ({REGLA} a)"
 
 

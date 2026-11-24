@@ -69,6 +69,14 @@ def test_el_arbol_versionado_cumple_todo_y_trae_los_seis_archivos() -> None:
     ratio = next(m for m in c15["metrics"] if m["name"] == "veridicus_session_dismissal_ratio")
     assert "AC10.8.2" in ratio["description"]
     assert ratio["labels"] == [{"name": "session_id", "pattern": UUID}]
+    # E-26: una sola serie veridicus_runs_total, en C15, con mode, outcome y error_code; los
+    # valores de outcome son los de NFRD-U4-08 y text-flow.v1.yaml no la repite.
+    runs = [m for m in c15["metrics"] if m["name"] == "veridicus_runs_total"]
+    assert len(runs) == 1
+    assert [e["name"] for e in runs[0]["labels"]] == ["mode", "outcome", "error_code"]
+    assert runs[0]["labels"][1]["values"] == ["completed", "error", "cancelled"]
+    text_flow = load_contract("metrics/text-flow.v1.yaml")
+    assert "veridicus_runs_total" not in [m["name"] for m in text_flow["metrics"]]
 
 
 def test_una_metrica_sin_prefijo_o_con_forma_rota_es_rojo() -> None:

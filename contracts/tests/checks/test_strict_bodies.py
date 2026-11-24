@@ -469,3 +469,108 @@ def test_lo_admitido_no_admite_otro_objeto_ni_otro_archivo(guardia: ModuleType) 
     )
     # La lista es por archivo: el mismo sitio en otro contrato no se admite.
     assert len(guardia.comprobar_openapi_interno("otro.yaml", c21)) == 2
+
+
+# ---- P-T15-6: P-T15-5 en cada nivel anidado de la rama de refinamiento de C2 --------------------
+
+RUNS = "queues/runs.v2.yaml"
+C6 = "veridicus/contracts/analyzer/v1/entrada"
+TRANSCRIPCION = "/allOf/1/properties/transcripcion"
+ITEMS = f"{TRANSCRIPCION}/properties/turnos/items"
+
+
+def _entrada_de_c2(runs: Any) -> dict[str, Any]:
+    """El esquema de `entrada` de `RunRequested`: `allOf` con el `$ref` de C6 y la rama de T15c."""
+    propiedades: dict[str, Any] = runs["components"]["messages"]["RunRequested"]["payload"][
+        "properties"
+    ]
+    entrada: dict[str, Any] = propiedades["entrada"]
+    return entrada
+
+
+def _externos(guardia: ModuleType) -> dict[str, Any]:
+    """Los esquemas estrictos por `$id`, copias en memoria que cada prueba puede cambiar."""
+    return dict(guardia.ids_de(_copia(r) for r in guardia.ESQUEMAS_ESTRICTOS))
+
+
+def _rama_c2(entrada: dict[str, Any]) -> dict[str, Any]:
+    rama: dict[str, Any] = entrada["allOf"][1]
+    return rama
+
+
+def _aviso_c2(puntero: str) -> str:
+    return f"{RUNS}: {puntero}: {FALTA}"
+
+
+def test_la_rama_anidada_de_c2_se_admite_en_cada_nivel_con_su_contraparte_de_c6(
+    guardia: ModuleType,
+) -> None:
+    entrada = _entrada_de_c2(_copia(RUNS))
+    assert "$ref" in entrada["allOf"][0]
+    assert guardia.comprobar_esquema(RUNS, entrada, _externos(guardia)) == []
+
+
+def test_una_propiedad_de_la_rama_que_c6_no_tiene_en_ese_nivel_es_rojo(guardia: ModuleType) -> None:
+    sin_c6 = {"transcripcion": TRANSCRIPCION, "items": ITEMS}
+    for nivel, esperado in sin_c6.items():
+        entrada = _entrada_de_c2(_copia(RUNS))
+        rama = _rama_c2(entrada)["properties"]["transcripcion"]
+        if nivel == "items":
+            rama = rama["properties"]["turnos"]["items"]
+        rama["properties"]["inventada"] = {"maxLength": 1}
+        assert guardia.comprobar_esquema(RUNS, entrada, _externos(guardia)) == [
+            _aviso_c2(esperado)
+        ], nivel
+
+
+def test_un_nivel_abierto_de_c6_deja_la_rama_de_ese_nivel_en_rojo(guardia: ModuleType) -> None:
+    for nivel, esperado in {"transcripcion": TRANSCRIPCION, "items": ITEMS}.items():
+        externos = _externos(guardia)
+        c6 = externos[C6]
+        abierto = c6["properties"]["transcripcion"]
+        if nivel == "items":
+            abierto = abierto["properties"]["turnos"]["items"]
+        del abierto["additionalProperties"]
+        entrada = _entrada_de_c2(_copia(RUNS))
+        assert guardia.comprobar_esquema(RUNS, entrada, externos) == [_aviso_c2(esperado)], nivel
+
+
+def test_la_contraparte_anidada_se_resuelve_con_las_referencias_locales_de_su_documento(
+    guardia: ModuleType,
+) -> None:
+    externos = _externos(guardia)
+    c6 = externos[C6]
+    c6["$defs"] = {"transcripcion": c6["properties"]["transcripcion"]}
+    c6["properties"]["transcripcion"] = {"$ref": "#/$defs/transcripcion"}
+    entrada = _entrada_de_c2(_copia(RUNS))
+    assert guardia.comprobar_esquema(RUNS, entrada, externos) == []
+
+
+def test_una_condicion_dentro_de_la_rama_anidada_no_hereda_la_contraparte(
+    guardia: ModuleType,
+) -> None:
+    entrada = _entrada_de_c2(_copia(RUNS))
+    nivel = _rama_c2(entrada)["properties"]["transcripcion"]
+    nivel["allOf"] = [{"properties": {"turnos": {}}}]
+    assert guardia.comprobar_esquema(RUNS, entrada, _externos(guardia)) == [
+        _aviso_c2(f"{TRANSCRIPCION}/allOf/0")
+    ]
+
+
+# ---- P-T15-7: los valores de un mapa con propertyNames.enum llevan `type` o `$ref` ----------------
+
+
+def test_los_valores_de_un_mapa_cerrado_por_enum_exigen_type_o_ref(guardia: ModuleType) -> None:
+    claves = {"propertyNames": {"enum": ["a"]}}
+    for valores in ({"description": "libre"}, {"minLength": 0}):
+        mapa = {"type": "object", **claves, "additionalProperties": valores}
+        assert _abiertos(guardia, mapa) == [_aviso("")], valores
+    con_type = {"type": "object", **claves, "additionalProperties": {"type": ["string", "null"]}}
+    assert _abiertos(guardia, con_type) == []
+    con_ref = {
+        "type": "object",
+        **claves,
+        "additionalProperties": {"$ref": "#/$defs/valor"},
+        "$defs": {"valor": {"type": "integer"}},
+    }
+    assert _abiertos(guardia, con_ref) == []

@@ -317,6 +317,151 @@ def test_una_cookie_sin_una_de_sus_dos_cifras_deja_huerfana_la_entrada(
     ]
 
 
+# ---- P-T15-6: la regla (a) sigue los `$ref` externos por `$id` ------------------------------------
+
+RUNS = "queues/runs.v2.yaml"
+C6 = "analyzer/v1/entrada.schema.json"
+ENTRADA = "/components/messages/RunRequested/payload/properties/entrada"
+TEXTO_DE_TURNO = f"{ENTRADA}/allOf/0/properties/transcripcion/properties/turnos/items/properties/texto"
+EXTERNO = "veridicus/contracts/externo/x.v1"
+
+
+def _con_c6(
+    cambiar: Callable[[dict[str, Any], dict[str, Any]], None],
+) -> Callable[[dict[str, Any], dict[str, Any]], None]:
+    """Añade C6 a los documentos antes de aplicar el cambio (la guardia lo busca por `$id`)."""
+
+    def con_c6(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        documentos.setdefault(C6, copy.deepcopy(load_contract(C6)))
+        cambiar(catalogo, documentos)
+
+    return con_c6
+
+
+def _nuevos_con_c6(
+    guardia: ModuleType, cambiar: Callable[[dict[str, Any], dict[str, Any]], None]
+) -> list[str]:
+    """Como `_nuevos`, pero el original y el cambiado llevan C6."""
+    catalogo, documentos = _estado(guardia)
+    _con_c6(lambda c, d: None)(catalogo, documentos)
+    original = guardia.comprobar_documentos(catalogo, documentos)
+    catalogo, documentos = _estado(guardia)
+    _con_c6(cambiar)(catalogo, documentos)
+    return sorted(p for p in guardia.comprobar_documentos(catalogo, documentos) if p not in original)
+
+
+def _externo() -> dict[str, Any]:
+    return {
+        "$id": EXTERNO,
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {"a": {"$ref": "#/$defs/texto"}},
+        "$defs": {"texto": {"type": "string"}},
+    }
+
+
+def _payload_de_runs(documentos: dict[str, Any]) -> dict[str, Any]:
+    payload: dict[str, Any] = documentos[RUNS]["components"]["messages"]["RunRequested"]["payload"]
+    return payload
+
+
+def test_c2_con_la_rama_de_refinamiento_da_por_bueno_el_texto_de_turno_de_c6(
+    guardia: ModuleType,
+) -> None:
+    catalogo, documentos = _estado(guardia)
+    _con_c6(lambda c, d: None)(catalogo, documentos)
+    assert [p for p in guardia.comprobar_documentos(catalogo, documentos) if "/turnos/" in p] == []
+
+
+def test_c2_sin_la_rama_de_refinamiento_el_texto_de_turno_de_c6_es_rojo(
+    guardia: ModuleType,
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        entrada = _payload_de_runs(documentos)["properties"]["entrada"]
+        entrada["allOf"] = entrada["allOf"][:1]
+
+    assert _nuevos_con_c6(guardia, cambiar) == [
+        f"{RUNS}: {TEXTO_DE_TURNO}: campo de texto sin x-veridicus-limit (§4.4 a)",
+        "turn_max_chars: used_in nombra C2 y C2 no la marca (§4.4, comprobación inversa)",
+    ]
+
+
+def test_un_ref_externo_se_sigue_con_las_referencias_locales_de_su_propio_documento(
+    guardia: ModuleType,
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        documentos["externo.schema.json"] = _externo()
+        _payload_de_runs(documentos)["properties"]["ext"] = {"$ref": f"/{EXTERNO}"}
+
+    assert _nuevos(guardia, cambiar) == [
+        f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/properties/a: "
+        "campo de texto sin x-veridicus-limit (§4.4 a)"
+    ]
+
+
+def test_un_ref_externo_que_no_se_resuelve_no_aporta_textos(guardia: ModuleType) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        documentos["externo.schema.json"] = _externo()
+        _payload_de_runs(documentos)["properties"]["ext"] = {"$ref": "/veridicus/contracts/otro"}
+
+    assert _nuevos(guardia, cambiar) == []
+
+
+def test_la_marca_de_una_rama_hermana_en_la_misma_posicion_acota_el_texto_externo(
+    guardia: ModuleType,
+) -> None:
+    marca = {"maxLength": 32, "x-veridicus-limit": "username_max_chars"}
+
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        documentos["externo.schema.json"] = _externo()
+        catalogo["username_max_chars"]["used_in"] = ["C1", "C2"]
+        _payload_de_runs(documentos)["properties"]["ext"] = {
+            "allOf": [{"$ref": f"/{EXTERNO}"}, {"properties": {"a": marca}}]
+        }
+
+    assert _nuevos(guardia, cambiar) == []
+
+    def en_otra_posicion(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        cambiar(catalogo, documentos)
+        _payload_de_runs(documentos)["properties"]["ext"]["allOf"][1] = {
+            "properties": {"b": {"properties": {"a": marca}}}
+        }
+
+    assert _nuevos(guardia, en_otra_posicion) == [
+        f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/allOf/0/properties/a: "
+        "campo de texto sin x-veridicus-limit (§4.4 a)"
+    ]
+
+
+def test_el_tope_de_bytes_de_run_requested_se_comprueba_en_valor_y_en_la_inversa(
+    guardia: ModuleType,
+) -> None:
+    payload = "/components/messages/RunRequested/payload"
+
+    def con_otra_unidad(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        catalogo["run_message_max_bytes"]["unit"] = "chars"
+
+    assert _nuevos(guardia, con_otra_unidad) == [
+        f"{RUNS}: {payload}: la unidad de run_message_max_bytes debe ser bytes con "
+        "x-veridicus-max-bytes (§4.4 c)"
+    ]
+
+    def sin_used_in(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        catalogo["run_message_max_bytes"]["used_in"] = []
+
+    assert _nuevos(guardia, sin_used_in) == [
+        f"{RUNS}: {payload}: la marca run_message_max_bytes no está en used_in de C25 para C2 "
+        "(§4.4, comprobación inversa)"
+    ]
+
+    def sin_marca(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        del _payload_de_runs(documentos)["x-veridicus-max-bytes"]
+
+    assert _nuevos(guardia, sin_marca) == [
+        "run_message_max_bytes: used_in nombra C2 y C2 no la marca (§4.4, comprobación inversa)"
+    ]
+
+
 def test_comprobar_con_contratos_ausentes_o_ilegibles(guardia: ModuleType, tmp_path: Path) -> None:
     ausentes = guardia.comprobar(tmp_path)
     assert sorted(ausentes) == sorted(

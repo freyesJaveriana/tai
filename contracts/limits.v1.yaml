@@ -81,7 +81,7 @@ limits:
   wellness_reminder_interval_s: {value: 2700, unit: s, owner: U13, used_in: []}
   ethics_body_max_bytes: {value: 32768, unit: bytes, owner: U13, used_in: [C1]}
   # U1: reporte de la CLI (NFR12.3)
-  report_token_max_chars: {value: 128, unit: chars, owner: U1, used_in: [C19, C5]}
+  report_token_max_chars: {value: 128, unit: chars, owner: U1, used_in: [C2, C3, C5, C18, C19, C21]}
   model_call_role_max_chars: {value: 32, unit: chars, owner: U1, used_in: [C19]}
   report_per_run_items: {value: 3, unit: runs, owner: U1, used_in: [C19]}
 relations:

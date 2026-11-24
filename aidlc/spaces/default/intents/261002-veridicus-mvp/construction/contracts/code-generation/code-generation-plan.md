@@ -408,17 +408,17 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 13 — Vocabulario, aviso, casos de escaneo y rótulos (implementar y probar) · tarea T11
 
-- [ ] `contracts/integrity/forbidden-vocabulary.v2.yaml` (C8): los 9 términos, `match` (palabra completa,
+- [x] `contracts/integrity/forbidden-vocabulary.v2.yaml` (C8): los 9 términos, `match` (palabra completa,
   sin mayúsculas ni tildes), `excluded_spans` con `quote_delimiters: [«, »]` sobre `hecho`,
   `observaciones` y `tema`, exclusiones enteras de BR5.5 y `categories_forbidden_in_schemas`.
-- [ ] `integrity/neutral-clarification.v1.yaml` (VE-05, BR5.6), `integrity/notice.v1.yaml` (VE-01, frase
+- [x] `integrity/neutral-clarification.v1.yaml` (VE-05, BR5.6), `integrity/notice.v1.yaml` (VE-01, frase
   base y versión, BR5.7), `integrity/scan-cases.v1.yaml` (E10–E14, E30 y un caso por término y por frase,
   con sus `literal_sources`, BR5.8, PD-6) e `integrity/testimony-warning-cases.v1.yaml` con
   `whitespace_code_points` y los casos U+00A0, U+3000, U+FEFF, tabulador y salto de línea (NFR-U13-10,
   NFRD-U13-13).
-- [ ] `contracts/ui/result-labels.v2.yaml`: «Sugerencia de revisión», «Contradicción en el relato» y los 7
+- [x] `contracts/ui/result-labels.v2.yaml`: «Sugerencia de revisión», «Contradicción en el relato» y los 7
   de tipo «Fecha», «Número», «Lugar», «Persona», «Negación», «Secuencia», «Otro» (FD-U1-08, BR6.1–BR6.3).
-- [ ] `src/veridicus_contracts/checks/veracity.py` y `checks/scan_cases.py` (módulos guardia, §4.8): BR3.2,
+- [x] `src/veridicus_contracts/checks/veracity.py` y `checks/scan_cases.py` (módulos guardia, §4.8): BR3.2,
   BR3.3, BR5.1, BR6.1–BR6.3 sobre todos los documentos; forma de los casos y uno por término y por frase
   (E40); E17 (décimo rótulo) en rojo.
 - Cubre: C8; AC3.2.4, AC5.5.4; BR5.1–BR5.8, BR6.1–BR6.3; NFR11.3. Fuera: ejecutar el escáner (U11).
@@ -428,13 +428,13 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 14 — Reporte de la CLI C19 v2 (verde) · tarea T12 (ola con T13)
 
-- [ ] `contracts/cli/report.schema.v2.yaml` con `model-call.v1.yaml`: toda cadena `enum`, `const` o patrón
+- [x] `contracts/cli/report.schema.v2.yaml` con `model-call.v1.yaml`: toda cadena `enum`, `const` o patrón
   portátil sin espacios con `maxLength: 128` y `x-veridicus-limit: report_token_max_chars`; enteros con
   `minimum` y `maximum` (0..2^53 − 1, `seed` también negativo, `estimated_cost` ≤ 10^9); `origin`,
   `blocking`, latencia p50 y p95 por papel en ms enteros, sección opcional `clarifications` solo con
   enteros; `allOf` que restringe las llamadas a los tres papeles del analizador (§4.18, NFRD-U1-06,
   FD-U1-03).
-- [ ] `src/veridicus_contracts/checks/report_closed.py` (módulo guardia): E28, E29; límite declarado del
+- [x] `src/veridicus_contracts/checks/report_closed.py` (módulo guardia): E28, E29; límite declarado del
   *canary* de una palabra (FD-U1-05, lo cierra U12). `report_token_max_chars` se compara con C25 en el
   paso 16 (PD-8).
 - Cubre: definición de terminado 5 de B1; C19; AC12.6.1 (parte de U1); BR10.1, BR10.2; NFR1.4, NFR12.3.
@@ -444,14 +444,14 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 15 — C21, ruta interna de voz, salud C16 y soberanía (verde) · tarea T13 (ola con T12)
 
-- [ ] `contracts/api/anonymizer-proxy.v1.yaml` (C21): petición y respuesta estrictas en todos los niveles,
+- [x] `contracts/api/anonymizer-proxy.v1.yaml` (C21): petición y respuesta estrictas en todos los niveles,
   `role` con patrón, `profile_sha256` `^[0-9a-f]{64}$`, `x-veridicus-max-bytes` de petición y respuesta,
   `servers` internos (§4.17, NFRD-U1-04).
-- [ ] `contracts/api/speech-internal.v1.yaml`: `POST /internal/v1/speech` con `bearerAuth`, cuerpo
+- [x] `contracts/api/speech-internal.v1.yaml`: `POST /internal/v1/speech` con `bearerAuth`, cuerpo
   estricto, `401`, `422` con `rule_id` cerrado, `503` y `audio/wav` con
   `x-veridicus-max-bytes: speech_audio_max_bytes` (NFRD-U1-08).
-- [ ] `contracts/health/health.v2.yaml` (C16): `/healthz` y `/readyz` públicas dentro del clúster.
-- [ ] `src/veridicus_contracts/checks/servers.py` (módulo guardia, §4.9): ruta relativa, nombre corto
+- [x] `contracts/health/health.v2.yaml` (C16): `/healthz` y `/readyz` públicas dentro del clúster.
+- [x] `src/veridicus_contracts/checks/servers.py` (módulo guardia, §4.9): ruta relativa, nombre corto
   `http://veridicus-<nombre>:<puerto>` o `*.svc.cluster.local`, siempre `http`; control de C21 con
   `https://api.openai.com`.
 - Cubre: C16, C21; NFR1.1, NFR1.3; AUTONOMIA-04. Fuera: el proxy (U10) y `audio-worker` (U9).
@@ -461,7 +461,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 16 — OpenAPI de la consola C1 v2 y sus comprobaciones (implementar y probar) · tareas T14 y T15
 
-- [ ] T14 — `contracts/api/console.v2.yaml` (C1) en OpenAPI 3.1, desde contract-summary §C1 revisión 3 más
+- [x] T14 — `contracts/api/console.v2.yaml` (C1) en OpenAPI 3.1, desde contract-summary §C1 revisión 3 más
   PD-1 y PD-2: `ErrorCode` igual al catálogo; `CsrfToken` (`minLength: 32`); `x-veridicus-roles` en toda
   operación salvo `/auth/login`, `/auth/logout`, `/auth/me` y la lista pública (NFRD-U1-12); extensiones
   cerradas de §4.6; `x-veridicus-limit` y `x-veridicus-max-bytes` iguales a C25; `413 limits.exceeded` y

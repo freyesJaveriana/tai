@@ -7,7 +7,9 @@ interna de voz, y comprueba contra `limits.v1.yaml`:
   `x-veridicus-max-bytes`, que lo acota) y de un mensaje de C2 o C5 lleva su `x-veridicus-limit`;
   se busca bajo todo subesquema (`_openapi.hijas`) y `type` puede ser una lista con `string`; un
   `$ref` por `$id` a otro contrato (C2 → C6) se sigue, y el texto que trae se acota con la marca de
-  una rama hermana del mismo `allOf` en el mismo campo de la instancia (P-T15-6);
+  una rama hermana del mismo `allOf` en el mismo campo de la instancia (P-T15-6); el tope
+  `x-veridicus-max-bytes` del `requestBody` o del `payload` acota los textos sin marca propia,
+  salvo los de `MARCA_PROPIA_OBLIGATORIA` (E-14, E-18, P-T15-8);
   la ruta interna de voz queda fuera de (a): su `tema` no necesita marca (K-15);
 - (b) el valor del contrato (`maxLength`, `maxItems`) es igual al del catálogo;
 - (c) la unidad es coherente con la palabra clave (`chars` con `maxLength`, `turns` o `runs` con
@@ -64,6 +66,15 @@ PALABRAS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("maxItems", ("turns", "runs")),
 )
 ACOTADO = ("enum", "const", "format", "pattern")
+# P-T15-8: el tope de bytes del `requestBody` o del `payload` acota los textos sin marca propia
+# (E-14, E-18), salvo estos, que exigen su `x-veridicus-limit` aunque haya tope. Cada entrada es
+# (archivo, operación o mensaje, ruta de la instancia) con su motivo. Añadir otra requiere una
+# precisión del humano.
+MARCA_PROPIA_OBLIGATORIA = {
+    (CONTRATOS["C2"][0], "RunRequested", "entrada.transcripcion.turnos[].texto"): (
+        "cada turno lleva su propio tope turn_max_chars, además del tope del mensaje (E-16, E-18)"
+    ),
+}
 COOKIE = ("max_age_limit", "idle_limit")
 
 
@@ -182,21 +193,52 @@ def _nodos(
             yield from _nodos(raiz, hija, sitio, (*ruta, *paso), vistos, externos)
 
 
+def _ruta_en_texto(ruta: Ruta) -> str:
+    """La ruta de la instancia como se escribe en `MARCA_PROPIA_OBLIGATORIA`: `a.b[].c`."""
+    texto = ""
+    for paso in ruta:
+        texto += "[]" if paso == "items" else (f".{paso}" if texto else paso)
+    return texto
+
+
 def _textos_libres(
     raiz: Any, esquema: Any, puntero: str, externos: Mapping[str, Any]
-) -> Iterator[str]:
+) -> Iterator[tuple[str, str]]:
     """Los campos de texto libre (sin enum, const, format ni pattern) sin `x-veridicus-limit`.
 
-    Un texto cuenta como acotado si el mismo campo de la instancia lleva la marca en otra rama del
-    mismo esquema, como la rama de refinamiento de un `allOf` que acompaña al `$ref` de otro
-    contrato (E-16, P-T15-6).
+    Devuelve el puntero y la ruta de la instancia (`_ruta_en_texto`) de cada uno. Un texto cuenta
+    como acotado si el mismo campo de la instancia lleva la marca en otra rama del mismo esquema,
+    como la rama de refinamiento de un `allOf` que acompaña al `$ref` de otro contrato (E-16,
+    P-T15-6).
     """
     nodos = list(_nodos(raiz, esquema, puntero, (), set(), externos))
     marcadas = {ruta for nodo, _, ruta in nodos if "x-veridicus-limit" in nodo}
     for nodo, sitio, ruta in nodos:
         es_libre = es_tipo(nodo, "string") and not any(c in nodo for c in ACOTADO)
         if es_libre and ruta not in marcadas:
-            yield sitio
+            yield sitio, _ruta_en_texto(ruta)
+
+
+def _textos_sin_marca(
+    archivo: str,
+    donde: str,
+    documento: Any,
+    acota: Any,
+    esquema: Any,
+    base: str,
+    externos: Mapping[str, Any],
+) -> Iterator[str]:
+    """Los textos de un cuerpo (C1, C21) o de un mensaje (C2, C5) sin marca propia ni tope de bytes.
+
+    `acota` es el objeto que puede declarar `x-veridicus-max-bytes`: el `requestBody` de una
+    petición o el `payload` de un mensaje (E-14, E-18). Con el tope, ese tope acota los textos sin
+    marca propia, salvo los de `MARCA_PROPIA_OBLIGATORIA` en `donde` (la operación o el mensaje).
+    """
+    con_tope = "x-veridicus-max-bytes" in objeto(acota)
+    propias = {r for a, d, r in MARCA_PROPIA_OBLIGATORIA if (a, d) == (archivo, donde)}
+    for puntero, ruta in _textos_libres(documento, esquema, base, externos):
+        if not con_tope or ruta in propias:
+            yield f"{archivo}: {puntero}: campo de texto sin x-veridicus-limit ({REGLA} a)"
 
 
 def _texto_de_cuerpos(
@@ -204,11 +246,9 @@ def _texto_de_cuerpos(
 ) -> Iterator[str]:
     for ruta, metodo, operacion in operaciones(documento):
         for medio, cuerpo, esquema in cuerpos(documento, operacion):
-            if "x-veridicus-max-bytes" in cuerpo:
-                continue  # el tope de bytes del cuerpo acota sus textos
             base = f"/paths/{escapar(ruta)}/{metodo}/requestBody/content/{escapar(medio)}/schema"
-            for puntero in _textos_libres(documento, esquema, base, externos):
-                yield f"{archivo}: {puntero}: campo de texto sin x-veridicus-limit ({REGLA} a)"
+            donde = f"{metodo.upper()} {ruta}"
+            yield from _textos_sin_marca(archivo, donde, documento, cuerpo, esquema, base, externos)
 
 
 def _texto_de_mensajes(
@@ -217,8 +257,8 @@ def _texto_de_mensajes(
     mensajes = objeto(objeto(objeto(documento).get("components")).get("messages"))
     for nombre, mensaje in mensajes.items():
         base = f"/components/messages/{escapar(nombre)}/payload"
-        for puntero in _textos_libres(documento, objeto(mensaje).get("payload"), base, externos):
-            yield f"{archivo}: {puntero}: campo de texto sin x-veridicus-limit ({REGLA} a)"
+        carga = objeto(mensaje).get("payload")
+        yield from _textos_sin_marca(archivo, nombre, documento, carga, carga, base, externos)
 
 
 def _inversa(catalogo: Mapping[str, Any], marcadas: set[tuple[str, str]]) -> Iterator[str]:

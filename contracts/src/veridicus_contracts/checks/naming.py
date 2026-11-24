@@ -1,9 +1,10 @@
 """Nombres de los contratos propios: ASCII `snake_case` y `code` en `dominio.motivo` (§4.12, CD-05).
 
 Módulo guardia (100 % de ramas). Comprueba los nombres de propiedades (las claves bajo
-`properties`), de parámetros de ruta y de consulta y de métricas, y la forma de todo `code`: las
-claves del catálogo de errores, el `enum` de `ErrorCode` y el `const` o `enum` de una propiedad
-`code`. Los nombres de cabeceras y de cookies son los del protocolo y no se comprueban. La copia de
+`properties`), de todo parámetro de ruta, de consulta o de cookie (en una lista `parameters` o en el
+mapa `components/parameters`) y de métricas, y la forma de todo `code`: las claves del catálogo de
+errores, el `enum` de `ErrorCode` y el `const` o `enum` de una propiedad `code`. Los nombres de las
+cabeceras son los del protocolo y no se comprueban. La copia de
 C6 (`analyzer/`) queda fuera: la regla 8 de contract-summary conserva sus nombres (BR1.8). Las
 funciones reciben documentos ya cargados o una ruta y devuelven la lista de problemas (vacía si todo
 está bien); nunca escriben. Un mensaje nombra el archivo, el puntero y la regla, nunca el valor de
@@ -28,7 +29,7 @@ __all__ = [
 
 NOMBRE = re.compile(r"[a-z][a-z0-9_]*")
 CODE = re.compile(r"[a-z][a-z_]*\.[a-z][a-z_]*")
-PARAMETROS = frozenset({"query", "path"})
+PARAMETROS = frozenset({"query", "path", "cookie"})  # `header` lleva nombres del protocolo
 CLAVES_DE_CODE = frozenset({"code", "ErrorCode"})
 CATALOGO_RELATIVO = "errors/error-codes.v2.yaml"
 NO_SNAKE = "el nombre no es ASCII snake_case (CD-05)"
@@ -57,6 +58,9 @@ def _recorrer(
                 for nombre in nodo
                 if not _es_nombre(nombre)
             )
+        # Todo objeto Parameter, esté en una lista (`parameters`) o en un mapa (`components/parameters`).
+        if isinstance(nodo.get("in"), str) and nodo["in"] in PARAMETROS and not _es_nombre(nodo.get("name")):
+            problemas.append(f"{archivo}: {puntero}/name: {NO_SNAKE}")
         if clave in CLAVES_DE_CODE:
             for palabra in ("const", "enum"):
                 if palabra not in nodo:
@@ -70,14 +74,6 @@ def _recorrer(
         for hija, valor in nodo.items():
             _recorrer(valor, f"{puntero}/{_escapar(hija)}", hija, archivo, problemas)
     elif isinstance(nodo, list):
-        if clave == "parameters":
-            problemas.extend(
-                f"{archivo}: {puntero}/{indice}/name: {NO_SNAKE}"
-                for indice, parametro in enumerate(nodo)
-                if isinstance(parametro, dict)
-                and parametro.get("in") in PARAMETROS
-                and not _es_nombre(parametro.get("name"))
-            )
         for indice, valor in enumerate(nodo):
             _recorrer(valor, f"{puntero}/{indice}", clave, archivo, problemas)
 

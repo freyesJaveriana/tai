@@ -1,16 +1,15 @@
 """Recorrido de los contratos propios de `contracts/` para las guardias de fecha y de nombres.
 
 Salta lo que no es un contrato propio: la copia de C6 (`analyzer/`, que no se toca, BR1.8), los
-meta-esquemas de `vendor/`, los *fixtures*, las pruebas, el código y los directorios ocultos. Solo
-lee; el orden es el alfabético de cada directorio, para que la salida sea reproducible.
+meta-esquemas de `vendor/`, los *fixtures*, las pruebas y lo que empieza por `.` o `_` (directorios
+ocultos y `__pycache__`). No hay más exenciones: un directorio nuevo se recorre. Solo lee; el orden
+es el alfabético de cada directorio, para que la salida sea reproducible.
 """
 
 from collections.abc import Iterator
 from pathlib import Path
 
-EXCLUIDOS = frozenset(
-    {"analyzer", "vendor", "fixtures", "tests", "ts", "src", "build", "dist", "node_modules"}
-)
+EXCLUIDOS = frozenset({"analyzer", "vendor", "fixtures", "tests"})
 SUFIJOS = (".yaml", ".yml", ".json")
 
 

@@ -85,3 +85,11 @@ metrics:
     type: gauge
     labels: []
     description: Bytes de audio conservados (session-api).
+  - name: veridicus_aof_rewrite_requests_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [requested, in_progress, error]
+    description: >-
+      Peticiones de reescritura del AOF de Redis para no dejar rastro del audio en disco, por
+      resultado (AofRewriteRequester, NFRD-U9-06; observability-design de U9 §2).

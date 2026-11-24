@@ -77,6 +77,9 @@ def _metrica(archivo: str, indice: int, metrica: Any, codigos: Collection[str]) 
     else:
         for numero, etiqueta in enumerate(etiquetas):
             problemas.extend(_etiqueta(f"{donde}/labels/{numero}", etiqueta, codigos))
+        nombres = [e["name"] for e in etiquetas if isinstance(e, dict) and "name" in e]
+        if len(set(map(str, nombres))) != len(nombres):
+            problemas.append(f"{donde}/labels: hay etiquetas repetidas (§4.12)")
     return problemas
 
 

@@ -19,7 +19,7 @@ limits:
   session_body_max_bytes: {value: 32768, unit: bytes, owner: U4, used_in: [C1]}
   transcript_max_turns: {value: 2000, unit: turns, owner: U4, used_in: []}
   transcript_max_chars: {value: 250000, unit: chars, owner: U4, used_in: []}
-  run_message_max_bytes: {value: 2097152, unit: bytes, owner: U4, used_in: []}
+  run_message_max_bytes: {value: 2097152, unit: bytes, owner: U4, used_in: [C2]}
   claim_idle_ms: {value: 60000, unit: ms, owner: U4, used_in: []}
   run_max_deliveries: {value: 3, unit: deliveries, owner: U4, used_in: []}
   cancel_key_margin_s: {value: 120, unit: s, owner: U4, used_in: []}

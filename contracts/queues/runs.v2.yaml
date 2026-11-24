@@ -48,6 +48,7 @@ components:
       payload:
         type: object
         additionalProperties: true
+        x-veridicus-max-bytes: run_message_max_bytes
         required:
           - schema_version
           - message_id
@@ -83,7 +84,17 @@ components:
             pattern: '^[a-f0-9]{64}$'
             description: SHA-256 JCS de effective_config (BR9.7)
           entrada:
-            $ref: '/veridicus/contracts/analyzer/v1/entrada'
+            allOf:
+              - $ref: '/veridicus/contracts/analyzer/v1/entrada'
+              - properties:
+                  transcripcion:
+                    properties:
+                      turnos:
+                        items:
+                          properties:
+                            texto:
+                              maxLength: 20000
+                              x-veridicus-limit: turn_max_chars
             description: Entrada de C6 con la transcripción hasta hasta_turno y el bloque consentimiento
           enqueued_at:
             type: string

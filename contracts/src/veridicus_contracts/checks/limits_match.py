@@ -24,7 +24,7 @@ Los mensajes nombran el archivo, el puntero y la cifra, nunca el valor. Todas la
 devuelven la lista de problemas (vacía si todo está bien); nunca escriben.
 """
 
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any, NamedTuple
 
@@ -171,26 +171,46 @@ def _paso(puntero: str, sitio: str, papel: str) -> Ruta:
     return ()
 
 
+def _es_efectivo(efectivo: bool, puntero: str, sitio: str, papel: str) -> bool:
+    """¿La hija se aplica siempre a la instancia? Sí si el padre lo hace y baja por una propiedad,
+    un `items` o una rama de `allOf`; no si baja por `oneOf`, `anyOf`, `if`, `then` o `else`."""
+    por_allof = sitio[len(puntero) + 1 :].startswith("allOf/")
+    return efectivo and (papel in (PROPIEDAD, VALOR) or por_allof)
+
+
 def _nodos(
-    raiz: Any, esquema: Any, puntero: str, ruta: Ruta, vistos: set[int], externos: Mapping[str, Any]
-) -> Iterator[tuple[dict[str, Any], str, Ruta]]:
-    """Cada subesquema alcanzable con su puntero y su ruta de instancia, una vez por esquema.
+    raiz: Any,
+    esquema: Any,
+    puntero: str,
+    ruta: Ruta,
+    visita: tuple[set[tuple[int, Ruta, bool]], frozenset[int]],
+    externos: Mapping[str, Any],
+    efectivo: bool = True,
+) -> Iterator[tuple[dict[str, Any], str, Ruta, bool]]:
+    """Cada subesquema alcanzable: su puntero, su ruta de instancia y si se aplica siempre.
 
     Una `$ref` local se resuelve en `raiz`; una `$ref` por `$id` a otro contrato (`externos`, por
-    `ids_de`) se sigue y sus `$ref` locales se resuelven en ese documento (P-T15-6).
+    `ids_de`) se sigue y sus `$ref` locales se resuelven en ese documento (P-T15-6). Un esquema
+    compartido se visita una vez por (esquema, ruta de la instancia, efectividad), para revisarlo
+    en cada sitio donde se usa; `visita` lleva esas visitas y los esquemas del camino actual, que
+    cortan los ciclos de `$ref`.
     """
+    vistos, ancestros = visita
     esquema = resolver(raiz, esquema)
     referencia = objeto(esquema).get("$ref")
     if isinstance(referencia, str) and referencia.lstrip("/") in externos:
         raiz = esquema = externos[referencia.lstrip("/")]
-    if not isinstance(esquema, dict) or id(esquema) in vistos:
+    clave = (id(esquema), ruta, efectivo)
+    if not isinstance(esquema, dict) or id(esquema) in ancestros or clave in vistos:
         return
-    vistos.add(id(esquema))
-    yield esquema, puntero, ruta
+    vistos.add(clave)
+    yield esquema, puntero, ruta, efectivo
+    del_camino = (vistos, ancestros | {id(esquema)})
     for hija, sitio, papel in hijas(esquema, puntero):
         if papel != DEFINICION:  # los `$defs` se alcanzan por su `$ref`
             paso = _paso(puntero, sitio, papel)
-            yield from _nodos(raiz, hija, sitio, (*ruta, *paso), vistos, externos)
+            hereda = _es_efectivo(efectivo, puntero, sitio, papel)
+            yield from _nodos(raiz, hija, sitio, (*ruta, *paso), del_camino, externos, hereda)
 
 
 def _ruta_en_texto(ruta: Ruta) -> str:
@@ -207,15 +227,16 @@ def _textos_libres(
     """Los campos de texto libre (sin enum, const, format ni pattern) sin `x-veridicus-limit`.
 
     Devuelve el puntero y la ruta de la instancia (`_ruta_en_texto`) de cada uno. Un texto cuenta
-    como acotado si el mismo campo de la instancia lleva la marca en otra rama del mismo esquema,
-    como la rama de refinamiento de un `allOf` que acompaña al `$ref` de otro contrato (E-16,
-    P-T15-6).
+    como acotado si lleva la marca él mismo o si el mismo campo de la instancia la lleva en una
+    rama hermana de un `allOf`, como la rama de refinamiento que acompaña al `$ref` de otro
+    contrato (E-16, P-T15-6). Una marca que solo está en una rama de `oneOf`, `anyOf`, `if`,
+    `then` o `else` no acota la instancia y no cuenta.
     """
-    nodos = list(_nodos(raiz, esquema, puntero, (), set(), externos))
-    marcadas = {ruta for nodo, _, ruta in nodos if "x-veridicus-limit" in nodo}
-    for nodo, sitio, ruta in nodos:
+    nodos = list(_nodos(raiz, esquema, puntero, (), (set(), frozenset()), externos))
+    marcadas = {ruta for nodo, _, ruta, efectivo in nodos if efectivo and "x-veridicus-limit" in nodo}
+    for nodo, sitio, ruta, _ in nodos:
         es_libre = es_tipo(nodo, "string") and not any(c in nodo for c in ACOTADO)
-        if es_libre and ruta not in marcadas:
+        if es_libre and "x-veridicus-limit" not in nodo and ruta not in marcadas:
             yield sitio, _ruta_en_texto(ruta)
 
 
@@ -223,18 +244,19 @@ def _textos_sin_marca(
     archivo: str,
     donde: str,
     documento: Any,
-    acota: Any,
+    acotan: Iterable[Any],
     esquema: Any,
     base: str,
     externos: Mapping[str, Any],
 ) -> Iterator[str]:
     """Los textos de un cuerpo (C1, C21) o de un mensaje (C2, C5) sin marca propia ni tope de bytes.
 
-    `acota` es el objeto que puede declarar `x-veridicus-max-bytes`: el `requestBody` de una
-    petición o el `payload` de un mensaje (E-14, E-18). Con el tope, ese tope acota los textos sin
-    marca propia, salvo los de `MARCA_PROPIA_OBLIGATORIA` en `donde` (la operación o el mensaje).
+    `acotan` son los objetos que pueden declarar `x-veridicus-max-bytes`: el `requestBody` y el
+    tipo de contenido de una petición, o el `payload` de un mensaje (E-14, E-18, P-T15-6). Con el
+    tope en cualquiera de ellos, los textos sin marca propia quedan acotados, salvo los de
+    `MARCA_PROPIA_OBLIGATORIA` en `donde` (la operación o el mensaje).
     """
-    con_tope = "x-veridicus-max-bytes" in objeto(acota)
+    con_tope = any("x-veridicus-max-bytes" in objeto(acota) for acota in acotan)
     propias = {r for a, d, r in MARCA_PROPIA_OBLIGATORIA if (a, d) == (archivo, donde)}
     for puntero, ruta in _textos_libres(documento, esquema, base, externos):
         if not con_tope or ruta in propias:
@@ -248,7 +270,10 @@ def _texto_de_cuerpos(
         for medio, cuerpo, esquema in cuerpos(documento, operacion):
             base = f"/paths/{escapar(ruta)}/{metodo}/requestBody/content/{escapar(medio)}/schema"
             donde = f"{metodo.upper()} {ruta}"
-            yield from _textos_sin_marca(archivo, donde, documento, cuerpo, esquema, base, externos)
+            tipo = objeto(objeto(cuerpo.get("content")).get(medio))
+            yield from _textos_sin_marca(
+                archivo, donde, documento, (cuerpo, tipo), esquema, base, externos
+            )
 
 
 def _texto_de_mensajes(
@@ -258,7 +283,7 @@ def _texto_de_mensajes(
     for nombre, mensaje in mensajes.items():
         base = f"/components/messages/{escapar(nombre)}/payload"
         carga = objeto(mensaje).get("payload")
-        yield from _textos_sin_marca(archivo, nombre, documento, carga, carga, base, externos)
+        yield from _textos_sin_marca(archivo, nombre, documento, (carga,), carga, base, externos)
 
 
 def _inversa(catalogo: Mapping[str, Any], marcadas: set[tuple[str, str]]) -> Iterator[str]:

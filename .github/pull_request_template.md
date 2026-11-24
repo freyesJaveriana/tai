@@ -24,7 +24,7 @@ Justificación:
 ## Reglas de la app
 
 - [ ] Ningún dato del piloto del TG: solo transcripciones sintéticas.
-- [ ] Ningún valor de `Secret`, `.env`, `kubeconfig` ni clave privada.
+- [ ] Ningún valor de `Secret`, `.env`, credenciales de acceso al clúster ni clave privada.
 - [ ] Ningún comando de este PR aplica cambios al clúster (AUTONOMIA-01).
 - [ ] Ningún umbral (cobertura, rendimiento, configuración de pruebas) se bajó para que una compuerta pase.
 

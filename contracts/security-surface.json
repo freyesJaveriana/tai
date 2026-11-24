@@ -1175,7 +1175,9 @@
           "401"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /conductor-observations/{observation_id}/audio": {
@@ -1203,7 +1205,9 @@
           "503"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /notice": {
@@ -1243,7 +1247,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /reports/{report_version_id}/download": {
@@ -1271,7 +1277,9 @@
           "503"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /research-reports": {
@@ -1294,7 +1302,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /research-reports/compare": {
@@ -1321,7 +1331,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /research-reports/{research_report_id}": {
@@ -1345,7 +1357,9 @@
           "404"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /sessions": {
@@ -1369,7 +1383,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /sessions/{session_id}": {
@@ -1394,7 +1410,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /sessions/{session_id}/reports": {
@@ -1418,7 +1436,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /sessions/{session_id}/runs/{run_id}/model-calls": {
@@ -1442,7 +1462,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "GET /users": {
@@ -1465,7 +1487,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "PATCH /sessions/{session_id}/analysis": {
@@ -1498,7 +1522,9 @@
           "409"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "PATCH /sessions/{session_id}/retention": {
@@ -1536,7 +1562,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "PATCH /users/{user_id}": {
@@ -1568,7 +1596,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /acknowledgements": {
@@ -1609,7 +1639,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /auth/login": {
@@ -1667,7 +1699,9 @@
           "401"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /conductor-observations/{observation_id}/decision": {
@@ -1705,7 +1739,9 @@
           "413"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /problem-reports": {
@@ -1758,7 +1794,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /reports/{report_version_id}/exports": {
@@ -1787,7 +1825,9 @@
           "503"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /research-reports": {
@@ -1829,7 +1869,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions": {
@@ -1875,7 +1917,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/import": {
@@ -1921,7 +1965,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/consent-withdrawal": {
@@ -1946,7 +1992,9 @@
           "409"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/correction-rounds": {
@@ -1973,7 +2021,9 @@
           "503"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/correction-rounds/current/discard": {
@@ -2000,7 +2050,9 @@
           "503"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/final-runs": {
@@ -2025,7 +2077,9 @@
           "409"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/finalize": {
@@ -2052,7 +2106,9 @@
           "503"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/heartbeat": {
@@ -2076,7 +2132,9 @@
           "403"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/reports": {
@@ -2117,7 +2175,9 @@
           "503"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/resume": {
@@ -2142,7 +2202,9 @@
           "409"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/runs/{run_id}/retry": {
@@ -2167,7 +2229,9 @@
           "409"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/terminate": {
@@ -2192,7 +2256,9 @@
           "409"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/transcript": {
@@ -2238,7 +2304,9 @@
           "413"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/turns": {
@@ -2285,7 +2353,9 @@
           "413"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /sessions/{session_id}/voice-turns": {
@@ -2334,7 +2404,9 @@
           "415"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /suggestions/{suggestion_id}/decisions": {
@@ -2383,7 +2455,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /suggestions/{suggestion_id}/observation-views": {
@@ -2409,7 +2483,9 @@
           "404"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       },
       "POST /users": {
@@ -2457,7 +2533,9 @@
           "422"
         ],
         "security": [
-          "sessionCookie"
+          {
+            "sessionCookie": []
+          }
         ]
       }
     },
@@ -2605,7 +2683,9 @@
           "503"
         ],
         "security": [
-          "bearerAuth"
+          {
+            "bearerAuth": []
+          }
         ]
       }
     }

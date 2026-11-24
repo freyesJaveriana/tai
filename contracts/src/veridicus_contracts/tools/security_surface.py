@@ -106,20 +106,30 @@ def resumen_de_esquema(raiz: Any, esquema: Any) -> dict[str, Any]:
     }
 
 
-def _esquemas_de_seguridad(documento: Any, operacion: dict[str, Any]) -> list[str]:
-    """Los nombres de esquemas de seguridad efectivos: los de la operación o, si no, los globales."""
+def _requisitos_de_seguridad(documento: Any, operacion: dict[str, Any]) -> list[dict[str, list[str]]]:
+    """Los requisitos de seguridad efectivos como lista de alternativas (los de la operación o los globales).
+
+    Cada alternativa es `{esquema: [scopes]}` con los scopes ordenados: `{}` es la alternativa anónima
+    (autenticación opcional) y varios esquemas en una alternativa son «todos a la vez», frente a varias
+    alternativas, que son «cualquiera». Las alternativas se ordenan por su forma JSON canónica porque su
+    orden no tiene significado.
+    """
     requisitos = operacion.get("security", objeto(documento).get("security"))
-    nombres: set[str] = set()
-    for requisito in requisitos if isinstance(requisitos, list) else []:
-        nombres.update(str(n) for n in objeto(requisito))
-    return sorted(nombres)
+    alternativas = [
+        {
+            str(esquema): sorted(str(s) for s in scopes) if isinstance(scopes, list) else []
+            for esquema, scopes in objeto(requisito).items()
+        }
+        for requisito in (requisitos if isinstance(requisitos, list) else [])
+    ]
+    return sorted(alternativas, key=lambda a: json.dumps(a, sort_keys=True))
 
 
 def _operacion(documento: Any, operacion: dict[str, Any]) -> dict[str, Any]:
     cuerpo_resuelto = resolver(documento, operacion.get("requestBody"))
     return {
         "operation_id": operacion.get("operationId"),
-        "security": _esquemas_de_seguridad(documento, operacion),
+        "security": _requisitos_de_seguridad(documento, operacion),
         "csrf": _tiene_csrf(documento, operacion),
         "encola": operacion.get("operationId") in ENCOLAN,
         "extensions": {

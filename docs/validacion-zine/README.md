@@ -14,6 +14,8 @@ va por commit directo; los `.sbatch` de producción (US14.2) entrarán por PR.
   `/tmp/tg4L-validacion` para el modelo de M6.
 - Los trabajos que van a un SL250s piden el nodo completo (`--cpus-per-task=16 --exclusive --mem=58G`), igual que
   la 4L: SLURM no hace cumplir la memoria pedida. Los que no necesitan AVX corren en el nodo de entrada (`ZINE_NODO`).
+- Las entrevistas del piloto solo se copian al clúster, a `validacion/entrevistas/`, nunca a Git. Al repositorio
+  vuelven solo cifras, en [reporte.md](reporte.md).
 
 ## Variables
 
@@ -24,7 +26,7 @@ repositorio no lanza trabajos. Un ejemplo genérico, con valores de relleno que 
 export ZINE_BASE=/ruta/al/directorio/de/trabajo   # raíz de la 4L; los trabajos viven en ZINE_BASE/validacion
 export ZINE_USUARIO=usuario                       # cuenta del clúster (la usa enviar.ps1; sbatch no la necesita)
 export ZINE_NODO=nodo-de-entrada                  # nodo de entrada, el único con internet
-export ZINE_NODO_SL250S=nodo-sl250s               # solo para el caso de M3 en un SL250s
+export ZINE_NODO_SL250S=nodo-sl250s               # un nodo SL250s (caso de M3 y marcador en reporte.md)
 cd "$ZINE_BASE/validacion"                        # todos los sbatch se lanzan desde aquí
 ```
 
@@ -32,8 +34,9 @@ Las directivas `#SBATCH` no expanden variables, por eso `--output` es relativo a
 (`ZINE_BASE/validacion`, de ahí el `cd`) y el nodo se pasa en la línea de `sbatch` con `--nodelist="$ZINE_NODO"`.
 `sbatch` exporta el entorno al trabajo, y `comun.sh` falla si `ZINE_BASE` no está fijada. En Windows, antes de
 `enviar.ps1`: `$env:ZINE_BASE = '…'` y, si hace falta, `$env:ZINE_USUARIO = '…'`.
-- Las entrevistas del piloto solo se copian al clúster, a `validacion/entrevistas/`, nunca a Git. Al repositorio
-  vuelven solo cifras, en [reporte.md](reporte.md).
+
+En `reporte.md`, el campo `Nodo:` lleva `ZINE_NODO` para las mediciones del nodo de entrada y `ZINE_NODO_SL250S`
+para las de un SL250s, en lugar del nombre real del nodo.
 
 ## Archivos
 

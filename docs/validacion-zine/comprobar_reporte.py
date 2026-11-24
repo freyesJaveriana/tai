@@ -50,8 +50,8 @@ def check_measurement(name: str, body: str) -> list[str]:
         problems.append(f"{name}: falta «Comando:»")
     if not any(re.search(r"\d{3,}", v) for v in f.get("Trabajo SLURM", [])):
         problems.append(f"{name}: falta «Trabajo SLURM:» con el ID del trabajo")
-    if not any(re.search(r"\b(?:hpc[\w-]+|ZINE_NODO)\b", v) for v in f.get("Nodo", [])):
-        problems.append(f"{name}: falta «Nodo:» (ZINE_NODO o un nombre de nodo que empieza por hpc)")
+    if not any(re.search(r"\b(?:hpc[\w-]+|ZINE_NODO(?:_SL250S)?)\b", v) for v in f.get("Nodo", [])):
+        problems.append(f"{name}: falta «Nodo:» (ZINE_NODO, ZINE_NODO_SL250S o un nombre de nodo que empieza por hpc)")
     sha_ok = any(re.search(r"\b[0-9a-f]{64}\b", v) for v in f.get("SHA-256 del modelo", []))
     if name == "M5":
         if not sha_ok and "No aplica" not in f:
@@ -118,8 +118,10 @@ def self_test() -> int:
     failures = []
     if check(SAMPLE, review=True):
         failures.append(f"el reporte completo de ejemplo no pasa: {check(SAMPLE, True)}")
-    if check(SAMPLE.replace("Nodo: ZINE_NODO", "Nodo: hpc02-w006", 1), review=True):
+    if check(SAMPLE.replace("Nodo: ZINE_NODO", "Nodo: hpc-nodo-ejemplo", 1), review=True):
         failures.append("un nombre de nodo que empieza por hpc ya no pasa")
+    if check(SAMPLE.replace("Nodo: ZINE_NODO", "Nodo: ZINE_NODO_SL250S", 1), review=True):
+        failures.append("ZINE_NODO_SL250S no pasa como nodo")
     lines = SAMPLE.splitlines()
     removable = [i for i, line in enumerate(lines) if re.match(r"^(- \(|[A-Z][^:]*:)", line)]
     for i in removable:

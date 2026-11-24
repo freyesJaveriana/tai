@@ -25,8 +25,9 @@ import tempfile
 import time
 import tomllib
 import zipfile
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, NamedTuple
 
 PAQUETE = "veridicus_contracts"
@@ -157,9 +158,11 @@ class PasoFallido(Exception):
 # Lista cerrada de directorios de la tabla que hoy no tienen más contenido que su `.gitkeep`.
 # Sin regla general: un directorio vacío que no esté aquí es un fallo, y para añadir uno hace falta
 # una precisión aprobada.
-DIRECTORIOS_RESERVADOS = {
-    "transcript": "reservado para el contrato de transcripción de una unidad posterior: solo .gitkeep",
-}
+DIRECTORIOS_RESERVADOS: Mapping[str, str] = MappingProxyType(
+    {
+        "transcript": "reservado para el contrato de transcripción de una unidad posterior: solo .gitkeep",
+    }
+)
 SIN_CONTENIDO = ".gitkeep"
 OMITIDOS_DEL_ARBOL = frozenset({"fixtures", "__pycache__"})
 
@@ -179,6 +182,13 @@ class TablaDeRutas(NamedTuple):
 
 
 def _datos_del_arbol(contracts: Path, directorio: str) -> list[str]:
+    """Cada archivo del árbol de origen de `directorio`, sin `fixtures/`, `__pycache__` ni `.gitkeep`.
+
+    Limitación declarada (F-08): el árbol se lee del disco, no de git. Un archivo ignorado por git y
+    suelto en un directorio de datos (que hatchling no empaqueta) se espera igual y da «falta el dato…»
+    en el paso 2; se corrige borrando el archivo suelto. Filtrar por `.gitignore` exigiría `git` por
+    `subprocess` o una dependencia nueva.
+    """
     raiz = contracts / directorio
     return sorted(
         f"{directorio}/{ruta.relative_to(raiz).as_posix()}"

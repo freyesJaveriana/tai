@@ -80,6 +80,8 @@ def test_solo_transcript_se_acepta_con_solo_gitkeep_y_hace_falta_su_gitkeep(
     tabla = _tabla(contracts_root)
     assert tabla.reservados == ("transcript",)
     assert herramienta.DIRECTORIOS_RESERVADOS.keys() == {"transcript"}
+    with pytest.raises(TypeError):  # F-07: la lista cerrada es inmutable
+        herramienta.DIRECTORIOS_RESERVADOS["otro"] = "no se admite"
     sin_gitkeep = [n for n in _rueda_completa(tabla) if n != "veridicus_contracts/transcript/.gitkeep"]
     problemas = herramienta.comparar_rueda(sin_gitkeep, tabla)
     assert len(problemas) == 1, problemas

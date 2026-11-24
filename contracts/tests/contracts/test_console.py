@@ -847,3 +847,414 @@ def test_p_t14_1_control_un_enum_con_dos_valores_de_tipo_que_difiere_se_detecta(
     copia = copy.deepcopy(c1())
     copia["components"]["schemas"]["Role"]["enum"] = ["fecha", "lugar", "otro_valor"]
     assert _enums_copiados_que_difieren(copia) != []
+
+
+# --- F-01 (ronda 1): tablas transcritas de contract-summary §C1, comparadas por igualdad ---------
+
+A, AD, INV = "analista", "admin", "investigador"
+# (método, ruta) -> (roles, owner-only, owner-only-for-role). Roles `None`: sin `x-veridicus-roles`.
+AUTORIZACION: dict[tuple[str, str], tuple[list[str] | None, bool | None, str | None]] = {
+    ("post", "/auth/login"): (None, None, None),
+    ("post", "/auth/logout"): (None, None, None),
+    ("get", "/auth/me"): (None, None, None),
+    ("get", "/users"): ([AD], None, None),
+    ("post", "/users"): ([AD], None, None),
+    ("patch", "/users/{user_id}"): ([AD], None, None),
+    ("get", "/notice"): (None, None, None),
+    ("get", "/profiles"): ([A, AD, INV], None, None),
+    ("get", "/sessions"): ([A, AD], None, None),
+    ("post", "/sessions"): ([A], None, None),
+    ("post", "/sessions/import"): ([A], None, None),
+    ("get", "/sessions/{session_id}"): ([A, AD], None, None),
+    ("post", "/sessions/{session_id}/heartbeat"): ([A], True, None),
+    ("post", "/sessions/{session_id}/turns"): ([A], True, None),
+    ("post", "/sessions/{session_id}/transcript"): ([A], True, None),
+    ("post", "/sessions/{session_id}/final-runs"): ([A], True, None),
+    ("post", "/sessions/{session_id}/runs/{run_id}/retry"): ([A], True, None),
+    ("get", "/sessions/{session_id}/runs/{run_id}/model-calls"): ([A, AD], None, None),
+    ("patch", "/sessions/{session_id}/analysis"): ([A], True, None),
+    ("post", "/sessions/{session_id}/terminate"): ([A], True, None),
+    ("post", "/sessions/{session_id}/consent-withdrawal"): ([A], True, None),
+    ("post", "/sessions/{session_id}/resume"): ([A], True, None),
+    ("post", "/sessions/{session_id}/finalize"): ([A], True, None),
+    ("post", "/suggestions/{suggestion_id}/observation-views"): ([A, AD], None, None),
+    ("post", "/suggestions/{suggestion_id}/decisions"): ([A], True, None),
+    ("get", "/sessions/{session_id}/reports"): ([A, AD], None, None),
+    ("post", "/sessions/{session_id}/reports"): ([A], True, None),
+    ("post", "/sessions/{session_id}/correction-rounds"): ([A], True, None),
+    ("post", "/sessions/{session_id}/correction-rounds/current/discard"): ([A], True, None),
+    ("get", "/reports/{report_version_id}/download"): ([A, AD], None, None),
+    ("post", "/reports/{report_version_id}/exports"): ([A, AD], None, "analista"),
+    ("post", "/conductor-observations/{observation_id}/decision"): ([A], True, None),
+    ("get", "/conductor-observations/{observation_id}/audio"): ([A], True, None),
+    ("post", "/sessions/{session_id}/voice-turns"): ([A], True, None),
+    ("get", "/research-reports"): ([INV], None, None),
+    ("post", "/research-reports"): ([INV], None, None),
+    ("get", "/research-reports/{research_report_id}"): ([INV], None, None),
+    ("get", "/research-reports/compare"): ([INV], None, None),
+    ("patch", "/sessions/{session_id}/retention"): ([A, AD], None, "analista"),
+    ("post", "/acknowledgements"): ([A], None, None),
+    ("post", "/problem-reports"): ([A, AD], None, None),
+}
+# (método, ruta) -> estados exactos: los de contract-summary §C1, más `401` en toda operación con
+# seguridad y `403` en la que declara roles (NFRD-U1-12), y el `413` de login y de `POST /users`
+# (security-design §4.3).
+ESTADOS: dict[tuple[str, str], set[str]] = {
+    ("post", "/auth/login"): {"204", "401", "413", "429", "503"},
+    ("post", "/auth/logout"): {"204", "401"},
+    ("get", "/auth/me"): {"200", "401"},
+    ("get", "/users"): {"200", "401", "403"},
+    ("post", "/users"): {"201", "401", "403", "409", "413", "422"},
+    ("patch", "/users/{user_id}"): {"200", "401", "403", "404", "409", "422"},
+    ("get", "/notice"): {"200"},
+    ("get", "/profiles"): {"200", "401", "403"},
+    ("get", "/sessions"): {"200", "401", "403"},
+    ("post", "/sessions"): {"201", "401", "403", "422"},
+    ("post", "/sessions/import"): {"201", "401", "403", "413", "415", "422"},
+    ("get", "/sessions/{session_id}"): {"200", "401", "403"},
+    ("post", "/sessions/{session_id}/heartbeat"): {"204", "401", "403"},
+    ("post", "/sessions/{session_id}/turns"): {"202", "401", "403", "409", "413"},
+    ("post", "/sessions/{session_id}/transcript"): {"202", "401", "403", "409", "413"},
+    ("post", "/sessions/{session_id}/final-runs"): {"202", "401", "403", "409"},
+    ("post", "/sessions/{session_id}/runs/{run_id}/retry"): {"202", "401", "403", "409"},
+    ("get", "/sessions/{session_id}/runs/{run_id}/model-calls"): {"200", "401", "403"},
+    ("patch", "/sessions/{session_id}/analysis"): {"202", "401", "403", "409"},
+    ("post", "/sessions/{session_id}/terminate"): {"200", "401", "403", "409"},
+    ("post", "/sessions/{session_id}/consent-withdrawal"): {"200", "401", "403", "409"},
+    ("post", "/sessions/{session_id}/resume"): {"200", "401", "403", "409"},
+    ("post", "/sessions/{session_id}/finalize"): {"200", "401", "403", "409", "422", "503"},
+    ("post", "/suggestions/{suggestion_id}/observation-views"): {"204", "401", "403", "404"},
+    ("post", "/suggestions/{suggestion_id}/decisions"): {
+        "201",
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+    },
+    ("get", "/sessions/{session_id}/reports"): {"200", "401", "403"},
+    ("post", "/sessions/{session_id}/reports"): {
+        "201",
+        "401",
+        "403",
+        "409",
+        "413",
+        "422",
+        "503",
+    },
+    ("post", "/sessions/{session_id}/correction-rounds"): {
+        "201",
+        "401",
+        "403",
+        "409",
+        "422",
+        "503",
+    },
+    ("post", "/sessions/{session_id}/correction-rounds/current/discard"): {
+        "204",
+        "401",
+        "403",
+        "409",
+        "422",
+        "503",
+    },
+    ("get", "/reports/{report_version_id}/download"): {
+        "200",
+        "401",
+        "403",
+        "409",
+        "422",
+        "503",
+    },
+    ("post", "/reports/{report_version_id}/exports"): {
+        "201",
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503",
+    },
+    ("post", "/conductor-observations/{observation_id}/decision"): {
+        "200",
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+    },
+    ("get", "/conductor-observations/{observation_id}/audio"): {
+        "200",
+        "401",
+        "403",
+        "404",
+        "409",
+        "503",
+    },
+    ("post", "/sessions/{session_id}/voice-turns"): {
+        "202",
+        "401",
+        "403",
+        "409",
+        "413",
+        "415",
+    },
+    ("get", "/research-reports"): {"200", "401", "403"},
+    ("post", "/research-reports"): {"201", "401", "403", "409", "413", "415", "422"},
+    ("get", "/research-reports/{research_report_id}"): {"200", "401", "403", "404"},
+    ("get", "/research-reports/compare"): {"200", "401", "403", "404", "409", "422"},
+    ("patch", "/sessions/{session_id}/retention"): {"200", "401", "403", "413", "422"},
+    ("post", "/acknowledgements"): {"201", "401", "403", "409", "413"},
+    ("post", "/problem-reports"): {"201", "401", "403", "404", "413", "422"},
+}
+# (método, ruta) -> `required` del cuerpo JSON o multipart de la petición (None: sin `required`).
+CUERPOS: dict[tuple[str, str], list[str] | None] = {
+    ("post", "/auth/login"): ["username", "password"],
+    ("post", "/users"): ["username", "password", "role"],
+    ("patch", "/users/{user_id}"): None,
+    ("post", "/sessions"): ["entrevista", "profile_name", "consentimiento"],
+    ("post", "/sessions/import"): ["file", "profile_name"],
+    ("post", "/sessions/{session_id}/turns"): ["hablante", "texto", "client_request_id"],
+    ("post", "/sessions/{session_id}/transcript"): ["text", "client_request_id"],
+    ("patch", "/sessions/{session_id}/analysis"): ["paused"],
+    ("post", "/suggestions/{suggestion_id}/decisions"): ["state"],
+    ("post", "/sessions/{session_id}/reports"): ["expected_cursor"],
+    ("post", "/conductor-observations/{observation_id}/decision"): ["status"],
+    ("post", "/sessions/{session_id}/voice-turns"): ["audio", "hablante", "client_request_id"],
+    ("post", "/research-reports"): ["file"],
+    ("patch", "/sessions/{session_id}/retention"): ["retention_days"],
+    ("post", "/acknowledgements"): ["text_version"],
+    ("post", "/problem-reports"): ["category"],
+}
+# Esquema de components -> `required` (SessionView: el segundo elemento de `allOf`).
+REQUERIDOS: dict[str, list[str]] = {
+    "Problem": ["type", "title", "status", "code", "detail"],
+    "Me": ["user_id", "username", "role", "csrf_token"],
+    "User": ["user_id", "username", "role", "active", "created_at"],
+    "Notice": ["text", "version"],
+    "ProfileSummary": ["profile_name", "purpose", "roles", "config_sha256"],
+    "Consent": [
+        "tipo",
+        "version_texto",
+        "autoriza_transferencia",
+        "autoriza_voz",
+        "autoriza_conservar_audio",
+        "requiere_mandato",
+    ],
+    "Turn": ["turn_id", "n", "hablante", "texto", "origin", "submitted_at"],
+    "Run": [
+        "run_id",
+        "mode",
+        "desde_turno",
+        "hasta_turno",
+        "status",
+        "attempt",
+        "profile_name",
+        "config_sha256",
+        "requested_at",
+    ],
+    "ModelCall": [
+        "papel",
+        "proveedor",
+        "modelo",
+        "tokens_entrada",
+        "tokens_salida",
+        "proveedor_alterno",
+        "anonimizado",
+        "fecha",
+    ],
+    "ConductorObservation": ["observation_id", "run_id", "tema", "turnos", "status", "created_at"],
+    "SessionSummary": [
+        "session_id",
+        "entrevista",
+        "owner_user_id",
+        "status",
+        "profile_name",
+        "created_at",
+        "pending_suggestions",
+    ],
+    "ReportVersion": [
+        "report_version_id",
+        "session_id",
+        "version_number",
+        "sha256",
+        "consolidated_by",
+        "consolidated_at",
+    ],
+    "ResearchReportSummary": [
+        "research_report_id",
+        "kind",
+        "profile_name",
+        "config_sha256",
+        "prompt_sha256",
+        "analyzer_version",
+        "source_sha256",
+        "uploaded_at",
+    ],
+    "AcknowledgementStatus": ["status"],
+}
+REQUERIDOS_DE_SESSION_VIEW = [
+    "config_sha256",
+    "cursor",
+    "closed_to_new_turns",
+    "turns",
+    "runs",
+    "suggestions",
+    "can_consolidate",
+]
+# (esquema, propiedad) -> enum; la propiedad `None` es el esquema mismo.
+ENUMS: dict[tuple[str, str | None], set[str]] = {
+    ("Role", None): {"analista", "admin", "investigador"},
+    ("SessionStatus", None): {
+        "open",
+        "paused",
+        "suspended",
+        "finalized",
+        "terminated",
+        "blocked",
+        "consolidated",
+    },
+    ("ProfileSummary", "purpose"): {"evaluation", "demonstration", "production"},
+    ("Consent", "tipo"): {"persona", "autoridad"},
+    ("Turn", "hablante"): {"ENT", "TEST"},
+    ("Turn", "estado"): {"visible", "plegado"},
+    ("Turn", "origin"): {"typed", "pasted", "voice", "imported"},
+    ("Turn", "voice_status"): {"transcribing", "transcribed", "error"},
+    ("Run", "mode"): {"incremental", "final"},
+    ("Run", "status"): {"queued", "processing", "done", "error", "cancelled"},
+    ("ModelCall", "papel"): {"juez", "verificador", "verificador_permutado"},
+    ("ConductorObservation", "status"): {"proposed", "approved", "discarded"},
+    ("SessionSummary", "origin"): {"guiada", "corpus", "sintetico"},
+    ("ResearchReportSummary", "origin"): {"local", "zine"},
+    ("ResearchReportSummary", "kind"): {"run", "evaluation"},
+    ("AcknowledgementStatus", "status"): {"valid", "missing", "expired", "text_changed"},
+}
+ENUMS_DE_CUERPO: dict[tuple[str, str], tuple[str, set[str]]] = {
+    ("post", "/sessions/{session_id}/turns"): ("hablante", {"ENT", "TEST"}),
+    ("post", "/suggestions/{suggestion_id}/decisions"): (
+        "state",
+        {"accepted", "edited", "dismissed"},
+    ),
+    ("post", "/conductor-observations/{observation_id}/decision"): (
+        "status",
+        {"approved", "discarded"},
+    ),
+    ("post", "/sessions/{session_id}/voice-turns"): ("hablante", {"ENT", "TEST"}),
+    ("post", "/problem-reports"): (
+        "category",
+        {
+            "harmful_finding",
+            "improper_vocabulary",
+            "mismatched_quote",
+            "interviewee_distress",
+            "anonymization_failure",
+            "misuse",
+        },
+    ),
+}
+
+
+def esquema_del_cuerpo(metodo: str, ruta: str) -> dict[str, Any]:
+    contenido = operacion(metodo, ruta)["requestBody"]["content"]
+    esquema = next(iter(contenido.values()))["schema"]
+    assert isinstance(esquema, dict)
+    return esquema
+
+
+def test_f01_la_tabla_de_autorizacion_cubre_las_41_operaciones() -> None:
+    existentes = {(m, r) for m, r, _ in operaciones(c1())}
+    assert existentes == set(AUTORIZACION) == set(ESTADOS)
+    assert len(existentes) == 41
+
+
+def test_f01_roles_propiedad_y_propiedad_por_rol_de_cada_operacion_son_los_del_summary() -> None:
+    obtenido = {
+        (m, r): (
+            op.get("x-veridicus-roles"),
+            op.get("x-veridicus-owner-only"),
+            op.get("x-veridicus-owner-only-for-role"),
+        )
+        for m, r, op in operaciones(c1())
+    }
+    assert obtenido == AUTORIZACION
+
+
+def test_f01_el_investigador_no_exporta_ni_cambia_la_retencion() -> None:
+    """A-3: el investigador no exporta; solo lee los reportes de la CLI."""
+    for metodo, ruta in (
+        ("post", "/reports/{report_version_id}/exports"),
+        ("patch", "/sessions/{session_id}/retention"),
+        ("get", "/sessions/{session_id}"),
+    ):
+        assert "investigador" not in operacion(metodo, ruta)["x-veridicus-roles"], ruta
+
+
+def test_f01_cada_operacion_declara_exactamente_los_estados_del_summary() -> None:
+    obtenido = {(m, r): set(op["responses"]) for m, r, op in operaciones(c1())}
+    diferencias = {k: (obtenido[k], ESTADOS[k]) for k in ESTADOS if obtenido[k] != ESTADOS[k]}
+    assert diferencias == {}
+
+
+def test_f01_los_cuerpos_de_peticion_exigen_los_campos_del_summary() -> None:
+    con_cuerpo = {(m, r) for m, r, op in operaciones(c1()) if "requestBody" in op}
+    assert con_cuerpo == set(CUERPOS)
+    for (metodo, ruta), exigidos in CUERPOS.items():
+        assert operacion(metodo, ruta)["requestBody"]["required"] is True, ruta
+        assert esquema_del_cuerpo(metodo, ruta).get("required") == exigidos, f"{metodo} {ruta}"
+
+
+def test_f01_los_esquemas_de_components_exigen_los_campos_del_summary() -> None:
+    esquemas = c1()["components"]["schemas"]
+    for nombre, exigidos in REQUERIDOS.items():
+        assert esquemas[nombre]["required"] == exigidos, nombre
+    assert esquemas["SessionView"]["allOf"][1]["required"] == REQUERIDOS_DE_SESSION_VIEW
+    assert esquemas["SessionView"]["allOf"][0] == {"$ref": "#/components/schemas/SessionSummary"}
+
+
+def test_f01_los_enum_de_los_esquemas_son_los_del_summary() -> None:
+    esquemas = c1()["components"]["schemas"]
+    for (nombre, propiedad), valores in ENUMS.items():
+        nodo = esquemas[nombre] if propiedad is None else esquemas[nombre]["properties"][propiedad]
+        assert set(nodo["enum"]) == valores, (nombre, propiedad)
+        assert len(nodo["enum"]) == len(valores), (nombre, propiedad)
+    roles = esquemas["ProfileSummary"]["properties"]["roles"]["items"]["properties"]["role"]
+    assert set(roles["enum"]) == {"judge", "verifier"}
+
+
+def test_f01_los_enum_de_los_cuerpos_de_peticion_son_los_del_summary() -> None:
+    for (metodo, ruta), (campo, valores) in ENUMS_DE_CUERPO.items():
+        enum = esquema_del_cuerpo(metodo, ruta)["properties"][campo]["enum"]
+        assert set(enum) == valores and len(enum) == len(valores), f"{metodo} {ruta}"
+
+
+def test_f01_los_codigos_de_cada_ruta_de_exito_son_los_del_summary() -> None:
+    exitos = {
+        (m, r): sorted(e for e in op["responses"] if e.startswith("2"))
+        for m, r, op in operaciones(c1())
+    }
+    assert exitos[("post", "/sessions")] == ["201"]
+    assert exitos[("post", "/sessions/{session_id}/terminate")] == ["200"]
+    assert exitos[("post", "/sessions/{session_id}/heartbeat")] == ["204"]
+    assert exitos[("post", "/sessions/{session_id}/reports")] == ["201"]
+    assert exitos[("post", "/reports/{report_version_id}/exports")] == ["201"]
+    assert exitos[("post", "/sessions/{session_id}/correction-rounds")] == ["201"]
+
+
+def test_a_02_el_nombre_de_la_exportacion_solo_admite_dos_uuid_8_4_4_4_12() -> None:
+    """NFR10.4 («solo UUID»): el patrón no admite guiones sueltos ni mayúsculas."""
+    respuesta = operacion("post", "/reports/{report_version_id}/exports")["responses"]["201"]
+    patron = respuesta["headers"]["Content-Disposition"]["schema"]["pattern"]
+    uuid = "2e9f7b4d-c5a1-4a8e-b3c6-8d2f5a1e9c7b"
+    otro = "e7a2d5c9-6f1b-4d3e-a8c4-f9b3e0d7a2c5"
+    assert re.fullmatch(patron, f'attachment; filename="veridicus-reporte-{uuid}-{otro}.md"')
+    malos = (
+        'attachment; filename="veridicus-reporte-' + "-" * 36 + "-" + "-" * 36 + '.md"',
+        f'attachment; filename="veridicus-reporte-{uuid}-{"a" * 36}.md"',
+        f'attachment; filename="veridicus-reporte-{uuid}.md"',
+        f'attachment; filename="veridicus-reporte-{uuid.upper()}-{otro}.md"',
+        f'attachment; filename="veridicus-reporte-{uuid}-{otro}.html"',
+        f'attachment; filename="veridicus-reporte-{uuid}-{otro}.md"; x=1',
+    )
+    for malo in malos:
+        assert re.fullmatch(patron, malo) is None, malo

@@ -87,18 +87,22 @@ async function validadorDe(contrato: string) {
   } else {
     return expect.fail(`contrato desconocido para esta mitad: ${contrato}`);
   }
-  if (!uris.has(archivo)) {
+  const clave = `${archivo}${puntero}`;
+  if (!uris.has(clave)) {
     const documento = await leer(archivo);
     const id =
       typeof documento === "object" && documento !== null && "$id" in documento
         ? (documento as { $id: unknown }).$id
         : undefined;
+    // Un esquema con `$id` ya está en el registro; un OpenAPI o AsyncAPI se valida por su puntero.
     uris.set(
-      archivo,
-      typeof id === "string" ? new URL(id, BASE).href : modulo.registerDocument(registro, archivo, documento),
+      clave,
+      typeof id === "string"
+        ? new URL(id, BASE).href
+        : modulo.registerFragment(registro, archivo, documento, puntero),
     );
   }
-  return modulo.validatorFor(registro, uris.get(archivo) as string, puntero);
+  return modulo.validatorFor(registro, uris.get(clave) as string);
 }
 
 const archivos = archivosDeFixtures();

@@ -107,7 +107,7 @@ describe("registry.ts: carga estricta (BR1.9)", () => {
   it("allErrors es falso: la validación se detiene en el primer error", async () => {
     const { buildRegistry, validatorFor } = await cargarRegistry();
     const raiz = raizCon({
-      "e.schema.json": `{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "veridicus/t/e", "type": "object", "required": ["a", "b"]}`,
+      "e.schema.json": `{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "veridicus/t/e", "type": "object", "properties": {"a": true, "b": true}, "required": ["a", "b"]}`,
     });
     const validar = validatorFor(buildRegistry(raiz, ["datos"]), `${BASE}veridicus/t/e`);
     expect(validar({})).toBe(false);
@@ -221,13 +221,24 @@ describe("registry.ts: reglas del $id (espejo de registry.py)", () => {
 
 describe("registry.ts: documentos OpenAPI y AsyncAPI por puntero", () => {
   it("valida un mensaje de cola por el puntero a su carga, con referencias a esquemas", async () => {
-    const { buildRegistry, registerDocument, validatorFor } = await cargarRegistry();
+    const { buildRegistry, registerFragment, validatorFor } = await cargarRegistry();
     const { loadFile } = await cargarLoaders();
     const registro = buildRegistry();
     const documento = loadFile(join(CONTRACTS_ROOT, "queues", "runs.v2.yaml"));
-    const uri = registerDocument(registro, "queues/runs.v2.yaml", documento);
-    expect(uri).toBe(`${BASE}_documentos/queues/runs.v2.yaml`);
-    const validar = validatorFor(registro, uri, "#/components/messages/RunRequested/payload");
-    expect(validar({})).toBe(false);
+    const puntero = "#/components/messages/RunRequested/payload";
+    const uri = registerFragment(registro, "queues/runs.v2.yaml", documento, puntero);
+    expect(uri).toBe(`${BASE}_documentos/queues/runs.v2.yaml/components/messages/RunRequested/payload`);
+    expect(registerFragment(registro, "queues/runs.v2.yaml", documento, puntero)).toBe(uri);
+    expect(validatorFor(registro, uri)({})).toBe(false);
+  });
+
+  it("un puntero que no existe o que no apunta a un esquema es un error", async () => {
+    const { buildRegistry, registerFragment } = await cargarRegistry();
+    const { LoadError } = await cargarLoaders();
+    const registro = buildRegistry();
+    const documento = { a: { b: [1] } };
+    expect(() => registerFragment(registro, "x.yaml", documento, "#/a/c")).toThrow(LoadError);
+    expect(() => registerFragment(registro, "x.yaml", documento, "#/a/b")).toThrow(LoadError);
+    expect(() => registerFragment(registro, "x.yaml", documento, "a/b")).toThrow(LoadError);
   });
 });

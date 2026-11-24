@@ -175,48 +175,55 @@ class Doble:
 """,
 }
 
-# (id, protocolo, texto del doble correcto, texto que lo deja con otra firma)
+# (protocolo, texto del doble correcto, texto que lo deja con otra firma, miembro en conflicto)
 NEGATIVOS = [
     pytest.param(
         "ReviewRounds",
         "self, uow: UnitOfWork, session_id: UUID, for_update: bool = False",
         "self, uow: UnitOfWork, session_id: UUID",
+        "open_round",
         id="open_round_sin_for_update",
     ),
     pytest.param(
         "ReviewCommands",
         "        reformulation: str | None,\n        actor: Actor,\n",
         "        reformulation: str | None,\n",
+        "decide",
         id="decide_sin_actor",
     ),
     pytest.param(
         "Purgeable",
         ") -> Mapping[str, int]:",
         ") -> int:",
+        "count_session",
         id="count_session_devuelve_int",
     ),
     pytest.param(
         "ReviewRounds",
         "self, uow: UnitOfWork, round_id: UUID, report_version_id: UUID, actor: Actor",
         "self, uow: UnitOfWork, round_id: UUID, report_version_id: UUID",
+        "lock_round",
         id="lock_round_sin_actor",
     ),
     pytest.param(
         "SessionLifecycle",
         "        actor: Actor,\n        finalize_first: bool = False,\n",
         "        actor: Actor,\n",
+        "mark_consolidated",
         id="mark_consolidated_sin_finalize_first",
     ),
     pytest.param(
         "AccessLog",
         "        resource_id: UUID,\n        export_sha256: str | None = None,\n",
         "        resource_id: UUID,\n",
+        "record",
         id="record_sin_export_sha256",
     ),
     pytest.param(
         "Authenticator",
         "password: str) -> tuple[Principal, str]:",
         "password: str) -> Principal:",
+        "login",
         id="login_solo_devuelve_el_principal",
     ),
 ]
@@ -272,7 +279,12 @@ def test_un_doble_minimo_de_cada_interfaz_pasa_mypy_estricto(
     assert "Success: no issues found" in salida
 
 
-@pytest.mark.parametrize(("protocolo", "correcto", "cambiado"), NEGATIVOS)
+def _notas_de_conflicto(salida: str) -> str:
+    """Las líneas `note:` de mypy, donde nombra los miembros que no coinciden con el `Protocol`."""
+    return "\n".join(linea for linea in salida.splitlines() if ": note:" in linea)
+
+
+@pytest.mark.parametrize(("protocolo", "correcto", "cambiado", "miembro"), NEGATIVOS)
 def test_un_doble_con_otra_firma_no_pasa_mypy_estricto(
     tmp_path: Path,
     cache_de_mypy: Path,
@@ -280,6 +292,7 @@ def test_un_doble_con_otra_firma_no_pasa_mypy_estricto(
     protocolo: str,
     correcto: str,
     cambiado: str,
+    miembro: str,
 ) -> None:
     """Control negativo: el mismo doble con una sola firma distinta deja de ser el `Protocol`."""
     clase = DOBLES[protocolo]
@@ -290,6 +303,213 @@ def test_un_doble_con_otra_firma_no_pasa_mypy_estricto(
     assert '"Doble"' in salida
     assert f'expected "{protocolo}"' in salida
     assert "[arg-type]" in salida
+    assert re.search(rf"\b{miembro}\b", _notas_de_conflicto(salida)), (miembro, salida)
+
+
+IMPORTACIONES_AUXILIARES = """from datetime import datetime
+from uuid import UUID
+
+from veridicus_contracts.report_ports import (
+    BlockedCode,
+    EffectiveState,
+    FoldState,
+    ModelCallRole,
+    ModelCallView,
+    RoundKind,
+    RoundStatus,
+    RoundView,
+    RunMode,
+    RunStatus,
+    RunView,
+    SessionOrigin,
+    SessionSnapshot,
+    SessionStatus,
+    Speaker,
+    SuggestionWithDecision,
+    TurnView,
+)
+from veridicus_contracts.analyzer.v1 import Hallazgo
+"""
+
+# Un doble por tipo auxiliar, con los nombres, tipos y valores cerrados de las entidades aprobadas
+# (P-T16-8). Cada uno trae el control negativo: (texto correcto, texto cambiado, miembro).
+DOBLE_SNAPSHOT = """
+class Doble:
+    session_id: UUID
+    owner_user_id: UUID
+    profile_name: str
+    config_sha256: str
+    same_family_declared: bool
+    status: SessionStatus
+    origin: SessionOrigin
+    finalized_at: datetime | None
+    consent_withdrawn_at: datetime | None
+    blocked_code: BlockedCode | None
+    turns: list[TurnView]
+    runs: list[RunView]
+    pending_runs: int
+"""
+
+AUXILIARES = [
+    pytest.param(
+        "SessionSnapshot",
+        DOBLE_SNAPSHOT,
+        "    status: SessionStatus\n",
+        "    state: SessionStatus\n",
+        "status",
+        id="SessionSnapshot_status_se_llama_state",
+    ),
+    pytest.param(
+        "SessionSnapshot",
+        DOBLE_SNAPSHOT,
+        "    origin: SessionOrigin\n",
+        "    origin: str\n",
+        "origin",
+        id="SessionSnapshot_origin_es_str",
+    ),
+    pytest.param(
+        "TurnView",
+        """
+class Doble:
+    n: int
+    speaker: Speaker
+    page: int | None
+    fold_state: FoldState
+""",
+        "    fold_state: FoldState\n",
+        "    fold_state: str\n",
+        "fold_state",
+        id="TurnView_fold_state_es_str",
+    ),
+    pytest.param(
+        "RunView",
+        """
+class Doble:
+    run_id: UUID
+    mode: RunMode
+    from_turn: int
+    to_turn: int
+    status: RunStatus
+    attempt: int
+    fragmented: bool | None
+    covered_by_final: bool
+    model_calls: list[ModelCallView]
+""",
+        "    covered_by_final: bool\n",
+        "",
+        "covered_by_final",
+        id="RunView_sin_covered_by_final",
+    ),
+    pytest.param(
+        "ModelCallView",
+        """
+class Doble:
+    role: ModelCallRole
+    provider: str
+    model: str
+    version: str | None
+    effort_or_quantization: str | None
+    engine: str | None
+    seed: int | None
+    tokens_in: int
+    tokens_out: int
+    used_fallback: bool
+    external: bool
+    anonymized: bool
+    at: datetime
+""",
+        "    role: ModelCallRole\n",
+        "    role: str\n",
+        "role",
+        id="ModelCallView_role_es_str",
+    ),
+    pytest.param(
+        "RoundView",
+        """
+class Doble:
+    round_id: UUID
+    session_id: UUID
+    number: int
+    kind: RoundKind
+    status: RoundStatus
+    based_on_round_id: UUID | None
+""",
+        "    status: RoundStatus\n",
+        "    state: RoundStatus\n",
+        "status",
+        id="RoundView_status_se_llama_state",
+    ),
+    pytest.param(
+        "SuggestionWithDecision",
+        """
+class Doble:
+    suggestion_id: UUID
+    hallazgo: Hallazgo
+    state: EffectiveState
+    note: str | None
+    reformulation: str | None
+    actor_user_id: UUID | None
+    at: datetime | None
+""",
+        "    actor_user_id: UUID | None\n",
+        "    decided_by: UUID | None\n",
+        "actor_user_id",
+        id="SuggestionWithDecision_actor_user_id_se_llama_decided_by",
+    ),
+]
+
+@pytest.mark.parametrize(("protocolo", "doble", "correcto", "cambiado", "miembro"), AUXILIARES)
+def test_cada_tipo_auxiliar_exige_los_campos_y_valores_de_su_entidad(
+    tmp_path: Path,
+    cache_de_mypy: Path,
+    contracts_root: Path,
+    protocolo: str,
+    doble: str,
+    correcto: str,
+    cambiado: str,
+    miembro: str,
+) -> None:
+    """P-T16-8: el doble con los campos de la entidad pasa; con otro nombre o con `str` en lugar
+    del `Literal` cerrado, no, y mypy nombra el campo."""
+    clase = doble
+    assert correcto in clase, "el control negativo no encuentra el texto que debe cambiar"
+    encabezado = IMPORTACIONES_AUXILIARES
+    fuente_buena = encabezado + clase + _uso(protocolo)
+    bueno, codigo = _mypy(tmp_path, cache_de_mypy, contracts_root, fuente_buena)
+    assert codigo == 0, bueno
+    malo_dir = tmp_path / "malo"
+    malo_dir.mkdir()
+    fuente = encabezado + clase.replace(correcto, cambiado) + _uso(protocolo)
+    salida, codigo = _mypy(malo_dir, cache_de_mypy, contracts_root, fuente)
+    assert codigo == 1, salida
+    assert f'expected "{protocolo}"' in salida
+    assert "[arg-type]" in salida
+    assert re.search(rf"\b{miembro}\b", salida), (miembro, salida)
+
+
+def test_los_valores_cerrados_de_c11_son_los_de_las_entidades_aprobadas() -> None:
+    """P-T16-8: los `Literal` repiten los `allowed` de entities.md de U4 y de U5."""
+    puertos = importar_o_fallar("veridicus_contracts.report_ports", "T16")
+    esperados = {
+        # text-flow/functional-design/entities.md
+        "SessionStatus": {
+            "open", "paused", "suspended", "finalized", "terminated", "blocked", "consolidated",
+        },
+        "SessionOrigin": {"guiada", "corpus", "sintetico"},
+        "BlockedCode": {"anonymizer.incident"},
+        "Speaker": {"ENT", "TEST"},
+        "FoldState": {"visible", "plegado"},
+        "RunMode": {"incremental", "final"},
+        "RunStatus": {"queued", "processing", "done", "error", "cancelled"},
+        "ModelCallRole": {"juez", "verificador", "verificador_permutado"},
+        # human-review/functional-design/entities.md
+        "RoundKind": {"initial", "correction"},
+        "RoundStatus": {"open", "locked", "discarded"},
+        "EffectiveState": {"pending", "accepted", "edited", "dismissed"},
+    }
+    for nombre, valores in esperados.items():
+        assert set(typing.get_args(getattr(puertos, nombre))) == valores, nombre
+        assert len(typing.get_args(getattr(puertos, nombre))) == len(valores), nombre
 
 
 def test_el_rol_de_identity_es_el_enum_de_c1() -> None:
@@ -323,6 +543,21 @@ def test_hallazgo_tiene_las_claves_del_esquema_de_c6() -> None:
         assert set(clase.__optional_keys__) == set(definicion["properties"]) - set(
             definicion["required"]
         ), nombre
+
+
+def test_los_literal_de_hallazgo_son_los_enum_del_esquema_de_c6() -> None:
+    """CD-05: `HallazgoTipo` y `CitaAviso` repiten, valor por valor, los enum de `salida.schema.json`
+    y son los que `Hallazgo` y `Cita` usan."""
+    modelo = importar_o_fallar("veridicus_contracts.analyzer.v1", "T16")
+    defs = load_contract("analyzer/v1/salida.schema.json")["$defs"]
+    tipos = defs["hallazgo"]["properties"]["tipo"]["enum"]
+    avisos = defs["cita"]["properties"]["avisos"]["items"]["enum"]
+    assert sorted(typing.get_args(modelo.HallazgoTipo)) == sorted(tipos)
+    assert sorted(typing.get_args(modelo.CitaAviso)) == sorted(avisos)
+    assert len(typing.get_args(modelo.HallazgoTipo)) == len(tipos)
+    assert len(typing.get_args(modelo.CitaAviso)) == len(avisos)
+    assert typing.get_type_hints(modelo.Hallazgo)["tipo"] == modelo.HallazgoTipo
+    assert typing.get_type_hints(modelo.Cita)["avisos"] == list[modelo.CitaAviso]
 
 
 def test_el_modulo_analyzer_v1_convive_con_los_datos_de_analyzer_v1() -> None:

@@ -4,12 +4,14 @@ Los controles negativos trabajan sobre copias en memoria o en `tmp_path`; los po
 árbol versionado. Un mensaje nombra el archivo, el puntero y la regla, nunca el valor del `code`.
 """
 
+import copy
 import json
 from pathlib import Path
 from typing import Any
 
 from helpers import CONTRACTS_ROOT, load_contract
 
+from veridicus_contracts.checks import _contratos
 from veridicus_contracts.checks import naming as guardia
 
 
@@ -52,14 +54,30 @@ def test_un_parametro_de_ruta_o_consulta_en_camel_case_es_rojo() -> None:
         {"$ref": "#/components/parameters/Otro"},
         "texto",
         {"name": 7, "in": "query"},
+        {"name": "cookieName", "in": "cookie"},
     ]
     problemas = _problemas({"paths": {"/a": {"get": {"parameters": parametros}}}})
     assert problemas == [
         "api/x.yaml: /paths/~1a/get/parameters/1/name: el nombre no es ASCII snake_case (CD-05)",
         "api/x.yaml: /paths/~1a/get/parameters/2/name: el nombre no es ASCII snake_case (CD-05)",
         "api/x.yaml: /paths/~1a/get/parameters/7/name: el nombre no es ASCII snake_case (CD-05)",
+        "api/x.yaml: /paths/~1a/get/parameters/8/name: el nombre no es ASCII snake_case (CD-05)",
     ]
-    assert _problemas({"parameters": {"no": "una lista"}}) == []
+    # F-01: los parámetros de un mapa (components/parameters) también se comprueban.
+    mapa = {"parameters": {"A": {"name": "pageSize", "in": "query"}, "B": {"name": "ok", "in": "path"}}}
+    assert _problemas(mapa) == [
+        "api/x.yaml: /parameters/A/name: el nombre no es ASCII snake_case (CD-05)"
+    ]
+    # Una propiedad llamada in o name no es un parámetro.
+    assert _problemas({"properties": {"in": {"type": "string"}, "name": {"type": "string"}}}) == []
+    # F-01: copia en memoria de C1 con SessionId y Since renombrados.
+    c1 = copy.deepcopy(load_contract("api/console.v2.yaml"))
+    c1["components"]["parameters"]["SessionId"]["name"] = "sessionId"
+    c1["components"]["parameters"]["Since"]["name"] = "sinceCursor"
+    assert _problemas(c1) == [
+        "api/x.yaml: /components/parameters/SessionId/name: el nombre no es ASCII snake_case (CD-05)",
+        "api/x.yaml: /components/parameters/Since/name: el nombre no es ASCII snake_case (CD-05)",
+    ]
 
 
 def test_un_code_sin_la_forma_dominio_motivo_es_rojo() -> None:
@@ -127,19 +145,29 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
         (raiz / ajeno).write_text(malo, encoding="utf-8")
     assert guardia.comprobar(raiz) == []
     (raiz / "api" / "y.json").write_text(malo, encoding="utf-8")
+    # F-05: ts/, build/, dist/, node_modules/ y src/ no están exentos: se recorren como el resto.
+    for carpeta in ("ts", "build", "dist", "node_modules", "src"):
+        (raiz / carpeta).mkdir()
+        (raiz / carpeta / "x.json").write_text(malo, encoding="utf-8")
     (raiz / "metrics" / "b.v1.yaml").write_text(
         json.dumps({"metrics": [{"name": "veridicus_mal-nombre"}]}), encoding="utf-8"
     )
     (raiz / "errors" / "error-codes.v2.yaml").write_text(
         json.dumps({"codes": {"sinpunto": {}}}), encoding="utf-8"
     )
+    campo = "/properties/campoMalo: el nombre no es ASCII snake_case (CD-05)"
     assert guardia.comprobar(raiz) == [
-        "api/y.json: /properties/campoMalo: el nombre no es ASCII snake_case (CD-05)",
+        f"api/y.json: {campo}",
+        f"build/x.json: {campo}",
+        f"dist/x.json: {campo}",
         (
             "errors/error-codes.v2.yaml: /codes/sinpunto: el code no tiene la forma dominio.motivo "
             "(CD-05)"
         ),
         "metrics/b.v1.yaml: /metrics/0/name: el nombre no es ASCII snake_case (CD-05)",
+        f"node_modules/x.json: {campo}",
+        f"src/x.json: {campo}",
+        f"ts/x.json: {campo}",
     ]
 
 
@@ -152,3 +180,5 @@ def test_el_bloque_de_c6_en_espanol_es_snake_case_y_la_copia_de_c6_esta_exenta()
     assert not any(
         ruta.startswith("analyzer/") for ruta, _ in guardia.contratos_propios(CONTRACTS_ROOT)
     )
+    # Lista exacta de lo que no es un contrato propio (F-05); toda exención nueva exige su prueba.
+    assert _contratos.EXCLUIDOS == frozenset({"analyzer", "vendor", "fixtures", "tests"})

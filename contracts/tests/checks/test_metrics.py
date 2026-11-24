@@ -21,6 +21,37 @@ ARCHIVOS = {
     "voice.v1.yaml",
 }
 CODIGOS = frozenset({"analysis.system", "analysis.timeout", "limits.exceeded"})
+GENERICOS = [
+    "auth.unauthenticated",
+    "auth.forbidden",
+    "auth.csrf",
+    "validation.invalid_request",
+    "system.internal",
+    "system.unavailable",
+]
+PEGADO = [
+    "none",
+    "limits.exceeded",
+    "session.consent_missing",
+    "session.blocked",
+    "session.consent_withdrawn",
+    "session.terminated",
+    "session.finalized",
+    "session.closed_to_new_turns",
+    "session.suspended",
+    "session.not_owner",
+    *GENERICOS,
+]
+IMPORTACION = [
+    "none",
+    "limits.exceeded",
+    "import.invalid_type",
+    "import.invalid_transcript",
+    "import.profile_mismatch",
+    "profile.not_approved",
+    "profile.transfer_not_authorized",
+    *GENERICOS,
+]
 UUID = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
 
@@ -65,6 +96,21 @@ def test_el_arbol_versionado_cumple_todo_y_trae_los_seis_archivos() -> None:
     ]
     assert len(nombres) == len(set(nombres)) >= 30
     assert {"veridicus_review_decisions_total", "veridicus_anonymizer_ready"} <= set(nombres)
+    # F-02: las 12 métricas de U9, con la de la reescritura del AOF (NFRD-U9-06, NFRD-U9-10).
+    voz = load_contract("metrics/voice.v1.yaml")["metrics"]
+    aof = [m for m in voz if m["name"] == "veridicus_aof_rewrite_requests_total"]
+    assert len(voz) == 12
+    assert [(m["type"], m["labels"]) for m in aof] == [
+        ("counter", [{"name": "outcome", "values": ["requested", "in_progress", "error"]}])
+    ]
+    # F-03: error_code de U6 derivado de NFR10.14, BR2.7, BR7.x y BR10.1, más los genéricos y none.
+    u6 = {m["name"]: m for m in load_contract("metrics/session-lifecycle.v1.yaml")["metrics"]}
+    for nombre, esperado in {
+        "veridicus_transcript_pastes_total": PEGADO,
+        "veridicus_session_imports_total": IMPORTACION,
+    }.items():
+        valores = next(e["values"] for e in u6[nombre]["labels"] if e["name"] == "error_code")
+        assert valores == esperado, nombre
     c15 = load_contract("metrics/review.v2.yaml")
     ratio = next(m for m in c15["metrics"] if m["name"] == "veridicus_session_dismissal_ratio")
     assert "AC10.8.2" in ratio["description"]
@@ -125,6 +171,13 @@ def test_una_etiqueta_fuera_de_la_lista_cerrada_es_rojo() -> None:
     assert _con(_etiqueta("run_id", "a")) == [
         "a.yaml: /metrics/0/labels/0: la etiqueta no es de la lista cerrada (§4.12)"
     ]
+    # F-06: dos etiquetas con el mismo nombre en una métrica (Prometheus la rechaza al registrarla).
+    repetidas = _metrica(etiquetas=[_etiqueta("mode", "a"), _etiqueta("mode", "b")])
+    assert _problemas({"a.yaml": _doc(repetidas)}) == [
+        "a.yaml: /metrics/0/labels: hay etiquetas repetidas (§4.12)"
+    ]
+    distintas = _metrica(etiquetas=[_etiqueta("mode", "a"), _etiqueta("state", "b")])
+    assert _problemas({"a.yaml": _doc(distintas)}) == []
     assert _con({"values": ["a"]}) == [
         "a.yaml: /metrics/0/labels/0: la etiqueta debe ser un objeto con name (§4.12)"
     ]

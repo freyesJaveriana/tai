@@ -45,10 +45,10 @@ def test_cuerpo_json_sin_estrictez_en_la_raiz_o_anidado(guardia: ModuleType) -> 
     del _cuerpo_json(cambiado, "/users", "post")["additionalProperties"]
     cambiado["components"]["schemas"]["Consent"]["additionalProperties"] = True
     assert sorted(_nuevos(guardia.comprobar_c1, original, cambiado)) == [
-        "api/console.v2.yaml: POST /sessions /requestBody/application/json/properties/"
-        "consentimiento: objeto sin additionalProperties: false (§4.3)",
-        "api/console.v2.yaml: POST /users /requestBody/application/json: objeto sin "
-        "additionalProperties: false (§4.3)",
+        ("api/console.v2.yaml: POST /sessions /requestBody/application/json/properties/"
+        "consentimiento: objeto sin additionalProperties: false (§4.3)"),
+        ("api/console.v2.yaml: POST /users /requestBody/application/json: objeto sin "
+        "additionalProperties: false (§4.3)"),
     ]
 
 
@@ -61,14 +61,26 @@ def test_estrictez_dentro_de_arreglos_composiciones_y_referencias_externas(
     esquema["properties"]["lista"] = {"type": "array", "items": {"properties": {"a": {}}}}
     esquema["properties"]["vuelta"] = esquema
     esquema["properties"]["externo"] = {"$ref": "/veridicus/contracts/otro"}
-    esquema["allOf"] = [{"type": "object", "additionalProperties": False}, {"properties": {}}]
+    esquema["allOf"] = [
+        {"type": "object", "additionalProperties": False},
+        {"type": "object", "properties": {}},
+        {"properties": {}},  # solo refina al objeto padre: no declara uno nuevo
+    ]
+    esquema["properties"]["mapa"] = {  # claves cerradas por un enum
+        "type": "object",
+        "propertyNames": {"enum": ["a"]},
+        "additionalProperties": {"type": "integer"},
+    }
+    esquema["properties"]["tupla"] = {"type": "array", "prefixItems": [{"properties": {}}]}
     esquema["properties"]["sin_objeto"] = "no es un esquema"
     nuevos = _nuevos(guardia.comprobar_c1, original, cambiado)
     assert sorted(nuevos) == [
-        "api/console.v2.yaml: POST /users /requestBody/application/json/allOf/1: objeto sin "
-        "additionalProperties: false (§4.3)",
-        "api/console.v2.yaml: POST /users /requestBody/application/json/properties/lista/items: "
-        "objeto sin additionalProperties: false (§4.3)",
+        ("api/console.v2.yaml: POST /users /requestBody/application/json/allOf/1: objeto sin "
+        "additionalProperties: false (§4.3)"),
+        ("api/console.v2.yaml: POST /users /requestBody/application/json/properties/lista/items: "
+        "objeto sin additionalProperties: false (§4.3)"),
+        ("api/console.v2.yaml: POST /users /requestBody/application/json/properties/tupla/"
+        "prefixItems/0: objeto sin additionalProperties: false (§4.3)"),
     ]
 
 
@@ -80,13 +92,13 @@ def test_multipart_con_parte_de_texto_sin_acotar_y_sin_tope_de_bytes(guardia: Mo
     esquema["properties"]["profile_name"] = {"type": "string"}
     del cuerpo["x-veridicus-max-bytes"]
     esquema["additionalProperties"] = True
-    assert sorted(_nuevos(guardia.comprobar_c1, original, cambiado)) == [
-        "api/console.v2.yaml: POST /sessions/import /requestBody/multipart/form-data: objeto sin "
-        "additionalProperties: false (§4.3)",
-        "api/console.v2.yaml: POST /sessions/import /requestBody/multipart/form-data: sin "
-        "x-veridicus-max-bytes (§4.3)",
-        "api/console.v2.yaml: POST /sessions/import "
-        "/requestBody/multipart/form-data/properties/profile_name: parte de texto sin acotar (§4.3)",
+    assert _nuevos(guardia.comprobar_c1, original, cambiado) == [
+        ("api/console.v2.yaml: POST /sessions/import /requestBody/multipart/form-data: objeto sin "
+        "additionalProperties: false (§4.3)"),
+        ("api/console.v2.yaml: POST /sessions/import /requestBody/multipart/form-data: sin "
+        "x-veridicus-max-bytes (§4.3)"),
+        ("api/console.v2.yaml: POST /sessions/import "
+        "/requestBody/multipart/form-data/properties/profile_name: parte de texto sin acotar (§4.3)"),
     ]
     acotada = copy.deepcopy(original)
     partes = acotada["paths"]["/sessions/import"]["post"]["requestBody"]["content"]
@@ -113,11 +125,11 @@ def test_esquemas_estrictos_de_c6_c7_c18_y_c19(guardia: ModuleType) -> None:
         cambiado,
     )
     assert sorted(nuevos) == [
-        "integrity/review-suggestion.v2.json: /$defs/otro: objeto sin additionalProperties: false "
-        "(§4.3)",
+        ("integrity/review-suggestion.v2.json: /$defs/otro: objeto sin additionalProperties: false "
+        "(§4.3)"),
         "integrity/review-suggestion.v2.json: /: objeto sin additionalProperties: false (§4.3)",
-        "integrity/review-suggestion.v2.json: /properties/anidado: objeto sin "
-        "additionalProperties: false (§4.3)",
+        ("integrity/review-suggestion.v2.json: /properties/anidado: objeto sin "
+        "additionalProperties: false (§4.3)"),
     ]
     unevaluated = copy.deepcopy(original)
     del unevaluated["additionalProperties"]
@@ -136,10 +148,10 @@ def test_openapi_internos_c21_y_la_ruta_de_voz(guardia: ModuleType) -> None:
     problema["additionalProperties"] = True
     nuevos = _nuevos(lambda d: guardia.comprobar_openapi_interno("v", d), voz, cambiado)
     assert sorted(nuevos) == [
-        "v: POST /internal/v1/speech /requestBody/application/json: objeto sin "
-        "additionalProperties: false (§4.3)",
-        "v: POST /internal/v1/speech /responses/422/application/problem+json: objeto sin "
-        "additionalProperties: false (§4.3)",
+        ("v: POST /internal/v1/speech /requestBody/application/json: objeto sin "
+        "additionalProperties: false (§4.3)"),
+        ("v: POST /internal/v1/speech /responses/422/application/problem+json: objeto sin "
+        "additionalProperties: false (§4.3)"),
     ]
     c21 = _copia("api/anonymizer-proxy.v1.yaml")
     sin_cierre = copy.deepcopy(c21)
@@ -148,8 +160,8 @@ def test_openapi_internos_c21_y_la_ruta_de_voz(guardia: ModuleType) -> None:
         "additionalProperties"
     ] = True
     assert _nuevos(lambda d: guardia.comprobar_openapi_interno("c21", d), c21, sin_cierre) == [
-        "c21: POST /v1/generate /requestBody/application/json/properties/messages/items: objeto "
-        "sin additionalProperties: false (§4.3)"
+        ("c21: POST /v1/generate /requestBody/application/json/properties/messages/items: objeto "
+        "sin additionalProperties: false (§4.3)")
     ]
 
 

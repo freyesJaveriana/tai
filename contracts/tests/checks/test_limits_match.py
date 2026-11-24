@@ -57,10 +57,10 @@ def test_el_valor_del_contrato_debe_ser_el_del_catalogo(guardia: ModuleType) -> 
         ]["properties"]["audio_base64"]["maxLength"] = 1
 
     assert _nuevos(guardia, cambiar) == [
-        "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/username: valor distinto del catálogo C25 (username_max_chars, §4.4 b)",
-        "queues/speech.v2.yaml: /components/messages/AudioToTranscribe/payload/properties/"
-        "audio_base64: valor distinto del catálogo C25 (audio_base64_max_chars, §4.4 b)",
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        "properties/username: valor distinto del catálogo C25 (username_max_chars, §4.4 b)"),
+        ("queues/speech.v2.yaml: /components/messages/AudioToTranscribe/payload/properties/"
+        "audio_base64: valor distinto del catálogo C25 (audio_base64_max_chars, §4.4 b)"),
     ]
 
 
@@ -75,15 +75,15 @@ def test_la_unidad_debe_ser_coherente_con_la_palabra_clave(guardia: ModuleType) 
         catalogo["password_max_chars"]["unit"] = "chars"
 
     assert _nuevos(guardia, cambiar) == [
-        "api/console.v2.yaml: /components/securitySchemes/sessionCookie/x-veridicus-cookie: la "
-        "unidad de web_session_idle_s debe ser s con x-veridicus-cookie (§4.4 c)",
-        "api/console.v2.yaml: /paths/~1sessions~1import/post/requestBody: la unidad de "
-        "import_body_max_bytes debe ser bytes con x-veridicus-max-bytes (§4.4 c)",
-        "api/console.v2.yaml: /paths/~1sessions~1{session_id}~1turns/post/requestBody/content/"
+        ("api/console.v2.yaml: /components/securitySchemes/sessionCookie/x-veridicus-cookie: la "
+        "unidad de web_session_idle_s debe ser s con x-veridicus-cookie (§4.4 c)"),
+        ("api/console.v2.yaml: /paths/~1sessions~1import/post/requestBody: la unidad de "
+        "import_body_max_bytes debe ser bytes con x-veridicus-max-bytes (§4.4 c)"),
+        ("api/console.v2.yaml: /paths/~1sessions~1{session_id}~1turns/post/requestBody/content/"
         "application~1json/schema/properties/texto: la unidad de turn_max_chars debe ser chars "
-        "con maxLength (§4.4 c)",
-        "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/password: la unidad de password_max_chars debe ser turns con maxItems (§4.4 c)",
+        "con maxLength (§4.4 c)"),
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        "properties/password: la unidad de password_max_chars debe ser turns con maxItems (§4.4 c)"),
     ]
 
 
@@ -95,10 +95,10 @@ def test_limite_huerfano_en_los_dos_sentidos(guardia: ModuleType) -> None:
         _propiedades_de_crear_usuario(documentos)["username"]["x-veridicus-limit"] = "no_existe"
 
     assert _nuevos(guardia, cambiar) == [
-        "api/console.v2.yaml: /components/schemas/Cursor: la marca cursor_max_chars no está en "
-        "used_in de C25 para C1 (§4.4, comprobación inversa)",
-        "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/username: la marca no_existe no es una cifra de C25 (§4.4)",
+        ("api/console.v2.yaml: /components/schemas/Cursor: la marca cursor_max_chars no está en "
+        "used_in de C25 para C1 (§4.4, comprobación inversa)"),
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        "properties/username: la marca no_existe no es una cifra de C25 (§4.4)"),
         "poll_interval_s: used_in nombra C3, que la guardia no recorre (§4.4)",
         "retention_max_days: used_in nombra C1 y C1 no la marca (§4.4, comprobación inversa)",
     ]
@@ -119,12 +119,12 @@ def test_todo_campo_de_texto_de_un_cuerpo_o_un_mensaje_lleva_su_marca(guardia: M
 
     nuevos = _nuevos(guardia, cambiar)
     assert nuevos == [
-        "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/etiquetas/items: campo de texto sin x-veridicus-limit (§4.4 a)",
-        "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/nota: campo de texto sin x-veridicus-limit (§4.4 a)",
-        "queues/runs.v2.yaml: /components/messages/RunRequested/payload/properties/comentario: "
-        "campo de texto sin x-veridicus-limit (§4.4 a)",
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        "properties/etiquetas/items: campo de texto sin x-veridicus-limit (§4.4 a)"),
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        "properties/nota: campo de texto sin x-veridicus-limit (§4.4 a)"),
+        ("queues/runs.v2.yaml: /components/messages/RunRequested/payload/properties/comentario: "
+        "campo de texto sin x-veridicus-limit (§4.4 a)"),
     ]
 
 
@@ -143,8 +143,8 @@ def test_un_cuerpo_con_tope_de_bytes_acota_sus_textos(guardia: ModuleType) -> No
         del pegado["requestBody"]["x-veridicus-max-bytes"]
 
     assert _nuevos(guardia, quitar_tope) == [
-        "api/console.v2.yaml: /paths/~1sessions~1{session_id}~1transcript/post/requestBody/content/"
-        "application~1json/schema/properties/text: campo de texto sin x-veridicus-limit (§4.4 a)",
+        ("api/console.v2.yaml: /paths/~1sessions~1{session_id}~1transcript/post/requestBody/content/"
+        "application~1json/schema/properties/text: campo de texto sin x-veridicus-limit (§4.4 a)"),
         "transcript_body_max_bytes: used_in nombra C1 y C1 no la marca (§4.4, comprobación inversa)",
     ]
 
@@ -161,13 +161,13 @@ def test_todo_maxlength_y_maxitems_llevan_marca_y_toda_marca_su_palabra_clave(
 
     nuevos = _nuevos(guardia, cambiar)
     assert nuevos == [
-        "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/lista: maxItems sin x-veridicus-limit (§4.4)",
-        "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+        "properties/lista: maxItems sin x-veridicus-limit (§4.4)"),
+        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
         "properties/sin_palabra: la marca username_max_chars no acompaña a maxLength ni a maxItems "
-        "(§4.4)",
-        "model_calls/model-call.v1.yaml: /properties/role: valor distinto del catálogo C25 "
-        "(report_token_max_chars, §4.4 b)",
+        "(§4.4)"),
+        ("model_calls/model-call.v1.yaml: /properties/role: valor distinto del catálogo C25 "
+        "(report_token_max_chars, §4.4 b)"),
     ]
 
 
@@ -187,9 +187,21 @@ def test_la_ruta_de_voz_no_exige_marca_en_tema_ni_used_in(guardia: ModuleType) -
         catalogo["speech_audio_max_bytes"]["unit"] = "chars"
 
     assert _nuevos(guardia, cambiar) == [
-        "api/speech-internal.v1.yaml: /paths/~1internal~1v1~1speech/post/responses/200/content/"
+        ("api/speech-internal.v1.yaml: /paths/~1internal~1v1~1speech/post/responses/200/content/"
         "audio~1wav: la unidad de speech_audio_max_bytes debe ser bytes con x-veridicus-max-bytes "
-        "(§4.4 c)"
+        "(§4.4 c)")
+    ]
+
+
+def test_una_cookie_sin_una_de_sus_dos_cifras_deja_huerfana_la_entrada(
+    guardia: ModuleType,
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        esquema = documentos[CONSOLA]["components"]["securitySchemes"]["sessionCookie"]
+        del esquema["x-veridicus-cookie"]["idle_limit"]
+
+    assert _nuevos(guardia, cambiar) == [
+        "web_session_idle_s: used_in nombra C1 y C1 no la marca (§4.4, comprobación inversa)"
     ]
 
 

@@ -288,10 +288,10 @@ def test_el_enum_de_error_code_es_el_de_los_codes_http_del_catalogo() -> None:
         "api/console.v2.yaml: el enum ErrorCode no trae speech.unavailable (§4.7 a)"
     ]
     assert guardia.comprobar_enum_error_code(catalogo, CONSOLA, de_mas) == [
-        "api/console.v2.yaml: el enum ErrorCode trae anonymizer.incident y el catálogo no lo "
-        "declara con http: true (§4.7 a)",
-        "api/console.v2.yaml: el enum ErrorCode trae inventado.code y el catálogo no lo declara "
-        "con http: true (§4.7 a)",
+        ("api/console.v2.yaml: el enum ErrorCode trae anonymizer.incident y el catálogo no lo "
+        "declara con http: true (§4.7 a)"),
+        ("api/console.v2.yaml: el enum ErrorCode trae inventado.code y el catálogo no lo declara "
+        "con http: true (§4.7 a)"),
     ]
     sin_enum = _c1()
     del sin_enum["components"]["schemas"]["ErrorCode"]
@@ -324,8 +324,8 @@ def test_los_codes_de_c1_se_buscan_en_el_enum_y_en_las_descripciones(tmp_path: P
         "description": "auth.forbidden o inventado.code (E44)",
     }
     assert _nuevas(antes, _respuestas(documento)) == [
-        "api/console.v2.yaml: GET /users 403: el code inventado.code no está en el catálogo "
-        "(BR7.2, E44)"
+        ("api/console.v2.yaml: GET /users 403: el code inventado.code no está en el catálogo "
+        "(BR7.2, E44)")
     ]
 
 
@@ -336,10 +336,10 @@ def test_un_code_con_otro_estado_que_el_del_catalogo_es_rojo() -> None:
     respuestas["422"]["description"] = "user.weak_password o session.blocked (K-18)"
     respuestas["409"]["description"] = "anonymizer.incident no tiene estado HTTP"
     assert _nuevas(antes, _respuestas(documento)) == [
-        "api/console.v2.yaml: POST /users 409: el code anonymizer.incident no tiene estado HTTP "
-        "en el catálogo (§4.7 c)",
-        "api/console.v2.yaml: POST /users 422: el code session.blocked lleva el estado 422 y el "
-        "catálogo dice 409 (§4.7 c)",
+        ("api/console.v2.yaml: POST /users 409: el code anonymizer.incident no tiene estado HTTP "
+        "en el catálogo (§4.7 c)"),
+        ("api/console.v2.yaml: POST /users 422: el code session.blocked lleva el estado 422 y el "
+        "catálogo dice 409 (§4.7 c)"),
     ]
     voz = load_contract("api/speech-internal.v1.yaml")
     mal = copy.deepcopy(voz)
@@ -347,8 +347,8 @@ def test_un_code_con_otro_estado_que_el_del_catalogo_es_rojo() -> None:
         "speech.text_rejected con rule_id"
     )
     assert guardia.comprobar_respuestas(_catalogo(), "voz", mal, False) == [
-        "voz: POST /internal/v1/speech 422: el code speech.text_rejected lleva el estado 422 y el "
-        "catálogo dice 409 (§4.7 c)"
+        ("voz: POST /internal/v1/speech 422: el code speech.text_rejected lleva el estado 422 y el "
+        "catálogo dice 409 (§4.7 c)")
     ]
 
 

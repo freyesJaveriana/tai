@@ -41,7 +41,7 @@ def test_e15_put_profiles_nombra_perfil_en_la_ruta(guardia: ModuleType) -> None:
     documento = _c1()
     documento["paths"]["/profiles"]["put"] = {"operationId": "replace_profiles"}
     assert guardia.comprobar_documento(documento) == [
-        "PUT /profiles: nombra «profile» en la ruta (BR7.1, E15)"
+        "PUT /profiles: nombra «profile» en la ruta (BR7.1)"
     ]
 
 

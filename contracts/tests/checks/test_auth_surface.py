@@ -114,8 +114,8 @@ def test_las_seis_operaciones_que_encolan_solo_declaran_202(guardia: ModuleType)
         "description": "bloqueante"
     }
     assert _nuevos(guardia, documento) == [
-        "POST /sessions/{session_id}/turns: operación que encola con un 2xx distinto de 202 "
-        "(§4.6, NFR3.1)"
+        ("POST /sessions/{session_id}/turns: operación que encola con un 2xx distinto de 202 "
+        "(§4.6, NFR3.1)")
     ]
     renombrada = _c1()
     renombrada["paths"]["/sessions/{session_id}/runs/{run_id}/retry"]["post"]["operationId"] = "x"
@@ -150,9 +150,9 @@ def test_extension_fuera_de_la_lista_cerrada(guardia: ModuleType) -> None:
     documento["paths"]["/users"]["get"]["x-veridicus-secreto"] = True
     documento["components"]["schemas"]["Role"]["x-veridicus-otra"] = [{"x-veridicus-mas": 1}]
     assert sorted(_nuevos(guardia, documento)) == [
+        ("/components/schemas/Role/x-veridicus-otra/0/x-veridicus-mas: extensión fuera de la lista "
+        "cerrada (§4.6)"),
         "/components/schemas/Role/x-veridicus-otra: extensión fuera de la lista cerrada (§4.6)",
-        "/components/schemas/Role/x-veridicus-otra/0/x-veridicus-mas: extensión fuera de la lista "
-        "cerrada (§4.6)",
         "/paths/~1users/get/x-veridicus-secreto: extensión fuera de la lista cerrada (§4.6)",
     ]
 

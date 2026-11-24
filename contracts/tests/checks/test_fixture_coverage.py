@@ -229,10 +229,8 @@ _UNA_PRUEBA = {
 CON_CODIGO = {regla: (prueba,) for regla, prueba in _UNA_PRUEBA.items()}
 CON_CODIGO.update(
     {
-        # P-T18-10: BR1.1 y BR8.1 pasan a la lista con las pruebas que ya están en el árbol.
-        "BR1.1": (
-            ("tests/contracts/test_queue_messages.py", "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),
-        ),
+        # P-T18-10: BR8.1 pasa a la lista con la prueba que ya está en el árbol. BR1.1 sale de ella (E-28):
+        # la cubren los fixtures `reject` de queues/fixtures/runs/, y está en REGLAS.
         "BR8.1": (
             ("tests/contracts/test_console.py", "test_toda_fecha_tiene_el_formato_unico_con_el_mismo_patron"),
             ("tests/contracts/test_console.py", "test_las_fechas_reales_pasan_y_las_imposibles_o_con_otra_forma_no"),
@@ -273,7 +271,8 @@ def _reglas_vigentes() -> set[str]:
 
 def test_e24_la_lista_de_reglas_con_codigo_es_cerrada_y_exacta(guardia: ModuleType) -> None:
     assert guardia.REGLAS_CON_CODIGO == CON_CODIGO
-    assert len(guardia.REGLAS_CON_CODIGO) == 30
+    assert len(guardia.REGLAS_CON_CODIGO) == 29
+    assert "BR1.1" not in guardia.REGLAS_CON_CODIGO and "BR1.1" in guardia.REGLAS
     # Ninguna regla está a la vez en dos listas.
     assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.REGLAS)
     assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.EXCLUIDAS)
@@ -333,3 +332,81 @@ def test_e24_una_prueba_inexistente_o_un_archivo_ausente_es_rojo(guardia: Module
         "BR3.3: la prueba test_existe no existe en tests/test_roto.py (NFR12.1, §4.10)",
         "BR3.4: la prueba test_control_ausente no existe en tests/test_a.py (NFR12.1, §4.10)",
     ]
+
+
+def test_e28_br1_1_la_cubren_dos_fixtures_reject_de_la_cola_de_corridas(guardia: ModuleType) -> None:
+    rechazos = {
+        ruta: f for ruta, f in guardia.fixtures(CONTRACTS_ROOT) if f.get("reject_reason") == "BR1.1"
+    }
+    assert sorted(rechazos) == [
+        "queues/fixtures/runs/run.schema-version-sin-forma.yaml",
+        "queues/fixtures/runs/run.sin-schema-version.yaml",
+    ]
+    assert all(f["contract"] == "C2.RunRequested" and f["expectation"] == "reject" for f in rechazos.values())
+    # Uno no trae schema_version y el otro trae «2.0», sin el parche: sus cargas lo demuestran.
+    sin = rechazos["queues/fixtures/runs/run.sin-schema-version.yaml"]["payload"]
+    forma = rechazos["queues/fixtures/runs/run.schema-version-sin-forma.yaml"]["payload"]
+    assert "schema_version" not in sin
+    assert forma["schema_version"] == "2.0"
+    # Fuera de schema_version, las dos cargas son las del accept de la misma cola.
+    valido = next(f for r, f in guardia.fixtures(CONTRACTS_ROOT) if r.endswith("runs/run.valid.yaml"))["payload"]
+    assert {k: v for k, v in sin.items()} == {k: v for k, v in valido.items() if k != "schema_version"}
+    assert {k: v for k, v in forma.items() if k != "schema_version"} == {
+        k: v for k, v in valido.items() if k != "schema_version"
+    }
+
+
+VERSION_SEMANTICA = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
+
+
+def _version_del_encabezado(documento: Any) -> Any:
+    """La versión que un contrato declara arriba: `info.version` (OpenAPI, AsyncAPI), `schema_version` o `version`."""
+    if not isinstance(documento, dict):
+        return None
+    info = documento.get("info")
+    if isinstance(info, dict) and "version" in info:
+        return info["version"]
+    for clave in ("schema_version", "version"):
+        if clave in documento:
+            return documento[clave]
+    return None
+
+
+def _tiene_version_semantica(documento: Any) -> bool:
+    version = _version_del_encabezado(documento)
+    return isinstance(version, str) and VERSION_SEMANTICA.fullmatch(version) is not None
+
+
+def test_e28_el_control_de_la_version_detecta_la_falta_y_la_forma_rota() -> None:
+    assert _tiene_version_semantica({"info": {"version": "2.0.0"}})
+    assert _tiene_version_semantica({"schema_version": "1.0.0"})
+    assert _tiene_version_semantica({"version": "1.0.0"})
+    for roto in (
+        {},
+        {"info": {"title": "x"}},
+        {"info": {"version": "2.0"}},
+        {"info": {"version": 2}},
+        {"schema_version": "1.0"},
+        {"schema_version": "v1.0.0"},
+        {"schema_version": "1.0.0-rc1"},
+        {"schema_version": 1},
+        {"version": 2},
+        {"version": None},
+        {"$id": "veridicus/contracts/x.v1"},
+        ["1.0.0"],
+    ):
+        assert not _tiene_version_semantica(roto), roto
+
+
+def test_e28_todo_contrato_propio_declara_su_version_semantica_en_el_encabezado() -> None:
+    """BR1.1: todo contrato tiene versión semántica. Los de `analyzer/` son la copia de C6 y no cuentan."""
+    from veridicus_contracts.checks._recorrido import documentos
+
+    propios = [
+        (ruta, documento)
+        for ruta, documento, legible in documentos(CONTRACTS_ROOT)
+        if legible and not ruta.startswith("analyzer/")
+    ]
+    assert len(propios) >= 30, "la prueba no pasa en vacío"
+    sin_version = [ruta for ruta, documento in propios if not _tiene_version_semantica(documento)]
+    assert sin_version == [], "contratos propios sin versión semántica en el encabezado"

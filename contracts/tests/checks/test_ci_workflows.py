@@ -5,6 +5,9 @@
 regenera la huella de seguridad ni despliega.
 """
 
+import re
+import signal
+import time
 from pathlib import Path
 from types import ModuleType
 
@@ -105,3 +108,69 @@ def test_solo_se_miran_los_workflows_yaml_de_la_carpeta(guardia: ModuleType, tmp
     assert guardia.comprobar(tmp_path) == []
     assert [r.name for r in guardia.workflows(tmp_path)] == []
     assert ruta.exists()
+
+
+def _tarda_menos_de(segundos: float, patron: re.Pattern[str], texto: str) -> bool:
+    """Busca `patron` en `texto` con un reloj de pared: si pasa del plazo, el motor se interrumpe."""
+
+    def _vencido(*_: object) -> None:
+        raise TimeoutError
+
+    anterior = signal.signal(signal.SIGALRM, _vencido)
+    signal.setitimer(signal.ITIMER_REAL, segundos)
+    inicio = time.perf_counter()
+    try:
+        patron.search(texto)
+    except TimeoutError:
+        return False
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, anterior)
+    return time.perf_counter() - inicio < segundos
+
+
+@pytest.mark.parametrize("herramienta", ["kubectl", "helm"])
+def test_f02_muchas_opciones_seguidas_no_hacen_retroceder_al_motor(
+    guardia: ModuleType, herramienta: str
+) -> None:
+    # F-02: un `-a` que sigue a una opción podía ser su valor o una opción nueva (retroceso exponencial).
+    texto = herramienta + " -a" * 40 + " x"
+    for termino, patron in guardia.PROHIBIDOS:
+        assert _tarda_menos_de(1.0, patron, texto), (termino, "tarda más de 1 s con 40 opciones")
+    # Y las mismas 40 opciones seguidas de un verbo prohibido sí se detectan, en poco tiempo.
+    verbo = "apply" if herramienta == "kubectl" else "install"
+    patron = next(p for t, p in guardia.PROHIBIDOS if t == f"{herramienta} {verbo}")
+    assert _tarda_menos_de(1.0, patron, herramienta + " -a" * 40 + f" {verbo}")
+    assert patron.search(herramienta + " -a" * 40 + f" {verbo}") is not None
+
+
+def test_f02_las_formas_de_la_sonda_siguen_detectandose_y_las_lecturas_no_dan_falso_positivo(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    texto = (
+        "a: kubectl -n x apply -f y\n"
+        "b: kubectl --context=x apply -f y\n"
+        "c: kubectl --namespace x apply -f y\n"
+        "d: kubectl -v 9 --namespace x apply -f y\n"
+        "e: kubectl -n x -- apply -f y\n"
+        "f: /usr/bin/kubectl apply -f y\n"
+        "g: helm --namespace v upgrade --install a b\n"
+        "h: KUBE_CONFIG: x\n"
+        "i: kubectl -n x describe applyset\n"
+        "j: kubectl --context=m -n x get pods\n"
+        "k: helm -n v list\n"
+    )
+    ruta = _workflow(tmp_path, "sonda.yml", texto)
+    prefijo = ruta.as_posix() + ":"
+    lineas = sorted({int(p.removeprefix(prefijo).split(":", 1)[0]) for p in guardia.scan([ruta])})
+    assert lineas == [1, 2, 3, 4, 5, 6, 7, 8], lineas
+
+
+def test_p_t18_16_un_valor_entre_comillas_con_espacios_es_una_limitacion_declarada(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    # F-03 de la ronda 2: el análisis es de texto y no entiende comillas; queda como límite declarado.
+    _workflow(tmp_path, "comillas.yml", 'run: kubectl --namespace "a b" apply -f x\n')
+    assert guardia.comprobar(tmp_path) == []
+    assert any("comillas" in limitacion for limitacion in guardia.LIMITACIONES)
+    assert any("variable" in limitacion for limitacion in guardia.LIMITACIONES)

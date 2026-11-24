@@ -7,6 +7,7 @@ modo seguro, sin claves duplicadas y sin etiquetas de objetos. Una prueba AST
 
 import json
 from datetime import date, datetime
+from functools import cache
 from importlib.resources.abc import Traversable
 from typing import Any
 
@@ -42,7 +43,10 @@ def _comprobar_json(valor: Any, ruta: str = "$") -> None:
 
 
 def load_yaml_text(texto: str) -> Any:
-    """Lee un documento YAML 1.2; rechaza claves duplicadas y etiquetas de objetos."""
+    """Lee un documento YAML 1.2; rechaza claves duplicadas y etiquetas de objetos.
+
+    No guarda nada entre llamadas: puede recibir datos de ejecución (P-T18d-1).
+    """
     try:
         valor = _lector_yaml().load(texto)
     except YAMLError as error:
@@ -65,7 +69,10 @@ def _constante_no_finita(nombre: str) -> Any:
 
 
 def load_json_text(texto: str) -> Any:
-    """Lee un documento JSON; rechaza claves duplicadas y NaN o Infinity."""
+    """Lee un documento JSON; rechaza claves duplicadas y NaN o Infinity.
+
+    No guarda nada entre llamadas: puede recibir datos de ejecución (P-T18d-1).
+    """
     try:
         return json.loads(
             texto,
@@ -76,6 +83,23 @@ def load_json_text(texto: str) -> Any:
         raise LoadError(f"JSON no válido: {error}") from error
 
 
+@cache
+def _analizado_de_archivo(es_yaml: bool, texto: str) -> Any:
+    """Análisis del texto de un archivo, recordado por tipo y texto (P-T18d-1).
+
+    Solo lo usa `load_file`, es decir, solo recuerda archivos del paquete y fixtures. El
+    análisis de YAML en Python puro es lo más lento de la suite. Una excepción no se recuerda
+    (`functools.cache` solo guarda resultados): un texto inválido falla igual cada vez. Nadie
+    recibe este valor: `load_file` entrega una copia profunda.
+    """
+    return load_yaml_text(texto) if es_yaml else load_json_text(texto)
+
+
+def _copia(valor: Any) -> Any:
+    """Copia profunda de un valor compatible con JSON."""
+    return json.loads(json.dumps(valor))
+
+
 def load_file(ruta: Traversable) -> Any:
     """Lee un archivo `.yaml`, `.yml` o `.json` según su sufijo."""
     nombre = ruta.name
@@ -84,7 +108,7 @@ def load_file(ruta: Traversable) -> Any:
     except UnicodeDecodeError as error:
         raise LoadError(f"{nombre} no es texto UTF-8") from error
     if nombre.endswith((".yaml", ".yml")):
-        return load_yaml_text(texto)
+        return _copia(_analizado_de_archivo(True, texto))
     if nombre.endswith(".json"):
-        return load_json_text(texto)
+        return _copia(_analizado_de_archivo(False, texto))
     raise LoadError(f"sufijo no admitido en {nombre}: use .yaml, .yml o .json")

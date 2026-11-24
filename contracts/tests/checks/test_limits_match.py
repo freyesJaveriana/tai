@@ -467,6 +467,62 @@ def test_el_tope_de_bytes_de_run_requested_se_comprueba_en_valor_y_en_la_inversa
     ]
 
 
+# ---- E-18: el tope de bytes del `payload` acota los textos del mensaje, como el del `requestBody` ----
+
+CINCO_DE_C6 = (
+    "transcripcion/properties/entrevista",
+    "transcripcion/properties/consentimiento/properties/version_texto",
+    "transcripcion/properties/consentimiento/properties/constancia",
+    "transcripcion/properties/consentimiento/properties/constancia_mandato",
+)
+
+
+def _cinco_textos_de_c6() -> list[str]:
+    en_transcripcion = [
+        f"{RUNS}: {ENTRADA}/allOf/0/properties/{sitio}: {TEXTO}" for sitio in CINCO_DE_C6
+    ]
+    return [*en_transcripcion, f"{RUNS}: {ENTRADA}/allOf/0/properties/perfil: {TEXTO}"]
+
+
+def test_c2_con_el_tope_del_payload_los_cinco_textos_de_c6_no_son_rojo(guardia: ModuleType) -> None:
+    catalogo, documentos = _estado(guardia)
+    _con_c6(lambda c, d: None)(catalogo, documentos)
+    assert "x-veridicus-max-bytes" in _payload_de_runs(documentos)
+    problemas = guardia.comprobar_documentos(catalogo, documentos)
+    assert [p for p in problemas if "/allOf/0/" in p] == []
+
+
+def test_c2_sin_el_tope_del_payload_los_cinco_textos_de_c6_son_rojo(guardia: ModuleType) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        del _payload_de_runs(documentos)["x-veridicus-max-bytes"]
+
+    esperados = [
+        *_cinco_textos_de_c6(),
+        "run_message_max_bytes: used_in nombra C2 y C2 no la marca (§4.4, comprobación inversa)",
+    ]
+    assert _nuevos_con_c6(guardia, cambiar) == sorted(esperados)
+
+
+def test_c5_un_texto_sin_marca_solo_se_acota_con_el_tope_de_bytes_del_payload(
+    guardia: ModuleType,
+) -> None:
+    nota = "/components/messages/TranscriptResult/payload/properties/nota"
+
+    def sin_tope(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        mensaje = documentos["queues/speech.v2.yaml"]["components"]["messages"]["TranscriptResult"]
+        mensaje["payload"]["properties"]["nota"] = {"type": "string"}
+
+    assert _nuevos(guardia, sin_tope) == [f"queues/speech.v2.yaml: {nota}: {TEXTO}"]
+
+    def con_tope(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        sin_tope(catalogo, documentos)
+        mensaje = documentos["queues/speech.v2.yaml"]["components"]["messages"]["TranscriptResult"]
+        mensaje["payload"]["x-veridicus-max-bytes"] = "run_message_max_bytes"
+        catalogo["run_message_max_bytes"]["used_in"] = ["C2", "C5"]
+
+    assert _nuevos(guardia, con_tope) == []
+
+
 def test_comprobar_con_contratos_ausentes_o_ilegibles(guardia: ModuleType, tmp_path: Path) -> None:
     ausentes = guardia.comprobar(tmp_path)
     assert sorted(ausentes) == sorted(

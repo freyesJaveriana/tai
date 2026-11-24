@@ -79,24 +79,18 @@ raiz = importlib.resources.files("veridicus_contracts")
 print("importa veridicus_contracts sin Redis, Kubernetes ni base de datos")
 
 
-def archivos_de(carpeta):
-    for entrada in sorted(carpeta.iterdir(), key=lambda e: e.name):
-        if entrada.is_dir():
-            yield from archivos_de(entrada)
-        else:
-            yield entrada
-
-
-for directorio in tabla["directorios"]:
-    # transcript/ es un directorio reservado que solo trae su .gitkeep (vacio): se lee igual.
-    leidos = [a.read_bytes() for a in archivos_de(raiz / directorio)]
-    if not leidos:
-        raise SystemExit(f"importlib.resources: sin archivos en veridicus_contracts/{directorio}")
-for archivo in tabla["archivos"]:
-    if not (raiz / archivo).read_bytes():
-        raise SystemExit(f"importlib.resources: vacio veridicus_contracts/{archivo}")
-print(f"lee cada dato de la tabla: {len(tabla['directorios'])} directorios y "
-      f"{len(tabla['archivos'])} archivos")
+for ruta in (*tabla["datos"], *tabla["archivos"]):
+    try:
+        contenido = raiz.joinpath(*ruta.split("/")).read_bytes()
+    except (OSError, ValueError) as error:
+        raise SystemExit(f"importlib.resources: no se lee veridicus_contracts/{ruta}: {error}")
+    if not contenido:
+        raise SystemExit(f"importlib.resources: vacio veridicus_contracts/{ruta}")
+for directorio in tabla["reservados"]:
+    if not (raiz / directorio).is_dir():
+        raise SystemExit(f"importlib.resources: falta el directorio reservado {directorio}")
+print(f"lee cada dato de la tabla, archivo por archivo: {len(tabla['datos'])} datos, "
+      f"{len(tabla['archivos'])} sueltos y {len(tabla['reservados'])} reservados")
 
 
 def fixtures(carpeta, patron):
@@ -128,7 +122,7 @@ con_c1 = registro.with_resource(
         load_file(raiz / "api" / "console.v2.yaml"), default_specification=DRAFT202012
     ),
 )
-comparar("C1", validator_for(con_c1, uri_c1 + "#/components/schemas/ReviewSuggestion"), sugerencias)
+comparar("C1 (ReviewSuggestion, fixtures de C7)", validator_for(con_c1, uri_c1 + "#/components/schemas/ReviewSuggestion"), sugerencias)
 comparar("C19", validator_for(registro, BASE_URI + "veridicus/contracts/cli/report.schema.v2"),
          fixtures("cli/fixtures", "*.json"))
 
@@ -160,15 +154,46 @@ class PasoFallido(Exception):
         self.motivo = motivo
 
 
+# Lista cerrada de directorios de la tabla que hoy no tienen más contenido que su `.gitkeep`.
+# Sin regla general: un directorio vacío que no esté aquí es un fallo, y para añadir uno hace falta
+# una precisión aprobada.
+DIRECTORIOS_RESERVADOS = {
+    "transcript": "reservado para el contrato de transcripción de una unidad posterior: solo .gitkeep",
+}
+SIN_CONTENIDO = ".gitkeep"
+OMITIDOS_DEL_ARBOL = frozenset({"fixtures", "__pycache__"})
+
+
 class TablaDeRutas(NamedTuple):
-    """Datos que la rueda debe traer, con la ruta relativa a `veridicus_contracts/`."""
+    """Lo que la rueda debe traer, con rutas relativas a `veridicus_contracts/`.
+
+    `directorios` y `archivos` salen de `pyproject.toml`; `datos` es cada archivo del árbol de
+    origen de esos directorios (sin `fixtures/` ni `.gitkeep`), comparado uno a uno; `reservados`
+    son los directorios sin datos que `DIRECTORIOS_RESERVADOS` admite con solo `.gitkeep`.
+    """
 
     directorios: tuple[str, ...]
     archivos: tuple[str, ...]
+    datos: tuple[str, ...] = ()
+    reservados: tuple[str, ...] = ()
 
 
-def tabla_de_rutas(configuracion: dict[str, Any]) -> TablaDeRutas:
-    """Deriva la tabla de rutas de `[tool.hatch.build.targets.wheel]` de `pyproject.toml`."""
+def _datos_del_arbol(contracts: Path, directorio: str) -> list[str]:
+    raiz = contracts / directorio
+    return sorted(
+        f"{directorio}/{ruta.relative_to(raiz).as_posix()}"
+        for ruta in raiz.rglob("*")
+        if ruta.is_file()
+        and ruta.name != SIN_CONTENIDO
+        and not OMITIDOS_DEL_ARBOL.intersection(ruta.relative_to(raiz).parts)
+    )
+
+
+def tabla_de_rutas(configuracion: dict[str, Any], contracts: Path | None = None) -> TablaDeRutas:
+    """Deriva la tabla de rutas de `[tool.hatch.build.targets.wheel]` de `pyproject.toml`.
+
+    Con `contracts` (la carpeta `contracts/`) añade `datos` y `reservados` leyendo el árbol.
+    """
     try:
         rueda = configuracion["tool"]["hatch"]["build"]["targets"]["wheel"]
         fuentes: dict[str, str] = rueda["sources"]
@@ -182,7 +207,16 @@ def tabla_de_rutas(configuracion: dict[str, Any]) -> TablaDeRutas:
         destino.removeprefix(prefijo) for origen, destino in fuentes.items() if origen != "src"
     )
     archivos = tuple(destino.removeprefix(prefijo) for destino in sueltos.values())
-    return TablaDeRutas(directorios, archivos)
+    if contracts is None:
+        return TablaDeRutas(directorios, archivos)
+    datos: list[str] = []
+    reservados: list[str] = []
+    for directorio in directorios:
+        encontrados = _datos_del_arbol(contracts, directorio)
+        datos.extend(encontrados)
+        if not encontrados and directorio in DIRECTORIOS_RESERVADOS:
+            reservados.append(directorio)
+    return TablaDeRutas(directorios, archivos, tuple(datos), tuple(reservados))
 
 
 def _es_prohibida(nombre: str) -> bool:
@@ -199,14 +233,20 @@ def comparar_rueda(nombres: Iterable[str], tabla: TablaDeRutas) -> list[str]:
     lista = list(nombres)
     existentes = set(lista)
     problemas: list[str] = []
+    # Archivo por archivo: un `.gitkeep` no hace presente un directorio (F-01).
+    for dato in (*tabla.datos, *tabla.archivos):
+        if f"{PAQUETE}/{dato}" not in existentes:
+            problemas.append(f"falta el dato {PAQUETE}/{dato} en la rueda")
+    con_datos = {d.split("/")[0] for d in tabla.datos}
     for directorio in tabla.directorios:
-        prefijo = f"{PAQUETE}/{directorio}/"
-        # `transcript/` solo trae su `.gitkeep` (directorio reservado): cuenta como presente.
-        if not any(n.startswith(prefijo) and not n.endswith("/") for n in lista):
-            problemas.append(f"falta el dato {prefijo.rstrip('/')} en la rueda")
-    for archivo in tabla.archivos:
-        if f"{PAQUETE}/{archivo}" not in existentes:
-            problemas.append(f"falta el dato {PAQUETE}/{archivo} en la rueda")
+        if directorio in con_datos:
+            continue
+        if directorio not in tabla.reservados:
+            problemas.append(
+                f"el directorio {PAQUETE}/{directorio} no tiene datos en el árbol y no es reservado"
+            )
+        elif f"{PAQUETE}/{directorio}/{SIN_CONTENIDO}" not in existentes:
+            problemas.append(f"falta el directorio reservado {PAQUETE}/{directorio}")
     problemas.extend(f"ruta prohibida en la rueda: {n}" for n in lista if _es_prohibida(n))
     return problemas
 
@@ -308,7 +348,7 @@ def _leer_tabla(contracts: Path) -> TablaDeRutas:
         configuracion = tomllib.loads(pyproject.read_text(encoding="utf-8"))
     except (OSError, tomllib.TOMLDecodeError) as error:
         raise PasoFallido("derivar la tabla de rutas", str(pyproject), str(error)) from error
-    return tabla_de_rutas(configuracion)
+    return tabla_de_rutas(configuracion, contracts)
 
 
 def _paso(numero: int, texto: str) -> None:
@@ -321,7 +361,8 @@ def verificar(contracts: Path) -> None:
     with tempfile.TemporaryDirectory(prefix="check_package_") as temporal:
         base = Path(temporal)
         _paso(1, "uv build de la rueda y el sdist")
-        rueda = construir(contracts, base / "dist")
+        # Sin red: la red queda solo para instalar las dependencias (paso 3).
+        rueda = construir(contracts, base / "dist", offline=True)
         _paso(2, f"lista de {rueda.name} contra la tabla de rutas")
         problemas = comparar_rueda(nombres_de_rueda(rueda), tabla)
         if problemas:

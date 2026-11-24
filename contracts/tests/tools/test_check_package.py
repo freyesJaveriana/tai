@@ -23,43 +23,75 @@ def _herramienta() -> Any:
     return importar_o_fallar(MODULO, "T21, paso 22")
 
 
-def _tabla() -> Any:
+def _tabla(contracts_root: Path) -> Any:
+    """La tabla real: pyproject.toml más cada archivo del árbol de origen (F-01)."""
     herramienta = _herramienta()
-    return herramienta.TablaDeRutas(
-        directorios=tuple(DIRECTORIOS_DE_DATOS), archivos=tuple(ARCHIVOS_DE_DATOS)
-    )
+    configuracion = tomllib.loads((contracts_root / "pyproject.toml").read_text(encoding="utf-8"))
+    return herramienta.tabla_de_rutas(configuracion, contracts_root)
 
 
-def _rueda_completa() -> list[str]:
-    """Lista de una rueda sintética con el mapa completo, sin nada prohibido."""
+def _rueda_completa(tabla: Any) -> list[str]:
+    """Lista de una rueda sintética con el mapa completo, como la real: con `.gitkeep`."""
     nombres = [
         "veridicus_contracts/py.typed",
         "veridicus_contracts/registry.py",
         "veridicus_contracts-0.1.0.dist-info/METADATA",
     ]
-    nombres += [f"veridicus_contracts/{d}/dato.v1.yaml" for d in DIRECTORIOS_DE_DATOS]
-    nombres += [f"veridicus_contracts/{a}" for a in ARCHIVOS_DE_DATOS]
+    nombres += [f"veridicus_contracts/{d}/.gitkeep" for d in tabla.directorios]
+    nombres += [f"veridicus_contracts/{d}" for d in (*tabla.datos, *tabla.archivos)]
     return nombres
 
 
-def test_una_lista_de_rueda_completa_pasa() -> None:
+def test_una_lista_de_rueda_completa_pasa(contracts_root: Path) -> None:
     herramienta = _herramienta()
-    assert herramienta.comparar_rueda(_rueda_completa(), _tabla()) == []
+    tabla = _tabla(contracts_root)
+    assert herramienta.comparar_rueda(_rueda_completa(tabla), tabla) == []
 
 
 @pytest.mark.parametrize(
     "ausente",
-    [f"veridicus_contracts/{d}/" for d in ("analyzer", "cli", "vendor")]
-    + ["veridicus_contracts/limits.v1.yaml"],
+    [
+        "veridicus_contracts/analyzer/v1/entrada.schema.json",
+        "veridicus_contracts/errors/error-codes.v2.yaml",
+        "veridicus_contracts/queues/runs.v2.yaml",
+        "veridicus_contracts/queues/results.v2.yaml",
+        "veridicus_contracts/ui/result-labels.v2.yaml",
+        "veridicus_contracts/limits.v1.yaml",
+    ],
 )
-def test_una_lista_sin_un_dato_de_la_tabla_falla_y_nombra_la_ruta(ausente: str) -> None:
+def test_una_lista_sin_un_solo_catalogo_falla_y_nombra_la_ruta(
+    contracts_root: Path, ausente: str
+) -> None:
+    """Quitar un archivo de un directorio con más de uno (y con `.gitkeep`) no pasa (F-01)."""
     herramienta = _herramienta()
-    nombres = [n for n in _rueda_completa() if not n.startswith(ausente)]
-    assert len(nombres) < len(_rueda_completa())
-    problemas = herramienta.comparar_rueda(nombres, _tabla())
+    tabla = _tabla(contracts_root)
+    nombres = [n for n in _rueda_completa(tabla) if n != ausente]
+    assert len(nombres) == len(_rueda_completa(tabla)) - 1
+    problemas = herramienta.comparar_rueda(nombres, tabla)
     assert len(problemas) == 1, problemas
-    assert ausente.rstrip("/") in problemas[0]
+    assert ausente in problemas[0]
     assert "falta" in problemas[0]
+
+
+def test_solo_transcript_se_acepta_con_solo_gitkeep_y_hace_falta_su_gitkeep(
+    contracts_root: Path,
+) -> None:
+    herramienta = _herramienta()
+    tabla = _tabla(contracts_root)
+    assert tabla.reservados == ("transcript",)
+    assert herramienta.DIRECTORIOS_RESERVADOS.keys() == {"transcript"}
+    sin_gitkeep = [n for n in _rueda_completa(tabla) if n != "veridicus_contracts/transcript/.gitkeep"]
+    problemas = herramienta.comparar_rueda(sin_gitkeep, tabla)
+    assert len(problemas) == 1, problemas
+    assert "veridicus_contracts/transcript" in problemas[0]
+    # Sin la excepción nombrada, un directorio sin datos es un fallo: no hay regla general.
+    sin_reserva = herramienta.TablaDeRutas(
+        tabla.directorios, tabla.archivos, tabla.datos, reservados=()
+    )
+    problemas = herramienta.comparar_rueda(_rueda_completa(tabla), sin_reserva)
+    assert len(problemas) == 1, problemas
+    assert "veridicus_contracts/transcript" in problemas[0]
+    assert "no es reservado" in problemas[0]
 
 
 @pytest.mark.parametrize(
@@ -73,9 +105,12 @@ def test_una_lista_sin_un_dato_de_la_tabla_falla_y_nombra_la_ruta(ausente: str) 
         "veridicus_contracts/privada.key",
     ],
 )
-def test_una_lista_con_una_ruta_prohibida_falla_y_nombra_la_ruta(intrusa: str) -> None:
+def test_una_lista_con_una_ruta_prohibida_falla_y_nombra_la_ruta(
+    contracts_root: Path, intrusa: str
+) -> None:
     herramienta = _herramienta()
-    problemas = herramienta.comparar_rueda([*_rueda_completa(), intrusa], _tabla())
+    tabla = _tabla(contracts_root)
+    problemas = herramienta.comparar_rueda([*_rueda_completa(tabla), intrusa], tabla)
     assert len(problemas) == 1, problemas
     assert intrusa in problemas[0]
     assert "prohibida" in problemas[0]
@@ -84,34 +119,45 @@ def test_una_lista_con_una_ruta_prohibida_falla_y_nombra_la_ruta(intrusa: str) -
 def test_la_tabla_derivada_de_pyproject_coincide_con_la_de_test_package_map(
     contracts_root: Path,
 ) -> None:
-    herramienta = _herramienta()
-    configuracion = tomllib.loads((contracts_root / "pyproject.toml").read_text(encoding="utf-8"))
-    tabla = herramienta.tabla_de_rutas(configuracion)
+    tabla = _tabla(contracts_root)
     assert set(tabla.directorios) == set(DIRECTORIOS_DE_DATOS)
     assert set(tabla.archivos) == set(ARCHIVOS_DE_DATOS)
+    assert "errors/error-codes.v2.yaml" in tabla.datos
+    assert not [d for d in tabla.datos if "fixtures" in d.split("/") or d.endswith(".gitkeep")]
+    assert {d.split("/")[0] for d in tabla.datos} == set(DIRECTORIOS_DE_DATOS) - {"transcript"}
 
 
 def test_el_guion_en_el_entorno_de_la_suite_valida_los_fixtures_y_rechaza_la_forma_antigua(
     contracts_root: Path,
 ) -> None:
     herramienta = _herramienta()
-    argumentos = [json.dumps(_tabla()._asdict()), str(contracts_root)]
+    argumentos = [json.dumps(_tabla(contracts_root)._asdict()), str(contracts_root)]
     resultado = herramienta.ejecutar_guion(sys.executable, herramienta.GUION, argumentos)
     assert resultado.returncode == 0, resultado.stdout + resultado.stderr
     salida = resultado.stdout
-    for contrato in ("C7", "C1", "C19"):
-        assert f"{contrato}: " in salida, salida
+    for rotulo in ("C7", "C1 (ReviewSuggestion, fixtures de C7)", "C19"):
+        assert f"{rotulo}: " in salida, salida
     assert "forma antigua" in salida
     assert "socket bloqueado" in salida
+    assert "archivo por archivo" in salida
 
 
-def test_un_guion_que_abre_un_socket_falla_con_el_error_del_bloqueo() -> None:
+def test_el_guion_falla_ante_un_dato_ausente_y_ante_un_socket_abierto(
+    contracts_root: Path,
+) -> None:
     herramienta = _herramienta()
+    tabla = _tabla(contracts_root)._asdict()
+    tabla["datos"] = [*tabla["datos"], "errors/no-existe.v9.yaml"]
+    ausente = herramienta.ejecutar_guion(
+        sys.executable, herramienta.GUION, [json.dumps(tabla), str(contracts_root)]
+    )
+    assert ausente.returncode != 0
+    assert "errors/no-existe.v9.yaml" in ausente.stderr
     guion = "import socket\nsocket.socket(socket.AF_INET, socket.SOCK_STREAM)\nprint('llego')\n"
-    resultado = herramienta.ejecutar_guion(sys.executable, guion, [])
-    assert resultado.returncode != 0
-    assert herramienta.MENSAJE_SOCKET in resultado.stderr
-    assert "llego" not in resultado.stdout
+    socket = herramienta.ejecutar_guion(sys.executable, guion, [])
+    assert socket.returncode != 0
+    assert herramienta.MENSAJE_SOCKET in socket.stderr
+    assert "llego" not in socket.stdout
 
 
 def test_rueda_contaminada_con_un_fixture_forzado_falla_y_nombra_la_ruta(
@@ -139,7 +185,7 @@ def test_rueda_contaminada_con_un_fixture_forzado_falla_y_nombra_la_ruta(
         texto.replace(ancla, ancla + f'"{intruso}" = "veridicus_contracts/{intruso}"\n'),
         encoding="utf-8",
     )
-    tabla = herramienta.tabla_de_rutas(tomllib.loads(texto))
+    tabla = _tabla(contracts_root)
     rueda = herramienta.construir(copia, tmp_path / "salida", offline=True, solo_rueda=True)
     nombres = herramienta.nombres_de_rueda(rueda)
     assert f"veridicus_contracts/{intruso}" in nombres

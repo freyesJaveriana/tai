@@ -155,6 +155,38 @@ def test_k04_se_eximen_uuid_huellas_y_fechas_completas(guardia: ModuleType, tmp_
         assert len(problemas) == 1, malo
 
 
+@pytest.mark.parametrize(
+    "texto",
+    [
+        "1234-56-78",  # tiene la forma de una fecha y no lo es (8 dígitos)
+        "2026-13-45",  # mes y día imposibles
+        "2026-02-30",  # día que no existe
+        "1234-56",  # año-mes con un mes imposible (6 dígitos)
+        "2026-00",
+        "2026-11-24T25:00:00Z",  # hora imposible
+        "2026-11-24T10:61:00Z",
+        "2026-11-24T10:00:00+25:00",  # desplazamiento imposible
+        "2026-11-24T10:00:00.1234567890123",  # fracción sin cota
+        "2026-11-24T10:00:00.1234567Z",  # siete dígitos de fracción
+    ],
+)
+def test_f03_una_fecha_imposible_o_una_fraccion_larga_no_se_exime(
+    guardia: ModuleType, tmp_path: Path, texto: str
+) -> None:
+    problemas = _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"v": texto}))
+    assert len(problemas) == 1, texto
+
+
+@pytest.mark.parametrize(
+    "texto",
+    ["2026-11", "2026-12", "2026-11-24", "2024-02-29", "2026-11-24T10:00:00Z", "2026-11-24 10:00", "2026-11-24T10:00:00.123456+05:30"],
+)
+def test_f03_las_fechas_validas_con_fraccion_acotada_se_eximen(
+    guardia: ModuleType, tmp_path: Path, texto: str
+) -> None:
+    assert _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"v": texto})) == []
+
+
 def test_en_un_esquema_solo_se_revisan_los_example_y_no_la_prosa(guardia: ModuleType, tmp_path: Path) -> None:
     esquema = {
         "$id": "/veridicus/contracts/x/v1",

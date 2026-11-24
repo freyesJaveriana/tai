@@ -176,7 +176,11 @@ def test_scan_recorre_directorios_y_archivos_y_ignora_lo_que_no_es_python(
 
 
 def test_controles_del_cargador_yaml_de_4_1(guardia: ModuleType) -> None:
-    """Un C8 con un término repetido y un YAML con `!!python/object` no se cargan (§4.1)."""
+    """Un C8 con una clave repetida y un YAML con `!!python/object` no se cargan (§4.1).
+
+    El control del término repetido de la lista de C8 es otro y vive en
+    `test_veracity.py::test_c8_con_un_termino_nuevo_o_repetido_da_br51`.
+    """
     texto = (CONTRACTS_ROOT / "integrity" / "forbidden-vocabulary.v2.yaml").read_text(encoding="utf-8")
     assert load_contract("integrity/forbidden-vocabulary.v2.yaml")["schema_version"] == "2.0.0"
     with pytest.raises(LoadError):

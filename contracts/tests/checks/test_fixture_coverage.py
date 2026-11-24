@@ -180,7 +180,7 @@ def test_las_reglas_por_omision_son_las_de_regla(guardia: ModuleType, tmp_path: 
 
 # E-24: las reglas de nivel 0 que se prueban con código y no con documentos, cada una con la prueba que la
 # cubre (archivo bajo contracts/ y nombre de la prueba). Añadir una entrada requiere una precisión.
-CON_CODIGO = {
+_UNA_PRUEBA = {
     "BR1.3": ("tests/contracts/test_queue_messages.py", "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),
     "BR1.6": ("tests/checks/test_synthetic.py", "test_los_archivos_reales_de_contracts_son_sinteticos_y_sin_numeros_largos"),
     "BR1.7": ("tests/contracts/test_analyzer_copy.py", "test_sha256sums_tiene_dos_lineas_y_coincide_con_los_bytes"),
@@ -210,24 +210,81 @@ CON_CODIGO = {
     "BR12.3": ("tests/test_registry.py", "test_la_forma_antigua_del_ref_no_se_resuelve_e36"),
 }
 
+# Cada regla cita una prueba o más: la primera es la positiva y las siguientes, sus controles negativos.
+CON_CODIGO = {regla: (prueba,) for regla, prueba in _UNA_PRUEBA.items()}
+CON_CODIGO.update(
+    {
+        # P-T18-10: BR1.1 y BR8.1 pasan a la lista con las pruebas que ya están en el árbol.
+        "BR1.1": (
+            ("tests/contracts/test_queue_messages.py", "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),
+        ),
+        "BR8.1": (
+            ("tests/contracts/test_console.py", "test_toda_fecha_tiene_el_formato_unico_con_el_mismo_patron"),
+            ("tests/contracts/test_console.py", "test_las_fechas_reales_pasan_y_las_imposibles_o_con_otra_forma_no"),
+        ),
+        # F-05: BR3.4 y BR5.1 se citan con su control negativo.
+        "BR3.4": (
+            ("tests/checks/test_error_codes.py", "test_tabla_c6_del_arbol_real_completa"),
+            ("tests/checks/test_error_codes.py", "test_e34_codigo_de_c6_sin_code"),
+        ),
+        "BR5.1": (
+            ("tests/guards/test_autonomia_03.py", "test_c8_tiene_exactamente_los_terminos_aprobados"),
+            ("tests/checks/test_veracity.py", "test_c8_con_un_termino_nuevo_o_repetido_da_br51"),
+        ),
+    }
+)
+REGLAS_DE_RULES_MD = (
+    "aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/functional-design/rules.md"
+)
+
+
+def _reglas_vigentes() -> set[str]:
+    """Los ID de `rules.md` cuyo estado no es `Retirado`."""
+    texto = (CONTRACTS_ROOT.parent / REGLAS_DE_RULES_MD).read_text(encoding="utf-8")
+    vigentes: set[str] = set()
+    for bloque in re.split(r"(?m)^  - id: ", texto)[1:]:
+        identificador = bloque.split("\n", 1)[0].strip()
+        estado = re.search(r"(?m)^    status: (.+)$", bloque)
+        assert estado is not None, identificador
+        if estado.group(1).strip() != "Retirado":
+            vigentes.add(identificador)
+    return vigentes
+
 
 def test_e24_la_lista_de_reglas_con_codigo_es_cerrada_y_exacta(guardia: ModuleType) -> None:
     assert guardia.REGLAS_CON_CODIGO == CON_CODIGO
-    assert len(guardia.REGLAS_CON_CODIGO) == 27
-    # Ninguna regla está a la vez en la lista de fixtures, en la de código y en las excluidas.
+    assert len(guardia.REGLAS_CON_CODIGO) == 29
+    # Ninguna regla está a la vez en dos listas.
     assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.REGLAS)
     assert not set(guardia.REGLAS_CON_CODIGO) & set(guardia.EXCLUIDAS)
+    assert not set(guardia.REGLAS) & set(guardia.EXCLUIDAS)
 
 
-def test_e24_las_reglas_sin_prueba_localizada_se_informan_y_no_se_listan(guardia: ModuleType) -> None:
-    # BR8.1 y BR8.2 esperan a T17; BR1.1 y BR1.4 no tienen una prueba que las cubra entera.
-    assert guardia.SIN_PRUEBA == ("BR1.1", "BR1.4", "BR8.1", "BR8.2")
-    assert not set(guardia.SIN_PRUEBA) & set(guardia.REGLAS_CON_CODIGO)
-    assert not set(guardia.SIN_PRUEBA) & set(guardia.REGLAS)
+def test_p_t18_10_no_hay_una_tercera_lista(guardia: ModuleType) -> None:
+    # Toda regla de §4.10 tiene sus fixtures o una prueba en REGLAS_CON_CODIGO; SIN_PRUEBA desaparece.
+    assert not hasattr(guardia, "SIN_PRUEBA")
+
+
+def test_p_t18_10_las_listas_juntas_suman_todas_las_reglas_vigentes_de_rules_md(guardia: ModuleType) -> None:
+    vigentes = _reglas_vigentes()
+    assert len(vigentes) == 53, "rules.md: 56 reglas menos 3 retiradas"
+    listadas = {r for r in (*guardia.REGLAS, *guardia.REGLAS_CON_CODIGO, *guardia.EXCLUIDAS) if r.startswith("BR")}
+    assert sorted(vigentes - listadas) == [], "reglas vigentes que ninguna lista cubre"
+    assert sorted(listadas - vigentes) == [], "reglas listadas que rules.md no tiene vigentes"
+
+
+def test_p_t18_10_el_control_de_la_union_detecta_una_regla_que_falta(guardia: ModuleType) -> None:
+    vigentes = _reglas_vigentes()
+    listadas = {r for r in (*guardia.REGLAS, *guardia.REGLAS_CON_CODIGO, *guardia.EXCLUIDAS) if r.startswith("BR")}
+    # Control negativo de la propia prueba: quitar una regla de la unión deja una vigente sin cubrir.
+    assert vigentes - (listadas - {"BR1.1"}) == {"BR1.1"}
+    assert (listadas | {"BR99.9"}) - vigentes == {"BR99.9"}
 
 
 def test_e24_cada_prueba_de_la_lista_existe(guardia: ModuleType) -> None:
     assert guardia.comprobar_pruebas(CONTRACTS_ROOT) == []
+    # No pasa en vacío: BR3.4 y BR5.1 llevan su control negativo.
+    assert len(guardia.REGLAS_CON_CODIGO["BR3.4"]) == 2 and len(guardia.REGLAS_CON_CODIGO["BR5.1"]) == 2
 
 
 def test_e24_una_prueba_inexistente_o_un_archivo_ausente_es_rojo(guardia: ModuleType, tmp_path: Path) -> None:
@@ -238,14 +295,17 @@ def test_e24_una_prueba_inexistente_o_un_archivo_ausente_es_rojo(guardia: Module
     )
     (tmp_path / "tests" / "test_roto.py").write_text("def (:\n", encoding="utf-8")
     reglas = {
-        "BR1.3": ("tests/test_a.py", "test_existe"),
-        "BR1.6": ("tests/test_a.py", "test_en_clase"),
-        "BR1.7": ("tests/test_a.py", "test_no_existe"),
-        "BR1.9": ("tests/test_ausente.py", "test_existe"),
-        "BR3.3": ("tests/test_roto.py", "test_existe"),
+        "BR1.3": (("tests/test_a.py", "test_existe"),),
+        "BR1.6": (("tests/test_a.py", "test_en_clase"),),
+        "BR1.7": (("tests/test_a.py", "test_no_existe"),),
+        "BR1.9": (("tests/test_ausente.py", "test_existe"),),
+        "BR3.3": (("tests/test_roto.py", "test_existe"),),
+        # El control negativo que falta también se informa.
+        "BR3.4": (("tests/test_a.py", "test_existe"), ("tests/test_a.py", "test_control_ausente")),
     }
     assert guardia.comprobar_pruebas(tmp_path, reglas=reglas) == [
         "BR1.7: la prueba test_no_existe no existe en tests/test_a.py (NFR12.1, §4.10)",
         "BR1.9: la prueba test_existe no existe en tests/test_ausente.py (NFR12.1, §4.10)",
         "BR3.3: la prueba test_existe no existe en tests/test_roto.py (NFR12.1, §4.10)",
+        "BR3.4: la prueba test_control_ausente no existe en tests/test_a.py (NFR12.1, §4.10)",
     ]

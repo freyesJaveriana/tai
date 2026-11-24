@@ -4,7 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from veridicus_contracts.loaders import LoadError, load_file, load_json_text, load_yaml_text
+from veridicus_contracts.loaders import (
+    LoadError,
+    _analizado_de_archivo,
+    load_file,
+    load_json_text,
+    load_yaml_text,
+)
 
 
 def test_yaml_valido_se_lee_como_estructuras_de_json() -> None:
@@ -62,6 +68,41 @@ def test_load_file_elige_el_lector_por_sufijo(tmp_path: Path) -> None:
     assert load_file(tmp_path / "c.json") == {"x": 1}
     with pytest.raises(LoadError, match="sufijo"):
         load_file(tmp_path / "d.txt")
+
+
+def test_las_funciones_publicas_de_texto_no_tienen_cache(tmp_path: Path) -> None:
+    # P-T18d-1: pueden recibir datos de ejecución; la caché vive solo en el ayudante de load_file.
+    for publica in (load_yaml_text, load_json_text):
+        assert not hasattr(publica, "cache_info"), publica.__name__
+    primero = load_yaml_text("a:\n  - 1\n")
+    segundo = load_yaml_text("a:\n  - 1\n")
+    assert primero == segundo
+    assert primero is not segundo
+    assert primero["a"] is not segundo["a"]
+    primero["a"].append(2)
+    assert load_yaml_text("a:\n  - 1\n") == {"a": [1]}
+    assert load_json_text('{"a": [1]}') is not load_json_text('{"a": [1]}')
+    # Ni siquiera el ayudante privado recuerda lo que entra por las públicas.
+    antes = _analizado_de_archivo.cache_info().currsize
+    load_yaml_text("unico: 1\n")
+    load_json_text('{"unico": 1}')
+    assert _analizado_de_archivo.cache_info().currsize == antes
+
+
+def test_mutar_el_resultado_de_load_file_no_cambia_la_lectura_siguiente(tmp_path: Path) -> None:
+    (tmp_path / "a.yaml").write_text("x:\n  y: [1]\n", encoding="utf-8")
+    (tmp_path / "b.json").write_text('{"x": {"y": [1]}}', encoding="utf-8")
+    for nombre in ("a.yaml", "b.json"):
+        primero = load_file(tmp_path / nombre)
+        primero["x"]["y"].append(2)
+        primero["x"]["z"] = 3
+        segundo = load_file(tmp_path / nombre)
+        assert segundo == {"x": {"y": [1]}}, nombre
+        assert segundo is not primero
+        assert segundo["x"]["y"] is not primero["x"]["y"]
+    # La clave de la caché es el texto, no la ruta: un archivo que cambia se vuelve a leer.
+    (tmp_path / "a.yaml").write_text("x: 2\n", encoding="utf-8")
+    assert load_file(tmp_path / "a.yaml") == {"x": 2}
 
 
 def test_un_archivo_que_no_es_utf8_sale_como_load_error(tmp_path: Path) -> None:

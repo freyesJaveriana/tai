@@ -42,17 +42,10 @@ def _comprobar_json(valor: Any, ruta: str = "$") -> None:
         raise LoadError(f"valor que no es de JSON en {ruta}: {type(valor).__name__}")
 
 
-def _copia(valor: Any) -> Any:
-    """Copia profunda de un valor compatible con JSON (el análisis solo se hace una vez por texto)."""
-    return json.loads(json.dumps(valor))
+def load_yaml_text(texto: str) -> Any:
+    """Lee un documento YAML 1.2; rechaza claves duplicadas y etiquetas de objetos.
 
-
-@cache
-def _yaml_analizado(texto: str) -> Any:
-    """Análisis de un texto YAML, recordado por texto: el análisis en Python puro es lo más lento.
-
-    Una excepción no se recuerda (`functools.cache` solo guarda resultados), así que un texto
-    inválido falla igual cada vez. Nadie recibe este valor: `load_yaml_text` entrega una copia.
+    No guarda nada entre llamadas: puede recibir datos de ejecución (P-T18d-1).
     """
     try:
         valor = _lector_yaml().load(texto)
@@ -60,11 +53,6 @@ def _yaml_analizado(texto: str) -> Any:
         raise LoadError(f"YAML no válido (clave duplicada o etiqueta no permitida): {error}") from error
     _comprobar_json(valor)
     return valor
-
-
-def load_yaml_text(texto: str) -> Any:
-    """Lee un documento YAML 1.2; rechaza claves duplicadas y etiquetas de objetos."""
-    return _copia(_yaml_analizado(texto))
 
 
 def _sin_claves_duplicadas(pares: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -80,9 +68,11 @@ def _constante_no_finita(nombre: str) -> Any:
     raise LoadError(f"constante no permitida en JSON: {nombre}")
 
 
-@cache
-def _json_analizado(texto: str) -> Any:
-    """Análisis de un texto JSON, recordado por texto como el de YAML (nadie recibe este valor)."""
+def load_json_text(texto: str) -> Any:
+    """Lee un documento JSON; rechaza claves duplicadas y NaN o Infinity.
+
+    No guarda nada entre llamadas: puede recibir datos de ejecución (P-T18d-1).
+    """
     try:
         return json.loads(
             texto,
@@ -93,9 +83,21 @@ def _json_analizado(texto: str) -> Any:
         raise LoadError(f"JSON no válido: {error}") from error
 
 
-def load_json_text(texto: str) -> Any:
-    """Lee un documento JSON; rechaza claves duplicadas y NaN o Infinity."""
-    return _copia(_json_analizado(texto))
+@cache
+def _analizado_de_archivo(es_yaml: bool, texto: str) -> Any:
+    """Análisis del texto de un archivo, recordado por tipo y texto (P-T18d-1).
+
+    Solo lo usa `load_file`, es decir, solo recuerda archivos del paquete y fixtures. El
+    análisis de YAML en Python puro es lo más lento de la suite. Una excepción no se recuerda
+    (`functools.cache` solo guarda resultados): un texto inválido falla igual cada vez. Nadie
+    recibe este valor: `load_file` entrega una copia profunda.
+    """
+    return load_yaml_text(texto) if es_yaml else load_json_text(texto)
+
+
+def _copia(valor: Any) -> Any:
+    """Copia profunda de un valor compatible con JSON."""
+    return json.loads(json.dumps(valor))
 
 
 def load_file(ruta: Traversable) -> Any:
@@ -106,7 +108,7 @@ def load_file(ruta: Traversable) -> Any:
     except UnicodeDecodeError as error:
         raise LoadError(f"{nombre} no es texto UTF-8") from error
     if nombre.endswith((".yaml", ".yml")):
-        return load_yaml_text(texto)
+        return _copia(_analizado_de_archivo(True, texto))
     if nombre.endswith(".json"):
-        return load_json_text(texto)
+        return _copia(_analizado_de_archivo(False, texto))
     raise LoadError(f"sufijo no admitido en {nombre}: use .yaml, .yml o .json")

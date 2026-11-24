@@ -359,10 +359,19 @@ def test_e28_br1_1_la_cubren_dos_fixtures_reject_de_la_cola_de_corridas(guardia:
 VERSION_SEMANTICA = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
 
 
+MAYOR_DEL_ID = re.compile(r"[./]v([0-9]+)$")
+
+
 def _version_del_encabezado(documento: Any) -> Any:
-    """La versión que un contrato declara arriba: `info.version` (OpenAPI, AsyncAPI), `schema_version` o `version`."""
+    """La versión que un contrato declara arriba.
+
+    En un esquema JSON (con `$id`) es `x-veridicus-version` en la raíz (E-29); en un OpenAPI o AsyncAPI,
+    `info.version`; en un catálogo, `schema_version` o `version`.
+    """
     if not isinstance(documento, dict):
         return None
+    if "$id" in documento:
+        return documento.get("x-veridicus-version")
     info = documento.get("info")
     if isinstance(info, dict) and "version" in info:
         return info["version"]
@@ -373,15 +382,32 @@ def _version_del_encabezado(documento: Any) -> Any:
 
 
 def _tiene_version_semantica(documento: Any) -> bool:
+    """MAYOR.MENOR.PARCHE y, en un esquema con `$id`, una mayor igual al `.vN` o `/vN` de su `$id`."""
     version = _version_del_encabezado(documento)
-    return isinstance(version, str) and VERSION_SEMANTICA.fullmatch(version) is not None
+    if not isinstance(version, str) or VERSION_SEMANTICA.fullmatch(version) is None:
+        return False
+    if "$id" not in documento:
+        return True
+    mayor = MAYOR_DEL_ID.search(str(documento["$id"]))
+    return mayor is not None and mayor.group(1) == version.split(".")[0]
 
 
 def test_e28_el_control_de_la_version_detecta_la_falta_y_la_forma_rota() -> None:
     assert _tiene_version_semantica({"info": {"version": "2.0.0"}})
     assert _tiene_version_semantica({"schema_version": "1.0.0"})
     assert _tiene_version_semantica({"version": "1.0.0"})
+    # E-29: un esquema con `$id` lleva la versión en `x-veridicus-version`, con la mayor del `$id`.
+    assert _tiene_version_semantica({"$id": "veridicus/contracts/x.v1", "x-veridicus-version": "1.0.0"})
+    assert _tiene_version_semantica({"$id": "veridicus/contracts/y/v2", "x-veridicus-version": "2.3.4"})
     for roto in (
+        # La mayor distinta del `$id`, el `$id` sin `vN` y otras claves en un esquema.
+        {"$id": "veridicus/contracts/x.v1", "x-veridicus-version": "2.0.0"},
+        {"$id": "veridicus/contracts/y/v2", "x-veridicus-version": "1.0.0"},
+        {"$id": "veridicus/contracts/x", "x-veridicus-version": "1.0.0"},
+        {"$id": "veridicus/contracts/x.v1", "schema_version": "1.0.0"},
+        {"$id": "veridicus/contracts/x.v1", "version": "1.0.0"},
+        {"$id": "veridicus/contracts/x.v1", "x-veridicus-version": "1.0"},
+        {"$id": "veridicus/contracts/x.v1", "x-veridicus-version": 1},
         {},
         {"info": {"title": "x"}},
         {"info": {"version": "2.0"}},

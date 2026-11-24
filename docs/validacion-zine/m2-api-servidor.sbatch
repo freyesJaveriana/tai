@@ -3,7 +3,7 @@
 # modelo (36,9 GB) se carga una vez. M2 sondea la API compatible con OpenAI (esquema JSON o gramática, seed, caché del
 # prompt, razonamiento encendido y apagado; 20 peticiones por caso) y M4 la repetibilidad con --parallel 1. Escribe
 # en validacion/m2/ y validacion/m4/. Requiere m0-entorno.sbatch (jsonschema).
-#   cd /zine/HPC02S1/freyes/tg4L/validacion && sbatch trabajos/m2-api-servidor.sbatch
+#   cd "$ZINE_BASE/validacion" && sbatch trabajos/m2-api-servidor.sbatch   (ZINE_BASE: ver README.md)
 #   sbatch --export=ALL,N=5 trabajos/m2-api-servidor.sbatch          prueba corta (5 peticiones por caso)
 # Duración: con el razonamiento encendido cada petición puede generar hasta 4.096 tokens; a ~6 tokens/s el trabajo
 # completo puede pasar de 15 horas.
@@ -15,9 +15,9 @@
 #SBATCH --exclusive
 #SBATCH --mem=58G
 #SBATCH --time=3-00:00:00
-#SBATCH --output=/zine/HPC02S1/freyes/tg4L/validacion/logs/m2-api-servidor_%j.out
+#SBATCH --output=logs/m2-api-servidor_%j.out
 set -euo pipefail
-source /zine/HPC02S1/freyes/tg4L/validacion/trabajos/comun.sh
+source "${ZINE_BASE:?fije ZINE_BASE}/validacion/trabajos/comun.sh"
 activar_venv
 preparar_salida m2
 preparar_salida m4

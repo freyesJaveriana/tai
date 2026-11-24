@@ -1,7 +1,7 @@
 """Resume en cifras la medición --array=8 de la tarea 4L (AC14.1.1): llamadas, tokens y horas del registro CSV y
 velocidad del log de llama-server. Lee los archivos de la 4L sin modificarlos y no copia texto de las entrevistas.
 
-  python resumen_4l.py --registro registro_4L_8.csv --logs /zine/.../tg4L/logs --indice 8
+  python resumen_4l.py --registro registro_4L_8.csv --logs ZINE_BASE/logs --indice 8
 
 Escribe en la salida estándar las líneas para la sección M1 de reporte.md. Si el trabajo de la 4L no ha terminado,
 lo dice: las cifras son parciales (pregunta 15 de User Stories).

@@ -2,7 +2,7 @@
 
 Reporte de las seis mediciones que liberan Domain Design. **Solo cifras**: ni texto de las entrevistas, ni
 fragmentos, ni salidas de los modelos. Cada sección se llena copiando las líneas de
-`/zine/HPC02S1/freyes/tg4L/validacion/m<n>/resumen.txt` (el paso a paso está en [README.md](README.md)).
+`ZINE_BASE/validacion/m<n>/resumen.txt` (el paso a paso está en [README.md](README.md)).
 Un resultado «No medible:» con su motivo y una línea «Salida:» también cierra el criterio.
 
 Se comprueba con:
@@ -18,7 +18,7 @@ Entorno de la validación: entorno virtual propio con `jsonschema` para M2 (no t
 
 Comando: sbatch trabajos/m0-entorno.sbatch
 Trabajo SLURM: 12957
-Nodo: hpchead02
+Nodo: ZINE_NODO
 Resultado: python 3.12.16, jsonschema 4.23.0; llama.cpp version 0.8.0-dev (build 1, commit 7e2fea0)
 
 ## M1
@@ -27,11 +27,11 @@ Velocidad de Qwen3.6-35B-A3B Q8_0 en un SL250s y horas de la medición `--array=
 
 Comando: sbatch trabajos/m1-velocidad.sbatch (llama-bench -m Qwen3.6-35B-A3B-Q8_0.gguf -t 16 -p 2048 -n 128 -r 3 -o json)
 Trabajo SLURM: 12963
-Nodo: hpc02-w008
+Nodo: ZINE_NODO_SL250S
 SHA-256 del modelo: d1a395809f65a43a13ad119eb4e7acdef1ac6d68120f39902c8ab96e72794a59
 Resultado: pp2048 = 32.05 ± 0.17 tokens/s; tg128 = 6.77 ± 0.01 tokens/s (3 repeticiones, 16 hilos, qwen35moe 35B.A3B Q8_0, llama.cpp 1 7e2fea0)
 
-Medición `--array=8` de la 4L (de `m1/resumen_4l.txt`, trabajo 12959 en `hpchead02`, 2026-11-05 06:23; reemplaza el
+Medición `--array=8` de la 4L (de `m1/resumen_4l.txt`, trabajo 12959 en el nodo de entrada, 2026-11-05 06:23; reemplaza el
 resumen parcial del trabajo 12958). La medición terminó con el trabajo 12955; el 12948 falló a las 4 h 43 min y
 sus cifras son parciales:
 
@@ -48,7 +48,7 @@ caché del *prompt*, razonamiento encendido y apagado; 20 peticiones por caso (A
 
 Comando: sbatch trabajos/m2-api-servidor.sbatch (llama-server Qwen3.6-35B-A3B-Q8_0.gguf -c 16384 -t 16 -np 1 --jinja --reasoning-format deepseek --temp 0.6 --top-p 0.95 --top-k 20; sondeo_api.py --n 20)
 Trabajo SLURM: 12964 (14 h 28 min; el mismo de M4)
-Nodo: hpc02-w009
+Nodo: ZINE_NODO_SL250S
 SHA-256 del modelo: d1a395809f65a43a13ad119eb4e7acdef1ac6d68120f39902c8ab96e72794a59
 Servidor: version 0.8.0-dev (build 1, commit 7e2fea0), 16 hilos, --parallel 1
 Resultado: control sin restricción: apagado, 6/20 válidas (6 reparando, 0 cortadas); encendido, 16/20 válidas (16 reparando, 3 cortadas, 20 con razonamiento)
@@ -65,7 +65,7 @@ Resultado: cache_prompt: aceptado (con caché: cache_n 543, prompt_n 4, 2.83 s; 
 
 Comando: sbatch trabajos/m3-tokens.sbatch (contar_tokens.py con llama-tokenize -m Qwen3.6-35B-A3B-Q8_0.gguf; reserva de salida 16384)
 Trabajo SLURM: 12960
-Nodo: hpchead02
+Nodo: ZINE_NODO
 SHA-256 del modelo: d1a395809f65a43a13ad119eb4e7acdef1ac6d68120f39902c8ab96e72794a59
 Resultado: 10 entrevistas del piloto contadas (sus identificadores no se copian al repositorio)
 Resultado: tokens por entrevista como bloque JSON, de menor a mayor: 4463, 12255, 21713, 23383, 36587, 37458, 37765, 37979, 55843, 67769
@@ -79,7 +79,7 @@ Repetibilidad en CPU con la misma `seed`, los mismos hilos, `--parallel 1` y la 
 
 Comando: sbatch trabajos/m2-api-servidor.sbatch (llama-server Qwen3.6-35B-A3B-Q8_0.gguf -c 16384 -t 16 -np 1 --jinja --reasoning-format deepseek --temp 0.6 --top-p 0.95 --top-k 20; sondeo_api.py --n 20)
 Trabajo SLURM: 12964 (el mismo de M2)
-Nodo: hpc02-w009
+Nodo: ZINE_NODO_SL250S
 SHA-256 del modelo: d1a395809f65a43a13ad119eb4e7acdef1ac6d68120f39902c8ab96e72794a59
 Servidor: version 0.8.0-dev (build 1, commit 7e2fea0), 16 hilos, --parallel 1, seed 42
 Resultado: razonamiento apagado, cache_prompt false: SHA-256 igual en el par (639d35f985c678f4…)
@@ -93,8 +93,8 @@ Resultado: 4 de 4 pares repetibles
 Instalación sin internet en un SL250s desde una *wheelhouse* (AC14.1.5).
 
 Comando: sbatch trabajos/m5-wheelhouse.sbatch y trabajos/m5-instalar.sbatch (pip install --no-index --find-links wheelhouse veridicus-prueba-zine)
-Trabajo SLURM: 12961 (wheelhouse, en hpchead02) y 12965 (instalación)
-Nodo: hpc02-w008
+Trabajo SLURM: 12961 (wheelhouse, en el nodo de entrada) y 12965 (instalación)
+Nodo: ZINE_NODO_SL250S
 No aplica: M5 no usa un modelo
 Resultado: wheelhouse de 18 ruedas; entry point con código 0; el nodo no tiene salida a internet (esperado); líneas de descarga en el log: 0
 Resultado: versiones instaladas: python 3.12.16, veridicus-prueba-zine 0.1.0, pydantic 2.14.2, pydantic-core 2.50.2, httpx 0.28.1, jsonschema 4.26.0, pyyaml 6.0.3
@@ -105,8 +105,8 @@ Verificador de una familia distinta de Qwen: familia, modelo, cuantización, `.s
 (AC14.1.6).
 
 Comando: sbatch trabajos/m6-descargar.sbatch y trabajos/m6-velocidad.sbatch (llama-bench -m gpt-oss-20b-Q8_0.gguf -t 16 -p 2048 -n 128 -r 3 -o json)
-Trabajo SLURM: 12962 (descarga, en hpchead02) y 12966 (velocidad)
-Nodo: hpc02-w008
+Trabajo SLURM: 12962 (descarga, en el nodo de entrada) y 12966 (velocidad)
+Nodo: ZINE_NODO_SL250S
 SHA-256 del modelo: bcd455d4034ec02f71a875b46cb17df44a97911d7258291973be4d21f98329f3
 Modelo: familia gpt-oss, unsloth/gpt-oss-20b-GGUF, archivo gpt-oss-20b-Q8_0.gguf (12 GB), cuantización Q8_0, licencia declarada apache-2.0
 .sha256ok: bcd455d4034ec02f71a875b46cb17df44a97911d7258291973be4d21f98329f3  gpt-oss-20b-Q8_0.gguf

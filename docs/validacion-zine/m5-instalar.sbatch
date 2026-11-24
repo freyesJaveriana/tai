@@ -3,7 +3,7 @@
 # del entorno conda de la 4L, instala el paquete de prueba solo desde la wheelhouse (pip install --no-index
 # --find-links) y ejecuta su entry point. Termina con código 0 solo si todo eso funciona. Al final cuenta en el log
 # del trabajo las líneas de descarga de internet, que deben ser 0.
-#   cd /zine/HPC02S1/freyes/tg4L/validacion && sbatch --dependency=afterok:<wheelhouse> trabajos/m5-instalar.sbatch
+#   cd "$ZINE_BASE/validacion" && sbatch --dependency=afterok:<wheelhouse> trabajos/m5-instalar.sbatch
 #SBATCH --job-name=val-m5-inst
 #SBATCH --partition=debug
 #SBATCH --nodes=1
@@ -12,9 +12,9 @@
 #SBATCH --exclusive
 #SBATCH --mem=8G
 #SBATCH --time=00:30:00
-#SBATCH --output=/zine/HPC02S1/freyes/tg4L/validacion/logs/m5-instalar_%j.out
+#SBATCH --output=logs/m5-instalar_%j.out
 set -euo pipefail
-source /zine/HPC02S1/freyes/tg4L/validacion/trabajos/comun.sh
+source "${ZINE_BASE:?fije ZINE_BASE}/validacion/trabajos/comun.sh"
 activar
 preparar_salida m5
 date; hostname

@@ -50,8 +50,8 @@ def check_measurement(name: str, body: str) -> list[str]:
         problems.append(f"{name}: falta «Comando:»")
     if not any(re.search(r"\d{3,}", v) for v in f.get("Trabajo SLURM", [])):
         problems.append(f"{name}: falta «Trabajo SLURM:» con el ID del trabajo")
-    if not any(re.search(r"\bhpc[\w-]+", v) for v in f.get("Nodo", [])):
-        problems.append(f"{name}: falta «Nodo:» (hpchead02 o hpc02-wNNN)")
+    if not any(re.search(r"\b(?:hpc[\w-]+|ZINE_NODO(?:_SL250S)?)\b", v) for v in f.get("Nodo", [])):
+        problems.append(f"{name}: falta «Nodo:» (ZINE_NODO, ZINE_NODO_SL250S o un nombre de nodo que empieza por hpc)")
     sha_ok = any(re.search(r"\b[0-9a-f]{64}\b", v) for v in f.get("SHA-256 del modelo", []))
     if name == "M5":
         if not sha_ok and "No aplica" not in f:
@@ -105,7 +105,7 @@ def check(text: str, review: bool) -> list[str]:
 
 SHA = "a" * 64
 SAMPLE = "\n".join(
-    [f"## {m}\n\nComando: sbatch trabajos/{m.lower()}.sbatch\nTrabajo SLURM: 1300{i}\nNodo: hpc02-w006\n"
+    [f"## {m}\n\nComando: sbatch trabajos/{m.lower()}.sbatch\nTrabajo SLURM: 1300{i}\nNodo: ZINE_NODO\n"
      + ("No aplica: M5 no usa un modelo\n" if m == "M5" else f"SHA-256 del modelo: {SHA}\n")
      + "Resultado: tg128 = 6.70 tokens/s\n" for i, m in enumerate(SECTIONS)]
     + ["## Revisión\n\nRevisor: Felipe Reyes\nFecha: 2026-11-10\nDecisión: Diseñar con limitaciones registradas\n"
@@ -118,6 +118,10 @@ def self_test() -> int:
     failures = []
     if check(SAMPLE, review=True):
         failures.append(f"el reporte completo de ejemplo no pasa: {check(SAMPLE, True)}")
+    if check(SAMPLE.replace("Nodo: ZINE_NODO", "Nodo: hpc-nodo-ejemplo", 1), review=True):
+        failures.append("un nombre de nodo que empieza por hpc ya no pasa")
+    if check(SAMPLE.replace("Nodo: ZINE_NODO", "Nodo: ZINE_NODO_SL250S", 1), review=True):
+        failures.append("ZINE_NODO_SL250S no pasa como nodo")
     lines = SAMPLE.splitlines()
     removable = [i for i, line in enumerate(lines) if re.match(r"^(- \(|[A-Z][^:]*:)", line)]
     for i in removable:
@@ -125,7 +129,8 @@ def self_test() -> int:
         if not check(mutated, review=True):
             failures.append(f"quitar «{lines[i]}» no hace fallar la comprobación")
     variants = {
-        "un campo vacío": SAMPLE.replace("Nodo: hpc02-w006", "Nodo:", 1),
+        "un campo vacío": SAMPLE.replace("Nodo: ZINE_NODO", "Nodo:", 1),
+        "un nodo sin hpc ni ZINE_NODO": SAMPLE.replace("Nodo: ZINE_NODO", "Nodo: servidor-x", 1),
         "un marcador sin llenar": SAMPLE.replace("Trabajo SLURM: 13000", "Trabajo SLURM: <id>", 1),
         "«No aplica» fuera de M5": SAMPLE.replace(f"SHA-256 del modelo: {SHA}", "No aplica: x", 1),
         "«No medible» sin salida": SAMPLE.replace("Resultado: tg128 = 6.70 tokens/s", "No medible: sin nodo", 1),

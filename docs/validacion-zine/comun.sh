@@ -2,7 +2,8 @@
 # Se carga con «source» desde cada .sbatch. Reutiliza el entorno conda y los modelos de la tarea 4L sin
 # modificarlos (solo lectura) y escribe únicamente bajo tg4L/validacion/ (salvo la copia del GGUF en el /tmp
 # local del nodo, la misma que usa la 4L). Los nodos no conocen la cuenta y $HOME no existe en ellos: se fija aquí.
-TG4L=/zine/HPC02S1/freyes/tg4L
+# ZINE_BASE: directorio de trabajo de la 4L en el clúster (lo fija el humano; ver README.md).
+TG4L=${ZINE_BASE:?fije ZINE_BASE (ver README.md)}
 VALID=$TG4L/validacion
 export HOME=$VALID/home XDG_CACHE_HOME=$VALID/home/.cache PIP_CACHE_DIR=$VALID/home/.cache/pip
 export PYTHONNOUSERSITE=1 PIP_DISABLE_PIP_VERSION_CHECK=1

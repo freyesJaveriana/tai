@@ -7,7 +7,6 @@ la prueba.
 
 import copy
 import shutil
-import time
 from collections.abc import Callable
 from pathlib import Path
 from types import ModuleType
@@ -719,10 +718,20 @@ def test_la_lista_de_marca_propia_distingue_una_propiedad_items_de_la_palabra_cl
 # ---- Ronda 5, F-02: el costo de `_nodos` tiene un tope explícito ----------------------------------
 
 
-def test_un_grafo_de_ref_compartidos_se_acota_con_un_problema_explicito_y_en_poco_tiempo(
-    guardia: ModuleType,
+def test_un_grafo_de_ref_compartidos_se_acota_con_un_problema_explicito_y_un_numero_de_nodos(
+    guardia: ModuleType, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     tope = getattr(guardia, "TOPE_DE_NODOS", 20000)
+    # `hijas` se llama una vez por cada nodo que `_nodos` expande: es una medida del trabajo que
+    # no depende del reloj (el grafo de 18 niveles de la ronda 4 tiene 524 287 nodos).
+    expandidos: list[int] = []
+    original = guardia.hijas
+
+    def contando(*argumentos: Any, **claves: Any) -> Any:
+        expandidos.append(1)
+        return original(*argumentos, **claves)
+
+    monkeypatch.setattr(guardia, "hijas", contando)
 
     def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
         esquemas = documentos["queues/speech.v2.yaml"]["components"].setdefault("schemas", {})
@@ -735,14 +744,13 @@ def test_un_grafo_de_ref_compartidos_se_acota_con_un_problema_explicito_y_en_poc
         esquemas["N18"] = {"type": "integer"}
         _propiedades_de_voz(documentos)["grafo"] = {"$ref": "#/components/schemas/N0"}
 
-    inicio = time.perf_counter()
     nuevos = _nuevos(guardia, cambiar)
-    transcurrido = time.perf_counter() - inicio
     assert nuevos == [
         ("queues/speech.v2.yaml: /components/messages/TranscriptResult/payload: la guardia superó "
         f"el tope de {tope} nodos de esquema y no revisa el resto (§4.4 a)")
     ]
-    assert transcurrido < 1.0
+    # Con el tope, el trabajo total (los contratos reales y el grafo) no pasa del doble del tope.
+    assert len(expandidos) <= 2 * tope
 
 
 def test_con_un_texto_antes_del_tope_el_texto_se_informa_y_tambien_el_tope(

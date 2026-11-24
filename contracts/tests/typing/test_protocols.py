@@ -343,6 +343,7 @@ class Doble:
     status: SessionStatus
     origin: SessionOrigin
     finalized_at: datetime | None
+    terminated_at: datetime | None
     consent_withdrawn_at: datetime | None
     blocked_code: BlockedCode | None
     turns: list[TurnView]
@@ -358,6 +359,14 @@ AUXILIARES = [
         "    state: SessionStatus\n",
         "status",
         id="SessionSnapshot_status_se_llama_state",
+    ),
+    pytest.param(
+        "SessionSnapshot",
+        DOBLE_SNAPSHOT,
+        "    terminated_at: datetime | None\n",
+        "",
+        "terminated_at",
+        id="SessionSnapshot_sin_terminated_at",
     ),
     pytest.param(
         "SessionSnapshot",
@@ -448,15 +457,16 @@ class Doble:
     state: EffectiveState
     note: str | None
     reformulation: str | None
-    actor_user_id: UUID | None
-    at: datetime | None
+    decided_by: UUID | None
+    decided_at: datetime | None
 """,
-        "    actor_user_id: UUID | None\n",
-        "    decided_by: UUID | None\n",
-        "actor_user_id",
-        id="SuggestionWithDecision_actor_user_id_se_llama_decided_by",
+        "    decided_by: UUID | None\n    decided_at: datetime | None\n",
+        "    actor_user_id: UUID | None\n    at: datetime | None\n",
+        "decided_by",
+        id="SuggestionWithDecision_usa_actor_user_id_y_at_de_la_tabla",
     ),
 ]
+
 
 @pytest.mark.parametrize(("protocolo", "doble", "correcto", "cambiado", "miembro"), AUXILIARES)
 def test_cada_tipo_auxiliar_exige_los_campos_y_valores_de_su_entidad(
@@ -484,7 +494,7 @@ def test_cada_tipo_auxiliar_exige_los_campos_y_valores_de_su_entidad(
     assert codigo == 1, salida
     assert f'expected "{protocolo}"' in salida
     assert "[arg-type]" in salida
-    assert re.search(rf"\b{miembro}\b", salida), (miembro, salida)
+    assert re.search(rf"\b{miembro}\b", _notas_de_conflicto(salida)), (miembro, salida)
 
 
 def test_los_valores_cerrados_de_c11_son_los_de_las_entidades_aprobadas() -> None:

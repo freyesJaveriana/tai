@@ -436,3 +436,36 @@ def test_e28_todo_contrato_propio_declara_su_version_semantica_en_el_encabezado(
     assert len(propios) >= 30, "la prueba no pasa en vacío"
     sin_version = [ruta for ruta, documento in propios if not _tiene_version_semantica(documento)]
     assert sin_version == [], "contratos propios sin versión semántica en el encabezado"
+
+
+# F-01 de la ronda 3 (E-31): lista exacta de `REGLAS`, con cada regla (también las NFR, que la unión de las
+# BR no ve) y el conjunto de palabras clave por las que su `reject` puede fallar. Quitar una regla o ampliar
+# sus causas exige tocar este literal y, por tanto, una precisión.
+REGLAS_EXACTAS = {
+    "BR1.1": frozenset({"required", "pattern"}),
+    "BR1.2": frozenset({"pattern"}),
+    "BR2.1": frozenset({"required"}),
+    "BR2.3": frozenset({"required"}),
+    "BR3.1": frozenset({"required", "additionalProperties"}),
+    "BR3.2": frozenset({"enum"}),
+    "BR3.5": frozenset({"required"}),
+    "BR3.6": frozenset({"maxItems"}),
+    "BR4.1": frozenset({"required", "minLength", "enum"}),
+    "BR4.2": frozenset({"additionalProperties"}),
+    "BR4.4": frozenset({"required", "minLength", "not"}),
+    "BR9.1": frozenset({"pattern"}),
+    "BR9.3": frozenset({"additionalProperties"}),
+    "BR10.1": frozenset({"pattern"}),
+    "BR10.2": frozenset({"enum"}),
+    "NFR1.3": frozenset({"additionalProperties"}),
+    "NFR10.2": frozenset({"required"}),
+    "NFRD-U1-07": frozenset({"additionalProperties"}),
+}
+
+
+def test_f01_la_lista_exacta_de_reglas_con_fixtures_y_sus_causas(guardia: ModuleType) -> None:
+    assert guardia.REGLAS == REGLAS_EXACTAS
+    assert len(guardia.REGLAS) == 18
+    # Las tres entradas NFR existen y ninguna regla queda sin causa.
+    assert {"NFR1.3", "NFR10.2", "NFRD-U1-07"} <= set(guardia.REGLAS)
+    assert all(causas and isinstance(causas, frozenset) for causas in guardia.REGLAS.values())

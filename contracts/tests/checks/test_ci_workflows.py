@@ -129,19 +129,22 @@ def _tarda_menos_de(segundos: float, patron: re.Pattern[str], texto: str) -> boo
     return time.perf_counter() - inicio < segundos
 
 
+@pytest.mark.parametrize(("opcion", "repeticiones"), [("-a", 40), ("--a", 30), ("--a-b.c", 30), ("-a=1", 30), ("--", 30)])
 @pytest.mark.parametrize("herramienta", ["kubectl", "helm"])
 def test_f02_muchas_opciones_seguidas_no_hacen_retroceder_al_motor(
-    guardia: ModuleType, herramienta: str
+    guardia: ModuleType, herramienta: str, opcion: str, repeticiones: int
 ) -> None:
-    # F-02: un `-a` que sigue a una opción podía ser su valor o una opción nueva (retroceso exponencial).
-    texto = herramienta + " -a" * 40 + " x"
+    # F-02: un `-a` que sigue a una opción podía ser su valor o una opción nueva, y `--a` se podía leer como
+    # `-` más `-a` o como `--` más `a` (retroceso exponencial). Cada caso lleva su tope de tiempo.
+    cola = f" {opcion}" * repeticiones
+    texto = herramienta + cola + " x"
     for termino, patron in guardia.PROHIBIDOS:
-        assert _tarda_menos_de(1.0, patron, texto), (termino, "tarda más de 1 s con 40 opciones")
-    # Y las mismas 40 opciones seguidas de un verbo prohibido sí se detectan, en poco tiempo.
+        assert _tarda_menos_de(1.0, patron, texto), (termino, opcion, "tarda más de 1 s")
+    # Y las mismas opciones seguidas de un verbo prohibido sí se detectan, en poco tiempo.
     verbo = "apply" if herramienta == "kubectl" else "install"
     patron = next(p for t, p in guardia.PROHIBIDOS if t == f"{herramienta} {verbo}")
-    assert _tarda_menos_de(1.0, patron, herramienta + " -a" * 40 + f" {verbo}")
-    assert patron.search(herramienta + " -a" * 40 + f" {verbo}") is not None
+    assert _tarda_menos_de(1.0, patron, herramienta + cola + f" {verbo}")
+    assert patron.search(herramienta + cola + f" {verbo}") is not None
 
 
 def test_f02_las_formas_de_la_sonda_siguen_detectandose_y_las_lecturas_no_dan_falso_positivo(

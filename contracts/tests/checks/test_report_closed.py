@@ -1073,11 +1073,14 @@ def test_created_at_rechaza_lo_que_no_es_rfc3339_aun_sin_validar_formatos(fecha:
     assert _rechazos(_carga(created_at=fecha)) != []
 
 
-@pytest.mark.parametrize(
-    "fecha", ["2026-11-23T15:00:00Z", "2026-11-23T15:00:00.123Z", "2026-11-23T15:00:00-05:00"]
-)
-def test_created_at_acepta_rfc3339(fecha: str) -> None:
-    assert _rechazos(_carga(created_at=fecha)) == []
+def test_created_at_acepta_el_formato_unico() -> None:
+    assert _rechazos(_carga(created_at="2026-11-23T15:00:00Z")) == []
+
+
+@pytest.mark.parametrize("fecha", ["2026-11-23T15:00:00.123Z", "2026-11-23T15:00:00-05:00"])
+def test_created_at_rechaza_fracciones_y_desplazamientos(fecha: str) -> None:
+    """E-22: un solo formato de fecha (BR8.1); el patron ya no admite fracciones ni desfases."""
+    assert _rechazos(_carga(created_at=fecha)) != []
 
 
 REGLAS = [

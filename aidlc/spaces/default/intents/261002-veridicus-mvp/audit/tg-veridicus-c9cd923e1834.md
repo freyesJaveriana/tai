@@ -53046,3 +53046,681 @@
 **Context**: construction > contracts > code-generation > code-generation-plan.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:55:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a1ffb49e235352269
+**Message**: TAREA: U01-T25 (ronda 1). **Me detuve en R-3 y no hice más cambios.** Falta que decidas qué hacer con tres coincidencias que la tarea no prevé.\n\n**Qué encontré en la comprobación única de R-3**\n- Calc
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:55:17Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:55:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: fdfac08e
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/setup-no-network.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:55:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: fdfac08e
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/setup-no-network.ts
+**Duration ms**: 53
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:55:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 801608a1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/setup-no-network.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:55:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 801608a1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/setup-no-network.ts
+**Duration ms**: 55
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1dbd4e04
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/support.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1dbd4e04
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/support.ts
+**Duration ms**: 981
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: c972933b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/support.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: c972933b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/support.ts
+**Duration ms**: 52
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: dd327a89
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: dd327a89
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 962
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4d88fd45
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4d88fd45
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 53
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 64d45e77
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 64d45e77
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 986
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: ae095fba
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: ae095fba
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 54
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: fc5965ec
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: fc5965ec
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 980
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: fca86944
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: fca86944
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 53
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: b20ee776
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: b20ee776
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 974
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 958e4312
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 958e4312
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 53
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:29Z
+**Event**: SENSOR_FIRED
+**Fire id**: b0e51f80
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:30Z
+**Event**: SENSOR_PASSED
+**Fire id**: b0e51f80
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 981
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:30Z
+**Event**: SENSOR_FIRED
+**Fire id**: fe5f0188
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:30Z
+**Event**: SENSOR_PASSED
+**Fire id**: fe5f0188
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 53
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:31Z
+**Event**: SENSOR_FIRED
+**Fire id**: bec62d96
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:32Z
+**Event**: SENSOR_PASSED
+**Fire id**: bec62d96
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 978
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:32Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9d2c462b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:32Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9d2c462b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/loaders.test.ts
+**Duration ms**: 54
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:46Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3290cfa4
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3290cfa4
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+**Duration ms**: 992
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5e2dff72
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5e2dff72
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+**Duration ms**: 52
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: ebcd5579
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:52Z
+**Event**: SENSOR_PASSED
+**Fire id**: ebcd5579
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+**Duration ms**: 980
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:52Z
+**Event**: SENSOR_FIRED
+**Fire id**: 79be77ca
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:52Z
+**Event**: SENSOR_PASSED
+**Fire id**: 79be77ca
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+**Duration ms**: 53
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: f9787fcb
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:54Z
+**Event**: SENSOR_PASSED
+**Fire id**: f9787fcb
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+**Duration ms**: 984
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:57:54Z
+**Event**: SENSOR_FIRED
+**Fire id**: e4c4a6b0
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:57:54Z
+**Event**: SENSOR_PASSED
+**Fire id**: e4c4a6b0
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/canonical.test.ts
+**Duration ms**: 53
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:58:31Z
+**Event**: SENSOR_FIRED
+**Fire id**: 82ff8501
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:58:32Z
+**Event**: SENSOR_PASSED
+**Fire id**: 82ff8501
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+**Duration ms**: 998
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:58:32Z
+**Event**: SENSOR_FIRED
+**Fire id**: b0527216
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:58:32Z
+**Event**: SENSOR_PASSED
+**Fire id**: b0527216
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+**Duration ms**: 52
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:58:36Z
+**Event**: SENSOR_FIRED
+**Fire id**: 12544ab7
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:58:37Z
+**Event**: SENSOR_PASSED
+**Fire id**: 12544ab7
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+**Duration ms**: 1015
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:58:37Z
+**Event**: SENSOR_FIRED
+**Fire id**: e0d31067
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:58:37Z
+**Event**: SENSOR_PASSED
+**Fire id**: e0d31067
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+**Duration ms**: 52
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:58:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2681c874
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:58:39Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2681c874
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+**Duration ms**: 1001
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:58:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: b876229e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:58:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: b876229e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/registry.test.ts
+**Duration ms**: 52
+**Note**: tool-unavailable
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:58:58Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-24T21:59:05Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:59:06Z
+**Event**: SENSOR_FIRED
+**Fire id**: b3d7760a
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/verdicts.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:59:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: b3d7760a
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/verdicts.test.ts
+**Duration ms**: 986
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-11-24T21:59:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: 25e818fb
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/verdicts.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-11-24T21:59:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: 25e818fb
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: .worktrees/U01-T20/contracts/ts/test/verdicts.test.ts
+**Duration ms**: 52
+**Note**: tool-unavailable
+
+---

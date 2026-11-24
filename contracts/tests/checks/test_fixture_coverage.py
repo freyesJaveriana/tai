@@ -55,8 +55,23 @@ def test_cada_regla_de_fixtures_tiene_su_accept_y_su_reject_en_el_repositorio(gu
 
 
 def test_las_exclusiones_son_las_de_4_10_y_no_se_exigen(guardia: ModuleType) -> None:
-    assert set(guardia.EXCLUIDAS) == {"BR5.2", "BR5.3", "BR5.4", "BR5.5", "BR5.6", "BR1.5", "BR1.8", "BR12.2"}
+    # E-27: BR1.4 se suma a las de §4.10 como regla de proceso, igual que BR1.5 y BR12.2.
+    assert set(guardia.EXCLUIDAS) == {
+        "BR5.2", "BR5.3", "BR5.4", "BR5.5", "BR5.6", "BR1.4", "BR1.5", "BR1.8", "BR12.2"
+    }
+    assert len(guardia.EXCLUIDAS) == len(set(guardia.EXCLUIDAS))
     assert not set(guardia.EXCLUIDAS) & set(guardia.REGLAS)
+
+
+def test_e27_cada_exclusion_declara_su_motivo_y_la_de_br1_4_es_de_proceso(guardia: ModuleType) -> None:
+    motivos = guardia.MOTIVOS_DE_EXCLUSION
+    assert set(motivos) == set(guardia.EXCLUIDAS)
+    assert all(motivo.strip() for motivo in motivos.values())
+    # BR1.4 no tiene una prueba que la cubra entera: la cubren la revisión del PR y la huella de §4.11.
+    assert "revisión del PR" in motivos["BR1.4"] and "§4.11" in motivos["BR1.4"]
+    assert "proceso" in motivos["BR1.4"]
+    # No se escribió una prueba nueva ni una entrada en la lista de código para ella.
+    assert "BR1.4" not in guardia.REGLAS_CON_CODIGO and "BR1.4" not in guardia.REGLAS
     assert all(re.fullmatch(r"(BR|NFR|NFRD-U)[0-9.\-]+", regla) for regla in guardia.REGLAS)
     assert all(causas for causas in guardia.REGLAS.values())
 

@@ -623,9 +623,9 @@ def test_el_tope_de_bytes_en_el_tipo_de_contenido_acota_los_textos_de_c21(
 
     contenido = "properties/messages/items/properties/content"
     assert _nuevos(guardia, en_ningun_sitio) == [
+        "anonymizer_request_max_bytes: used_in nombra C21 y C21 no la marca (§4.4, comprobación inversa)",
         (f"{c21}: /paths/~1v1~1generate/post/requestBody/content/application~1json/schema/"
         f"{contenido}: {TEXTO}"),
-        "anonymizer_request_max_bytes: used_in nombra C21 y C21 no la marca (§4.4, comprobación inversa)",
     ]
 
 

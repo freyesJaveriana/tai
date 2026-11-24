@@ -511,15 +511,15 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 19 — Integridad de la suite (implementar y probar) · tarea T18
 
-- [ ] Módulos guardia: `checks/loader_usage.py` (§4.1 y §4.2: PyYAML, `YAML(...)` fuera de `loaders.py`,
+- [x] Módulos guardia: `checks/loader_usage.py` (§4.1 y §4.2: PyYAML, `YAML(...)` fuera de `loaders.py`,
   `typ` distinto de `"safe"`, `load_all`, `Loader=`, `subprocess`/`multiprocessing`/`os.system` en
   `checks/`, `tests/` o los módulos de `src/veridicus_contracts/`; publicada como `scan(paths)`), `checks/refs.py` (§4.2, E36),
   `checks/redos.py` (§4.5: recorrido completo, subconjunto portátil, entrada acotada, Hypothesis con techo
   de 1 s y prueba de versión 3.12), `checks/synthetic.py` (§4.10, publicada como `scan(paths)`),
   `checks/fixture_coverage.py` (§4.10) y `checks/ci_workflows.py` (§4.11: ningún *workflow* con
   `--write`, `kubectl apply`, `helm install|upgrade` ni credenciales del clúster; AUTONOMIA-01).
-- [ ] Prueba AST de E32: ningún módulo importa `contracts.` como nombre de primer nivel (BR12.1).
-- [ ] 5–8 pruebas por módulo con los controles de §4.1, §4.2, §4.5, §4.10 y §4.11.
+- [x] Prueba AST de E32: ningún módulo importa `contracts.` como nombre de primer nivel (BR12.1).
+- [x] 5–8 pruebas por módulo con los controles de §4.1, §4.2, §4.5, §4.10 y §4.11.
 - Cubre: BR1.6, BR12.1; NFR10.4–NFR10.6, NFR10.10, NFR12.1; AUTONOMIA-01. Fuera: *workflow* (paso 24).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/checks/test_loader_usage.py tests/checks/test_refs.py tests/checks/test_redos.py tests/checks/test_synthetic.py tests/checks/test_fixture_coverage.py tests/checks/test_ci_workflows.py --no-cov`
   → verde.

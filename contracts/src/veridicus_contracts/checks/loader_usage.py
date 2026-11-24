@@ -45,8 +45,14 @@ EXCEPCIONES = (
 )
 
 
-def _termina_en(archivo: Path, ruta: str) -> bool:
-    return archivo.as_posix().endswith("/" + ruta) or archivo.as_posix() == ruta
+def _relativa(archivo: Path, raiz: Path | None) -> str | None:
+    """La ruta de `archivo` relativa a `raiz` (la carpeta `contracts/`), o `None` si no cuelga de ella."""
+    if raiz is None:
+        return None
+    try:
+        return archivo.resolve().relative_to(raiz.resolve()).as_posix()
+    except ValueError:
+        return None
 
 
 def archivos(paths: Iterable[Path | str]) -> list[Path]:
@@ -109,34 +115,40 @@ def _de_atributo(linea: int, atributo: ast.Attribute) -> Iterator[tuple[int, str
         yield linea, "os.system no se usa en el paquete ni en las pruebas (NFR10.5)", "os.system"
 
 
-def _admitido(archivo: Path, modulo: str | None) -> bool:
+def _admitido(relativa: str | None, modulo: str | None) -> bool:
     if modulo is None:
         return False
     if modulo == "YAML":
-        return _termina_en(archivo, LOADERS)
-    return any(_termina_en(archivo, e.ruta) and modulo in e.modulos for e in EXCEPCIONES)
+        return relativa == LOADERS
+    return any(relativa == e.ruta and modulo in e.modulos for e in EXCEPCIONES)
 
 
-def _problemas_de(archivo: Path) -> list[str]:
+def _problemas_de(archivo: Path, raiz: Path | None) -> list[str]:
     try:
         arbol = ast.parse(archivo.read_text(encoding="utf-8"))
     except (OSError, SyntaxError, UnicodeDecodeError, ValueError):
         return [f"{archivo.as_posix()}:1: no se pudo interpretar el archivo (NFR10.4)"]
+    relativa = _relativa(archivo, raiz)
     return [
         f"{archivo.as_posix()}:{linea}: {texto}"
         for linea, texto, modulo in sorted(set(_hallazgos(arbol)), key=lambda h: (h[0], h[1]))
-        if not _admitido(archivo, modulo)
+        if not _admitido(relativa, modulo)
     ]
 
 
-def scan(paths: Iterable[Path | str]) -> list[str]:
-    """Los problemas de carga insegura y de subprocesos en los `.py` que cubre `paths`."""
+def scan(paths: Iterable[Path | str], raiz: Path | None = None) -> list[str]:
+    """Los problemas de carga insegura y de subprocesos en los `.py` que cubre `paths`.
+
+    `raiz` es la carpeta `contracts/`: las excepciones de `EXCEPCIONES` y la de `loaders.py` se comparan
+    por la ruta completa relativa a ella (E-19). Sin `raiz` no se exime nada, así que quien reutilice
+    `scan` desde otro servicio no hereda las excepciones de `contracts/`.
+    """
     problemas: list[str] = []
     for archivo in archivos(paths):
-        problemas.extend(_problemas_de(archivo))
+        problemas.extend(_problemas_de(archivo, raiz))
     return problemas
 
 
 def comprobar(raiz: Path) -> list[str]:
     """Escanea `src/` y `tests/` bajo `raiz` (la carpeta `contracts/`)."""
-    return scan([raiz / "src", raiz / "tests"])
+    return scan([raiz / "src", raiz / "tests"], raiz=raiz)

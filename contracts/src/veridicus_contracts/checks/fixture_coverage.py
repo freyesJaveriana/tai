@@ -8,12 +8,14 @@ falla si:
 
 Un `accept` cubre una regla si es de la misma familia de contrato que alguno de sus `reject` (`C6.entrada`
 y `C6.salida` son de la familia `C6`). Quedan fuera (`EXCLUIDAS`) BR5.2 a BR5.6 (solo la forma, BR5.8),
-BR1.5, BR1.8 y BR12.2 (revisión del PR). Las reglas de nivel 0 que se prueban con código y no con fixtures
-no están en `REGLAS`: cada una tiene su prueba propia (P-T18-3).
+BR1.5, BR1.8 y BR12.2 (revisión del PR). Las reglas de nivel 0 que se prueban con código y no con documentos
+van en la lista cerrada `REGLAS_CON_CODIGO`, cada una con la prueba que la cubre (E-24); `comprobar_pruebas`
+verifica que esa prueba existe.
 
 Los mensajes nombran el archivo y la regla, nunca el contenido del fixture.
 """
 
+import ast
 import importlib.resources
 from collections.abc import Iterator
 from functools import cache
@@ -179,3 +181,66 @@ def comprobar(raiz: Path, reglas: dict[str, frozenset[str]] | None = None) -> li
         if not contratos:
             problemas.append(f"{regla}: falta un fixture reject ({REGLA}, §4.10)")
     return problemas
+
+
+# E-24: las reglas de nivel 0 que se prueban con código y no con documentos, cada una con la prueba que la
+# cubre: (archivo bajo contracts/, nombre de la prueba). Lista cerrada: una prueba fija su contenido exacto
+# y añadir una entrada exige una precisión aprobada. `comprobar_pruebas` verifica que cada prueba existe.
+REGLAS_CON_CODIGO: dict[str, tuple[str, str]] = {
+    "BR1.3": ("tests/contracts/test_queue_messages.py", "test_cada_fixture_de_cola_se_acepta_o_se_rechaza_por_su_regla"),
+    "BR1.6": ("tests/checks/test_synthetic.py", "test_los_archivos_reales_de_contracts_son_sinteticos_y_sin_numeros_largos"),
+    "BR1.7": ("tests/contracts/test_analyzer_copy.py", "test_sha256sums_tiene_dos_lineas_y_coincide_con_los_bytes"),
+    "BR1.9": ("tests/test_validators.py", "test_una_palabra_clave_desconocida_se_rechaza"),
+    "BR3.3": ("tests/guards/test_autonomia_03.py", "test_ningun_nombre_ni_enum_declara_veracidad"),
+    "BR3.4": ("tests/checks/test_error_codes.py", "test_tabla_c6_del_arbol_real_completa"),
+    "BR4.3": ("tests/contracts/test_review_suggestion.py", "test_las_citas_referencian_la_definicion_de_c6_por_id_canonico"),
+    "BR5.1": ("tests/guards/test_autonomia_03.py", "test_c8_tiene_exactamente_los_terminos_aprobados"),
+    "BR5.7": ("tests/checks/test_veracity.py", "test_el_aviso_versionado_trae_version_y_frase_base"),
+    "BR5.8": ("tests/checks/test_scan_cases.py", "test_el_conjunto_versionado_cubre_cada_termino_y_cada_frase"),
+    "BR6.1": ("tests/guards/test_autonomia_03.py", "test_hay_exactamente_nueve_rotulos_y_uno_por_tipo"),
+    "BR6.2": ("tests/checks/test_veracity.py", "test_rotulos_con_una_fila_type_que_no_es_de_c6"),
+    "BR6.3": ("tests/guards/test_autonomia_03.py", "test_los_rotulos_no_contienen_vocabulario_prohibido"),
+    "BR7.1": ("tests/checks/test_config_write.py", "test_e15_put_profiles_nombra_perfil_en_la_ruta"),
+    "BR7.2": ("tests/checks/test_error_codes.py", "test_toda_4xx_y_5xx_de_c1_es_una_referencia_a_problem"),
+    "BR7.3": ("tests/contracts/test_console.py", "test_los_cuerpos_json_de_c1_son_estrictos"),
+    "BR7.4": ("tests/checks/test_error_codes.py", "test_e31_code_sin_clase"),
+    "BR9.2": ("tests/test_profiles.py", "test_e23_un_alias_a_un_papel_que_no_existe_se_rechaza"),
+    "BR9.4": ("tests/test_profiles.py", "test_e24_otro_clave_se_rechaza_con_un_prefijo_y_se_acepta_con_otro"),
+    "BR9.5": ("tests/test_profiles.py", "test_e26_un_papel_con_su_propio_fallback_se_rechaza"),
+    "BR9.6": ("tests/typing/test_role_translation.py", "test_la_tabla_traduce_solo_los_tres_papeles_del_analizador_y_coincide_con_c6"),
+    "BR9.7": ("tests/contracts/test_profiles_contract.py", "test_la_huella_jcs_de_la_configuracion_efectiva_es_la_del_fixture"),
+    "BR9.8": ("tests/test_profiles.py", "test_validate_no_hace_entrada_salida_ni_lee_el_entorno"),
+    "BR9.9": ("tests/typing/test_anonymizing_provider.py", "test_un_doble_con_solo_generate_pasa_mypy_estricto"),
+    "BR11.1": ("tests/test_limits.py", "test_e33_una_variable_que_sube_la_cifra_se_rechaza"),
+    "BR12.1": ("tests/test_package_map.py", "test_la_rueda_trae_el_mapa_completo_y_sin_fixtures"),
+    "BR12.3": ("tests/test_registry.py", "test_la_forma_antigua_del_ref_no_se_resuelve_e36"),
+}
+
+# Reglas de nivel 0 sin una prueba que las cubra entera hoy: se informan, no se listan. BR8.1 y BR8.2 las
+# traerá T17; BR1.1 (versión de todo contrato) y BR1.4 (un cambio de forma es mayor y entra en un PR) no
+# tienen una prueba única que las demuestre.
+SIN_PRUEBA = ("BR1.1", "BR1.4", "BR8.1", "BR8.2")
+
+
+def _define(raiz: Path, archivo: str, nombre: str) -> bool:
+    """El archivo de pruebas bajo `raiz` define una función `nombre` (de módulo o de clase)."""
+    try:
+        arbol = ast.parse((raiz / archivo).read_text(encoding="utf-8"))
+    except (OSError, SyntaxError, UnicodeDecodeError, ValueError):
+        return False
+    return any(
+        isinstance(nodo, ast.FunctionDef | ast.AsyncFunctionDef) and nodo.name == nombre
+        for nodo in ast.walk(arbol)
+    )
+
+
+def comprobar_pruebas(
+    raiz: Path, reglas: dict[str, tuple[str, str]] | None = None
+) -> list[str]:
+    """Las reglas de `REGLAS_CON_CODIGO` cuya prueba no existe en su archivo (E-24)."""
+    reglas = REGLAS_CON_CODIGO if reglas is None else reglas
+    return [
+        f"{regla}: la prueba {nombre} no existe en {archivo} ({REGLA}, §4.10)"
+        for regla, (archivo, nombre) in sorted(reglas.items())
+        if not _define(raiz, archivo, nombre)
+    ]

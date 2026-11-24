@@ -20,9 +20,9 @@ Los mensajes nombran el archivo, el puntero y la regla, nunca el patrón.
 import importlib
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
-from veridicus_contracts.checks._recorrido import documentos, nodos
+from veridicus_contracts.checks._recorrido import documentos, escapar, nodos
 
 _parser: Any = importlib.import_module("re._parser")
 _c: Any = importlib.import_module("re._constants")
@@ -42,6 +42,30 @@ _ILIMITADA = "repetición ilimitada"  # marca interna, no es un hallazgo
 # (`^(a|a)+$` sí lo rechaza la regla de BRANCH). Los acota la regla de entrada acotada: un patrón con
 # repetición ilimitada exige maxLength con su límite, y los patrones solo entran por PR.
 LIMITACION_K24 = "K-24: cuantificadores contiguos sin anidar los acota maxLength, no el recorrido del árbol"
+
+
+
+class Excepcion(NamedTuple):
+    """Un puntero de un contrato al que no se le exige `maxLength`, con su motivo."""
+
+    ruta: str
+    puntero: str
+    motivo: str
+
+
+_C6 = "analyzer/v1/salida.schema.json"
+_MOTIVO_C6 = "BR1.7: la copia del contrato común no se edita aquí; su acotación la pone el consumidor"
+
+# E-23: lista cerrada de excepciones a la regla de entrada acotada, solo para la copia de C6. Una entrada
+# por puntero; una prueba fija la lista exacta y añadir una exige una precisión aprobada. Solo eximen la
+# falta de `maxLength` y de `x-veridicus-limit`: la repetición anidada y lo no portátil siguen en rojo.
+EXCEPCIONES = (
+    Excepcion(_C6, "/$defs/cita/properties/turno", _MOTIVO_C6),
+    Excepcion(_C6, "/$defs/hallazgo/properties/id", _MOTIVO_C6),
+    Excepcion(_C6, "/$defs/registro/properties/descartes/items/properties/turno_a", _MOTIVO_C6),
+    Excepcion(_C6, "/$defs/registro/properties/descartes/items/properties/turno_b", _MOTIVO_C6),
+    Excepcion(_C6, "/properties/observaciones_conductor/items/properties/turnos/items", _MOTIVO_C6),
+)
 
 _ARBOL = frozenset({ANIDADA, RAMA, REFERENCIA})
 _PORTABLES = frozenset({CLASE, NOMBRADO, BANDERAS, ATRAS, SIN_ANCLAR})
@@ -140,23 +164,48 @@ def comprobar_esquema(esquema: dict[str, Any]) -> list[str]:
     return []
 
 
+def _exento(nombre: str, puntero: str) -> bool:
+    return any(e.ruta == nombre and e.puntero == puntero for e in EXCEPCIONES)
+
+
+def patrones_de_nodo(nodo: dict[str, Any]) -> list[str]:
+    """Las expresiones regulares de un objeto del contrato: su `pattern` y las claves de `patternProperties`."""
+    patrones = [nodo["pattern"]] if isinstance(nodo.get("pattern"), str) else []
+    propiedades = nodo.get("patternProperties")
+    if isinstance(propiedades, dict):
+        patrones.extend(propiedades)
+    return patrones
+
+
 def comprobar_documento(documento: Any, nombre: str) -> list[str]:
-    """Los problemas de cada `pattern` de un contrato ya cargado."""
+    """Los problemas de cada `pattern` y de cada clave de `patternProperties` de un contrato ya cargado.
+
+    Las claves de `patternProperties` validan igual que un `pattern` (§4.5): reciben el recorrido del
+    árbol y el subconjunto portátil, pero no la regla de entrada acotada, que habla de un `maxLength` que
+    un nombre de propiedad no tiene.
+    """
     problemas: list[str] = []
     for puntero, nodo in nodos(documento):
         patron = nodo.get("pattern")
         if isinstance(patron, str):
-            for texto in (*comprobar_patron(patron), *comprobar_esquema(nodo)):
+            acotado = [] if _exento(nombre, puntero) else comprobar_esquema(nodo)
+            for texto in (*comprobar_patron(patron), *acotado):
                 problemas.append(f"{nombre}#{puntero}: {texto} {REGLA}")
+        propiedades = nodo.get("patternProperties")
+        if isinstance(propiedades, dict):
+            for clave in propiedades:
+                for texto in comprobar_patron(clave):
+                    problemas.append(f"{nombre}#{puntero}/patternProperties/{escapar(clave)}: {texto} {REGLA}")
     return problemas
 
 
 def patrones(raiz: Path) -> list[str]:
-    """Los `pattern` distintos de los contratos legibles bajo `raiz`, ordenados."""
+    """Las expresiones regulares distintas de los contratos legibles bajo `raiz`, ordenadas."""
     vistos: set[str] = set()
     for _, documento, legible in documentos(raiz):
         if legible:
-            vistos.update(n["pattern"] for _, n in nodos(documento) if isinstance(n.get("pattern"), str))
+            for _, nodo in nodos(documento):
+                vistos.update(patrones_de_nodo(nodo))
     return sorted(vistos)
 
 

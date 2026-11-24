@@ -115,6 +115,50 @@ describe("registry.ts: carga estricta (BR1.9)", () => {
   });
 });
 
+describe("registry.ts: lo que exige BR1.9 sigue fallando con E-37", () => {
+  const meta = "https://json-schema.org/draft/2020-12/schema";
+
+  it("una palabra clave desconocida falla sobre un esquema en memoria", async () => {
+    const { createAjv } = await cargarRegistry();
+    expect(() => createAjv().compile({ $schema: meta, type: "object", palabraInventada: 1 })).toThrow(
+      /unknown keyword/,
+    );
+  });
+
+  it("una extensión x-veridicus-* fuera de §4.6 falla sobre un esquema en memoria", async () => {
+    const { createAjv } = await cargarRegistry();
+    expect(() => createAjv().compile({ $schema: meta, type: "object", "x-veridicus-otra": 1 })).toThrow(
+      /x-veridicus-otra/,
+    );
+  });
+
+  it("E-37: un `required` sin `properties` en el mismo nivel y un `required` sin `type` compilan", async () => {
+    const { createAjv } = await cargarRegistry();
+    const ajv = createAjv();
+    expect(ajv.compile({ $schema: meta, required: ["a"] })({ a: 1 })).toBe(true);
+    const condicional = ajv.compile({
+      $schema: meta,
+      type: "object",
+      properties: { a: true },
+      if: { properties: { a: { const: 1 } } },
+      then: { required: ["b"] },
+    });
+    expect(condicional({ a: 1 })).toBe(false);
+    expect(condicional({ a: 1, b: 2 })).toBe(true);
+  });
+
+  it("E-37: strictSchema, strictNumbers y strictTuples siguen activos", async () => {
+    const { createAjv } = await cargarRegistry();
+    const opciones = createAjv().opts;
+    expect(opciones.strict).toBe(true);
+    expect(opciones.strictSchema).toBe(true);
+    expect(opciones.strictNumbers).toBe(true);
+    expect(opciones.strictTuples).toBe(true);
+    expect(opciones.strictRequired).toBe(false);
+    expect(opciones.strictTypes).toBe(false);
+  });
+});
+
 describe("registry.ts: extensiones x-veridicus-* (§4.6)", () => {
   it("registra exactamente las nueve extensiones de §4.6, ni una más", async () => {
     const { EXTENSIONS, createAjv } = await cargarRegistry();

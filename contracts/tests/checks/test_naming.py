@@ -36,7 +36,8 @@ def test_el_arbol_versionado_cumple_y_el_catalogo_se_recorre() -> None:
         ruta.startswith("analyzer/") for ruta, _ in guardia.contratos_propios(CONTRACTS_ROOT)
     )
     # Lista exacta de lo que no es un contrato propio (F-05); toda exención nueva exige su prueba.
-    assert _contratos.EXCLUIDOS == frozenset({"analyzer", "vendor", "fixtures", "tests"})
+    # E-38: la mitad TypeScript (`ts/`, con su `node_modules/`) tampoco es un contrato propio.
+    assert _contratos.EXCLUIDOS == frozenset({"analyzer", "vendor", "fixtures", "tests", "ts"})
 
 
 def test_una_propiedad_que_no_es_snake_case_ascii_es_rojo() -> None:
@@ -163,7 +164,8 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
         (raiz / ajeno).write_text(malo, encoding="utf-8")
     assert guardia.comprobar(raiz) == []
     (raiz / "api" / "y.json").write_text(malo, encoding="utf-8")
-    # F-05: ts/, build/, dist/, node_modules/ y src/ no están exentos: se recorren como el resto.
+    # F-05: build/, dist/, node_modules/ y src/ no están exentos: se recorren como el resto.
+    # E-38: `ts/` sí está exento (mitad TypeScript, con su propio node_modules/): no se recorre.
     for carpeta in ("ts", "build", "dist", "node_modules", "src"):
         (raiz / carpeta).mkdir()
         (raiz / carpeta / "x.json").write_text(malo, encoding="utf-8")
@@ -185,7 +187,6 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
         "metrics/b.v1.yaml: /metrics/0/name: el nombre no es ASCII snake_case (CD-05)",
         f"node_modules/x.json: {campo}",
         f"src/x.json: {campo}",
-        f"ts/x.json: {campo}",
     ]
 
 

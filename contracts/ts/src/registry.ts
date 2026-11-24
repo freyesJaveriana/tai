@@ -55,6 +55,13 @@ export interface Registry {
 export function createAjv(): Ajv2020 {
   const ajv = new Ajv2020({
     strict: true,
+    // E-37 (2026-11-24): `strict: true` activa también `strictRequired` y `strictTypes`, que rechazan
+    // JSON Schema 2020-12 válido y aceptado por Python: un `required` dentro de `then` o `not` cuyas
+    // `properties` están en el esquema padre (C6, C7, C19) y un `required` sin `type` en el mismo
+    // nivel (C18). Los dos se apagan; siguen activos `strictSchema` (palabra clave desconocida),
+    // `strictNumbers`, `strictTuples` y la lista cerrada de extensiones `x-veridicus-*` (BR1.9).
+    strictRequired: false,
+    strictTypes: false,
     allErrors: false,
     unicodeRegExp: true,
     validateFormats: true,

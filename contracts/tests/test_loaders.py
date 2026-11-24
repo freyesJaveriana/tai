@@ -1,16 +1,14 @@
 """Carga de YAML y JSON (D5, §4.1): único punto de lectura de los contratos."""
 
+import json
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
-from veridicus_contracts.loaders import (
-    LoadError,
-    _analizado_de_archivo,
-    load_file,
-    load_json_text,
-    load_yaml_text,
-)
+from veridicus_contracts import loaders
+from veridicus_contracts.loaders import LoadError, load_file, load_json_text, load_yaml_text
 
 
 def test_yaml_valido_se_lee_como_estructuras_de_json() -> None:
@@ -70,23 +68,39 @@ def test_load_file_elige_el_lector_por_sufijo(tmp_path: Path) -> None:
         load_file(tmp_path / "d.txt")
 
 
-def test_las_funciones_publicas_de_texto_no_tienen_cache(tmp_path: Path) -> None:
+def test_las_funciones_publicas_de_texto_no_tienen_cache(monkeypatch: pytest.MonkeyPatch) -> None:
     # P-T18d-1: pueden recibir datos de ejecución; la caché vive solo en el ayudante de load_file.
-    for publica in (load_yaml_text, load_json_text):
-        assert not hasattr(publica, "cache_info"), publica.__name__
+    # Se cuentan los análisis reales: dos llamadas con el mismo texto deben analizar dos veces.
+    lector_real = loaders._lector_yaml
+    lectores: list[int] = []
+
+    def lector_contado() -> object:
+        lectores.append(1)
+        return lector_real()
+
+    monkeypatch.setattr(loaders, "_lector_yaml", lector_contado)
     primero = load_yaml_text("a:\n  - 1\n")
     segundo = load_yaml_text("a:\n  - 1\n")
-    assert primero == segundo
-    assert primero is not segundo
-    assert primero["a"] is not segundo["a"]
-    primero["a"].append(2)
-    assert load_yaml_text("a:\n  - 1\n") == {"a": [1]}
-    assert load_json_text('{"a": [1]}') is not load_json_text('{"a": [1]}')
-    # Ni siquiera el ayudante privado recuerda lo que entra por las públicas.
-    antes = _analizado_de_archivo.cache_info().currsize
-    load_yaml_text("unico: 1\n")
-    load_json_text('{"unico": 1}')
-    assert _analizado_de_archivo.cache_info().currsize == antes
+    assert len(lectores) == 2, "load_yaml_text recuerda los textos que recibe"
+    assert primero == segundo == {"a": [1]}
+
+    json_real = json.loads
+    analisis_json: list[int] = []
+
+    def loads_contado(texto: str, **opciones: Any) -> Any:
+        if "object_pairs_hook" in opciones:  # el análisis con las reglas del módulo, no la copia
+            analisis_json.append(1)
+        return json_real(texto, **opciones)
+
+    # Un doble de `json` dentro del módulo: solo cambia `loads`.
+    monkeypatch.setattr(
+        loaders,
+        "json",
+        SimpleNamespace(loads=loads_contado, dumps=json.dumps, JSONDecodeError=json.JSONDecodeError),
+    )
+    load_json_text('{"a": [1]}')
+    load_json_text('{"a": [1]}')
+    assert len(analisis_json) == 2, "load_json_text recuerda los textos que recibe"
 
 
 def test_mutar_el_resultado_de_load_file_no_cambia_la_lectura_siguiente(tmp_path: Path) -> None:

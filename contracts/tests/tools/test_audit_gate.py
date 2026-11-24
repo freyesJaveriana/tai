@@ -116,6 +116,8 @@ def test_una_excepcion_vencida_es_roja_aunque_no_haya_vulnerabilidades(
         "excepciones: {}\n",
         "otra_clave: []\nexcepciones: []\n",
         "- id: x\n",
+        "schema_version: '1.0'\nexcepciones: []\n",
+        "schema_version: 1.0.0\n",
     ],
     ids=[
         "clave-desconocida",
@@ -129,6 +131,8 @@ def test_una_excepcion_vencida_es_roja_aunque_no_haya_vulnerabilidades(
         "excepciones-no-lista",
         "clave-raiz-desconocida",
         "raiz-no-objeto",
+        "version-sin-forma",
+        "sin-excepciones",
     ],
 )
 def test_una_excepcion_mal_formada_es_roja(
@@ -136,6 +140,13 @@ def test_una_excepcion_mal_formada_es_roja(
 ) -> None:
     codigo, _ = ejecutar(capsys, tmp_path, [], texto)
     assert codigo == 1
+
+
+def test_una_lista_con_schema_version_valida_es_verde(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    codigo, _ = ejecutar(capsys, tmp_path, [], "schema_version: 1.0.0\nexcepciones: []\n")
+    assert codigo == 0
 
 
 def test_la_lista_real_de_excepciones_se_lee_de_vuelta_y_el_informe_vacio_es_verde(

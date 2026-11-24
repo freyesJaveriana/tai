@@ -12,7 +12,6 @@ from types import ModuleType
 from typing import Any
 
 import pytest
-
 from helpers import importar_o_fallar, load_contract, ruta_de
 
 from veridicus_contracts.loaders import load_yaml_text
@@ -46,7 +45,9 @@ def secciones_distintas(base: dict[str, Any], otra: dict[str, Any]) -> set[str]:
 
 def test_la_huella_tiene_exactamente_las_siete_secciones(contracts_root: Path) -> None:
     huella = herramienta().construir(contracts_root)
-    assert set(huella) == SECCIONES
+    # `schema_version` es la versión que BR1.1 exige a todo contrato propio: no es una sección.
+    assert set(huella) == SECCIONES | {"schema_version"}
+    assert huella["schema_version"] == "1.0.0"
 
 
 def test_la_huella_regenerada_es_igual_a_la_versionada(contracts_root: Path) -> None:

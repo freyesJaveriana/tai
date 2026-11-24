@@ -67,8 +67,10 @@ def test_un_date_time_sin_el_patron_o_con_otro_es_rojo() -> None:
     assert guardia.comprobar_documento("queues/x.yaml", sano, PATRON) == []
     sin = {"properties": {"at": _fecha()}}
     assert guardia.comprobar_documento("queues/x.yaml", sin, PATRON) == [
-        "queues/x.yaml: /properties/at: date-time sin el pattern de format/datetime.v1.yaml "
-        "(BR8.1, E16)"
+        (
+            "queues/x.yaml: /properties/at: date-time sin el pattern de format/datetime.v1.yaml "
+            "(BR8.1, E16)"
+        )
     ]
     otro = {"a": [{"b": _fecha(pattern="^.*$")}], "c": {"format": "uuid"}, "d": [1, "date-time"]}
     assert guardia.comprobar_documento("queues/x.yaml", otro, PATRON) == [
@@ -104,6 +106,8 @@ def test_un_formato_con_patron_debil_o_forma_rota_es_rojo() -> None:
 
 def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_path: Path) -> None:
     raiz = tmp_path / "contracts"
+    raiz.mkdir()
+    assert guardia.comprobar(raiz) == [f"{FORMATO}: contrato ausente (BR8.1)"]
     for directorio in ("format", "queues", "analyzer/v1", "queues/fixtures", "vendor", ".venv"):
         (raiz / directorio).mkdir(parents=True)
     (raiz / FORMATO).write_text(
@@ -118,8 +122,10 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
     assert guardia.comprobar(raiz) == []
     (raiz / "queues" / "run.json").write_text(suelta, encoding="utf-8")
     assert guardia.comprobar(raiz) == [
-        "queues/run.json: /properties/at: date-time sin el pattern de format/datetime.v1.yaml "
-        "(BR8.1, E16)"
+        (
+            "queues/run.json: /properties/at: date-time sin el pattern de format/datetime.v1.yaml "
+            "(BR8.1, E16)"
+        )
     ]
     (raiz / FORMATO).write_text(json.dumps({"format": "date-time"}), encoding="utf-8")
     assert guardia.comprobar(raiz) == [

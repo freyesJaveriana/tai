@@ -69,8 +69,10 @@ def test_un_code_sin_la_forma_dominio_motivo_es_rojo() -> None:
         enum = {"components": {"schemas": {"ErrorCode": {"enum": ["auth.forbidden", malo]}}}}
         problemas = _problemas(enum)
         assert problemas == [
-            "api/x.yaml: /components/schemas/ErrorCode/enum/1: el code no tiene la forma "
-            "dominio.motivo (CD-05)"
+            (
+                "api/x.yaml: /components/schemas/ErrorCode/enum/1: el code no tiene la forma "
+                "dominio.motivo (CD-05)"
+            )
         ], malo
         assert malo not in problemas[0]
     propiedad = {"properties": {"code": {"const": "sinpunto"}, "otro": {"const": "x"}}}
@@ -133,8 +135,10 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
     )
     assert guardia.comprobar(raiz) == [
         "api/y.json: /properties/campoMalo: el nombre no es ASCII snake_case (CD-05)",
-        "errors/error-codes.v2.yaml: /codes/sinpunto: el code no tiene la forma dominio.motivo "
-        "(CD-05)",
+        (
+            "errors/error-codes.v2.yaml: /codes/sinpunto: el code no tiene la forma dominio.motivo "
+            "(CD-05)"
+        ),
         "metrics/b.v1.yaml: /metrics/0/name: el nombre no es ASCII snake_case (CD-05)",
     ]
 

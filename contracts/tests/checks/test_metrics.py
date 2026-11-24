@@ -111,7 +111,8 @@ def test_un_nombre_repetido_entre_dos_archivos_o_dentro_de_uno_es_rojo() -> None
 
 
 def test_una_etiqueta_fuera_de_la_lista_cerrada_es_rojo() -> None:
-    for nombre in guardia.ETIQUETAS - {"session_id"}:
+    assert len(guardia.ETIQUETAS) == 10
+    for nombre in guardia.ETIQUETAS - {"session_id", "error_code"}:
         assert _con(_etiqueta(nombre, "a")) == [], nombre
     assert _con(_etiqueta("run_id", "a")) == [
         "a.yaml: /metrics/0/labels/0: la etiqueta no es de la lista cerrada (§4.12)"
@@ -145,7 +146,7 @@ def test_una_etiqueta_sin_values_o_de_texto_libre_es_rojo() -> None:
         ], valores
 
 
-def test_error_code_toma_el_catalogo_mas_none() -> None:
+def test_error_code_toma_el_catalogo_mas_none_y_session_id_el_patron_de_un_uuid() -> None:
     assert _con(_etiqueta("error_code", "none", "analysis.system", "limits.exceeded")) == []
     fuera = _con(_etiqueta("error_code", "none", "inventado.code"))
     assert fuera == [
@@ -156,9 +157,7 @@ def test_error_code_toma_el_catalogo_mas_none() -> None:
         assert _con(_etiqueta("error_code", centinela))
     otra = _con(_etiqueta("state", "inventado.code"))
     assert otra == []
-
-
-def test_session_id_declara_solo_el_patron_de_un_uuid() -> None:
+    # session_id: solo el patrón de un UUID, sin values.
     assert _con({"name": "session_id", "pattern": UUID}) == []
     aviso = "a.yaml: /metrics/0/labels/0: session_id declara solo el patrón de un UUID (§4.12)"
     assert _con({"name": "session_id", "pattern": "^.*$"}) == [aviso]
@@ -180,6 +179,8 @@ def test_comprobar_lee_el_directorio_y_el_catalogo_de_una_copia(tmp_path: Path) 
     )
     (raiz / "metrics" / "a.v1.yaml").write_text(texto, encoding="utf-8")
     assert guardia.comprobar(raiz) == [
-        "metrics/a.v1.yaml: /metrics/0/labels/0: error_code con un valor fuera del catálogo y de "
-        "none (E-20)"
+        (
+            "metrics/a.v1.yaml: /metrics/0/labels/0: error_code con un valor fuera del catálogo "
+            "y de none (E-20)"
+        )
     ]

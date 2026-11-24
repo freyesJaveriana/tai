@@ -78,18 +78,23 @@ def test_un_parametro_de_ruta_o_consulta_en_camel_case_es_rojo() -> None:
 def test_los_parametros_de_components_parameters_tambien_se_comprueban() -> None:
     # F-01: los parámetros de un mapa (components/parameters) también se comprueban.
     mapa = {"parameters": {"A": {"name": "pageSize", "in": "query"}, "B": {"name": "ok", "in": "path"}}}
-    assert _problemas(mapa) == [
-        "api/x.yaml: /parameters/A/name: el nombre no es ASCII snake_case (CD-05)"
-    ]
     # Una propiedad llamada in o name no es un parámetro.
-    assert _problemas({"properties": {"in": {"type": "string"}, "name": {"type": "string"}}}) == []
+    propiedades = {"properties": {"in": {"type": "string"}, "name": {"type": "string"}}}
     # F-01: copia en memoria de C1 con SessionId y Since renombrados.
     c1 = copy.deepcopy(load_contract("api/console.v2.yaml"))
     c1["components"]["parameters"]["SessionId"]["name"] = "sessionId"
     c1["components"]["parameters"]["Since"]["name"] = "sinceCursor"
-    assert _problemas(c1) == [
-        "api/x.yaml: /components/parameters/SessionId/name: el nombre no es ASCII snake_case (CD-05)",
-        "api/x.yaml: /components/parameters/Since/name: el nombre no es ASCII snake_case (CD-05)",
+    # Una sola comparación: el mapa y C1 fallan por su propia regla, sin enmascararse.
+    assert [_problemas(mapa), _problemas(propiedades), _problemas(c1)] == [
+        ["api/x.yaml: /parameters/A/name: el nombre no es ASCII snake_case (CD-05)"],
+        [],
+        [
+            (
+                "api/x.yaml: /components/parameters/SessionId/name: el nombre no es ASCII "
+                "snake_case (CD-05)"
+            ),
+            "api/x.yaml: /components/parameters/Since/name: el nombre no es ASCII snake_case (CD-05)",
+        ],
     ]
 
 

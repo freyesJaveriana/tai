@@ -114,18 +114,26 @@ def test_las_series_de_u9_y_u6_transcriben_sus_fuentes() -> None:
     # F-02: las 12 métricas de U9, con la de la reescritura del AOF (NFRD-U9-06, NFRD-U9-10).
     voz = load_contract("metrics/voice.v1.yaml")["metrics"]
     aof = [m for m in voz if m["name"] == "veridicus_aof_rewrite_requests_total"]
-    assert len(voz) == 12
-    assert [(m["type"], m["labels"]) for m in aof] == [
-        ("counter", [{"name": "outcome", "values": ["requested", "in_progress", "error"]}])
-    ]
     # F-03: error_code de U6 derivado de NFR10.14, BR2.7, BR7.x y BR10.1, más los genéricos y none.
     u6 = {m["name"]: m for m in load_contract("metrics/session-lifecycle.v1.yaml")["metrics"]}
-    for nombre, esperado in {
-        "veridicus_transcript_pastes_total": PEGADO,
-        "veridicus_session_imports_total": IMPORTACION,
-    }.items():
-        valores = next(e["values"] for e in u6[nombre]["labels"] if e["name"] == "error_code")
-        assert valores == esperado, nombre
+    pegado, importacion = (
+        next(e["values"] for e in u6[nombre]["labels"] if e["name"] == "error_code")
+        for nombre in ("veridicus_transcript_pastes_total", "veridicus_session_imports_total")
+    )
+    # Una sola comparación: cada hallazgo falla por su propio campo, sin enmascarar al otro.
+    assert {
+        "voz": len(voz),
+        "aof": [(m["type"], m["labels"]) for m in aof],
+        "pegado": pegado,
+        "importacion": importacion,
+    } == {
+        "voz": 12,
+        "aof": [
+            ("counter", [{"name": "outcome", "values": ["requested", "in_progress", "error"]}])
+        ],
+        "pegado": PEGADO,
+        "importacion": IMPORTACION,
+    }
 
 
 def test_una_metrica_sin_prefijo_o_con_forma_rota_es_rojo() -> None:

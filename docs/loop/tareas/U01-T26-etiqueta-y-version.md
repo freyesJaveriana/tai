@@ -1,5 +1,7 @@
 # U01-T26: etiqueta `contracts-v<semver>` y línea de instalación
 
+> **Retirada (E-41, 2026-11-24).** Su contenido pasó a U01-T23 (`docs/loop/tareas/U01-T23-documentacion-y-glosario.md`). No se despacha.
+
 > El orquestador llenó esta tarea a partir del cambio 05 de la app, §1 (decisión E-32 del humano, 2026-11-24), que completa V-3 de `veridicus-03`. El humano la revisa antes del despacho.
 >
 > **Este archivo, con los pasos del plan que cita, es todo el mundo del codificador.** No va a leer el PRD.

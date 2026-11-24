@@ -557,7 +557,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 22 — Paquete en entorno limpio (implementar y probar) · tarea T21
 
-- [ ] `tools/check_package.py` (§4.16, F9): `uv build`; lista de la rueda contra la tabla de rutas (falla
+- [x] `tools/check_package.py` (§4.16, F9): `uv build`; lista de la rueda contra la tabla de rutas (falla
   si falta un dato o aparece `fixtures/`, `tests/`, `.env*`, `*.pem`, `*.key`); `uv venv` limpio; guion con
   `python -I` y `socket.socket` bloqueado que importa `veridicus_contracts`, lee cada dato con
   `importlib.resources` y valida sin red los *fixtures* de C7, C1 y C19 (BR12.3).

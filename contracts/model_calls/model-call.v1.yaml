@@ -1,5 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: veridicus/contracts/model_calls/model-call.v1
+x-veridicus-version: "1.0.0"
 title: Registro de una llamada a un modelo (C13)
 description: >-
   Misma forma que `ModelCall` de `veridicus_contracts.model_calls`. El papel es una cadena con

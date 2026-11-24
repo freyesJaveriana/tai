@@ -1,5 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: veridicus/contracts/profiles/profile-base.schema.v1
+x-veridicus-version: "1.0.0"
 title: Archivo de perfiles de ejecución, forma genérica (C18)
 description: >-
   Sobre del archivo (`schema_version` y `profiles`) y perfil genérico (FD-U1-02, FD-U1-12). Un

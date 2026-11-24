@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "veridicus/contracts/integrity/review-suggestion/v2",
+  "x-veridicus-version": "2.0.0",
   "title": "Sugerencia de revisión (C7 v2)",
   "description": "El hallazgo de C6 convertido en sugerencia con estado editable; sin campos de veracidad (AUTONOMIA-03).",
   "type": "object",

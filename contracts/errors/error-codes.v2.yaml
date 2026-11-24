@@ -2,7 +2,7 @@
 # Por code: un solo status HTTP, la clase de excepción de libs/errors/, la unidad dueña y
 # http. Los de arranque y de log llevan http: false y ningún status. limits.exceeded es
 # siempre 413. c6 enlaza cada error.codigo de C6 con su code (BR3.4, E34).
-version: 2
+version: "2.0.0"
 codes:
   auth.invalid_credentials: { status: 401, class: AuthInvalidCredentialsError, unit: U3, http: true }
   auth.unauthenticated: { status: 401, class: AuthUnauthenticatedError, unit: U3, http: true }

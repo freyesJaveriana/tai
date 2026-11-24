@@ -1,5 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: veridicus/contracts/profiles/effective-config.v1
+x-veridicus-version: "1.0.0"
 title: Configuración efectiva de una corrida (C18)
 description: >-
   Lo que viaja en C2, lo que se guarda en la sesión y de lo que salen sus dos huellas

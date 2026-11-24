@@ -1,5 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: veridicus/contracts/profiles/profiles.schema.v1
+x-veridicus-version: "1.0.0"
 title: Archivo de perfiles de ejecución del analizador (C18)
 description: >-
   Especialización del analizador sobre `profile-base` (FD-U1-02, FD-U1-12, BR9.3): exactamente los

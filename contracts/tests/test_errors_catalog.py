@@ -19,7 +19,7 @@ ARRANQUE_Y_LOG = ("config.invalid_profile", "config.invalid_limit", "run.publish
 
 def _codes() -> dict[str, dict[str, Any]]:
     catalogo = load_contract(CATALOGO)
-    assert catalogo["version"] == 2
+    assert catalogo["version"] == "2.0.0"
     assert set(catalogo) == {"version", "codes"}
     codes: dict[str, dict[str, Any]] = catalogo["codes"]
     assert codes, "el catálogo no declara ningún code"

@@ -56,6 +56,7 @@ _SUBESQUEMA = frozenset(
         "contentSchema",
     }
 )
+VERSION_DEL_CONTRATO = "x-veridicus-version"
 _LISTA_DE_SUBESQUEMAS = frozenset({"allOf", "anyOf", "oneOf", "prefixItems"})
 _MAPA_DE_SUBESQUEMAS = frozenset({"properties", "patternProperties", "dependentSchemas", "$defs"})
 
@@ -131,6 +132,8 @@ def _desconocidas(esquema: Any, ruta: str, conocidas: frozenset[str], salida: li
     if not isinstance(esquema, dict):
         return
     for clave, valor in esquema.items():
+        if clave == VERSION_DEL_CONTRATO and ruta == "$":
+            continue  # anotacion de BR1.1 (E-30): solo la raiz del esquema
         if clave not in conocidas:
             salida.append(f"{ruta}/{clave}: palabra clave desconocida")
         elif clave in _SUBESQUEMA:

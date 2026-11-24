@@ -1,5 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: veridicus/contracts/profiles/prices.schema.v1
+x-veridicus-version: "1.0.0"
 title: Tabla de precios de los modelos (C18)
 description: >-
   Esquema de `config/prices.yaml` (FR15.4). Estricto: solo estos campos. Los precios son USD por

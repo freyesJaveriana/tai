@@ -1,5 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: veridicus/contracts/cli/report.schema.v2
+x-veridicus-version: "2.0.0"
 title: Reporte de la CLI del analizador (C19 v2)
 description: >-
   Reporte de una corrida o de una evaluación de la CLI. Solo lleva cifras, hashes, versiones y

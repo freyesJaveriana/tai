@@ -1202,7 +1202,10 @@ paths:
             Content-Disposition:
               schema:
                 type: string
-                pattern: '^attachment; filename="veridicus-reporte-[0-9a-f-]{36}-[0-9a-f-]{36}[.]md"$'
+                # Dos UUID 8-4-4-4-12 en minúsculas y nada más (NFR10.4: solo UUID)
+                pattern: "^attachment; filename=\"veridicus-reporte-\
+                  [0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}-\
+                  [0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}[.]md\"$"
             X-Content-Type-Options: {schema: {type: string, const: nosniff}}
             Cache-Control: {schema: {type: string, const: no-store}}
           content:

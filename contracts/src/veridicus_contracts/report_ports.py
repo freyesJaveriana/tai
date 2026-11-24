@@ -168,6 +168,13 @@ class SessionSnapshot(Protocol):
     def finalized_at(self) -> datetime | None: ...
 
     @property
+    def terminated_at(self) -> datetime | None:
+        """La hora de la terminación: `SessionStatusChange.at` con `to_status: terminated`
+        (P-T16-10); nulo si la sesión no terminó.
+        """
+        ...
+
+    @property
     def consent_withdrawn_at(self) -> datetime | None:
         """Solo la hora de la retirada, sin datos del consentimiento (FD-U6-21)."""
         ...
@@ -230,13 +237,15 @@ class SuggestionWithDecision(Protocol):
     def reformulation(self) -> str | None: ...
 
     @property
-    def actor_user_id(self) -> UUID | None:
-        """Quién decidió (`ReviewDecision.actor_user_id`); nulo si sigue `pending`."""
+    def decided_by(self) -> UUID | None:
+        """Quién decidió (`EffectiveState.decided_by`, como C7 v2); nulo si sigue `pending`
+        (P-T16-9).
+        """
         ...
 
     @property
-    def at(self) -> datetime | None:
-        """Cuándo decidió (`ReviewDecision.at`); nulo si sigue `pending`."""
+    def decided_at(self) -> datetime | None:
+        """Cuándo decidió (`EffectiveState.decided_at`, como C7 v2); nulo si sigue `pending`."""
         ...
 
 
@@ -252,8 +261,8 @@ class SessionReader(Protocol):
         origen, `blocked_code`, terminación y retirada con su hora, estado del último modo final
         y perfil con la marca de misma familia (FD-U7-03).
 
-        La terminación es `status == "terminated"` (sin hora: ninguna entidad aprobada la guarda
-        en la sesión) y el estado del último modo final sale de `runs` (`mode == "final"`).
+        La hora de la terminación es `terminated_at`, derivada del historial de estados de la
+        sesión (P-T16-10), y el estado del último modo final sale de `runs` (`mode == "final"`).
         """
         ...
 

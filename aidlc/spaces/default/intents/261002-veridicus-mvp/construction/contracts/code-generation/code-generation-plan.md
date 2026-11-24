@@ -526,14 +526,14 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 20 — Herramientas deterministas (implementar y probar) · tarea T19
 
-- [ ] `tools/security_surface.py` (§4.11, DS3) con `--write` explícito; `contracts/security-surface.json`;
+- [x] `tools/security_surface.py` (§4.11, DS3) con `--write` explícito; `contracts/security-surface.json`;
   `.github/pull_request_template.md` con el apartado que justifica su cambio (NFRD-U1-13).
-- [ ] `tools/gen_ts.py` (D9): constantes `as const` del catálogo de `code`, rótulos, C8 y listas de §4.6 en
+- [x] `tools/gen_ts.py` (D9): constantes `as const` del catálogo de `code`, rótulos, C8 y listas de §4.6 en
   `contracts/ts/generated/` (crea la carpeta si falta; T20 la consume después); `--check`.
-- [ ] `tools/gen_jcs_vectors.py` (§4.14): `contracts/fixtures/jcs-vectors.json` con 200 vectores de semilla
+- [x] `tools/gen_jcs_vectors.py` (§4.14): `contracts/fixtures/jcs-vectors.json` con 200 vectores de semilla
   fija; `--check`.
-- [ ] `tools/audit_gate.py` y `contracts/.pip-audit-ignore.yaml` (NFRD-U1-11): excepción vencida = fallo.
-- [ ] Pruebas (5 por herramienta): regenerada = versionada; idempotencia en bytes; cambios de seguridad
+- [x] `tools/audit_gate.py` y `contracts/.pip-audit-ignore.yaml` (NFRD-U1-11): excepción vencida = fallo.
+- [x] Pruebas (5 por herramienta): regenerada = versionada; idempotencia en bytes; cambios de seguridad
   visibles en la huella; `--check` en rojo tras un cambio; plantilla de PR presente.
 - Cubre: DS3, DS6, DS8; D9; NFR10.9, NFR10.15. Fuera: la CI nunca ejecuta `--write`.
 - Verificación: V-SURFACE, V-GEN, y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/tools --no-cov`

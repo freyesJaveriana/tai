@@ -168,3 +168,36 @@ def test_el_validador_da_el_mismo_resultado_con_y_sin_la_clave(
 def test_la_clave_solo_anota_no_restringe_el_esquema(esquema: str) -> None:
     documento = load_contract(esquema)
     Draft202012Validator.check_schema(documento)
+
+
+# ---- 4. El validador de esquemas admite la clave solo en la raiz (E-30) ----------------------------
+
+
+def test_validate_json_schema_acepta_x_veridicus_version_en_la_raiz() -> None:
+    from veridicus_contracts.validators import validate_json_schema
+
+    validate_json_schema({"type": "object", CLAVE: "1.0.0", "properties": {"a": {"type": "string"}}})
+
+
+@pytest.mark.parametrize(
+    "esquema",
+    [
+        {"type": "object", "properties": {"a": {"type": "string", CLAVE: "1.0.0"}}},
+        {"type": "object", "$defs": {"d": {"type": "string", CLAVE: "1.0.0"}}},
+        {"type": "array", "items": {"type": "string", CLAVE: "1.0.0"}},
+        {"allOf": [{"type": "string", CLAVE: "1.0.0"}]},
+    ],
+    ids=["properties", "defs", "items", "allOf"],
+)
+def test_control_negativo_x_veridicus_version_anidada_se_rechaza(esquema: dict[str, Any]) -> None:
+    from veridicus_contracts.validators import ValidationFailure, validate_json_schema
+
+    with pytest.raises(ValidationFailure, match="palabra clave desconocida"):
+        validate_json_schema(esquema)
+
+
+def test_control_negativo_otra_clave_x_en_la_raiz_se_rechaza() -> None:
+    from veridicus_contracts.validators import ValidationFailure, validate_json_schema
+
+    with pytest.raises(ValidationFailure, match="palabra clave desconocida"):
+        validate_json_schema({"type": "object", "x-veridicus-limit": "report_token_max_chars"})

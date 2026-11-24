@@ -6,54 +6,136 @@ Sale `ScenarioReader` (TruthFrame); cambia la instantánea de la sesión y se re
 `veridicus_contracts.report_ports` (FD-U1-04). Solo firmas: las implementaciones son de U4, U5 y U7.
 
 Los tipos auxiliares que contract-summary nombra entre comillas van como `Protocol` de solo lectura
-(P-T16-2), con los campos que nombran las docstrings y la revisión 4 (P-T16-3).
+(P-T16-2). Sus campos toman el nombre, el tipo y los valores cerrados de las entidades aprobadas de
+la unidad dueña (P-T16-8): U4 (`text-flow/functional-design/entities.md`, BR17.2) para la sesión,
+los turnos y las corridas, y U5 (`human-review/functional-design/entities.md`) para la ronda y la
+decisión. Los valores fijos son `Literal`. Un campo que ninguna entidad nombra no está aquí: el
+texto del turno (K-41) y la hora de la terminación quedan como candidatas.
 """
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Any, Literal, Protocol
+from typing import Literal, Protocol
 from uuid import UUID
 
 from veridicus_contracts.analyzer.v1 import Hallazgo
 from veridicus_contracts.human_review import Actor
 from veridicus_contracts.unit_of_work import UnitOfWork
 
-RoundState = Literal["open", "locked", "discarded"]
-SuggestionState = Literal["pending", "accepted", "edited", "dismissed"]
+# U4: InterviewSessionRecord.status, .origin, .blocked_code; Turn.speaker y .fold_state;
+# AnalysisRun.mode; RunStatusChange.to_status; ModelCall.role.
+SessionStatus = Literal[
+    "open", "paused", "suspended", "finalized", "terminated", "blocked", "consolidated"
+]
+SessionOrigin = Literal["guiada", "corpus", "sintetico"]
+BlockedCode = Literal["anonymizer.incident"]
+Speaker = Literal["ENT", "TEST"]
+FoldState = Literal["visible", "plegado"]
+RunMode = Literal["incremental", "final"]
+RunStatus = Literal["queued", "processing", "done", "error", "cancelled"]
+ModelCallRole = Literal["juez", "verificador", "verificador_permutado"]
+# U5: ReviewRound.kind y .status; EffectiveState (ReviewDecision.previous_state más `pending`).
+RoundKind = Literal["initial", "correction"]
+RoundStatus = Literal["open", "locked", "discarded"]
+EffectiveState = Literal["pending", "accepted", "edited", "dismissed"]
 
 
 class TurnView(Protocol):
-    """Un turno de la instantánea: su número `T<n>`, hablante, página (si la hay) y estado."""
+    """Un turno de la instantánea (entidad `Turn`): sin su texto (K-41)."""
 
     @property
-    def turn(self) -> str: ...
+    def n(self) -> int: ...
 
     @property
-    def speaker(self) -> str: ...
+    def speaker(self) -> Speaker: ...
 
     @property
     def page(self) -> int | None: ...
 
     @property
-    def state(self) -> str: ...
+    def fold_state(self) -> FoldState: ...
+
+
+class ModelCallView(Protocol):
+    """Una fila del registro de modelos de la corrida (entidad `ModelCall`); sin texto."""
+
+    @property
+    def role(self) -> ModelCallRole: ...
+
+    @property
+    def provider(self) -> str: ...
+
+    @property
+    def model(self) -> str: ...
+
+    @property
+    def version(self) -> str | None: ...
+
+    @property
+    def effort_or_quantization(self) -> str | None: ...
+
+    @property
+    def engine(self) -> str | None: ...
+
+    @property
+    def seed(self) -> int | None: ...
+
+    @property
+    def tokens_in(self) -> int: ...
+
+    @property
+    def tokens_out(self) -> int: ...
+
+    @property
+    def used_fallback(self) -> bool: ...
+
+    @property
+    def external(self) -> bool: ...
+
+    @property
+    def anonymized(self) -> bool: ...
+
+    @property
+    def at(self) -> datetime: ...
 
 
 class RunView(Protocol):
-    """Una corrida de la instantánea con su registro de modelos y su modo fragmentado."""
+    """Una corrida de la instantánea (entidades `AnalysisRun`, `RunStatusChange`, `RunAttempt`)."""
 
     @property
     def run_id(self) -> UUID: ...
 
     @property
-    def state(self) -> str: ...
+    def mode(self) -> RunMode: ...
 
     @property
-    def fragmented(self) -> bool: ...
+    def from_turn(self) -> int: ...
 
     @property
-    def model_registry(self) -> Mapping[str, Any]:
-        """El `registro` de C6 de la corrida (llamadas, descartes, tokens); sin texto."""
+    def to_turn(self) -> int: ...
+
+    @property
+    def status(self) -> RunStatus:
+        """El estado vigente: el de la última fila de `RunStatusChange`."""
         ...
+
+    @property
+    def attempt(self) -> int:
+        """El intento vigente."""
+        ...
+
+    @property
+    def fragmented(self) -> bool | None:
+        """`RunAttempt.fragmented`: nulo si la corrida aún no tiene resultado."""
+        ...
+
+    @property
+    def covered_by_final(self) -> bool:
+        """Una corrida incremental en error que cubre el último modo final terminado (BR17.2)."""
+        ...
+
+    @property
+    def model_calls(self) -> Sequence[ModelCallView]: ...
 
 
 class SessionSnapshot(Protocol):
@@ -63,30 +145,27 @@ class SessionSnapshot(Protocol):
     def session_id(self) -> UUID: ...
 
     @property
-    def state(self) -> str: ...
-
-    @property
     def owner_user_id(self) -> UUID: ...
 
     @property
-    def origin(self) -> str: ...
-
-    @property
-    def profile(self) -> str: ...
-
-    @property
-    def profile_same_family(self) -> bool:
-        """La marca de misma familia entre juez y verificador del perfil."""
-        ...
+    def profile_name(self) -> str: ...
 
     @property
     def config_sha256(self) -> str: ...
 
     @property
-    def finalized_at(self) -> datetime | None: ...
+    def same_family_declared(self) -> bool:
+        """La marca de misma familia del perfil (`profile.same_family_declared` de C18)."""
+        ...
 
     @property
-    def terminated_at(self) -> datetime | None: ...
+    def status(self) -> SessionStatus: ...
+
+    @property
+    def origin(self) -> SessionOrigin: ...
+
+    @property
+    def finalized_at(self) -> datetime | None: ...
 
     @property
     def consent_withdrawn_at(self) -> datetime | None:
@@ -94,10 +173,7 @@ class SessionSnapshot(Protocol):
         ...
 
     @property
-    def blocked_code(self) -> str | None: ...
-
-    @property
-    def last_final_mode_state(self) -> str | None: ...
+    def blocked_code(self) -> BlockedCode | None: ...
 
     @property
     def turns(self) -> Sequence[TurnView]: ...
@@ -112,7 +188,7 @@ class SessionSnapshot(Protocol):
 
 
 class RoundView(Protocol):
-    """Una ronda de revisión; `discarded` no vuelve nunca a `open` (FD-U5-04)."""
+    """Una ronda de revisión (entidad `ReviewRound`); `discarded` no vuelve nunca a `open`."""
 
     @property
     def round_id(self) -> UUID: ...
@@ -124,10 +200,15 @@ class RoundView(Protocol):
     def number(self) -> int: ...
 
     @property
-    def state(self) -> RoundState: ...
+    def kind(self) -> RoundKind: ...
 
     @property
-    def is_correction(self) -> bool: ...
+    def status(self) -> RoundStatus: ...
+
+    @property
+    def based_on_round_id(self) -> UUID | None:
+        """Obligatoria si `kind` es `correction`: la última ronda `locked` de la sesión."""
+        ...
 
 
 class SuggestionWithDecision(Protocol):
@@ -140,7 +221,7 @@ class SuggestionWithDecision(Protocol):
     def hallazgo(self) -> Hallazgo: ...
 
     @property
-    def state(self) -> SuggestionState: ...
+    def state(self) -> EffectiveState: ...
 
     @property
     def note(self) -> str | None: ...
@@ -149,10 +230,14 @@ class SuggestionWithDecision(Protocol):
     def reformulation(self) -> str | None: ...
 
     @property
-    def decided_by(self) -> UUID | None: ...
+    def actor_user_id(self) -> UUID | None:
+        """Quién decidió (`ReviewDecision.actor_user_id`); nulo si sigue `pending`."""
+        ...
 
     @property
-    def decided_at(self) -> datetime | None: ...
+    def at(self) -> datetime | None:
+        """Cuándo decidió (`ReviewDecision.at`); nulo si sigue `pending`."""
+        ...
 
 
 class SessionReader(Protocol):
@@ -166,6 +251,9 @@ class SessionReader(Protocol):
         Revisión 4: suma `consent_withdrawn_at` y conserva `terminated` (FD-U6-21), y declara
         origen, `blocked_code`, terminación y retirada con su hora, estado del último modo final
         y perfil con la marca de misma familia (FD-U7-03).
+
+        La terminación es `status == "terminated"` (sin hora: ninguna entidad aprobada la guarda
+        en la sesión) y el estado del último modo final sale de `runs` (`mode == "final"`).
         """
         ...
 

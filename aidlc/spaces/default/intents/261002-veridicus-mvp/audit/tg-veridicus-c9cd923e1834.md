@@ -52488,3 +52488,418 @@
 **Context**: construction > contracts > code-generation > decisiones-humano.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T19:37:30Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: acd3f77d3c1c0b970
+**Message**: Estamos construyendo el Bolt B1 de contratos. T18 ya está fusionada y redacté T24, T25 y T26 para el cambio 05. Lo siguiente es que revises esas tres tareas y decidas K-53, porque la suite tarda unos 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T19:47:13Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T19:49:09Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-24T19:49:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-11-24T19:50:14Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: code-generation
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T19:51:22Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a46e52b9f3891fd89
+**Message**: <analysis>\nThe conversation continues the AI-DLC Code Generation Part 2 loop for U1 contracts, Bolt B1, on branch feat/b1-contratos.\n\nChronology since the last summary:\n\n1. **T18c stop, E-30.** The hu
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T19:53:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aac6d1891929068d2
+**Message**: Seguimos con el Bolt B1 de contratos: T18 ya está fusionada y redacté las tareas T18d, T24, T25 y T26 por el cambio 05 y tus decisiones. Falta que las revises y apruebes para despachar la ola 10: T18d
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-11-24T20:44:24Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: code-generation
+**State Validity**: valid
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:02:29Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:03:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac27002b01b88c756
+**Message**: continúa
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:13:36Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a17fcbe2591e9afa8
+**Message**: TAREA: U01-T18d\nRAMA: tarea/U01-T18d   SHA: 5121ba0 (subida a origin)\nCRITERIOS: 5 de 5 verificados. El veredicto de CA-1 lo da el revisor corriendo solo.\nBITACORA: <project-dir>/.worktrees/U01-T18d/docs
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:13:36Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:13:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: af133a2e7a18db5d4
+**Message**: continúa
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:14:37Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: af18815b6ce33ac0a
+**Message**: TAREA: U01-T21\nRAMA: tarea/U01-T21   SHA: d247533 (herramienta en 1091322, pruebas en rojo en 5dad32b; todo subido)\nCRITERIOS: 6 de 6 verificados en esta ronda\n- CA-1: `test_check_package.py` da 15 pa
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:14:38Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:14:59Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a62025244136f7f79
+**Message**: continúa
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:21:00Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: adfe1e6353ec7b2ef
+**Message**: TAREA: U01-T19\nRAMA: tarea/U01-T19   SHA: 46db9482020f790843f01e3f3f06eb8197058fbf (el rojo está en 0659b13)\nCRITERIOS: 6 de 6 verificados en esta ronda, con una decisión pendiente (P-T19-4, abajo)\nBI
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:21:00Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:22:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a82b0a6047816a67e
+**Message**: # Ronda 1 — U01-T18d\n\nVEREDICTO: NO-VERDE\n\nEl cambio de código funciona: la suite pasa en 27,8 s y respeta el tope de 60 s. El veredicto es NO-VERDE por un solo NARANJA, la bitácora: el rojo no está p
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:25:48Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:25:48Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-24T21:26:58Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-24T21:27:01Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/construction/contracts/code-generation/decisiones-humano.md
+**Context**: construction > contracts > code-generation > decisiones-humano.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:27:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a99e9e2a23b1024cb
+**Message**: # Ronda 1 — U01-T19\n\nVEREDICTO: NO-VERDE\n\nVeo dos defectos que bloquean y uno de evidencia. El más serio es CA-6. Ejecutado en el worktree, falla por una línea de la plantilla de PR nueva. La bitácora
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:27:36Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:27:52Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a12b52fa153e0c74a
+**Message**: # Ronda 1 — U01-T21\n\nVEREDICTO: NO-VERDE\n\nLos seis criterios pasan con mis propias corridas. Aun así, la herramienta no cumple la regla central del paso 2: debe fallar si falta un esquema o catálogo. 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:28:07Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:34:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a17fcbe2591e9afa8
+**Message**: TAREA: U01-T18d (ronda 2)\nRAMA: tarea/U01-T18d   SHA: c5f5bc0 (rebasada sobre `feat/b1-contratos` en 9b39bb3 y subida con `--force-with-lease`; el código está en 687d002 y el resto es bitácora). Los S
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:34:33Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:34:48Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: adfe1e6353ec7b2ef
+**Message**: TAREA: U01-T19, ronda 2\nRAMA: tarea/U01-T19   SHA: a4adbb2 (8398dbe tiene el arreglo y a4adbb2 añade solo la respuesta a la ronda 1)\nCRITERIOS: 6 de 6 verificados en esta ronda\nBITACORA: <project-dir>/.w
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:34:50Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:34:50Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad4b57c969d74f659
+**Message**: continúa
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:35:05Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a894cafd9847f5d62
+**Message**: continúa
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:35:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: af18815b6ce33ac0a
+**Message**: TAREA: U01-T21 (ronda 2)\nRAMA: tarea/U01-T21   SHA: e44249f\nRebasada sobre `feat/b1-contratos` (18164f9) antes de tocar nada. El push de la rama fue con `--force-with-lease`, porque el rebase reescrib
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:35:42Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:37:28Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a82b0a6047816a67e
+**Message**: # Ronda 2 — U01-T18d\n\nVEREDICTO: NO-VERDE\n\nF-01, F-02 y F-03 están resueltos, y CA-1 a CA-5 pasan en mis propias corridas. El veredicto es NO-VERDE por un hallazgo nuevo, NARANJA: la prueba nueva que 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:37:28Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:38:03Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a99e9e2a23b1024cb
+**Message**: # Ronda 2 — U01-T19\n\nVEREDICTO: VERDE\n\nLos cuatro hallazgos de la ronda 1 están resueltos y corrí yo mismo los seis criterios: todos pasan. Solo queda un AMARILLO, sobre la prueba nueva de la plantill
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:38:07Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:41:16Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a12b52fa153e0c74a
+**Message**: # Ronda 2 — U01-T21\n\nVEREDICTO: NO-VERDE\n\nEl código queda bien: F-01, F-03, F-04 y F-05 están resueltos, y F-02 también, con el rojo con esqueleto anexado literal. Los seis criterios pasan con mis pro
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:41:17Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:43:12Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a17fcbe2591e9afa8
+**Message**: TAREA: U01-T18d (ronda 3)\nRAMA: tarea/U01-T18d   SHA: 623a3f7 (rebasada sobre `feat/b1-contratos` en bf93de8; subida con `--force-with-lease`). El rebase reescribió los SHA citados antes: 60b20f4 es a
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:43:12Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:45:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: af18815b6ce33ac0a
+**Message**: TAREA: U01-T21 (ronda 3)\nRAMA: tarea/U01-T21   SHA: 6a95ae4\nRebasada sobre `feat/b1-contratos` (eeee712) antes de tocar nada. El push fue con `--force-with-lease`, porque el rebase reescribió el histo
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:45:27Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:45:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a82b0a6047816a67e
+**Message**: # Ronda 3 — U01-T18d\n\nVEREDICTO: VERDE\n\nF-04 y F-05 están resueltos. Mis dos mutantes de la ronda 2, con caché en la función pública de YAML o de JSON, ahora hacen fallar la prueba por la regla. CA-1 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:45:34Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:46:21Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a64e491782d0454ad
+**Message**: Fusionados #29 y #30, continúa
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-24T21:48:53Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a12b52fa153e0c74a
+**Message**: # Ronda 3 — U01-T21\n\nVEREDICTO: VERDE\n\nF-06, F-07 y F-08 están resueltos. Corrí yo mismo CA-1 a CA-6 y todos pasan, incluidos CA-3 y CA-6, que el codificador no repitió. No queda ningún ROJO ni NARANJ
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:48:54Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-24T21:48:55Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---

@@ -484,12 +484,12 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 17 — Interfaces en proceso C10–C12, C23 y C24 (implementar y probar) · tarea T16
 
-- [ ] `contracts/src/veridicus_contracts/human_review.py` (C10), `report_ports.py` (C11), `identity.py` (C12),
+- [x] `contracts/src/veridicus_contracts/human_review.py` (C10), `report_ports.py` (C11), `identity.py` (C12),
   `access_log.py` (C23) y `retention.py` (C24 v1.1.0 con `Purgeable.count_session(uow, session_id) ->
   Mapping[str, int]`, NFRD-U13-08) como `Protocol` tipados con su versión en el encabezado y las firmas de
   contract-summary revisión 3 y de las precisiones aprobadas (p. ej. `open_round(..., for_update=False)`,
   `discard_correction_round`).
-- [ ] `tests/typing/test_protocols.py` (5–8 pruebas): un *fake* mínimo de cada interfaz pasa mypy estricto
+- [x] `tests/typing/test_protocols.py` (5–8 pruebas): un *fake* mínimo de cada interfaz pasa mypy estricto
   y uno con firma distinta falla.
 - Cubre: C10–C12, C23, C24; NFR13.2. Fuera: implementaciones (U4, U5, U7, U13).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/typing/test_protocols.py --no-cov`

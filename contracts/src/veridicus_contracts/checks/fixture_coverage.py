@@ -8,7 +8,7 @@ falla si:
 
 Un `accept` cubre una regla si es de la misma familia de contrato que alguno de sus `reject` (`C6.entrada`
 y `C6.salida` son de la familia `C6`). Quedan fuera (`EXCLUIDAS`) BR5.2 a BR5.6 (solo la forma, BR5.8),
-BR1.5, BR1.8 y BR12.2 (revisión del PR). Las reglas de nivel 0 que se prueban con código y no con documentos
+BR1.4 (E-27), BR1.5, BR1.8 y BR12.2 (revisión del PR); cada una con su motivo en `MOTIVOS_DE_EXCLUSION`. Las reglas de nivel 0 que se prueban con código y no con documentos
 van en la lista cerrada `REGLAS_CON_CODIGO`, cada una con la prueba que la cubre (E-24); `comprobar_pruebas`
 verifica que esa prueba existe.
 
@@ -34,7 +34,19 @@ from veridicus_contracts.validators import extract_message_payloads
 
 REGLA = "NFR12.1"
 ESTRUCTURA = frozenset({"required", "additionalProperties"})
-EXCLUIDAS = ("BR5.2", "BR5.3", "BR5.4", "BR5.5", "BR5.6", "BR1.5", "BR1.8", "BR12.2")
+EXCLUIDAS = ("BR5.2", "BR5.3", "BR5.4", "BR5.5", "BR5.6", "BR1.4", "BR1.5", "BR1.8", "BR12.2")
+_SOLO_FORMA = "solo se valida su forma (BR5.8): el escáner de U11 ejecuta los casos"
+MOTIVOS_DE_EXCLUSION: dict[str, str] = {
+    **dict.fromkeys(("BR5.2", "BR5.3", "BR5.4", "BR5.5", "BR5.6"), _SOLO_FORMA),
+    # E-27: regla de proceso, sin código nuevo.
+    "BR1.4": (
+        "regla de proceso (el cambio de forma de un contrato estricto entra en un solo PR, con su versión): "
+        "la cubren la revisión del PR y la huella de seguridad de §4.11 (T19)"
+    ),
+    "BR1.5": "regla de proceso: la cubre la revisión del PR",
+    "BR1.8": "regla de proceso: la copia de C6 entra en su propio PR, que revisa el humano",
+    "BR12.2": "regla de proceso: la etiqueta de la versión la revisa el autor al fusionar el PR de B1",
+}
 
 # Regla -> palabras clave del validador por las que su `reject` puede fallar.
 REGLAS: dict[str, frozenset[str]] = {

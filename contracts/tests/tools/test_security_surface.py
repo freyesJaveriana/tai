@@ -78,11 +78,11 @@ def test_cubre_los_cuatro_contratos_de_operaciones_y_marca_las_que_encolan(
     c1 = operaciones["C1"]
     assert c1["POST /auth/login"]["security"] == []
     assert c1["POST /auth/login"]["csrf"] is False
-    assert c1["GET /auth/me"]["security"] == ["sessionCookie"]
+    assert c1["GET /auth/me"]["security"] == [{"sessionCookie": []}]
     encolan = {nombre for nombre, op in c1.items() if op["encola"]}
     assert len(encolan) == 6
     voz = operaciones["voz_interna"]["POST /internal/v1/speech"]
-    assert voz["security"] == ["bearerAuth"]
+    assert voz["security"] == [{"bearerAuth": []}]
     assert "speech_audio_max_bytes" in voz["limit_marks"]["max_bytes"]
 
 
@@ -127,6 +127,52 @@ def test_quitar_la_seguridad_de_una_operacion_cambia_solo_operations(
     assert cambiada["operations"]["C1"]["GET /auth/me"]["security"] == []
 
 
+def seguridad_de_me(herramientas: ModuleType, contracts_root: Path, requisitos: Any) -> Any:
+    c1 = copy.deepcopy(load_contract(C1))
+    c1["paths"]["/auth/me"]["get"]["security"] = requisitos
+    huella = herramientas.construir(contracts_root, {C1: c1})
+    return huella, huella["operations"]["C1"]["GET /auth/me"]["security"]
+
+
+def test_la_autenticacion_opcional_cambia_la_huella_en_operations(contracts_root: Path) -> None:
+    herramientas = herramienta()
+    base = herramientas.construir(contracts_root)
+    cambiada, requisitos = seguridad_de_me(herramientas, contracts_root, [{"sessionCookie": []}, {}])
+    assert secciones_distintas(base, cambiada) == {"operations"}
+    assert {} in requisitos
+    assert {"sessionCookie": []} in requisitos
+
+
+def test_todos_los_esquemas_frente_a_cualquiera_de_ellos_dan_huellas_distintas(
+    contracts_root: Path,
+) -> None:
+    herramientas = herramienta()
+    todos, _ = seguridad_de_me(herramientas, contracts_root, [{"sessionCookie": [], "bearerAuth": []}])
+    cualquiera, _ = seguridad_de_me(
+        herramientas, contracts_root, [{"sessionCookie": []}, {"bearerAuth": []}]
+    )
+    assert herramientas.serializar(todos) != herramientas.serializar(cualquiera)
+
+
+def test_los_scopes_de_un_requisito_cambian_la_huella_y_se_ordenan(contracts_root: Path) -> None:
+    herramientas = herramienta()
+    base = herramientas.construir(contracts_root)
+    cambiada, requisitos = seguridad_de_me(
+        herramientas, contracts_root, [{"sessionCookie": ["b", "a"]}]
+    )
+    assert secciones_distintas(base, cambiada) == {"operations"}
+    assert requisitos == [{"sessionCookie": ["a", "b"]}]
+    invertida, _ = seguridad_de_me(herramientas, contracts_root, [{"sessionCookie": ["a", "b"]}])
+    assert invertida == cambiada
+
+
+def test_el_orden_de_las_alternativas_no_cambia_la_huella(contracts_root: Path) -> None:
+    herramientas = herramienta()
+    uno, _ = seguridad_de_me(herramientas, contracts_root, [{"sessionCookie": []}, {}])
+    otro, _ = seguridad_de_me(herramientas, contracts_root, [{}, {"sessionCookie": []}])
+    assert uno == otro
+
+
 def test_anadir_un_servidor_cambia_solo_servers(contracts_root: Path) -> None:
     herramientas = herramienta()
     base = herramientas.construir(contracts_root)
@@ -150,7 +196,7 @@ def test_un_comentario_o_un_espacio_del_yaml_no_cambia_la_huella(contracts_root:
     herramientas = herramienta()
     base = herramientas.construir(contracts_root)
     sustituciones = {}
-    for relativa in (C8, C25, "errors/error-codes.v2.yaml", "ui/result-labels.v2.yaml"):
+    for relativa in (C1, C8, C25, "errors/error-codes.v2.yaml", "ui/result-labels.v2.yaml"):
         texto = ruta_de(relativa).read_text(encoding="utf-8")
         retocado = "# comentario nuevo\n\n" + texto.replace("\n", "   \n\n", 3) + "\n# final\n"
         assert retocado != texto

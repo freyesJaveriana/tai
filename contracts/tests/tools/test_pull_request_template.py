@@ -22,6 +22,15 @@ def test_la_plantilla_existe_y_conserva_el_apartado_de_la_huella_de_seguridad(
     assert any("security-surface.json" in linea for linea in encabezados), encabezados
 
 
+def test_la_plantilla_no_nombra_lo_que_busca_el_script_de_autonomia_01(
+    contracts_root: Path,
+) -> None:
+    """F-01 de la ronda 1: `check-no-cluster-apply.sh` revisa `.github/` y busca estos términos."""
+    texto = leer(contracts_root).lower()
+    for termino in ("kubeconfig", "kubectl", "helm ", "terraform", "argocd", "sbatch"):
+        assert termino not in texto, termino
+
+
 def test_la_plantilla_pide_la_evidencia_de_cada_tarea_y_esta_en_espanol(
     contracts_root: Path,
 ) -> None:

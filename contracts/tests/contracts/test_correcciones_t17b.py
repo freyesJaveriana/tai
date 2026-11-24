@@ -135,6 +135,13 @@ def test_el_campo_lleva_date_time_y_el_patron_de_c1(campo: Campo) -> None:
     assert comprobar_forma(load_contract(campo.archivo), campo, _patron_de_c1()) == []
 
 
+def test_at_de_la_llamada_a_modelo_lleva_el_tope_de_la_longitud_exacta_del_patron() -> None:
+    """P-T17b-1: la guardia BR10.1 exige `maxLength` a toda cadena con patron; 20 es la longitud exacta."""
+    campo = next(c for c in CAMPOS if c.id == "llamada.at")
+    esquema = _esquema_del_campo(load_contract(campo.archivo), campo)
+    assert esquema.get("maxLength") == len(VALIDA) == 20
+
+
 def test_control_negativo_c2_sin_pattern_en_deadline_at_se_detecta() -> None:
     campo = next(c for c in CAMPOS if c.id == "C2.deadline_at")
     copia = copy.deepcopy(load_contract(campo.archivo))

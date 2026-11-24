@@ -1,7 +1,7 @@
 #!/bin/bash
 # Validación US14.1, M6 (AC14.1.6), segunda parte: velocidad del modelo de otra familia (el que bajó
 # m6-descargar.sbatch) en un SL250s con llama-bench, con los mismos parámetros que M1.
-#   cd /zine/HPC02S1/freyes/tg4L/validacion && sbatch --dependency=afterok:<descarga> trabajos/m6-velocidad.sbatch
+#   cd "$ZINE_BASE/validacion" && sbatch --dependency=afterok:<descarga> trabajos/m6-velocidad.sbatch
 #SBATCH --job-name=val-m6
 #SBATCH --partition=debug
 #SBATCH --nodes=1
@@ -10,9 +10,9 @@
 #SBATCH --exclusive
 #SBATCH --mem=58G
 #SBATCH --time=04:00:00
-#SBATCH --output=/zine/HPC02S1/freyes/tg4L/validacion/logs/m6-velocidad_%j.out
+#SBATCH --output=logs/m6-velocidad_%j.out
 set -euo pipefail
-source /zine/HPC02S1/freyes/tg4L/validacion/trabajos/comun.sh
+source "${ZINE_BASE:?fije ZINE_BASE}/validacion/trabajos/comun.sh"
 activar
 preparar_salida m6
 date; hostname; nproc

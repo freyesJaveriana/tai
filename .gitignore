@@ -108,3 +108,7 @@ secrets*.yaml
 
 # Salidas de construcción y de auditoría
 build/
+
+# Resultados de corridas sobre el corpus del piloto: nunca se versionan (veridicus-01 §7, R-1)
+resultados/
+resultados-locales/

@@ -9,11 +9,29 @@ va por commit directo; los `.sbatch` de producción (US14.2) entrarán por PR.
 
 - Todo paso es un `.sbatch`. En el nodo de entrada solo se usan `scp`, `sbatch`, `squeue` y `sacct`.
 - Reutilizan **sin modificarlos** el entorno conda de la 4L (`tg4L/envs/tg4L`) y sus modelos (`tg4L/modelos`, con
-  `.sha256ok`). Escriben solo bajo `/zine/HPC02S1/freyes/tg4L/validacion/`, con `HOME` y cachés allí mismo. La
+  `.sha256ok`). Escriben solo bajo `ZINE_BASE/validacion/`, con `HOME` y cachés allí mismo. La
   única excepción es la copia del GGUF en el `/tmp` local del nodo: la misma `/tmp/tg4L` que usa la 4L, o
   `/tmp/tg4L-validacion` para el modelo de M6.
 - Los trabajos que van a un SL250s piden el nodo completo (`--cpus-per-task=16 --exclusive --mem=58G`), igual que
-  la 4L: SLURM no hace cumplir la memoria pedida. Los que no necesitan AVX corren en `hpchead02`.
+  la 4L: SLURM no hace cumplir la memoria pedida. Los que no necesitan AVX corren en el nodo de entrada (`ZINE_NODO`).
+
+## Variables
+
+Nada de lo que dice dónde vive el trabajo en el clúster está escrito en estos archivos. Las fija el humano, y este
+repositorio no lanza trabajos. Un ejemplo genérico, con valores de relleno que se reemplazan por los propios:
+
+```bash
+export ZINE_BASE=/ruta/al/directorio/de/trabajo   # raíz de la 4L; los trabajos viven en ZINE_BASE/validacion
+export ZINE_USUARIO=usuario                       # cuenta del clúster (la usa enviar.ps1; sbatch no la necesita)
+export ZINE_NODO=nodo-de-entrada                  # nodo de entrada, el único con internet
+export ZINE_NODO_SL250S=nodo-sl250s               # solo para el caso de M3 en un SL250s
+cd "$ZINE_BASE/validacion"                        # todos los sbatch se lanzan desde aquí
+```
+
+Las directivas `#SBATCH` no expanden variables, por eso `--output` es relativo al directorio de lanzamiento
+(`ZINE_BASE/validacion`, de ahí el `cd`) y el nodo se pasa en la línea de `sbatch` con `--nodelist="$ZINE_NODO"`.
+`sbatch` exporta el entorno al trabajo, y `comun.sh` falla si `ZINE_BASE` no está fijada. En Windows, antes de
+`enviar.ps1`: `$env:ZINE_BASE = '…'` y, si hace falta, `$env:ZINE_USUARIO = '…'`.
 - Las entrevistas del piloto solo se copian al clúster, a `validacion/entrevistas/`, nunca a Git. Al repositorio
   vuelven solo cifras, en [reporte.md](reporte.md).
 
@@ -23,14 +41,14 @@ va por commit directo; los `.sbatch` de producción (US14.2) entrarán por PR.
 |---|---|---|---|
 | `enviar.ps1` | este equipo | Copia por `scp` los trabajos y las 10 entrevistas del piloto. No lanza nada | `validacion/trabajos/`, `entrevistas/`, `logs/` |
 | `comun.sh` | — | Rutas, `HOME`, activación del entorno y funciones comunes | — |
-| `m0-entorno.sbatch` | `hpchead02` | Entorno virtual propio con `jsonschema` (lo necesita M2) | `validacion/venv`, `m0/` |
+| `m0-entorno.sbatch` | nodo de entrada | Entorno virtual propio con `jsonschema` (lo necesita M2) | `validacion/venv`, `m0/` |
 | `m1-velocidad.sbatch` | SL250s | `llama-bench` de Qwen3.6-35B-A3B Q8_0: `-p 2048 -n 128 -t 16 -r 3` | `m1/` |
-| `m1-resumen-4l.sbatch` | `hpchead02` | Cifras de la medición `--array=8` de la 4L (registro y log del servidor). Se puede volver a lanzar | `m1/resumen_4l.txt` |
+| `m1-resumen-4l.sbatch` | nodo de entrada | Cifras de la medición `--array=8` de la 4L (registro y log del servidor). Se puede volver a lanzar | `m1/resumen_4l.txt` |
 | `m2-api-servidor.sbatch` | SL250s | Un solo `llama-server` para M2 (API, 20 peticiones por caso) y M4 (repetibilidad) | `m2/`, `m4/` |
-| `m3-tokens.sbatch` | `hpchead02` | `llama-tokenize` sobre las entrevistas, más el *prompt* y una reserva de salida, frente a 163 840 | `m3/` |
-| `m5-wheelhouse.sbatch` | `hpchead02` | `pip download` de pydantic, httpx, jsonschema y pyyaml, más la rueda de `paquete_prueba/` | `m5/wheelhouse/` |
+| `m3-tokens.sbatch` | nodo de entrada | `llama-tokenize` sobre las entrevistas, más el *prompt* y una reserva de salida, frente a 163 840 | `m3/` |
+| `m5-wheelhouse.sbatch` | nodo de entrada | `pip download` de pydantic, httpx, jsonschema y pyyaml, más la rueda de `paquete_prueba/` | `m5/wheelhouse/` |
 | `m5-instalar.sbatch` | SL250s | `pip install --no-index --find-links`, ejecuta el *entry point* y cuenta las descargas en el log | `m5/` |
-| `m6-descargar.sbatch` | `hpchead02` | Baja un GGUF de otra familia, comprueba su SHA-256 y registra la licencia | `validacion/modelos/`, `m6/` |
+| `m6-descargar.sbatch` | nodo de entrada | Baja un GGUF de otra familia, comprueba su SHA-256 y registra la licencia | `validacion/modelos/`, `m6/` |
 | `m6-velocidad.sbatch` | SL250s | `llama-bench` de ese modelo con los parámetros de M1 | `m6/` |
 | `sondeo_api.py`, `contar_tokens.py`, `resumen_4l.py`, `resumir_bench.py` | (los llaman los `.sbatch`) | Peticiones y cifras | — |
 | `comprobar_reporte.py` | este equipo | Comprueba que `reporte.md` está completo (con `--revision`, también la revisión) | — |
@@ -47,14 +65,15 @@ Cada medición deja en `validacion/m<n>/resumen.txt` las líneas `Comando:`, `Tr
 .\enviar.ps1 -Piloto <repo del TG>\02-procedimientos\03-Corpus\salida\piloto
 ```
 
-**2. Trabajos en `hpchead02`** (no compiten con la 4L; desde `/zine/HPC02S1/freyes/tg4L/validacion`):
+**2. Trabajos en el nodo de entrada** (no compiten con la 4L; desde `ZINE_BASE/validacion`, con las variables
+fijadas como en «Variables»):
 
 ```bash
-sbatch trabajos/m0-entorno.sbatch            # anota el ID: <m0>
-sbatch trabajos/m1-resumen-4l.sbatch         # otra vez cuando termine la medición --array=8
-sbatch trabajos/m3-tokens.sbatch
-sbatch trabajos/m5-wheelhouse.sbatch         # <wh>
-sbatch trabajos/m6-descargar.sbatch          # <dl>; gpt-oss-20b Q8_0 por defecto (ver M6)
+sbatch --nodelist="$ZINE_NODO" trabajos/m0-entorno.sbatch            # anota el ID: <m0>
+sbatch --nodelist="$ZINE_NODO" trabajos/m1-resumen-4l.sbatch         # otra vez cuando termine la medición --array=8
+sbatch --nodelist="$ZINE_NODO" trabajos/m3-tokens.sbatch
+sbatch --nodelist="$ZINE_NODO" trabajos/m5-wheelhouse.sbatch         # <wh>
+sbatch --nodelist="$ZINE_NODO" trabajos/m6-descargar.sbatch          # <dl>; gpt-oss-20b Q8_0 por defecto (ver M6)
 ```
 
 **3. Trabajos en un SL250s.** Compiten con la 4L, que ocupa los nodos con `--exclusive`. Tú decides el orden. Se
@@ -92,13 +111,13 @@ trabajos/m2-api-servidor.sbatch` manda 5 peticiones por caso en lugar de 20. AC1
 - **M3.** Cada entrevista se cuenta como bloque JSON de turnos (`n`, `hablante`, `pagina`, `texto`), que es lo que
   recibiría el analizador, y como texto solo. Como *prompt* de referencia se cuenta el v2 congelado de la 4L,
   porque el del analizador aún no existe. La reserva de salida es de 16 384 *tokens*. Las dos cifras se cambian con
-  `--export=ALL,PROMPT=…,RESERVA=…`. Si `llama-tokenize` no corre en `hpchead02` (no tiene AVX), el script trae el
-  comando para correrlo en un SL250s.
+  `--export=ALL,PROMPT=…,RESERVA=…`. Si `llama-tokenize` no corre en el nodo de entrada (no tiene AVX), el script
+  trae el comando para correrlo en un SL250s.
 - **M4.** Se envían cuatro pares de peticiones idénticas: razonamiento apagado y encendido, cada uno con
   `cache_prompt` falso o verdadero. Cuando la caché está activa, primero va una petición de calentamiento, para que
   las dos del par encuentren la misma caché. Todas usan `seed` 42, 16 hilos y `--parallel 1`. Si los SHA-256
   difieren, se informa la posición del primer *token* distinto.
-- **M5.** La *wheelhouse* se arma en `hpchead02` con el mismo Python 3.12 y la misma glibc 2.17 de los SL250s. El
+- **M5.** La *wheelhouse* se arma en el nodo de entrada con el mismo Python 3.12 y la misma glibc 2.17 de los SL250s. El
   trabajo de instalación comprueba primero que el nodo no tiene internet. La línea de resultado incluye el conteo
   `grep -c -E "Downloading|Collecting .* from https?://"` sobre su propio log, que debe dar 0.
 - **M6.** El modelo predeterminado es `unsloth/gpt-oss-20b-GGUF`, archivo `gpt-oss-20b-Q8_0.gguf`: familia gpt-oss

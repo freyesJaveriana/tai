@@ -51,7 +51,7 @@ def check_measurement(name: str, body: str) -> list[str]:
     if not any(re.search(r"\d{3,}", v) for v in f.get("Trabajo SLURM", [])):
         problems.append(f"{name}: falta «Trabajo SLURM:» con el ID del trabajo")
     if not any(re.search(r"\bhpc[\w-]+", v) for v in f.get("Nodo", [])):
-        problems.append(f"{name}: falta «Nodo:» (hpchead02 o hpc02-wNNN)")
+        problems.append(f"{name}: falta «Nodo:» (nombre del nodo que empieza por hpc)")
     sha_ok = any(re.search(r"\b[0-9a-f]{64}\b", v) for v in f.get("SHA-256 del modelo", []))
     if name == "M5":
         if not sha_ok and "No aplica" not in f:

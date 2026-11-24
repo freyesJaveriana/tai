@@ -2,7 +2,7 @@
 # Validación US14.1, M1 (AC14.1.1): velocidad de Qwen3.6-35B-A3B Q8_0 en un SL250s con llama-bench (lectura de 2.048
 # tokens y generación de 128, 16 hilos, 3 repeticiones). Las horas de la medición --array=8 de la 4L las resume
 # aparte m1-resumen-4l.sbatch, que se puede volver a lanzar mientras esa medición sigue.
-#   cd /zine/HPC02S1/freyes/tg4L/validacion && sbatch trabajos/m1-velocidad.sbatch
+#   cd "$ZINE_BASE/validacion" && sbatch trabajos/m1-velocidad.sbatch   (ZINE_BASE: ver README.md)
 # Como la 4L ocupa los SL250s con --exclusive, este trabajo espera un nodo libre; con --dependency=afterany:<id> se
 # encadena detrás de un trabajo concreto.
 #SBATCH --job-name=val-m1
@@ -13,9 +13,9 @@
 #SBATCH --exclusive
 #SBATCH --mem=58G
 #SBATCH --time=04:00:00
-#SBATCH --output=/zine/HPC02S1/freyes/tg4L/validacion/logs/m1-velocidad_%j.out
+#SBATCH --output=logs/m1-velocidad_%j.out
 set -euo pipefail
-source /zine/HPC02S1/freyes/tg4L/validacion/trabajos/comun.sh
+source "${ZINE_BASE:?fije ZINE_BASE}/validacion/trabajos/comun.sh"
 activar
 preparar_salida m1
 date; hostname; nproc

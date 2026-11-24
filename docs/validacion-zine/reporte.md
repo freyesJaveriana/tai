@@ -2,7 +2,7 @@
 
 Reporte de las seis mediciones que liberan Domain Design. **Solo cifras**: ni texto de las entrevistas, ni
 fragmentos, ni salidas de los modelos. Cada sección se llena copiando las líneas de
-`/zine/HPC02S1/freyes/tg4L/validacion/m<n>/resumen.txt` (el paso a paso está en [README.md](README.md)).
+`ZINE_BASE/validacion/m<n>/resumen.txt` (el paso a paso está en [README.md](README.md)).
 Un resultado «No medible:» con su motivo y una línea «Salida:» también cierra el criterio.
 
 Se comprueba con:
@@ -31,7 +31,7 @@ Nodo: hpc02-w008
 SHA-256 del modelo: d1a395809f65a43a13ad119eb4e7acdef1ac6d68120f39902c8ab96e72794a59
 Resultado: pp2048 = 32.05 ± 0.17 tokens/s; tg128 = 6.77 ± 0.01 tokens/s (3 repeticiones, 16 hilos, qwen35moe 35B.A3B Q8_0, llama.cpp 1 7e2fea0)
 
-Medición `--array=8` de la 4L (de `m1/resumen_4l.txt`, trabajo 12959 en `hpchead02`, 2026-11-05 06:23; reemplaza el
+Medición `--array=8` de la 4L (de `m1/resumen_4l.txt`, trabajo 12959 en el nodo de entrada, 2026-11-05 06:23; reemplaza el
 resumen parcial del trabajo 12958). La medición terminó con el trabajo 12955; el 12948 falló a las 4 h 43 min y
 sus cifras son parciales:
 
@@ -93,7 +93,7 @@ Resultado: 4 de 4 pares repetibles
 Instalación sin internet en un SL250s desde una *wheelhouse* (AC14.1.5).
 
 Comando: sbatch trabajos/m5-wheelhouse.sbatch y trabajos/m5-instalar.sbatch (pip install --no-index --find-links wheelhouse veridicus-prueba-zine)
-Trabajo SLURM: 12961 (wheelhouse, en hpchead02) y 12965 (instalación)
+Trabajo SLURM: 12961 (wheelhouse, en el nodo de entrada) y 12965 (instalación)
 Nodo: hpc02-w008
 No aplica: M5 no usa un modelo
 Resultado: wheelhouse de 18 ruedas; entry point con código 0; el nodo no tiene salida a internet (esperado); líneas de descarga en el log: 0
@@ -105,7 +105,7 @@ Verificador de una familia distinta de Qwen: familia, modelo, cuantización, `.s
 (AC14.1.6).
 
 Comando: sbatch trabajos/m6-descargar.sbatch y trabajos/m6-velocidad.sbatch (llama-bench -m gpt-oss-20b-Q8_0.gguf -t 16 -p 2048 -n 128 -r 3 -o json)
-Trabajo SLURM: 12962 (descarga, en hpchead02) y 12966 (velocidad)
+Trabajo SLURM: 12962 (descarga, en el nodo de entrada) y 12966 (velocidad)
 Nodo: hpc02-w008
 SHA-256 del modelo: bcd455d4034ec02f71a875b46cb17df44a97911d7258291973be4d21f98329f3
 Modelo: familia gpt-oss, unsloth/gpt-oss-20b-GGUF, archivo gpt-oss-20b-Q8_0.gguf (12 GB), cuantización Q8_0, licencia declarada apache-2.0

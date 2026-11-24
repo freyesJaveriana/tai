@@ -1,21 +1,20 @@
 #!/bin/bash
-# Validación US14.1, M6 (AC14.1.6), primera parte: descarga en hpchead02 un GGUF de una familia distinta de Qwen para
+# Validación US14.1, M6 (AC14.1.6), primera parte: descarga en el nodo de entrada (ZINE_NODO) un GGUF de una familia distinta de Qwen para
 # el verificador del perfil de evaluación y comprueba su SHA-256 contra el que publica Hugging Face (lfs.oid). Guarda
 # también la licencia que declara el repositorio, para decidir si es compatible con el TG (DT10). Escribe en
 # validacion/modelos/ y validacion/m6/; reanuda una descarga cortada y no vuelve a bajar un archivo ya comprobado.
 # Predeterminado: gpt-oss-20b (OpenAI, Apache 2.0, MoE de ~3,6B parámetros activos) en Q8_0. Otro modelo:
 #   sbatch --export=ALL,REPO=<usuario/repo-GGUF>,ARCHIVO=<archivo.gguf> trabajos/m6-descargar.sbatch
 # Si el archivo no existe en el repositorio, el trabajo falla y lista los .gguf que sí hay.
-#   cd /zine/HPC02S1/freyes/tg4L/validacion && sbatch trabajos/m6-descargar.sbatch
+#   cd "$ZINE_BASE/validacion" && sbatch --nodelist="$ZINE_NODO" trabajos/m6-descargar.sbatch
 #SBATCH --job-name=val-m6-dl
 #SBATCH --partition=debug
-#SBATCH --nodelist=hpchead02
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=4G
 #SBATCH --time=12:00:00
-#SBATCH --output=/zine/HPC02S1/freyes/tg4L/validacion/logs/m6-descargar_%j.out
+#SBATCH --output=logs/m6-descargar_%j.out
 set -euo pipefail
-source /zine/HPC02S1/freyes/tg4L/validacion/trabajos/comun.sh
+source "${ZINE_BASE:?fije ZINE_BASE}/validacion/trabajos/comun.sh"
 activar
 REPO=${REPO:-unsloth/gpt-oss-20b-GGUF}
 ARCHIVO=${ARCHIVO:-gpt-oss-20b-Q8_0.gguf}

@@ -134,6 +134,13 @@ def test_esquemas_estrictos_de_c6_c7_c18_y_c19(guardia: ModuleType) -> None:
         ("integrity/review-suggestion.v2.json: /$defs/otro: objeto sin additionalProperties: false "
         "(§4.3)"),
         "integrity/review-suggestion.v2.json: /: objeto sin additionalProperties: false (§4.3)",
+        # Con la raíz abierta, sus condiciones `if` ya no refinan a un objeto cerrado (P-T15-2).
+        ("integrity/review-suggestion.v2.json: /allOf/0/if: objeto sin additionalProperties: "
+        "false (§4.3)"),
+        ("integrity/review-suggestion.v2.json: /allOf/1/if: objeto sin additionalProperties: "
+        "false (§4.3)"),
+        ("integrity/review-suggestion.v2.json: /allOf/2/if: objeto sin additionalProperties: "
+        "false (§4.3)"),
         ("integrity/review-suggestion.v2.json: /properties/anidado: objeto sin "
         "additionalProperties: false (§4.3)"),
     ]
@@ -346,7 +353,8 @@ def _con_hermana(hermana: Any, rama: dict[str, Any] | None = None) -> dict[str, 
 def test_una_rama_se_refina_con_una_hermana_cerrada_por_ref_externa_o_local(
     guardia: ModuleType,
 ) -> None:
-    externos = guardia.ids_de([_hermana()])
+    externos = guardia.ids_de([{"sin": "id"}, "no es un esquema", _hermana()])
+    assert list(externos) == [HERMANA]
     por_id = _con_hermana({"$ref": f"/{HERMANA}"})
     assert guardia.comprobar_esquema("x", por_id, externos) == []
     local = {**_con_hermana({"$ref": "#/$defs/h"}), "$defs": {"h": _hermana()}}

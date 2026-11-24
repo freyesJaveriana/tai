@@ -27,7 +27,7 @@ abiertos que un contrato admite a propósito están en `ABIERTOS_ADMITIDOS`, cad
 (E-13). Los mensajes dicen dónde falla y qué regla, nunca copian un valor del contrato.
 """
 
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
@@ -83,36 +83,77 @@ Nodo = tuple[dict[str, Any], str, bool]
 SIN_PADRE: Mapping[str, Any] = MappingProxyType({})
 
 
+def ids_de(documentos: Iterable[Any]) -> dict[str, Any]:
+    """Los esquemas que declaran `$id`, por ese `$id` sin la barra inicial.
+
+    Sirve para resolver una `$ref` a otro contrato (`/veridicus/contracts/...`) que es la rama
+    hermana de un refinamiento (P-T15-5).
+    """
+    return {
+        str(documento["$id"]).lstrip("/"): documento
+        for documento in documentos
+        if isinstance(documento, dict) and "$id" in documento
+    }
+
+
+def _hermanas(
+    raiz: Any, contenedor: Mapping[str, Any], rama: Any, externos: Mapping[str, Any]
+) -> Iterator[Mapping[str, Any]]:
+    """Las demás ramas del `allOf` de `contenedor`, con su `$ref` local o por `$id` resuelto."""
+    for hermana in contenedor.get("allOf", []):
+        resuelta = resolver(raiz, hermana)
+        referencia = objeto(resuelta).get("$ref")
+        if isinstance(referencia, str):
+            resuelta = externos.get(referencia.lstrip("/"), resuelta)
+        if isinstance(resuelta, dict) and resuelta is not rama:
+            yield resuelta
+
+
 def _recorrer(
     raiz: Any,
     esquema: Any,
     puntero: str,
     vistos: set[int],
+    externos: Mapping[str, Any],
     anfitrion: Mapping[str, Any] = SIN_PADRE,
     papel: str = "",
+    contenedor: Mapping[str, Any] = SIN_PADRE,
 ) -> Iterator[Nodo]:
     """Cada esquema alcanzable, resuelto, con su puntero; una vez por esquema.
 
     El tercer valor dice si el esquema es un refinamiento válido del objeto al que se aplica, su
     anfitrión (P-T15-2). Las ramas de `allOf`, `if`, `then` y `else` se aplican al mismo objeto
-    que su padre: si el padre es a su vez una de ellas, el anfitrión es el del padre.
+    que su padre: si el padre es a su vez una de ellas, el anfitrión es el del padre. Si la rama
+    es de un `allOf`, `contenedor` es el esquema que lo declara y sus otras ramas pueden cerrar el
+    objeto (P-T15-5).
     """
     esquema = resolver(raiz, esquema)
     if not isinstance(esquema, dict) or id(esquema) in vistos:
         return
     vistos.add(id(esquema))
-    yield esquema, puntero, papel == REFINA and _refina(esquema, anfitrion)
+    hermanas = _hermanas(raiz, contenedor, esquema, externos)
+    yield esquema, puntero, papel == REFINA and _refina(esquema, anfitrion, hermanas)
     propio = anfitrion if papel == REFINA else esquema
     for hija, sitio, papel_de_hija in hijas(esquema, puntero):
-        yield from _recorrer(raiz, hija, sitio, vistos, propio, papel_de_hija)
+        de_allof = esquema if sitio.startswith(f"{puntero}/allOf/") else SIN_PADRE
+        yield from _recorrer(raiz, hija, sitio, vistos, externos, propio, papel_de_hija, de_allof)
 
 
-def _refina(rama: Mapping[str, Any], anfitrion: Mapping[str, Any]) -> bool:
-    """Una rama sin `type` con `properties` que el anfitrión cerrado ya declara lo refina."""
-    if "type" in rama or "properties" not in rama or not _esta_cerrado(anfitrion):
+def _refina(
+    rama: Mapping[str, Any], anfitrion: Mapping[str, Any], hermanas: Iterable[Mapping[str, Any]]
+) -> bool:
+    """Una rama sin `type` con `properties` refina al objeto cerrado que las declara todas.
+
+    Ese objeto es el anfitrión o, dentro de un `allOf`, una rama hermana (P-T15-2, P-T15-5).
+    """
+    if "type" in rama or "properties" not in rama:
         return False
-    declaradas = objeto(anfitrion.get("properties"))
-    return all(nombre in declaradas for nombre in objeto(rama["properties"]))
+    propias = objeto(rama["properties"])
+    return any(
+        _esta_cerrado(candidato)
+        and all(nombre in objeto(candidato.get("properties")) for nombre in propias)
+        for candidato in (anfitrion, *hermanas)
+    )
 
 
 def _esta_cerrado(nodo: Mapping[str, Any]) -> bool:
@@ -129,14 +170,17 @@ def _esta_cerrado(nodo: Mapping[str, Any]) -> bool:
     )
 
 
-def _objetos_abiertos(raiz: Any, esquema: Any) -> Iterator[str]:
+def _objetos_abiertos(
+    raiz: Any, esquema: Any, externos: Mapping[str, Any] = SIN_PADRE
+) -> Iterator[str]:
     """Los punteros de los objetos que no están cerrados.
 
     Un objeto es un esquema con `type: object` o con `properties`; una rama de `allOf`, `if`,
     `then` o `else` que solo trae `properties` refina al objeto padre y no declara uno nuevo solo
-    en las condiciones de `_refina`.
+    en las condiciones de `_refina`. `externos` resuelve, por `$id`, las ramas hermanas de otro
+    contrato (`ids_de`).
     """
-    for nodo, puntero, refina in _recorrer(raiz, esquema, "", set()):
+    for nodo, puntero, refina in _recorrer(raiz, esquema, "", set(), externos):
         es_objeto = es_tipo(nodo, "object") or "properties" in nodo
         if es_objeto and not refina and not _esta_cerrado(nodo):
             yield puntero
@@ -169,11 +213,17 @@ def comprobar_c1(documento: Any) -> list[str]:
     ]
 
 
-def comprobar_esquema(nombre: str, documento: Any) -> list[str]:
-    """Un contrato que es un esquema JSON: todos sus objetos son cerrados."""
+def comprobar_esquema(
+    nombre: str, documento: Any, externos: Mapping[str, Any] = SIN_PADRE
+) -> list[str]:
+    """Un contrato que es un esquema JSON: todos sus objetos son cerrados.
+
+    `externos` son los demás contratos por `$id` (`ids_de`): una rama de refinamiento puede cerrarse
+    con una hermana de otro contrato (P-T15-5).
+    """
     return [
         f"{nombre}: {puntero or '/'}: objeto sin additionalProperties: false ({REGLA})"
-        for puntero in _objetos_abiertos(documento, documento)
+        for puntero in _objetos_abiertos(documento, documento, externos)
     ]
 
 
@@ -228,8 +278,9 @@ def comprobar(contracts_root: Path) -> list[str]:
         problemas.extend(faltas)
     if problemas:
         return problemas
+    externos = ids_de(cargados[relativa] for relativa in ESQUEMAS_ESTRICTOS)
     for relativa in ESQUEMAS_ESTRICTOS:
-        problemas.extend(comprobar_esquema(relativa, cargados[relativa]))
+        problemas.extend(comprobar_esquema(relativa, cargados[relativa], externos))
     for relativa in OPENAPI_INTERNOS:
         problemas.extend(comprobar_openapi_interno(relativa, cargados[relativa]))
     problemas.extend(comprobar_c1(cargados[CONSOLA]))

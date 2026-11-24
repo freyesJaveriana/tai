@@ -213,7 +213,13 @@ def test_un_valor_de_enum_o_const_con_espacios_o_demasiado_largo_queda_en_rojo()
 def test_el_formato_date_time_solo_cierra_una_cadena_de_model_call() -> None:
     """`model-call.v1` (de T08) cierra `at` con el formato; el reporte exige patrón, tope y marca (F-04)."""
     reporte, llamada, fixtures = _documentos()
-    assert llamada["properties"]["at"] == {"type": "string", "format": "date-time"}
+    assert llamada["properties"]["at"] == {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+        "maxLength": 128,
+        "x-veridicus-limit": "report_token_max_chars",
+    }
     assert _problemas(reporte, llamada, fixtures) == []
     reporte["properties"]["created_at"] = {"type": "string", "format": "date-time"}
     assert _problemas(reporte, llamada, fixtures) == [

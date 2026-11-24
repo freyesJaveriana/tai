@@ -497,11 +497,11 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 18 — Métricas, formato de fecha y nombres (implementar y probar) · tarea T17
 
-- [ ] `contracts/metrics/review.v2.yaml` (C15, de U5) y `metrics/text-flow.v1.yaml`,
+- [x] `contracts/metrics/review.v2.yaml` (C15, de U5) y `metrics/text-flow.v1.yaml`,
   `session-lifecycle.v1.yaml`, `assistant-extras.v1.yaml`, `voice.v1.yaml`, `anonymizer.v1.yaml` con los
   nombres y valores de NFRD-U4-08, NFRD-U6-12, NFRD-U8-06, NFRD-U9-10 y NFRD-U10-02 (DS7, NFRD-U1-05).
-- [ ] `contracts/format/datetime.v1.yaml` (`AAAA-MM-DDTHH:MM:SSZ`, BR8.1).
-- [ ] Módulos guardia `checks/metrics.py` (prefijo, unicidad entre archivos, etiquetas de la lista
+- [x] `contracts/format/datetime.v1.yaml` (`AAAA-MM-DDTHH:MM:SSZ`, BR8.1).
+- [x] Módulos guardia `checks/metrics.py` (prefijo, unicidad entre archivos, etiquetas de la lista
   cerrada con `values`, `error_code` del catálogo, `session_id` con patrón UUID), `checks/datetime_format.py`
   (E16; la copia de C6 no se toca) y `checks/naming.py` (ASCII `snake_case` salvo los bloques de C6 de la
   regla 8, `code` en `dominio.motivo`), con 5–7 pruebas cada uno.

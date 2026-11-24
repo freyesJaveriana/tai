@@ -816,3 +816,34 @@ def test_la_vista_de_sesion_lista_report_final_mode_not_launched_entre_los_bloqu
     ]
     assert bloqueos["items"] == {"$ref": "#/components/schemas/ErrorCode"}
     assert "report.final_mode_not_launched" in c1()["components"]["schemas"]["ErrorCode"]["enum"]
+
+
+def _enums_de_c6() -> list[set[str]]:
+    salida = load_contract(SALIDA_C6)
+    registro = salida["$defs"]["registro"]["properties"]
+    return [
+        set(salida["$defs"]["hallazgo"]["properties"]["tipo"]["enum"]),
+        set(salida["properties"]["error"]["properties"]["codigo"]["enum"]),
+        set(registro["descartes"]["items"]["properties"]["motivo"]["enum"]),
+        set(registro["llamadas"]["items"]["properties"]["papel"]["enum"]),
+    ]
+
+
+def _enums_copiados_que_difieren(documento: Any) -> list[set[str]]:
+    """Enum de C1 que comparten dos o más valores con uno de C6 y no son iguales a él (BR3.2)."""
+    enums = [
+        set(v)
+        for _, clave, v in recorrer(documento)
+        if clave == "enum" and isinstance(v, list) and all(isinstance(x, str) for x in v)
+    ]
+    return [e for e in enums for c6 in _enums_de_c6() if len(e & c6) >= 2 and e != c6]
+
+
+def test_p_t14_1_ningun_enum_de_c1_copia_a_medias_un_enum_de_c6() -> None:
+    assert _enums_copiados_que_difieren(c1()) == []
+
+
+def test_p_t14_1_control_un_enum_con_dos_valores_de_tipo_que_difiere_se_detecta() -> None:
+    copia = copy.deepcopy(c1())
+    copia["components"]["schemas"]["Role"]["enum"] = ["fecha", "lugar", "otro_valor"]
+    assert _enums_copiados_que_difieren(copia) != []

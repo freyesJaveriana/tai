@@ -125,6 +125,9 @@ def _enums_del_documento(documento: Any) -> list[set[str]]:
     ]
 
 
+DECLARAN_TIPO = {C7, "cli/report.schema.v2.yaml"}
+
+
 @pytest.mark.parametrize(
     "ruta",
     [
@@ -142,7 +145,8 @@ def test_los_enum_copiados_de_c6_son_iguales(ruta: str) -> None:
         for enum in enums:
             if len(enum & valores) >= 2:
                 assert enum == valores, f"{ruta}: un enum difiere del de C6 ({nombre})"
-    assert c6["tipo"] in enums, f"{ruta}: no declara el enum de tipo de C6"
+    if ruta in DECLARAN_TIPO:  # P-T14-1: BR3.2 lo exige en C7 y C19; C1 lo trae por $ref a C7
+        assert c6["tipo"] in enums, f"{ruta}: no declara el enum de tipo de C6"
 
 
 @pytest.mark.parametrize(

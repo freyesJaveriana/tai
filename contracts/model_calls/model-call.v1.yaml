@@ -22,6 +22,7 @@ properties:
     type: string
     pattern: '^[a-z][a-z0-9_]{0,31}$'
     maxLength: 32
+    x-veridicus-limit: model_call_role_max_chars
   provider:
     enum: [anthropic, google, openai, local]
   model:
@@ -54,6 +55,7 @@ $defs:
     type: string
     pattern: '^[A-Za-z0-9._:/@+-]{1,128}$'
     maxLength: 128
+    x-veridicus-limit: report_token_max_chars
     description: Sin espacios; nombres de modelo, versiones, esfuerzos y motores
   count:
     type: integer

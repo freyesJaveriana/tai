@@ -28,6 +28,7 @@ UNIDADES = frozenset(
         "ratio",
         "days",
         "levels",
+        "runs",
     }
 )
 SECCIONES = frozenset({"schema_version", "limits", "relations"})

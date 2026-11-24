@@ -909,7 +909,7 @@ ESTADOS: dict[tuple[str, str], set[str]] = {
     ("get", "/notice"): {"200"},
     ("get", "/profiles"): {"200", "401", "403"},
     ("get", "/sessions"): {"200", "401", "403"},
-    ("post", "/sessions"): {"201", "401", "403", "422"},
+    ("post", "/sessions"): {"201", "401", "403", "413", "422"},
     ("post", "/sessions/import"): {"201", "401", "403", "413", "415", "422"},
     ("get", "/sessions/{session_id}"): {"200", "401", "403"},
     ("post", "/sessions/{session_id}/heartbeat"): {"204", "401", "403"},
@@ -1005,7 +1005,7 @@ ESTADOS: dict[tuple[str, str], set[str]] = {
     ("get", "/research-reports/{research_report_id}"): {"200", "401", "403", "404"},
     ("get", "/research-reports/compare"): {"200", "401", "403", "404", "409", "422"},
     ("patch", "/sessions/{session_id}/retention"): {"200", "401", "403", "413", "422"},
-    ("post", "/acknowledgements"): {"201", "401", "403", "409", "413"},
+    ("post", "/acknowledgements"): {"201", "401", "403", "413", "422"},
     ("post", "/problem-reports"): {"201", "401", "403", "404", "413", "422"},
 }
 # (método, ruta) -> `required` del cuerpo JSON o multipart de la petición (None: sin `required`).

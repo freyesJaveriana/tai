@@ -1,7 +1,7 @@
 asyncapi: 3.0.0
 info:
   title: Veridicus speech
-  version: 1.2.0
+  version: 2.0.0
   x-veridicus-priority: SHOULD
   description: >-
     C5, colas de audio y transcripción (SHOULD, U9). El audio solo se acepta con `autoriza_voz`

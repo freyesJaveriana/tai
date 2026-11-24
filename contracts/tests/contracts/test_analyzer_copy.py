@@ -7,7 +7,15 @@ import hashlib
 from pathlib import Path
 
 import pytest
-from helpers import Caso, comprobar_caso, importar_o_fallar, load_contract, load_text, ruta_de, validador_de
+from helpers import (
+    Caso,
+    comprobar_caso,
+    importar_o_fallar,
+    load_contract,
+    load_text,
+    ruta_de,
+    validador_de,
+)
 
 pytestmark = pytest.mark.c6
 

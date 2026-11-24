@@ -356,7 +356,7 @@ def test_e28_br1_1_la_cubren_dos_fixtures_reject_de_la_cola_de_corridas(guardia:
     }
 
 
-VERSION_SEMANTICA = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
+VERSION_SEMANTICA = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)")
 
 
 MAYOR_DEL_ID = re.compile(r"[./]v([0-9]+)$")

@@ -7,6 +7,7 @@ la prueba.
 
 import copy
 import shutil
+import time
 from collections.abc import Callable
 from pathlib import Path
 from types import ModuleType
@@ -544,7 +545,7 @@ def test_c5_un_texto_sin_marca_solo_se_acota_con_el_tope_de_bytes_del_payload(
 # ---- Ronda 4, F-01: solo cuentan las marcas del propio nodo o de ramas de `allOf` ------------------
 
 
-@pytest.mark.parametrize("clave", ["oneOf", "anyOf", "if", "then", "else"])
+@pytest.mark.parametrize("clave", ["oneOf", "anyOf", "if", "then", "else", "not"])
 def test_una_marca_que_solo_esta_en_una_rama_que_no_es_de_allof_no_acota_el_texto(
     guardia: ModuleType, clave: str
 ) -> None:
@@ -627,6 +628,144 @@ def test_el_tope_de_bytes_en_el_tipo_de_contenido_acota_los_textos_de_c21(
         (f"{c21}: /paths/~1v1~1generate/post/requestBody/content/application~1json/schema/"
         f"{contenido}: {TEXTO}"),
     ]
+
+
+# ---- Ronda 5, F-01: cada segmento de la ruta lleva su clase ---------------------------------------
+
+MARCA_DE_USUARIO = {"maxLength": 32, "x-veridicus-limit": "username_max_chars"}
+PAYLOAD_DE_VOZ = "/components/messages/TranscriptResult/payload/properties"
+
+
+def _propiedades_de_voz(documentos: dict[str, Any]) -> dict[str, Any]:
+    mensaje = documentos["queues/speech.v2.yaml"]["components"]["messages"]["TranscriptResult"]
+    propiedades: dict[str, Any] = mensaje["payload"]["properties"]
+    return propiedades
+
+
+def test_una_marca_bajo_una_propiedad_llamada_items_no_acota_los_elementos_del_arreglo(
+    guardia: ModuleType,
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        catalogo["username_max_chars"]["used_in"] = ["C1", "C5"]
+        _propiedades_de_voz(documentos)["l"] = {
+            "type": "array",
+            "items": {"type": "string"},
+            "allOf": [{"properties": {"items": MARCA_DE_USUARIO}}],
+        }
+
+    assert _nuevos(guardia, cambiar) == [f"queues/speech.v2.yaml: {PAYLOAD_DE_VOZ}/l/items: {TEXTO}"]
+
+
+def test_una_marca_bajo_una_propiedad_llamada_additionalproperties_no_acota_los_valores(
+    guardia: ModuleType,
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        catalogo["username_max_chars"]["used_in"] = ["C1", "C5"]
+        _propiedades_de_voz(documentos)["m"] = {
+            "type": "object",
+            "additionalProperties": {"type": "string"},
+            "allOf": [{"properties": {"additionalProperties": MARCA_DE_USUARIO}}],
+        }
+
+    assert _nuevos(guardia, cambiar) == [
+        f"queues/speech.v2.yaml: {PAYLOAD_DE_VOZ}/m/additionalProperties: {TEXTO}"
+    ]
+
+
+def test_la_rama_de_c2_con_turnos_properties_items_no_acota_turnos_texto(
+    guardia: ModuleType,
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        entrada = _payload_de_runs(documentos)["properties"]["entrada"]
+        turnos = entrada["allOf"][1]["properties"]["transcripcion"]["properties"]["turnos"]
+        turnos["properties"] = {"items": turnos.pop("items")}
+
+    assert _nuevos_con_c6(guardia, cambiar) == [
+        f"{RUNS}: {TEXTO_DE_TURNO}: campo de texto sin x-veridicus-limit (§4.4 a)"
+    ]
+
+
+def test_la_lista_de_marca_propia_distingue_una_propiedad_items_de_la_palabra_clave(
+    guardia: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    voz = "queues/speech.v2.yaml"
+    monkeypatch.setattr(
+        guardia,
+        "MARCA_PROPIA_OBLIGATORIA",
+        {(voz, "TranscriptResult", "l[]"): "los elementos de l llevan su propio tope"},
+    )
+
+    def con_tope(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        mensaje = documentos[voz]["components"]["messages"]["TranscriptResult"]
+        mensaje["payload"]["x-veridicus-max-bytes"] = "run_message_max_bytes"
+        catalogo["run_message_max_bytes"]["used_in"] = ["C2", "C5"]
+
+    def arreglo(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        con_tope(catalogo, documentos)
+        _propiedades_de_voz(documentos)["l"] = {"type": "array", "items": {"type": "string"}}
+
+    assert _nuevos(guardia, arreglo) == [f"{voz}: {PAYLOAD_DE_VOZ}/l/items: {TEXTO}"]
+
+    def objeto_con_propiedad_items(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        con_tope(catalogo, documentos)
+        _propiedades_de_voz(documentos)["l"] = {
+            "type": "object",
+            "properties": {"items": {"type": "string"}},
+        }
+
+    assert _nuevos(guardia, objeto_con_propiedad_items) == []
+
+
+# ---- Ronda 5, F-02: el costo de `_nodos` tiene un tope explícito ----------------------------------
+
+
+def test_un_grafo_de_ref_compartidos_se_acota_con_un_problema_explicito_y_en_poco_tiempo(
+    guardia: ModuleType,
+) -> None:
+    tope = getattr(guardia, "TOPE_DE_NODOS", 20000)
+
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        esquemas = documentos["queues/speech.v2.yaml"]["components"].setdefault("schemas", {})
+        for nivel in range(18):
+            siguiente = f"#/components/schemas/N{nivel + 1}"
+            esquemas[f"N{nivel}"] = {
+                "type": "object",
+                "properties": {"a": {"$ref": siguiente}, "b": {"$ref": siguiente}},
+            }
+        esquemas["N18"] = {"type": "integer"}
+        _propiedades_de_voz(documentos)["grafo"] = {"$ref": "#/components/schemas/N0"}
+
+    inicio = time.perf_counter()
+    nuevos = _nuevos(guardia, cambiar)
+    transcurrido = time.perf_counter() - inicio
+    assert nuevos == [
+        ("queues/speech.v2.yaml: /components/messages/TranscriptResult/payload: la guardia superó "
+        f"el tope de {tope} nodos de esquema y no revisa el resto (§4.4 a)")
+    ]
+    assert transcurrido < 1.0
+
+
+def test_con_un_texto_antes_del_tope_el_texto_se_informa_y_tambien_el_tope(
+    guardia: ModuleType,
+) -> None:
+    tope = getattr(guardia, "TOPE_DE_NODOS", 20000)
+
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        esquemas = documentos["queues/speech.v2.yaml"]["components"].setdefault("schemas", {})
+        for nivel in range(18):
+            siguiente = f"#/components/schemas/N{nivel + 1}"
+            esquemas[f"N{nivel}"] = {
+                "type": "object",
+                "properties": {"a": {"$ref": siguiente}, "b": {"$ref": siguiente}},
+            }
+        esquemas["N18"] = {"type": "integer"}
+        propiedades = _propiedades_de_voz(documentos)
+        propiedades["antes"] = {"type": "string"}
+        propiedades["grafo"] = {"$ref": "#/components/schemas/N0"}
+
+    nuevos = _nuevos(guardia, cambiar)
+    assert f"queues/speech.v2.yaml: {PAYLOAD_DE_VOZ}/antes: {TEXTO}" in nuevos
+    assert any(f"el tope de {tope} nodos" in problema for problema in nuevos)
 
 
 def test_comprobar_con_contratos_ausentes_o_ilegibles(guardia: ModuleType, tmp_path: Path) -> None:

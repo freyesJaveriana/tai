@@ -45,7 +45,7 @@
 - **La lista explícita de objetos abiertos de C21 (E-13).** La hace T15 en su ronda 2. C21 no cambia.
 - **Cualquier otro defecto de un contrato.** Si lo ves, lo anotas en la bitácora como candidata y no lo corriges.
 - **Cambiar cifras de C25, el catálogo de errores o C6** (`contracts/analyzer/v1/`).
-- **Las pruebas de T03** (`tests/guards/`) y las de T11 a T14. Única excepción: una aserción de `tests/contracts/test_console.py` que fije las respuestas `409` de esas dos operaciones o la lista de límites de C1, ajustada solo a E-12 y E-14. Si la ajustas, la nombras en la bitácora.
+- **Las pruebas de T03** (`tests/guards/`) y las de T11 a T14. Única excepción: una aserción de `tests/contracts/test_console.py` que fije las respuestas `409` de esas dos operaciones o la lista de límites de C1, ajustada solo a E-12 y E-14. Segunda excepción (P-T15b-2): en `tests/checks/test_report_closed.py` (T12), `test_una_cadena_de_model_call_no_exige_la_marca_pero_si_el_tope` afirma que `/$defs/token` de `model-call.v1.yaml` no lleva marca. Esa aserción pasa a exigir `x-veridicus-limit: report_token_max_chars`, y la docstring se ajusta a ese cambio; el resto de la prueba no cambia. Si ajustas alguna de las dos, la nombras en la bitácora.
 - **`pyproject.toml`, `uv.lock`, `hatch_build.py`, `conftest.py`, `tests/helpers.py` y `registry.py`.** Si necesitas tocarlos, paras y lo informas.
 
 ---
@@ -90,7 +90,7 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
   ```bash
   git -C /workspace/.worktrees/U01-T15b diff --name-only feat/b1-contratos
   ```
-  Esperado: un subconjunto de `contracts/limits.v1.yaml`, `contracts/api/console.v2.yaml`, `contracts/queues/speech.v2.yaml`, `contracts/model_calls/model-call.v1.yaml`, `contracts/cli/report.schema.v2.yaml`, `contracts/src/veridicus_contracts/checks/limits_catalog.py`, `contracts/tests/checks/test_limits_catalog.py`, `contracts/tests/test_limits.py`, `contracts/tests/contracts/test_console.py`, `contracts/tests/contracts/test_correcciones_t15b.py` y `docs/loop/bitacoras/U01-T15b.md`.
+  Esperado: un subconjunto de `contracts/limits.v1.yaml`, `contracts/api/console.v2.yaml`, `contracts/queues/speech.v2.yaml`, `contracts/model_calls/model-call.v1.yaml`, `contracts/cli/report.schema.v2.yaml`, `contracts/src/veridicus_contracts/checks/limits_catalog.py`, `contracts/tests/checks/test_limits_catalog.py`, `contracts/tests/test_limits.py`, `contracts/tests/contracts/test_console.py`, `contracts/tests/checks/test_report_closed.py`, `contracts/tests/contracts/test_correcciones_t15b.py` y `docs/loop/bitacoras/U01-T15b.md`.
 
 - [ ] **CA-5**: los contratos están en la instalación editable y en la rueda.
   ```bash

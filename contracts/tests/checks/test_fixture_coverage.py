@@ -141,6 +141,22 @@ def test_contrato_desconocido_y_fixture_ilegible_son_problemas(guardia: ModuleTy
     ]
 
 
+def test_un_mensaje_de_cola_desconocido_y_una_expectativa_ajena(guardia: ModuleType, tmp_path: Path) -> None:
+    _arbol(tmp_path)
+    for nombre, contrato in (("cola.json", "C2.NoExiste"), ("sola.json", "C2")):
+        desconocido = _aceptado()
+        desconocido["contract"] = contrato
+        _poner(tmp_path, BASE + nombre, desconocido)
+    # Una expectativa que no es accept ni reject la reporta synthetic.py, no esta guardia.
+    rara = _aceptado()
+    rara["expectation"] = "maybe"
+    _poner(tmp_path, BASE + "rara.json", rara)
+    assert guardia.comprobar(tmp_path, reglas=REGLA) == [
+        "analyzer/v1/fixtures/cola.json: contrato desconocido (NFR12.1)",
+        "analyzer/v1/fixtures/sola.json: contrato desconocido (NFR12.1)",
+    ]
+
+
 def test_lo_que_no_es_un_fixture_o_no_declara_su_regla_se_ignora(guardia: ModuleType, tmp_path: Path) -> None:
     _arbol(tmp_path)
     _poner(tmp_path, BASE + "lista.json", [1, 2])

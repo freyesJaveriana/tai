@@ -6,6 +6,7 @@ una entrada adversaria de 10 000 caracteres. Depende de una API privada de Pytho
 versión es obligatoria.
 """
 
+import re
 import sys
 import time
 from pathlib import Path
@@ -50,7 +51,8 @@ CONTROLES_NEGATIVOS = [
     ("^(?<=(?:ab|cd)+)c$", {"RAMA"}),
     ("^(a)?(?(1)(b+)+|c)$", {"ANIDADA"}),
     ("^(a)?(?(1)b|(c+)+)$", {"ANIDADA"}),
-    ("^(a)?(?(1)b)$", set()),
+    ("^(a)?(?(1)b)$", {"REFERENCIA"}),
+    ("^(?:ab)+$", set()),
 ]
 
 
@@ -167,7 +169,8 @@ def test_los_patrones_de_los_contratos_versionados_son_seguros(guardia: ModuleTy
 
 def test_comprobar_salta_directorios_ajenos_y_reporta_lo_ilegible(guardia: ModuleType, tmp_path: Path) -> None:
     (tmp_path / "a").mkdir()
-    (tmp_path / "a" / "malo.yaml").write_text("p:\n  pattern: '^(a+)+$'\n", encoding="utf-8")
+    acotado = "p:\n  pattern: '^(a+)+$'\n  maxLength: 4\n  x-veridicus-limit: turn_chars\n"
+    (tmp_path / "a" / "malo.yaml").write_text(acotado, encoding="utf-8")
     (tmp_path / "vendor").mkdir()
     (tmp_path / "vendor" / "ajeno.json").write_text('{"pattern": "^(a+)+$"}', encoding="utf-8")
     (tmp_path / "roto.yaml").write_text("a: 1\na: 2\n", encoding="utf-8")
@@ -176,9 +179,22 @@ def test_comprobar_salta_directorios_ajenos_y_reporta_lo_ilegible(guardia: Modul
     assert guardia.patrones(tmp_path) == ["^(a+)+$"]
 
 
-def _tiempo(patron: str, texto: str) -> float:
-    import re
+def _medir(patron: str) -> None:
+    """Hypothesis genera cadenas válidas del patrón y se las vuelve adversarias de 10 000 caracteres."""
 
+    @settings(max_examples=12, deadline=None, database=None)
+    @given(st.from_regex(patron, fullmatch=True))
+    def propiedad(ejemplo: str) -> None:
+        base = ejemplo or "a"
+        repetida = (base * (LARGO_ADVERSARIO // len(base) + 1))[:LARGO_ADVERSARIO]
+        for adversaria in (repetida, repetida[:-1] + "\x00", "a" * (LARGO_ADVERSARIO - 1) + "!"):
+            assert len(adversaria) <= LARGO_ADVERSARIO
+            assert _tiempo(patron, adversaria) < TECHO_DE_SEGUNDOS
+
+    propiedad()
+
+
+def _tiempo(patron: str, texto: str) -> float:
     inicio = time.perf_counter()
     re.fullmatch(patron, texto)
     return time.perf_counter() - inicio
@@ -188,14 +204,4 @@ def test_hypothesis_techo_de_1_s_sobre_una_entrada_adversaria_de_10000_caractere
     guardia: ModuleType,
 ) -> None:
     for patron in guardia.patrones(CONTRACTS_ROOT):
-
-        @settings(max_examples=12, deadline=None, database=None)
-        @given(st.from_regex(patron, fullmatch=True))
-        def propiedad(ejemplo: str, patron: str = patron) -> None:
-            base = ejemplo or "a"
-            repetida = (base * (LARGO_ADVERSARIO // len(base) + 1))[:LARGO_ADVERSARIO]
-            for adversaria in (repetida, repetida[:-1] + "\x00", "a" * LARGO_ADVERSARIO + "!"):
-                assert len(adversaria) <= LARGO_ADVERSARIO
-                assert _tiempo(patron, adversaria) < TECHO_DE_SEGUNDOS
-
-        propiedad()
+        _medir(patron)

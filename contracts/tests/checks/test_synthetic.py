@@ -129,7 +129,8 @@ def test_secuencias_de_digitos(guardia: ModuleType, tmp_path: Path, texto: str, 
     if marcado:
         assert problemas[0].startswith(f"{tmp_path.as_posix()}/f/x.json#/payload/texto: ")
         assert "secuencia numérica" in problemas[0]
-        assert not any(c.isdigit() for c in problemas[0].split("#", 1)[1]), "no repite el valor"
+        sin_regla = problemas[0].removesuffix(" (NFR12.1)")
+        assert not any(c.isdigit() for c in sin_regla.split("#", 1)[1]), "no repite el valor"
 
 
 def test_la_secuencia_se_busca_en_cada_campo_de_texto_anidado(guardia: ModuleType, tmp_path: Path) -> None:
@@ -144,11 +145,12 @@ def test_k04_se_eximen_uuid_huellas_y_fechas_completas(guardia: ModuleType, tmp_
         "huella": HUELLA,
         "registrado_en": "2026-11-20T10:00:00Z",
         "fecha": "2026-11-20",
+        "version_de_precios": "2026-11",
         "con_milis": "2026-11-20T10:00:00.123456+05:00",
     }
     assert _problemas(guardia, tmp_path, _fixture(mentions=[], payload=carga)) == []
     # La exención es por forma completa: una frase con la fecha, o una huella con un carácter de más, no.
-    for malo in ("nació el 2026-11-20", HUELLA + "0", UUID + "-1", "2026-11-20T10:00:00Zx"):
+    for malo in ("nació el 2026-11-20", HUELLA + "0", UUID.replace("123e", "1234567e"), "2026-11-20T10:00:00Zx"):
         problemas = _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"v": malo}))
         assert len(problemas) == 1, malo
 
@@ -210,3 +212,7 @@ def test_archivos_ilegibles_directorios_y_sufijos(guardia: ModuleType, tmp_path:
     assert len(problemas) == 1 and problemas[0].startswith(f"{tmp_path.as_posix()}/d/roto.yaml: ")
     assert "ilegible" in problemas[0] and problemas[0].endswith("(NFR12.1)")
     assert sorted(a.name for a in guardia.archivos([tmp_path])) == ["lista.json", "roto.yaml"]
+    # Un archivo dado de forma directa se mira solo si es YAML o JSON.
+    assert guardia.archivos([tmp_path / "d" / "huella.sha256", str(tmp_path / "d" / "lista.json")]) == [
+        tmp_path / "d" / "lista.json"
+    ]

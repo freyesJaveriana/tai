@@ -42,10 +42,11 @@ def test_la_referencia_canonica_y_las_locales_son_validas(guardia: ModuleType) -
 
 def test_e36_la_ruta_relativa_de_archivo_es_rojo_con_su_puntero(guardia: ModuleType) -> None:
     problemas = guardia.comprobar_documento(_con_ref(E36), "analyzer/v1/x.schema.json")
-    assert problemas == [
-        "analyzer/v1/x.schema.json#/properties/cita: $ref relativo o fuera de /veridicus/contracts/ "
-        "(NFR10.5, E36)"
-    ]
+    esperado = (
+        "analyzer/v1/x.schema.json#/properties/cita: "
+        "$ref relativo o fuera de /veridicus/contracts/ (NFR10.5, E36)"
+    )
+    assert problemas == [esperado]
 
 
 @pytest.mark.parametrize(

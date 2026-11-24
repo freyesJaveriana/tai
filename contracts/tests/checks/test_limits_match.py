@@ -541,6 +541,94 @@ def test_c5_un_texto_sin_marca_solo_se_acota_con_el_tope_de_bytes_del_payload(
     assert _nuevos(guardia, con_tope) == []
 
 
+# ---- Ronda 4, F-01: solo cuentan las marcas del propio nodo o de ramas de `allOf` ------------------
+
+
+@pytest.mark.parametrize("clave", ["oneOf", "anyOf", "if", "then", "else"])
+def test_una_marca_que_solo_esta_en_una_rama_que_no_es_de_allof_no_acota_el_texto(
+    guardia: ModuleType, clave: str
+) -> None:
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        entrada = _payload_de_runs(documentos)["properties"]["entrada"]
+        rama = entrada["allOf"][1]
+        alternativa = [rama, {}] if clave in ("oneOf", "anyOf") else rama
+        entrada["allOf"][1] = {clave: alternativa}
+
+    # La marca sigue existiendo (no hay hallazgo de la inversa), pero no acota la instancia.
+    assert _nuevos_con_c6(guardia, cambiar) == [
+        f"{RUNS}: {TEXTO_DE_TURNO}: campo de texto sin x-veridicus-limit (§4.4 a)"
+    ]
+
+
+def test_un_esquema_compartido_se_revisa_en_cada_ruta_de_la_instancia(guardia: ModuleType) -> None:
+    marca = {"maxLength": 32, "x-veridicus-limit": "username_max_chars"}
+    mensaje = "/components/messages/TranscriptResult/payload/properties"
+
+    def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        voz = documentos["queues/speech.v2.yaml"]
+        voz["components"].setdefault("schemas", {})["T"] = {"type": "string"}
+        propiedades = voz["components"]["messages"]["TranscriptResult"]["payload"]["properties"]
+        propiedades["p1"] = {"allOf": [{"$ref": "#/components/schemas/T"}, marca]}
+        propiedades["p2"] = {"$ref": "#/components/schemas/T"}
+        catalogo["username_max_chars"]["used_in"] = ["C1", "C5"]
+
+    assert _nuevos(guardia, cambiar) == [
+        f"queues/speech.v2.yaml: {mensaje}/p2: {TEXTO}"
+    ]
+
+
+# ---- Ronda 4, F-02: el tope de bytes también se lee en el tipo de contenido -----------------------
+
+
+def _mover_el_tope_al_tipo_de_contenido(
+    documento: dict[str, Any], ruta: str, metodo: str, medio: str
+) -> None:
+    cuerpo = documento["paths"][ruta][metodo]["requestBody"]
+    cuerpo["content"][medio]["x-veridicus-max-bytes"] = cuerpo.pop("x-veridicus-max-bytes")
+
+
+def test_el_tope_de_bytes_en_el_tipo_de_contenido_acota_los_textos_de_c1(
+    guardia: ModuleType,
+) -> None:
+    ruta = "/sessions/{session_id}/transcript"
+
+    def en_el_tipo(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        _mover_el_tope_al_tipo_de_contenido(documentos[CONSOLA], ruta, "post", "application/json")
+
+    assert _nuevos(guardia, en_el_tipo) == []
+
+    def en_ningun_sitio(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        del documentos[CONSOLA]["paths"][ruta]["post"]["requestBody"]["x-veridicus-max-bytes"]
+
+    assert _nuevos(guardia, en_ningun_sitio) == [
+        (f"{CONSOLA}: /paths/~1sessions~1{{session_id}}~1transcript/post/requestBody/content/"
+        f"application~1json/schema/properties/text: {TEXTO}"),
+        "transcript_body_max_bytes: used_in nombra C1 y C1 no la marca (§4.4, comprobación inversa)",
+    ]
+
+
+def test_el_tope_de_bytes_en_el_tipo_de_contenido_acota_los_textos_de_c21(
+    guardia: ModuleType,
+) -> None:
+    c21 = "api/anonymizer-proxy.v1.yaml"
+
+    def en_el_tipo(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        _mover_el_tope_al_tipo_de_contenido(documentos[c21], "/v1/generate", "post", "application/json")
+
+    assert _nuevos(guardia, en_el_tipo) == []
+
+    def en_ningun_sitio(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
+        cuerpo = documentos[c21]["paths"]["/v1/generate"]["post"]["requestBody"]
+        del cuerpo["x-veridicus-max-bytes"]
+
+    contenido = "properties/messages/items/properties/content"
+    assert _nuevos(guardia, en_ningun_sitio) == [
+        (f"{c21}: /paths/~1v1~1generate/post/requestBody/content/application~1json/schema/"
+        f"{contenido}: {TEXTO}"),
+        "anonymizer_request_max_bytes: used_in nombra C21 y C21 no la marca (§4.4, comprobación inversa)",
+    ]
+
+
 def test_comprobar_con_contratos_ausentes_o_ilegibles(guardia: ModuleType, tmp_path: Path) -> None:
     ausentes = guardia.comprobar(tmp_path)
     assert sorted(ausentes) == sorted(

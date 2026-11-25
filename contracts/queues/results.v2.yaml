@@ -33,7 +33,9 @@ operations:
     action: receive
     channel:
       $ref: '#/channels/results'
-    summary: InterviewSession valida la salida contra C6, la persiste de forma idempotente por (run_id, attempt) y pasa los hallazgos a HumanReview (C10)
+    summary: >-
+      InterviewSession valida la salida contra C6, la persiste de forma idempotente por (run_id, attempt)
+      y pasa los hallazgos a HumanReview (C10)
   failResult:
     action: send
     channel:

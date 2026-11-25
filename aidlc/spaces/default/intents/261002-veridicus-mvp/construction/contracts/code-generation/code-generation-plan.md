@@ -171,7 +171,7 @@ misma ola no dependen entre sí.
   como datos, `*/fixtures/` fuera) (D1, D15); la rueda, construida por `uv build` (sdist → rueda) o por
   `uv build --wheel`, y la instalación editable ven los mismos módulos y datos; dependencias de tech-stack-decisions §3 más `yamllint` en el grupo de desarrollo;
   `uv lock --directory contracts` (con red) genera `uv.lock` con *hashes*, que se versiona.
-- [ ] `build/` en `.gitignore`; `tools/audit_gate.py` y el paso de `pip-audit` crean `build/` si falta.
+- [x] `build/` en `.gitignore`; `tools/audit_gate.py` y el paso de `pip-audit` crean `build/` si falta.
 - [x] Configuración en `pyproject.toml`: mypy estricto; Ruff con reglas por defecto + `S` (toda
   supresión `# noqa: S…` con motivo); cobertura con ramas y exclusión declarada solo para `ts/generated/`.
 - [x] Directorios del inventario: `api/`, `errors/`, `queues/`, `analyzer/v1/`, `integrity/`, `ui/`,
@@ -566,18 +566,18 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 23 — Suite completa y compuertas de calidad · tarea T22
 
-- [ ] Correr todo. Ningún umbral se baja para que pase; un hueco se informa en el PR.
+- [x] Correr todo. Ningún umbral se baja para que pase; un hueco se informa en el PR.
 - Cubre: NFR2.1, NFR2.2, NFR10.9, NFR13.1, NFR13.2.
 - Verificación: V-SUITE (verde, ≤ 60 s, ≥ 80 %), V-GUARD (100 %), V-TYPES (0), V-LINT (0), V-AUDIT,
   V-GEN, V-SURFACE, V-TS, V-TS-AUDIT, V-PKG y V-ERRORS.
 
 ### Paso 24 — CI y ganchos locales · tarea T22
 
-- [ ] `.github/workflows/contracts-level0.yml`: *job* `contracts-level0` con los 12 pasos de §4.13 en orden,
+- [x] `.github/workflows/contracts-level0.yml`: *job* `contracts-level0` con los 12 pasos de §4.13 en orden,
   `permissions: contents: read`, acciones fijadas por SHA, sin `kubeconfig` ni credenciales del clúster, y
   `gitleaks` sobre el repositorio (NFR12.2); más un *job* hermano `errors-level0` con V-ERRORS, extensión
   de §4.13 por PD-7 que se anota en el PR (R-13 de la revisión 2).
-- [ ] `.pre-commit-config.yaml` en la raíz con `gitleaks`, Ruff y `yamllint`.
+- [x] `.pre-commit-config.yaml` en la raíz con `gitleaks`, Ruff y `yamllint`.
 - [ ] Pedir en el PR del Bolt que `contracts-level0` sea comprobación obligatoria de `main` (lo aplica el
   humano en GitHub).
 - Cubre: NFR10.9, NFR12.2; AUTONOMIA-01, AUTONOMIA-02.

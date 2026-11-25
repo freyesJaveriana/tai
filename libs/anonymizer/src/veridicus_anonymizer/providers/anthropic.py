@@ -121,7 +121,13 @@ def _build_body(
     }
     if system:
         body["system"] = system
-    return json.dumps(body, ensure_ascii=False).encode("utf-8"), effort
+    try:
+        encoded = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    except (TypeError, ValueError):
+        encoded = None
+    if encoded is None:
+        raise AnonymizerUnavailable("el cuerpo de la petición no se puede serializar como JSON")
+    return encoded, effort
 
 
 def _headers(api_key: str) -> dict[str, str]:

@@ -76,7 +76,7 @@ MARCAS_X_VERIDICUS = frozenset(
         "x-veridicus-demo",
     }
 )
-_SEMVER = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
+_SEMVER = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)")
 _LISTA_DE_SUBESQUEMAS = frozenset({"allOf", "anyOf", "oneOf", "prefixItems"})
 _MAPA_DE_SUBESQUEMAS = frozenset({"properties", "patternProperties", "dependentSchemas", "$defs"})
 

@@ -150,7 +150,6 @@ def test_un_workflow_que_no_es_un_mapa_no_declara_permisos(guardia: ModuleType, 
         ("run: kubectl   apply -f deploy/", "kubectl apply"),
         ("run: KUBECTL APPLY -f deploy/", "kubectl apply"),
         ("run: helm install veridicus charts/x", "helm install"),
-        ("run: helm\tupgrade veridicus charts/x", "helm upgrade"),
         ("run: uv run python -m veridicus_contracts.tools.security_surface --write", "--write"),
         # F-01: opciones globales entre la herramienta y el verbo.
         ("run: kubectl -n veridicus apply -f x.yaml", "kubectl apply"),
@@ -172,6 +171,14 @@ def test_un_workflow_con_un_comando_prohibido_es_rojo(guardia: ModuleType, tmp_p
     problemas = guardia.scan([ruta])
     assert problemas == [f"{ruta.as_posix()}:5: {termino} no se permite en un workflow {guardia.REGLA}"]
     assert guardia.comprobar(tmp_path) == problemas
+
+
+def test_un_tabulador_entre_helm_y_upgrade_se_detecta_aunque_el_yaml_no_cargue(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    # El escáner de comandos es de texto; el YAML con tabulador no carga y eso es otro problema, no un salto.
+    ruta = _workflow(tmp_path, "tab.yml", f"name: x\njobs:\n  j:\n    steps:\n      - run: helm\tupgrade a\n{PERMISOS_OK}")
+    assert guardia.scan([ruta]) == [f"{ruta.as_posix()}:5: helm upgrade no se permite en un workflow {guardia.REGLA}"]
 
 
 def test_un_workflow_con_kubectl_apply_en_un_comentario_tambien_es_rojo(guardia: ModuleType, tmp_path: Path) -> None:

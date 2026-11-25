@@ -56228,3 +56228,29 @@
 **Context**: construction > contracts > code-generation > code-generation-plan.md
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-25T15:50:52Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8ac08eecea06fc8d
+**Message**: Estamos cerrando el Bolt B1 de U1 con todas sus tareas fusionadas, y el PR #42 hacia `main` ya está abierto. Te toca marcar como obligatorias `contracts-level0` y `errors-level0` en la protección de `
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-25T15:52:31Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-25T15:53:11Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: Cambio de requisitos: veridicus-06 (MVP del analizador y modo liviano del loop, DT31). Cierre de B1 con DECISIONES-LOOP.md lleno; corte delgado B10a/B10b y B11a/B11b con nuevo orden como precision de Delivery Planning; modo liviano ML-1 a ML-10 desde B10a. No reabre etapas.
+**Options**: Aplicar al cerrar B1 por compuertas
+**Unit**: contracts
+
+---

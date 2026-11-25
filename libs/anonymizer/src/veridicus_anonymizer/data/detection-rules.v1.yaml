@@ -79,7 +79,7 @@ identifier_patterns:
   - id: id_card_keyword
     pattern: '(?i:(?:^|[^\p{L}])(?:cédula|cedula|c\.c\.?|cc|documento|nit|tarjeta de identidad|t\.i\.?|pasaporte)[^0-9\n]{0,25})(?P<entity>[0-9][0-9. \-]{4,}[0-9])'
     examples_positive:
-      - 'Su cédula de ciudadanía 1234567890 estaba vencida.'
+      - 'Su cédula de ciudadanía 12345678 estaba vencida.'
       - 'Presentó el pasaporte AB 123456 en la oficina.'
     examples_negative:
       - 'Firmó el documento el 12 de marzo.'

@@ -1,14 +1,16 @@
 # Validación US14.1: copia por scp los trabajos de esta carpeta y las 10 entrevistas del piloto (los .json reducidos)
 # a $env:ZINE_BASE/validacion/{trabajos,entrevistas,logs}. No lanza ningún trabajo: los sbatch los lanza
 # el humano (AUTONOMIA-01). Las entrevistas van solo al clúster, nunca a Git; la copia temporal local se borra al final.
-# Variables (las fija el humano antes de enviar; ver README.md): ZINE_BASE (obligatoria) y ZINE_USUARIO (opcional:
-# si está, el destino es usuario@servidor).
-#   .\enviar.ps1 -Piloto <repo del TG>\02-procedimientos\03-Corpus\salida\piloto [-Servidor javeriana]
-param([Parameter(Mandatory)][string]$Piloto, [string]$Servidor = 'javeriana')
+# Variables (las fija el humano antes de enviar; ver README.md): ZINE_BASE y el servidor (obligatorias; el servidor
+# sale de -Servidor o, si falta, de ZINE_SERVIDOR) y ZINE_USUARIO (opcional: si está, el destino es usuario@servidor).
+#   .\enviar.ps1 -Piloto <repo del TG>\02-procedimientos\03-Corpus\salida\piloto [-Servidor mi-servidor]
+param([Parameter(Mandatory)][string]$Piloto, [string]$Servidor)
 $ErrorActionPreference = 'Stop'
 $aqui = $PSScriptRoot
 $base = $env:ZINE_BASE
 if (-not $base) { throw 'Fije ZINE_BASE (ver README.md)' }
+if (-not $Servidor) { $Servidor = $env:ZINE_SERVIDOR }
+if (-not $Servidor) { throw 'Indique -Servidor o fije ZINE_SERVIDOR (ver README.md)' }
 if ($env:ZINE_USUARIO) { $Servidor = "$($env:ZINE_USUARIO)@$Servidor" }
 $tmp = Join-Path ([IO.Path]::GetTempPath()) "validacion-zine-$PID"
 $val = Join-Path $tmp 'validacion'

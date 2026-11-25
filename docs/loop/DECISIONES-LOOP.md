@@ -52,7 +52,28 @@ Un caso parecido es **U01-T30, ronda 1, F-01**: un número inventado de la lista
 
 ## 4. Costo en tokens de una ola en paralelo frente a la serie
 
-Pendiente de la salida de `medir_uso.py veridicus --desde 2026-11-23T17:00` (cambio 06, §1).
+Medición del humano en el host, 2026-11-25 (cambio 06, §1):
+
+```
+python 03-desarrollo\medir_uso.py veridicus --desde 2026-11-23T17:00
+  opus-5-5     salida   2.75 M  entrada+caché    690.7 M  USD      313
+  sonnet-5-5   salida   3.21 M  entrada+caché    901.2 M  USD      188
+  Total USD equivalentes: 501   horas con actividad: 34
+```
+
+**Totales de U1.** Unos 501 USD equivalentes y 34 horas con actividad para 45 tareas (33 del plan y 12 correctivas), con unas 2,4 rondas por tarea:
+- ≈ 11 USD por tarea;
+- ≈ 6 USD por paso del plan (82 pasos);
+- ≈ 0,4 h por paso.
+
+**La herramienta no separa olas.** Mide por modelo y por intervalo, no por ola, así que la comparación es indirecta.
+- **Tokens.** Una tarea cuesta lo mismo despachada en paralelo que en serie: el codificador lee el mismo archivo de tarea, el mismo plan y el mismo código, y el revisor corre los mismos criterios. Los tokens dependen de la tarea y de sus rondas, no de cuántas corren a la vez.
+- **Reloj.** Las olas de 3 (por ejemplo, T08–T10 y T16–T18) sí acortaron el reloj: las 45 tareas cupieron en unas 34 h con actividad, cuando en serie habrían pedido varias más.
+- **El costo de paralelizar.** Fueron las paradas cruzadas. T17 esperó a T17b y T18 a T18b y T18c. Esas esperas, y los rebases que siguieron, añadieron rondas, y cada ronda vuelve a leer el contexto, que es la parte cara: la entrada y la caché son ~1.592 M de tokens, frente a ~6 M de salida.
+
+**Conclusión para el modo liviano (DT31).**
+- Paralelizar sirve cuando las tareas de la ola no dependen entre sí. Si una tarea de la ola depende de otra que todavía no se ha fusionado, se gastan tokens en rebases y rondas repetidas.
+- El ahorro grande no está en el paralelismo. Está en menos rondas (ML-5), menos tareas por Bolt (ML-3) y menos contexto por ronda (ML-7), porque casi todo el costo es entrada y caché.
 
 ## 5. Puntos H1–H5 con AI-DLC 2.10
 

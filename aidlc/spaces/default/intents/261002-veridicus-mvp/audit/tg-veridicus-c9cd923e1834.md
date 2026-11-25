@@ -56254,3 +56254,28 @@
 **Unit**: contracts
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-25T15:54:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac0d3edba52373004
+**Message**: (The user would paste the medir_uso output — can't predict content.)
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-25T16:11:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5c2e068030518cbb
+**Message**: Estoy cerrando el Bolt B1 y aplicando el cambio 06. Ya llené `DECISIONES-LOOP.md`, salvo la pregunta 4. Para seguir, corre `python 03-desarrollo\medir_uso.py veridicus --desde 2026-11-23T17:00` en el 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-25T16:11:36Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---

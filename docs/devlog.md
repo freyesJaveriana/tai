@@ -17,12 +17,12 @@ completas y la sección `## Revisión` llena por el humano, y pase
 | Medición | Trabajos | Estado | Cifra |
 |---|---|---|---|
 | M0 · entorno | 12957 | Terminado | Python 3.12.16, jsonschema 4.23.0, llama.cpp 7e2fea0 |
-| M1 · velocidad | 12963 (hpc02-w008) | Terminado | pp2048 32,05 ± 0,17 t/s; tg128 6,77 ± 0,01 t/s |
+| M1 · velocidad | 12963 (ZINE_NODO_SL250S) | Terminado | pp2048 32,05 ± 0,17 t/s; tg128 6,77 ± 0,01 t/s |
 | M1 · 4L `--array=8` | 12958 parcial; 12959 al terminar | **Parcial** (12948 y 12955 sin terminar) | 8 llamadas, 0 errores, 14,83 h; con contexto real: lectura ~18,5 t/s, generación 0,85–1,25 t/s |
 | M2 · API | 12964 | **En curso** | — |
-| M3 · tokens | 12960 (hpchead02) | Terminado | máx. 67 769 (bloque JSON), mediana 37 022; con prompt v2 (14 832) y reserva (16 384) = 98 985 de 163 840: cabe |
+| M3 · tokens | 12960 (ZINE_NODO) | Terminado | máx. 67 769 (bloque JSON), mediana 37 022; con prompt v2 (14 832) y reserva (16 384) = 98 985 de 163 840: cabe |
 | M4 · repetibilidad | 12964 | **En curso** | — |
-| M5 · sin internet | 12961 y 12965 (hpc02-w008) | Terminado | entry point código 0, sin internet, 0 descargas, 18 ruedas |
+| M5 · sin internet | 12961 y 12965 (ZINE_NODO_SL250S) | Terminado | entry point código 0, sin internet, 0 descargas, 18 ruedas |
 | M6 · otra familia | 12962 y 12966 | **En curso** (descarga) | — |
 
 **Observaciones para la revisión**

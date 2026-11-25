@@ -19,9 +19,9 @@
 >
 > **R-2.** En los archivos versionados de `docs/validacion-zine/`, cambia por variables lo que dice dónde vive el trabajo en el clúster:
 > - **Qué se cambia:**
->   - la ruta base `/zine/HPC02S1/freyes/tg4L` y las que cuelgan de ella;
+>   - la ruta base del clúster y las que cuelgan de ella;
 >   - el usuario del clúster;
->   - los nombres de nodos (`hpchead02` y cualquier otro).
+>   - los nombres de nodos (el nodo de entrada y cualquier otro).
 > - **Variables:** `ZINE_BASE` y `ZINE_USUARIO`, y `ZINE_NODO` si hace falta para los nodos. Se fijan al enviar (`enviar.ps1`) o al lanzar.
 > - **Los `#SBATCH` no expanden variables.** Para `--output`, usa una ruta relativa al directorio desde el que se lanza, que el README fija como `ZINE_BASE/validacion`. Pasa `--nodelist` en la línea de `sbatch` que el README muestra, no en la directiva.
 > - **README:** un ejemplo genérico que fija las variables y muestra cómo se lanza, como texto para el humano. Nada de este repositorio lanza trabajos.
@@ -74,7 +74,7 @@ Todos se corren desde la raíz del worktree. El revisor los corre él mismo.
 
 - [ ] **CA-2**: R-2, sin usuario, rutas ni nodos del clúster.
   ```bash
-  git -C /workspace/.worktrees/U01-T25 grep -n -i -I -E "freyes|HPC02S1|hpchead" -- docs/validacion-zine
+  git -C /workspace/.worktrees/U01-T25 grep -n -i -I -E "<el usuario>|<el segmento de la ruta base>|<el prefijo del nodo de entrada>" -- docs/validacion-zine
   ```
   Esperado: sin salida (código 1).
 

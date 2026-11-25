@@ -1,22 +1,46 @@
-"""La CI no aplica cambios ni tiene credenciales del clúster (security-design §4.11, AUTONOMIA-01).
+"""La CI no aplica cambios, no tiene credenciales del clúster y va fijada (security-design §4.11 y §4.13, AUTONOMIA-01).
 
-Módulo guardia (100 % de ramas). Falla si un *workflow* de `.github/workflows/` contiene `--write` (la CI
-nunca regenera la huella de seguridad), `kubectl apply`, `helm install`, `helm upgrade` o credenciales del
-clúster (`kubeconfig`, `KUBECONFIG`, `KUBE_CONFIG`), también con opciones globales entre la herramienta y el verbo
-(`kubectl -n x apply`). Mira cada línea, también los comentarios: lo que un *workflow* nombra,
-un cambio posterior lo puede activar. Los mensajes nombran el archivo, la línea y el término prohibido.
+Módulo guardia (100 % de ramas). Falla si un *workflow* de `.github/workflows/`:
+
+- contiene `--write` (la CI nunca regenera la huella de seguridad), `kubectl apply`, `helm install`,
+  `helm upgrade` o credenciales del clúster (`kubeconfig`, `KUBECONFIG`, `KUBE_CONFIG`), también con opciones
+  globales entre la herramienta y el verbo (`kubectl -n x apply`). Mira cada línea, también los comentarios: lo
+  que un *workflow* nombra, un cambio posterior lo puede activar;
+- usa una acción de otro repositorio (`dueño/repo@ref`, `dueño/repo/ruta@ref`) cuyo `ref` no sea un SHA de 40
+  caracteres hexadecimales en minúscula, o una `docker://` sin `@sha256:` de 64 caracteres. Una acción local
+  (`./…`) no lleva `ref` y pasa (K-70, `team.md`, Deployment);
+- no declara `permissions: contents: read` en la raíz, o usa `contents: write` o `write-all` en cualquier otro
+  nivel. Los permisos de escritura de otros alcances de un *job* (`packages: write`) no se marcan.
+
+Los permisos se leen con el cargador YAML del paquete; un *workflow* que no carga es un problema, no un salto.
+Los mensajes nombran el archivo, la línea cuando se conoce y el término.
 """
 
 import re
 from collections.abc import Iterable
 from pathlib import Path
 
-REGLA = "(AUTONOMIA-01, §4.11)"
+from veridicus_contracts.loaders import LoadError, load_yaml_text
+
+REGLA = "(AUTONOMIA-01, §4.11, team.md, Deployment)"
 # Límites declarados (P-T18-12 y P-T18-16): el análisis es de texto, no de shell.
 LIMITACIONES = (
     "una herramienta invocada por una variable o un alias (`$K apply`) no se detecta",
     "un valor de opción entre comillas con espacios (`--namespace \"a b\"`) no se detecta",
+    "que el SHA corresponda de verdad a la versión del comentario necesita red y no se comprueba (K-70)",
+    "un `uses:` escrito en una sola línea de flujo (`{uses: x@v4}`) no se detecta",
 )
+# `uses:` de un paso (con o sin guion inicial); el valor puede ir entre comillas. Un comentario no coincide.
+_USES = re.compile(r"""^\s*(?:-\s+)?uses:\s*["']?(?P<valor>[^\s"']+)""")
+_ACCION_FIJADA = re.compile(r"[^@\s]+@[0-9a-f]{40}")
+_DOCKER_FIJADA = re.compile(r"docker://\S+@sha256:[0-9a-f]{64}")
+
+
+def _fijada(valor: str) -> bool:
+    if valor.startswith("./"):
+        return True
+    patron = _DOCKER_FIJADA if valor.startswith("docker://") else _ACCION_FIJADA
+    return patron.fullmatch(valor) is not None
 # Entre la herramienta y el verbo pueden ir opciones globales (`-n x`, `--context=x`, `--namespace x`,
 # `--dry-run`, `--`). Cada opción es uno o dos guiones, un nombre cuyo primer carácter no es un guion, y a lo
 # sumo un valor tras `=` o un valor tras un espacio que no empieza por guion; o el `--` solo.
@@ -58,6 +82,51 @@ def scan(paths: Iterable[Path]) -> list[str]:
     return problemas
 
 
+def scan_acciones(paths: Iterable[Path]) -> list[str]:
+    """Las acciones sin fijar por SHA (o por digest, si son `docker://`) de cada workflow, por línea."""
+    problemas: list[str] = []
+    for ruta in sorted(paths):
+        lineas = ruta.read_text(encoding="utf-8", errors="replace").splitlines()
+        for numero, linea in enumerate(lineas, start=1):
+            coincidencia = _USES.match(linea)
+            if coincidencia and not _fijada(coincidencia["valor"]):
+                problemas.append(f"{ruta.as_posix()}:{numero}: acción sin fijar por SHA: {coincidencia['valor']} {REGLA}")
+    return problemas
+
+
+def _escritura_en_algun_nivel(nodo: object) -> bool:
+    """Si en algún lugar del documento hay `permissions: write-all` o `permissions: {contents: write}`."""
+    if isinstance(nodo, dict):
+        permisos = nodo.get("permissions")
+        if permisos == "write-all" or (isinstance(permisos, dict) and permisos.get("contents") == "write"):
+            return True
+        return any(_escritura_en_algun_nivel(valor) for valor in nodo.values())
+    if isinstance(nodo, list):
+        return any(_escritura_en_algun_nivel(valor) for valor in nodo)
+    return False
+
+
+def scan_permisos(paths: Iterable[Path]) -> list[str]:
+    """Los permisos de cada workflow: raíz `contents: read` y ninguna escritura de contenido en otro nivel."""
+    problemas: list[str] = []
+    for ruta in sorted(paths):
+        try:
+            datos = load_yaml_text(ruta.read_text(encoding="utf-8", errors="replace"))
+        except LoadError as error:
+            problemas.append(f"{ruta.as_posix()}: no se puede cargar: {error} {REGLA}")
+            continue
+        raiz = datos.get("permissions") if isinstance(datos, dict) else None
+        if raiz is None:
+            problemas.append(f"{ruta.as_posix()}: falta `permissions: contents: read` en la raíz {REGLA}")
+        elif not (isinstance(raiz, dict) and raiz.get("contents") == "read"):
+            problemas.append(f"{ruta.as_posix()}: la raíz declara permisos distintos de `contents: read` {REGLA}")
+        resto = {clave: valor for clave, valor in datos.items() if clave != "permissions"} if isinstance(datos, dict) else {}
+        if _escritura_en_algun_nivel(resto):
+            problemas.append(f"{ruta.as_posix()}: `contents: write` o `write-all` no se permite en ningún nivel {REGLA}")
+    return problemas
+
+
 def comprobar(raiz: Path) -> list[str]:
-    """Escanea los workflows del repositorio cuya raíz es `raiz`."""
-    return scan(workflows(raiz))
+    """Escanea los workflows del repositorio cuya raíz es `raiz`: comandos, acciones y permisos."""
+    rutas = workflows(raiz)
+    return scan(rutas) + scan_acciones(rutas) + scan_permisos(rutas)

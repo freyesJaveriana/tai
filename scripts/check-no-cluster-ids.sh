@@ -6,18 +6,22 @@
 #       mayúsculas), de entrada o de trabajo, también tras un guion bajo (nodo_hpc...), salvo los nombres inventados
 #       de la lista de exenciones;
 #   (b) una ruta ABSOLUTA que empiece por /zine/ y siga con un carácter de palabra (distingue mayúsculas, como las
-#       rutas de Linux). No cuenta si lo precede un carácter de palabra, un punto, un guion o una barra (así que las
-#       rutas relativas como docs/zine/x no cuentan), ni la mención entre comillas invertidas, porque tras la barra
-#       final no hay un carácter de palabra;
-#   (c) en cualquier .ps1, sin distinguir mayúsculas:
+#       rutas de Linux), también con barras repetidas o con un segmento punto que Linux resuelve igual. No cuenta si lo precede un carácter de palabra,
+#       un punto, un guion o una barra (así que las rutas relativas como docs/zine/x no cuentan), ni la mención entre
+#       comillas invertidas, porque tras la barra final no hay un carácter de palabra, ni una URL (http://zine/x);
+#   (c) en cualquier .ps1 o .psm1 (también en mayúsculas), sin distinguir mayúsculas:
 #       - un parámetro [string]$Servidor con valor por defecto, o toda asignación literal de $Servidor entre comillas
 #         cuyo valor no empiece por $;
-#       - una asignación de $Servidor cuyo valor lleve un literal de palabra justo después de @ (F-05: un valor que
-#         empieza por $ pero deja el host fijo);
-#       - un scp cuyo destino sea un host literal (palabra: o usuario@palabra:) y no salga de una variable (F-06).
+#       - una asignación de $Servidor cuyo valor lleve un literal de palabra o dígito (nombre o IP) justo después de @
+#         (F-05: un valor que empieza por $ pero deja el host fijo);
+#       - un scp cuyo destino sea un host literal (palabra: o usuario@palabra:, también una IP, con ruta remota
+#         relativa o absoluta) que no salga de una variable (F-06). Se excluye solo una letra de unidad suelta de
+#         Windows seguida de barra (C:\x, C:/x).
 #
 # Límites conocidos: se saltan los archivos binarios (git grep -I), y un nombre de archivo con dos puntos pierde
-# el número de línea en la salida (la aparición sí se cuenta).
+# el número de línea en la salida (la aparición sí se cuenta). Un scp partido en varias líneas con una continuación
+# (una comilla invertida al final de línea) no se detecta: el destino queda en otra línea que no lleva la palabra scp.
+# Tampoco se mira el nombre de los archivos, solo su contenido.
 #
 # Exenciones: una lista cerrada, por cadena y no por carpeta ni por archivo.
 #   Nombres inventados (se comparan como palabra completa y sin distinguir mayúsculas). Se usan en tareas, bitácoras,
@@ -81,20 +85,23 @@ done < "$nodos"
 
 # (b) distingue mayúsculas: las rutas de Linux sí las distinguen. Solo una ruta absoluta (sin carácter de palabra,
 # punto, guion ni barra delante) seguida de un carácter de palabra.
-buscar "$salida" -e '(?<![\w.\-/])/zine/\w' -- .
+# También cuentan las barras repetidas al inicio (que no sigan a dos puntos: no es una URL), en medio, y un segmento
+# punto: Linux los resuelve igual.
+buscar "$salida" -e '(?<![\w.\-/])(?:/|(?<!:)//+)zine/(?:\.?/)*\w' -- .
 
-# (c) en cualquier .ps1 del repositorio, sin distinguir mayúsculas.
+# (c) en cualquier .ps1 o .psm1 del repositorio (también en mayúsculas), sin distinguir mayúsculas.
 #   1. Un parámetro [string]$Servidor con valor por defecto, o toda asignación literal de $Servidor entre comillas.
 #      El valor que empieza por $ (variable o sustitución) no es un servidor fijo por sí solo.
-#   2. F-05: una asignación de $Servidor con un literal de palabra justo después de @ (el host fijo detrás de una
-#      sustitución). El valor que antepone ZINE_USUARIO y deja @ seguido de $Servidor no cuenta.
-#   3. F-06: un scp con un destino de host literal: palabra: o usuario@palabra:, sin $ ni llaves delante.
+#   2. F-05: una asignación de $Servidor con un literal de palabra o dígito (una IP) justo después de @ (el host fijo
+#      detrás de una sustitución). El valor que antepone ZINE_USUARIO y deja @ seguido de $Servidor no cuenta.
+#   3. F-06: un scp con un destino de host literal: palabra: o usuario@palabra:, con o sin ruta remota (host:x,
+#      host:/x) y también una IP, sin $ ni llaves delante. No cuenta una letra de unidad suelta de Windows (C:\x, C:/x).
 buscar "$salida" -i \
   -e '\[string\]\s*\x24Servidor\s*=' \
   -e '\x24Servidor\s*=\s*[\x27"](?!\x24)' \
-  -e '\x24Servidor\s*=[^#]*@[A-Za-z]' \
-  -e '\bscp\b.*(?<![\w\x24.{}\-])[\x27"]?(?:[\w.\-]+@)?[A-Za-z][\w.\-]*:(?![\\/])' \
-  -- '*.ps1'
+  -e '\x24Servidor\s*=[^#]*@\w' \
+  -e '\bscp\b.*(?<![\w\x24.{}\-])[\x27"]?(?![A-Za-z]:[\\/])(?:[\w.\-]+@)?\w[\w.\-]*:' \
+  -- ':(icase)*.ps1' ':(icase)*.psm1'
 
 n=0
 detalle=""

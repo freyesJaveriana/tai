@@ -103,7 +103,7 @@ cambió. Esto evita el problema de la v1, donde las copias divergían de los ori
 
 ### Paso 0 — Preparación (una sesión, sin `/aidlc`)
 
-1. `docker\aidlc.bat` → completar git (`freyes@javeriana.edu.co`), `gh auth login` y `/login`.
+1. `docker\aidlc.bat` → completar git (`[correo del autor, omitido]`), `gh auth login` y `/login`.
 2. Aprobar los hooks de AI-DLC cuando Claude Code los pida (o con `/hooks`), **reiniciar Claude
    Code** y correr `/aidlc --doctor` hasta que salga limpio.
 3. Commit de la configuración generada (`.claude/`, `aidlc/`, `.gitignore`):

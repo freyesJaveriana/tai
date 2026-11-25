@@ -59,3 +59,6 @@ jobs:
 
       - name: Ningún nodo, ruta ni servidor del clúster en el repositorio (E-32, E-39, K-68, K-73)
         run: bash scripts/check-no-cluster-ids.sh .
+
+      - name: Ningún dato personal del autor en el repositorio público (E-32, K-75)
+        run: bash scripts/check-no-datos-personales.sh .

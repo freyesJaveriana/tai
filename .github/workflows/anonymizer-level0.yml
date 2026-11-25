@@ -1,0 +1,79 @@
+# Comprobaciones de nivel 0 de libs/anonymizer (U10, paso 12 del plan; R-11).
+# Sin filtro de rutas, para que "anonymizer-level0" pueda ser comprobación obligatoria de main
+# sin quedar pendiente en un PR que no toca el paquete.
+# Los pasos con red (instalar y auditar) van separados de los que no la tienen, que usan
+# --frozen --offline. La CI no despliega: sin credenciales del clúster (AUTONOMIA-01).
+name: anonymizer-level0
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    # La etiqueta de la entrega: solo se comprueba; la pone el humano y la CI no publica nada.
+    tags: ["anonymizer-v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anonymizer-level0-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  anonymizer-level0:
+    name: anonymizer-level0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.13.9"
+          enable-cache: false
+
+      - name: Instalar libs/anonymizer con el lockfile y sus hashes (red)
+        run: uv sync --frozen --directory libs/anonymizer
+
+      - name: El lockfile está al día
+        run: uv lock --check --directory libs/anonymizer
+
+      - name: Crear libs/anonymizer/build/ para la salida de pip-audit
+        run: mkdir -p libs/anonymizer/build
+
+      - name: Auditar Python (red)
+        run: >-
+          uv run --frozen --directory libs/anonymizer
+          pip-audit --format json --output build/pip-audit.json
+
+      - name: Compuerta de auditoría (toda vulnerabilidad con versión corregida)
+        run: >-
+          uv run --frozen --offline --directory libs/anonymizer
+          python -m veridicus_contracts.tools.audit_gate build/pip-audit.json
+          --ignore ../../contracts/.pip-audit-ignore.yaml
+
+      - name: Lint de Python
+        run: uv run --frozen --offline --directory libs/anonymizer ruff check .
+
+      - name: Formato de Python
+        run: uv run --frozen --offline --directory libs/anonymizer ruff format --check .
+
+      - name: Tipos de Python
+        run: uv run --frozen --offline --directory libs/anonymizer mypy --strict src tests
+
+      - name: Fronteras entre capas
+        run: uv run --frozen --offline --directory libs/anonymizer lint-imports
+
+      - name: Suite (sin red, cobertura de líneas >= 80 %)
+        run: >-
+          timeout 300 uv run --frozen --offline --directory libs/anonymizer
+          pytest --cov=veridicus_anonymizer --cov-branch --cov-report=json --cov-fail-under=80
+
+      - name: Ramas de los módulos guardia al 100 %
+        run: >-
+          timeout 60 uv run --frozen --offline --directory libs/anonymizer
+          python -m veridicus_anonymizer.testing.coverage_gate coverage.json

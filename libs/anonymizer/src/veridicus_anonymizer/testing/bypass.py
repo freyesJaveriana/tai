@@ -6,7 +6,7 @@ con este control (AC11.3.7, BR5.5). `build_anonymizer` no tiene ningún parámet
 contrato de import-linter impide que el código de producción importe este módulo.
 """
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Protocol
 
 from veridicus_contracts.model_calls import Message
@@ -22,8 +22,13 @@ class Patcher(Protocol):
     def setattr(self, target: object, name: str, value: object) -> None: ...
 
 
-def _unmasked(messages: Sequence[Message], catalogs: Catalogs) -> tuple[list[Message], MaskTable]:
-    """Sustituto de `pseudonymize`: no enmascara nada."""
+def _unmasked(
+    messages: Sequence[Message],
+    catalogs: Catalogs,
+    *,
+    has_budget: Callable[[], bool] | None = None,
+) -> tuple[list[Message], MaskTable]:
+    """Sustituto de `pseudonymize` (misma firma, con `has_budget`): no enmascara nada."""
     return list(messages), MaskTable()
 
 

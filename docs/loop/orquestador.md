@@ -44,6 +44,10 @@ Una tarea está lista cuando un codificador podría empezar **sin pedir más con
 - Tiene su alcance **dentro** y **fuera** escritos.
 - **Cada criterio de aceptación se comprueba con un comando.**
 - Para comportamiento que cambia estado, el criterio nombra la **lectura de vuelta con la herramienta real**, no un código de salida.
+- **Riesgo alto (ML-11):** lleva la sección «Casos sonda obligatorios». Sale de lo que el revisor va a atacar y de los hallazgos de las rondas anteriores del mismo Bolt, que el orquestador arrastra a cada tarea nueva.
+- **Invariantes (ML-12):** si la tarea toca un invariante de la unidad, nombra la propiedad Hypothesis y las formas de entrada que debe generar.
+- **Autorrevisión (ML-14):** pide en la bitácora la tabla de viñetas del plan, cada una con la prueba que la cubre.
+- **Rojo fijado (ML-13):** si la tarea fija un `ROJO_SHA`, el despacho pide al codificador que pare antes del commit del rojo. Ahí despachas un `revisor` con `sonnet` solo sobre esas pruebas; sus hallazgos se corrigen antes de fijar el rojo, dentro de la ronda 1.
 
 Una tarea que no está lista es un vacío de especificación para el humano: repórtalo y no despaches.
 

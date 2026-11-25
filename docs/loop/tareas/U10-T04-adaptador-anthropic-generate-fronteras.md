@@ -109,6 +109,56 @@ Orden del Testing Contract `custom`: el rojo de las guardias y contratos ya exis
 - **Paso 10:** el rojo completo en verde; la firma de `build_anonymizer`; la liberación de la tabla en todos los finales; `openai` y `google` fallan cerrado; excepción inesperada después del envío → `ProviderError` con `ModelCall` (PD-9).
 - **Paso 11:** los tres contratos y sus tres controles negativos; `caplog` con solo los campos de BR2.3.
 
+### Casos sonda obligatorios
+
+Son los ataques que intentará el revisor. Cada uno se convierte en una prueba **antes** de entregar.
+
+- **Fallo cerrado con 0 peticiones:** cada condición previa al envío por separado, con el `FakeTransport` contando las peticiones:
+  - destino `openai` o `google`;
+  - dominio fuera de la lista, o con mayúsculas, un punto final o un puerto distinto de 443;
+  - modelo fuera de la tabla;
+  - clave ausente o vacía;
+  - catálogo inválido;
+  - presupuesto agotado (`MaskingBudgetExceeded`);
+  - `MaskingError`.
+- **Un solo envío:**
+  - 503 seguido de 200;
+  - 529;
+  - plazo agotado;
+  - redirección 307;
+  - corte de la conexión a mitad del cuerpo;
+  - cuerpo de más de `anonymizer_response_max_bytes`.
+
+  En todos, exactamente 1 petición y ningún reintento.
+- **La clave no se filtra.** Ni la clave ni los *canaries* aparecen en:
+  - `repr` y `str` de la excepción, de su `__cause__` y de su `__context__`;
+  - `repr(error.call)`;
+  - las líneas de `caplog`;
+  - la URL;
+  - ninguna cabecera distinta de `x-api-key`.
+- **Respuestas de Anthropic** que se tratan como `InvalidOutput` o `ContentBlocked`, nunca como éxito:
+  - `stop_reason: "refusal"`;
+  - `stop_reason: "max_tokens"`;
+  - `content` vacío;
+  - varios bloques de texto;
+  - un bloque que no es de texto;
+  - JSON con comentarios o con `NaN`;
+  - JSON válido que no cumple `req.schema`.
+- **Restauración:**
+  - una marca alterada en la respuesta queda sin restaurar y se anota en `altered_markers`;
+  - la tabla se libera en todos los finales, también ante una excepción inesperada después del envío, que sale como `ProviderError` con su `ModelCall` (PD-9).
+- **Firma:** `inspect.signature(build_anonymizer)` tiene exactamente `env` y `transport`.
+
+### Autorrevisión contra el plan
+
+Antes de entregar, la bitácora lleva una tabla con una fila por viñeta de los pasos 9, 10 y 11 del plan: viñeta → prueba o archivo que la cubre.
+
+### Invariantes como propiedades
+
+Una propiedad Hypothesis sobre `generate` con el `FakeTransport`. Genera mensajes de **todos** los roles, contenido JSON y no JSON, y las formas de los casos sonda de U10-T03 (guion, guion bajo, dígito, escapes y aperturas de PD-2). Comprueba que:
+- el cuerpo saliente no contiene ninguna entidad sembrada;
+- la respuesta guionada se restaura byte a byte.
+
 ---
 
 ## Reglas de la app que aplican
@@ -130,6 +180,7 @@ Orden del Testing Contract `custom`: el rojo de las guardias y contratos ya exis
   - Errores: forma `{"type":"error","error":{"type":…,"message":…},"request_id":…}`; 529 `overloaded_error`; 500 `api_error`; 504 `timeout_error`. Todo 5xx → `ProviderError` sin reintento (BR2.4).
   - Sin SDK: `httpx` directo (decisión de NFR Requirements).
 - **F-12:** el presupuesto de NFR3.5 (`anonymizer_masking_budget_ratio` × `timeout_s`) se mide en `application/generate.py` con `application.generate.now`; el dominio no lee el reloj.
+- **Lo que dejó U10-T03 en el dominio:** `pseudonymize` recibe `has_budget` (conéctalo a `application.generate.now` y al presupuesto de NFR3.5) y lanza `MaskingBudgetExceeded`; también puede lanzar `MaskingError`. Las dos se traducen a `AnonymizerUnavailable`, porque ocurren antes del envío (0 peticiones). Si fallan después de crear la tabla, el dominio ya la vacía; la aplicación igual la libera en su `finally`.
 - **F-13:** `FakeTransport.http_error` devuelve `api_error` con cualquier estado. Para la sobrecarga, usa el *fixture* `error_529.json`, no `http_error(529)`.
 - **CG-U10-08 (decisión del humano, 2026-11-25):** el candado del paso 10 cubre también `tests/support.py` y `tests/fixtures` (CA-3). El `ROJO_SHA` vigente es `afa8f20`; `32317a9` queda superado.
 - **Mypy y `veridicus_contracts`:** sigue el arreglo de `mypy_path` que dejó U10-T02 (K-78); no lo amplíes.

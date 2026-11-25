@@ -145,14 +145,14 @@ Riesgo según ML-4. **Alto**: guardias AUTONOMIA, seguridad, contratos, datos y 
 
 ### Paso 1 — K-56: el validador admite las marcas `x-veridicus-*` del catálogo · tarea U10-T01
 
-- [ ] **Rojo primero.** Pruebas nuevas en `contracts/tests/test_validators.py`, que se ejecutan contra el código actual y deben fallar antes del arreglo:
+- [x] **Rojo primero.** Pruebas nuevas en `contracts/tests/test_validators.py`, que se ejecutan contra el código actual y deben fallar antes del arreglo:
   - una instancia válida de `model-call.v1.yaml` pasa `validate_instance`, y lo mismo una de C18 y una de C19;
   - control negativo: un esquema con una marca `x-veridicus-` fuera de la lista cerrada de PD-4 se rechaza;
   - control negativo: una instancia que rompe el `x-veridicus-limit` anidado se rechaza;
   - control negativo: un `x-veridicus-version` que no es semver se rechaza;
   - control negativo: un `x-veridicus-version` fuera de la raíz se sigue rechazando (E-30).
-- [ ] **Arreglo.** `validate_json_schema` y `validate_instance` aceptan la lista cerrada de PD-4, escrita como constante en el código, en cualquier nivel de anidación, salvo `x-veridicus-version`, que solo vale en la raíz. Comprueban también la forma semver de `x-veridicus-version`.
-- [ ] `contracts/pyproject.toml` pasa a la versión 0.1.1, y se regenera `contracts/uv.lock` con `uv lock --directory contracts`. La etiqueta `contracts-v0.1.1` la pone el humano.
+- [x] **Arreglo.** `validate_json_schema` y `validate_instance` aceptan la lista cerrada de PD-4, escrita como constante en el código, en cualquier nivel de anidación, salvo `x-veridicus-version`, que solo vale en la raíz. Comprueban también la forma semver de `x-veridicus-version`.
+- [x] `contracts/pyproject.toml` pasa a la versión 0.1.1, y se regenera `contracts/uv.lock` con `uv lock --directory contracts`. La etiqueta `contracts-v0.1.1` la pone el humano.
 - **Riesgo:** alto (contratos).
 - **Verificación:**
   1. Antes del arreglo: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_validators.py -k k56 --no-cov`.
@@ -165,20 +165,20 @@ Riesgo según ML-4. **Alto**: guardias AUTONOMIA, seguridad, contratos, datos y 
 
 ### Paso 2 — Estructura del paquete con *stubs* · tarea U10-T02
 
-- [ ] Crear `libs/anonymizer/`:
+- [x] Crear `libs/anonymizer/`:
   - `pyproject.toml` con `hatchling`, Python ≥ 3.12 y la versión 0.1.0;
   - dependencias `httpx`, `google-re2` y `veridicus-contracts` (por ruta);
   - grupo `dev` con `pytest`, `pytest-cov`, `pytest-socket`, `hypothesis`, `mypy`, `ruff`, `import-linter` y `pip-audit`;
   - `uv.lock`;
   - `src/veridicus_anonymizer/` con `__init__.py`, `py.typed`, `api.py`, `domain/`, `application/`, `providers/`, `testing/` y `data/`;
   - `tests/`.
-- [ ] **Stubs (R-02).** Cada símbolo público que importan las pruebas del paso 4 existe y lanza `NotImplementedError`:
+- [x] **Stubs (R-02).** Cada símbolo público que importan las pruebas del paso 4 existe y lanza `NotImplementedError`:
   - `Anonymizer`, `Anonymizer.generate` y `build_anonymizer`;
   - `FakeTransport` y `testing.bypass`;
   - `domain.restoration.restore` y `domain.catalogs.load_catalogs`.
 
   Así el rojo falla en la ejecución y no en la recolección.
-- [ ] Ruff (con las reglas `S`), mypy estricto y `[tool.importlinter]` quedan configurados como en `libs/errors`.
+- [x] Ruff (con las reglas `S`), mypy estricto y `[tool.importlinter]` quedan configurados como en `libs/errors`.
 - **Riesgo:** bajo.
 - **Verificación:** `timeout 600 uv sync --frozen --directory libs/anonymizer`, `timeout 120 uv lock --check --directory libs/anonymizer` y `timeout 120 uv run --frozen --offline --directory libs/anonymizer mypy --strict src`
 - **Umbral:** los tres comandos terminan con código 0.
@@ -186,9 +186,9 @@ Riesgo según ML-4. **Alto**: guardias AUTONOMIA, seguridad, contratos, datos y 
 
 ### Paso 3 — Ejecutor de pruebas listo · tarea U10-T02
 
-- [ ] En `[tool.pytest.ini_options]`, `addopts = "--strict-markers --disable-socket"`, sin `--cov` (R-01). En `[tool.coverage.run]`, `branch = true` y `source = ["veridicus_anonymizer"]`.
-- [ ] `tests/test_package.py` importa el paquete y comprueba `py.typed`.
-- [ ] Una prueba demuestra que `pytest-socket` bloquea una conexión.
+- [x] En `[tool.pytest.ini_options]`, `addopts = "--strict-markers --disable-socket"`, sin `--cov` (R-01). En `[tool.coverage.run]`, `branch = true` y `source = ["veridicus_anonymizer"]`.
+- [x] `tests/test_package.py` importa el paquete y comprueba `py.typed`.
+- [x] Una prueba demuestra que `pytest-socket` bloquea una conexión.
 - **Riesgo:** bajo.
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/anonymizer pytest tests/test_package.py -q`
 - **Umbral:** código 0, con al menos 2 pruebas.
@@ -198,12 +198,12 @@ Riesgo según ML-4. **Alto**: guardias AUTONOMIA, seguridad, contratos, datos y 
 
 Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan por `NotImplementedError`, nunca por un error de recolección.
 
-- [ ] `tests/guards/test_autonomia_04_payload.py`: **AUTONOMIA-04, payload saliente** (AC11.3.1 y AC11.3.7 del lado de U10).
+- [x] `tests/guards/test_autonomia_04_payload.py`: **AUTONOMIA-04, payload saliente** (AC11.3.1 y AC11.3.7 del lado de U10).
   - Escenarios E1, E2, E9 y E29, sobre el conjunto sembrado de `tests/fixtures/`. Hay nombres con mayúscula en **cada** posición de apertura de PD-2, con tilde, sin tilde y escritos con secuencias de escape Unicode del JSON. También hay un nombre de la lista de nombres que son palabras comunes al comienzo de una oración.
   - Ningún cuerpo que capture el `FakeTransport` contiene una entidad sembrada, y todos llevan marcas `[PERSONA_n]`.
   - Control negativo: el *fixture* `bypass` hace fallar la misma aserción.
   - Una prueba documenta el límite declarado del apodo en minúscula (PD-2).
-- [ ] `tests/guards/test_autonomia_04_fail_closed.py`: **AUTONOMIA-04, fallo cerrado** (AC11.3.3 y AC11.3.6 del lado de U10). La prueba está parametrizada (R-06).
+- [x] `tests/guards/test_autonomia_04_fail_closed.py`: **AUTONOMIA-04, fallo cerrado** (AC11.3.3 y AC11.3.6 del lado de U10). La prueba está parametrizada (R-06).
   - **Casos:**
     - destino local;
     - proveedor desconocido;
@@ -224,19 +224,19 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
     - **control positivo:** el mismo *fixture*, con esa sola condición corregida, produce exactamente 1 petición.
   - **Después del envío:** una excepción inesperada al restaurar sale como `ProviderError` con su `ModelCall` (PD-9).
   - **La tabla se suelta (BR1.8):** la `MaskTable` queda vacía tras el éxito y tras cada rama de error.
-- [ ] `tests/guards/test_autonomia_04_no_leak.py`: un *canary* va en el testimonio y otro en el valor de la clave (E6 y E34; BR1.8, BR2.3 y BR5.4; R-07).
+- [x] `tests/guards/test_autonomia_04_no_leak.py`: un *canary* va en el testimonio y otro en el valor de la clave (E6 y E34; BR1.8, BR2.3 y BR5.4; R-07).
   - **Control positivo:** el *canary* de la clave está en la cabecera de autenticación de la petición **cruda**.
   - **Control negativo:** no está en la URL, en el cuerpo ni en ninguna otra cabecera.
   - Ninguno de los dos *canaries* aparece en los logs capturados, en el `ModelCall` ni en el texto de las excepciones. Se recorre la cadena completa de `__cause__` y `__context__`, en el éxito y en cada rama de error.
-- [ ] `tests/guards/test_autonomia_05_restoration.py`: **AUTONOMIA-05 del lado de U10, «cita restaurada antes de verificarse»** (R-05).
+- [x] `tests/guards/test_autonomia_05_restoration.py`: **AUTONOMIA-05 del lado de U10, «cita restaurada antes de verificarse»** (R-05).
   - E5: una cita seudonimizada se restaura byte a byte igual al turno original.
   - E25 y E26: una marca alterada y una inventada en `cita_a`, en `hecho` y en `observaciones` dejan su puntero RFC 6901 en `altered_markers`, sin repetidos y en orden; las marcas conocidas de esa misma cadena sí se restauran.
-- [ ] `tests/contracts/test_model_call_contract.py`:
+- [x] `tests/contracts/test_model_call_contract.py`:
   - el `ModelCall` de una llamada que salió valida contra `model-call.v1.yaml` con `validate_instance` y lleva `anonymized: true` (BR2.5);
   - los errores posteriores al envío llevan su `ModelCall`, y `AnonymizerUnavailable` no lo lleva (BR2.6).
 
   Esta prueba depende de 0.1.1 (paso 1): hasta que T01 se fusione puede fallar por K-56, y eso también cuenta como rojo.
-- [ ] `tests/contracts/test_data_files.py`: cada archivo de `data/` (reglas, palabras permitidas, dominios y capacidades) valida contra su esquema JSON versionado en `data/schemas/`, y un archivo con un campo de más se rechaza.
+- [x] `tests/contracts/test_data_files.py`: cada archivo de `data/` (reglas, palabras permitidas, dominios y capacidades) valida contra su esquema JSON versionado en `data/schemas/`, y un archivo con un campo de más se rechaza.
 - **Riesgo:** alto (guardias AUTONOMIA-04 y 05).
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/anonymizer pytest tests/guards tests/contracts --collect-only -q` y `timeout 300 uv run --frozen --offline --directory libs/anonymizer pytest tests/guards tests/contracts -p no:cacheprovider -rf`
 - **Umbral:**
@@ -247,13 +247,13 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 5 — `FakeTransport` y transporte inyectado · tarea U10-T02
 
-- [ ] `testing/fake_transport.py`, sobre `httpx.MockTransport` (R-07).
+- [x] `testing/fake_transport.py`, sobre `httpx.MockTransport` (R-07).
   - Guarda la petición **cruda**: método, dominio, puerto, ruta, cabeceras y cuerpo.
   - Oculta la clave solo al representarla (`repr` y mensajes de aserción).
   - Devuelve respuestas grabadas sintéticas o errores simulados: 5xx, bloqueo, *timeout*, cuerpo que no es JSON y `307`.
   - Nunca abre red.
-- [ ] `testing/bypass.py`: el control negativo que reemplaza con `monkeypatch` la función interna de seudonimización (PD-7). Solo lo alcanzan las pruebas (BR5.5).
-- [ ] Pruebas: de 6 a 8 en `tests/testing/test_fake_transport.py`.
+- [x] `testing/bypass.py`: el control negativo que reemplaza con `monkeypatch` la función interna de seudonimización (PD-7). Solo lo alcanzan las pruebas (BR5.5).
+- [x] Pruebas: de 6 a 8 en `tests/testing/test_fake_transport.py`.
 - **Riesgo:** alto (lo reutiliza la prueba compuesta de AUTONOMIA-04 en B11a).
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/anonymizer pytest tests/testing --cov=veridicus_anonymizer.testing.fake_transport --cov-branch --cov-fail-under=100 --cov-report=term-missing`
 - **Umbral:** código 0; al menos 6 pruebas; 100 % de ramas en `testing/fake_transport.py`.
@@ -261,13 +261,13 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 6 — Listas y tablas versionadas del módulo · tarea U10-T03
 
-- [ ] Los archivos de `data/` y su carga:
+- [x] Los archivos de `data/` y su carga:
   - `detection-rules.v1.yaml`: tratamientos, prefijos de lugar, radicados y expedientes, cédula, teléfono, correo, placa y cuenta. Cada patrón está en `google-re2`, en tiempo lineal.
   - `allowed-words.v1.yaml`: instituciones, meses, días, rótulos de C6 y, por PD-2, comienzos de oración y palabras de función frecuentes. No lleva nombres de pila.
   - `allowed-domains.v1.yaml`: exactamente los tres pares de C22.
   - `capabilities.v1.yaml`: una entrada de Anthropic, `claude-sonnet-5-5`, con `structured_mode: json_schema_native` y el parámetro de esfuerzo. Los nombres de los parámetros salen de la documentación oficial, citada en la bitácora.
   - La carga (`domain/catalogs.py`) valida contra `data/schemas/` y falla cerrado ante un archivo inválido.
-- [ ] Pruebas:
+- [x] Pruebas:
   - al menos un ejemplo positivo y uno negativo por patrón;
   - ninguna entidad sembrada del conjunto sintético, ni ningún nombre de la lista de nombres que son palabras comunes, está en `allowed-words` (BR1.5 y PD-2);
   - `test_data_files.py` del paso 4 pasa a verde.
@@ -278,14 +278,14 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 7 — Seudonimización (F4) · tarea U10-T03
 
-- [ ] `domain/sentence.py`, `domain/detection.py` y `domain/masking.py`:
+- [x] `domain/sentence.py`, `domain/detection.py` y `domain/masking.py`:
   - recorren los mensajes; si el contenido es JSON, recorren sus valores de cadena en orden de documento, sin tocar claves ni números;
   - detectan con las reglas, con las cadenas con forma de marca (`input_marker`) y con la red de seguridad ampliada de PD-2, que no se aplica a `system`;
   - fusionan los tramos por precedencia, propagan por forma exacta con límites de palabra Unicode y numeran por primera aparición;
   - reemplazan de derecha a izquierda y vuelven a serializar sin escapar caracteres no ASCII.
-- [ ] `MaskTable` vive solo en memoria: no tiene `__repr__` ni `__str__` que muestren valores, no se serializa y tiene un método para vaciarla.
+- [x] `MaskTable` vive solo en memoria: no tiene `__repr__` ni `__str__` que muestren valores, no se serializa y tiene un método para vaciarla.
 - [ ] El presupuesto es `anonymizer_masking_budget_ratio` × `timeout_s`, leído de C25 con la carga de límites de U1; si se supera, la llamada falla cerrado (NFR3.5).
-- [ ] Pruebas:
+- [x] Pruebas:
   - E1, E2, E3, E9, E10, E11, E12, E13 y E15;
   - cada posición de apertura de PD-2;
   - una colisión con `AllowedWordList`;
@@ -298,12 +298,12 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 8 — Restauración y marcas alteradas (F6) · tarea U10-T03
 
-- [ ] `domain/restoration.py`:
+- [x] `domain/restoration.py`:
   - recorre los valores de cadena del JSON ya parseado con su puntero RFC 6901;
   - restaura cada marca canónica de la tabla a su forma exacta;
   - deja sin restaurar toda forma de marca que no esté en la tabla y anota su puntero en `altered_markers`;
   - devuelve `RestorationOutcome`.
-- [ ] Pruebas de la capa, además de las del paso 4:
+- [x] Pruebas de la capa, además de las del paso 4:
   - una respuesta vacía válida (`hallazgos: []`);
   - «persona 3» sin corchetes no cuenta como marca;
   - Hypothesis: restaurar lo seudonimizado devuelve el original byte a byte.

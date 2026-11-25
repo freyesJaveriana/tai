@@ -1,0 +1,124 @@
+{
+  "descripcion": "Conjunto sembrado sintético. Cada turno trae nombres inventados que no se repiten en otro turno (sin propagación entre turnos) y lista por separado cada palabra suelta del nombre. Cubre cada posición de apertura de oración de PD-2, con tilde y sin tilde. La lista global `entidades` es la unión de las de los turnos.",
+  "turnos": [
+    {
+      "turno": 1,
+      "hablante": "TES",
+      "posicion": "inicio_de_valor",
+      "texto": "Casilda Roncancio llegó a Villa Rocamora antes del mediodía.",
+      "entidades": ["Casilda Roncancio", "Casilda", "Roncancio", "Villa Rocamora", "Villa", "Rocamora"]
+    },
+    {
+      "turno": 2,
+      "hablante": "TES",
+      "posicion": "tras_punto",
+      "texto": "Eso fue un martes. Aurelio Benavides lo vio salir.",
+      "entidades": ["Aurelio Benavides", "Aurelio", "Benavides"]
+    },
+    {
+      "turno": 3,
+      "hablante": "TES",
+      "posicion": "tras_interrogacion_de_cierre",
+      "texto": "¿Quién abrió la puerta? Eufrasio Mendívelso respondió que nadie.",
+      "entidades": ["Eufrasio Mendívelso", "Eufrasio", "Mendívelso"]
+    },
+    {
+      "turno": 4,
+      "hablante": "TES",
+      "posicion": "tras_interrogacion_de_apertura",
+      "texto": "¿Telésforo Ardila estaba en Puerto Altamira?",
+      "entidades": ["Telésforo Ardila", "Telésforo", "Ardila", "Puerto Altamira", "Puerto", "Altamira"]
+    },
+    {
+      "turno": 5,
+      "hablante": "TES",
+      "posicion": "tras_exclamacion_de_cierre",
+      "texto": "¡Corran! Anselmo Páez gritó desde el patio.",
+      "entidades": ["Anselmo Páez", "Anselmo", "Páez"]
+    },
+    {
+      "turno": 6,
+      "hablante": "TES",
+      "posicion": "tras_exclamacion_de_apertura",
+      "texto": "¡Evaristo Cardenas corrió hacia el río!",
+      "entidades": ["Evaristo Cardenas", "Evaristo", "Cardenas"]
+    },
+    {
+      "turno": 7,
+      "hablante": "TES",
+      "posicion": "tras_dos_puntos",
+      "texto": "Lo repitió así: Ludovico Barrantes siempre llegaba tarde.",
+      "entidades": ["Ludovico Barrantes", "Ludovico", "Barrantes"]
+    },
+    {
+      "turno": 8,
+      "hablante": "TES",
+      "posicion": "tras_punto_y_coma",
+      "texto": "Salió temprano; Genoveva Ospitia ya no estaba.",
+      "entidades": ["Genoveva Ospitia", "Genoveva", "Ospitia"]
+    },
+    {
+      "turno": 9,
+      "hablante": "TES",
+      "posicion": "tras_salto_de_linea",
+      "texto": "Primera línea del relato\nNicanor Tafurt entró sin avisar.",
+      "entidades": ["Nicanor Tafurt", "Nicanor", "Tafurt"]
+    },
+    {
+      "turno": 10,
+      "hablante": "TES",
+      "posicion": "tras_comilla_angular",
+      "texto": "Dijo «Prudencio Zambrano» y se quedó callado.",
+      "entidades": ["Prudencio Zambrano", "Prudencio", "Zambrano"]
+    },
+    {
+      "turno": 11,
+      "hablante": "TES",
+      "posicion": "tras_comilla_recta",
+      "texto": "Escribió \"Leocadia Mosquera\" en el cuaderno.",
+      "entidades": ["Leocadia Mosquera", "Leocadia", "Mosquera"]
+    },
+    {
+      "turno": 12,
+      "hablante": "TES",
+      "posicion": "tras_comilla_curva",
+      "texto": "Contó que “Filomena Cuéllar” vendía fruta.",
+      "entidades": ["Filomena Cuéllar", "Filomena", "Cuéllar"]
+    },
+    {
+      "turno": 13,
+      "hablante": "TES",
+      "posicion": "tras_raya",
+      "texto": "—Wenceslao Pinzón vino a la vereda Cañada del Sauce —dijo.",
+      "entidades": ["Wenceslao Pinzón", "Wenceslao", "Pinzón", "Cañada del Sauce", "Cañada", "Sauce"]
+    },
+    {
+      "turno": 14,
+      "hablante": "TES",
+      "posicion": "nombre_de_pila_que_es_palabra_comun",
+      "texto": "Esperanza Quiñones cuidaba la finca. Paz Villamar la ayudaba.",
+      "entidades": ["Esperanza Quiñones", "Esperanza", "Quiñones", "Paz Villamar", "Paz", "Villamar"]
+    },
+    {
+      "turno": 15,
+      "hablante": "TES",
+      "posicion": "apodo_con_mayuscula_y_tratamiento",
+      "texto": "Doña Rutilia llamaba al Chigüiro desde la cocina.",
+      "entidades": ["Rutilia", "Chigüiro"]
+    },
+    {
+      "turno": 16,
+      "hablante": "TES",
+      "posicion": "expediente_y_cedula",
+      "texto": "El radicado 110016000-2019-00123 y la cédula 1.234.567.890 aparecen en el acta.",
+      "entidades": ["110016000-2019-00123", "1.234.567.890"]
+    },
+    {
+      "turno": 17,
+      "hablante": "TES",
+      "posicion": "a_mitad_de_oracion",
+      "texto": "Después vieron a Hortensia Zapata con Rosendo Lasso en Playa Honda.",
+      "entidades": ["Hortensia Zapata", "Hortensia", "Zapata", "Rosendo Lasso", "Rosendo", "Lasso", "Playa Honda", "Playa", "Honda"]
+    }
+  ]
+}

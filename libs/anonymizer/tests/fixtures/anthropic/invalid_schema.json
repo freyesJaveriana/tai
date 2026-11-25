@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "headers": {"content-type": "application/json"},
+  "body": {
+    "id": "msg_sintetico_0003",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-sonnet-5-5",
+    "content": [{"type": "text", "text": "{\"hallazgos\": \"no es una lista\"}"}],
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "usage": {"input_tokens": 412, "output_tokens": 12}
+  }
+}

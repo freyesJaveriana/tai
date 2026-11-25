@@ -1,0 +1,4 @@
+{
+  "descripcion": "Lista sintética de nombres de pila que también son palabras comunes (PD-2). Ninguno puede estar en allowed-words.",
+  "nombres": ["Paz", "Esperanza", "Rosario", "Dolores", "Luz", "Consuelo", "Soledad", "Amparo", "Mercedes", "Pilar"]
+}

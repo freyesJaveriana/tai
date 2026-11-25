@@ -1,0 +1,26 @@
+{
+  "stage": "code-generation",
+  "unit": "contracts",
+  "version": 1,
+  "writes": [
+    { "path": "contracts/" },
+    { "path": "libs/errors/" },
+    { "path": "scripts/check-no-cluster-ids.sh" },
+    { "path": "scripts/check-no-datos-personales.sh" },
+    { "path": "scripts/check-no-insumos.sh" },
+    { "path": ".github/workflows/contracts-level0.yml" },
+    { "path": ".github/workflows/repo-level0.yml" },
+    { "path": ".github/pull_request_template.md" },
+    { "path": ".pre-commit-config.yaml" },
+    { "path": ".yamllint.yaml" },
+    { "path": ".gitattributes" },
+    { "path": ".gitignore" },
+    { "path": ".claude/agents/codificador.md" },
+    { "path": ".claude/agents/revisor.md" },
+    { "path": "docs/loop/" },
+    { "path": "docs/validacion-zine/" },
+    { "path": "docs/devlog.md" },
+    { "path": "plan-aidlc.md" },
+    { "path": "research/06-documentacion-propia/Propuesta_TG_Dialogos_para_la_Memoria_MINSC_V2.md" }
+  ]
+}

@@ -1,6 +1,7 @@
 """La demostración `examples/demo_fake.py` es evidencia, no garantía (R-13): esta prueba solo evita
 que se rompa en silencio y comprueba que su cuerpo de salida lleva marcas y no entidades."""
 
+import json
 import runpy
 from pathlib import Path
 
@@ -30,6 +31,11 @@ def test_the_body_that_would_leave_only_carries_markers(
     leaving = out.split("== 2.")[0]
     assert "[ENTIDAD_1]" in leaving
     assert "peticiones=1" in leaving
+    # F-05: se imprime el cuerpo serializado completo, no solo el texto de los turnos.
+    line = next(row for row in leaving.splitlines() if row.strip().startswith("cuerpo: "))
+    body = json.loads(line.strip().removeprefix("cuerpo: "))
+    assert {"model", "system", "messages", "output_config"} <= set(body)
+    assert body["system"].startswith("Eres un analista")
     for entity in INVENTED_ENTITIES:
         assert entity not in leaving
 

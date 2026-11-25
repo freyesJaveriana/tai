@@ -85,10 +85,8 @@ def main() -> None:
     transport = FakeTransport(FakeResponse.ok_json(provider_envelope(PROVIDER_TEXT)))
     anonymizer = build_anonymizer(ENV, transport)
     result = anonymizer.generate(make_request(destination))
-    sent = json.loads(transport.requests[0].body)
-    masked_user = json.loads(sent["messages"][0]["content"])
-    for turn in masked_user["turnos"]:
-        print(f"  turno {turn['turno']}: {turn['texto']}")
+    # El cuerpo serializado completo, tal como lo capturó el transporte: modelo, `system`, mensajes y esquema.
+    print(f"  cuerpo: {transport.requests[0].body.decode('utf-8')}")
     print(f"  peticiones={transport.request_count}")
 
     print("== 2. Respuesta restaurada ==")

@@ -94,9 +94,13 @@ def _formato(archivo: str, fixture: dict[str, Any], nombres: frozenset[str]) -> 
     texto = json.dumps(fixture["payload"], ensure_ascii=False)
     for indice, mencion in enumerate(menciones):
         if not (isinstance(mencion, str) and mencion in nombres):
-            problemas.append(f"{archivo}#/mentions/{indice}: mención que no está en el catálogo {REGLA}")
+            problemas.append(
+                f"{archivo}#/mentions/{indice}: mención que no está en el catálogo {REGLA}"
+            )
         elif mencion not in texto:
-            problemas.append(f"{archivo}#/mentions/{indice}: mención que no aparece en el texto {REGLA}")
+            problemas.append(
+                f"{archivo}#/mentions/{indice}: mención que no aparece en el texto {REGLA}"
+            )
     return problemas
 
 
@@ -107,7 +111,9 @@ def _textos(valor: Any, puntero: str, dentro: bool) -> Iterator[tuple[str, str]]
             yield puntero, valor
     elif isinstance(valor, dict):
         for clave, hijo in valor.items():
-            yield from _textos(hijo, f"{puntero}/{escapar(clave)}", dentro or clave in CLAVES_DE_TEXTO)
+            yield from _textos(
+                hijo, f"{puntero}/{escapar(clave)}", dentro or clave in CLAVES_DE_TEXTO
+            )
     elif isinstance(valor, list):
         for indice, hijo in enumerate(valor):
             yield from _textos(hijo, f"{puntero}/{indice}", dentro)
@@ -141,7 +147,9 @@ def _sospechoso(texto: str) -> bool:
 
 
 def _es_fixture(documento: Any) -> bool:
-    return isinstance(documento, dict) and bool({"fixture_id", "expectation", "payload"} & documento.keys())
+    return isinstance(documento, dict) and bool(
+        {"fixture_id", "expectation", "payload"} & documento.keys()
+    )
 
 
 def _problemas_de(ruta: Path, nombres: frozenset[str]) -> list[str]:

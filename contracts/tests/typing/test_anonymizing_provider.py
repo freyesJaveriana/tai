@@ -103,7 +103,12 @@ def test_los_errores_tipados_llevan_la_llamada_salvo_el_fallo_cerrado() -> None:
     )
     assert llamada.version is None
     assert llamada.seed is None
-    for clase in (modelo.ContentBlocked, modelo.Timeout, modelo.ProviderError, modelo.InvalidOutput):
+    for clase in (
+        modelo.ContentBlocked,
+        modelo.Timeout,
+        modelo.ProviderError,
+        modelo.InvalidOutput,
+    ):
         assert issubclass(clase, modelo.ModelCallError)
         error = clase("fallo sintético", llamada)
         assert error.call is llamada

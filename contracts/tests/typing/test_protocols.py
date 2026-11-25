@@ -503,7 +503,13 @@ def test_los_valores_cerrados_de_c11_son_los_de_las_entidades_aprobadas() -> Non
     esperados = {
         # text-flow/functional-design/entities.md
         "SessionStatus": {
-            "open", "paused", "suspended", "finalized", "terminated", "blocked", "consolidated",
+            "open",
+            "paused",
+            "suspended",
+            "finalized",
+            "terminated",
+            "blocked",
+            "consolidated",
         },
         "SessionOrigin": {"guiada", "corpus", "sintetico"},
         "BlockedCode": {"anonymizer.incident"},

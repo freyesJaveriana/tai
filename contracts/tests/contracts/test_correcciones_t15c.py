@@ -79,7 +79,9 @@ def comprobar_entrada(c2: Any, c6: Any) -> list[str]:
     rama = ramas[1]
     problemas += _problemas_de_rama(rama, c6, "rama", es_raiz=True)
     try:
-        texto = rama["properties"]["transcripcion"]["properties"]["turnos"]["items"]["properties"]["texto"]
+        texto = rama["properties"]["transcripcion"]["properties"]["turnos"]["items"]["properties"][
+            "texto"
+        ]
     except (KeyError, TypeError):
         return [*problemas, "no se llega a texto por transcripcion/turnos/items"]
     if texto.get("maxLength") != 20000:
@@ -97,7 +99,9 @@ def _rama(c2: Any) -> Any:
 
 def _texto(c2: Any) -> Any:
     rama = _rama(c2)
-    return rama["properties"]["transcripcion"]["properties"]["turnos"]["items"]["properties"]["texto"]
+    return rama["properties"]["transcripcion"]["properties"]["turnos"]["items"]["properties"][
+        "texto"
+    ]
 
 
 def test_c2_entrada_es_allof_con_el_ref_intacto_y_la_rama_del_tope_de_texto() -> None:

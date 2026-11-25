@@ -81,18 +81,14 @@ def _vocabulario(catalogo: Mapping[str, Any]) -> str:
     return (
         _cabecera(VOCABULARIO)
         + _lista("FORBIDDEN_TERMS", None, catalogo["terms"])
-        + _lista(
-            "FORBIDDEN_SCHEMA_CATEGORIES", None, catalogo["categories_forbidden_in_schemas"]
-        )
+        + _lista("FORBIDDEN_SCHEMA_CATEGORIES", None, catalogo["categories_forbidden_in_schemas"])
         + _lista("QUOTE_DELIMITERS", None, catalogo["match"]["quote_delimiters"])
     )
 
 
 def _superficie() -> str:
     publicas = sorted(auth_surface.PUBLICAS)
-    cuerpo = "".join(
-        f"  {{ method: {_literal(m)}, path: {_literal(r)} }},\n" for m, r in publicas
-    )
+    cuerpo = "".join(f"  {{ method: {_literal(m)}, path: {_literal(r)} }},\n" for m, r in publicas)
     return (
         _cabecera("checks/auth_surface.py")
         + _lista("ROLES", "Role", auth_surface.ROLES)

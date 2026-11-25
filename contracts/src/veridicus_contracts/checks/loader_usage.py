@@ -84,10 +84,16 @@ def _hallazgos(arbol: ast.AST) -> Iterator[tuple[int, str, str | None]]:
             yield from _de_atributo(linea, nodo)
 
 
-def _de_importacion(linea: int, modulo: str, nombres: list[str] | None) -> Iterator[tuple[int, str, str | None]]:
+def _de_importacion(
+    linea: int, modulo: str, nombres: list[str] | None
+) -> Iterator[tuple[int, str, str | None]]:
     raiz = modulo.split(".")[0]
     if raiz == "yaml":
-        yield linea, "PyYAML no se usa: el único lector es ruamel.yaml en loaders.py (NFR10.4)", None
+        yield (
+            linea,
+            "PyYAML no se usa: el único lector es ruamel.yaml en loaders.py (NFR10.4)",
+            None,
+        )
     if (prohibido := _modulo_prohibido(modulo)) is not None:
         yield linea, f"{prohibido} no se usa en el paquete ni en las pruebas (NFR10.5)", prohibido
     if modulo == "os" and "system" in (nombres or []):
@@ -111,7 +117,11 @@ def _de_llamada(linea: int, llamada: ast.Call) -> Iterator[tuple[int, str, str |
 def _de_atributo(linea: int, atributo: ast.Attribute) -> Iterator[tuple[int, str, str | None]]:
     if atributo.attr == "load_all":
         yield linea, "load_all no se usa: un solo documento por archivo (NFR10.4)", None
-    if atributo.attr == "system" and isinstance(atributo.value, ast.Name) and atributo.value.id == "os":
+    if (
+        atributo.attr == "system"
+        and isinstance(atributo.value, ast.Name)
+        and atributo.value.id == "os"
+    ):
         yield linea, "os.system no se usa en el paquete ni en las pruebas (NFR10.5)", "os.system"
 
 

@@ -97,7 +97,9 @@ def nombres_de_un_documento(documento: Any) -> list[str]:
 def con_veracidad(nombre: str, terminos: set[str], categorias: set[str]) -> bool:
     """Igualdad de palabras: el nombre, o alguno de sus segmentos, es un término prohibido."""
     normal = normalizar(nombre)
-    return normal in categorias or any(segmento in terminos for segmento in re.split(r"[_\-\s]", normal))
+    return normal in categorias or any(
+        segmento in terminos for segmento in re.split(r"[_\-\s]", normal)
+    )
 
 
 @pytest.mark.c6
@@ -196,10 +198,14 @@ def problemas_de_rotulos(documento: Any) -> list[str]:
     textos = textos_de_rotulos(documento)
     problemas = []
     if len(textos) != 9 or set(textos.values()) != ROTULOS_FIJOS | set(ROTULOS_DE_TIPO.values()):
-        problemas.append(f"los rótulos no son exactamente los nueve aprobados: {sorted(textos.values())}")
+        problemas.append(
+            f"los rótulos no son exactamente los nueve aprobados: {sorted(textos.values())}"
+        )
     claves_de_tipo = {k for k in textos if k.startswith("type_")}
     if claves_de_tipo != {f"type_{t}" for t in enums_de_c6()["tipo"]}:
-        problemas.append(f"las filas type_* no corresponden a los tipos de C6: {sorted(claves_de_tipo)}")
+        problemas.append(
+            f"las filas type_* no corresponden a los tipos de C6: {sorted(claves_de_tipo)}"
+        )
     return problemas
 
 
@@ -286,7 +292,9 @@ def test_ninguna_operacion_de_c1_escribe_configuracion() -> None:
 def test_control_e15_un_put_profiles_se_detecta() -> None:
     """E15: una copia del OpenAPI con `PUT /profiles` deja la suite en rojo."""
     copia = copy.deepcopy(load_contract(C1))
-    copia.setdefault("paths", {})["/profiles"] = {"put": {"responses": {"200": {"description": "ok"}}}}
+    copia.setdefault("paths", {})["/profiles"] = {
+        "put": {"responses": {"200": {"description": "ok"}}}
+    }
     assert operaciones_que_escriben_configuracion(copia) != []
 
 
@@ -300,15 +308,16 @@ def test_c7_registra_quien_y_cuando_decidio() -> None:
 
     def del_estado(estado: str) -> dict[str, Any]:
         for condicion in condiciones:
-            if condicion.get("if", {}).get("properties", {}).get("state", {}).get("const") == estado:
+            if (
+                condicion.get("if", {}).get("properties", {}).get("state", {}).get("const")
+                == estado
+            ):
                 return condicion
         pytest.fail(f"C7 no declara la condición if/then del estado {estado}")
 
     # Forma de FD-U1-13 (contract-summary C7): if state=pending, then not(anyOf required), else required.
     pendiente = del_estado("pending")
-    prohibidos = {
-        campo for rama in pendiente["then"]["not"]["anyOf"] for campo in rama["required"]
-    }
+    prohibidos = {campo for rama in pendiente["then"]["not"]["anyOf"] for campo in rama["required"]}
     assert prohibidos == {"decided_by", "decided_at"}, "pending no debe traer quién ni cuándo"
     assert set(pendiente["else"]["required"]) == {"decided_by", "decided_at"}
     assert "note" in del_estado("dismissed")["then"]["required"]

@@ -41,8 +41,9 @@ _ILIMITADA = "repetición ilimitada"  # marca interna, no es un hallazgo
 # K-24, limitación declarada: varios `[a-z]*` contiguos son polinomiales y el recorrido del árbol no los ve
 # (`^(a|a)+$` sí lo rechaza la regla de BRANCH). Los acota la regla de entrada acotada: un patrón con
 # repetición ilimitada exige maxLength con su límite, y los patrones solo entran por PR.
-LIMITACION_K24 = "K-24: cuantificadores contiguos sin anidar los acota maxLength, no el recorrido del árbol"
-
+LIMITACION_K24 = (
+    "K-24: cuantificadores contiguos sin anidar los acota maxLength, no el recorrido del árbol"
+)
 
 
 class Excepcion(NamedTuple):
@@ -54,7 +55,9 @@ class Excepcion(NamedTuple):
 
 
 _C6 = "analyzer/v1/salida.schema.json"
-_MOTIVO_C6 = "BR1.7: la copia del contrato común no se edita aquí; su acotación la pone el consumidor"
+_MOTIVO_C6 = (
+    "BR1.7: la copia del contrato común no se edita aquí; su acotación la pone el consumidor"
+)
 
 # E-23: lista cerrada de excepciones a la regla de entrada acotada, solo para la copia de C6. Una entrada
 # por puntero; una prueba fija la lista exacta y añadir una exige una precisión aprobada. Solo eximen la
@@ -195,7 +198,9 @@ def comprobar_documento(documento: Any, nombre: str) -> list[str]:
         if isinstance(propiedades, dict):
             for clave in propiedades:
                 for texto in comprobar_patron(clave):
-                    problemas.append(f"{nombre}#{puntero}/patternProperties/{escapar(clave)}: {texto} {REGLA}")
+                    problemas.append(
+                        f"{nombre}#{puntero}/patternProperties/{escapar(clave)}: {texto} {REGLA}"
+                    )
     return problemas
 
 

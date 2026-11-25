@@ -137,7 +137,9 @@ def seguridad_de_me(herramientas: ModuleType, contracts_root: Path, requisitos: 
 def test_la_autenticacion_opcional_cambia_la_huella_en_operations(contracts_root: Path) -> None:
     herramientas = herramienta()
     base = herramientas.construir(contracts_root)
-    cambiada, requisitos = seguridad_de_me(herramientas, contracts_root, [{"sessionCookie": []}, {}])
+    cambiada, requisitos = seguridad_de_me(
+        herramientas, contracts_root, [{"sessionCookie": []}, {}]
+    )
     assert secciones_distintas(base, cambiada) == {"operations"}
     assert {} in requisitos
     assert {"sessionCookie": []} in requisitos
@@ -147,7 +149,9 @@ def test_todos_los_esquemas_frente_a_cualquiera_de_ellos_dan_huellas_distintas(
     contracts_root: Path,
 ) -> None:
     herramientas = herramienta()
-    todos, _ = seguridad_de_me(herramientas, contracts_root, [{"sessionCookie": [], "bearerAuth": []}])
+    todos, _ = seguridad_de_me(
+        herramientas, contracts_root, [{"sessionCookie": [], "bearerAuth": []}]
+    )
     cualquiera, _ = seguridad_de_me(
         herramientas, contracts_root, [{"sessionCookie": []}, {"bearerAuth": []}]
     )

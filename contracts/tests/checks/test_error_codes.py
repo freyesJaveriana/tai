@@ -283,15 +283,22 @@ def test_el_enum_de_error_code_es_el_de_los_codes_http_del_catalogo() -> None:
     sin_uno = _c1()
     sin_uno["components"]["schemas"]["ErrorCode"]["enum"].remove("speech.unavailable")
     de_mas = _c1()
-    de_mas["components"]["schemas"]["ErrorCode"]["enum"] += ["inventado.code", "anonymizer.incident"]
+    de_mas["components"]["schemas"]["ErrorCode"]["enum"] += [
+        "inventado.code",
+        "anonymizer.incident",
+    ]
     assert guardia.comprobar_enum_error_code(catalogo, CONSOLA, sin_uno) == [
         "api/console.v2.yaml: el enum ErrorCode no trae speech.unavailable (§4.7 a)"
     ]
     assert guardia.comprobar_enum_error_code(catalogo, CONSOLA, de_mas) == [
-        ("api/console.v2.yaml: el enum ErrorCode trae anonymizer.incident y el catálogo no lo "
-        "declara con http: true (§4.7 a)"),
-        ("api/console.v2.yaml: el enum ErrorCode trae inventado.code y el catálogo no lo declara "
-        "con http: true (§4.7 a)"),
+        (
+            "api/console.v2.yaml: el enum ErrorCode trae anonymizer.incident y el catálogo no lo "
+            "declara con http: true (§4.7 a)"
+        ),
+        (
+            "api/console.v2.yaml: el enum ErrorCode trae inventado.code y el catálogo no lo declara "
+            "con http: true (§4.7 a)"
+        ),
     ]
     sin_enum = _c1()
     del sin_enum["components"]["schemas"]["ErrorCode"]
@@ -324,8 +331,10 @@ def test_los_codes_de_c1_se_buscan_en_el_enum_y_en_las_descripciones(tmp_path: P
         "description": "auth.forbidden o auth.inventado (E44)",
     }
     assert _nuevas(antes, _respuestas(documento)) == [
-        ("api/console.v2.yaml: GET /users 403: el code auth.inventado no está en el catálogo "
-        "(BR7.2, E44)")
+        (
+            "api/console.v2.yaml: GET /users 403: el code auth.inventado no está en el catálogo "
+            "(BR7.2, E44)"
+        )
     ]
 
 
@@ -336,10 +345,14 @@ def test_un_code_con_otro_estado_que_el_del_catalogo_es_rojo() -> None:
     respuestas["422"]["description"] = "user.weak_password o session.blocked (K-18)"
     respuestas["409"]["description"] = "anonymizer.incident no tiene estado HTTP"
     assert _nuevas(antes, _respuestas(documento)) == [
-        ("api/console.v2.yaml: POST /users 409: el code anonymizer.incident no tiene estado HTTP "
-        "en el catálogo (§4.7 c)"),
-        ("api/console.v2.yaml: POST /users 422: el code session.blocked lleva el estado 422 y el "
-        "catálogo dice 409 (§4.7 c)"),
+        (
+            "api/console.v2.yaml: POST /users 409: el code anonymizer.incident no tiene estado HTTP "
+            "en el catálogo (§4.7 c)"
+        ),
+        (
+            "api/console.v2.yaml: POST /users 422: el code session.blocked lleva el estado 422 y el "
+            "catálogo dice 409 (§4.7 c)"
+        ),
     ]
     voz = load_contract("api/speech-internal.v1.yaml")
     mal = copy.deepcopy(voz)
@@ -347,8 +360,10 @@ def test_un_code_con_otro_estado_que_el_del_catalogo_es_rojo() -> None:
         "speech.text_rejected con rule_id"
     )
     assert guardia.comprobar_respuestas(_catalogo(), "voz", mal, False) == [
-        ("voz: POST /internal/v1/speech 422: el code speech.text_rejected lleva el estado 422 y el "
-        "catálogo dice 409 (§4.7 c)")
+        (
+            "voz: POST /internal/v1/speech 422: el code speech.text_rejected lleva el estado 422 y el "
+            "catálogo dice 409 (§4.7 c)"
+        )
     ]
 
 
@@ -376,13 +391,19 @@ def test_una_respuesta_de_error_en_linea_exige_cabeceras_propias_y_problem_json(
     esquema = {"$ref": "#/components/schemas/Problem"}
     cabeceras = {"Retry-After": {"schema": {"type": "integer"}}}
     en_linea = {
-        "completa": ({"headers": cabeceras, "content": {"application/problem+json": {"schema": esquema}}}, True),
+        "completa": (
+            {"headers": cabeceras, "content": {"application/problem+json": {"schema": esquema}}},
+            True,
+        ),
         "sin_cabeceras": ({"content": {"application/problem+json": {"schema": esquema}}}, False),
         "cabeceras_vacias": (
             {"headers": {}, "content": {"application/problem+json": {"schema": esquema}}},
             False,
         ),
-        "otro_tipo": ({"headers": cabeceras, "content": {"application/json": {"schema": esquema}}}, False),
+        "otro_tipo": (
+            {"headers": cabeceras, "content": {"application/json": {"schema": esquema}}},
+            False,
+        ),
         "otro_esquema": (
             {
                 "headers": cabeceras,
@@ -400,9 +421,13 @@ def test_una_respuesta_de_error_en_linea_exige_cabeceras_propias_y_problem_json(
             "description": nombre,
             **respuesta,
         }
-        esperado = [] if cumple else [
-            "api/console.v2.yaml: GET /auth/me 429: respuesta de error sin $ref a Problem (§4.7 d)"
-        ]
+        esperado = (
+            []
+            if cumple
+            else [
+                "api/console.v2.yaml: GET /auth/me 429: respuesta de error sin $ref a Problem (§4.7 d)"
+            ]
+        )
         assert _nuevas(antes, _respuestas(documento)) == esperado, nombre
 
 
@@ -422,8 +447,10 @@ def test_en_la_prosa_solo_cuenta_un_code_con_prefijo_de_dominio_del_catalogo() -
         "description": "auth.forbidden o session.inventado",
     }
     assert _nuevas(antes, _respuestas(propia)) == [
-        ("api/console.v2.yaml: GET /users 403: el code session.inventado no está en el catálogo "
-        "(BR7.2, E44)")
+        (
+            "api/console.v2.yaml: GET /users 403: el code session.inventado no está en el catálogo "
+            "(BR7.2, E44)"
+        )
     ]
 
 

@@ -37,7 +37,9 @@ def _nuevos(
     original = guardia.comprobar_documentos(*_estado(guardia))
     catalogo, documentos = _estado(guardia)
     cambiar(catalogo, documentos)
-    return sorted(p for p in guardia.comprobar_documentos(catalogo, documentos) if p not in original)
+    return sorted(
+        p for p in guardia.comprobar_documentos(catalogo, documentos) if p not in original
+    )
 
 
 def _propiedades_de_crear_usuario(documentos: dict[str, Any]) -> dict[str, Any]:
@@ -58,10 +60,14 @@ def test_el_valor_del_contrato_debe_ser_el_del_catalogo(guardia: ModuleType) -> 
         ]["properties"]["audio_base64"]["maxLength"] = 1
 
     assert _nuevos(guardia, cambiar) == [
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/username: valor distinto del catálogo C25 (username_max_chars, §4.4 b)"),
-        ("queues/speech.v2.yaml: /components/messages/AudioToTranscribe/payload/properties/"
-        "audio_base64: valor distinto del catálogo C25 (audio_base64_max_chars, §4.4 b)"),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/username: valor distinto del catálogo C25 (username_max_chars, §4.4 b)"
+        ),
+        (
+            "queues/speech.v2.yaml: /components/messages/AudioToTranscribe/payload/properties/"
+            "audio_base64: valor distinto del catálogo C25 (audio_base64_max_chars, §4.4 b)"
+        ),
     ]
 
 
@@ -76,23 +82,35 @@ def test_la_unidad_debe_ser_coherente_con_la_palabra_clave(guardia: ModuleType) 
         catalogo["password_max_chars"]["unit"] = "chars"
 
     assert _nuevos(guardia, cambiar) == [
-        ("api/console.v2.yaml: /components/securitySchemes/sessionCookie/x-veridicus-cookie: la "
-        "unidad de web_session_idle_s debe ser s con x-veridicus-cookie (§4.4 c)"),
-        ("api/console.v2.yaml: /paths/~1sessions~1import/post/requestBody: la unidad de "
-        "import_body_max_bytes debe ser bytes con x-veridicus-max-bytes (§4.4 c)"),
-        ("api/console.v2.yaml: /paths/~1sessions~1{session_id}~1turns/post/requestBody/content/"
-        "application~1json/schema/properties/texto: la unidad de turn_max_chars debe ser chars "
-        "con maxLength (§4.4 c)"),
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/password: la unidad de password_max_chars debe ser turns o runs con maxItems "
-        "(§4.4 c)"),
+        (
+            "api/console.v2.yaml: /components/securitySchemes/sessionCookie/x-veridicus-cookie: la "
+            "unidad de web_session_idle_s debe ser s con x-veridicus-cookie (§4.4 c)"
+        ),
+        (
+            "api/console.v2.yaml: /paths/~1sessions~1import/post/requestBody: la unidad de "
+            "import_body_max_bytes debe ser bytes con x-veridicus-max-bytes (§4.4 c)"
+        ),
+        (
+            "api/console.v2.yaml: /paths/~1sessions~1{session_id}~1turns/post/requestBody/content/"
+            "application~1json/schema/properties/texto: la unidad de turn_max_chars debe ser chars "
+            "con maxLength (§4.4 c)"
+        ),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/password: la unidad de password_max_chars debe ser turns o runs con maxItems "
+            "(§4.4 c)"
+        ),
         # T15c (E-16) marcó `turnos[].texto` de `RunRequested.entrada` con turn_max_chars.
-        ("queues/runs.v2.yaml: /components/messages/RunRequested/payload/properties/entrada/allOf/1/"
-        "properties/transcripcion/properties/turnos/items/properties/texto: la unidad de "
-        "turn_max_chars debe ser chars con maxLength (§4.4 c)"),
+        (
+            "queues/runs.v2.yaml: /components/messages/RunRequested/payload/properties/entrada/allOf/1/"
+            "properties/transcripcion/properties/turnos/items/properties/texto: la unidad de "
+            "turn_max_chars debe ser chars con maxLength (§4.4 c)"
+        ),
         # T15b (E-15) marcó `TranscriptResult.text` con turn_max_chars.
-        ("queues/speech.v2.yaml: /components/messages/TranscriptResult/payload/properties/text: la "
-        "unidad de turn_max_chars debe ser chars con maxLength (§4.4 c)"),
+        (
+            "queues/speech.v2.yaml: /components/messages/TranscriptResult/payload/properties/text: la "
+            "unidad de turn_max_chars debe ser chars con maxLength (§4.4 c)"
+        ),
     ]
 
 
@@ -121,13 +139,19 @@ def test_maxitems_acepta_la_unidad_turns_y_la_unidad_runs_y_ninguna_otra(
         catalogo["report_per_run_items"]["unit"] = "suggestions"
 
     assert _nuevos(guardia, con_otra_unidad) == [
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/corridas: la unidad de report_per_run_items debe ser turns o runs con maxItems "
-        "(§4.4 c)"),
-        ("cli/report.schema.v2.yaml: /$defs/metric_count/properties/per_run: la unidad de "
-        "report_per_run_items debe ser turns o runs con maxItems (§4.4 c)"),
-        ("cli/report.schema.v2.yaml: /$defs/metric_ratio/properties/per_run: la unidad de "
-        "report_per_run_items debe ser turns o runs con maxItems (§4.4 c)"),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/corridas: la unidad de report_per_run_items debe ser turns o runs con maxItems "
+            "(§4.4 c)"
+        ),
+        (
+            "cli/report.schema.v2.yaml: /$defs/metric_count/properties/per_run: la unidad de "
+            "report_per_run_items debe ser turns o runs con maxItems (§4.4 c)"
+        ),
+        (
+            "cli/report.schema.v2.yaml: /$defs/metric_ratio/properties/per_run: la unidad de "
+            "report_per_run_items debe ser turns o runs con maxItems (§4.4 c)"
+        ),
     ]
 
 
@@ -191,7 +215,11 @@ def test_un_def_solo_cuenta_si_alguien_lo_referencia(guardia: ModuleType) -> Non
 def test_un_texto_acotado_dentro_de_una_forma_de_subesquema_no_es_rojo(
     guardia: ModuleType,
 ) -> None:
-    marcado = {"type": ["string", "null"], "maxLength": 32, "x-veridicus-limit": "username_max_chars"}
+    marcado = {
+        "type": ["string", "null"],
+        "maxLength": 32,
+        "x-veridicus-limit": "username_max_chars",
+    }
 
     def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
         propiedades = _propiedades_de_crear_usuario(documentos)
@@ -210,10 +238,14 @@ def test_limite_huerfano_en_los_dos_sentidos(guardia: ModuleType) -> None:
         _propiedades_de_crear_usuario(documentos)["username"]["x-veridicus-limit"] = "no_existe"
 
     assert _nuevos(guardia, cambiar) == [
-        ("api/console.v2.yaml: /components/schemas/Cursor: la marca cursor_max_chars no está en "
-        "used_in de C25 para C1 (§4.4, comprobación inversa)"),
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/username: la marca no_existe no es una cifra de C25 (§4.4)"),
+        (
+            "api/console.v2.yaml: /components/schemas/Cursor: la marca cursor_max_chars no está en "
+            "used_in de C25 para C1 (§4.4, comprobación inversa)"
+        ),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/username: la marca no_existe no es una cifra de C25 (§4.4)"
+        ),
         "poll_interval_s: used_in nombra C3, que la guardia no recorre (§4.4)",
         "retention_max_days: used_in nombra C1 y C1 no la marca (§4.4, comprobación inversa)",
     ]
@@ -230,17 +262,25 @@ def test_todo_campo_de_texto_de_un_cuerpo_o_un_mensaje_lleva_su_marca(guardia: M
         _sin_tope_de_runs(catalogo, documentos)  # P-T15-8: el tope del payload acotaría el texto
         runs = documentos["queues/runs.v2.yaml"]["components"]["messages"]["RunRequested"]
         runs["payload"]["properties"]["comentario"] = {"type": "string"}
-        runs["payload"]["properties"]["vuelta"] = {"$ref": "#/components/messages/RunRequested/payload"}
+        runs["payload"]["properties"]["vuelta"] = {
+            "$ref": "#/components/messages/RunRequested/payload"
+        }
         runs["payload"]["properties"]["lista"] = "no es un esquema"
 
     nuevos = _nuevos(guardia, cambiar)
     assert nuevos == [
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/etiquetas/items: campo de texto sin x-veridicus-limit (§4.4 a)"),
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/nota: campo de texto sin x-veridicus-limit (§4.4 a)"),
-        ("queues/runs.v2.yaml: /components/messages/RunRequested/payload/properties/comentario: "
-        "campo de texto sin x-veridicus-limit (§4.4 a)"),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/etiquetas/items: campo de texto sin x-veridicus-limit (§4.4 a)"
+        ),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/nota: campo de texto sin x-veridicus-limit (§4.4 a)"
+        ),
+        (
+            "queues/runs.v2.yaml: /components/messages/RunRequested/payload/properties/comentario: "
+            "campo de texto sin x-veridicus-limit (§4.4 a)"
+        ),
     ]
 
 
@@ -259,8 +299,10 @@ def test_un_cuerpo_con_tope_de_bytes_acota_sus_textos(guardia: ModuleType) -> No
         del pegado["requestBody"]["x-veridicus-max-bytes"]
 
     assert _nuevos(guardia, quitar_tope) == [
-        ("api/console.v2.yaml: /paths/~1sessions~1{session_id}~1transcript/post/requestBody/content/"
-        "application~1json/schema/properties/text: campo de texto sin x-veridicus-limit (§4.4 a)"),
+        (
+            "api/console.v2.yaml: /paths/~1sessions~1{session_id}~1transcript/post/requestBody/content/"
+            "application~1json/schema/properties/text: campo de texto sin x-veridicus-limit (§4.4 a)"
+        ),
         "transcript_body_max_bytes: used_in nombra C1 y C1 no la marca (§4.4, comprobación inversa)",
     ]
 
@@ -277,15 +319,21 @@ def test_todo_maxlength_y_maxitems_llevan_marca_y_toda_marca_su_palabra_clave(
 
     nuevos = _nuevos(guardia, cambiar)
     assert nuevos == [
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/lista: maxItems sin x-veridicus-limit (§4.4)"),
-        ("api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
-        "properties/sin_palabra: la marca username_max_chars no acompaña a maxLength ni a maxItems "
-        "(§4.4)"),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/lista: maxItems sin x-veridicus-limit (§4.4)"
+        ),
+        (
+            "api/console.v2.yaml: /paths/~1users/post/requestBody/content/application~1json/schema/"
+            "properties/sin_palabra: la marca username_max_chars no acompaña a maxLength ni a maxItems "
+            "(§4.4)"
+        ),
         # T15b (E-11) marcó `role`: al cambiarle la marca, la de C25 queda sin su uso.
         "model_call_role_max_chars: used_in nombra C19 y C19 no la marca (§4.4, comprobación inversa)",
-        ("model_calls/model-call.v1.yaml: /properties/role: valor distinto del catálogo C25 "
-        "(report_token_max_chars, §4.4 b)"),
+        (
+            "model_calls/model-call.v1.yaml: /properties/role: valor distinto del catálogo C25 "
+            "(report_token_max_chars, §4.4 b)"
+        ),
     ]
 
 
@@ -296,18 +344,18 @@ def test_la_ruta_de_voz_no_exige_marca_en_tema_ni_used_in(guardia: ModuleType) -
         "application/json"
     ]["schema"]["properties"]["tema"]
     assert tema == {"type": "string", "minLength": 1}
-    assert not any(
-        "speech-internal" in p for p in guardia.comprobar_documentos(*_estado(guardia))
-    )
+    assert not any("speech-internal" in p for p in guardia.comprobar_documentos(*_estado(guardia)))
 
     # La ruta no tiene un C<n>: su marca no se contrasta con used_in, pero sí con el valor y la unidad.
     def cambiar(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
         catalogo["speech_audio_max_bytes"]["unit"] = "chars"
 
     assert _nuevos(guardia, cambiar) == [
-        ("api/speech-internal.v1.yaml: /paths/~1internal~1v1~1speech/post/responses/200/content/"
-        "audio~1wav: la unidad de speech_audio_max_bytes debe ser bytes con x-veridicus-max-bytes "
-        "(§4.4 c)")
+        (
+            "api/speech-internal.v1.yaml: /paths/~1internal~1v1~1speech/post/responses/200/content/"
+            "audio~1wav: la unidad de speech_audio_max_bytes debe ser bytes con x-veridicus-max-bytes "
+            "(§4.4 c)"
+        )
     ]
 
 
@@ -328,7 +376,9 @@ def test_una_cookie_sin_una_de_sus_dos_cifras_deja_huerfana_la_entrada(
 RUNS = "queues/runs.v2.yaml"
 C6 = "analyzer/v1/entrada.schema.json"
 ENTRADA = "/components/messages/RunRequested/payload/properties/entrada"
-TEXTO_DE_TURNO = f"{ENTRADA}/allOf/0/properties/transcripcion/properties/turnos/items/properties/texto"
+TEXTO_DE_TURNO = (
+    f"{ENTRADA}/allOf/0/properties/transcripcion/properties/turnos/items/properties/texto"
+)
 EXTERNO = "veridicus/contracts/externo/x.v1"
 
 
@@ -353,7 +403,9 @@ def _nuevos_con_c6(
     original = guardia.comprobar_documentos(catalogo, documentos)
     catalogo, documentos = _estado(guardia)
     _con_c6(cambiar)(catalogo, documentos)
-    return sorted(p for p in guardia.comprobar_documentos(catalogo, documentos) if p not in original)
+    return sorted(
+        p for p in guardia.comprobar_documentos(catalogo, documentos) if p not in original
+    )
 
 
 def _externo() -> dict[str, Any]:
@@ -407,8 +459,10 @@ def test_un_ref_externo_se_sigue_con_las_referencias_locales_de_su_propio_docume
         _payload_de_runs(documentos)["properties"]["ext"] = {"$ref": f"/{EXTERNO}"}
 
     assert _nuevos(guardia, cambiar) == [
-        (f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/properties/a: "
-        "campo de texto sin x-veridicus-limit (§4.4 a)")
+        (
+            f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/properties/a: "
+            "campo de texto sin x-veridicus-limit (§4.4 a)"
+        )
     ]
 
 
@@ -442,8 +496,10 @@ def test_la_marca_de_una_rama_hermana_en_la_misma_posicion_acota_el_texto_extern
         }
 
     assert _nuevos(guardia, en_otra_posicion) == [
-        (f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/allOf/0/properties/a: "
-        "campo de texto sin x-veridicus-limit (§4.4 a)")
+        (
+            f"{RUNS}: /components/messages/RunRequested/payload/properties/ext/allOf/0/properties/a: "
+            "campo de texto sin x-veridicus-limit (§4.4 a)"
+        )
     ]
 
 
@@ -456,16 +512,20 @@ def test_el_tope_de_bytes_de_run_requested_se_comprueba_en_valor_y_en_la_inversa
         catalogo["run_message_max_bytes"]["unit"] = "chars"
 
     assert _nuevos(guardia, con_otra_unidad) == [
-        (f"{RUNS}: {payload}: la unidad de run_message_max_bytes debe ser bytes con "
-        "x-veridicus-max-bytes (§4.4 c)")
+        (
+            f"{RUNS}: {payload}: la unidad de run_message_max_bytes debe ser bytes con "
+            "x-veridicus-max-bytes (§4.4 c)"
+        )
     ]
 
     def sin_used_in(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
         catalogo["run_message_max_bytes"]["used_in"] = []
 
     assert _nuevos(guardia, sin_used_in) == [
-        (f"{RUNS}: {payload}: la marca run_message_max_bytes no está en used_in de C25 para C2 "
-        "(§4.4, comprobación inversa)")
+        (
+            f"{RUNS}: {payload}: la marca run_message_max_bytes no está en used_in de C25 para C2 "
+            "(§4.4, comprobación inversa)"
+        )
     ]
 
     def sin_marca(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
@@ -572,9 +632,7 @@ def test_un_esquema_compartido_se_revisa_en_cada_ruta_de_la_instancia(guardia: M
         propiedades["p2"] = {"$ref": "#/components/schemas/T"}
         catalogo["username_max_chars"]["used_in"] = ["C1", "C5"]
 
-    assert _nuevos(guardia, cambiar) == [
-        f"queues/speech.v2.yaml: {mensaje}/p2: {TEXTO}"
-    ]
+    assert _nuevos(guardia, cambiar) == [f"queues/speech.v2.yaml: {mensaje}/p2: {TEXTO}"]
 
 
 # ---- Ronda 4, F-02: el tope de bytes también se lee en el tipo de contenido -----------------------
@@ -601,8 +659,10 @@ def test_el_tope_de_bytes_en_el_tipo_de_contenido_acota_los_textos_de_c1(
         del documentos[CONSOLA]["paths"][ruta]["post"]["requestBody"]["x-veridicus-max-bytes"]
 
     assert _nuevos(guardia, en_ningun_sitio) == [
-        (f"{CONSOLA}: /paths/~1sessions~1{{session_id}}~1transcript/post/requestBody/content/"
-        f"application~1json/schema/properties/text: {TEXTO}"),
+        (
+            f"{CONSOLA}: /paths/~1sessions~1{{session_id}}~1transcript/post/requestBody/content/"
+            f"application~1json/schema/properties/text: {TEXTO}"
+        ),
         "transcript_body_max_bytes: used_in nombra C1 y C1 no la marca (§4.4, comprobación inversa)",
     ]
 
@@ -613,7 +673,9 @@ def test_el_tope_de_bytes_en_el_tipo_de_contenido_acota_los_textos_de_c21(
     c21 = "api/anonymizer-proxy.v1.yaml"
 
     def en_el_tipo(catalogo: dict[str, Any], documentos: dict[str, Any]) -> None:
-        _mover_el_tope_al_tipo_de_contenido(documentos[c21], "/v1/generate", "post", "application/json")
+        _mover_el_tope_al_tipo_de_contenido(
+            documentos[c21], "/v1/generate", "post", "application/json"
+        )
 
     assert _nuevos(guardia, en_el_tipo) == []
 
@@ -624,8 +686,10 @@ def test_el_tope_de_bytes_en_el_tipo_de_contenido_acota_los_textos_de_c21(
     contenido = "properties/messages/items/properties/content"
     assert _nuevos(guardia, en_ningun_sitio) == [
         "anonymizer_request_max_bytes: used_in nombra C21 y C21 no la marca (§4.4, comprobación inversa)",
-        (f"{c21}: /paths/~1v1~1generate/post/requestBody/content/application~1json/schema/"
-        f"{contenido}: {TEXTO}"),
+        (
+            f"{c21}: /paths/~1v1~1generate/post/requestBody/content/application~1json/schema/"
+            f"{contenido}: {TEXTO}"
+        ),
     ]
 
 
@@ -652,7 +716,9 @@ def test_una_marca_bajo_una_propiedad_llamada_items_no_acota_los_elementos_del_a
             "allOf": [{"properties": {"items": MARCA_DE_USUARIO}}],
         }
 
-    assert _nuevos(guardia, cambiar) == [f"queues/speech.v2.yaml: {PAYLOAD_DE_VOZ}/l/items: {TEXTO}"]
+    assert _nuevos(guardia, cambiar) == [
+        f"queues/speech.v2.yaml: {PAYLOAD_DE_VOZ}/l/items: {TEXTO}"
+    ]
 
 
 def test_una_marca_bajo_una_propiedad_llamada_additionalproperties_no_acota_los_valores(
@@ -746,8 +812,10 @@ def test_un_grafo_de_ref_compartidos_se_acota_con_un_problema_explicito_y_un_num
 
     nuevos = _nuevos(guardia, cambiar)
     assert nuevos == [
-        ("queues/speech.v2.yaml: /components/messages/TranscriptResult/payload: la guardia superó "
-        f"el tope de {tope} nodos de esquema y no revisa el resto (§4.4 a)")
+        (
+            "queues/speech.v2.yaml: /components/messages/TranscriptResult/payload: la guardia superó "
+            f"el tope de {tope} nodos de esquema y no revisa el resto (§4.4 a)"
+        )
     ]
     # Con el tope, el trabajo total (los contratos reales y el grafo) no pasa del doble del tope.
     assert len(expandidos) <= 2 * tope

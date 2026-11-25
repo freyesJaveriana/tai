@@ -57,5 +57,7 @@ def test_el_papel_no_es_una_lista_cerrada() -> None:
     papel = documento["properties"]["role"]
     assert papel.get("pattern") == PATRON_DEL_PAPEL
     assert not any(
-        clave == "enum" and "judge" in valor for _, clave, valor in recorrer(papel) if isinstance(valor, list)
+        clave == "enum" and "judge" in valor
+        for _, clave, valor in recorrer(papel)
+        if isinstance(valor, list)
     )

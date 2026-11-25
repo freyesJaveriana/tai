@@ -263,9 +263,7 @@ def comprobar_respuestas(
                         f"{entrada['status']} ({REGLA_API} c)"
                     )
             if exigir_problem and estado[:1] in ("4", "5") and not es_problem(respuesta):
-                problemas.append(
-                    f"{donde}: respuesta de error sin $ref a Problem ({REGLA_API} d)"
-                )
+                problemas.append(f"{donde}: respuesta de error sin $ref a Problem ({REGLA_API} d)")
     return problemas
 
 

@@ -178,7 +178,9 @@ def discrepancias_del_inventario(texto: str, raiz: Path) -> list[str]:
         for fila in FILA_DEL_INVENTARIO.finditer(_seccion(texto, "Inventario de contratos"))
     ]
     nombres = [archivo for archivo, _, _ in filas]
-    problemas = [f"falta la fila de {archivo}" for archivo in ID_POR_ARCHIVO if archivo not in nombres]
+    problemas = [
+        f"falta la fila de {archivo}" for archivo in ID_POR_ARCHIVO if archivo not in nombres
+    ]
     for archivo in dict.fromkeys(nombres):
         if nombres.count(archivo) > 1:
             problemas.append(f"fila repetida de {archivo}")
@@ -293,7 +295,9 @@ def test_el_inventario_nombra_cada_archivo_de_contrato(readme: str, contracts_ro
     assert faltan == []
 
 
-def test_el_inventario_coincide_con_la_tabla_del_registro(readme: str, contracts_root: Path) -> None:
+def test_el_inventario_coincide_con_la_tabla_del_registro(
+    readme: str, contracts_root: Path
+) -> None:
     assert discrepancias_del_inventario(readme, contracts_root) == []
 
 
@@ -301,7 +305,8 @@ def test_todo_archivo_de_contrato_del_arbol_esta_en_la_tabla_del_registro(
     contracts_root: Path,
 ) -> None:
     del_arbol = {
-        ruta.relative_to(contracts_root).as_posix() for ruta in _archivos_de_contratos(contracts_root)
+        ruta.relative_to(contracts_root).as_posix()
+        for ruta in _archivos_de_contratos(contracts_root)
     }
     assert sorted(del_arbol - ID_POR_ARCHIVO.keys()) == []
 
@@ -356,7 +361,9 @@ def test_control_negativo_un_archivo_repetido_se_detecta(
 ) -> None:
     lineas = readme.splitlines()
     fila = next(linea for linea in lineas if f"| `{archivo}` |" in linea)
-    repetida = fila if identificador is None else con_celda_cambiada(fila, archivo, 1, identificador)
+    repetida = (
+        fila if identificador is None else con_celda_cambiada(fila, archivo, 1, identificador)
+    )
     alterado = readme.replace(fila, fila + "\n" + repetida, 1)
     problemas = discrepancias_del_inventario(alterado, contracts_root)
     esperados = [f"fila repetida de {archivo}"]

@@ -52,7 +52,8 @@ def test_estan_los_cuatro_numeros_limite_y_hay_claves_unicode_y_anidamiento() ->
     anidados = [
         v
         for v in vectores
-        if isinstance(v["value"], dict) and any(isinstance(h, dict | list) for h in v["value"].values())
+        if isinstance(v["value"], dict)
+        and any(isinstance(h, dict | list) for h in v["value"].values())
     ]
     assert anidados
 

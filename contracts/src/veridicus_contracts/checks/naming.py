@@ -59,7 +59,11 @@ def _recorrer(
                 if not _es_nombre(nombre)
             )
         # Todo objeto Parameter, esté en una lista (`parameters`) o en un mapa (`components/parameters`).
-        if isinstance(nodo.get("in"), str) and nodo["in"] in PARAMETROS and not _es_nombre(nodo.get("name")):
+        if (
+            isinstance(nodo.get("in"), str)
+            and nodo["in"] in PARAMETROS
+            and not _es_nombre(nodo.get("name"))
+        ):
             problemas.append(f"{archivo}: {puntero}/name: {NO_SNAKE}")
         if clave in CLAVES_DE_CODE:
             for palabra in ("const", "enum"):
@@ -90,7 +94,9 @@ def comprobar_catalogo(archivo: str, documento: Any) -> list[str]:
     codes = documento.get("codes") if isinstance(documento, dict) else None
     if not isinstance(codes, dict):
         return [f"{archivo}: /codes: debe ser un mapa de codes (CD-05)"]
-    return [f"{archivo}: /codes/{_escapar(code)}: {NO_CODE}" for code in codes if not _es_code(code)]
+    return [
+        f"{archivo}: /codes/{_escapar(code)}: {NO_CODE}" for code in codes if not _es_code(code)
+    ]
 
 
 def comprobar_metricas(archivo: str, documento: Any) -> list[str]:

@@ -201,7 +201,9 @@ def test_relacion_con_forma_invalida() -> None:
 def test_relacion_obligatoria_ausente() -> None:
     doc = _doc()
     doc["relations"] = [
-        r for r in doc["relations"] if r[:1] != ["import_file_max_bytes"] or r[2] != "import_body_max_bytes"
+        r
+        for r in doc["relations"]
+        if r[:1] != ["import_file_max_bytes"] or r[2] != "import_body_max_bytes"
     ]
     _con(doc, "import_file_max_bytes", "import_body_max_bytes", "obligatoria")
 
@@ -352,7 +354,9 @@ RELACIONES_DEL_DISENO = [
 
 
 @pytest.mark.parametrize("relacion", RELACIONES_DEL_DISENO, ids=lambda r: f"{r[0]}-{r[2]}")
-def test_quitar_una_relacion_obligatoria_del_yaml_se_reporta(relacion: tuple[str, str, str]) -> None:
+def test_quitar_una_relacion_obligatoria_del_yaml_se_reporta(
+    relacion: tuple[str, str, str],
+) -> None:
     doc = _doc()
     doc["relations"] = [r for r in doc["relations"] if tuple(r) != relacion]
     assert len(doc["relations"]) == len(RELACIONES_DEL_DISENO) - 1
@@ -384,7 +388,12 @@ def test_la_lista_cerrada_de_unidades() -> None:
 
 def test_p_t15b_1_runs_es_una_unidad_valida_y_una_unidad_ajena_no() -> None:
     doc = _doc()
-    doc["limits"]["report_per_run_items"] = {"value": 3, "unit": "runs", "owner": "U1", "used_in": ["C19"]}
+    doc["limits"]["report_per_run_items"] = {
+        "value": 3,
+        "unit": "runs",
+        "owner": "U1",
+        "used_in": ["C19"],
+    }
     assert _problemas(doc) == []
     doc["limits"]["report_per_run_items"]["unit"] = "corridas"
     _con(doc, "report_per_run_items")

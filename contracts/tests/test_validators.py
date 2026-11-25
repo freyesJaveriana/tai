@@ -98,9 +98,7 @@ def test_la_carga_de_cada_mensaje_se_extrae() -> None:
     assert set(cargas) == {"channels/turnos/messages/turno", "components/messages/fin"}
     assert cargas["components/messages/fin"] == {"type": "object"}
     with pytest.raises(ValidationFailure, match="sin carga"):
-        extract_message_payloads(
-            {"channels": {"c": {"messages": {"m": {"name": "sin payload"}}}}}
-        )
+        extract_message_payloads({"channels": {"c": {"messages": {"m": {"name": "sin payload"}}}}})
     assert extract_message_payloads({"asyncapi": "3.0.0"}) == {}
     carga = cargas["channels/turnos/messages/turno"]
     validate_instance(carga, {"id": "5b2f4c0e-4f0a-4bd4-8f4e-0c4c7f6a8d11"})
@@ -208,8 +206,10 @@ def test_un_asyncapi_mal_formado_sale_como_validation_failure(documento: Any) ->
         extract_message_payloads(documento)
 
 
-@pytest.mark.parametrize("contenido", [b"\xff\xfe", b"sin separador\n", b"abc  ../fuera.json\n",
-                                       b"abc  \n", b"abc  subdir\n"])
+@pytest.mark.parametrize(
+    "contenido",
+    [b"\xff\xfe", b"sin separador\n", b"abc  ../fuera.json\n", b"abc  \n", b"abc  subdir\n"],
+)
 def test_un_sha256sums_mal_formado_sale_como_validation_failure(
     tmp_path: Path, contenido: bytes
 ) -> None:

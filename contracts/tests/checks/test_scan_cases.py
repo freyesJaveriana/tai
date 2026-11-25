@@ -120,7 +120,9 @@ def _coincidencias(texto: str, fuentes: list[str]) -> set[str]:
     restante = texto
     for tramo in re.findall(r"«([^»]*)»", texto):
         normal = " ".join(tramo.split())
-        if normalizar(normal) not in terminos and any(normal in " ".join(f.split()) for f in fuentes):
+        if normalizar(normal) not in terminos and any(
+            normal in " ".join(f.split()) for f in fuentes
+        ):
             restante = restante.replace(f"«{tramo}»", " ")
     return set(re.findall(r"[^\W\d_]+", normalizar(restante))) & terminos
 
@@ -138,7 +140,15 @@ def test_e8_ningun_caso_de_vocabulario_coincide_con_un_termino_que_no_espera() -
 
 @pytest.mark.parametrize(
     "texto",
-    ["Un mentirillo", "mentirosamente", "inculparse", "engañando", "la mentira", "una pruebita", "mintiendo"],
+    [
+        "Un mentirillo",
+        "mentirosamente",
+        "inculparse",
+        "engañando",
+        "la mentira",
+        "una pruebita",
+        "mintiendo",
+    ],
 )
 def test_e8_una_palabra_mas_larga_no_coincide_con_un_termino(texto: str) -> None:
     assert _coincidencias(texto, []) == set()
@@ -186,7 +196,9 @@ def test_un_caso_que_no_es_un_objeto() -> None:
     assert problemas[0] == "BR5.8: casos[0]: no es un objeto"
 
 
-@pytest.mark.parametrize("clave", ["id", "source", "synthetic", "rule", "field", "text", "literal_sources", "expect"])
+@pytest.mark.parametrize(
+    "clave", ["id", "source", "synthetic", "rule", "field", "text", "literal_sources", "expect"]
+)
 def test_un_caso_sin_una_de_sus_claves(clave: str) -> None:
     documento = casos()
     primero = documento["cases"][0]
@@ -200,7 +212,10 @@ def test_un_caso_con_una_clave_de_mas() -> None:
     assert validar(documento) == ["BR5.8: casos[0]: claves no aprobadas"]
 
 
-@pytest.mark.parametrize("identificador", ["", "Mayuscula", "con espacio", "con_guion_bajo", "-inicio", "fin-", "a--b", 7])
+@pytest.mark.parametrize(
+    "identificador",
+    ["", "Mayuscula", "con espacio", "con_guion_bajo", "-inicio", "fin-", "a--b", 7],
+)
 def test_un_id_que_no_es_identificador(identificador: Any) -> None:
     documento = casos()
     documento["cases"][0]["id"] = identificador
@@ -264,7 +279,11 @@ def test_una_aclaracion_solo_va_en_tema(campo: str) -> None:
     documento = casos()
     caso = uno(documento, "E30")
     caso["field"] = campo
-    assert validar(documento) == ["BR5.8: casos[{}]: field de una aclaración debe ser tema".format(documento["cases"].index(caso))]
+    assert validar(documento) == [
+        "BR5.8: casos[{}]: field de una aclaración debe ser tema".format(
+            documento["cases"].index(caso)
+        )
+    ]
 
 
 @pytest.mark.parametrize("texto", ["", None, 5, ["a"]])
@@ -287,7 +306,8 @@ def test_fuentes_literales_que_no_son_una_lista_de_textos(fuentes: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "numero", ["123456", "1234567890", "12 34 56", "12.34.56", "1-2-3-4-5-6", "1234567890123456789012345"]
+    "numero",
+    ["123456", "1234567890", "12 34 56", "12.34.56", "1-2-3-4-5-6", "1234567890123456789012345"],
 )
 def test_una_secuencia_de_seis_o_mas_digitos_no_es_sintetica(numero: str) -> None:
     mensaje = "BR5.8: casos[0]: text o literal_sources traen una secuencia de seis o más dígitos"
@@ -322,12 +342,16 @@ def test_expect_que_no_es_un_objeto_o_con_claves_distintas() -> None:
     assert validar(documento) == ["BR5.8: casos[0]: expect: claves no aprobadas"]
 
 
-@pytest.mark.parametrize("matches", ["miente", [3], ["otro"], ["Miente"], None, ["miente", "miente"]])
+@pytest.mark.parametrize(
+    "matches", ["miente", [3], ["otro"], ["Miente"], None, ["miente", "miente"]]
+)
 def test_matches_que_no_son_terminos_de_c8_sin_repetir(matches: Any) -> None:
     documento = casos()
     documento["cases"][0]["expect"]["matches"] = matches
     problemas = validar(documento)
-    assert "BR5.8: casos[0]: expect.matches no es una lista de términos de C8 sin repetir" in problemas
+    assert (
+        "BR5.8: casos[0]: expect.matches no es una lista de términos de C8 sin repetir" in problemas
+    )
 
 
 def test_una_coincidencia_con_la_forma_de_c8_pasa() -> None:
@@ -343,7 +367,10 @@ def test_excluded_que_no_son_tramos_citados_en_el_texto(excluidos: Any) -> None:
     caso = uno(documento, "E11")
     caso["expect"]["excluded"] = excluidos
     posicion = documento["cases"].index(caso)
-    assert f"BR5.8: casos[{posicion}]: expect.excluded no es una lista de tramos citados en text" in validar(documento)
+    assert (
+        f"BR5.8: casos[{posicion}]: expect.excluded no es una lista de tramos citados en text"
+        in validar(documento)
+    )
 
 
 def test_un_tramo_excluido_debe_estar_entre_comillas_angulares() -> None:
@@ -400,7 +427,9 @@ def test_d2_el_tramo_es_solo_un_termino_sin_distinguir_tildes_ni_espacios() -> N
     caso["text"] = "dijo « Mintio » ayer"
     caso["literal_sources"] = ["Mintio"]
     caso["expect"]["excluded"] = [" Mintio "]
-    assert validar(documento)[-1].endswith("expect.excluded trae un tramo que es solo un término (D-2)")
+    assert validar(documento)[-1].endswith(
+        "expect.excluded trae un tramo que es solo un término (D-2)"
+    )
 
 
 def test_un_tramo_con_un_termino_y_mas_palabras_si_se_excluye() -> None:
@@ -417,7 +446,9 @@ def test_un_tramo_con_un_termino_y_mas_palabras_si_se_excluye() -> None:
 
 def test_aclaracion_con_expect_valido_pasa() -> None:
     documento = casos()
-    valida = next(c for c in documento["cases"] if c["rule"] == "clarification" and c["expect"]["valid"])
+    valida = next(
+        c for c in documento["cases"] if c["rule"] == "clarification" and c["expect"]["valid"]
+    )
     assert valida["expect"] == {"valid": True, "reasons": [], "phrases": []}
     e30 = uno(documento, "E30")
     assert e30["expect"]["valid"] is False
@@ -472,24 +503,36 @@ def test_motivos_que_no_son_aprobados_o_se_repiten(motivos: Any) -> None:
     documento = casos()
     caso, i = _aclaracion(documento)
     caso["expect"]["reasons"] = motivos
-    assert f"BR5.8: casos[{i}]: expect.reasons no es una lista de motivos aprobados sin repetir" in validar(documento)
+    assert (
+        f"BR5.8: casos[{i}]: expect.reasons no es una lista de motivos aprobados sin repetir"
+        in validar(documento)
+    )
 
 
-@pytest.mark.parametrize("frases", ["antes dijo", ["otra frase"], [3], ["antes dijo", "antes dijo"], None])
+@pytest.mark.parametrize(
+    "frases", ["antes dijo", ["otra frase"], [3], ["antes dijo", "antes dijo"], None]
+)
 def test_frases_que_no_son_aprobadas_o_se_repiten(frases: Any) -> None:
     documento = casos()
     caso, i = _aclaracion(documento)
     caso["expect"]["phrases"] = frases
-    assert f"BR5.8: casos[{i}]: expect.phrases no es una lista de frases aprobadas sin repetir" in validar(documento)
+    assert (
+        f"BR5.8: casos[{i}]: expect.phrases no es una lista de frases aprobadas sin repetir"
+        in validar(documento)
+    )
 
 
 def test_una_aclaracion_valida_no_lleva_motivos_ni_frases() -> None:
     documento = casos()
     caso, i = _aclaracion(documento)
     caso["expect"]["valid"] = True
-    assert validar(documento) == [f"BR5.8: casos[{i}]: una aclaración válida no lleva motivos ni frases"]
+    assert validar(documento) == [
+        f"BR5.8: casos[{i}]: una aclaración válida no lleva motivos ni frases"
+    ]
     caso["expect"] = {"valid": True, "reasons": ["cites_turn"], "phrases": []}
-    assert validar(documento) == [f"BR5.8: casos[{i}]: una aclaración válida no lleva motivos ni frases"]
+    assert validar(documento) == [
+        f"BR5.8: casos[{i}]: una aclaración válida no lleva motivos ni frases"
+    ]
     caso["expect"] = {"valid": True, "reasons": [], "phrases": ["antes dijo"]}
     problemas = validar(documento)
     assert f"BR5.8: casos[{i}]: una aclaración válida no lleva motivos ni frases" in problemas
@@ -499,16 +542,25 @@ def test_una_aclaracion_invalida_lleva_un_motivo() -> None:
     documento = casos()
     caso, i = _aclaracion(documento)
     caso["expect"] = {"valid": False, "reasons": [], "phrases": []}
-    assert validar(documento)[0] == f"BR5.8: casos[{i}]: una aclaración inválida lleva al menos un motivo"
+    assert (
+        validar(documento)[0]
+        == f"BR5.8: casos[{i}]: una aclaración inválida lleva al menos un motivo"
+    )
 
 
 def test_el_motivo_phrase_y_las_frases_van_juntos() -> None:
     documento = casos()
     caso, i = _aclaracion(documento)
     caso["expect"] = {"valid": False, "reasons": ["cites_turn"], "phrases": ["antes dijo"]}
-    assert f"BR5.8: casos[{i}]: el motivo phrase exige frases y las frases el motivo phrase" in validar(documento)
+    assert (
+        f"BR5.8: casos[{i}]: el motivo phrase exige frases y las frases el motivo phrase"
+        in validar(documento)
+    )
     caso["expect"] = {"valid": False, "reasons": ["phrase"], "phrases": []}
-    assert f"BR5.8: casos[{i}]: el motivo phrase exige frases y las frases el motivo phrase" in validar(documento)
+    assert (
+        f"BR5.8: casos[{i}]: el motivo phrase exige frases y las frases el motivo phrase"
+        in validar(documento)
+    )
     caso["expect"] = {"valid": False, "reasons": ["mentions_contradiction"], "phrases": []}
     assert validar(documento) == []
 
@@ -520,7 +572,9 @@ def test_el_motivo_phrase_y_las_frases_van_juntos() -> None:
 def test_e40_un_termino_sin_caso_deja_la_suite_en_rojo(termino: str) -> None:
     documento = casos()
     documento["cases"] = [
-        c for c in documento["cases"] if not (c["rule"] == "vocabulary" and termino in c["expect"]["matches"])
+        c
+        for c in documento["cases"]
+        if not (c["rule"] == "vocabulary" and termino in c["expect"]["matches"])
     ]
     problemas = validar(documento)
     assert f"BR5.8: ningún caso espera la coincidencia del término {termino}" in problemas
@@ -531,7 +585,9 @@ def test_e40_un_termino_sin_caso_deja_la_suite_en_rojo(termino: str) -> None:
 def test_una_frase_sin_caso_deja_la_suite_en_rojo(frase: str) -> None:
     documento = casos()
     documento["cases"] = [
-        c for c in documento["cases"] if not (c["rule"] == "clarification" and frase in c["expect"]["phrases"])
+        c
+        for c in documento["cases"]
+        if not (c["rule"] == "clarification" and frase in c["expect"]["phrases"])
     ]
     problemas = validar(documento)
     assert f"BR5.8: ningún caso rechaza la frase {frase}" in problemas
@@ -542,7 +598,9 @@ def test_un_caso_de_otra_regla_no_cubre_el_termino() -> None:
     """El caso que espera la coincidencia debe ser de la regla de vocabulario, no de aclaración."""
     documento = casos()
     documento["cases"] = [
-        c for c in documento["cases"] if not (c["rule"] == "vocabulary" and "miente" in c["expect"]["matches"])
+        c
+        for c in documento["cases"]
+        if not (c["rule"] == "vocabulary" and "miente" in c["expect"]["matches"])
     ]
     clarificacion = uno(documento, "E30")
     clarificacion["expect"]["phrases"] = ["antes dijo"]
@@ -610,10 +668,14 @@ def test_el_documento_de_testimonio_con_forma_incorrecta() -> None:
     assert validar_testimonio([]) == ["BR3.6: testimony-warning-cases no es un objeto"]
     documento = datos_de_testimonio()
     documento["extra"] = 1
-    assert validar_testimonio(documento) == ["BR3.6: testimony-warning-cases trae claves de primer nivel no aprobadas"]
+    assert validar_testimonio(documento) == [
+        "BR3.6: testimony-warning-cases trae claves de primer nivel no aprobadas"
+    ]
     documento = datos_de_testimonio()
     documento["schema_version"] = "1.1.0"
-    assert validar_testimonio(documento) == ["BR3.6: schema_version de testimony-warning-cases debe ser 1.0.0"]
+    assert validar_testimonio(documento) == [
+        "BR3.6: schema_version de testimony-warning-cases debe ser 1.0.0"
+    ]
     for valor in (False, "true", 1):
         documento = datos_de_testimonio()
         documento["synthetic"] = valor
@@ -693,14 +755,19 @@ def test_una_nota_vacia_o_que_no_es_texto(nota: Any) -> None:
 def test_turnos_que_no_son_una_lista_de_textos(turnos: Any) -> None:
     documento = datos_de_testimonio()
     documento["cases"][0]["turns"] = turnos
-    assert validar_testimonio(documento)[0] == "BR3.6: casos[0]: turns no es una lista no vacía de textos no vacíos"
+    assert (
+        validar_testimonio(documento)[0]
+        == "BR3.6: casos[0]: turns no es una lista no vacía de textos no vacíos"
+    )
 
 
 @pytest.mark.parametrize("valor", [1, 0, "true", None])
 def test_el_resultado_esperado_debe_ser_booleano(valor: Any) -> None:
     documento = datos_de_testimonio()
     documento["cases"][0]["testimony_warning"] = valor
-    assert validar_testimonio(documento)[0] == "BR3.6: casos[0]: testimony_warning debe ser booleano"
+    assert (
+        validar_testimonio(documento)[0] == "BR3.6: casos[0]: testimony_warning debe ser booleano"
+    )
 
 
 def test_el_resultado_esperado_debe_concordar_con_la_regla() -> None:
@@ -737,7 +804,9 @@ def test_la_regla_de_referencia_en_sus_bordes() -> None:
     caso["turns"] = ["uno dos tres cuatro", "cinco seis siete ocho"]
     caso["testimony_warning"] = True
     problemas = validar_testimonio(documento, 4)
-    assert "BR3.6: casos[0]: el resultado esperado no concuerda con la regla de BR3.6" not in problemas
+    assert (
+        "BR3.6: casos[0]: el resultado esperado no concuerda con la regla de BR3.6" not in problemas
+    )
 
 
 @pytest.mark.parametrize("identificador", list(REQUERIDOS))
@@ -772,17 +841,27 @@ def test_ufeff_no_separa_palabras_y_u00a0_si() -> None:
 def test_los_datos_de_testimonio_no_traen_secuencias_largas_de_digitos() -> None:
     documento = datos_de_testimonio()
     documento["cases"][0]["note"] = "caso 1234567 de la nota"
-    assert "BR3.6: casos[0]: note o turns traen una secuencia de seis o más dígitos" in validar_testimonio(documento)
+    assert (
+        "BR3.6: casos[0]: note o turns traen una secuencia de seis o más dígitos"
+        in validar_testimonio(documento)
+    )
     documento = datos_de_testimonio()
     documento["cases"][0]["turns"] = ["turno 12 34 56"]
-    assert "BR3.6: casos[0]: note o turns traen una secuencia de seis o más dígitos" in validar_testimonio(documento)
+    assert (
+        "BR3.6: casos[0]: note o turns traen una secuencia de seis o más dígitos"
+        in validar_testimonio(documento)
+    )
 
 
 # ---------------------------------------------------------------- comprobar sobre un árbol
 
 
 def _arbol(destino: Path) -> Path:
-    shutil.copytree(CONTRACTS_ROOT / "integrity", destino / "integrity", ignore=shutil.ignore_patterns("fixtures"))
+    shutil.copytree(
+        CONTRACTS_ROOT / "integrity",
+        destino / "integrity",
+        ignore=shutil.ignore_patterns("fixtures"),
+    )
     shutil.copy(CONTRACTS_ROOT / LIMITES, destino / LIMITES)
     return destino
 
@@ -800,7 +879,9 @@ def test_el_arbol_copiado_pasa(tmp_path: Path) -> None:
 def test_un_defecto_sembrado_en_los_casos_de_escaneo_se_ve(tmp_path: Path) -> None:
     raiz = _arbol(tmp_path)
     documento = casos()
-    documento["cases"] = [c for c in documento["cases"] if "mentirosa" not in c["expect"].get("matches", [])]
+    documento["cases"] = [
+        c for c in documento["cases"] if "mentirosa" not in c["expect"].get("matches", [])
+    ]
     _escribir(raiz, CASOS, documento)
     assert comprobar(raiz) == ["BR5.8: ningún caso espera la coincidencia del término mentirosa"]
 
@@ -843,7 +924,9 @@ def test_un_catalogo_sin_el_limite_es_un_problema(tmp_path: Path, limites: Any) 
 
 
 @pytest.mark.parametrize("relativa", [CASOS, TESTIMONIO, LIMITES])
-def test_un_archivo_ausente_o_ilegible_se_informa_sin_su_contenido(tmp_path: Path, relativa: str) -> None:
+def test_un_archivo_ausente_o_ilegible_se_informa_sin_su_contenido(
+    tmp_path: Path, relativa: str
+) -> None:
     raiz = _arbol(tmp_path)
     (raiz / relativa).unlink()
     assert f"{relativa}: ausente o ilegible" in comprobar(raiz)

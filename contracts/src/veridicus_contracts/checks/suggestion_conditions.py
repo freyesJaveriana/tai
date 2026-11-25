@@ -40,12 +40,25 @@ class Condicion(NamedTuple):
 
 CONDICIONES = (
     Condicion("pending_sin_decision", "pending", "pending-con-decided-at.yaml", "decided_at", True),
-    Condicion("decidida_con_quien", "accepted", "accepted-sin-decided-by.yaml", "decided_by", False),
+    Condicion(
+        "decidida_con_quien", "accepted", "accepted-sin-decided-by.yaml", "decided_by", False
+    ),
     Condicion("dismissed_con_nota", "dismissed", "dismissed-sin-note.yaml", "note", False),
-    Condicion("edited_con_reformulacion", "edited", "edited-sin-reformulation.yaml", "reformulation", False),
+    Condicion(
+        "edited_con_reformulacion",
+        "edited",
+        "edited-sin-reformulation.yaml",
+        "reformulation",
+        False,
+    ),
     Condicion("note_no_vacia", "dismissed", "dismissed-note-vacia.yaml", "note", True, True),
     Condicion(
-        "reformulation_no_vacia", "edited", "edited-reformulation-vacia.yaml", "reformulation", True, True
+        "reformulation_no_vacia",
+        "edited",
+        "edited-reformulation-vacia.yaml",
+        "reformulation",
+        True,
+        True,
     ),
 )
 
@@ -97,9 +110,7 @@ def _problemas_del_fixture(condicion: Condicion, fixture: Any) -> list[str]:
     return problemas
 
 
-def comprobar_documentos(
-    esquema: Mapping[str, Any], fixtures: Mapping[str, Any]
-) -> list[str]:
+def comprobar_documentos(esquema: Mapping[str, Any], fixtures: Mapping[str, Any]) -> list[str]:
     """Problemas de C7 y de sus *fixtures* negativos (por nombre de archivo); vacío si todo está."""
     problemas: list[str] = []
     for condicion in CONDICIONES:

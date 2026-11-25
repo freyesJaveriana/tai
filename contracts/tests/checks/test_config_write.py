@@ -51,11 +51,17 @@ def test_nombres_en_el_cuerpo_con_referencias_y_sin_distinguir_mayusculas_ni_til
     documento = _c1()
     documento["components"]["schemas"]["Ajustes"] = {
         "type": "object",
-        "properties": {"Proveedor": {"type": "string"}, "otro": {"$ref": "#/components/schemas/Ajustes"}},
+        "properties": {
+            "Proveedor": {"type": "string"},
+            "otro": {"$ref": "#/components/schemas/Ajustes"},
+        },
     }
     documento["paths"]["/users"]["post"]["requestBody"] = _cuerpo(
         ajustes={"$ref": "#/components/schemas/Ajustes"},
-        lista={"type": "array", "items": _cuerpo(Plantilla_prompt={})["content"]["application/json"]["schema"]},
+        lista={
+            "type": "array",
+            "items": _cuerpo(Plantilla_prompt={})["content"]["application/json"]["schema"],
+        },
         profile_name_override={"type": "string"},
         precio={"type": "number"},
         profile_name={"type": "string"},

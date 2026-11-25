@@ -224,9 +224,7 @@ def servidores(documento: Any) -> Iterator[Servidor]:
         yield from _de_elemento(elemento, f"/components/pathItems/{_escapar(nombre)}", raiz)
     yield from _de_callbacks(componentes.get("callbacks"), "/components/callbacks", raiz)
     yield from _enlaces(componentes, "/components", raiz)
-    yield from _de_respuestas(
-        _objeto(componentes.get("responses")), "/components/responses", raiz
-    )
+    yield from _de_respuestas(_objeto(componentes.get("responses")), "/components/responses", raiz)
     yield from _declarados(componentes, "/components")
     yield from _de_canales(raiz.get("channels"), raiz)
 
@@ -293,7 +291,10 @@ def _variables_validas(servidor: dict[str, Any]) -> bool:
         return False
     return all(
         isinstance(variable, dict)
-        and ("enum" not in variable or (isinstance(variable["enum"], list) and bool(variable["enum"])))
+        and (
+            "enum" not in variable
+            or (isinstance(variable["enum"], list) and bool(variable["enum"]))
+        )
         for variable in variables.values()
     )
 

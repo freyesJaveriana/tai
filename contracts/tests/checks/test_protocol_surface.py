@@ -40,7 +40,9 @@ def _agregar_call(clase: str) -> Any:
 
 
 def _firma_mala(parametros: str, retorno: str) -> str:
-    return f"la firma de generate es ({parametros}) -> {retorno} y debe ser {FIRMA_ESPERADA} (BR9.9)"
+    return (
+        f"la firma de generate es ({parametros}) -> {retorno} y debe ser {FIRMA_ESPERADA} (BR9.9)"
+    )
 
 
 HEREDADO = (
@@ -137,7 +139,9 @@ NEGATIVOS = [
         id="sin-la-raiz-de-los-errores",
     ),
     pytest.param(
-        lambda f: f.replace("class InvalidOutput(ModelCallError):", "class Otro(ModelCallError):", 1),
+        lambda f: f.replace(
+            "class InvalidOutput(ModelCallError):", "class Otro(ModelCallError):", 1
+        ),
         "falta la clase InvalidOutput (BR9.9)",
         id="falta-un-error",
     ),

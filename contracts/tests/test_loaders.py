@@ -12,7 +12,9 @@ from veridicus_contracts.loaders import LoadError, load_file, load_json_text, lo
 
 
 def test_yaml_valido_se_lee_como_estructuras_de_json() -> None:
-    datos = load_yaml_text("nombre: prueba\nlista: [1, 2.5, true, null]\nanidado:\n  clave: valor\n")
+    datos = load_yaml_text(
+        "nombre: prueba\nlista: [1, 2.5, true, null]\nanidado:\n  clave: valor\n"
+    )
     assert datos == {
         "nombre": "prueba",
         "lista": [1, 2.5, True, None],
@@ -96,7 +98,9 @@ def test_las_funciones_publicas_de_texto_no_tienen_cache(monkeypatch: pytest.Mon
     monkeypatch.setattr(
         loaders,
         "json",
-        SimpleNamespace(loads=loads_contado, dumps=json.dumps, JSONDecodeError=json.JSONDecodeError),
+        SimpleNamespace(
+            loads=loads_contado, dumps=json.dumps, JSONDecodeError=json.JSONDecodeError
+        ),
     )
     load_json_text('{"a": [1]}')
     load_json_text('{"a": [1]}')

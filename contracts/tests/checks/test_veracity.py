@@ -155,7 +155,9 @@ def test_los_rotulos_versionados_son_los_nueve_aprobados() -> None:
 def test_a1_el_aviso_dice_prueba_y_c8_lo_excluye_entero() -> None:
     """A-1: «prueba» está en el aviso de VE-01; solo el aviso y los textos del analista se excluyen."""
     aviso = load_contract(AVISO)
-    palabras = {normalizar(p) for p in "".join(c if c.isalpha() else " " for c in aviso["text"]).split()}
+    palabras = {
+        normalizar(p) for p in "".join(c if c.isalpha() else " " for c in aviso["text"]).split()
+    }
     assert {"prueba"} == palabras & {normalizar(t) for t in veracity.TERMINOS}
     match = load_contract(C8)["match"]
     assert "aviso.text" in match["excluded_whole_texts"]
@@ -163,7 +165,9 @@ def test_a1_el_aviso_dice_prueba_y_c8_lo_excluye_entero() -> None:
     assert "prueba" in veracity.TERMINOS
 
 
-@pytest.mark.parametrize("nombre", ["prueba", "Pruebas", "esProbatorio", "pliego_de_cargos", "inculpa", "falsos"])
+@pytest.mark.parametrize(
+    "nombre", ["prueba", "Pruebas", "esProbatorio", "pliego_de_cargos", "inculpa", "falsos"]
+)
 def test_los_terminos_de_ve02_fuera_del_aviso_se_marcan_en_los_nombres(nombre: str) -> None:
     assert con_veracidad(nombre)
 
@@ -485,7 +489,12 @@ def test_aviso_acepta_cualquier_version_semantica(version: str) -> None:
 
 def test_aviso_sin_la_frase_base() -> None:
     mensaje = "BR5.7: el texto del aviso no contiene la frase base de VE-01"
-    for texto in ("Texto distinto", FRASE_BASE[:-1], FRASE_BASE.replace("No son prueba", "Son prueba"), 5):
+    for texto in (
+        "Texto distinto",
+        FRASE_BASE[:-1],
+        FRASE_BASE.replace("No son prueba", "Son prueba"),
+        5,
+    ):
         documento = _aviso()
         documento["text"] = texto
         assert problemas_de_aviso(documento) == [mensaje], texto
@@ -566,9 +575,7 @@ def test_aclaracion_con_forma_incorrecta() -> None:
     ]
     documento = _aclaracion()
     documento["reject_if"]["extra"] = True
-    assert problemas_de_aclaracion(documento) == [
-        "BR5.6: reject_if trae claves no aprobadas"
-    ]
+    assert problemas_de_aclaracion(documento) == ["BR5.6: reject_if trae claves no aprobadas"]
     documento = _aclaracion()
     documento["reject_if"] = ["mentions_contradiction"]
     assert problemas_de_aclaracion(documento) == ["BR5.6: reject_if no es un objeto"]
@@ -595,7 +602,9 @@ def test_camel_y_pascal_case_se_parten_en_las_fronteras(nombre: str) -> None:
     ["es_falso2", "falso2", "es2falso", "FALSO2", "es.falso", "falso2x", "Falso9Positivo", "v1.falso",
      "esＦａｌｓｏ", "ＦＡＬＳＯ2", "es_ｆａｌｓｏ", "is_lying2", "veracity2Score"],
 )  # fmt: skip
-def test_digitos_y_puntos_tambien_son_fronteras_y_el_ancho_completo_se_normaliza(nombre: str) -> None:
+def test_digitos_y_puntos_tambien_son_fronteras_y_el_ancho_completo_se_normaliza(
+    nombre: str,
+) -> None:
     """R2-01: letra y dígito (en los dos sentidos), el punto y NFKC antes de comparar."""
     assert con_veracidad(nombre)
 
@@ -647,7 +656,9 @@ def test_nfkc_no_rompe_las_tildes_descompuestas_ni_los_nombres_limpios() -> None
     assert not con_veracidad("ﬁnal")  # la ligadura «ﬁ» se descompone en «fi»
 
 
-@pytest.mark.parametrize("nombre", ["falsete2", "v2", "tipo2", "x1y", "es.falsete", "ｔｉｐｏ", "mintiendo2", "2025"])
+@pytest.mark.parametrize(
+    "nombre", ["falsete2", "v2", "tipo2", "x1y", "es.falsete", "ｔｉｐｏ", "mintiendo2", "2025"]
+)
 def test_digitos_y_puntos_no_marcan_lo_limpio(nombre: str) -> None:
     assert not con_veracidad(nombre)
 
@@ -679,7 +690,17 @@ def test_r3_01_todo_lo_que_no_es_letra_ni_digito_es_frontera(nombre: str) -> Non
 
 @pytest.mark.parametrize(
     "nombre",
-    ["filter[falsete]", "es/falsete", "es\u200bfalsete", "es\u00b7tipo", "es(tipo)", "a/b", "[]", "\u200b", ""],
+    [
+        "filter[falsete]",
+        "es/falsete",
+        "es\u200bfalsete",
+        "es\u00b7tipo",
+        "es(tipo)",
+        "a/b",
+        "[]",
+        "\u200b",
+        "",
+    ],
 )
 def test_r3_01_los_signos_no_marcan_lo_limpio(nombre: str) -> None:
     assert not con_veracidad(nombre)
@@ -701,14 +722,25 @@ def test_r3_04_limitaciones_declaradas_de_alfabeto_y_numeros(nombre: str) -> Non
 
 
 @pytest.mark.parametrize("nombre", ["menti_x", "x.engane", "es_inculpo", "mentia", "mentian"])
-def test_r3_02_limitacion_declarada_la_comparacion_sin_tildes_coincide_con_segmentos(nombre: str) -> None:
+def test_r3_02_limitacion_declarada_la_comparacion_sin_tildes_coincide_con_segmentos(
+    nombre: str,
+) -> None:
     """Limitación declarada (R3-02): sin tildes, «menti» (de «mentí»), «engane» (de «engañé») e
     «inculpo» (de «inculpó») coinciden aunque no sean un uso prohibido."""
     assert con_veracidad(nombre)
 
 
 @pytest.mark.parametrize(
-    "nombre", ["Falsete", "esFalsete", "tipoDeCita", "credibilidadExtra", "isTruth", "mienteentodo", "Mintiendo"]
+    "nombre",
+    [
+        "Falsete",
+        "esFalsete",
+        "tipoDeCita",
+        "credibilidadExtra",
+        "isTruth",
+        "mienteentodo",
+        "Mintiendo",
+    ],
 )
 def test_camel_case_limpio_no_se_marca(nombre: str) -> None:
     assert not con_veracidad(nombre)
@@ -716,7 +748,11 @@ def test_camel_case_limpio_no_se_marca(nombre: str) -> None:
 
 def test_parameters_como_mapa_de_components_se_recoge() -> None:
     """F-02: `components.parameters` es un mapa nombre -> parámetro, no una lista."""
-    documento = {"components": {"parameters": {"P": {"name": "es_falso", "in": "query"}, "Q": {"in": "query"}}}}
+    documento = {
+        "components": {
+            "parameters": {"P": {"name": "es_falso", "in": "query"}, "Q": {"in": "query"}}
+        }
+    }
     assert nombres_de_un_documento(documento) == ["es_falso"]
     assert problemas_de_nombres("api/x.yaml", documento) == [
         "BR3.3: api/x.yaml: nombres con vocabulario de veracidad: ['es_falso']"
@@ -732,7 +768,12 @@ def test_los_nombres_de_defs_y_de_components_schemas_se_comparan() -> None:
     assert problemas_de_nombres("x.yaml", {"components": {"schemas": {"is_lying": {}}}}) == [
         "BR3.3: x.yaml: nombres con vocabulario de veracidad: ['is_lying']"
     ]
-    assert problemas_de_nombres("x.yaml", {"$defs": {"hallazgo": {}}, "components": {"schemas": {"Run": {}}}}) == []
+    assert (
+        problemas_de_nombres(
+            "x.yaml", {"$defs": {"hallazgo": {}}, "components": {"schemas": {"Run": {}}}}
+        )
+        == []
+    )
     assert nombres_de_un_documento({"$defs": ["EsFalso"], "otro": {"schemas": 3}}) == []
 
 
@@ -764,7 +805,9 @@ def test_un_nombre_de_veracidad_se_detecta(documento: Any) -> None:
 
 
 def test_los_nombres_limpios_pasan() -> None:
-    documento = {"properties": {"falsete": {}, "mintiendo": {}, "tipo": {"enum": ["fecha", "otro"]}}}
+    documento = {
+        "properties": {"falsete": {}, "mintiendo": {}, "tipo": {"enum": ["fecha", "otro"]}}
+    }
     assert problemas_de_nombres("x.yaml", documento) == []
     assert problemas_de_nombres("x.yaml", {}) == []
 
@@ -822,11 +865,17 @@ def test_un_documento_sin_rutas_declaradas_no_se_compara() -> None:
 def test_un_enum_de_valores_que_no_son_cadenas_no_cuenta_como_declarado() -> None:
     c6 = enums_de_c6(load_contract(SALIDA))
     documento = {"properties": {"tipo": {"enum": ["fecha", 3]}}}
-    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+    assert problemas_de_enums(C7, documento, c6) == [
+        f"BR3.2: {C7}: no declara el enum de tipo de C6"
+    ]
     documento = {"properties": {"tipo": "texto"}}
-    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+    assert problemas_de_enums(C7, documento, c6) == [
+        f"BR3.2: {C7}: no declara el enum de tipo de C6"
+    ]
     documento = {"properties": ["tipo"]}
-    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+    assert problemas_de_enums(C7, documento, c6) == [
+        f"BR3.2: {C7}: no declara el enum de tipo de C6"
+    ]
 
 
 PREFIJO_C6 = "/veridicus/contracts/analyzer/v1/salida#"
@@ -884,7 +933,9 @@ def test_un_ref_a_otra_ruta_es_una_copia_desviada() -> None:
 def test_un_ref_que_no_es_texto_no_cuenta_como_declarado() -> None:
     c6 = enums_de_c6(load_contract(SALIDA))
     documento = {"properties": {"tipo": {"$ref": 3}}}
-    assert problemas_de_enums(C7, documento, c6) == [f"BR3.2: {C7}: no declara el enum de tipo de C6"]
+    assert problemas_de_enums(C7, documento, c6) == [
+        f"BR3.2: {C7}: no declara el enum de tipo de C6"
+    ]
 
 
 def test_c19_y_c1_con_ref_a_las_rutas_de_c6_pasan(tmp_path: Path) -> None:
@@ -919,7 +970,10 @@ def test_cada_copia_del_campo_se_compara_y_basta_una_declarada() -> None:
     assert problemas_de_enums(C7, documento, c6) == [
         f"BR3.2: {C7}: el enum de tipo difiere del de C6 (tipo)"
     ]
-    documento = {"a": {"properties": {"tipo": buena}}, "b": {"properties": {"tipo": {"type": "string"}}}}
+    documento = {
+        "a": {"properties": {"tipo": buena}},
+        "b": {"properties": {"tipo": {"type": "string"}}},
+    }
     assert problemas_de_enums(C7, documento, c6) == []
 
 
@@ -930,7 +984,9 @@ def _arbol(destino: Path) -> Path:
     """Copia los directorios de datos (sin fixtures) a `destino` y devuelve la raíz."""
     for directorio in DIRECTORIOS:
         shutil.copytree(
-            CONTRACTS_ROOT / directorio, destino / directorio, ignore=shutil.ignore_patterns("fixtures")
+            CONTRACTS_ROOT / directorio,
+            destino / directorio,
+            ignore=shutil.ignore_patterns("fixtures"),
         )
     shutil.copy(CONTRACTS_ROOT / "limits.v1.yaml", destino / "limits.v1.yaml")
     return destino
@@ -973,7 +1029,9 @@ def test_un_defecto_en_un_subdirectorio_se_ve(tmp_path: Path) -> None:
 def test_los_fixtures_y_vendor_no_se_recorren(tmp_path: Path) -> None:
     raiz = _arbol(tmp_path)
     _escribir(raiz, "api/fixtures/malo.json", {"properties": {"is_lying": {}}})
-    _escribir(raiz, "integrity/fixtures/review-suggestion/malo.json", {"properties": {"is_lying": {}}})
+    _escribir(
+        raiz, "integrity/fixtures/review-suggestion/malo.json", {"properties": {"is_lying": {}}}
+    )
     _escribir(raiz, "vendor/malo.json", {"properties": {"is_lying": {}}})
     _escribir(raiz, "tests/malo.json", {"properties": {"is_lying": {}}})
     assert comprobar(raiz) == []
@@ -1106,7 +1164,9 @@ def test_una_ruta_declarada_de_c19_que_falta_se_ve(tmp_path: Path, campo: str) -
 
 def test_una_ruta_declarada_que_no_trae_el_enum_en_linea_se_ve(tmp_path: Path) -> None:
     c19 = _c19()
-    c19["properties"]["runs"]["items"]["properties"]["discards"] = {"propertyNames": {"type": "string"}}
+    c19["properties"]["runs"]["items"]["properties"]["discards"] = {
+        "propertyNames": {"type": "string"}
+    }
     c19["properties"]["runs"]["items"]["properties"]["status"] = {"enum": 3}
     raiz = _arbol(tmp_path)
     _con_c19_y_c1(raiz, c19, _c1(ENUMS_DE_C6["papel"]))
@@ -1123,7 +1183,11 @@ def test_c1_sin_el_enum_de_papel_se_ve(tmp_path: Path) -> None:
 
 
 def test_c7_con_el_enum_de_tipo_desviado_se_ve(tmp_path: Path) -> None:
-    for valores in (["fecha", "fuente"], ["fecha", "numero", "lugar", "persona"], [*sorted(TIPOS), "fuente"]):
+    for valores in (
+        ["fecha", "fuente"],
+        ["fecha", "numero", "lugar", "persona"],
+        [*sorted(TIPOS), "fuente"],
+    ):
         raiz = tmp_path / str(len(valores))
         raiz.mkdir()
         _arbol(raiz)
@@ -1148,7 +1212,9 @@ def test_c7_sin_enum_de_tipo_se_ve(tmp_path: Path) -> None:
 def test_un_enum_ajeno_que_se_parece_a_uno_de_c6_no_se_compara(tmp_path: Path) -> None:
     """La comparación va por la ruta declarada, no por parecido: un enum libre no es una copia."""
     raiz = _arbol(tmp_path)
-    _escribir(raiz, "queues/otro.json", {"properties": {"t": {"enum": ["fecha", "numero", "lugar"]}}})
+    _escribir(
+        raiz, "queues/otro.json", {"properties": {"t": {"enum": ["fecha", "numero", "lugar"]}}}
+    )
     assert comprobar(raiz) == []
 
 

@@ -153,10 +153,14 @@ def test_un_decimal_mal_formado_es_un_error_de_limites_y_no_un_valueerror(valor:
 
 def test_un_decimal_entero_se_devuelve_como_entero() -> None:
     limits = _limits()
-    efectivo = limits.load({"VERIDICUS_LIMIT_POLL_INTERVAL_ACTIVE_S": "1.0"})["poll_interval_active_s"]
+    efectivo = limits.load({"VERIDICUS_LIMIT_POLL_INTERVAL_ACTIVE_S": "1.0"})[
+        "poll_interval_active_s"
+    ]
     assert efectivo == 1
     assert type(efectivo) is int
-    efectivo = limits.load({"VERIDICUS_LIMIT_POLL_INTERVAL_ACTIVE_S": "1.5"})["poll_interval_active_s"]
+    efectivo = limits.load({"VERIDICUS_LIMIT_POLL_INTERVAL_ACTIVE_S": "1.5"})[
+        "poll_interval_active_s"
+    ]
     assert efectivo == 1.5
     assert type(efectivo) is float
 

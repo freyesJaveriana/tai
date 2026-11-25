@@ -92,9 +92,13 @@ def test_un_formato_con_patron_debil_o_forma_rota_es_rojo() -> None:
         f"{FORMATO}: /pattern: el patrón no acepta la forma única AAAA-MM-DDTHH:MM:SSZ (BR8.1)"
     ]
     roto = {**base, "pattern": "(sin cerrar"}
-    assert guardia.comprobar_formato(roto) == [f"{FORMATO}: /pattern: no es una expresión regular (BR8.1)"]
+    assert guardia.comprobar_formato(roto) == [
+        f"{FORMATO}: /pattern: no es una expresión regular (BR8.1)"
+    ]
     sin_patron = {k: v for k, v in base.items() if k != "pattern"}
-    assert guardia.comprobar_formato(sin_patron) == [f"{FORMATO}: /pattern: falta el patrón (BR8.1)"]
+    assert guardia.comprobar_formato(sin_patron) == [
+        f"{FORMATO}: /pattern: falta el patrón (BR8.1)"
+    ]
     otro_tipo = {**base, "format": "date", "type": "integer"}
     assert guardia.comprobar_formato(otro_tipo) == [
         f"{FORMATO}: /: debe ser type string y format date-time (BR8.1)"
@@ -111,7 +115,9 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
     for directorio in ("format", "queues", "analyzer/v1", "queues/fixtures", "vendor", ".venv"):
         (raiz / directorio).mkdir(parents=True)
     (raiz / FORMATO).write_text(
-        json.dumps({"schema_version": "1.0.0", "type": "string", "format": "date-time", "pattern": PATRON}),
+        json.dumps(
+            {"schema_version": "1.0.0", "type": "string", "format": "date-time", "pattern": PATRON}
+        ),
         encoding="utf-8",
     )
     suelta = json.dumps({"properties": {"at": _fecha()}})

@@ -25,7 +25,9 @@ BASE = "profiles/profile-base.schema.v1.yaml"
 ANALIZADOR = "profiles/profiles.schema.v1.yaml"
 
 CASOS = [
-    pytest.param(EFECTIVA, Caso("effective-config.valid.json", "C18.effective-config"), id="efectiva"),
+    pytest.param(
+        EFECTIVA, Caso("effective-config.valid.json", "C18.effective-config"), id="efectiva"
+    ),
     pytest.param(BASE, Caso("profile-base.valid.yaml", "C18.profile-base"), id="e21-base"),
     pytest.param(
         ANALIZADOR,

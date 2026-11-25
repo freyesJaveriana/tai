@@ -90,7 +90,9 @@ def cargar_excepciones(ruta: Path) -> list[Excepcion]:
     try:
         documento = load_file(ruta)
     except (LoadError, OSError) as error:
-        raise InsumoIlegible(f"no se pudo leer la lista de excepciones {ruta.name}: {error}") from error
+        raise InsumoIlegible(
+            f"no se pudo leer la lista de excepciones {ruta.name}: {error}"
+        ) from error
     if (
         not isinstance(documento, dict)
         or "excepciones" not in documento
@@ -129,14 +131,20 @@ def leer_informe(ruta: Path) -> list[dict[str, Any]]:
     for dependencia in dependencias:
         vulns = dependencia.get("vulns", [])
         if not isinstance(vulns, list) or not all(isinstance(v, dict) for v in vulns):
-            raise InsumoIlegible(f"el informe {ruta.name} trae vulns que no es una lista de objetos")
+            raise InsumoIlegible(
+                f"el informe {ruta.name} trae vulns que no es una lista de objetos"
+            )
     return list(dependencias)
 
 
-def evaluar(dependencias: Sequence[dict[str, Any]], excepciones: Sequence[Excepcion], hoy: date) -> list[str]:
+def evaluar(
+    dependencias: Sequence[dict[str, Any]], excepciones: Sequence[Excepcion], hoy: date
+) -> list[str]:
     """Los problemas de la compuerta con las excepciones y la fecha dadas (vacía si es verde)."""
     problemas = [
-        f"excepción vencida: {e.id} caducó el {e.caduca.isoformat()}" for e in excepciones if e.caduca < hoy
+        f"excepción vencida: {e.id} caducó el {e.caduca.isoformat()}"
+        for e in excepciones
+        if e.caduca < hoy
     ]
     vigentes = {e.id for e in excepciones if e.caduca >= hoy}
     for dependencia in dependencias:
@@ -144,7 +152,10 @@ def evaluar(dependencias: Sequence[dict[str, Any]], excepciones: Sequence[Excepc
         for vulnerabilidad in dependencia.get("vulns", []):
             if not vulnerabilidad.get("fix_versions"):
                 continue
-            identificadores = {str(vulnerabilidad.get("id")), *map(str, vulnerabilidad.get("aliases") or [])}
+            identificadores = {
+                str(vulnerabilidad.get("id")),
+                *map(str, vulnerabilidad.get("aliases") or []),
+            }
             if not identificadores & vigentes:
                 problemas.append(
                     f"{paquete}: {vulnerabilidad.get('id')} tiene versión corregida y ninguna excepción vigente"
@@ -156,7 +167,9 @@ def main(argumentos: Sequence[str] | None = None) -> int:
     """Punto de entrada: devuelve el código de salida."""
     analizador = argparse.ArgumentParser(prog="audit_gate", description=__doc__)
     analizador.add_argument("informe", type=Path, help="JSON de pip-audit")
-    analizador.add_argument("--ignore", type=Path, required=True, help="lista de excepciones (YAML)")
+    analizador.add_argument(
+        "--ignore", type=Path, required=True, help="lista de excepciones (YAML)"
+    )
     leidos = analizador.parse_args(list(sys.argv[1:] if argumentos is None else argumentos))
     informe: Path = leidos.informe
     if informe.parent.name == "build" and not informe.parent.exists():

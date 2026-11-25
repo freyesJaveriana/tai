@@ -59,7 +59,9 @@ def check_c6_copy(carpeta: Path) -> list[str]:
         if huella != HUELLAS_APROBADAS_C6[nombre]:
             problemas.append(f"{nombre}: su SHA-256 no es el de la versión aprobada")
         if esperadas.get(nombre) != HUELLAS_APROBADAS_C6[nombre]:
-            problemas.append(f"{nombre}: su línea de SHA256SUMS no es la huella de la versión aprobada")
+            problemas.append(
+                f"{nombre}: su línea de SHA256SUMS no es la huella de la versión aprobada"
+            )
         try:
             contrato = json.loads(datos)["properties"]["contrato"]
         except (ValueError, KeyError, TypeError):

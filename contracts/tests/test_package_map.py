@@ -82,7 +82,9 @@ def test_inventario_del_mapa_coincide_con_el_arbol_y_con_pyproject(contracts_roo
     }
     assert claves == set(DIRECTORIOS_DE_DATOS), "cache-keys no coincide con el inventario"
     sueltas = {
-        k["file"] for k in configuracion["tool"]["uv"]["cache-keys"] if not k["file"].endswith("/**")
+        k["file"]
+        for k in configuracion["tool"]["uv"]["cache-keys"]
+        if not k["file"].endswith("/**")
     }
     assert sueltas == {"pyproject.toml", "hatch_build.py", *ARCHIVOS_DE_DATOS}
 
@@ -116,7 +118,16 @@ def _construir(contracts_root: Path, tmp_path: Path, argumentos: list[str]) -> s
     (copia / "api" / "fixtures" / "sintetico.yaml").write_text("dato: sintetico\n")
     salida = tmp_path / "salida"
     resultado = subprocess.run(  # noqa: S603  # motivo: argumentos fijos, sin entrada externa
-        [_uv(), "build", *argumentos, "--offline", "--directory", str(copia), "--out-dir", str(salida)],
+        [
+            _uv(),
+            "build",
+            *argumentos,
+            "--offline",
+            "--directory",
+            str(copia),
+            "--out-dir",
+            str(salida),
+        ],
         capture_output=True,
         text=True,
         check=False,

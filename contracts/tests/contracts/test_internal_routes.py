@@ -41,9 +41,13 @@ def test_c21_la_respuesta_200_lleva_el_registro_de_la_llamada_por_referencia() -
     operacion = load_contract(C21)["paths"]["/v1/generate"]["post"]
     esquema = operacion["responses"]["200"]["content"]["application/json"]["schema"]
     assert esquema["required"] == ["content", "altered_markers", "call"]
-    assert esquema["properties"]["call"] == {"$ref": "/veridicus/contracts/model_calls/model-call.v1"}
+    assert esquema["properties"]["call"] == {
+        "$ref": "/veridicus/contracts/model_calls/model-call.v1"
+    }
     assert load_contract(C21)["servers"] == [{"url": "http://veridicus-anonymizer-proxy:8080"}]
-    assert not [c for _, c, _ in recorrer(load_contract(C21)) if c in {"destination", "api_key_ref"}]
+    assert not [
+        c for _, c, _ in recorrer(load_contract(C21)) if c in {"destination", "api_key_ref"}
+    ]
 
 
 def _cuerpo_de_voz() -> dict[str, Any]:
@@ -195,7 +199,10 @@ def _salud(ruta: str, estado: str) -> Any:
 @pytest.mark.c16
 def test_salud_acepta_las_respuestas_documentadas() -> None:
     assert errores_de(_salud("/healthz", "200"), {"status": "ok"}) == []
-    listo = {"status": "ready", "checks": [{"name": "access_log", "ok": True, "info": "not_configured"}]}
+    listo = {
+        "status": "ready",
+        "checks": [{"name": "access_log", "ok": True, "info": "not_configured"}],
+    }
     assert errores_de(_salud("/readyz", "200"), listo) == []
     assert errores_de(_salud("/readyz", "200"), {"status": "ready", "checks": []}) == []
     no_listo = {"status": "not_ready", "checks": [{"name": "redis", "ok": False}]}
@@ -213,8 +220,16 @@ def test_salud_acepta_las_respuestas_documentadas() -> None:
         ("/readyz", "200", {"status": "ready"}),
         ("/readyz", "200", {"status": "ready", "checks": [{"name": "redis"}]}),
         ("/readyz", "200", {"status": "ready", "checks": [{"name": "Redis", "ok": True}]}),
-        ("/readyz", "200", {"status": "ready", "checks": [{"name": "db", "ok": True, "info": "con espacio"}]}),
-        ("/readyz", "200", {"status": "ready", "checks": [{"name": "db", "ok": True, "detalle": "x"}]}),
+        (
+            "/readyz",
+            "200",
+            {"status": "ready", "checks": [{"name": "db", "ok": True, "info": "con espacio"}]},
+        ),
+        (
+            "/readyz",
+            "200",
+            {"status": "ready", "checks": [{"name": "db", "ok": True, "detalle": "x"}]},
+        ),
         ("/readyz", "200", {"status": "ready", "checks": [{"name": "db", "ok": "si"}]}),
         ("/readyz", "503", {"status": "ready", "checks": []}),
         ("/readyz", "503", {"status": "not_ready", "checks": [{"name": "x" * 65, "ok": False}]}),

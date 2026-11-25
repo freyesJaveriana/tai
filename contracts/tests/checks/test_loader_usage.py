@@ -38,7 +38,9 @@ def _problemas(guardia: ModuleType, raiz: Path, relativa: str, codigo: str) -> l
 def test_el_repositorio_real_no_usa_pyyaml_ni_subprocesos_fuera_de_las_excepciones(
     guardia: ModuleType,
 ) -> None:
-    visto = {ruta.name for ruta in guardia.archivos([CONTRACTS_ROOT / "src", CONTRACTS_ROOT / "tests"])}
+    visto = {
+        ruta.name for ruta in guardia.archivos([CONTRACTS_ROOT / "src", CONTRACTS_ROOT / "tests"])
+    }
     # La guardia no pasa en vacío: recorre el único módulo que crea el lector y las pruebas.
     assert {"loaders.py", "test_package_map.py", "test_loader_usage.py"} <= visto
     assert guardia.comprobar(CONTRACTS_ROOT) == []
@@ -49,7 +51,10 @@ def test_import_de_pyyaml_es_rojo(guardia: ModuleType, tmp_path: Path) -> None:
         problemas = _problemas(guardia, tmp_path, "src/veridicus_contracts/otro.py", codigo)
         assert len(problemas) == 1 and "PyYAML" in problemas[0] and "(NFR10.4)" in problemas[0]
     # ruamel.yaml es la biblioteca permitida: importarla no es el defecto.
-    assert _problemas(guardia, tmp_path, "src/veridicus_contracts/otro.py", "import ruamel.yaml\n") == []
+    assert (
+        _problemas(guardia, tmp_path, "src/veridicus_contracts/otro.py", "import ruamel.yaml\n")
+        == []
+    )
 
 
 def test_un_modulo_sintetico_con_yaml_unsafe_es_rojo(guardia: ModuleType, tmp_path: Path) -> None:
@@ -69,7 +74,10 @@ def test_yaml_solo_se_crea_en_loaders_y_con_typ_safe(guardia: ModuleType, tmp_pa
     fuera = _problemas(guardia, tmp_path, "tests/otro.py", seguro)
     assert len(fuera) == 1 and "YAML(...) fuera de loaders.py" in fuera[0]
     # La ruta completa a contracts/ es la que cuenta, no el final de la ruta.
-    for parecida in ("src/otro/veridicus_contracts/loaders.py", "otro/src/veridicus_contracts/loaders.py"):
+    for parecida in (
+        "src/otro/veridicus_contracts/loaders.py",
+        "otro/src/veridicus_contracts/loaders.py",
+    ):
         problemas = _problemas(guardia, tmp_path, parecida, seguro)
         assert len(problemas) == 1 and "YAML(...) fuera de loaders.py" in problemas[0]
     # Dentro de loaders.py, sin typ, con otro typ o con un typ calculado, falla por el typ.
@@ -109,7 +117,11 @@ def test_load_all_y_loader_son_rojo(guardia: ModuleType, tmp_path: Path) -> None
 def test_subprocesos_en_src_y_tests_son_rojo(
     guardia: ModuleType, tmp_path: Path, codigo: str, modulo: str
 ) -> None:
-    for relativa in ("src/veridicus_contracts/checks/otro.py", "tests/otro.py", "src/veridicus_contracts/x.py"):
+    for relativa in (
+        "src/veridicus_contracts/checks/otro.py",
+        "tests/otro.py",
+        "src/veridicus_contracts/x.py",
+    ):
         problemas = _problemas(guardia, tmp_path, relativa, codigo)
         assert len(problemas) == 1, (relativa, problemas)
         assert modulo in problemas[0] and "(NFR10.5)" in problemas[0]
@@ -157,7 +169,9 @@ def test_e19_cada_excepcion_admite_solo_su_modulo(guardia: ModuleType, tmp_path:
     assert len(guardia.scan([archivo], raiz=tmp_path / "otra")) == 1
 
 
-def test_un_archivo_que_no_se_puede_interpretar_es_un_problema(guardia: ModuleType, tmp_path: Path) -> None:
+def test_un_archivo_que_no_se_puede_interpretar_es_un_problema(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     problemas = _problemas(guardia, tmp_path, "src/veridicus_contracts/roto.py", "def (:\n")
     assert len(problemas) == 1 and "no se pudo interpretar" in problemas[0]
 
@@ -181,7 +195,9 @@ def test_controles_del_cargador_yaml_de_4_1(guardia: ModuleType) -> None:
     El control del término repetido de la lista de C8 es otro y vive en
     `test_veracity.py::test_c8_con_un_termino_nuevo_o_repetido_da_br51`.
     """
-    texto = (CONTRACTS_ROOT / "integrity" / "forbidden-vocabulary.v2.yaml").read_text(encoding="utf-8")
+    texto = (CONTRACTS_ROOT / "integrity" / "forbidden-vocabulary.v2.yaml").read_text(
+        encoding="utf-8"
+    )
     assert load_contract("integrity/forbidden-vocabulary.v2.yaml")["schema_version"] == "2.0.0"
     with pytest.raises(LoadError):
         load_yaml_text(texto + "schema_version: 2.0.0\n")
@@ -191,16 +207,24 @@ def test_controles_del_cargador_yaml_de_4_1(guardia: ModuleType) -> None:
 
 def _importa_contracts(codigo: str) -> bool:
     for nodo in ast.walk(ast.parse(codigo)):
-        if isinstance(nodo, ast.Import) and any(a.name.split(".")[0] == "contracts" for a in nodo.names):
+        if isinstance(nodo, ast.Import) and any(
+            a.name.split(".")[0] == "contracts" for a in nodo.names
+        ):
             return True
-        if isinstance(nodo, ast.ImportFrom) and nodo.level == 0 and (nodo.module or "").split(".")[0] == "contracts":
+        if (
+            isinstance(nodo, ast.ImportFrom)
+            and nodo.level == 0
+            and (nodo.module or "").split(".")[0] == "contracts"
+        ):
             return True
     return False
 
 
 def test_e32_ningun_modulo_importa_contracts_como_nombre_de_primer_nivel() -> None:
     """BR12.1: el paquete se importa como `veridicus_contracts`, nunca como `contracts`."""
-    archivos = sorted((CONTRACTS_ROOT / "src").rglob("*.py")) + sorted((CONTRACTS_ROOT / "tests").rglob("*.py"))
+    archivos = sorted((CONTRACTS_ROOT / "src").rglob("*.py")) + sorted(
+        (CONTRACTS_ROOT / "tests").rglob("*.py")
+    )
     assert len(archivos) > 20
     infractores = [
         a.relative_to(CONTRACTS_ROOT).as_posix()

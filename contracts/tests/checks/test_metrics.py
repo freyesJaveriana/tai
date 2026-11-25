@@ -241,7 +241,9 @@ def test_comprobar_lee_el_directorio_y_el_catalogo_de_una_copia(tmp_path: Path) 
     (raiz / "errors").mkdir()
     catalogo = (CONTRACTS_ROOT / "errors" / "error-codes.v2.yaml").read_text(encoding="utf-8")
     (raiz / "errors" / "error-codes.v2.yaml").write_text(catalogo, encoding="utf-8")
-    assert guardia.comprobar(raiz) == ["metrics/: no hay archivos de métricas que comprobar (§4.12)"]
+    assert guardia.comprobar(raiz) == [
+        "metrics/: no hay archivos de métricas que comprobar (§4.12)"
+    ]
     texto = (
         "schema_version: 1.0.0\nendpoint: GET /metrics\nmetrics:\n"
         "  - name: veridicus_a_total\n    type: counter\n    description: d\n    labels:\n"

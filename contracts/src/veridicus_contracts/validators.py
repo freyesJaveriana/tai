@@ -149,7 +149,9 @@ def _desconocidas(esquema: Any, ruta: str, conocidas: frozenset[str], salida: li
 def validate_json_schema(esquema: Any) -> None:
     """Un esquema JSON 2020-12 válido contra su meta-esquema y sin palabras clave desconocidas."""
     if isinstance(esquema, dict) and esquema.get("$schema", META_2020_12) != META_2020_12:
-        raise ValidationFailure(f"el esquema declara un $schema distinto de 2020-12: {esquema['$schema']}")
+        raise ValidationFailure(
+            f"el esquema declara un $schema distinto de 2020-12: {esquema['$schema']}"
+        )
     problemas = _errores(validator_for(_meta_registro(), META_2020_12), esquema)
     if not problemas:
         # Solo se recorre un esquema que el meta-esquema ya aceptó: sus tipos son los esperados.

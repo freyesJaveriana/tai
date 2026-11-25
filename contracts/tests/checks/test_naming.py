@@ -78,7 +78,9 @@ def test_un_parametro_de_ruta_o_consulta_en_camel_case_es_rojo() -> None:
 
 def test_los_parametros_de_components_parameters_tambien_se_comprueban() -> None:
     # F-01: los parámetros de un mapa (components/parameters) también se comprueban.
-    mapa = {"parameters": {"A": {"name": "pageSize", "in": "query"}, "B": {"name": "ok", "in": "path"}}}
+    mapa = {
+        "parameters": {"A": {"name": "pageSize", "in": "query"}, "B": {"name": "ok", "in": "path"}}
+    }
     # Una propiedad llamada in o name no es un parámetro.
     propiedades = {"properties": {"in": {"type": "string"}, "name": {"type": "string"}}}
     # F-01: copia en memoria de C1 con SessionId y Since renombrados.
@@ -188,5 +190,3 @@ def test_comprobar_recorre_los_contratos_propios_y_deja_fuera_c6_y_fixtures(tmp_
         f"node_modules/x.json: {campo}",
         f"src/x.json: {campo}",
     ]
-
-

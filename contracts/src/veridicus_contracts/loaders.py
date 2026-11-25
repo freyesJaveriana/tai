@@ -50,7 +50,9 @@ def load_yaml_text(texto: str) -> Any:
     try:
         valor = _lector_yaml().load(texto)
     except YAMLError as error:
-        raise LoadError(f"YAML no válido (clave duplicada o etiqueta no permitida): {error}") from error
+        raise LoadError(
+            f"YAML no válido (clave duplicada o etiqueta no permitida): {error}"
+        ) from error
     _comprobar_json(valor)
     return valor
 

@@ -78,7 +78,9 @@ Yo lo corrí con `/workspace/.worktrees/U01-T27` como raíz y da 0 apariciones, 
   - `docs/loop/tareas/U01-T25-repositorio-publico.md`: 2;
   - `aidlc/…/contracts/code-generation/decisiones-humano.md`: 1, en la fila de E-39.
 
-  Lo encontré con `git -C /workspace/.worktrees/U01-T27 grep -c -I -P "hpchead\d|hpc\d\d-w\d|/zine/HPC" -- .`. El repositorio es público (E-32). Que la guardia cubra esas carpetas, o que se corrijan los originales aprobados, lo decide el humano. La coincidencia en `docs/loop/bitacoras/U01-T27.md:9` es el nombre inventado `hpc99-w999`.
+  Lo encontré con `git -C /workspace/.worktrees/U01-T27 grep -c -I -P "<patrón de los nodos y la ruta reales>" -- .`.
+
+  > Nota del orquestador: el patrón de este comando se omitió en esta copia porque reproduce el prefijo de los nodos y el segmento de la ruta reales (E-40, P-T29-1). El resto del informe es literal. El repositorio es público (E-32). Que la guardia cubra esas carpetas, o que se corrijan los originales aprobados, lo decide el humano. La coincidencia en `docs/loop/bitacoras/U01-T27.md:9` es el nombre inventado `hpc99-w999`.
 
 ```
 VEREDICTO: NO-VERDE

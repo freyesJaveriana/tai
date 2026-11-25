@@ -4,7 +4,7 @@ VEREDICTO: VERDE
 
 Rama `tarea/U01-T25` en f77720d, sobre fadeaa8. Corrí yo mismo los seis CA y todos pasan. F-01 a F-08 están resueltos y no queda ningún ROJO ni NARANJA. Quedan dos AMARILLO que no bloquean. Por E-40, este informe no nombra la ruta, el usuario ni los nodos reales del clúster. No edité nada. El worktree ya venía con un `__pycache__` sin versionar (ver A-02).
 
-> Nota del orquestador: en esta copia persistida, el patrón de CA-2 de la fila 2 se sustituyó por `<patrón de CA-2>`, porque nombra el usuario y los nodos reales (E-40). El resto es literal.
+> Nota del orquestador: en esta copia persistida, el patrón de CA-2 de la fila 2 se sustituyó por `<patrón de CA-2>`, porque nombra el usuario y los nodos reales (E-40). En la línea de F-01 también se omitió el prefijo real del nodo de trabajo (P-T29-1). El resto es literal.
 
 ## Criterios de aceptación, verificados por mí
 | # | Criterio | Comando que corrí | Resultado |
@@ -20,7 +20,7 @@ Rama `tarea/U01-T25` en f77720d, sobre fadeaa8. Corrí yo mismo los seis CA y to
 | cifras | `reporte.md` | `git -C … diff --word-diff=plain --word-diff-regex=[^[:space:]]+ -U0 fadeaa8...HEAD -- docs/validacion-zine/reporte.md` | pasa: ninguna cifra ni ID de trabajo cambió. M0 y M3 llevan `ZINE_NODO`; M1, M2, M4, M5 y M6 llevan `ZINE_NODO_SL250S` |
 
 ## Estado de F-01 a F-08
-- **F-01 (ROJO): resuelto.** El caso de continuidad usa `hpc-nodo-ejemplo`. Mi grep ampliado (usuario, montaje, nodo de entrada, nodos de trabajo con `hpc0`, `w00N` y `sl250s-N`, `/home/` y `@`) sobre `docs/validacion-zine` y la bitácora solo da tres falsos positivos:
+- **F-01 (ROJO): resuelto.** El caso de continuidad usa `hpc-nodo-ejemplo`. Mi grep ampliado (usuario, montaje, nodo de entrada, nodos de trabajo con [prefijo real del nodo, omitido], `w00N` y `sl250s-N`, `/home/` y `@`) sobre `docs/validacion-zine` y la bitácora solo da tres falsos positivos:
   - `comun.sh:8`: confirmo que es `HOME=` más un subdirectorio que cuelga de la variable `VALID`; no es una ruta real.
   - `enviar.ps1:5` y la bitácora, línea 56: el relleno genérico `usuario@servidor`.
 

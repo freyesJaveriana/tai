@@ -41,7 +41,7 @@
 > **2. `scripts/check-no-cluster-ids.sh` revisa todo el repositorio.**
 > - **Qué revisa:** todos los archivos versionados (`git ls-files`), no solo `docs/validacion-zine/`.
 > - **(a) nodos:** igual que ahora, sin distinguir mayúsculas.
-> - **(b) rutas:** en todo el repositorio, solo una ruta **absoluta** que empieza por `/zine/`, es decir, sin carácter de palabra, `.`, `-` ni `/` delante, y seguida de un carácter de palabra. Así, la mención del patrón entre comillas invertidas, como en esta tarea y en la de T27, no cuenta. Hay muchas rutas relativas del repositorio (`…/zine/paquete/` y otras) en artefactos de `incoherence-analyzer`, y esas no deben contar. Mide los falsos positivos sobre el repositorio y escríbelos en la bitácora.
+> - **(b) rutas:** en todo el repositorio, solo una ruta **absoluta** que empieza por `/zine/`, es decir, sin carácter de palabra, `.`, `-` ni `/` delante, y seguida de un carácter de palabra. Así, la mención del patrón entre comillas invertidas, como en esta tarea y en la de T27, no cuenta. Hay muchas rutas relativas del repositorio que contienen el segmento `zine` seguido de `paquete` y otros, en artefactos de `incoherence-analyzer`, y esas no deben contar. Mide los falsos positivos sobre el repositorio y escríbelos en la bitácora.
 > - **(c) servidor:** solo en `*.ps1`, como ahora, y además cubre F-05 y F-06:
 >   - un valor de `$Servidor` que, aunque empiece por `$`, contenga un literal de palabra justo después de `@`;
 >   - un destino de `scp` con un host literal (`palabra:` o `usuario@palabra:`) que no salga de una variable.

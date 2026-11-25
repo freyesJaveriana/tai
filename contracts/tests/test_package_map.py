@@ -38,7 +38,7 @@ ARCHIVOS_DE_DATOS = ("limits.v1.yaml",)
 NO_EMPAQUETADOS = {"src", "tests", "ts", "fixtures", "build", "dist"}
 
 IGNORAR_EN_COPIA = shutil.ignore_patterns(
-    ".venv", "__pycache__", ".*_cache", ".coverage", ".hypothesis", "build", "dist"
+    ".venv", "__pycache__", ".*_cache", ".coverage", ".hypothesis", "build", "dist", "node_modules"
 )
 
 

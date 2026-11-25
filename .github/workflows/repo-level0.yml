@@ -53,3 +53,6 @@ jobs:
 
       - name: Ningún workflow ni script aplica cambios al clúster ni envía trabajos a ZINE (AUTONOMIA-01)
         run: bash scripts/check-no-cluster-apply.sh
+
+      - name: Nada de /insumos en el repositorio público (E-32, R-1 a R-3)
+        run: bash scripts/check-no-insumos.sh .

@@ -1,0 +1,145 @@
+# Comprobaciones de nivel 0 de contracts/ (U1, paso 24 del plan; security-design 4.13).
+# Los pasos con red (1, 2, 8, 9 y 12) van separados de los que no la tienen; los que no la tienen usan
+# --frozen --offline para que uv no vuelva a resolver el lockfile.
+# La CI no despliega: sin credenciales del clúster y sin regenerar archivos (AUTONOMIA-01).
+name: contracts-level0
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contracts-level0-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts-level0:
+    name: contracts-level0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Obtener el repositorio con todo su historial
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.13.9"
+          enable-cache: false
+
+      - name: Instalar Node desde .nvmrc
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: contracts/ts/.nvmrc
+
+      - name: Paso 1 (red) - Instalar Python con el lockfile y sus hashes
+        run: uv sync --frozen --directory contracts
+
+      - name: Crear contracts/build/ para la salida de pip-audit (K-62)
+        run: mkdir -p contracts/build
+
+      - name: Paso 2 (red) - Auditar Python
+        run: uv run --frozen --directory contracts pip-audit --format json --output build/pip-audit.json
+
+      - name: Paso 3 - Compuerta de auditoría (toda vulnerabilidad con versión corregida)
+        run: >-
+          uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.audit_gate
+          build/pip-audit.json --ignore .pip-audit-ignore.yaml
+
+      - name: Paso 4 - Suite Python (sin red, cobertura de líneas >= 80 %)
+        run: timeout 60 uv run --frozen --offline --directory contracts pytest
+
+      # La lista de --include no se puede partir sin cambiar el comando de 4.13.
+      # yamllint disable rule:line-length
+      - name: Paso 5 - Ramas de los módulos guardia al 100 %
+        run: >-
+          uv run --frozen --offline --directory contracts coverage report
+          --include="src/veridicus_contracts/checks/*,src/veridicus_contracts/profiles.py,src/veridicus_contracts/limits.py,src/veridicus_contracts/canonical.py,src/veridicus_contracts/registry.py"
+          --fail-under=100
+      # yamllint enable rule:line-length
+
+      - name: Paso 6a - Tipos de Python
+        run: uv run --frozen --offline --directory contracts mypy --strict src
+
+      - name: Paso 6b - Lint de Python
+        run: uv run --frozen --offline --directory contracts ruff check .
+
+      - name: Paso 7a - Tipos y constantes de TypeScript al día
+        run: uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check
+
+      - name: Paso 7b - Vectores JCS al día
+        run: uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_jcs_vectors --check
+
+      - name: Paso 8 (red) - Instalar TypeScript
+        run: npm --prefix contracts/ts ci
+
+      - name: Paso 9 (red) - Auditar TypeScript
+        run: npm --prefix contracts/ts audit --audit-level=high
+
+      - name: Paso 10 - Mitad TypeScript (sin red, cobertura de líneas >= 80 %)
+        run: timeout 60 npm --prefix contracts/ts test
+
+      - name: Paso 11a - Tipos de TypeScript
+        run: npm --prefix contracts/ts run typecheck
+
+      - name: Paso 11b - Lint de TypeScript
+        run: npm --prefix contracts/ts run lint
+
+      - name: Paso 11c - Generados de TypeScript al día
+        run: npm --prefix contracts/ts run gen:check
+
+      - name: Paso 12 (red solo para instalar) - Paquete en entorno limpio
+        run: timeout 180 uv run --frozen --directory contracts python -m veridicus_contracts.tools.check_package
+
+      - name: Instalar gitleaks 8.30.1 verificado por SHA-256
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+          archivo="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$archivo" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archivo}"
+          echo "${GITLEAKS_SHA256}  ${archivo}" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xzf "$archivo" -C "$RUNNER_TEMP/bin" gitleaks
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Buscar secretos en todo el historial (NFR12.2)
+        run: gitleaks git --redact --no-banner --exit-code 1 --config .gitleaks.toml .
+
+  # Extensión de 4.13 por PD-7 (R-13 de la revisión 2): V-ERRORS sobre libs/errors.
+  errors-level0:
+    name: errors-level0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.13.9"
+          enable-cache: false
+
+      - name: Instalar libs/errors con el lockfile y sus hashes (red)
+        run: uv sync --frozen --directory libs/errors
+
+      - name: Suite de libs/errors (sin red, cobertura de líneas >= 80 %)
+        run: timeout 60 uv run --frozen --offline --directory libs/errors pytest
+
+      - name: Tipos de libs/errors
+        run: uv run --frozen --offline --directory libs/errors mypy --strict src
+
+      - name: Lint de libs/errors
+        run: uv run --frozen --offline --directory libs/errors ruff check .

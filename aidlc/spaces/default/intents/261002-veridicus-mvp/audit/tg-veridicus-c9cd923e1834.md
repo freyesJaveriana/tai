@@ -55995,3 +55995,47 @@
 **Context**: construction > contracts > code-generation > decisiones-humano.md
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-25T12:38:52Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-25T12:38:53Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a1271ca69153023eb
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-25T12:41:04Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-25T12:41:59Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: a445c91c68d018ab4
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-25T13:14:28Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-25T13:14:29Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---

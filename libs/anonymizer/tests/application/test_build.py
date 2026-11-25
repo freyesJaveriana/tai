@@ -4,8 +4,8 @@ import inspect
 from typing import Any
 
 import pytest
-from veridicus_contracts.limits import LimitsConfigError
 from veridicus_contracts.model_calls import AnonymizingProvider
+from veridicus_errors import ConfigInvalidLimitError, ConfigInvalidProfileError
 
 from tests.support import KEY_CANARY, default_env, make_request, ok_response
 from veridicus_anonymizer import api as api_module
@@ -45,10 +45,12 @@ def test_an_invalid_catalog_stops_the_construction_before_any_call(
 
     monkeypatch.setattr(api_module, "load_catalogs", broken)
 
-    with pytest.raises(CatalogError):
+    with pytest.raises(ConfigInvalidProfileError) as excinfo:
         build_anonymizer(default_env(), transport)
 
     assert transport.request_count == 0
+    assert excinfo.value.code == "config.invalid_profile"
+    assert KEY_CANARY not in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
@@ -61,8 +63,10 @@ def test_an_invalid_catalog_stops_the_construction_before_any_call(
 def test_an_invalid_limit_stops_the_construction(variable: str) -> None:
     env = {**default_env(), variable: "999999999999"}
 
-    with pytest.raises(LimitsConfigError):
+    with pytest.raises(ConfigInvalidLimitError) as excinfo:
         build_anonymizer(env, FakeTransport())
+
+    assert excinfo.value.code == "config.invalid_limit"
 
 
 def test_without_a_transport_the_production_factory_is_used(

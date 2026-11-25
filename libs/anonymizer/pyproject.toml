@@ -10,7 +10,9 @@ requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.27",
     "google-re2>=1.1",
+    "jsonschema>=4.23",
     "veridicus-contracts",
+    "veridicus-errors",
 ]
 
 [dependency-groups]
@@ -27,9 +29,10 @@ dev = [
     "types-jsonschema>=4.23",
 ]
 
-# veridicus-contracts se toma por ruta: el Bolt usa la versión del mismo árbol (PD-3).
+# veridicus-contracts y veridicus-errors se toman por ruta: el Bolt usa la versión del mismo árbol.
 [tool.uv.sources]
 veridicus-contracts = { path = "../../contracts" }
+veridicus-errors = { path = "../errors" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/veridicus_anonymizer"]
@@ -82,6 +85,9 @@ forbidden_modules = [
     "model_gateway",
     "execution_profiles",
     "incoherence_analyzer",
+    "veridicus_model_gateway",
+    "veridicus_execution_profiles",
+    "veridicus_incoherence_analyzer",
 ]
 
 [[tool.importlinter.contracts]]
@@ -92,13 +98,19 @@ modules = [
     "veridicus_anonymizer.domain",
 ]
 
+# Nada de src/ fuera de testing/ importa testing. Un origen que contiene al prohibido se omite, así
+# que son dos contratos: todo módulo o subpaquete de primer nivel (`veridicus_anonymizer.*`, con
+# `testing` omitido por solaparse con lo prohibido) y el módulo raíz solo, sin sus descendientes.
 [[tool.importlinter.contracts]]
 name = "anonymizer-testing-not-in-production"
 type = "forbidden"
-source_modules = [
-    "veridicus_anonymizer.api",
-    "veridicus_anonymizer.application",
-    "veridicus_anonymizer.domain",
-    "veridicus_anonymizer.providers",
-]
+source_modules = ["veridicus_anonymizer.*"]
 forbidden_modules = ["veridicus_anonymizer.testing"]
+
+[[tool.importlinter.contracts]]
+name = "anonymizer-root-not-importing-testing"
+type = "forbidden"
+source_modules = ["veridicus_anonymizer"]
+# Sin `as_packages`, importar un submódulo no cuenta como importar el paquete: se listan ambos.
+forbidden_modules = ["veridicus_anonymizer.testing", "veridicus_anonymizer.testing.*"]
+as_packages = false

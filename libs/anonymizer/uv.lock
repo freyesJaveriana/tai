@@ -1633,7 +1633,9 @@ source = { editable = "." }
 dependencies = [
     { name = "google-re2" },
     { name = "httpx" },
+    { name = "jsonschema" },
     { name = "veridicus-contracts" },
+    { name = "veridicus-errors" },
 ]
 
 [package.dev-dependencies]
@@ -1654,7 +1656,9 @@ dev = [
 requires-dist = [
     { name = "google-re2", specifier = ">=1.1" },
     { name = "httpx", specifier = ">=0.27" },
+    { name = "jsonschema", specifier = ">=4.23" },
     { name = "veridicus-contracts", directory = "../../contracts" },
+    { name = "veridicus-errors", directory = "../errors" },
 ]
 
 [package.metadata.requires-dev]
@@ -1703,6 +1707,22 @@ dev = [
     { name = "ruff", specifier = ">=0.8" },
     { name = "types-jsonschema", specifier = ">=4.23" },
     { name = "yamllint", specifier = ">=1.35" },
+]
+
+[[package]]
+name = "veridicus-errors"
+version = "0.1.0"
+source = { directory = "../errors" }
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "hatchling", specifier = ">=1.26" },
+    { name = "mypy", specifier = ">=1.13" },
+    { name = "pytest", specifier = ">=8.3" },
+    { name = "pytest-cov", specifier = ">=6.0" },
+    { name = "ruff", specifier = ">=0.8" },
 ]
 
 [[package]]

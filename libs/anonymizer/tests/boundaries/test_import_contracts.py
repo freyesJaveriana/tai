@@ -17,18 +17,52 @@ ROOT = Path(__file__).resolve().parents[2]
 PACKAGE = ROOT / "src" / "veridicus_anonymizer"
 LINT_IMPORTS = Path(sys.executable).parent / "lint-imports"
 
+CONTRACTS = (
+    "anonymizer-independent",
+    "anonymizer-layers",
+    "anonymizer-testing-not-in-production",
+    "anonymizer-root-not-importing-testing",
+)
+FORBIDDEN_NAMES = (
+    "model_gateway",
+    "execution_profiles",
+    "incoherence_analyzer",
+    "veridicus_model_gateway",  # F-02: la convención de PD-3 lleva prefijo
+    "veridicus_execution_profiles",
+    "veridicus_incoherence_analyzer",
+)
+TESTING_IMPORT = "from veridicus_anonymizer.testing import bypass  # noqa: F401\n"
+
+# Cada caso: contrato que debe romperse, archivo (relativo al paquete) y código que se añade a él.
 VIOLATIONS = {
-    "anonymizer-independent": (
-        "application/violacion.py",
-        "import model_gateway  # noqa: F401\n",
-    ),
-    "anonymizer-layers": (
+    **{
+        f"independent:{name}": (
+            "anonymizer-independent",
+            "application/violacion.py",
+            f"import {name}  # noqa: F401\n",
+        )
+        for name in FORBIDDEN_NAMES
+    },
+    "layers:providers->domain": (
+        "anonymizer-layers",
         "providers/violacion.py",
         "from veridicus_anonymizer.domain import masking  # noqa: F401\n",
     ),
-    "anonymizer-testing-not-in-production": (
+    "testing:application": (
+        "anonymizer-testing-not-in-production",
         "application/violacion.py",
-        "from veridicus_anonymizer.testing import bypass  # noqa: F401\n",
+        TESTING_IMPORT,
+    ),
+    # F-03: el módulo raíz y los módulos de primer nivel también están cubiertos.
+    "testing:__init__ raíz": (
+        "anonymizer-root-not-importing-testing",
+        "__init__.py",
+        TESTING_IMPORT,
+    ),
+    "testing:módulo de primer nivel": (
+        "anonymizer-testing-not-in-production",
+        "cli.py",
+        TESTING_IMPORT,
     ),
 }
 
@@ -45,10 +79,12 @@ def _lint(
     shutil.copy(ROOT / "pyproject.toml", workdir / "pyproject.toml")
     if violation is not None:
         relative, source = violation
-        (workdir / "src" / "veridicus_anonymizer" / relative).write_text(source, "utf-8")
+        target = workdir / "src" / "veridicus_anonymizer" / relative
+        existing = target.read_text("utf-8") if target.exists() else ""
+        target.write_text(existing + source, "utf-8")
     env = {**os.environ, "PYTHONPATH": str(workdir / "src")}
     return subprocess.run(  # noqa: S603 - argumentos fijos, sin entrada externa
-        [str(LINT_IMPORTS), "--config", str(workdir / "pyproject.toml")],
+        [str(LINT_IMPORTS), str(workdir / "pyproject.toml")],
         cwd=workdir,
         env=env,
         capture_output=True,
@@ -58,26 +94,27 @@ def _lint(
     )
 
 
-def test_the_three_contracts_are_declared_in_the_package_configuration() -> None:
+def test_the_contracts_are_declared_in_the_package_configuration() -> None:
     config = (ROOT / "pyproject.toml").read_text("utf-8")
 
-    for name in VIOLATIONS:
+    for name in CONTRACTS:
         assert f'name = "{name}"' in config
 
 
-def test_a_clean_copy_keeps_the_three_contracts(tmp_path: Path) -> None:
+def test_a_clean_copy_keeps_every_contract(tmp_path: Path) -> None:
     result = _lint(tmp_path)
 
     assert result.returncode == 0, result.stdout
-    assert "Contracts: 3 kept, 0 broken." in result.stdout
+    assert f"Contracts: {len(CONTRACTS)} kept, 0 broken." in result.stdout
 
 
-@pytest.mark.parametrize("contract", list(VIOLATIONS), ids=list(VIOLATIONS))
+@pytest.mark.parametrize("case", list(VIOLATIONS), ids=list(VIOLATIONS))
 def test_negative_control_a_module_that_violates_the_contract_makes_lint_imports_fail(
-    contract: str, tmp_path: Path
+    case: str, tmp_path: Path
 ) -> None:
-    result = _lint(tmp_path, VIOLATIONS[contract])
+    contract, relative, source = VIOLATIONS[case]
+    result = _lint(tmp_path, (relative, source))
 
     assert result.returncode != 0, result.stdout
     assert f"{contract} BROKEN" in result.stdout
-    assert "Contracts: 2 kept, 1 broken." in result.stdout
+    assert f"Contracts: {len(CONTRACTS) - 1} kept, 1 broken." in result.stdout

@@ -33,8 +33,8 @@
 >
 >   Los correos de autores de artículos de terceros en `research/` no cuentan.
 > - **Control negativo** en el scratchpad, con repositorios de prueba y solo datos inventados. Debe dar 1:
->   - `C.C. 12.345.678`;
->   - `cédula: 1234567890`;
+>   - la sigla de cédula con puntos, seguida de un número inventado de 8 cifras con puntos de miles;
+>   - la palabra «cédula» con dos puntos, seguida de un número inventado de 10 cifras;
 >   - un correo inventado cuyo hash se añade solo a la lista del control.
 >
 >   Debe dar 0:

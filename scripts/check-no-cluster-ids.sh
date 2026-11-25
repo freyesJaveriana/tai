@@ -2,9 +2,14 @@
 # K-68 (E-32, E-39, E-40, E-44): el repositorio es publico y no debe decir donde vive el trabajo en el clúster.
 # La guardia falla, nombrando archivo y línea (nunca el texto hallado), si un archivo versionado bajo
 # docs/validacion-zine/ contiene:
-#   (a) un nombre de nodo con la forma de E-39 (hpc seguido de caracteres de palabra o guion), de entrada o de trabajo;
-#   (b) una ruta absoluta que empiece por /zine/;
-#   (c) en enviar.ps1, un parámetro [string]$Servidor con valor por defecto.
+#   (a) un nombre de nodo con la forma de E-39 (hpc seguido de caracteres de palabra o guion, sin distinguir
+#       mayúsculas), de entrada o de trabajo, también tras un guion bajo (nodo_hpc...);
+#   (b) una ruta absoluta que empiece por /zine/ (esta sí distingue mayúsculas, como las rutas de Linux);
+#   (c) en cualquier .ps1 de la carpeta, sin distinguir mayúsculas: un parámetro [string]$Servidor con valor por
+#       defecto, o toda asignación literal de $Servidor entre comillas cuyo valor no empiece por $.
+#
+# Límites conocidos: se saltan los archivos binarios (git grep -I), y un nombre de archivo con dos puntos pierde
+# el número de línea en la salida (la aparición sí se cuenta).
 #
 # Única excepción, por archivo y por línea exacta (no por archivo entero): la línea de la autoprueba de
 # comprobar_reporte.py que usa un nombre de nodo inventado para comprobar que la expresión de E-39 / P-T25-1
@@ -41,8 +46,15 @@ buscar() {
   fi
 }
 
-buscar -e '\bhpc[\w-]+' -e '/zine/' -- "$carpeta"
-buscar -e '\[string\]\s*\x24Servidor\s*=' -- "$carpeta/enviar.ps1"
+# (a) y (c) sin distinguir mayúsculas (-i): los nombres de host y PowerShell (tipos y variables) no las distinguen.
+# (a): hpc no precedido de letra ni dígito, así que también detecta nodo_hpc... (el guion bajo no cuenta como límite).
+buscar -i -e '(?<![A-Za-z0-9])hpc[\w-]+' -- "$carpeta"
+# (b) distingue mayúsculas: las rutas de Linux sí las distinguen.
+buscar -e '/zine/' -- "$carpeta"
+# (c) en cualquier .ps1 de la carpeta: un parámetro [string]$Servidor con valor por defecto, o toda asignación literal
+# de $Servidor entre comillas. El valor que empieza por $ (variable o sustitución, p. ej. el que antepone ZINE_USUARIO
+# o el que lee ZINE_SERVIDOR) no es un servidor fijo y no cuenta.
+buscar -i -e '\[string\]\s*\x24Servidor\s*=' -e '\x24Servidor\s*=\s*[\x27"](?!\x24)' -- "$carpeta/*.ps1"
 
 n=0
 detalle=""

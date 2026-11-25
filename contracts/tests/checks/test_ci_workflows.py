@@ -77,6 +77,75 @@ def test_una_accion_entre_comillas_o_en_un_comentario(guardia: ModuleType, tmp_p
 
 
 @pytest.mark.parametrize(
+    ("paso", "linea"),
+    [
+        ("      - uses:\n          actions/checkout@v4\n", 9),
+        ('      - "uses": actions/checkout@v4\n', 8),
+        ("      - uses : actions/checkout@v4\n", 8),
+        ("      - {uses: actions/checkout@v4}\n", 8),
+        ("      - uses: >-\n          actions/checkout@v4\n", 9),
+        ("      - 'uses': 'actions/checkout@v4'\n", 8),
+    ],
+)
+def test_f01_toda_forma_de_escribir_uses_se_lee_del_yaml_cargado(
+    guardia: ModuleType, tmp_path: Path, paso: str, linea: int
+) -> None:
+    # F-01 de la ronda 1: el valor en otra línea, la clave entre comillas, el espacio antes de los dos puntos
+    # y el flujo son YAML válido y fijaban la acción por etiqueta sin que la guardia lo viera.
+    ruta = _workflow(tmp_path, "forma.yml", _wf(paso))
+    assert guardia.comprobar(tmp_path) == [
+        f"{ruta.as_posix()}:{linea}: acción sin fijar por SHA: actions/checkout@v4 {guardia.REGLA}"
+    ]
+
+
+def test_f01_una_accion_cuyo_texto_no_aparece_en_el_archivo_se_reporta_sin_linea(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    # El escape YAML `\x40` construye `@`: el valor cargado no está escrito tal cual en ninguna línea.
+    ruta = _workflow(tmp_path, "escape.yml", _wf('      - uses: "actions/checkout\\x40v4"\n'))
+    assert guardia.comprobar(tmp_path) == [
+        f"{ruta.as_posix()}: acción sin fijar por SHA: actions/checkout@v4 {guardia.REGLA}"
+    ]
+
+
+def test_f01_varias_acciones_se_reportan_en_el_orden_del_archivo_con_su_linea(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    pasos = f"      - uses: actions/checkout@{SHA}\n      - uses: a/b@v1\n      - uses: a/b@v1\n"
+    ruta = _workflow(tmp_path, "varias.yml", _wf(pasos))
+    assert guardia.comprobar(tmp_path) == [
+        f"{ruta.as_posix()}:9: acción sin fijar por SHA: a/b@v1 {guardia.REGLA}",
+        f"{ruta.as_posix()}:10: acción sin fijar por SHA: a/b@v1 {guardia.REGLA}",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("cabecera", "alcances"),
+    [
+        ("permissions:\n  contents: read\n  packages: write\n", "packages"),
+        ("permissions:\n  contents: read\n  id-token: write\n  packages: write\n", "id-token, packages"),
+    ],
+)
+def test_p_t22b_2_la_raiz_con_escritura_de_otro_alcance_es_roja(
+    guardia: ModuleType, tmp_path: Path, cabecera: str, alcances: str
+) -> None:
+    ruta = _workflow(tmp_path, "raiz.yml", _wf("      - run: echo hola\n", cabecera=cabecera))
+    assert guardia.comprobar(tmp_path) == [
+        f"{ruta.as_posix()}: la raíz declara escritura ({alcances}); solo un job puede tenerla {guardia.REGLA}"
+    ]
+
+
+def test_f05_el_sha_no_se_contrasta_con_el_comentario_es_una_limitacion_declarada(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    # Un SHA bien formado pasa aunque el comentario diga otra versión: comprobarlo necesita red (K-70).
+    _workflow(tmp_path, "comentario.yml", _wf(f"      - uses: actions/checkout@{SHA} # v1.0.0, no es esa\n"))
+    assert guardia.comprobar(tmp_path) == []
+    assert any("versión del comentario" in limitacion for limitacion in guardia.LIMITACIONES)
+    assert len(guardia.LIMITACIONES) == 3
+
+
+@pytest.mark.parametrize(
     "uses",
     [
         "./",

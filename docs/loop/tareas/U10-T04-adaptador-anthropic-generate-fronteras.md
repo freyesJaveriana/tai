@@ -130,6 +130,7 @@ Orden del Testing Contract `custom`: el rojo de las guardias y contratos ya exis
   - Errores: forma `{"type":"error","error":{"type":…,"message":…},"request_id":…}`; 529 `overloaded_error`; 500 `api_error`; 504 `timeout_error`. Todo 5xx → `ProviderError` sin reintento (BR2.4).
   - Sin SDK: `httpx` directo (decisión de NFR Requirements).
 - **F-12:** el presupuesto de NFR3.5 (`anonymizer_masking_budget_ratio` × `timeout_s`) se mide en `application/generate.py` con `application.generate.now`; el dominio no lee el reloj.
+- **Lo que dejó U10-T03 en el dominio:** `pseudonymize` recibe `has_budget` (conéctalo a `application.generate.now` y al presupuesto de NFR3.5) y lanza `MaskingBudgetExceeded`; también puede lanzar `MaskingError`. Las dos se traducen a `AnonymizerUnavailable`, porque ocurren antes del envío (0 peticiones). Si fallan después de crear la tabla, el dominio ya la vacía; la aplicación igual la libera en su `finally`.
 - **F-13:** `FakeTransport.http_error` devuelve `api_error` con cualquier estado. Para la sobrecarga, usa el *fixture* `error_529.json`, no `http_error(529)`.
 - **CG-U10-08 (decisión del humano, 2026-11-25):** el candado del paso 10 cubre también `tests/support.py` y `tests/fixtures` (CA-3). El `ROJO_SHA` vigente es `afa8f20`; `32317a9` queda superado.
 - **Mypy y `veridicus_contracts`:** sigue el arreglo de `mypy_path` que dejó U10-T02 (K-78); no lo amplíes.

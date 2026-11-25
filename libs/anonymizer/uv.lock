@@ -1673,7 +1673,7 @@ dev = [
 
 [[package]]
 name = "veridicus-contracts"
-version = "0.1.0"
+version = "0.1.1"
 source = { directory = "../../contracts" }
 dependencies = [
     { name = "jsonschema", extra = ["format"] },

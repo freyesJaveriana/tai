@@ -259,7 +259,7 @@ rules:
     category: validation
     applies_to: [NativeProviderAdapter]
     trigger: Respuesta del proveedor (paso 3 de C20)
-    logic: SI la respuesta es 2xx y su salida es JSON estricto (sin claves repetidas ni valores no estándar) que valida contra request.schema ENTONCES sigue a la restauración (BR1.3, BR4.1). SI no es JSON o no valida ENTONCES InvalidOutput. SI el proveedor señala bloqueo o filtro de contenido ENTONCES ContentBlocked. SI se agota el plazo de la llamada ENTONCES Timeout. SI responde con otro error, una redirección o se corta la conexión después de enviar ENTONCES ProviderError. Todos llevan su ModelCall (BR2.6).
+    logic: SI la respuesta es 2xx y su salida es JSON estricto (sin claves repetidas ni valores no estándar) que valida contra request.schema ENTONCES sigue a la restauración (BR1.3, BR4.1). SI no es JSON o no valida ENTONCES InvalidOutput. SI el proveedor señala bloqueo o filtro de contenido ENTONCES ContentBlocked. SI se agota el plazo de la llamada ENTONCES Timeout. SI responde con otro error, una redirección o se corta la conexión después de enviar ENTONCES ProviderError. SI ocurre una excepción inesperada después de enviar (por ejemplo, al restaurar) ENTONCES ProviderError, porque la llamada ya salió (precisión CG-U10-07 de Code Generation, 2026-11-25). Todos llevan su ModelCall (BR2.6).
     violation: Una prueba por rama con respuestas grabadas sintéticas en el FakeTransport (AC13.6.2).
     source: FR15.2; AC13.6.2; C13 (errores tipados) (ver precisión FD-U10-10)
   - id: BR5.4

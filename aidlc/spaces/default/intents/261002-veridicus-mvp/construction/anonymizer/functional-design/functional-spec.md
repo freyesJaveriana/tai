@@ -207,6 +207,7 @@ alterada   = forma que no es, carácter por carácter, una canónica de la tabla
 | Plazo agotado esperando al proveedor | Después | `Timeout` con `ModelCall` | 1 |
 | Error del proveedor, redirección o corte | Después | `ProviderError` con `ModelCall` | 1 |
 | Respuesta no JSON o que no valida contra el esquema | Después | `InvalidOutput` con `ModelCall` (P7 = A) | 1 |
+| Excepción inesperada después de enviar (p. ej., al restaurar) | Después | `ProviderError` con `ModelCall` (precisión CG-U10-07, 2026-11-25: la llamada ya salió y debe contar, BR2.6) | 1 |
 
 En todas las filas la tabla se suelta y ningún log lleva texto (BR1.8, BR2.3). U11 traduce
 `AnonymizerUnavailable` a `codigo: anonimizador_no_disponible` (CD-01, CD-02); el efecto en la sesión lo

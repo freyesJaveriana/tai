@@ -15,6 +15,8 @@ ResourceType = Literal["session", "suggestion", "report_version", "report_export
 
 
 class AccessLog(Protocol):
+    """Puerto del registro de accesos y exportaciones: guarda quién y cuándo, nunca texto."""
+
     def record(
         self,
         uow: UnitOfWork,

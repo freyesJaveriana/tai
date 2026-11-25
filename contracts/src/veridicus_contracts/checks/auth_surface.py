@@ -1,5 +1,7 @@
 """Superficie de C1: sesión, anti-CSRF, roles y rutas que encolan (§4.6 de NFR Design, NFRD-U1-12).
 
+Regla que protege: BR7.1 y BR7.4 (la API no deja una ruta sin sesión ni sin rol, salvo las dos públicas).
+
 Módulo guardia (100 % de ramas). Recorre cada operación de `api/console.v2.yaml` y comprueba:
 
 - la seguridad efectiva es `sessionCookie`; solo `POST /auth/login` y `GET /notice` son públicas

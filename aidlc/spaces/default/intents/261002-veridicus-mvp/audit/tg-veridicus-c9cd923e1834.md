@@ -56377,3 +56377,37 @@
 **Unit**: contracts
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-11-25T16:21:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ad04ad2b5d8c2a4d1
+**Message**: Estamos cerrando B1 para empezar el MVP del cambio 06; el cierre ya está listo en el PR #43. Te toca fusionar #43 y poner la etiqueta `contracts-v0.1.0` sobre eb9d851, y después sigo con la partición 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-25T16:22:20Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-11-25T16:22:54Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/bolt-plan.md
+**Context**: inception > delivery-planning > bolt-plan.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-11-25T16:22:56Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: Precision de Delivery Planning DP-03 (origen veridicus-06): B10 se parte en B10a (anonimizador minimo con fallo cerrado) y B10b; B11 en B11a (CLI del analizador con un proveedor comercial) y B11b. Nuevo orden: B10a, B11a (MVP 2026-11-28), B10b, B11b, y B2-B9, B12, B13 solo si el curso los exige. No reabre Delivery Planning.
+**Options**: Registrar como precision DP-03 en bolt-plan.md
+
+---

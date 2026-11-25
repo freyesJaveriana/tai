@@ -423,3 +423,30 @@ al original, cada una en su propio commit.
 |---|---|---|---|---|
 | DP-01 | `contract-design/interaction-spec.md` (clave `research.upload_ok`) | El texto dice que el reporte con texto «se descartó», pero CD-03 decidió rechazarlo con `422`: la clave debe describir solo la subida aceptada, y el rechazo usa el mensaje del `422` | B12, Functional Design de U12 | Lectura de esta etapa frente a CD-03 |
 | DP-02 | `project.md` (`## Corrections`, regla aprendida en Delivery Planning) | La regla «El Golden Dataset y la configuración de GitHub se tratan como tareas previas al primer Bolt» queda superada en su primera mitad por P12 = A (el conjunto sintético se construye en B11). No se edita la memoria a mano: se propone como aprendizaje en el cierre de esta etapa. «Plataforma justo después del flujo de texto» y «Sin WSJF formal» siguen vigentes | Esta etapa | P11, P12 |
+
+## Precisión DP-03: corte delgado del MVP (cambio 06, 2026-11-25)
+
+Esta precisión viene de `veridicus-06` (§3) y de las reglas ML-1 y ML-2 del modo liviano (DT31). Se añade después de la aprobación de esta etapa y no la reabre. Las secciones B10 y B11 de arriba no cambian y siguen valiendo para B10b y B11b: lo que sale del MVP queda **diferido**, no borrado. Ninguna unidad cambia de alcance ni de grafo.
+
+| Bolt | Entra | Se difiere al segundo Bolt (después del 2026-11-28) |
+|---|---|---|
+| **B10a** anonimizador (U10) | Seudonimización de identificadores con reglas y listas. **Fallo cerrado**: si no puede seudonimizar, no sale nada hacia el proveedor (AUTONOMIA-04). Pruebas con *fixtures* sintéticos. Etiqueta `anonymizer-v0.1.0` | **B10b:** NER y modelos locales de anonimización, métricas (C15), proceso `anonymizer-proxy` (C21) en el clúster, adaptadores nativos de Anthropic y Google, y Secrets. Corresponde a los puntos 1 (NER), 4 (salvo un adaptador) y 5 de la definición de terminado de B10 |
+| **B11a** analizador (U11) | `AnalyzerCli` con un subcomando que lee la entrada C6 y escribe la salida C6. `ModelGateway` con el puerto y **un** adaptador compatible con OpenAI. Perfil de ejecución único. Verificación de las dos citas, con rechazo del hallazgo que no las tenga (AUTONOMIA-05). Ningún veredicto de veracidad en la salida ni en la consola (AUTONOMIA-03). Aviso de VE-01 en la consola. Prueba de punta a punta con un doble del proveedor, y una corrida real marcada como manual que lanza el humano con su clave. Etiqueta `analyzer-v0.1.0` | **B11b:** perfiles múltiples, modelos locales y ZINE (DT26), costo por corrida, métricas, reportes y evaluación de nivel 2 sobre el conjunto sintético. Corresponde a los puntos 5 y 6 de la definición de terminado de B11 y a las historias que dependen de ellos |
+
+**Reglas del corte:**
+- Cada plan tiene 15 pasos como máximo.
+- Las guardias AUTONOMIA-03, 04 y 05 no se rebajan: son de riesgo alto y las revisa `revisor` con `opus`.
+- Ningún *fixture* trae datos del piloto.
+
+**Orden nuevo** (sustituye la línea del grafo de arriba solo en lo que sigue a B1):
+
+B1 (hecho) → **B10a → B11a** (MVP del sábado 2026-11-28) → **B10b → B11b** (lo que pide E7, antes de fin de marzo de 2027) → B2–B9, B12 y B13, solo si el curso los exige. El TG no necesita B2–B9, B12 ni B13.
+
+```mermaid
+flowchart LR
+  B1["B1 Contratos (hecho)"] --> B10a["B10a Anonimizador mínimo"] --> B11a["B11a CLI del analizador"]
+  B11a --> B10b["B10b Anonimizador completo"] --> B11b["B11b Analizador completo"]
+  B11b -.-> RESTO["B2–B9, B12, B13 si el curso los exige"]
+```
+
+<!-- Text fallback: B1 Contratos (hecho); luego B10a Anonimizador mínimo y B11a CLI del analizador (MVP del sábado); después B10b Anonimizador completo y B11b Analizador completo; por último, y solo si el curso lo exige, B2 a B9, B12 y B13. -->

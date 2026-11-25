@@ -588,13 +588,13 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 25 — Documentación, glosario y etiqueta · tarea T23
 
-- [ ] `contracts/README.md` en español: inventario, cómo cambiar un contrato (F5) y la copia de C6 (F7),
+- [x] `contracts/README.md` en español: inventario, cómo cambiar un contrato (F5) y la copia de C6 (F7),
   cómo usar `limits.load`, `profiles.validate` y `registry` desde un servicio, y los comandos V-*.
-- [ ] Glosario de identificadores en `contracts/README.md` con `cancel_token` y `view_outdated`
+- [x] Glosario de identificadores en `contracts/README.md` con `cancel_token` y `view_outdated`
   (NFRD-U7-11), `review_report`, `review_suggestion`, `undocumented_fact` (team.md, Code Style).
-- [ ] Docstrings en español en `loaders`, `validators`, cada función pura y cada módulo de `checks/` (regla
+- [x] Docstrings en español en `loaders`, `validators`, cada función pura y cada módulo de `checks/` (regla
   que protege).
-- [ ] `tests/test_readme.py`: el README existe y su glosario contiene `cancel_token`, `view_outdated`,
+- [x] `tests/test_readme.py`: el README existe y su glosario contiene `cancel_token`, `view_outdated`,
   `review_report`, `review_suggestion` y `undocumented_fact`.
 - Cubre: BR1.5; NFR14.1.
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_readme.py --no-cov`

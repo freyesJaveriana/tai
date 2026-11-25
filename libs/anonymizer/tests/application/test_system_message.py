@@ -12,7 +12,14 @@ from dataclasses import replace
 import pytest
 from veridicus_contracts.model_calls import Message
 
-from tests.support import make_harness, make_request, ok_response, user_texts
+from tests.support import (
+    load_seeded,
+    make_harness,
+    make_request,
+    ok_response,
+    turns_of,
+    user_texts,
+)
 
 NAME = "Casilda Roncancio"
 MARKER = re.compile(r"\[(?:PERSONA|ENTIDAD)_[1-9][0-9]*\]")
@@ -27,6 +34,34 @@ CASES = {
         "ayer llegó tarde a la plaza.",
     ),
 }
+
+
+def test_f12_the_case_number_the_identity_card_and_a_one_word_nickname_in_system_never_leave() -> (
+    None
+):
+    seeded = load_seeded()
+    case_number, identity_card = next(
+        t["entidades"] for t in seeded["turnos"] if t["posicion"] == "expediente_y_cedula"
+    )
+    nickname = next(
+        t["entidades"][-1] for t in seeded["turnos"] if t["posicion"].startswith("apodo")
+    )
+    turns = turns_of(seeded, positions=["expediente_y_cedula", "apodo_con_mayuscula_y_tratamiento"])
+    request = make_request(turns)
+    system_text = f"Contexto: radicado {case_number}, cédula {identity_card} y apodo {nickname}."
+    request = replace(request, messages=[Message("system", system_text), *request.messages[1:]])
+    harness = make_harness(ok_response())
+
+    harness.anonymizer.generate(request)
+
+    raw = harness.transport.requests[0].body.decode("utf-8")
+    system = json.loads(raw)["system"]
+    for entity in (case_number, identity_card, nickname):
+        assert entity not in raw, "una entidad de una sola palabra salió"
+    assert re.search(r"\[EXPEDIENTE_[1-9][0-9]*\]", system)
+    assert re.search(r"\[IDENTIFICADOR_[1-9][0-9]*\]", system)
+    assert MARKER.search(system), "el apodo lleva su marca"
+    assert system.startswith("Contexto: radicado [") and system.endswith("].")
 
 
 @pytest.mark.parametrize("case", list(CASES), ids=list(CASES))

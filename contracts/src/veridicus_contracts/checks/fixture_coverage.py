@@ -1,4 +1,8 @@
-"""Cobertura de fixtures por regla de nivel 0 (security-design §4.10, NFR12.1, BR1.6).
+"""Cobertura de fixtures por regla de nivel 0 (security-design §4.10, NFR10.10, BR1.5).
+
+Reglas que protege: NFR10.10 (cada regla de nivel 0 tiene al menos un *fixture* positivo y uno
+negativo, y el negativo falla por la regla que declara) y BR1.5 (cada cambio trae sus *fixtures*
+positivos y negativos). Que los *fixtures* sean sintéticos (NFR12.1, BR1.6) lo comprueba `synthetic`.
 
 Módulo guardia (100 % de ramas). Exige, por cada regla de `REGLAS`, un fixture `accept` y uno `reject`, y
 falla si:

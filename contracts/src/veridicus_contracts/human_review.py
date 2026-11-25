@@ -29,6 +29,8 @@ class Actor(Protocol):
 
 
 class SuggestionProposer(Protocol):
+    """Puerto que convierte los hallazgos de una corrida en sugerencias de revisión."""
+
     def propose(
         self, uow: UnitOfWork, session_id: UUID, run_id: UUID, hallazgos: list[Hallazgo]
     ) -> list[UUID]:
@@ -44,6 +46,8 @@ class SuggestionProposer(Protocol):
 
 
 class ReviewCommands(Protocol):
+    """Puerto de las acciones del analista sobre una sugerencia de revisión."""
+
     def record_observations_view(
         self, uow: UnitOfWork, suggestion_id: UUID, actor: Actor
     ) -> None: ...

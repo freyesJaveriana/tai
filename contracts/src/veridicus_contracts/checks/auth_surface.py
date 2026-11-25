@@ -1,5 +1,9 @@
 """Superficie de C1: sesión, anti-CSRF, roles y rutas que encolan (§4.6 de NFR Design, NFRD-U1-12).
 
+Reglas que protege: NFR10.11 (toda operación exige la cookie de sesión y todo POST o PATCH exige
+`X-CSRF-Token`) y NFR10.12 (toda operación que cambia estado declara sus roles y las extensiones
+`x-veridicus-*` toman solo valores cerrados), de `security-requirements.md`; NFRD-U1-12.
+
 Módulo guardia (100 % de ramas). Recorre cada operación de `api/console.v2.yaml` y comprueba:
 
 - la seguridad efectiva es `sessionCookie`; solo `POST /auth/login` y `GET /notice` son públicas

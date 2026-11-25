@@ -8,6 +8,8 @@ on:
   pull_request:
   push:
     branches: [main]
+    # La etiqueta de la entrega (BR12.2): solo se comprueba; la pone el humano y la CI no publica nada.
+    tags: ["contracts-v*"]
 
 permissions:
   contents: read
@@ -41,6 +43,16 @@ jobs:
 
       - name: Paso 1 (red) - Instalar Python con el lockfile y sus hashes
         run: uv sync --frozen --directory contracts
+
+      # Solo al empujar una etiqueta contracts-v*: debe ser contracts-v más [project].version.
+      # El nombre de la referencia pasa por una variable de entorno y no se interpola en el guion.
+      - name: Etiqueta igual a contracts-v más la versión del paquete (BR12.2)
+        if: github.ref_type == 'tag'
+        env:
+          ETIQUETA: ${{ github.ref_name }}
+        run: >-
+          uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.check_tag
+          --tag "$ETIQUETA"
 
       - name: Crear contracts/build/ para la salida de pip-audit (K-62)
         run: mkdir -p contracts/build

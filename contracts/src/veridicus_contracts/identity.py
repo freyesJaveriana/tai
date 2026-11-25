@@ -17,6 +17,8 @@ Role = Literal["analista", "admin", "investigador"]
 
 
 class Principal(Protocol):
+    """Usuario autenticado de la consola: su ID, su nombre de usuario y su rol."""
+
     @property
     def user_id(self) -> UUID: ...
 
@@ -28,6 +30,8 @@ class Principal(Protocol):
 
 
 class Authenticator(Protocol):
+    """Puerto de autenticación: inicio y cierre de sesión de la consola y su token anti-CSRF."""
+
     def login(self, uow: UnitOfWork, username: str, password: str) -> tuple[Principal, str]:
         """Devuelve el principal y el identificador de sesión para la cookie.
 
@@ -45,6 +49,8 @@ class Authenticator(Protocol):
 
 
 class UserAdmin(Protocol):
+    """Puerto de administración de usuarios: solo lo usa quien actúa con rol de administrador."""
+
     def create(
         self, uow: UnitOfWork, username: str, password: str, role: Role, actor: Principal
     ) -> UUID: ...

@@ -55,6 +55,8 @@ class PurgeReceipt(Protocol):
 
 
 class Purgeable(Protocol):
+    """Puerto de borrado por sesión que implementa cada módulo que guarda datos de la sesión."""
+
     def purge_session(self, uow: UnitOfWork, session_id: UUID) -> PurgeReceipt:
         """Borra lo de la sesión que pertenece a este módulo y devuelve los IDs borrados y, en
         ReviewReport, los SHA-256 de los reportes. Nunca devuelve texto.

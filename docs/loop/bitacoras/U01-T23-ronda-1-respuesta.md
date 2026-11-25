@@ -1,0 +1,7 @@
+# U01-T23 — respuesta del codificador a la ronda 1
+
+F-01: Corregido en 1525801: el inventario del README se rehízo contra `contract-summary.md` (89 a 137) y `functional-spec.md` §1 (63 a 100); los archivos sin número van como «(sin número)», se añadieron las filas `.py` de C10, C11, C12, C13, C23 y C24, y `test_readme.py` compara cada ID y cada `.py` con una tabla fija, con controles negativos de ID inventado, fila ausente y fila inventada (rojo en 9f02b84).
+F-02: Corregido en 1525801: `auth_surface` cita NFR10.11 y NFR10.12; `error_codes` cita BR7.4, BR7.2 y BR3.4; `Principal` ya no dice que tiene token anti-CSRF (es de `Authenticator`); además se revisaron los 25 módulos de `checks/` uno por uno y se corrigieron `_openapi`, `fixture_coverage`, `limits_catalog`, `metrics`, `scan_cases` y `strict_bodies` (tabla con la línea de `rules.md` en la bitácora, Ronda 2); el AST sin docstrings sigue igual.
+F-03: Corregido en 1525801: la tabla de V-* del README tiene la columna «Lo corre» (V-YAML en `repo-level0.yml`, V-SURFACE dentro de la suite, V-ERRORS en el job `errors-level0`), con una prueba y su control negativo.
+F-04: Corregido en 1525801: `--tag` o `--pyproject` repetidos dan código 2 con el mensaje de uso (rojo en 9f02b84: `main(['--tag','x','--tag','contracts-v0.1.0'])` devolvía 0).
+F-05: Corregido en 1525801: la prueba del README llama a `main([])` con `capsys` y compara la etiqueta del README con lo que imprime la herramienta.

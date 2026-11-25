@@ -1,4 +1,4 @@
-"""Módulo guardia de la forma de los casos de escaneo y del aviso de testimonio (BR5.8, E40; BR3.6).
+"""Módulo guardia de la forma de los casos de escaneo y del aviso de testimonio (BR5.8, E40; BR3.6 de U13).
 
 Módulo guardia (100 % de ramas). U1 no ejecuta el escáner (es de U11, PD-6): comprueba solo la
 **forma** de `integrity/scan-cases.v1.yaml`, que haya un caso que espere la coincidencia de cada

@@ -1,5 +1,9 @@
 """Catálogo único de errores y sus clases (§4.7 a–e de NFR Design, sin la parte de C1).
 
+Reglas que protege: BR7.4 (cada `code` del catálogo tiene exactamente una clase de excepción y cada
+clase tiene su `code`), BR7.2 (todo error de C1 usa un `code` del catálogo único) y BR3.4 (cada
+`error.codigo` de C6 se traduce a un `code` distinto, uno a uno).
+
 Módulo guardia (100 % de ramas). Compara `errors/error-codes.v2.yaml` con las clases de
 `libs/errors/src/` **leyéndolas con `ast`, sin importarlas** (PD-7: `contracts/` no depende de
 `veridicus_errors`) y comprueba la tabla de `error.codigo` de C6 (E34).

@@ -1,5 +1,7 @@
 """Recorrido común de los contratos de `contracts/` para las guardias `refs` y `redos` (paso 19).
 
+Reglas que sirve: BR12.3 y NFR10.5 (referencias cerradas) y NFR10.6 (patrones sin retroceso).
+
 Lee cada `.yaml`, `.yml` o `.json` bajo una raíz con el cargador seguro del paquete y salta los directorios
 que no son contratos del paquete: `vendor/` (esquemas de terceros), `fixtures/` y `tests/` (casos, con
 rutas y patrones sembrados a propósito), la mitad TypeScript y los entornos.

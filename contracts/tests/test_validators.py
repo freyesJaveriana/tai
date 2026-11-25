@@ -295,6 +295,12 @@ def test_k56_una_instancia_valida_de_c18_pasa(contracts_root: Path) -> None:
     validate_instance(esquema, instancia)
 
 
+def test_k56_una_instancia_valida_de_c19_pasa(contracts_root: Path) -> None:
+    esquema = _cargar(contracts_root, "cli/report.schema.v2.yaml")
+    fixture = _cargar(contracts_root, "cli/fixtures/report.valid.json")
+    validate_instance(esquema, fixture["payload"])
+
+
 def test_k56_cada_marca_de_la_lista_cerrada_se_admite_anidada() -> None:
     from veridicus_contracts.validators import MARCAS_X_VERIDICUS
 

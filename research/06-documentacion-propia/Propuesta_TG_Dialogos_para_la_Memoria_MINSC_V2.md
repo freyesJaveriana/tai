@@ -27,8 +27,8 @@
 
 |**TÍTULO DEL**<br>**PROYECTO**|**MODELO CONVERSACIONAL**<br>**ACTORES DEL**|**BASADO EN LLMS P**<br>**CONFLICTO ARMAD**|**ARA LA CARACTERIZACIÓN DE**<br>**O COLOMBIANO**|
 |---|---|---|---|
-|**DATOS DEL**|**Felipe Reyes Palacio**|**CORREO**|freyes@javeriana.edu.co|
-|**ESTUDIANTE**|CC 79.955.410|**ELECTRÓNICO**|epilefreyes@gmail.com|
+|**DATOS DEL**|**Felipe Reyes Palacio**|**CORREO**|[correo del autor, omitido]|
+|**ESTUDIANTE**|CC [documento de identidad, omitido]|**ELECTRÓNICO**|[correo del autor, omitido]|
 |**DIRECTOR DE**|Ing. Luis Gabriel Moreno PhD|**MODALIDAD**|Investigación|
 |**TRABAJO DE**<br>**GRADO**|morenoluis@javeriana.edu.co|**ÁREA DE**<br>**ÉNFASIS**|Sistemas Inteligentes|
 

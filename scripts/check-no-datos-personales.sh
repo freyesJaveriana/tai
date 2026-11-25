@@ -14,7 +14,10 @@
 #       Los correos de autores de artículos de terceros no cuentan: su hash no está en la lista.
 #
 # Límites conocidos: un nombre de archivo con dos puntos pierde el número de línea en la salida (la aparición sí
-# se cuenta); un correo partido en varias líneas o con otra codificación no se detecta.
+# se cuenta); un correo partido en varias líneas o con otra codificación (por ejemplo %40) no se detecta; el alcance
+# del correo institucional compara por prefijo de ruta, así que plan-aidlc.md.bak cuenta como dentro; un correo
+# pegado a un prefijo de palabra (abc_correo) cambia el hash y se escapa (A-02). Tampoco se detectan documentos
+# escritos con espacios o comas, ni la palabra de contexto y el número en líneas distintas.
 #
 # Uso: bash scripts/check-no-datos-personales.sh [raíz]
 # Imprime «N apariciones» y sale con 0 solo si N es 0 (1 si hay apariciones, 2 si la raíz no es un repositorio
@@ -54,7 +57,7 @@ buscar() {
   local destino="$1"
   shift
   local codigo=0
-  git -C "$raiz" grep -n -I -P "$@" >> "$destino" 2>> "$errores" || codigo=$?
+  git -c core.quotePath=false -C "$raiz" grep -n -I -P "$@" >> "$destino" 2>> "$errores" || codigo=$?
   if [ "$codigo" -gt 1 ] || [ -s "$errores" ]; then
     echo "check-no-datos-personales: FALLO al buscar (código de git grep: $codigo); no se puede afirmar 0 apariciones:"
     cat "$errores"
@@ -65,20 +68,20 @@ buscar() {
 # (a) -i: sin distinguir mayúsculas. Salida archivo:línea:texto; solo se usan archivo y línea.
 # \K deja solo el número en la salida (-o), para compararlo con la lista de exentos. La sigla CC cuenta solo
 # como palabra suelta: ni barra, ni punto, ni guion, ni carácter de palabra antes o después (P-T30-2).
+# Los exentos se excluyen dentro de la expresión (lookahead negativo, F-01): así un exento no tapa a un número
+# vecino, porque el motor sigue buscando dentro de los mismos 20 caracteres. CC. seguido de espacio también
+# cuenta (A-01); el lookbehind deja fuera rutas como /cc/ de los lockfiles.
+exentos_er=""
+for permitido in "${numeros_inventados[@]}"; do
+  exentos_er+="${permitido//./\\.}|"
+done
+exentos_er="${exentos_er%|}"
 buscar "$numeros" -i -o \
-  -e '(?:\bC\.C\.|(?<![\w/.\-])CC(?![\w/.\-])|\bc(?:é|e)dula|\bdocumento de identidad).{0,19}?\K(?<![\d.])(?:\d{6,10}|\d{1,3}(?:\.\d{3}){2,3})(?![\d])' \
+  -e "(?:\\bC\\.C\\.|(?<![\\w/.\\-])CC(?![\\w/.\\-])|(?<![\\w/.\\-])CC\\.(?=\\s)|\\bc(?:é|e)dula|\\bdocumento de identidad).{0,19}?\\K(?<![\\d.])(?!(?:${exentos_er})(?![\\d]))(?:\\d{6,10}|\\d{1,3}(?:\\.\\d{3}){2,3})(?![\\d])" \
   -- .
 while IFS=: read -r archivo numero texto; do
   [ -n "$archivo" ] || continue
-  exento=0
-  for permitido in "${numeros_inventados[@]}"; do
-    if [ "$texto" = "$permitido" ]; then
-      exento=1
-    fi
-  done
-  if [ "$exento" -eq 0 ]; then
-    echo "$archivo:$numero:x" >> "$salida"
-  fi
+  echo "$archivo:$numero:x" >> "$salida"
 done < "$numeros"
 
 # (b) -o: solo el correo. Se compara su hash, nunca el texto.

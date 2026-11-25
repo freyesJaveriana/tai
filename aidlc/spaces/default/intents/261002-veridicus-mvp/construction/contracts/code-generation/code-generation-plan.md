@@ -541,15 +541,15 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 21 — Mitad TypeScript `contracts/ts/` (implementar y probar) · tarea T20
 
-- [ ] `contracts/ts/` (D13): `package.json` con Node 22 en `engines`, `.nvmrc`, `package-lock.json`
+- [x] `contracts/ts/` (D13): `package.json` con Node 22 en `engines`, `.nvmrc`, `package-lock.json`
   generado con `npm --prefix contracts/ts install` (con red) y versionado, script `gen:check` que corre
   `gen_ts --check` y `openapi-typescript` sin escribir,
   `tsconfig.json` estricto, ESLint con `no-restricted-imports` para `yaml`, `vitest.config.ts` con
   cobertura v8 al 80 % y *setup* sin red (§4.14).
-- [ ] `src/loaders.ts` (`yaml` con `uniqueKeys: true`), `src/registry.ts` (`Ajv2020` `strict`,
+- [x] `src/loaders.ts` (`yaml` con `uniqueKeys: true`), `src/registry.ts` (`Ajv2020` `strict`,
   `ajv-formats`, `addSchema` con base `https://veridicus.invalid/`, `addKeyword` solo con las extensiones
   de §4.6), `src/canonical.ts` (`canonicalize`); tipos de C1 con `openapi-typescript` en `generated/`.
-- [ ] Pruebas Vitest: mismos *fixtures* que Python comparados con su `expectation` (NFR10.16); vectores JCS
+- [x] Pruebas Vitest: mismos *fixtures* que Python comparados con su `expectation` (NFR10.16); vectores JCS
   y huella de `effective-config.valid.json`; control de `fetch` bloqueado; C8 con término repetido
   rechazado.
 - Cubre: NFR2.1, NFR10.4, NFR10.15, NFR10.16; D9, D13. Fuera: la consola (U4).

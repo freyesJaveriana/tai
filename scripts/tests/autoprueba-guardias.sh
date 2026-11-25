@@ -37,6 +37,7 @@ raiz_cl="/zi"; raiz_cl+="ne/"                  # inicio de una ruta absoluta del
 copia="s"; copia+="cp"
 puerto_a="usua"; puerto_a+="rio@nod"; puerto_a+="o7:"
 host_a="no"; host_a+="do7"                     # host literal sin usuario
+ip_a="10.9"; ip_a+=".8.7"                      # IP literal inventada
 documento="c"; documento+="édula "
 exento="1234"; exento+="5678"
 
@@ -89,6 +90,8 @@ caso S "$ids" "scripts/c.ps1" "$copia archivo.txt \"$host_a:\"" \
   "copia con destino de host literal entre comillas, sin ruta"
 caso S "$ids" "scripts/c.ps1" "$copia archivo.txt $host_a: ruta/x" \
   "copia con destino de host literal y un espacio después de los dos puntos"
+caso S "$ids" "scripts/c.ps1" "& $copia archivo.txt \"usuario@$ip_a:/tmp\"" \
+  "copia con operador de llamada y destino de IP literal con usuario, entre comillas"
 caso S "$ids" "docs/nota.md" "nodo de entrada $nodo para el trabajo" \
   "nombre de nodo en el contenido (regla previa)"
 caso S "$ids" "docs/ruta.md" "datos en ${raiz_cl}proyectos/x" \

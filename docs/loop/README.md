@@ -130,6 +130,27 @@ En resumen: AI-DLC lleva las fases y las compuertas de principio a fin; el loop 
 | PR fusionados por el humano | GitHub (PR de tarea hacia la rama del Bolt) |
 | `CANDIDATAS.md` y `DECISIONES-LOOP.md` | `docs/loop/` |
 
+## 9. Modo liviano (DT31)
+
+Sale de la medición de U1 de Veridicus (2026-11-25, devlog): por paso del plan, el loop rinde igual que el `aidlc-developer-agent` (≈0,48 h y ≈5,7 USD equivalentes por paso, frente a 0,47 h y 4,7 USD). Lo lento eran los planes de 80 pasos, las 2,4 rondas por tarea, el papeleo (40 mil líneas de bitácoras y revisiones para 55 mil de código) y las 33 fusiones humanas de una sola unidad. Al ritmo de U1, las tres apps pedían ~2.100 h de reloj: no caben antes de mayo de 2027.
+
+Lo activa el cambio de cada app. Donde choque con `agentes/orquestador.md`, `codificador.md`, `revisor.md` o el §5, **manda esta sección**. Las reglas de cada app (AUTONOMIA, datos del piloto, `sbatch`, `kubectl apply`, nunca «Continue automatically») siguen igual.
+
+| # | Regla | Antes (§5) |
+|---|---|---|
+| ML-1 | **Plan corto.** El `code-generation-plan.md` de un Bolt tiene **25 pasos como máximo**. Si sale más grande, se pide `Request Changes` para partir el Bolt (por ejemplo B10a y B10b) y se anota la parte diferida en el `bolt-plan.md` como precisión de Delivery Planning. Nada se borra: se difiere. | Sin tope (U1 tuvo 83 pasos) |
+| ML-2 | **Corte delgado.** Cada Bolt entrega primero lo mínimo que sirve a un experimento del TG (E1–E8, `00-gestion/07-experimentos_y_plan_TG2.md`) o al MVP que pida el cambio. Lo que no sirve a ninguno se difiere. | Unidad completa |
+| ML-3 | **Tareas grandes.** Una tarea agrupa de 3 a 6 pasos del plan que tocan la misma zona. Meta: 8 tareas o menos por Bolt. | 1–3 pasos por tarea |
+| ML-4 | **Revisor según el riesgo.** Riesgo alto (guardias AUTONOMIA o de la app, seguridad, contratos, datos, anonimización, citas verificadas): `revisor` con `opus`, como siempre. Riesgo bajo (andamiaje, configuración, documentación, CLI sin lógica): `revisor` con `sonnet` y solo los comandos de verificación del archivo de tarea. El riesgo se declara en el archivo de tarea y el humano lo ve al revisarlo. | `opus` siempre |
+| ML-5 | **Dos rondas.** A la tercera ronda NO-VERDE sobre la misma tarea, se para y se lleva al humano. | Cuatro rondas |
+| ML-6 | **Sin PR por tarea.** Con VERDE, el orquestador fusiona la rama de la tarea en la rama del Bolt con `git merge --no-ff` (mensaje con la ruta del informe verde y los comandos) y hace *push* de la rama del Bolt. **El humano solo fusiona el PR del Bolt a `main`**, que es donde revisa. `gh pr merge` sigue negado en `.claude/settings.local.json`, y `main` sigue protegida. | Un PR por tarea, fusionado por el humano |
+| ML-7 | **Papeleo mínimo.** Bitácora: el par falla-pasa con los comandos y sus últimas líneas, en una página como máximo. Informe del revisor: veredicto y hallazgos, en una página como máximo. No se copia código ni salidas largas. | Sin tope |
+| ML-8 | **Diseño sin vueltas.** En las etapas 3.1–3.4 y en la Parte 1 que falten: **una** revisión adversarial por etapa. Si sale NOT-READY, se corrige lo bloqueante una vez; lo menor pasa como riesgo anotado en el plan, sin otra ronda. El humano sigue aprobando cada etapa. | Revisar hasta READY (hubo etapas con 4 rondas) |
+| ML-9 | **Una app construyendo a la vez.** La cuota de 5 h y 7 d es de la cuenta. Mientras una app está en Parte 2, las otras solo diseñan o están apagadas. | Sin regla |
+| ML-10 | **Medir cada Bolt.** Al cerrar un Bolt, el humano corre `python 03-desarrollo\medir_uso.py <app> --desde <fecha-hora UTC del inicio del Bolt>` en el host y anota horas y USD equivalentes en el devlog. Si un Bolt pasa del doble de lo previsto, el siguiente se corta más. | Sin medición |
+
+Meta con estas reglas: ≈0,3 h de reloj por paso y planes de ≤25 pasos, o sea ≈1 día por Bolt (diseño y código), y ≈300–450 h para el alcance de TG2 de las tres apps.
+
 ## Contenido
 
 | Ruta | Qué es |

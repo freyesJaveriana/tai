@@ -132,7 +132,13 @@ FRASE_BASE = (
 CLAVES_DE_AVISO = frozenset({"schema_version", "version", "text"})
 VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
 
-FRASES_DE_ACLARACION = ("antes dijo", "dijo antes", "se contradice", "antes mencionó", "había dicho")
+FRASES_DE_ACLARACION = (
+    "antes dijo",
+    "dijo antes",
+    "se contradice",
+    "antes mencionó",
+    "había dicho",
+)
 CLAVES_DE_RECHAZO = frozenset({"mentions_contradiction", "phrases", "cites_turn"})
 BANDERAS_DE_RECHAZO = ("mentions_contradiction", "cites_turn")
 
@@ -263,7 +269,9 @@ def problemas_de_rotulos(documento: Any, tipos: AbstractSet[str]) -> list[str]:
     if de_tipo != {f"{PREFIJO_DE_TIPO}{t}" for t in tipos}:
         problemas.append("BR6.2: las filas type_* no corresponden a los tipos de C6")
     for clave, texto in etiquetas.items():
-        if isinstance(texto, str) and TERMINOS_NORMALIZADOS & set(PALABRAS.findall(normalizar(texto))):
+        if isinstance(texto, str) and TERMINOS_NORMALIZADOS & set(
+            PALABRAS.findall(normalizar(texto))
+        ):
             problemas.append(f"BR6.3: un rótulo contiene un término prohibido (clave {clave})")
     return problemas
 
@@ -366,7 +374,9 @@ def con_veracidad(nombre: str) -> bool:
 
 def problemas_de_nombres(ruta: str, documento: Any) -> list[str]:
     """BR3.3: los nombres de un contrato que declaran veracidad."""
-    culpables = list(dict.fromkeys(n for n in nombres_de_un_documento(documento) if con_veracidad(n)))
+    culpables = list(
+        dict.fromkeys(n for n in nombres_de_un_documento(documento) if con_veracidad(n))
+    )
     if culpables:
         return [f"BR3.3: {ruta}: nombres con vocabulario de veracidad: {culpables}"]
     return []
@@ -396,7 +406,11 @@ def _enums_de_un_campo(documento: Any, campo: str, en_claves: bool) -> list[froz
     """
     encontrados: list[frozenset[str] | str] = []
     for clave, valor in _recorrer(documento):
-        if clave != "properties" or not isinstance(valor, dict) or not isinstance(valor.get(campo), dict):
+        if (
+            clave != "properties"
+            or not isinstance(valor, dict)
+            or not isinstance(valor.get(campo), dict)
+        ):
             continue
         esquema: Any = valor[campo]
         if en_claves:
@@ -420,7 +434,8 @@ def problemas_de_enums(ruta: str, documento: Any, c6: Mapping[str, frozenset[str
         problemas += [
             f"BR3.2: {ruta}: el enum de {campo} difiere del de C6 ({nombre})"
             for copia in copias
-            if copia != (PREFIJO_DE_C6 + RUTAS_EN_C6[nombre] if isinstance(copia, str) else c6[nombre])
+            if copia
+            != (PREFIJO_DE_C6 + RUTAS_EN_C6[nombre] if isinstance(copia, str) else c6[nombre])
         ]
     return problemas
 

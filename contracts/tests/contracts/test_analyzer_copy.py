@@ -125,7 +125,8 @@ def _copia_de_c6(destino: Path, *, sumas: str | None = None, alterar: str | None
         (destino / nombre).write_bytes(bytes(datos))
     if sumas is None:
         sumas = "".join(
-            f"{hashlib.sha256((destino / nombre).read_bytes()).hexdigest()}  {nombre}\n" for nombre in NOMBRES_C6
+            f"{hashlib.sha256((destino / nombre).read_bytes()).hexdigest()}  {nombre}\n"
+            for nombre in NOMBRES_C6
         )
     (destino / "SHA256SUMS").write_text(sumas, encoding="utf-8")
     return destino
@@ -136,7 +137,10 @@ def test_los_bytes_de_cada_esquema_dan_la_huella_aprobada(nombre: str) -> None:
     """E-32: los bytes del árbol son los de la versión aprobada en el principal."""
     aprobadas = _conftest().HUELLAS_APROBADAS_C6
     assert set(aprobadas) == set(NOMBRES_C6)
-    assert hashlib.sha256(ruta_de(f"analyzer/v1/{nombre}").read_bytes()).hexdigest() == aprobadas[nombre]
+    assert (
+        hashlib.sha256(ruta_de(f"analyzer/v1/{nombre}").read_bytes()).hexdigest()
+        == aprobadas[nombre]
+    )
 
 
 def test_las_dos_lineas_de_sha256sums_dan_las_huellas_aprobadas() -> None:
@@ -157,13 +161,19 @@ def test_f7_acepta_una_copia_identica_a_la_aprobada(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("alterado", NOMBRES_C6)
-def test_f7_rechaza_un_esquema_alterado_con_sha256sums_recalculado(tmp_path: Path, alterado: str) -> None:
+def test_f7_rechaza_un_esquema_alterado_con_sha256sums_recalculado(
+    tmp_path: Path, alterado: str
+) -> None:
     """R-04: un PR que cambia un esquema y recalcula `SHA256SUMS` ya no pasa, y el problema nombra el esquema."""
     modulo = _conftest()
     carpeta = _copia_de_c6(tmp_path / "v1", alterar=alterado)
     problemas = modulo.check_c6_copy(carpeta)
-    assert problemas, "F7 debe rechazar un esquema alterado aunque SHA256SUMS coincida con sus bytes"
-    assert any(alterado in problema and modulo.MENSAJE_F7 in problema for problema in problemas), problemas
+    assert problemas, (
+        "F7 debe rechazar un esquema alterado aunque SHA256SUMS coincida con sus bytes"
+    )
+    assert any(alterado in problema and modulo.MENSAJE_F7 in problema for problema in problemas), (
+        problemas
+    )
 
 
 def test_f7_rechaza_sha256sums_con_otra_huella_y_esquemas_intactos(tmp_path: Path) -> None:
@@ -172,4 +182,7 @@ def test_f7_rechaza_sha256sums_con_otra_huella_y_esquemas_intactos(tmp_path: Pat
     sumas = f"{'0' * 64}  entrada.schema.json\n{modulo.HUELLAS_APROBADAS_C6['salida.schema.json']}  salida.schema.json\n"
     problemas = modulo.check_c6_copy(_copia_de_c6(tmp_path / "v1", sumas=sumas))
     assert problemas, "F7 debe rechazar un SHA256SUMS con otra huella"
-    assert any("entrada.schema.json" in problema and modulo.MENSAJE_F7 in problema for problema in problemas), problemas
+    assert any(
+        "entrada.schema.json" in problema and modulo.MENSAJE_F7 in problema
+        for problema in problemas
+    ), problemas

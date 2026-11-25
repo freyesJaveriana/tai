@@ -88,9 +88,7 @@ def build_registry(raiz: Traversable | None = None) -> Registry[Any]:
             continue
         uri = _uri_de(archivo, contenido, en_vendor)
         if uri in origen:
-            raise LoadError(
-                f"URI repetida {uri}: la declaran {origen[uri]} y {archivo.name}"
-            )
+            raise LoadError(f"URI repetida {uri}: la declaran {origen[uri]} y {archivo.name}")
         origen[uri] = archivo.name
         recurso = Resource.from_contents(contenido, default_specification=DRAFT202012)
         recursos.append((uri, recurso))

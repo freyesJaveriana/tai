@@ -44,9 +44,7 @@ def _importaciones_ajenas(arbol: ast.Module) -> list[str]:
     problemas: list[str] = []
     for nodo in ast.walk(arbol):
         if isinstance(nodo, ast.Call) and _es_importacion_dinamica(nodo):
-            problemas.append(
-                f"llamada dinámica de importación: {ast.unparse(nodo.func)} (E43)"
-            )
+            problemas.append(f"llamada dinámica de importación: {ast.unparse(nodo.func)} (E43)")
             continue
         if isinstance(nodo, ast.Import):
             nombres = [alias.name.split(".")[0] for alias in nodo.names]
@@ -113,7 +111,9 @@ def _comprobar_errores(clases: dict[str, ast.ClassDef]) -> list[str]:
             problemas.append(f"{nombre} debe heredar de {RAIZ} (BR9.9)")
         anotacion = _anotacion_de_call(clase)
         if nombre == ERROR_SIN_LLAMADA and anotacion is not None:
-            problemas.append(f"{nombre} no debe declarar call: no salió ninguna llamada (FD-U10-04)")
+            problemas.append(
+                f"{nombre} no debe declarar call: no salió ninguna llamada (FD-U10-04)"
+            )
         elif nombre != ERROR_SIN_LLAMADA and anotacion != "ModelCall":
             problemas.append(f"{nombre} debe declarar call: ModelCall (FD-U10-04)")
     return problemas

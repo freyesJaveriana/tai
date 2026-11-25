@@ -229,7 +229,9 @@ def _parte_sin_acotar(parte: dict[str, Any]) -> bool:
     return es_texto and not any(clave in parte for clave in ACOTADO)
 
 
-def _del_cuerpo_de_c1(documento: Any, ruta: str, metodo: str, operacion: dict[str, Any]) -> Iterator[str]:
+def _del_cuerpo_de_c1(
+    documento: Any, ruta: str, metodo: str, operacion: dict[str, Any]
+) -> Iterator[str]:
     for medio, cuerpo, esquema in cuerpos(documento, operacion):
         donde = f"{CONSOLA}: {metodo.upper()} {ruta} /requestBody/{medio}"
         for puntero in _objetos_abiertos(documento, esquema):
@@ -237,7 +239,9 @@ def _del_cuerpo_de_c1(documento: Any, ruta: str, metodo: str, operacion: dict[st
         if medio.startswith("multipart/"):
             if "x-veridicus-max-bytes" not in cuerpo:
                 yield f"{donde}: sin x-veridicus-max-bytes ({REGLA})"
-            for parte, hija in objeto(objeto(resolver(documento, esquema)).get("properties")).items():
+            for parte, hija in objeto(
+                objeto(resolver(documento, esquema)).get("properties")
+            ).items():
                 if _parte_sin_acotar(objeto(resolver(documento, hija))):
                     yield f"{donde}/properties/{escapar(parte)}: parte de texto sin acotar ({REGLA})"
 
@@ -271,7 +275,8 @@ def comprobar_openapi_interno(nombre: str, documento: Any) -> list[str]:
     for ruta, metodo, operacion in operaciones(documento):
         operacion_en_texto = f"{metodo.upper()} {ruta}"
         sitios: list[tuple[str, Any]] = [
-            (f"/requestBody/{medio}", esquema) for medio, _, esquema in cuerpos(documento, operacion)
+            (f"/requestBody/{medio}", esquema)
+            for medio, _, esquema in cuerpos(documento, operacion)
         ]
         for estado, respuesta in objeto(operacion.get("responses")).items():
             for medio, contenido in objeto(objeto(respuesta).get("content")).items():

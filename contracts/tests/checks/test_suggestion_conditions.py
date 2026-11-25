@@ -48,7 +48,9 @@ def _quitar_condicion(esquema: dict[str, Any], condicion: Any) -> None:
         ]
 
 
-def test_c7_versionado_declara_las_condiciones_y_cada_fixture_negativo_se_rechaza_por_su_regla() -> None:
+def test_c7_versionado_declara_las_condiciones_y_cada_fixture_negativo_se_rechaza_por_su_regla() -> (
+    None
+):
     """Las seis condiciones (cuatro de BR4.4 y las dos de «no vacío») y C7 rechaza cada fixture."""
     assert len(CONDICIONES) == 6
     assert comprobar(CONTRACTS_ROOT) == []
@@ -114,7 +116,9 @@ def test_un_fixture_que_no_es_un_fixture_queda_en_rojo() -> None:
 def test_un_esquema_con_condiciones_incompletas_no_pasa_por_parecido() -> None:
     """`then` o `else` con solo uno de los dos campos, o un `allOf` ausente, no cuentan."""
     esquema, fixtures = _documentos()
-    pending = next(b for b in esquema["allOf"] if b["if"]["properties"]["state"]["const"] == "pending")
+    pending = next(
+        b for b in esquema["allOf"] if b["if"]["properties"]["state"]["const"] == "pending"
+    )
     pending["else"] = {"required": ["decided_by"]}
     pending["then"] = "no es un objeto"
     problemas = comprobar_documentos(esquema, fixtures)
@@ -123,7 +127,9 @@ def test_un_esquema_con_condiciones_incompletas_no_pasa_por_parecido() -> None:
     assert len(comprobar_documentos(esquema, fixtures)) == 4
 
 
-def test_comprobar_informa_de_los_archivos_ausentes_ilegibles_o_mal_formados(tmp_path: Path) -> None:
+def test_comprobar_informa_de_los_archivos_ausentes_ilegibles_o_mal_formados(
+    tmp_path: Path,
+) -> None:
     assert "C7 ilegible o ausente" in comprobar(tmp_path)[0]
     (tmp_path / "integrity").mkdir()
     (tmp_path / C7).write_text("[1, 2", encoding="utf-8")

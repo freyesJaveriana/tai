@@ -81,7 +81,10 @@ def test_e21_el_perfil_generico_con_papeles_de_prueba_se_acepta() -> None:
 
 def test_el_perfil_del_analizador_de_la_configuracion_efectiva_se_acepta() -> None:
     efectiva = cargar_fixture(f"{DIRECTORIO}/effective-config.valid.json", "C18.effective-config")
-    datos = {"schema_version": "1.0.0", "profiles": {"comercial-piloto": efectiva["payload"]["profile"]}}
+    datos = {
+        "schema_version": "1.0.0",
+        "profiles": {"comercial-piloto": efectiva["payload"]["profile"]},
+    }
     perfiles = _perfiles().validate(datos, key_prefix=PREFIJO, kind="analyzer")
     assert "comercial-piloto" in perfiles
 
@@ -446,7 +449,12 @@ def _tabla() -> dict[str, Any]:
         "version": "2026-11",
         "currency": "USD",
         "prices": [
-            {"provider": "local", "model": "modelo-prueba", "input_per_million": 0, "output_per_million": 0},
+            {
+                "provider": "local",
+                "model": "modelo-prueba",
+                "input_per_million": 0,
+                "output_per_million": 0,
+            },
             {
                 "provider": "openai",
                 "model": "modelo-comercial:1",
@@ -532,7 +540,9 @@ def test_el_error_lleva_el_codigo_estable_y_los_problemas() -> None:
 
 def test_los_problemas_nombran_perfil_papel_y_ajuste() -> None:
     error = _rechaza(_con_clave("OTRO_CLAVE"))
-    assert error.problems == ("perfil todo-local, papel judge, ajuste api_key_ref: no cumple el prefijo exigido",)
+    assert error.problems == (
+        "perfil todo-local, papel judge, ajuste api_key_ref: no cumple el prefijo exigido",
+    )
 
 
 def test_los_problemas_salen_en_un_orden_estable() -> None:

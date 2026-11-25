@@ -26,7 +26,9 @@ def guardia() -> ModuleType:
     return importar_o_fallar("veridicus_contracts.checks.redos", "T18, paso 19")
 
 
-def test_la_api_privada_exige_python_3_12_y_detecta_los_controles_conocidos(guardia: ModuleType) -> None:
+def test_la_api_privada_exige_python_3_12_y_detecta_los_controles_conocidos(
+    guardia: ModuleType,
+) -> None:
     # Si cambia la versión de Python, la suite falla aquí antes de dar un falso verde (§4.5).
     assert sys.version_info[:2] == (3, 12)
     assert guardia.violaciones_del_arbol("^(a+)+$") == [guardia.ANIDADA]
@@ -57,7 +59,9 @@ CONTROLES_NEGATIVOS = [
 
 
 @pytest.mark.parametrize(("patron", "esperadas"), CONTROLES_NEGATIVOS)
-def test_recorrido_completo_del_arbol(guardia: ModuleType, patron: str, esperadas: set[str]) -> None:
+def test_recorrido_completo_del_arbol(
+    guardia: ModuleType, patron: str, esperadas: set[str]
+) -> None:
     codigos = {getattr(guardia, nombre) for nombre in esperadas}
     encontradas = set(guardia.violaciones_del_arbol(patron))
     # Las reglas de grupos y repeticiones no se pierden por estar dentro de un contenedor.
@@ -72,19 +76,32 @@ def test_la_referencia_condicional_tambien_es_hacia_atras(guardia: ModuleType) -
 
 
 def test_un_patron_sin_defectos_no_da_hallazgos(guardia: ModuleType) -> None:
-    for patron in ("^[a-z0-9]{1,64}$", "^(?:ab)+$", "^(?:ab){2,5}$", "^[A-Z]{2}-[0-9]{4}$", "^(?=a)a$"):
+    for patron in (
+        "^[a-z0-9]{1,64}$",
+        "^(?:ab)+$",
+        "^(?:ab){2,5}$",
+        "^[A-Z]{2}-[0-9]{4}$",
+        "^(?=a)a$",
+    ):
         assert guardia.comprobar_patron(patron) == []
 
 
 # K-24, limitación declarada: varios `[a-z]*` contiguos son polinomiales y el recorrido del árbol no los
 # ve. Lo que los acota es la regla de entrada acotada (un patrón con repetición ilimitada exige maxLength).
-def test_k24_varios_cuantificadores_contiguos_quedan_como_limitacion_declarada(guardia: ModuleType) -> None:
+def test_k24_varios_cuantificadores_contiguos_quedan_como_limitacion_declarada(
+    guardia: ModuleType,
+) -> None:
     patron = "^[a-z]*[a-z]*[a-z]*$"
     assert guardia.violaciones_del_arbol(patron) == []
     assert guardia.LIMITACION_K24 and "K-24" in guardia.LIMITACION_K24
     sin_cota = guardia.comprobar_esquema({"type": "string", "pattern": patron})
     assert len(sin_cota) == 1 and "maxLength" in sin_cota[0]
-    acotado = {"type": "string", "pattern": patron, "maxLength": 64, "x-veridicus-limit": "turn_chars"}
+    acotado = {
+        "type": "string",
+        "pattern": patron,
+        "maxLength": 64,
+        "x-veridicus-limit": "turn_chars",
+    }
     assert guardia.comprobar_esquema(acotado) == []
 
 
@@ -190,14 +207,18 @@ def test_e23_el_mismo_patron_en_un_contrato_propio_sigue_en_rojo(guardia: Module
     assert guardia.comprobar_documento(nodo, "queues/runs.v2.yaml") == [
         "queues/runs.v2.yaml#/properties/turno: repetición ilimitada sin maxLength (NFR10.6)"
     ]
-    cita = {"$defs": {"cita": {"properties": {"turno": {"type": "string", "pattern": "^T[0-9]+$"}}}}}
+    cita = {
+        "$defs": {"cita": {"properties": {"turno": {"type": "string", "pattern": "^T[0-9]+$"}}}}
+    }
     assert guardia.comprobar_documento(cita, C6) == []
     # Con el mismo contenido pero en otro archivo de analyzer/v1/ la excepción no vale.
     assert len(guardia.comprobar_documento(cita, "analyzer/v1/entrada.schema.json")) == 1
 
 
 def test_e23_la_excepcion_no_cubre_otro_puntero_de_c6_ni_otra_regla(guardia: ModuleType) -> None:
-    otro = {"$defs": {"cita": {"properties": {"texto": {"type": "string", "pattern": "^T[0-9]+$"}}}}}
+    otro = {
+        "$defs": {"cita": {"properties": {"texto": {"type": "string", "pattern": "^T[0-9]+$"}}}}
+    }
     problemas = guardia.comprobar_documento(otro, C6)
     assert [p.split(": ", 1)[0] for p in problemas] == [f"{C6}#/$defs/cita/properties/texto"]
     # En un puntero exceptuado, la repetición anidada y lo no portátil siguen en rojo.
@@ -210,13 +231,19 @@ def test_e23_la_excepcion_no_cubre_otro_puntero_de_c6_ni_otra_regla(guardia: Mod
 
 
 def test_las_claves_de_pattern_properties_tambien_son_patrones(guardia: ModuleType) -> None:
-    documento = {"properties": {"m": {"patternProperties": {"^(a+)+$": {}, "^[a-z]{1,8}$": {}, "a": {}}}}}
+    documento = {
+        "properties": {"m": {"patternProperties": {"^(a+)+$": {}, "^[a-z]{1,8}$": {}, "a": {}}}}
+    }
     problemas = guardia.comprobar_documento(documento, "c.json")
     assert problemas == [
         "c.json#/properties/m/patternProperties/^(a+)+$: repetición ilimitada dentro de otra repetición ilimitada (NFR10.6)",
         "c.json#/properties/m/patternProperties/a: patrón sin anclar con ^ y $ (NFR10.6)",
     ]
-    assert guardia.patrones_de_nodo(documento["properties"]["m"]) == ["^(a+)+$", "^[a-z]{1,8}$", "a"]
+    assert guardia.patrones_de_nodo(documento["properties"]["m"]) == [
+        "^(a+)+$",
+        "^[a-z]{1,8}$",
+        "a",
+    ]
     assert guardia.patrones_de_nodo({"patternProperties": 3, "pattern": 4}) == []
     assert guardia.patrones_de_nodo({"pattern": "^a$"}) == ["^a$"]
 
@@ -229,7 +256,9 @@ def test_los_patrones_de_los_contratos_versionados_son_seguros(guardia: ModuleTy
     assert guardia.comprobar(CONTRACTS_ROOT) == []
 
 
-def test_comprobar_salta_directorios_ajenos_y_reporta_lo_ilegible(guardia: ModuleType, tmp_path: Path) -> None:
+def test_comprobar_salta_directorios_ajenos_y_reporta_lo_ilegible(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     (tmp_path / "a").mkdir()
     acotado = "p:\n  pattern: '^(a+)+$'\n  maxLength: 4\n  x-veridicus-limit: turn_chars\n"
     (tmp_path / "a" / "malo.yaml").write_text(acotado, encoding="utf-8")

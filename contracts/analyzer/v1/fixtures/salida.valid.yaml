@@ -22,7 +22,14 @@ payload:
       observaciones: Las dos citas ubican la noche del suceso en lugares distintos.
   registro:
     llamadas:
-      - {papel: juez, proveedor: local, modelo: modelo-juez-prueba, tokens_entrada: 1200, tokens_salida: 140, proveedor_alterno: false, anonimizado: false, fecha: "2026-11-23T14:59:50Z"}
+      - papel: juez
+        proveedor: local
+        modelo: modelo-juez-prueba
+        tokens_entrada: 1200
+        tokens_salida: 140
+        proveedor_alterno: false
+        anonimizado: false
+        fecha: "2026-11-23T14:59:50Z"
     descartes: []
     fragmentado: {activo: false}
     tokens_entrada: 1200

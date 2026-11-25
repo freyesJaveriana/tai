@@ -91,7 +91,9 @@ def _en_una_fuente(tramo: str, fuentes: list[str]) -> bool:
 
 
 def problemas_de_casos(
-    documento: Any, terminos: tuple[str, ...] = TERMINOS, frases: tuple[str, ...] = FRASES_DE_ACLARACION
+    documento: Any,
+    terminos: tuple[str, ...] = TERMINOS,
+    frases: tuple[str, ...] = FRASES_DE_ACLARACION,
 ) -> list[str]:
     """BR5.8: forma de cada caso, un caso por término y por frase (E40) y los escenarios exigidos."""
     if not isinstance(documento, Mapping):
@@ -148,7 +150,9 @@ def _problemas_de_un_caso(
     if not _lista_de_textos(fuentes):
         problemas.append(f"{prefijo}literal_sources no es una lista de textos no vacíos")
     if _digitos_largos(texto, *(fuentes if isinstance(fuentes, list) else [])):
-        problemas.append(f"{prefijo}text o literal_sources traen una secuencia de seis o más dígitos")
+        problemas.append(
+            f"{prefijo}text o literal_sources traen una secuencia de seis o más dígitos"
+        )
     problemas += _problemas_de_expect(prefijo, caso, terminos, frases)
     return problemas
 
@@ -184,7 +188,9 @@ def _problemas_de_vocabulario(
         return problemas
     textos = fuentes if _lista_de_textos(fuentes) else []
     if not all(_en_una_fuente(t, textos) for t in excluidos):
-        problemas.append(f"{prefijo}expect.excluded trae un tramo que no está en ninguna fuente literal")
+        problemas.append(
+            f"{prefijo}expect.excluded trae un tramo que no está en ninguna fuente literal"
+        )
     solos = {normalizar(t) for t in terminos}
     if any(normalizar(" ".join(t.split())) in solos for t in excluidos):
         problemas.append(f"{prefijo}expect.excluded trae un tramo que es solo un término (D-2)")
@@ -202,7 +208,9 @@ def _problemas_de_aclaracion(
         problemas.append(f"{prefijo}expect.valid debe ser booleano")
     buenos_motivos = _sin_repetir(motivos, MOTIVOS)
     if not buenos_motivos:
-        problemas.append(f"{prefijo}expect.reasons no es una lista de motivos aprobados sin repetir")
+        problemas.append(
+            f"{prefijo}expect.reasons no es una lista de motivos aprobados sin repetir"
+        )
     buenas_frases = _sin_repetir(dichas, frases)
     if not buenas_frases:
         problemas.append(f"{prefijo}expect.phrases no es una lista de frases aprobadas sin repetir")
@@ -241,7 +249,9 @@ def _problemas_de_cobertura(
     }
     problemas += [f"BR5.8: ningún caso rechaza la frase {f}" for f in frases if f not in rechazadas]
     origenes = {c.get("source") for c in casos}
-    problemas += [f"BR5.8: falta un caso de origen {o}" for o in ORIGENES_EXIGIDOS if o not in origenes]
+    problemas += [
+        f"BR5.8: falta un caso de origen {o}" for o in ORIGENES_EXIGIDOS if o not in origenes
+    ]
     return problemas
 
 

@@ -27,7 +27,7 @@ REGLA = "(AUTONOMIA-01, §4.11, team.md, Deployment)"
 # Límites declarados (P-T18-12 y P-T18-16): el análisis es de texto, no de shell.
 LIMITACIONES = (
     "una herramienta invocada por una variable o un alias (`$K apply`) no se detecta",
-    "un valor de opción entre comillas con espacios (`--namespace \"a b\"`) no se detecta",
+    'un valor de opción entre comillas con espacios (`--namespace "a b"`) no se detecta',
     "que el SHA corresponda de verdad a la versión del comentario necesita red y no se comprueba (K-70)",
 )
 _ACCION_FIJADA = re.compile(r"[^@\s]+@[0-9a-f]{40}")
@@ -124,7 +124,9 @@ def _escritura_en_algun_nivel(nodo: object) -> bool:
     """Si en algún lugar del documento hay `permissions: write-all` o `permissions: {contents: write}`."""
     if isinstance(nodo, dict):
         permisos = nodo.get("permissions")
-        if permisos == "write-all" or (isinstance(permisos, dict) and permisos.get("contents") == "write"):
+        if permisos == "write-all" or (
+            isinstance(permisos, dict) and permisos.get("contents") == "write"
+        ):
             return True
         return any(_escritura_en_algun_nivel(valor) for valor in nodo.values())
     if isinstance(nodo, list):
@@ -143,15 +145,27 @@ def scan_permisos(paths: Iterable[Path]) -> list[str]:
             continue
         raiz = datos.get("permissions") if isinstance(datos, dict) else None
         if raiz is None:
-            problemas.append(f"{ruta.as_posix()}: falta `permissions: contents: read` en la raíz {REGLA}")
+            problemas.append(
+                f"{ruta.as_posix()}: falta `permissions: contents: read` en la raíz {REGLA}"
+            )
         elif not (isinstance(raiz, dict) and raiz.get("contents") == "read"):
-            problemas.append(f"{ruta.as_posix()}: la raíz declara permisos distintos de `contents: read` {REGLA}")
+            problemas.append(
+                f"{ruta.as_posix()}: la raíz declara permisos distintos de `contents: read` {REGLA}"
+            )
         elif "write" in raiz.values():
             escrituras = ", ".join(clave for clave, valor in raiz.items() if valor == "write")
-            problemas.append(f"{ruta.as_posix()}: la raíz declara escritura ({escrituras}); solo un job puede tenerla {REGLA}")
-        resto = {clave: valor for clave, valor in datos.items() if clave != "permissions"} if isinstance(datos, dict) else {}
+            problemas.append(
+                f"{ruta.as_posix()}: la raíz declara escritura ({escrituras}); solo un job puede tenerla {REGLA}"
+            )
+        resto = (
+            {clave: valor for clave, valor in datos.items() if clave != "permissions"}
+            if isinstance(datos, dict)
+            else {}
+        )
         if _escritura_en_algun_nivel(resto):
-            problemas.append(f"{ruta.as_posix()}: `contents: write` o `write-all` no se permite en ningún nivel {REGLA}")
+            problemas.append(
+                f"{ruta.as_posix()}: `contents: write` o `write-all` no se permite en ningún nivel {REGLA}"
+            )
     return problemas
 
 

@@ -37,10 +37,14 @@ DIGEST = "a" * 64
 
 def _wf(pasos: str, cabecera: str = PERMISOS_OK, job_extra: str = "") -> str:
     """Un workflow mínimo y válido; los pasos empiezan en la línea 8 (con cabecera) y el nombre en la 1."""
-    return f"name: x\n{cabecera}jobs:\n  j:\n    runs-on: ubuntu-24.04\n{job_extra}    steps:\n{pasos}"
+    return (
+        f"name: x\n{cabecera}jobs:\n  j:\n    runs-on: ubuntu-24.04\n{job_extra}    steps:\n{pasos}"
+    )
 
 
-def test_los_workflows_reales_no_aplican_cambios_ni_tienen_credenciales(guardia: ModuleType) -> None:
+def test_los_workflows_reales_no_aplican_cambios_ni_tienen_credenciales(
+    guardia: ModuleType,
+) -> None:
     nombres = [ruta.name for ruta in guardia.workflows(REPO_ROOT)]
     assert "repo-level0.yml" in nombres, "la guardia no pasa en vacío"
     assert "contracts-level0.yml" in nombres, "la guardia no pasa en vacío"
@@ -64,7 +68,9 @@ def test_la_regla_cita_team_md_deployment(guardia: ModuleType) -> None:
         f"docker://alpine@sha256:{DIGEST[:63]}",
     ],
 )
-def test_una_accion_sin_fijar_por_sha_es_roja(guardia: ModuleType, tmp_path: Path, uses: str) -> None:
+def test_una_accion_sin_fijar_por_sha_es_roja(
+    guardia: ModuleType, tmp_path: Path, uses: str
+) -> None:
     ruta = _workflow(tmp_path, "malo.yml", _wf(f"      - uses: {uses}\n"))
     esperado = f"{ruta.as_posix()}:8: acción sin fijar por SHA: {uses} {guardia.REGLA}"
     assert guardia.comprobar(tmp_path) == [esperado]
@@ -73,7 +79,9 @@ def test_una_accion_sin_fijar_por_sha_es_roja(guardia: ModuleType, tmp_path: Pat
 def test_una_accion_entre_comillas_o_en_un_comentario(guardia: ModuleType, tmp_path: Path) -> None:
     pasos = '      - uses: "actions/checkout@v4"\n      # uses: actions/checkout@v4\n'
     ruta = _workflow(tmp_path, "comillas.yml", _wf(pasos))
-    assert guardia.comprobar(tmp_path) == [f"{ruta.as_posix()}:8: acción sin fijar por SHA: actions/checkout@v4 {guardia.REGLA}"]
+    assert guardia.comprobar(tmp_path) == [
+        f"{ruta.as_posix()}:8: acción sin fijar por SHA: actions/checkout@v4 {guardia.REGLA}"
+    ]
 
 
 @pytest.mark.parametrize(
@@ -123,7 +131,10 @@ def test_f01_varias_acciones_se_reportan_en_el_orden_del_archivo_con_su_linea(
     ("cabecera", "alcances"),
     [
         ("permissions:\n  contents: read\n  packages: write\n", "packages"),
-        ("permissions:\n  contents: read\n  id-token: write\n  packages: write\n", "id-token, packages"),
+        (
+            "permissions:\n  contents: read\n  id-token: write\n  packages: write\n",
+            "id-token, packages",
+        ),
     ],
 )
 def test_p_t22b_2_la_raiz_con_escritura_de_otro_alcance_es_roja(
@@ -139,7 +150,11 @@ def test_f05_el_sha_no_se_contrasta_con_el_comentario_es_una_limitacion_declarad
     guardia: ModuleType, tmp_path: Path
 ) -> None:
     # Un SHA bien formado pasa aunque el comentario diga otra versión: comprobarlo necesita red (K-70).
-    _workflow(tmp_path, "comentario.yml", _wf(f"      - uses: actions/checkout@{SHA} # v1.0.0, no es esa\n"))
+    _workflow(
+        tmp_path,
+        "comentario.yml",
+        _wf(f"      - uses: actions/checkout@{SHA} # v1.0.0, no es esa\n"),
+    )
     assert guardia.comprobar(tmp_path) == []
     assert any("versión del comentario" in limitacion for limitacion in guardia.LIMITACIONES)
     assert len(guardia.LIMITACIONES) == 3
@@ -164,13 +179,21 @@ def test_una_accion_fijada_o_local_pasa(guardia: ModuleType, tmp_path: Path, use
     ("cabecera", "texto"),
     [
         ("", "falta `permissions: contents: read` en la raíz"),
-        ("permissions:\n  contents: write\n", "la raíz declara permisos distintos de `contents: read`"),
+        (
+            "permissions:\n  contents: write\n",
+            "la raíz declara permisos distintos de `contents: read`",
+        ),
         ("permissions: write-all\n", "la raíz declara permisos distintos de `contents: read`"),
         ("permissions: read-all\n", "la raíz declara permisos distintos de `contents: read`"),
-        ("permissions:\n  packages: read\n", "la raíz declara permisos distintos de `contents: read`"),
+        (
+            "permissions:\n  packages: read\n",
+            "la raíz declara permisos distintos de `contents: read`",
+        ),
     ],
 )
-def test_la_raiz_sin_contents_read_es_roja(guardia: ModuleType, tmp_path: Path, cabecera: str, texto: str) -> None:
+def test_la_raiz_sin_contents_read_es_roja(
+    guardia: ModuleType, tmp_path: Path, cabecera: str, texto: str
+) -> None:
     ruta = _workflow(tmp_path, "permisos.yml", _wf("      - run: echo hola\n", cabecera=cabecera))
     assert guardia.comprobar(tmp_path) == [f"{ruta.as_posix()}: {texto} {guardia.REGLA}"]
 
@@ -182,21 +205,27 @@ def test_la_raiz_sin_contents_read_es_roja(guardia: ModuleType, tmp_path: Path, 
         "    permissions: write-all\n",
     ],
 )
-def test_un_job_con_contents_write_o_write_all_es_rojo(guardia: ModuleType, tmp_path: Path, job_extra: str) -> None:
+def test_un_job_con_contents_write_o_write_all_es_rojo(
+    guardia: ModuleType, tmp_path: Path, job_extra: str
+) -> None:
     ruta = _workflow(tmp_path, "job.yml", _wf("      - run: echo hola\n", job_extra=job_extra))
     assert guardia.comprobar(tmp_path) == [
         f"{ruta.as_posix()}: `contents: write` o `write-all` no se permite en ningún nivel {guardia.REGLA}"
     ]
 
 
-def test_un_job_con_packages_write_y_raiz_de_lectura_pasa(guardia: ModuleType, tmp_path: Path) -> None:
+def test_un_job_con_packages_write_y_raiz_de_lectura_pasa(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     job_extra = "    permissions:\n      packages: write\n      contents: read\n"
     _workflow(tmp_path, "build.yml", _wf("      - run: echo hola\n", job_extra=job_extra))
     assert guardia.comprobar(tmp_path) == []
 
 
 @pytest.mark.parametrize("texto", ["jobs: [\n", "a: 1\na: 2\n"])
-def test_un_yaml_que_no_carga_es_un_problema_y_no_un_salto(guardia: ModuleType, tmp_path: Path, texto: str) -> None:
+def test_un_yaml_que_no_carga_es_un_problema_y_no_un_salto(
+    guardia: ModuleType, tmp_path: Path, texto: str
+) -> None:
     ruta = _workflow(tmp_path, "roto.yml", texto)
     problemas = guardia.comprobar(tmp_path)
     assert len(problemas) == 1
@@ -205,7 +234,9 @@ def test_un_yaml_que_no_carga_es_un_problema_y_no_un_salto(guardia: ModuleType, 
 
 
 @pytest.mark.parametrize("texto", ["", "solo texto\n"])
-def test_un_workflow_que_no_es_un_mapa_no_declara_permisos(guardia: ModuleType, tmp_path: Path, texto: str) -> None:
+def test_un_workflow_que_no_es_un_mapa_no_declara_permisos(
+    guardia: ModuleType, tmp_path: Path, texto: str
+) -> None:
     ruta = _workflow(tmp_path, "vacio.yml", texto)
     assert guardia.comprobar(tmp_path) == [
         f"{ruta.as_posix()}: falta `permissions: contents: read` en la raíz {guardia.REGLA}"
@@ -235,10 +266,16 @@ def test_un_workflow_que_no_es_un_mapa_no_declara_permisos(guardia: ModuleType, 
         ("run: echo ${{ secrets.kubeconfig }}", "kubeconfig"),
     ],
 )
-def test_un_workflow_con_un_comando_prohibido_es_rojo(guardia: ModuleType, tmp_path: Path, linea: str, termino: str) -> None:
-    ruta = _workflow(tmp_path, "malo.yml", f"name: x\njobs:\n  j:\n    steps:\n      - {linea}\n{PERMISOS_OK}")
+def test_un_workflow_con_un_comando_prohibido_es_rojo(
+    guardia: ModuleType, tmp_path: Path, linea: str, termino: str
+) -> None:
+    ruta = _workflow(
+        tmp_path, "malo.yml", f"name: x\njobs:\n  j:\n    steps:\n      - {linea}\n{PERMISOS_OK}"
+    )
     problemas = guardia.scan([ruta])
-    assert problemas == [f"{ruta.as_posix()}:5: {termino} no se permite en un workflow {guardia.REGLA}"]
+    assert problemas == [
+        f"{ruta.as_posix()}:5: {termino} no se permite en un workflow {guardia.REGLA}"
+    ]
     assert guardia.comprobar(tmp_path) == problemas
 
 
@@ -246,16 +283,26 @@ def test_un_tabulador_entre_helm_y_upgrade_se_detecta_aunque_el_yaml_no_cargue(
     guardia: ModuleType, tmp_path: Path
 ) -> None:
     # El escáner de comandos es de texto; el YAML con tabulador no carga y eso es otro problema, no un salto.
-    ruta = _workflow(tmp_path, "tab.yml", f"name: x\njobs:\n  j:\n    steps:\n      - run: helm\tupgrade a\n{PERMISOS_OK}")
-    assert guardia.scan([ruta]) == [f"{ruta.as_posix()}:5: helm upgrade no se permite en un workflow {guardia.REGLA}"]
+    ruta = _workflow(
+        tmp_path,
+        "tab.yml",
+        f"name: x\njobs:\n  j:\n    steps:\n      - run: helm\tupgrade a\n{PERMISOS_OK}",
+    )
+    assert guardia.scan([ruta]) == [
+        f"{ruta.as_posix()}:5: helm upgrade no se permite en un workflow {guardia.REGLA}"
+    ]
 
 
-def test_un_workflow_con_kubectl_apply_en_un_comentario_tambien_es_rojo(guardia: ModuleType, tmp_path: Path) -> None:
+def test_un_workflow_con_kubectl_apply_en_un_comentario_tambien_es_rojo(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     _workflow(tmp_path, "comentario.yaml", f"# antes: kubectl apply -f x\nname: x\n{PERMISOS_OK}")
     assert len(guardia.comprobar(tmp_path)) == 1
 
 
-def test_un_workflow_limpio_y_las_lecturas_de_kubectl_pasan(guardia: ModuleType, tmp_path: Path) -> None:
+def test_un_workflow_limpio_y_las_lecturas_de_kubectl_pasan(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     pasos = "      - run: helm template charts/x\n      - run: kubectl get pods\n"
     _workflow(tmp_path, "limpio.yml", _wf(pasos))
     assert guardia.comprobar(tmp_path) == []
@@ -272,20 +319,33 @@ def test_un_workflow_limpio_y_las_lecturas_de_kubectl_pasan(guardia: ModuleType,
         "run: helm lint charts/x --strict",
     ],
 )
-def test_las_lecturas_con_opciones_globales_pasan(guardia: ModuleType, tmp_path: Path, linea: str) -> None:
-    _workflow(tmp_path, "lectura.yml", f"name: x\njobs:\n  j:\n    steps:\n      - {linea}\n{PERMISOS_OK}")
+def test_las_lecturas_con_opciones_globales_pasan(
+    guardia: ModuleType, tmp_path: Path, linea: str
+) -> None:
+    _workflow(
+        tmp_path, "lectura.yml", f"name: x\njobs:\n  j:\n    steps:\n      - {linea}\n{PERMISOS_OK}"
+    )
     assert guardia.comprobar(tmp_path) == []
 
 
-def test_varias_apariciones_se_reportan_en_orden_de_archivo_y_linea(guardia: ModuleType, tmp_path: Path) -> None:
+def test_varias_apariciones_se_reportan_en_orden_de_archivo_y_linea(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     _workflow(tmp_path, "b.yml", f"x: helm install a\ny: kubectl apply -f x --write\n{PERMISOS_OK}")
     _workflow(tmp_path, "a.yml", f"x: helm upgrade a\n{PERMISOS_OK}")
     problemas = guardia.comprobar(tmp_path)
-    assert [p.rsplit("/", 1)[1].split(" ", 1)[0] for p in problemas] == ["a.yml:1:", "b.yml:1:", "b.yml:2:", "b.yml:2:"]
+    assert [p.rsplit("/", 1)[1].split(" ", 1)[0] for p in problemas] == [
+        "a.yml:1:",
+        "b.yml:1:",
+        "b.yml:2:",
+        "b.yml:2:",
+    ]
     assert all(p.endswith(guardia.REGLA) for p in problemas)
 
 
-def test_solo_se_miran_los_workflows_yaml_de_la_carpeta(guardia: ModuleType, tmp_path: Path) -> None:
+def test_solo_se_miran_los_workflows_yaml_de_la_carpeta(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     assert guardia.comprobar(tmp_path) == []
     ruta = _workflow(tmp_path, "notas.txt", "kubectl apply\n")
     otra = tmp_path / ".github" / "dependabot.yml"
@@ -314,7 +374,9 @@ def _tarda_menos_de(segundos: float, patron: re.Pattern[str], texto: str) -> boo
     return time.perf_counter() - inicio < segundos
 
 
-@pytest.mark.parametrize(("opcion", "repeticiones"), [("-a", 40), ("--a", 30), ("--a-b.c", 30), ("-a=1", 30), ("--", 30)])
+@pytest.mark.parametrize(
+    ("opcion", "repeticiones"), [("-a", 40), ("--a", 30), ("--a-b.c", 30), ("-a=1", 30), ("--", 30)]
+)
 @pytest.mark.parametrize("herramienta", ["kubectl", "helm"])
 def test_f02_muchas_opciones_seguidas_no_hacen_retroceder_al_motor(
     guardia: ModuleType, herramienta: str, opcion: str, repeticiones: int

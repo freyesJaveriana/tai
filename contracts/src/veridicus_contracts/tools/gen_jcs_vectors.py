@@ -156,7 +156,11 @@ def generar() -> dict[str, Any]:
             continue
         vistos.add(forma)
         vectores.append(
-            {"id": f"vec-{len(vectores) + 1:03d}", "value": candidato, "sha256": sha256_jcs(candidato)}
+            {
+                "id": f"vec-{len(vectores) + 1:03d}",
+                "value": candidato,
+                "sha256": sha256_jcs(candidato),
+            }
         )
         if len(vectores) == CANTIDAD:
             return {"schema_version": VERSION, "seed": SEMILLA, "vectors": vectores}
@@ -165,7 +169,9 @@ def generar() -> dict[str, Any]:
 
 def serializar(documento: Mapping[str, Any]) -> bytes:
     """Los bytes del archivo: JSON con claves ordenadas, sangría de 2, UTF-8 sin BOM y un salto final."""
-    return (json.dumps(documento, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8")
+    return (json.dumps(documento, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode(
+        "utf-8"
+    )
 
 
 def _raiz_de_contracts() -> Path:

@@ -26,11 +26,15 @@ def _con_ref(ref: str) -> dict[str, Any]:
     return {"properties": {"cita": {"$ref": ref}}}
 
 
-def test_los_contratos_versionados_resuelven_sus_referencias_por_id_canonico(guardia: ModuleType) -> None:
+def test_los_contratos_versionados_resuelven_sus_referencias_por_id_canonico(
+    guardia: ModuleType,
+) -> None:
     assert guardia.comprobar(CONTRACTS_ROOT) == []
     # No pasa en vacío: C1, C18 y C19 sí traen referencias entre archivos por `$id` canónico.
     assert "/veridicus/contracts/analyzer/v1/salida#" in str(load_contract("api/console.v2.yaml"))
-    assert "/veridicus/contracts/profiles/" in str(load_contract("profiles/profiles.schema.v1.yaml"))
+    assert "/veridicus/contracts/profiles/" in str(
+        load_contract("profiles/profiles.schema.v1.yaml")
+    )
     assert "/veridicus/contracts/cli/report.schema.v2#" in str(load_contract("api/console.v2.yaml"))
 
 
@@ -60,10 +64,14 @@ def test_e36_la_ruta_relativa_de_archivo_es_rojo_con_su_puntero(guardia: ModuleT
 )
 def test_un_esquema_de_red_o_de_archivo_es_rojo(guardia: ModuleType, ref: str) -> None:
     problemas = guardia.comprobar_documento(_con_ref(ref), "c.json")
-    assert problemas == ["c.json#/properties/cita: $ref con esquema http, https o file (NFR10.5, E36)"]
+    assert problemas == [
+        "c.json#/properties/cita: $ref con esquema http, https o file (NFR10.5, E36)"
+    ]
 
 
-@pytest.mark.parametrize("ref", ["otro.schema.json", "../x#/a", "/veridicus/otro/a", "/veridicus/contractsX/a"])
+@pytest.mark.parametrize(
+    "ref", ["otro.schema.json", "../x#/a", "/veridicus/otro/a", "/veridicus/contractsX/a"]
+)
 def test_otras_rutas_que_no_son_la_canonica_son_rojo(guardia: ModuleType, ref: str) -> None:
     problemas = guardia.comprobar_documento(_con_ref(ref), "c.json")
     assert len(problemas) == 1 and "fuera de /veridicus/contracts/" in problemas[0]
@@ -81,19 +89,29 @@ def test_un_ref_que_no_es_texto_se_ignora(guardia: ModuleType) -> None:
     assert guardia.comprobar_documento({"properties": {"$ref": {"type": "string"}}}, "c.json") == []
 
 
-def test_comprobar_recorre_contratos_y_salta_vendor_fixtures_y_tests(guardia: ModuleType, tmp_path: Path) -> None:
+def test_comprobar_recorre_contratos_y_salta_vendor_fixtures_y_tests(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     (tmp_path / "analyzer").mkdir()
-    (tmp_path / "analyzer" / "malo.schema.json").write_text(json.dumps(_con_ref(E36)), encoding="utf-8")
+    (tmp_path / "analyzer" / "malo.schema.json").write_text(
+        json.dumps(_con_ref(E36)), encoding="utf-8"
+    )
     (tmp_path / "api").mkdir()
-    (tmp_path / "api" / "malo.yaml").write_text("a:\n  $ref: https://x.invalid/a\n", encoding="utf-8")
+    (tmp_path / "api" / "malo.yaml").write_text(
+        "a:\n  $ref: https://x.invalid/a\n", encoding="utf-8"
+    )
     for saltado in ("vendor", "fixtures", "tests", "ts", "node_modules"):
         (tmp_path / saltado).mkdir()
-        (tmp_path / saltado / "ignorado.json").write_text(json.dumps(_con_ref(E36)), encoding="utf-8")
+        (tmp_path / saltado / "ignorado.json").write_text(
+            json.dumps(_con_ref(E36)), encoding="utf-8"
+        )
     (tmp_path / "notas.txt").write_text("no es un contrato", encoding="utf-8")
     problemas = guardia.comprobar(tmp_path)
     assert [p.split("#", 1)[0] for p in problemas] == ["analyzer/malo.schema.json", "api/malo.yaml"]
 
 
-def test_un_contrato_ilegible_es_un_problema_y_no_una_excepcion(guardia: ModuleType, tmp_path: Path) -> None:
+def test_un_contrato_ilegible_es_un_problema_y_no_una_excepcion(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     (tmp_path / "roto.yaml").write_text("a: 1\na: 2\n", encoding="utf-8")
     assert guardia.comprobar(tmp_path) == ["roto.yaml: contrato ilegible (NFR10.5)"]

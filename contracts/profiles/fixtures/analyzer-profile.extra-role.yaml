@@ -11,9 +11,24 @@ payload:
     todo-local:
       purpose: demonstration
       roles:
-        judge: {provider: local, model: modelo-juez-prueba, family: familia-a, scope: local, base_url: "http://veridicus-llm-judge:8080"}
-        verifier: {provider: local, model: modelo-verificador-prueba, family: familia-a, scope: local, base_url: "http://veridicus-llm-verifier:8080"}
-        prueba_a: {provider: local, model: modelo-prueba-a, family: familia-a, scope: local, base_url: "http://veridicus-llm-a:8080"}
+        judge:
+          provider: local
+          model: modelo-juez-prueba
+          family: familia-a
+          scope: local
+          base_url: "http://veridicus-llm-judge:8080"
+        verifier:
+          provider: local
+          model: modelo-verificador-prueba
+          family: familia-a
+          scope: local
+          base_url: "http://veridicus-llm-verifier:8080"
+        prueba_a:
+          provider: local
+          model: modelo-prueba-a
+          family: familia-a
+          scope: local
+          base_url: "http://veridicus-llm-a:8080"
       role_aliases: {verifier_permuted: verifier}
       permutation: true
       same_family_declared: true

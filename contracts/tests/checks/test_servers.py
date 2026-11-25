@@ -220,9 +220,13 @@ def test_las_estructuras_que_no_son_objetos_se_recorren_sin_error() -> None:
     assert _problemas(documento) == []
     documento = _oas(
         paths="x",
-        components={"pathItems": "x", "callbacks": {"c": "x", "d": {"e": "x"}}, "links": "x",
-                    "responses": {"r": "x", "s": {"links": "x"}, "t": {"links": {"l": "x"}}},
-                    "servers": "x"},
+        components={
+            "pathItems": "x",
+            "callbacks": {"c": "x", "d": {"e": "x"}},
+            "links": "x",
+            "responses": {"r": "x", "s": {"links": "x"}, "t": {"links": {"l": "x"}}},
+            "servers": "x",
+        },
     )
     assert _problemas(documento) == [_externo("/components/servers", "servidor mal formado")]
     documento = _oas()
@@ -284,9 +288,7 @@ def test_un_servidor_que_no_es_un_objeto_es_mal_formado() -> None:
 
 @pytest.mark.parametrize("documento", [None, [], {}, "texto", 7, {"servers": []}, {"servers": {}}])
 def test_sin_servidores_globales_no_pasa_en_vacio(documento: Any) -> None:
-    assert _problemas(documento) == [
-        f"c.yaml: no declara ningún servidor en servers {SUFIJO}"
-    ]
+    assert _problemas(documento) == [f"c.yaml: no declara ningún servidor en servers {SUFIJO}"]
 
 
 def test_solo_servers_por_ruta_no_cuenta_como_servidor_global() -> None:
@@ -401,16 +403,22 @@ def test_las_versiones_3_0_de_asyncapi_pasan(version: str) -> None:
     assert _version({"asyncapi": version}) == []
 
 
-@pytest.mark.parametrize("version", ["3.2.0", "3.0.3", "3.10.0", "3.1", "4.1.0", "v3.1.0", "", None, 3.1, 7])
+@pytest.mark.parametrize(
+    "version", ["3.2.0", "3.0.3", "3.10.0", "3.1", "4.1.0", "v3.1.0", "", None, 3.1, 7]
+)
 def test_otras_versiones_de_openapi_no_se_admiten_porque_no_se_recorren_sus_nodos(
     version: Any,
 ) -> None:
-    assert _version({"openapi": version}) == [_externo("/openapi", "versión de OpenAPI no admitida")]
+    assert _version({"openapi": version}) == [
+        _externo("/openapi", "versión de OpenAPI no admitida")
+    ]
 
 
 @pytest.mark.parametrize("version", ["3.1.0", "2.6.0", "3.0", "3.00.0", "v3.0.0", "", None, 3.0, 7])
 def test_otras_versiones_de_asyncapi_no_se_admiten(version: Any) -> None:
-    assert _version({"asyncapi": version}) == [_externo("/asyncapi", "versión de AsyncAPI no admitida")]
+    assert _version({"asyncapi": version}) == [
+        _externo("/asyncapi", "versión de AsyncAPI no admitida")
+    ]
 
 
 SIN_VERSION = f"c.yaml: /: versión no admitida {SUFIJO}"
@@ -429,13 +437,27 @@ SIN_VERSION = f"c.yaml: /: versión no admitida {SUFIJO}"
         {"swagger": "2.0", "asyncapi": "3.0.0"},
         {"openapi": "3.1.0", "asyncapi": "3.0.0"},
     ],
-    ids=["vacio", "none", "lista", "texto", "sin-clave", "swagger", "swagger-y-openapi", "swagger-y-asyncapi", "ambos"],
+    ids=[
+        "vacio",
+        "none",
+        "lista",
+        "texto",
+        "sin-clave",
+        "swagger",
+        "swagger-y-openapi",
+        "swagger-y-asyncapi",
+        "ambos",
+    ],
 )
-def test_un_documento_sin_openapi_ni_asyncapi_o_con_swagger_o_con_ambos_no_se_admite(documento: Any) -> None:
+def test_un_documento_sin_openapi_ni_asyncapi_o_con_swagger_o_con_ambos_no_se_admite(
+    documento: Any,
+) -> None:
     assert _version(documento) == [SIN_VERSION]
 
 
-@pytest.mark.parametrize("metodo", ["get", "put", "post", "delete", "options", "head", "patch", "trace"])
+@pytest.mark.parametrize(
+    "metodo", ["get", "put", "post", "delete", "options", "head", "patch", "trace"]
+)
 def test_servers_por_operacion_en_cada_uno_de_los_ocho_metodos(metodo: str) -> None:
     malo = {"url": "https://api.openai.com"}
     documento = _oas(paths={"/x": {metodo: {"servers": [malo]}}})
@@ -466,7 +488,9 @@ DESTINOS_MALOS = [
 
 
 @pytest.mark.parametrize("destino", DESTINOS_MALOS)
-def test_un_ref_estructural_fuera_de_components_se_detecta_en_cada_tipo_de_nodo(destino: Any) -> None:
+def test_un_ref_estructural_fuera_de_components_se_detecta_en_cada_tipo_de_nodo(
+    destino: Any,
+) -> None:
     ref = {"$ref": destino}
     elemento = _oas(paths={"/x": ref})
     assert _problemas(elemento) == [_externo("/paths/~1x", FUERA)]
@@ -507,9 +531,15 @@ def test_un_ref_estructural_fuera_de_components_se_detecta_en_cada_tipo_de_nodo(
     ],
 )
 def test_un_servidor_de_canal_de_asyncapi_con_ref_fuera_de_servers_se_detecta(destino: Any) -> None:
-    documento = {"servers": {"a": {"host": "veridicus-x:80"}}, "channels": {"c": {"servers": [{"$ref": destino}]}}}
+    documento = {
+        "servers": {"a": {"host": "veridicus-x:80"}},
+        "channels": {"c": {"servers": [{"$ref": destino}]}},
+    }
     assert _problemas(documento) == [_externo("/channels/c/servers/0", FUERA)]
-    sin_ref = {"servers": {"a": {"host": "veridicus-x:80"}}, "channels": {"c": {"servers": [{"host": "x"}, "x"]}}}
+    sin_ref = {
+        "servers": {"a": {"host": "veridicus-x:80"}},
+        "channels": {"c": {"servers": [{"host": "x"}, "x"]}},
+    }
     assert _problemas(sin_ref) == [
         _externo("/channels/c/servers/0", FUERA),
         _externo("/channels/c/servers/1", FUERA),
@@ -530,11 +560,27 @@ COMPONENTES = {
 
 def test_los_ref_estructurales_a_components_y_los_de_canal_a_servers_pasan() -> None:
     documento = _oas(
-        paths={"/x": {"$ref": "#/components/pathItems/p", "get": {
-            "responses": {"200": {"$ref": "#/components/responses/r", "links": {"l": {"$ref": "#/components/links/l"}}}},
-            "callbacks": {"cb": {"$ref": "#/components/callbacks/c"}, "d": {"expr": {"$ref": "#/components/pathItems/p"}}},
-        }}},
-        webhooks={"w": {"$ref": "#/components/pathItems/p~1q"}, "v": {"$ref": "#/components/pathItems/a.b_c~0d-E9"}},
+        paths={
+            "/x": {
+                "$ref": "#/components/pathItems/p",
+                "get": {
+                    "responses": {
+                        "200": {
+                            "$ref": "#/components/responses/r",
+                            "links": {"l": {"$ref": "#/components/links/l"}},
+                        }
+                    },
+                    "callbacks": {
+                        "cb": {"$ref": "#/components/callbacks/c"},
+                        "d": {"expr": {"$ref": "#/components/pathItems/p"}},
+                    },
+                },
+            }
+        },
+        webhooks={
+            "w": {"$ref": "#/components/pathItems/p~1q"},
+            "v": {"$ref": "#/components/pathItems/a.b_c~0d-E9"},
+        },
         components=copy.deepcopy(COMPONENTES),
     )
     assert _problemas(documento) == []
@@ -560,7 +606,10 @@ def _nodos_con_ref(ref: dict[str, Any]) -> dict[str, tuple[dict[str, Any], str]]
             "/paths/~1x/get/responses/200",
         ),
         "link": (
-            _oas(paths={"/x": {"get": {"responses": {"200": {"links": {"l": ref}}}}}}, components=base),
+            _oas(
+                paths={"/x": {"get": {"responses": {"200": {"links": {"l": ref}}}}}},
+                components=base,
+            ),
             "/paths/~1x/get/responses/200/links/l",
         ),
         "callback": (
@@ -575,9 +624,16 @@ def _nodos_con_ref(ref: dict[str, Any]) -> dict[str, tuple[dict[str, Any], str]]
 
 
 @pytest.mark.parametrize("nodo", ["pathItem", "respuesta", "link", "callback"])
-def test_un_ref_con_nombre_codificado_o_con_barra_o_almohadilla_no_pasa_en_cada_tipo(nodo: str) -> None:
+def test_un_ref_con_nombre_codificado_o_con_barra_o_almohadilla_no_pasa_en_cada_tipo(
+    nodo: str,
+) -> None:
     """F-14: `%2F` se decodifica antes de leerse como puntero JSON y llegaría a un `servers` oculto."""
-    tipo = {"pathItem": "pathItems", "respuesta": "responses", "link": "links", "callback": "callbacks"}[nodo]
+    tipo = {
+        "pathItem": "pathItems",
+        "respuesta": "responses",
+        "link": "links",
+        "callback": "callbacks",
+    }[nodo]
     for nombre in ("p%2Fx", "p%2fx", "a/b", "a#b", "a%23b", "", "a b", "a\n"):
         assert nombre in ("p%2fx", "a%23b", "", "a\n") or nombre in COMPONENTES[tipo]
         documento, puntero = _nodos_con_ref({"$ref": f"#/components/{tipo}/{nombre}"})[nodo]
@@ -586,7 +642,9 @@ def test_un_ref_con_nombre_codificado_o_con_barra_o_almohadilla_no_pasa_en_cada_
 
 def test_un_ref_con_nombre_codificado_no_pasa_en_el_elemento_de_un_callback() -> None:
     for nombre in NOMBRES_RAROS:
-        documento, puntero = _nodos_con_ref({"$ref": f"#/components/pathItems/{nombre}"})["callback-elemento"]
+        documento, puntero = _nodos_con_ref({"$ref": f"#/components/pathItems/{nombre}"})[
+            "callback-elemento"
+        ]
         assert _problemas(documento) == [_externo(puntero, FUERA)], nombre
 
 
@@ -596,7 +654,12 @@ def test_un_servidor_de_canal_con_nombre_raro_que_existe_no_pasa(nombre: str) ->
         "servers": {nombre: {"host": "veridicus-x:80"}},
         "components": {"servers": {nombre: {"host": "veridicus-x:80"}}},
         "channels": {
-            "c": {"servers": [{"$ref": f"#/servers/{nombre}"}, {"$ref": f"#/components/servers/{nombre}"}]}
+            "c": {
+                "servers": [
+                    {"$ref": f"#/servers/{nombre}"},
+                    {"$ref": f"#/components/servers/{nombre}"},
+                ]
+            }
         },
     }
     assert _problemas(documento) == [
@@ -606,7 +669,9 @@ def test_un_servidor_de_canal_con_nombre_raro_que_existe_no_pasa(nombre: str) ->
 
 
 @pytest.mark.parametrize("nodo", ["pathItem", "respuesta", "link", "callback", "callback-elemento"])
-def test_un_ref_a_un_componente_que_existe_del_tipo_correcto_pasa_y_a_uno_inexistente_no(nodo: str) -> None:
+def test_un_ref_a_un_componente_que_existe_del_tipo_correcto_pasa_y_a_uno_inexistente_no(
+    nodo: str,
+) -> None:
     tipo = {
         "pathItem": "pathItems",
         "respuesta": "responses",
@@ -656,7 +721,9 @@ def test_un_ref_a_x_del_tipo_correcto_pasa_y_demuestra_que_los_cruzados_fallan_s
 
 
 @pytest.mark.parametrize(("nodo", "tipo", "nombre"), CRUZADOS)
-def test_un_ref_de_tipo_cruzado_a_un_componente_que_existe_no_pasa(nodo: str, tipo: str, nombre: str) -> None:
+def test_un_ref_de_tipo_cruzado_a_un_componente_que_existe_no_pasa(
+    nodo: str, tipo: str, nombre: str
+) -> None:
     documento, puntero = _nodos_con_ref({"$ref": f"#/components/{tipo}/{nombre}"})[nodo]
     assert _problemas(documento) == [_externo(puntero, FUERA)]
 
@@ -783,7 +850,9 @@ def test_asyncapi_con_host_externo_o_ausente_se_detecta() -> None:
 
 def test_asyncapi_con_url_y_host_a_la_vez_o_con_claves_extra_se_detecta() -> None:
     con_url = _asyncapi(url="https://api.openai.com")
-    assert _problemas(con_url) == [_externo("/servers/redis", "campo no admitido en un servidor de AsyncAPI")]
+    assert _problemas(con_url) == [
+        _externo("/servers/redis", "campo no admitido en un servidor de AsyncAPI")
+    ]
     con_extra = _asyncapi(variables={"a": {}})
     assert _problemas(con_extra) == [
         _externo("/servers/redis", "campo no admitido en un servidor de AsyncAPI")
@@ -974,12 +1043,16 @@ def test_ningun_mensaje_copia_valores_del_documento(tmp_path: Path) -> None:
         ],
         "paths": {f"/{CANARY}": {"servers": [{"url": CANARY}]}},
     }
-    mapa = {"servers": {CANARY: {"host": f"{CANARY}.example", "protocol": CANARY, "pathname": CANARY}}}
+    mapa = {
+        "servers": {CANARY: {"host": f"{CANARY}.example", "protocol": CANARY, "pathname": CANARY}}
+    }
     mensajes = _problemas(documento) + _problemas(mapa) + _problemas({"servers": CANARY})
     assert len(mensajes) == 8
-    assert not [m for m in mensajes if CANARY in m.replace(f"/paths/~1{CANARY}", "").replace(
-        f"/servers/{CANARY}", ""
-    )]
+    assert not [
+        m
+        for m in mensajes
+        if CANARY in m.replace(f"/paths/~1{CANARY}", "").replace(f"/servers/{CANARY}", "")
+    ]
     raiz = _copia(tmp_path)
     (raiz / C21).write_text(f"a: {CANARY}\na: {CANARY}\n", encoding="utf-8")
     assert not [m for m in guardia.comprobar(raiz, EXISTENTES) if CANARY in m]

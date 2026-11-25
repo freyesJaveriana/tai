@@ -25,7 +25,9 @@ LIMITES = "limits.v1.yaml"
 MARCA = "report_token_max_chars"
 TOPE = 128
 PATRON_CODE = r"^[a-z][a-z_]*\.[a-z][a-z_]*$"
-PUNTERO_422 = "#/paths/~1internal~1v1~1speech/post/responses/422/content/application~1problem+json/schema"
+PUNTERO_422 = (
+    "#/paths/~1internal~1v1~1speech/post/responses/422/content/application~1problem+json/schema"
+)
 
 RUNS = "queues/runs.v2.yaml"
 RESULTS = "queues/results.v2.yaml"
@@ -68,59 +70,103 @@ class Campo(NamedTuple):
 
 CAMPOS = [
     Campo(
-        "C2.RunRequested.schema_version", RUNS, puntero_de_mensaje(RUNS, "RunRequested"),
-        "schema_version", r"^2\.[0-9]+\.[0-9]+$",
-        _fixture("queues/fixtures/runs/run.valid.yaml", "C2.RunRequested"), False,
+        "C2.RunRequested.schema_version",
+        RUNS,
+        puntero_de_mensaje(RUNS, "RunRequested"),
+        "schema_version",
+        r"^2\.[0-9]+\.[0-9]+$",
+        _fixture("queues/fixtures/runs/run.valid.yaml", "C2.RunRequested"),
+        False,
     ),
     Campo(
-        "C2.RunFailed.code", RUNS, puntero_de_mensaje(RUNS, "RunFailed"),
-        "code", PATRON_CODE,
-        _fixture("queues/fixtures/runs/failed.valid.yaml", "C2.RunFailed"), True,
+        "C2.RunFailed.code",
+        RUNS,
+        puntero_de_mensaje(RUNS, "RunFailed"),
+        "code",
+        PATRON_CODE,
+        _fixture("queues/fixtures/runs/failed.valid.yaml", "C2.RunFailed"),
+        True,
     ),
     Campo(
-        "C3.RunResult.schema_version", RESULTS, puntero_de_mensaje(RESULTS, "RunResult"),
-        "schema_version", r"^2\.[0-9]+\.[0-9]+$",
-        _fixture("queues/fixtures/results/result.valid.yaml", "C3.RunResult"), False,
+        "C3.RunResult.schema_version",
+        RESULTS,
+        puntero_de_mensaje(RESULTS, "RunResult"),
+        "schema_version",
+        r"^2\.[0-9]+\.[0-9]+$",
+        _fixture("queues/fixtures/results/result.valid.yaml", "C3.RunResult"),
+        False,
     ),
     Campo(
-        "C3.ResultFailed.code", RESULTS, puntero_de_mensaje(RESULTS, "ResultFailed"),
-        "code", PATRON_CODE,
-        _fixture("queues/fixtures/results/failed.valid.yaml", "C3.ResultFailed"), True,
+        "C3.ResultFailed.code",
+        RESULTS,
+        puntero_de_mensaje(RESULTS, "ResultFailed"),
+        "code",
+        PATRON_CODE,
+        _fixture("queues/fixtures/results/failed.valid.yaml", "C3.ResultFailed"),
+        True,
     ),
     Campo(
-        "C5.AudioToTranscribe.schema_version", SPEECH, puntero_de_mensaje(SPEECH, "AudioToTranscribe"),
-        "schema_version", r"^1\.[0-9]+\.[0-9]+$",
-        _fixture("queues/fixtures/speech/audio.valid.yaml", "C5.AudioToTranscribe"), False,
+        "C5.AudioToTranscribe.schema_version",
+        SPEECH,
+        puntero_de_mensaje(SPEECH, "AudioToTranscribe"),
+        "schema_version",
+        r"^1\.[0-9]+\.[0-9]+$",
+        _fixture("queues/fixtures/speech/audio.valid.yaml", "C5.AudioToTranscribe"),
+        False,
     ),
     Campo(
-        "C5.TranscriptResult.schema_version", SPEECH, puntero_de_mensaje(SPEECH, "TranscriptResult"),
-        "schema_version", r"^1\.[0-9]+\.[0-9]+$",
-        _fixture("queues/fixtures/speech/transcript.valid.yaml", "C5.TranscriptResult"), False,
+        "C5.TranscriptResult.schema_version",
+        SPEECH,
+        puntero_de_mensaje(SPEECH, "TranscriptResult"),
+        "schema_version",
+        r"^1\.[0-9]+\.[0-9]+$",
+        _fixture("queues/fixtures/speech/transcript.valid.yaml", "C5.TranscriptResult"),
+        False,
     ),
     Campo(
-        "C5.AudioFailed.code", SPEECH, puntero_de_mensaje(SPEECH, "AudioFailed"),
-        "code", PATRON_CODE,
-        _fixture("queues/fixtures/speech/failed.valid.yaml", "C5.AudioFailed"), True,
+        "C5.AudioFailed.code",
+        SPEECH,
+        puntero_de_mensaje(SPEECH, "AudioFailed"),
+        "code",
+        PATRON_CODE,
+        _fixture("queues/fixtures/speech/failed.valid.yaml", "C5.AudioFailed"),
+        True,
     ),
     Campo(
-        "C18.analyzer_version", EFECTIVA, "",
-        "analyzer_version", r"^[0-9]+\.[0-9]+\.[0-9]+$",
-        _fixture("profiles/fixtures/effective-config.valid.json", "C18.effective-config"), False,
+        "C18.analyzer_version",
+        EFECTIVA,
+        "",
+        "analyzer_version",
+        r"^[0-9]+\.[0-9]+\.[0-9]+$",
+        _fixture("profiles/fixtures/effective-config.valid.json", "C18.effective-config"),
+        False,
     ),
     Campo(
-        "C21.schema_version", PROXY, puntero_de_cuerpo("/v1/generate", "post"),
-        "schema_version", r"^1\.[0-9]+\.[0-9]+$",
-        _fixture("api/fixtures/anonymizer-proxy/request.valid.yaml", "C21.request"), False,
+        "C21.schema_version",
+        PROXY,
+        puntero_de_cuerpo("/v1/generate", "post"),
+        "schema_version",
+        r"^1\.[0-9]+\.[0-9]+$",
+        _fixture("api/fixtures/anonymizer-proxy/request.valid.yaml", "C21.request"),
+        False,
     ),
     Campo(
-        "voz.template_version", VOZ, puntero_de_cuerpo("/internal/v1/speech", "post"),
-        "template_version", r"^[0-9]+\.[0-9]+\.[0-9]+$",
-        _cuerpo_de_voz, False,
+        "voz.template_version",
+        VOZ,
+        puntero_de_cuerpo("/internal/v1/speech", "post"),
+        "template_version",
+        r"^[0-9]+\.[0-9]+\.[0-9]+$",
+        _cuerpo_de_voz,
+        False,
     ),
     Campo(
-        "voz.422.code", VOZ, PUNTERO_422,
-        "code", PATRON_CODE,
-        _problema_422, True,
+        "voz.422.code",
+        VOZ,
+        PUNTERO_422,
+        "code",
+        PATRON_CODE,
+        _problema_422,
+        True,
     ),
 ]
 IDS = [c.id for c in CAMPOS]
@@ -149,7 +195,9 @@ def comprobar_forma(documento: Any, campo: Campo) -> list[str]:
     if esquema.get("x-veridicus-limit") != MARCA:
         problemas.append(f"{campo.id}: x-veridicus-limit {esquema.get('x-veridicus-limit')!r}")
     if esquema.get("pattern") != campo.patron:
-        problemas.append(f"{campo.id}: pattern {esquema.get('pattern')!r} en vez de {campo.patron!r}")
+        problemas.append(
+            f"{campo.id}: pattern {esquema.get('pattern')!r} en vez de {campo.patron!r}"
+        )
     return problemas
 
 

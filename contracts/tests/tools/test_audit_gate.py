@@ -44,7 +44,10 @@ VULN_SIN_CORRECCION = {"id": "PYSEC-0000-0002", "fix_versions": [], "aliases": [
 
 
 def ejecutar(
-    capsys: pytest.CaptureFixture[str], tmp_path: Path, vulns: list[dict[str, Any]], texto: str = VACIA
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    vulns: list[dict[str, Any]],
+    texto: str = VACIA,
 ) -> tuple[int, str]:
     herramientas = herramienta()
     codigo = herramientas.main(
@@ -54,9 +57,7 @@ def ejecutar(
     return codigo, capturado.out + capturado.err
 
 
-def test_sin_vulnerabilidades_es_verde(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
+def test_sin_vulnerabilidades_es_verde(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     codigo, _ = ejecutar(capsys, tmp_path, [])
     assert codigo == 0
 
@@ -93,7 +94,9 @@ def test_una_excepcion_vigente_deja_pasar_la_vulnerabilidad_por_id_o_por_alias(
 def test_una_excepcion_vencida_es_roja_aunque_no_haya_vulnerabilidades(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    texto = f"excepciones:\n  - id: PYSEC-0000-0001\n    motivo: sintetico\n    caduca: '{VENCIDA}'\n"
+    texto = (
+        f"excepciones:\n  - id: PYSEC-0000-0001\n    motivo: sintetico\n    caduca: '{VENCIDA}'\n"
+    )
     codigo, salida = ejecutar(capsys, tmp_path, [VULN_CON_CORRECCION], texto)
     assert codigo == 1
     assert "PYSEC-0000-0001" in salida

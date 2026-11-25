@@ -92,7 +92,9 @@ def comprobar_sesion(c1: Any) -> list[str]:
     op = c1["paths"]["/sessions"]["post"]
     if op["requestBody"].get("x-veridicus-max-bytes") != "session_body_max_bytes":
         problemas.append("requestBody sin x-veridicus-max-bytes: session_body_max_bytes")
-    perfil = op["requestBody"]["content"]["application/json"]["schema"]["properties"]["profile_name"]
+    perfil = op["requestBody"]["content"]["application/json"]["schema"]["properties"][
+        "profile_name"
+    ]
     if perfil.get("pattern") != "^[a-z0-9-]{1,48}$":
         problemas.append(f"profile_name sin el patron de /sessions/import: {perfil!r}")
     if "413" not in op["responses"]:
@@ -168,7 +170,10 @@ def test_c1_control_negativo_un_code_en_el_estado_equivocado_se_detecta() -> Non
     assert comprobar_estados(mal_patch)
     mal_ack = _copia(C1)
     ack = mal_ack["paths"]["/acknowledgements"]["post"]["responses"]
-    ack["409"] = {"$ref": "#/components/responses/Problem", "description": "ethics.text_version_outdated"}
+    ack["409"] = {
+        "$ref": "#/components/responses/Problem",
+        "description": "ethics.text_version_outdated",
+    }
     assert comprobar_estados(mal_ack)
 
 

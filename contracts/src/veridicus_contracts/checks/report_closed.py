@@ -58,7 +58,9 @@ _CLASE = re.compile(r"\[((?:\\.|[^\]\\])*)\]")
 _CUANTIFICADOR = re.compile(r"\{[0-9]{1,3}(,[0-9]{0,3})?\}")
 
 
-def _recorrer(nodo: Any, sitio: str = "$", clave: str | None = None) -> Iterator[tuple[str, str | None, Any]]:
+def _recorrer(
+    nodo: Any, sitio: str = "$", clave: str | None = None
+) -> Iterator[tuple[str, str | None, Any]]:
     """Recorre un documento en profundidad: (ruta, clave del padre, valor)."""
     yield sitio, clave, nodo
     if isinstance(nodo, dict):
@@ -115,7 +117,9 @@ def _problemas_de_numero(
         and piso <= minimo <= maximo <= tope
     ):
         return []
-    return [f"NFR1.4 {rotulo}: {'entero' if es_entero else 'número'} sin minimum o maximum acotados"]
+    return [
+        f"NFR1.4 {rotulo}: {'entero' if es_entero else 'número'} sin minimum o maximum acotados"
+    ]
 
 
 def _fragmento_admite_espacio(fragmento: str) -> bool:
@@ -181,7 +185,10 @@ def _en_la_gramatica_blanca(patron: str) -> bool:
     while posicion < len(cuerpo):
         letra = cuerpo[posicion]
         if letra == "(":
-            if cuerpo[posicion + 1 : posicion + 2] == "?" and cuerpo[posicion + 2 : posicion + 3] != ":":
+            if (
+                cuerpo[posicion + 1 : posicion + 2] == "?"
+                and cuerpo[posicion + 2 : posicion + 3] != ":"
+            ):
                 return False
             grupos.append(False)
             posicion += 1
@@ -401,7 +408,7 @@ def _solo_enteros(raiz: Any, nodo: Any, sitio: str) -> list[str]:
         return [f"BR10.1 {sitio}: clarifications solo admite enteros"]
     problemas: list[str] = []
     propiedades = nodo.get("properties")
-    for nombre, hijo in (propiedades.items() if isinstance(propiedades, Mapping) else ()):
+    for nombre, hijo in propiedades.items() if isinstance(propiedades, Mapping) else ():
         problemas.extend(_solo_enteros(raiz, hijo, f"{sitio}.properties.{nombre}"))
     adicionales = nodo.get("additionalProperties")
     if isinstance(adicionales, Mapping):
@@ -463,9 +470,7 @@ def _problemas_de_fixtures(fixtures: Mapping[str, Any]) -> list[str]:
     return problemas
 
 
-def comprobar_documentos(
-    reporte: Any, llamada: Any, fixtures: Mapping[str, Any]
-) -> list[str]:
+def comprobar_documentos(reporte: Any, llamada: Any, fixtures: Mapping[str, Any]) -> list[str]:
     """Problemas de C19, de `model-call.v1` y de los *fixtures* negativos; vacío si todo está."""
     return [
         *_problemas_de_forma(reporte, "", True),

@@ -106,7 +106,9 @@ def resumen_de_esquema(raiz: Any, esquema: Any) -> dict[str, Any]:
     }
 
 
-def _requisitos_de_seguridad(documento: Any, operacion: dict[str, Any]) -> list[dict[str, list[str]]]:
+def _requisitos_de_seguridad(
+    documento: Any, operacion: dict[str, Any]
+) -> list[dict[str, list[str]]]:
     """Los requisitos de seguridad efectivos como lista de alternativas (los de la operación o los globales).
 
     Cada alternativa es `{esquema: [scopes]}` con los scopes ordenados: `{}` es la alternativa anónima
@@ -174,17 +176,21 @@ def _cookie(documento: Any) -> dict[str, Any]:
 
 def _servidores(documento: Any) -> list[dict[str, Any]]:
     lista = objeto(documento).get("servers")
-    servidores = [
-        {
-            "url": servidor.get("url"),
-            "variables": {
-                str(nombre): objeto(variable).get("default")
-                for nombre, variable in objeto(servidor.get("variables")).items()
-            },
-        }
-        for servidor in lista
-        if isinstance(servidor, dict)
-    ] if isinstance(lista, list) else []
+    servidores = (
+        [
+            {
+                "url": servidor.get("url"),
+                "variables": {
+                    str(nombre): objeto(variable).get("default")
+                    for nombre, variable in objeto(servidor.get("variables")).items()
+                },
+            }
+            for servidor in lista
+            if isinstance(servidor, dict)
+        ]
+        if isinstance(lista, list)
+        else []
+    )
     return sorted(servidores, key=lambda s: str(s["url"]))
 
 
@@ -201,7 +207,9 @@ def _limites(catalogo: Any) -> dict[str, Any]:
             for nombre, entrada in limites.items()
         },
         "relations": sorted(
-            (list(r) for r in relaciones if isinstance(r, list)) if isinstance(relaciones, list) else [],
+            (list(r) for r in relaciones if isinstance(r, list))
+            if isinstance(relaciones, list)
+            else [],
             key=lambda r: [str(x) for x in r],
         ),
     }
@@ -252,9 +260,7 @@ def construir(raiz: Path, sustituciones: Mapping[str, Any] | None = None) -> dic
         f"metrics/{archivo.name}": _leer(raiz, f"metrics/{archivo.name}", cambios)
         for archivo in sorted(carpeta_metricas.glob("*.yaml"))
     }
-    integridad = {
-        nombre: sha256_jcs(_leer(raiz, ruta, cambios)) for nombre, ruta in INTEGRIDAD
-    }
+    integridad = {nombre: sha256_jcs(_leer(raiz, ruta, cambios)) for nombre, ruta in INTEGRIDAD}
     integridad["limits"] = sha256_jcs(catalogo)
     integridad["analyzer_v1_sha256sums"] = hashlib.sha256(
         (raiz / SHA256SUMS_C6).read_bytes()
@@ -293,7 +299,9 @@ def main(argumentos: Sequence[str] | None = None) -> int:
     modo.add_argument("--write", action="store_true", help="escribe el archivo; la CI nunca lo usa")
     analizador.add_argument("--root", type=Path, default=None, help="carpeta contracts/")
     analizador.add_argument("--output", type=Path, default=None, help="archivo de la huella")
-    argumentos_leidos = analizador.parse_args(list(sys.argv[1:] if argumentos is None else argumentos))
+    argumentos_leidos = analizador.parse_args(
+        list(sys.argv[1:] if argumentos is None else argumentos)
+    )
     raiz = argumentos_leidos.root or _raiz_de_contracts()
     destino: Path = argumentos_leidos.output or raiz / SALIDA
     try:

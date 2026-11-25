@@ -197,7 +197,9 @@ def test_una_cadena_de_model_call_no_exige_la_marca_pero_si_el_tope() -> None:
 
 def test_un_valor_de_enum_o_const_con_espacios_o_demasiado_largo_queda_en_rojo() -> None:
     reporte, llamada, fixtures = _documentos()
-    esperado = ["BR10.1 $.properties.kind: un valor de enum o const lleva espacios o pasa de 128 caracteres"]
+    esperado = [
+        "BR10.1 $.properties.kind: un valor de enum o const lleva espacios o pasa de 128 caracteres"
+    ]
     reporte["properties"]["kind"] = {"enum": ["run", "una frase"]}
     assert _problemas(reporte, llamada, fixtures) == esperado
     reporte["properties"]["kind"] = {"enum": ["run", "x" * 129]}
@@ -328,9 +330,7 @@ def test_un_entero_sin_tope_valido_queda_en_rojo(cambio: Any) -> None:
     reporte, llamada, fixtures = _documentos()
     sitio = _sitio_del_entero(reporte)
     cambio(_entero(reporte))
-    assert _problemas(reporte, llamada, fixtures) == [
-        _SIN_TOPE.format(sitio=sitio, tipo="entero")
-    ]
+    assert _problemas(reporte, llamada, fixtures) == [_SIN_TOPE.format(sitio=sitio, tipo="entero")]
 
 
 def test_un_entero_en_el_limite_exacto_pasa() -> None:
@@ -549,7 +549,9 @@ def test_clarifications_debe_existir_ser_objeto_y_ser_opcional() -> None:
 def test_un_fixture_negativo_ausente_queda_en_rojo(nombre: str) -> None:
     reporte, llamada, fixtures = _documentos()
     del fixtures[nombre]
-    assert _problemas(reporte, llamada, fixtures) == [f"E28/E29: falta el fixture negativo {nombre}"]
+    assert _problemas(reporte, llamada, fixtures) == [
+        f"E28/E29: falta el fixture negativo {nombre}"
+    ]
 
 
 @pytest.mark.parametrize("nombre", sorted(FIXTURES_NEGATIVOS))
@@ -615,7 +617,9 @@ def test_comprobar_ve_un_fixture_sembrado_en_el_archivo(tmp_path: Path) -> None:
     ]
 
 
-def test_comprobar_informa_de_los_archivos_ausentes_ilegibles_o_mal_formados(tmp_path: Path) -> None:
+def test_comprobar_informa_de_los_archivos_ausentes_ilegibles_o_mal_formados(
+    tmp_path: Path,
+) -> None:
     assert comprobar(tmp_path)[0].startswith("C19 ilegible o ausente")
     raiz = _copiar_raiz(tmp_path / "a")
     (raiz / C19).write_text("[1, 2", encoding="utf-8")
@@ -628,7 +632,9 @@ def test_comprobar_informa_de_los_archivos_ausentes_ilegibles_o_mal_formados(tmp
     (raiz / MODELO_DE_LLAMADA).write_text("[]", encoding="utf-8")
     assert comprobar(raiz) == ["model-call.v1 no es un objeto JSON"]
     raiz = _copiar_raiz(tmp_path / "c")
-    (raiz / DIRECTORIO_DE_FIXTURES / "report.role-prueba-a.json").write_text("{: roto", encoding="utf-8")
+    (raiz / DIRECTORIO_DE_FIXTURES / "report.role-prueba-a.json").write_text(
+        "{: roto", encoding="utf-8"
+    )
     assert comprobar(raiz) == [
         "E28/E29: el fixture report.role-prueba-a.json no es un fixture con payload"
     ]
@@ -971,11 +977,21 @@ def test_metrics_lleva_valor_por_corrida_agregado_umbral_y_passes() -> None:
     carga = _carga(
         kind="evaluation",
         metrics={
-            "precision": {"per_run": [0.9, 0.8, 1.0], "aggregate": 0.9, "threshold": 0.8, "passes": True},
+            "precision": {
+                "per_run": [0.9, 0.8, 1.0],
+                "aggregate": 0.9,
+                "threshold": 0.8,
+                "passes": True,
+            },
             "three_run_agreement": {"aggregate": 0.7},
             "scenario_a_difference": {"aggregate": 0.1, "threshold": 0.3, "passes": True},
             "scenario_a_marker_hits": {"aggregate": 0, "threshold": 0, "passes": True},
-            "anonymizer_leaks": {"per_run": [0, 0, 0], "aggregate": 0, "threshold": 0, "passes": True},
+            "anonymizer_leaks": {
+                "per_run": [0, 0, 0],
+                "aggregate": 0,
+                "threshold": 0,
+                "passes": True,
+            },
         },
     )
     assert _rechazos(carga) == []
@@ -1015,7 +1031,9 @@ def test_las_tres_metricas_sin_corridas_no_llevan_per_run(metrica: str) -> None:
 
 def test_los_conjuntos_de_metricas_cubren_las_doce() -> None:
     reporte, _, _ = _documentos()
-    assert set(SIN_CORRIDAS) | set(CON_CORRIDAS) == set(reporte["properties"]["metrics"]["properties"])
+    assert set(SIN_CORRIDAS) | set(CON_CORRIDAS) == set(
+        reporte["properties"]["metrics"]["properties"]
+    )
     assert not set(SIN_CORRIDAS) & set(CON_CORRIDAS)
 
 
@@ -1070,7 +1088,8 @@ def test_profile_name_usa_el_patron_de_c18(perfil: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "fecha", ["ayer", "2026-11-23 15:00:00Z", "2026-11-23T15:00:00", "2026-11-23T15:00:00 Z", "2026-11-23"]
+    "fecha",
+    ["ayer", "2026-11-23 15:00:00Z", "2026-11-23T15:00:00", "2026-11-23T15:00:00 Z", "2026-11-23"],
 )
 def test_created_at_rechaza_lo_que_no_es_rfc3339_aun_sin_validar_formatos(fecha: str) -> None:
     """Solo con el patrón del esquema: un validador sin formatos (ajv sin ajv-formats) no lo abre."""
@@ -1119,13 +1138,27 @@ def test_distance_sensitivity_solo_admite_los_tres_tramos() -> None:
     tramo = reporte["properties"]["distance_sensitivity"]["items"]["properties"]["range"]
     assert tramo["enum"] == TRAMOS
     for nombre in TRAMOS:
-        assert _rechazos(_carga(distance_sensitivity=[{"range": nombre, "expected": 2, "found": 1}])) == []
-    assert _rechazos(_carga(distance_sensitivity=[{"range": "rocamora", "expected": 2, "found": 1}])) != []
+        assert (
+            _rechazos(_carga(distance_sensitivity=[{"range": nombre, "expected": 2, "found": 1}]))
+            == []
+        )
+    assert (
+        _rechazos(_carga(distance_sensitivity=[{"range": "rocamora", "expected": 2, "found": 1}]))
+        != []
+    )
 
 
 @pytest.mark.parametrize(
     "conjunto",
-    ["fecha", "fecha__", "__persona", "fecha_persona", "Fecha__persona", "a b__c", "x" * 24 + "__persona"],
+    [
+        "fecha",
+        "fecha__",
+        "__persona",
+        "fecha_persona",
+        "Fecha__persona",
+        "a b__c",
+        "x" * 24 + "__persona",
+    ],
 )
 def test_synthetic_set_es_tipo_hecho_doble_guion_bajo_perfil_persona(conjunto: str) -> None:
     fila = {"fact_type": "fecha", "synthetic_set": conjunto, "expected": 1, "found": 1}
@@ -1156,7 +1189,9 @@ def _con_patron(patron: str) -> list[str]:
         ("^a　$", "　", ESPACIOS),
     ],
 )
-def test_los_ocho_rodeos_de_un_espacio_quedan_en_rojo(patron: str, espacio: str, mensaje: str) -> None:
+def test_los_ocho_rodeos_de_un_espacio_quedan_en_rojo(
+    patron: str, espacio: str, mensaje: str
+) -> None:
     """G-01: cada uno acepta de verdad un texto con espacio en blanco y la guardia lo ve."""
     assert re.fullmatch(patron, "a" + espacio) is not None
     assert espacio.isspace()
@@ -1355,7 +1390,9 @@ def test_la_familia_de_cada_papel_y_la_del_generador_son_cerradas() -> None:
     completo = EVALUACION["role_families"]
     for familia in FAMILIAS:
         assert _rechazos(_carga(kind="evaluation", generator_family=familia)) == []
-        assert _rechazos(_carga(kind="evaluation", role_families={**completo, "judge": familia})) == []
+        assert (
+            _rechazos(_carga(kind="evaluation", role_families={**completo, "judge": familia})) == []
+        )
     assert _rechazos(_carga(kind="evaluation", generator_family="meta")) != []
     assert _rechazos(_carga(kind="evaluation", role_families={**completo, "judge": "meta"})) != []
     assert _rechazos(_carga(kind="evaluation", role_families={**completo, "extra": "openai"})) != []
@@ -1430,7 +1467,9 @@ def test_un_ancla_repetida_queda_en_rojo(patron: str) -> None:
 # --- Ronda 4, AMARILLO: compilar y ReDoS ----------------------------------------------------------
 
 
-@pytest.mark.parametrize("patron", ["^(a$", "^a)$", "^*a$", "^a{2}{3}$", "^a**$", "^a+*$", "^(*a)$"])
+@pytest.mark.parametrize(
+    "patron", ["^(a$", "^a)$", "^*a$", "^a{2}{3}$", "^a**$", "^a+*$", "^(*a)$"]
+)
 def test_un_patron_que_no_compila_queda_en_rojo(patron: str) -> None:
     assert _con_patron(patron) == [CONSTRUCCIONES], patron
     with pytest.raises(re.error):
@@ -1446,7 +1485,8 @@ def test_un_cuantificador_sobre_un_grupo_que_ya_cuantifica_queda_en_rojo(patron:
 
 
 @pytest.mark.parametrize(
-    "patron", ["^(a+)?$", "^(a|b)+$", "^(a+)(b+)$", "^((a+)b)?$", "^(ab)*$", "^((a|b)c)+$", "^(a+|b)?$"]
+    "patron",
+    ["^(a+)?$", "^(a|b)+$", "^(a+)(b+)$", "^((a+)b)?$", "^(ab)*$", "^((a|b)c)+$", "^(a+|b)?$"],
 )
 def test_un_cuantificador_sobre_un_grupo_sin_cuantificadores_pasa(patron: str) -> None:
     assert _con_patron(patron) == [], patron
@@ -1469,7 +1509,9 @@ def test_un_cuantificador_sobre_un_grupo_sin_cuantificadores_pasa(patron: str) -
         {"oneOf": "no es una lista"},
     ],
 )
-def test_un_nodo_cuya_unica_restriccion_es_una_composicion_abierta_queda_en_rojo(libre: Any) -> None:
+def test_un_nodo_cuya_unica_restriccion_es_una_composicion_abierta_queda_en_rojo(
+    libre: Any,
+) -> None:
     reporte, llamada, fixtures = _documentos()
     reporte["properties"]["libre"] = libre
     assert _problemas(reporte, llamada, fixtures) == [
@@ -1494,7 +1536,9 @@ def test_una_composicion_que_cierra_el_nodo_pasa(libre: Any) -> None:
     assert _problemas(reporte, llamada, fixtures) == []
 
 
-@pytest.mark.parametrize("abierto", [{"allOf": [True]}, {"allOf": [{}]}, {"allOf": [{"minimum": 0}]}])
+@pytest.mark.parametrize(
+    "abierto", [{"allOf": [True]}, {"allOf": [{}]}, {"allOf": [{"minimum": 0}]}]
+)
 def test_items_con_una_composicion_abierta_queda_en_rojo(abierto: Any) -> None:
     reporte, llamada, fixtures = _documentos()
     reporte["properties"]["distance_sensitivity"]["items"] = abierto
@@ -1575,7 +1619,9 @@ def test_las_metricas_del_escenario_a_estan_prohibidas_sin_adversarial_verdadero
 
 
 @pytest.mark.parametrize("metrica", ["scenario_a_marker_hits", "scenario_a_difference"])
-def test_las_metricas_del_escenario_a_son_obligatorias_con_adversarial_verdadero(metrica: str) -> None:
+def test_las_metricas_del_escenario_a_son_obligatorias_con_adversarial_verdadero(
+    metrica: str,
+) -> None:
     carga = _carga(kind="evaluation", adversarial=True)
     assert _rechazos(carga) == []
     assert {"scenario_a_marker_hits", "scenario_a_difference"} <= set(carga["metrics"])

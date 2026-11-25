@@ -18,7 +18,14 @@ payload:
   hallazgos: []
   registro:
     llamadas:
-      - {papel: juez, proveedor: anthropic, modelo: modelo-comercial-prueba, tokens_entrada: 900, tokens_salida: 0, proveedor_alterno: false, anonimizado: false, fecha: "2026-11-23T14:59:50Z"}
+      - papel: juez
+        proveedor: anthropic
+        modelo: modelo-comercial-prueba
+        tokens_entrada: 900
+        tokens_salida: 0
+        proveedor_alterno: false
+        anonimizado: false
+        fecha: "2026-11-23T14:59:50Z"
     descartes: []
     fragmentado: {activo: false}
     tokens_entrada: 900

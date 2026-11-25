@@ -158,7 +158,7 @@ qué *workflow* los corre: `contracts-level0.yml` (jobs `contracts-level0` y `er
 | `V-SUITE` | `timeout 60 uv run --frozen --offline --directory contracts pytest` | Verde, 60 s como máximo, 80 % de líneas como mínimo | contracts-level0.yml |
 | `V-GUARD` | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,src/veridicus_contracts/profiles.py,src/veridicus_contracts/limits.py,src/veridicus_contracts/canonical.py,src/veridicus_contracts/registry.py" --fail-under=100` | 100 % de ramas | contracts-level0.yml |
 | `V-TYPES` | `uv run --frozen --offline --directory contracts mypy --strict src` | 0 errores | contracts-level0.yml |
-| `V-LINT` | `uv run --frozen --offline --directory contracts ruff check .` | 0 hallazgos | contracts-level0.yml |
+| `V-LINT` | `uv run --frozen --offline --directory contracts ruff check .` y `uv run --frozen --offline --directory contracts ruff format --check .` | 0 hallazgos; todos los archivos ya formateados | contracts-level0.yml |
 | `V-AUDIT` | `uv run --frozen --directory contracts pip-audit --format json --output build/pip-audit.json` (con red) y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.audit_gate build/pip-audit.json --ignore .pip-audit-ignore.yaml` | 0 vulnerabilidades con versión corregida fuera de excepciones vigentes | contracts-level0.yml |
 | `V-GEN` | `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check` y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_jcs_vectors --check` | Sin diferencias | contracts-level0.yml |
 | `V-SURFACE` | `timeout 60 uv run --frozen --offline --directory contracts pytest tests/tools/test_security_surface.py --no-cov` | Huella regenerada igual al archivo versionado | la suite (`V-SUITE`) |
@@ -167,6 +167,8 @@ qué *workflow* los corre: `contracts-level0.yml` (jobs `contracts-level0` y `er
 | `V-PKG` | `timeout 180 uv run --frozen --directory contracts python -m veridicus_contracts.tools.check_package` | Verde, 180 s como máximo | contracts-level0.yml |
 | `V-ERRORS` | `uv sync --frozen --directory libs/errors` (con red); `timeout 60 uv run --frozen --offline --directory libs/errors pytest`; `uv run --frozen --offline --directory libs/errors mypy --strict src`; `uv run --frozen --offline --directory libs/errors ruff check .` | Verde, 80 % de líneas como mínimo; 0 errores; 0 hallazgos | contracts-level0.yml (job `errors-level0`) |
 | `V-YAML` | `uv run --frozen --offline --directory contracts yamllint -s ../.github/workflows/contracts-level0.yml ../.pre-commit-config.yaml` | Código 0 | repo-level0.yml (corre `yamllint -s .github/`, no este comando literal, que además incluye `.pre-commit-config.yaml`, y el *workflow* no lo valida) |
+
+Los YAML de `contracts/` los valida `contracts-level0.yml` (paso 6d) con `uv run --frozen --offline --project contracts yamllint -s -c .yamllint.yaml contracts/`, desde la raíz del repositorio; `.yamllint.yaml` deja fuera `.venv/`, `contracts/build/` y `node_modules/`.
 
 La etiqueta de la entrega se comprueba con `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.check_tag`
 (imprime la etiqueta esperada) y, con `--tag ETIQUETA`, sale con 0 solo si es exactamente esa. El *workflow*

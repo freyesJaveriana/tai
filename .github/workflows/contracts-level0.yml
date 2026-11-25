@@ -83,6 +83,14 @@ jobs:
       - name: Paso 6b - Lint de Python
         run: uv run --frozen --offline --directory contracts ruff check .
 
+      - name: Paso 6c - Formato de Python (K-61)
+        run: uv run --frozen --offline --directory contracts ruff format --check .
+
+      # yamllint 1.38.0 viene del lockfile de contracts: no añade red. --project (y no --directory)
+      # mantiene la raíz del repositorio como directorio de trabajo, donde vive .yamllint.yaml.
+      - name: Paso 6d - YAML de contracts (K-71)
+        run: uv run --frozen --offline --project contracts yamllint -s -c .yamllint.yaml contracts/
+
       - name: Paso 7a - Tipos y constantes de TypeScript al día
         run: uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check
 

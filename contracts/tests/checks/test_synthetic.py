@@ -45,7 +45,9 @@ def _escribir(raiz: Path, nombre: str, documento: Any) -> Path:
     return ruta
 
 
-def _problemas(guardia: ModuleType, raiz: Path, documento: Any, nombre: str = "f/x.json") -> list[str]:
+def _problemas(
+    guardia: ModuleType, raiz: Path, documento: Any, nombre: str = "f/x.json"
+) -> list[str]:
     archivo = _escribir(raiz, nombre, documento)
     problemas: list[str] = guardia.scan([archivo], catalogo=CATALOGO)
     for problema in problemas:
@@ -54,7 +56,9 @@ def _problemas(guardia: ModuleType, raiz: Path, documento: Any, nombre: str = "f
     return problemas
 
 
-def test_los_archivos_reales_de_contracts_son_sinteticos_y_sin_numeros_largos(guardia: ModuleType) -> None:
+def test_los_archivos_reales_de_contracts_son_sinteticos_y_sin_numeros_largos(
+    guardia: ModuleType,
+) -> None:
     archivos = guardia.archivos([CONTRACTS_ROOT])
     assert len(archivos) > 50, "la guardia no pasa en vacío"
     nombres = {a.name for a in archivos}
@@ -68,7 +72,9 @@ def test_un_fixture_valido_pasa(guardia: ModuleType, tmp_path: Path) -> None:
     assert _problemas(guardia, tmp_path, _fixture()) == []
     rechazo = _fixture(expectation="reject", reject_reason="BR3.1")
     assert _problemas(guardia, tmp_path, rechazo) == []
-    assert _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"texto": "sin nombres"})) == []
+    assert (
+        _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"texto": "sin nombres"})) == []
+    )
 
 
 @pytest.mark.parametrize(
@@ -87,10 +93,14 @@ def test_un_fixture_valido_pasa(guardia: ModuleType, tmp_path: Path) -> None:
         ({"mentions": ["Puerto Altamira"]}, "mención que no aparece en el texto"),
     ],
 )
-def test_formato_de_fixture_de_4_10(guardia: ModuleType, tmp_path: Path, cambios: dict[str, Any], texto: str) -> None:
+def test_formato_de_fixture_de_4_10(
+    guardia: ModuleType, tmp_path: Path, cambios: dict[str, Any], texto: str
+) -> None:
     problemas = _problemas(guardia, tmp_path, _fixture(**cambios))
     assert len(problemas) == 1 and texto in problemas[0], problemas
-    assert "Inventada" not in problemas[0] and "Altamira" not in problemas[0], "no repite la mención"
+    assert "Inventada" not in problemas[0] and "Altamira" not in problemas[0], (
+        "no repite la mención"
+    )
 
 
 def test_un_documento_con_payload_pero_sin_los_demas_campos_es_un_fixture_incompleto(
@@ -123,7 +133,9 @@ def test_un_documento_con_payload_pero_sin_los_demas_campos_es_un_fixture_incomp
         ("versión 1.0.0", False),
     ],
 )
-def test_secuencias_de_digitos(guardia: ModuleType, tmp_path: Path, texto: str, marcado: bool) -> None:
+def test_secuencias_de_digitos(
+    guardia: ModuleType, tmp_path: Path, texto: str, marcado: bool
+) -> None:
     problemas = _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"texto": texto}))
     assert bool(problemas) is marcado, (texto, problemas)
     if marcado:
@@ -133,8 +145,13 @@ def test_secuencias_de_digitos(guardia: ModuleType, tmp_path: Path, texto: str, 
         assert not any(c.isdigit() for c in sin_regla.split("#", 1)[1]), "no repite el valor"
 
 
-def test_la_secuencia_se_busca_en_cada_campo_de_texto_anidado(guardia: ModuleType, tmp_path: Path) -> None:
-    carga = {"turnos": [{"n": 1, "texto": "sin números"}, {"n": 2, "texto": "llame al 12345678"}], "n": 12345678}
+def test_la_secuencia_se_busca_en_cada_campo_de_texto_anidado(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    carga = {
+        "turnos": [{"n": 1, "texto": "sin números"}, {"n": 2, "texto": "llame al 12345678"}],
+        "n": 12345678,
+    }
     problemas = _problemas(guardia, tmp_path, _fixture(mentions=[], payload=carga))
     assert len(problemas) == 1 and "#/payload/turnos/1/texto" in problemas[0]
 
@@ -150,7 +167,12 @@ def test_k04_se_eximen_uuid_huellas_y_fechas_completas(guardia: ModuleType, tmp_
     }
     assert _problemas(guardia, tmp_path, _fixture(mentions=[], payload=carga)) == []
     # La exención es por forma completa: una frase con la fecha, o una huella con un carácter de más, no.
-    for malo in ("nació el 2026-11-20", HUELLA + "0", UUID.replace("123e", "1234567e"), "2026-11-20T10:00:00Zx"):
+    for malo in (
+        "nació el 2026-11-20",
+        HUELLA + "0",
+        UUID.replace("123e", "1234567e"),
+        "2026-11-20T10:00:00Zx",
+    ):
         problemas = _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"v": malo}))
         assert len(problemas) == 1, malo
 
@@ -179,7 +201,15 @@ def test_f03_una_fecha_imposible_o_una_fraccion_larga_no_se_exime(
 
 @pytest.mark.parametrize(
     "texto",
-    ["2026-11", "2026-12", "2026-11-24", "2024-02-29", "2026-11-24T10:00:00Z", "2026-11-24 10:00", "2026-11-24T10:00:00.123456+05:30"],
+    [
+        "2026-11",
+        "2026-12",
+        "2026-11-24",
+        "2024-02-29",
+        "2026-11-24T10:00:00Z",
+        "2026-11-24 10:00",
+        "2026-11-24T10:00:00.123456+05:30",
+    ],
 )
 def test_f03_las_fechas_validas_con_fraccion_acotada_se_eximen(
     guardia: ModuleType, tmp_path: Path, texto: str
@@ -187,7 +217,9 @@ def test_f03_las_fechas_validas_con_fraccion_acotada_se_eximen(
     assert _problemas(guardia, tmp_path, _fixture(mentions=[], payload={"v": texto})) == []
 
 
-def test_en_un_esquema_solo_se_revisan_los_example_y_no_la_prosa(guardia: ModuleType, tmp_path: Path) -> None:
+def test_en_un_esquema_solo_se_revisan_los_example_y_no_la_prosa(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     esquema = {
         "$id": "/veridicus/contracts/x/v1",
         "description": "Se acepta hasta 12345678 y 1234567 por RFC.",
@@ -206,8 +238,12 @@ def test_en_un_esquema_solo_se_revisan_los_example_y_no_la_prosa(guardia: Module
     ]
 
 
-def test_las_literal_sources_y_los_casos_de_aviso_estan_en_el_alcance(guardia: ModuleType, tmp_path: Path) -> None:
-    casos = {"cases": [{"id": "c", "text": "limpio", "literal_sources": ["Mi cédula es 12345678."]}]}
+def test_las_literal_sources_y_los_casos_de_aviso_estan_en_el_alcance(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
+    casos = {
+        "cases": [{"id": "c", "text": "limpio", "literal_sources": ["Mi cédula es 12345678."]}]
+    }
     problemas = _problemas(guardia, tmp_path, casos, "integrity/scan-cases.v1.yaml")
     assert len(problemas) == 1 and "#/cases/0/literal_sources/0" in problemas[0]
     aviso = {"cases": [{"id": "c", "note": "ok", "turns": ["no hay nada", "tel 123456"]}]}
@@ -217,18 +253,25 @@ def test_las_literal_sources_y_los_casos_de_aviso_estan_en_el_alcance(guardia: M
     real = (CONTRACTS_ROOT / "integrity" / "scan-cases.v1.yaml").read_text(encoding="utf-8")
     sembrado = tmp_path / "integrity" / "scan-cases.v1.yaml"
     sembrado.parent.mkdir(parents=True, exist_ok=True)
-    sembrado.write_text(real.replace("literal_sources: []", 'literal_sources: ["clave 12345678"]', 1), encoding="utf-8")
+    sembrado.write_text(
+        real.replace("literal_sources: []", 'literal_sources: ["clave 12345678"]', 1),
+        encoding="utf-8",
+    )
     assert len(guardia.scan([sembrado], catalogo=CATALOGO)) == 1
 
 
-def test_el_catalogo_ausente_o_ilegible_es_un_problema_unico(guardia: ModuleType, tmp_path: Path) -> None:
+def test_el_catalogo_ausente_o_ilegible_es_un_problema_unico(
+    guardia: ModuleType, tmp_path: Path
+) -> None:
     archivo = _escribir(tmp_path, "f/x.json", _fixture())
     ausente = guardia.scan([archivo], catalogo=tmp_path / "no-existe.yaml")
     assert len(ausente) == 2
     assert any("catálogo de nombres sintéticos" in p for p in ausente)
     roto = tmp_path / "roto.yaml"
     roto.write_text("a: 1\na: 2\n", encoding="utf-8")
-    assert any("catálogo de nombres sintéticos" in p for p in guardia.scan([archivo], catalogo=roto))
+    assert any(
+        "catálogo de nombres sintéticos" in p for p in guardia.scan([archivo], catalogo=roto)
+    )
     # Sin catálogo en la llamada, se usa el del repositorio.
     assert guardia.scan([archivo]) == []
 
@@ -237,7 +280,7 @@ def test_archivos_ilegibles_directorios_y_sufijos(guardia: ModuleType, tmp_path:
     (tmp_path / "d").mkdir()
     (tmp_path / "d" / "roto.yaml").write_text("a: 1\na: 2\n", encoding="utf-8")
     (tmp_path / "d" / "huella.sha256").write_text("12345678\n", encoding="utf-8")
-    (tmp_path / "d" / "lista.json").write_text("[12345678, \"no es objeto\"]", encoding="utf-8")
+    (tmp_path / "d" / "lista.json").write_text('[12345678, "no es objeto"]', encoding="utf-8")
     (tmp_path / "vendor").mkdir()
     (tmp_path / "vendor" / "ajeno.json").write_text('{"example": "12345678"}', encoding="utf-8")
     problemas = guardia.scan([tmp_path], catalogo=CATALOGO)
@@ -245,6 +288,6 @@ def test_archivos_ilegibles_directorios_y_sufijos(guardia: ModuleType, tmp_path:
     assert "ilegible" in problemas[0] and problemas[0].endswith("(NFR12.1)")
     assert sorted(a.name for a in guardia.archivos([tmp_path])) == ["lista.json", "roto.yaml"]
     # Un archivo dado de forma directa se mira solo si es YAML o JSON.
-    assert guardia.archivos([tmp_path / "d" / "huella.sha256", str(tmp_path / "d" / "lista.json")]) == [
-        tmp_path / "d" / "lista.json"
-    ]
+    assert guardia.archivos(
+        [tmp_path / "d" / "huella.sha256", str(tmp_path / "d" / "lista.json")]
+    ) == [tmp_path / "d" / "lista.json"]

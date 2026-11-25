@@ -13,7 +13,9 @@ def _pyproject(carpeta: Path, version: str) -> Path:
     return ruta
 
 
-def test_la_etiqueta_igual_a_la_esperada_pasa(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_la_etiqueta_igual_a_la_esperada_pasa(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     ruta = _pyproject(tmp_path, "1.2.3")
     assert main(["--pyproject", str(ruta), "--tag", "contracts-v1.2.3"]) == 0
     assert capsys.readouterr().err == ""
@@ -86,7 +88,9 @@ def test_una_opcion_repetida_sale_con_codigo_2(
     tmp_path: Path, argumentos: list[str], capsys: pytest.CaptureFixture[str]
 ) -> None:
     ruta = _pyproject(tmp_path, "1.2.3")
-    completos = argumentos if "--pyproject" in argumentos else ["--pyproject", str(ruta), *argumentos]
+    completos = (
+        argumentos if "--pyproject" in argumentos else ["--pyproject", str(ruta), *argumentos]
+    )
     assert main(completos) == 2
     assert "uso:" in capsys.readouterr().err
 

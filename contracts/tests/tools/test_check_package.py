@@ -82,7 +82,9 @@ def test_solo_transcript_se_acepta_con_solo_gitkeep_y_hace_falta_su_gitkeep(
     assert herramienta.DIRECTORIOS_RESERVADOS.keys() == {"transcript"}
     with pytest.raises(TypeError):  # F-07: la lista cerrada es inmutable
         herramienta.DIRECTORIOS_RESERVADOS["otro"] = "no se admite"
-    sin_gitkeep = [n for n in _rueda_completa(tabla) if n != "veridicus_contracts/transcript/.gitkeep"]
+    sin_gitkeep = [
+        n for n in _rueda_completa(tabla) if n != "veridicus_contracts/transcript/.gitkeep"
+    ]
     problemas = herramienta.comparar_rueda(sin_gitkeep, tabla)
     assert len(problemas) == 1, problemas
     assert "veridicus_contracts/transcript" in problemas[0]
@@ -172,7 +174,13 @@ def test_rueda_contaminada_con_un_fixture_forzado_falla_y_nombra_la_ruta(
         copia,
         symlinks=True,
         ignore=shutil.ignore_patterns(
-            ".venv", "__pycache__", ".*_cache", ".coverage", ".hypothesis", "build", "dist",
+            ".venv",
+            "__pycache__",
+            ".*_cache",
+            ".coverage",
+            ".hypothesis",
+            "build",
+            "dist",
             "node_modules",
         ),
     )

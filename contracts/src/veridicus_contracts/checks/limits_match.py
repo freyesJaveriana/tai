@@ -143,9 +143,13 @@ def _de_marca(catalogo: Mapping[str, Any], marca: Marca) -> Iterator[str]:
             if marca.nodo[palabra] != entrada.get("value"):
                 yield f"{donde}: valor distinto del catálogo C25 ({marca.nombre}, {REGLA} b)"
     else:
-        unidad, palabra = ("bytes", "x-veridicus-max-bytes") if marca.tipo == "bytes" else (
-            "s",
-            "x-veridicus-cookie",
+        unidad, palabra = (
+            ("bytes", "x-veridicus-max-bytes")
+            if marca.tipo == "bytes"
+            else (
+                "s",
+                "x-veridicus-cookie",
+            )
         )
         if entrada.get("unit") != unidad:
             yield _unidad(donde, marca.nombre, unidad, palabra)
@@ -302,9 +306,7 @@ def _textos_sin_marca(
             yield f"{archivo}: {puntero}: campo de texto sin x-veridicus-limit ({REGLA} a)"
 
 
-def _texto_de_cuerpos(
-    archivo: str, documento: Any, externos: Mapping[str, Any]
-) -> Iterator[str]:
+def _texto_de_cuerpos(archivo: str, documento: Any, externos: Mapping[str, Any]) -> Iterator[str]:
     for ruta, metodo, operacion in operaciones(documento):
         for medio, cuerpo, esquema in cuerpos(documento, operacion):
             base = f"/paths/{escapar(ruta)}/{metodo}/requestBody/content/{escapar(medio)}/schema"
@@ -315,9 +317,7 @@ def _texto_de_cuerpos(
             )
 
 
-def _texto_de_mensajes(
-    archivo: str, documento: Any, externos: Mapping[str, Any]
-) -> Iterator[str]:
+def _texto_de_mensajes(archivo: str, documento: Any, externos: Mapping[str, Any]) -> Iterator[str]:
     mensajes = objeto(objeto(objeto(documento).get("components")).get("messages"))
     for nombre, mensaje in mensajes.items():
         base = f"/components/messages/{escapar(nombre)}/payload"

@@ -40,7 +40,9 @@ def direcciones_declaradas(documento: Any) -> list[str]:
     direcciones: list[str] = []
     for servidor in servidores:  # OpenAPI 3.1: lista con `url` y `variables`
         direcciones.append(str(servidor.get("url", "")))
-        direcciones += [str(v.get("default", "")) for v in (servidor.get("variables") or {}).values()]
+        direcciones += [
+            str(v.get("default", "")) for v in (servidor.get("variables") or {}).values()
+        ]
     return direcciones
 
 
@@ -81,7 +83,9 @@ def test_anonymizing_provider_declara_solo_generate() -> None:
     """BR9.9, NFR1.2: el `Protocol` tiene un único método `generate(request: GenerateRequest)`."""
     modulo = importar_o_fallar("veridicus_contracts.model_calls", "T08")
     arbol = ast.parse(Path(str(modulo.__file__)).read_text(encoding="utf-8"))
-    clases = [n for n in arbol.body if isinstance(n, ast.ClassDef) and n.name == "AnonymizingProvider"]
+    clases = [
+        n for n in arbol.body if isinstance(n, ast.ClassDef) and n.name == "AnonymizingProvider"
+    ]
     assert clases, "AnonymizingProvider no está declarado en model_calls"
     clase = clases[0]
     assert any(isinstance(b, ast.Name) and b.id == "Protocol" for b in clase.bases)
@@ -137,8 +141,12 @@ def test_c21_peticion_y_respuesta_son_estrictas() -> None:
 def test_c21_declara_el_tamano_maximo_de_peticion_y_respuesta() -> None:
     """NFRD-U1-04: marcas `x-veridicus-max-bytes` contra C25 (el valor se compara en T14)."""
     operacion = load_contract(C21)["paths"]["/v1/generate"]["post"]
-    en_peticion = {v for _, c, v in recorrer(operacion["requestBody"]) if c == "x-veridicus-max-bytes"}
-    en_respuesta = {v for _, c, v in recorrer(operacion["responses"]["200"]) if c == "x-veridicus-max-bytes"}
+    en_peticion = {
+        v for _, c, v in recorrer(operacion["requestBody"]) if c == "x-veridicus-max-bytes"
+    }
+    en_respuesta = {
+        v for _, c, v in recorrer(operacion["responses"]["200"]) if c == "x-veridicus-max-bytes"
+    }
     assert en_peticion == {"anonymizer_request_max_bytes"}
     assert en_respuesta == {"anonymizer_response_max_bytes"}
 

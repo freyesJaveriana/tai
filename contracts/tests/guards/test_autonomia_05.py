@@ -73,7 +73,9 @@ def test_c6_rechaza_el_hallazgo_sin_cada_campo_obligatorio(campo: str) -> None:
 @pytest.mark.parametrize(
     ("mutar", "esperado"),
     [
-        pytest.param(_error_con_hallazgo, ("maxItems", "$.hallazgos", None), id="error-con-hallazgo"),
+        pytest.param(
+            _error_con_hallazgo, ("maxItems", "$.hallazgos", None), id="error-con-hallazgo"
+        ),
         pytest.param(
             _error_con_aclaracion,
             ("maxItems", "$.observaciones_conductor", None),
@@ -92,7 +94,9 @@ def test_c6_estado_error_implica_hallazgos_vacios_y_ok_no_trae_error(
     assert errores_de(validador, salida) == [], "la base válida debe aceptarse"
     mutar(salida)
     errores = errores_de(validador, salida)
-    assert any(coincide(e, esperado) for e in errores), [(e.validator, e.json_path) for e in errores]
+    assert any(coincide(e, esperado) for e in errores), [
+        (e.validator, e.json_path) for e in errores
+    ]
 
 
 @pytest.mark.c7
@@ -114,7 +118,9 @@ def test_c7_rechaza_la_sugerencia_sin_cada_campo_obligatorio(campo: str) -> None
         pytest.param("tipo", "", ("enum", "$.tipo", None), id="tipo"),
         pytest.param("cita_a", {}, ("required", "$.cita_a", "'cita'"), id="cita_a"),
         pytest.param("cita_b", {}, ("required", "$.cita_b", "'cita'"), id="cita_b"),
-        pytest.param("observaciones", "", ("minLength", "$.observaciones", None), id="observaciones"),
+        pytest.param(
+            "observaciones", "", ("minLength", "$.observaciones", None), id="observaciones"
+        ),
     ],
 )
 def test_c7_rechaza_la_sugerencia_con_un_campo_obligatorio_vacio(
@@ -125,7 +131,9 @@ def test_c7_rechaza_la_sugerencia_con_un_campo_obligatorio_vacio(
     assert errores_de(validador, sugerencia) == [], "la base válida debe aceptarse"
     sugerencia[campo] = vacio
     errores = errores_de(validador, sugerencia)
-    assert any(coincide(e, esperado) for e in errores), [(e.validator, e.json_path) for e in errores]
+    assert any(coincide(e, esperado) for e in errores), [
+        (e.validator, e.json_path) for e in errores
+    ]
 
 
 @pytest.mark.c6

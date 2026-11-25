@@ -97,9 +97,7 @@ def _seguro(nombre: object) -> str:
 
 
 def _problema(perfil: object, papel: object, ajuste: object, motivo: str) -> str:
-    return (
-        f"perfil {_seguro(perfil)}, papel {_seguro(papel)}, ajuste {_seguro(ajuste)}: {motivo}"
-    )
+    return f"perfil {_seguro(perfil)}, papel {_seguro(papel)}, ajuste {_seguro(ajuste)}: {motivo}"
 
 
 def _del_esquema(error: ValidationError) -> str:
@@ -135,7 +133,9 @@ def _referencias(nombre: str, perfil: Mapping[str, Any]) -> list[str]:
     for nombre_alias, destino in alias.items():
         if nombre_alias in roles:
             problemas.append(
-                _problema(nombre, nombre_alias, "role_aliases", "el alias tiene el nombre de un papel")
+                _problema(
+                    nombre, nombre_alias, "role_aliases", "el alias tiene el nombre de un papel"
+                )
             )
         if destino in alias:
             problemas.append(
@@ -143,7 +143,9 @@ def _referencias(nombre: str, perfil: Mapping[str, Any]) -> list[str]:
             )
         elif destino not in roles:
             problemas.append(
-                _problema(nombre, nombre_alias, "role_aliases", "el alias apunta a un papel que no existe")
+                _problema(
+                    nombre, nombre_alias, "role_aliases", "el alias apunta a un papel que no existe"
+                )
             )
     return problemas
 

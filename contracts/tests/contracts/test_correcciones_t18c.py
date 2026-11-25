@@ -48,7 +48,9 @@ def comprobar_version(documento: Any, archivo: str) -> list[str]:
     if mayor_id.group(1) != mayor_archivo.group(1):
         return [f"{archivo}: el $id y el archivo no coinciden en la mayor"]
     if valor.split(".")[0] != mayor_id.group(1):
-        return [f"{archivo}: mayor {valor.split('.')[0]} distinta de la del $id ({mayor_id.group(1)})"]
+        return [
+            f"{archivo}: mayor {valor.split('.')[0]} distinta de la del $id ({mayor_id.group(1)})"
+        ]
     return []
 
 
@@ -176,7 +178,9 @@ def test_la_clave_solo_anota_no_restringe_el_esquema(esquema: str) -> None:
 def test_validate_json_schema_acepta_x_veridicus_version_en_la_raiz() -> None:
     from veridicus_contracts.validators import validate_json_schema
 
-    validate_json_schema({"type": "object", CLAVE: "1.0.0", "properties": {"a": {"type": "string"}}})
+    validate_json_schema(
+        {"type": "object", CLAVE: "1.0.0", "properties": {"a": {"type": "string"}}}
+    )
 
 
 @pytest.mark.parametrize(

@@ -121,7 +121,9 @@ def test_un_id_relativo_que_sale_de_la_base_se_rechaza(tmp_path: Path) -> None:
             build_registry(tmp_path)
 
 
-@pytest.mark.parametrize("identificador", ["", "#frag", "?q=1", "veridicus/a#frag", "veridicus/a?q=1"])
+@pytest.mark.parametrize(
+    "identificador", ["", "#frag", "?q=1", "veridicus/a#frag", "veridicus/a?q=1"]
+)
 def test_un_id_vacio_con_fragmento_o_consulta_se_rechaza(
     tmp_path: Path, identificador: str
 ) -> None:
@@ -161,8 +163,14 @@ def _texto(ruta: Path, contenido: str) -> None:
 
 def test_un_yaml_o_json_que_declara_schema_e_id_se_registra(tmp_path: Path) -> None:
     """BR12.3: el registro carga cada esquema del paquete, sea cual sea su sufijo."""
-    _texto(tmp_path / "p" / "uno.v1.yaml", "$schema: https://json-schema.org/draft/2020-12/schema\n$id: veridicus/c/uno\n")
-    _texto(tmp_path / "p" / "dos.v1.yml", "$schema: https://json-schema.org/draft/2020-12/schema\n$id: /veridicus/c/dos\n")
+    _texto(
+        tmp_path / "p" / "uno.v1.yaml",
+        "$schema: https://json-schema.org/draft/2020-12/schema\n$id: veridicus/c/uno\n",
+    )
+    _texto(
+        tmp_path / "p" / "dos.v1.yml",
+        "$schema: https://json-schema.org/draft/2020-12/schema\n$id: /veridicus/c/dos\n",
+    )
     _esquema(tmp_path / "p" / "tres.v1.json", {"$schema": "x", "$id": "veridicus/c/tres"})
     registro = build_registry(tmp_path)
     for nombre in ("uno", "dos", "tres"):
@@ -206,7 +214,9 @@ def test_las_reglas_de_t02b_valen_tambien_para_los_yaml(tmp_path: Path) -> None:
 
 def test_el_paquete_registra_c18_y_sigue_cargando_vendor_y_c6_sin_duplicados() -> None:
     registro = build_registry()
-    efectiva = registro.get_or_retrieve(BASE_URI + "veridicus/contracts/profiles/effective-config.v1")
+    efectiva = registro.get_or_retrieve(
+        BASE_URI + "veridicus/contracts/profiles/effective-config.v1"
+    )
     assert efectiva.value.contents["title"].startswith("Configuración efectiva")
     for uri in (
         BASE_URI + "veridicus/contracts/analyzer/v1/entrada",

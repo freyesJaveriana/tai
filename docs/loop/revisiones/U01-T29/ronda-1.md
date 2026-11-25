@@ -6,6 +6,8 @@ La guardia no detecta el `scp` más habitual, el que lleva una ruta remota absol
 
 Material revisado: `tarea/U01-T29` en 9d900c0 sobre `feat/b1-contratos` f461fe6. El worktree quedó limpio al terminar (`git status --porcelain` vacío).
 
+> Nota del orquestador (P-T29-2): en esta copia persistida, los nombres y rutas inventados de las sondas que la guardia detecta a propósito (líneas de exenciones, rutas, F-03 y nombres de archivo) se describen con palabras o con `<R>` y `<nodo-inventado>`, para que la guardia de todo el repositorio no salte sobre el propio informe. Los casos y los resultados son los mismos. El resto es literal.
+
 ## Criterios de aceptación, verificados por mí
 | # | Criterio | Comando que corrí | Resultado |
 |---|---|---|---|
@@ -19,14 +21,14 @@ Material revisado: `tarea/U01-T29` en 9d900c0 sobre `feat/b1-contratos` f461fe6.
 ## Comprobaciones
 - **Rojo reproducido contra la guardia de f461fe6** (sacada con `git show f461fe6:scripts/check-no-cluster-ids.sh`; no cambia respecto de a52a7fa, `diff --stat` vacío). Los seis casos de ataque nuevos dan 0 con esa guardia: `nodo-md`, `ruta-md`, `host-tras-var`, `scp-host`, `scp-usuario-host` y `no-exento`. Con la guardia nueva dan 1, con `archivo:línea`.
 - **Exenciones por cadena: no tapan nombres no exentos.** Todos dan 1:
-  - un exento pegado a otra cosa: `hpc99-w999x`, `hpc99-w9990`, `hpc99-w999-hpc77-w777`, `hpc99-w999.hpc77-w777`, `hpc99-w999_hpc77`, `hpc-nodo-ejemplo2`, `hpchead99hpc77`;
+  - un exento pegado a otra cosa: el exento con una letra o un dígito al final, el exento unido con `-`, `.` o `_` a otro nombre inventado no exento, y el exento seguido de otro nombre inventado (siete casos);
   - un exento y un no exento en la misma línea;
   - un archivo con dos puntos en el nombre;
   - un `.yaml`.
 
   Los exentos en mayúsculas dan 0, como se espera.
 - **Sin la exención por línea de `comprobar_reporte.py`**, un nombre no exento da 1 en los tres casos: sustituido en la línea 121, añadido a su lado o en otra línea (176).
-- **Rutas.** Dan 1: `~/zine/abc`, `"/zine/abc"`, la ruta entre comillas invertidas, `X=/zine/abc`, `/zine/abc` al inicio de línea, `(/zine/abc)` y `host:/zine/abc`. Dan 0: `./zine/`, `../zine/`, `docs/zine/x`, la mención `/zine/` entre comillas invertidas y la URL `https://h.example/zine/abc`.
+- **Rutas** (`<R>` es la ruta absoluta de ejemplo bajo el montaje del clúster). Dan 1: `<R>` tras `~`, entre comillas dobles, entre comillas invertidas, tras `X=`, al inicio de línea, entre paréntesis y tras `host:`. Dan 0: las rutas relativas `./`, `../` y `docs/…` con ese segmento, la mención del patrón entre comillas invertidas y una URL con ese segmento.
 - **`.ps1`.**
   - El `enviar.ps1` actual da 0.
   - Repetir la línea que antepone `ZINE_USUARIO` (`…@`+`Servidor`) da 0.
@@ -65,7 +67,7 @@ La tarea pide detectar un literal de palabra justo después de `@`, y la clase `
 Las dos deberían dar 1. Una IP fija del clúster dice dónde vive el trabajo igual que un nombre de host (E-32).
 
 ### F-03 · AMARILLO · `scripts/check-no-cluster-ids.sh:84` · Variantes equivalentes de una ruta absoluta pasan
-`//zine/abc`, `/zine//abc` y `/zine/./abc` dan 0, y Linux las resuelve igual que `/zine/abc`. Solo aparecerían si alguien ofusca a propósito, así que no bloquea. Conviene un caso en el control, o documentarlo en «Límites conocidos».
+La ruta `<R>` con dos barras al inicio, con dos barras en medio o con un segmento `.` da 0, y Linux las resuelve igual que `<R>`. Solo aparecerían si alguien ofusca a propósito, así que no bloquea. Conviene un caso en el control, o documentarlo en «Límites conocidos».
 
 ### F-04 · AMARILLO · `scripts/check-no-cluster-ids.sh:92-97` · Otras formas de `.ps1` que escapan
 - Un `scp` partido en dos líneas con continuación por comilla invertida da 0 (`c-f06-continuacion`).
@@ -74,7 +76,7 @@ Las dos deberían dar 1. Una IP fija del clúster dice dónde vive el trabajo ig
 
 ## Tareas candidatas (defectos reales fuera de alcance)
 - **Asignación con ámbito.** La guardia no ve una asignación de `Servidor` con ámbito (`script:Servidor = '…'`, caso `c-scope`, 0 con las dos guardias). Viene de T27.
-- **Nombres de archivo.** Un archivo versionado con un nombre de nodo en su ruta (`docs/hpc77-w777.md`) da 0, porque la guardia solo mira el contenido. Valdría añadir `git ls-files` a la regla (a).
+- **Nombres de archivo.** Un archivo versionado con un nombre de nodo en su ruta (`docs/<nodo-inventado>.md`) da 0, porque la guardia solo mira el contenido. Valdría añadir `git ls-files` a la regla (a).
 - **Datos personales del autor fuera de la frontera del clúster.** `plan-aidlc.md:106` (correo) y `research/06-documentacion-propia/Propuesta_TG_Dialogos_para_la_Memoria_MINSC_V2.md:30-31` (correo institucional, correo personal y un documento de identidad) están en el repositorio público. Lo decide el humano. No los cito.
 - **Comprobación de formato en `libs/`.** La CI no corre `ruff format --check` en `libs/errors`; el *pre-commit* sí la corre. Hoy no hay diferencia práctica, pero conviene igualarlo cuando `libs/` crezca.
 

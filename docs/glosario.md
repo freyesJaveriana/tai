@@ -1,10 +1,20 @@
 # Glosario de identificadores
 
 Un identificador de código se escribe en inglés y su traducción del PRD es única: ningún término se traduce
-de dos formas (`team.md`, Code Style). El glosario de los identificadores de los contratos (U1) está en
-`contracts/README.md`; aquí se suman los de las demás bibliotecas.
+de dos formas (`team.md`, Code Style). Este es el **único** glosario del repositorio; cada unidad suma su
+sección. Excepción: los campos del contrato común del TG conservan su nombre en español.
 
-## Anonimizador (`libs/anonymizer`, U10)
+## Contratos (U1)
+
+| Identificador | Término del PRD o significado |
+|---|---|
+| `review_report` | «reporte de revisión»; sustituye a «reporte forense» (D10.4, VE-03) |
+| `review_suggestion` | «sugerencia de revisión»: todo hallazgo de la IA, con estado editable que cambia un humano |
+| `undocumented_fact` | «Hecho No Documentado»: resultado normal por debajo del umbral, no un error |
+| `cancel_token` | token de cancelación cooperativa del almacén de archivos de reportes (NFRD-U7-11) |
+| `view_outdated` | `report.view_outdated`, error 409 cuando el resumen cambió desde que el analista lo abrió (NFRD-U7-11) |
+
+## Anonimizador (U10)
 
 | Identificador | Término del PRD o significado |
 |---|---|

@@ -90,6 +90,13 @@ caso S "$ids" "scripts/c.ps1" "$copia archivo.txt \"$host_a:\"" \
   "copia con destino de host literal entre comillas, sin ruta"
 caso S "$ids" "scripts/c.ps1" "$copia archivo.txt $host_a: ruta/x" \
   "copia con destino de host literal y un espacio después de los dos puntos"
+# Arreglo corto A: la regla de la base ve el destino sea cual sea el prefijo del comando.
+caso S "$ids" "scripts/c.ps1" "sudo $copia archivo.txt $puerto_a/tmp/" \
+  "copia con el comando sudo delante y destino de host literal con usuario"
+caso S "$ids" "scripts/c.ps1" "\$resultado = $copia archivo.txt $puerto_a/tmp/" \
+  "copia precedida de una asignación de variable, con destino de host literal y usuario"
+caso S "$ids" "scripts/c.ps1" "/usr/bin/$copia archivo.txt $puerto_a/tmp/" \
+  "copia invocada con la ruta absoluta del binario y destino de host literal con usuario"
 caso S "$ids" "scripts/c.ps1" "& $copia archivo.txt \"usuario@$ip_a:/tmp\"" \
   "copia con operador de llamada y destino de IP literal con usuario, entre comillas"
 caso S "$ids" "docs/nota.md" "nodo de entrada $nodo para el trabajo" \

@@ -1,0 +1,134 @@
+# Reglas de detección en español (DetectionRuleSet, BR1.2). Todo es sintético.
+# Cada patrón va en google-re2 (tiempo lineal). Si el patrón trae el grupo con nombre `entity`,
+# el tramo que se seudonimiza es ese grupo; si no, es la coincidencia completa. Los
+# tratamientos y los prefijos de lugar quedan fuera del grupo y por eso quedan visibles.
+# Un cambio de esta lista entra por su propio PR, con ejemplos positivos y negativos.
+schema_version: 1.0.0
+
+person_patterns:
+  - id: treatment_name
+    pattern: '(?i:(?:^|[^\p{L}])(?:doña|don|señor|señora|señorita|sr|sra|doctor|doctora|dr|dra|sargento|capitán|coronel|teniente|general|cabo|soldado|comandante|mayor|padre|madre|hermano|hermana|tío|tía|abuelo|abuela|compadre|comadre|vecino|vecina|profesor|profesora|alcalde|alcaldesa|fiscal|juez|jueza|patrón|jefe)\.?)[ ]+(?P<entity>\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?(?:(?:[ ]+(?:de los|de las|de la|del|de))?[ ]+\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?){0,3})'
+    examples_positive:
+      - 'Dijo que doña Casilda Roncancio salió temprano.'
+      - 'El sargento Barrantes llegó tarde.'
+    examples_negative:
+      - 'El señor llegó temprano.'
+      - 'Su padre y su madre vinieron.'
+  - id: alias_name
+    pattern: '(?i:(?:^|[^\p{L}])(?:alias|apodado|apodada|apodo|conocido como|conocida como|le decían|le dicen|le decimos|le llamaban|le llaman|llamado|llamada))[ ]+(?:(?:el|la|los|las)[ ]+)?(?P<entity>\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?(?:(?:[ ]+(?:de los|de las|de la|del|de))?[ ]+\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?){0,3})'
+    examples_positive:
+      - 'Lo conocían con el alias el Mono desde niño.'
+      - 'Un hombre llamado Evaristo pasó por ahí.'
+    examples_negative:
+      - 'El alias fue borrado del acta.'
+      - 'Todos le decían chiguirito al menor.'
+
+place_patterns:
+  - id: place_prefix
+    pattern: '(?i:(?:^|[^\p{L}])(?:vereda|corregimiento|municipio|barrio|ciudad|pueblo|caserío|finca|hacienda|resguardo|departamento|inspección|sector|comunidad|localidad|paraje))[ ]+(?:(?:de los|de las|de la|del|de)[ ]+)?(?P<entity>\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?(?:(?:[ ]+(?:de los|de las|de la|del|de))?[ ]+\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?){0,3})'
+    examples_positive:
+      - 'Vivían en la vereda La Esperanza desde hacía años.'
+      - 'Salió del municipio de Cañada del Sauce a pie.'
+    examples_negative:
+      - 'La vereda quedaba lejos del pueblo.'
+      - 'Hablaron de la finca y del ganado.'
+  - id: toponym_prefix
+    pattern: '(?:^|[^\p{L}])(?P<entity>(?:Villa|Puerto|Playa|San|Santa|Santo|Bahía|Cerro|Río|Valle|Monte|Punta|Isla)[ ]+\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?(?:(?:[ ]+(?:de los|de las|de la|del|de))?[ ]+\p{Lu}[\p{L}\p{M}]*(?:-\p{Lu}[\p{L}\p{M}]*)?){0,2})'
+    examples_positive:
+      - 'Llegaron a Puerto Altamira antes del mediodía.'
+      - 'Se bajó en San José de la Montaña con el niño.'
+    examples_negative:
+      - 'El puerto estaba cerrado por la lluvia.'
+      - 'La playa quedaba lejos.'
+
+case_number_patterns:
+  - id: case_number_dashed
+    pattern: '(?P<entity>[0-9]{5,}-[0-9]{4}-[0-9]{3,}(?:-[0-9]{1,3})?)'
+    examples_positive:
+      - 'El radicado 110016000-2019-00123 aparece en el acta.'
+      - 'Figura como 05001-2020-00456-01 en el auto.'
+    examples_negative:
+      - 'Del 12-03-2003 al 14-03-2003 estuvo fuera.'
+      - 'Hubo 2019-2020 como periodo de estudio.'
+  - id: case_number_long
+    pattern: '(?P<entity>[0-9]{20,25})'
+    examples_positive:
+      - 'La noticia criminal 11001600000020190012300 se abrió después.'
+      - 'Código 05001600000020200045601 del despacho.'
+    examples_negative:
+      - 'Eran 1234567890 pesos en total.'
+      - 'Pasaron tres hombres con 12 mulas.'
+  - id: case_number_keyword
+    pattern: '(?i:(?:^|[^\p{L}])(?:radicado|expediente|proceso|causa|noticia criminal|nuc|rad|exp)\.?[ ]+(?:(?:número|numero|no\.?|nro\.?|n\.º|n°|#)[ ]*)?)(?P<entity>[0-9][0-9./\-]{3,}[0-9])'
+    examples_positive:
+      - 'El expediente número 2019-00456 sigue abierto.'
+      - 'Citaron el proceso 4500/2018 en la audiencia.'
+    examples_negative:
+      - 'El proceso fue largo y doloroso.'
+      - 'Abrieron el expediente en marzo.'
+
+identifier_patterns:
+  - id: id_card_dotted
+    pattern: '(?P<entity>(?:[0-9]{2,3}(?:\.[0-9]{3}){2,3}|[0-9](?:\.[0-9]{3}){3}))'
+    examples_positive:
+      - 'La cédula 1.234.567.890 aparece en el acta.'
+      - 'Mostró el documento 52.345.678 al funcionario.'
+    examples_negative:
+      - 'Vendió 1.5 hectáreas de tierra.'
+      - 'Tenía 12 años cuando ocurrió.'
+  - id: id_card_keyword
+    pattern: '(?i:(?:^|[^\p{L}])(?:cédula|cedula|c\.c\.?|cc|documento|nit|tarjeta de identidad|t\.i\.?|pasaporte)[^0-9\n]{0,25})(?P<entity>[0-9][0-9. \-]{4,}[0-9])'
+    examples_positive:
+      - 'Su cédula de ciudadanía 1234567890 estaba vencida.'
+      - 'Presentó el pasaporte AB 123456 en la oficina.'
+    examples_negative:
+      - 'Firmó el documento el 12 de marzo.'
+      - 'La cédula estaba vencida.'
+  - id: phone_mobile
+    pattern: '(?P<entity>(?:\+57[ -]?)?3[0-9]{2}[ -]?[0-9]{3}[ -]?[0-9]{4})'
+    examples_positive:
+      - 'Llamó al 310 555 1234 esa noche.'
+      - 'Su número era +57 3205551234 según el acta.'
+    examples_negative:
+      - 'Llamó dos veces esa noche.'
+      - 'Eran las 3 de la tarde.'
+  - id: phone_keyword
+    pattern: '(?i:(?:^|[^\p{L}])(?:teléfono|telefono|celular|cel|tel|móvil|movil|whatsapp)\.?[^0-9\n]{0,20})(?P<entity>\+?[0-9][0-9 \-()]{5,}[0-9])'
+    examples_positive:
+      - 'Dejó su teléfono 601 555 0100 en el despacho.'
+      - 'El celular 3105550199 estaba apagado.'
+    examples_negative:
+      - 'El teléfono estaba apagado.'
+      - 'Perdió el celular en la plaza.'
+  - id: email
+    pattern: '(?P<entity>[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)+)'
+    examples_positive:
+      - 'Escribió a casilda.ejemplo@correo.example para avisar.'
+      - 'El correo es x_1@dominio.example.co según el acta.'
+    examples_negative:
+      - 'Escribió un correo para avisar.'
+      - 'Nos vemos a las 5 en la plaza.'
+  - id: plate
+    pattern: '(?:^|[^A-Za-z0-9])(?P<entity>[A-Z]{3}-?[0-9]{2}[0-9A-Z])(?:$|[^A-Za-z0-9])'
+    examples_positive:
+      - 'Anotó el camión ABC123 en el cuaderno.'
+      - 'La moto XYZ-45K salió por la vía.'
+    examples_negative:
+      - 'La FARC 2019 fue citada en el informe.'
+      - 'Pasó un camión rojo por la vía.'
+  - id: plate_keyword
+    pattern: '(?i:(?:^|[^\p{L}])placas?[ ]+(?:(?:número|numero|no\.?)[ ]+)?)(?P<entity>[A-Za-z]{3}[ -]?[0-9]{2}[0-9A-Za-z])'
+    examples_positive:
+      - 'La placa ABC 123 estaba tapada.'
+      - 'Vio las placas número xyz-45k en el patio.'
+    examples_negative:
+      - 'La placa estaba tapada con barro.'
+      - 'Era una placa conmemorativa del barrio.'
+  - id: bank_account
+    pattern: '(?i:(?:^|[^\p{L}])(?:cuenta|cta)\.?[^0-9\n]{0,30})(?P<entity>[0-9][0-9\- ]{6,}[0-9])'
+    examples_positive:
+      - 'Giró a la cuenta de ahorros 123-456-789012 ese día.'
+      - 'Abrió la cta. 00112233445 en el banco.'
+    examples_negative:
+      - 'Ella cuenta que tenía 12 años.'
+      - 'Hizo la cuenta de cabeza y calló.'

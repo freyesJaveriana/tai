@@ -89,15 +89,22 @@ def test_property_nothing_detected_leaves_and_the_masked_echo_is_restored_byte_f
     with mock.patch.object(generate_module, "pseudonymize", spy):
         first = make_harness(_echo([]))
         first.anonymizer.generate(request)
-    # `system` recibe las formas sonda (F-08): se comprueba que la llamada sale y se restaura igual,
-    # pero no que no filtre, porque `system` es configuración sin testimonio (BR1.2) y T03 declara
-    # que las palabras sueltas de un nombre no llegan a `system` (F-06). El resto sí se comprueba.
+    # Fuera de `system`, el oráculo completo: toda entidad sembrada y toda forma de la tabla.
     outgoing = _without_system(first.transport)
     assert_no_entity_in_payload(outgoing, SEEDED["entidades"])
     for view in outgoing_views(outgoing):
         visible = CANONICAL_MARKER.sub("", view)
         for form in forms:
             assert not _bounded_occurrence(visible, form), "una forma detectada salió"
+    # En `system` (F-08, F-11) el oráculo vale para las entidades sembradas completas y para las
+    # formas de la tabla de más de una palabra. Solo se excluyen las palabras sueltas: es el límite
+    # declarado por T03 (F-06), porque `system` es configuración sin testimonio (BR1.2).
+    full_entities = [e for e in SEEDED["entidades"] if " " in e]
+    assert_no_entity_in_payload(first.transport, full_entities)
+    for view in outgoing_views(first.transport):
+        visible = CANONICAL_MARKER.sub("", view)
+        for form in (f for f in forms if " " in f):
+            assert not _bounded_occurrence(visible, form), "una forma completa salió en system"
 
     # Segunda pasada: la misma entrada da la misma tabla; el proveedor devuelve el texto guionado.
     echoed = user_texts_of_json_message(first.transport)

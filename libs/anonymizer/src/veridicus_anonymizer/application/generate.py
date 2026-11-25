@@ -6,12 +6,16 @@ módulo llama a `pseudonymize` y a `restore` por su nombre global, importados co
 sustituirlos con `monkeypatch.setattr(generate, "pseudonymize", ...)`.
 """
 
+from time import monotonic as now
+
 from veridicus_contracts.model_calls import GenerateRequest, GenerateResult
 
 from veridicus_anonymizer.domain.masking import pseudonymize
 from veridicus_anonymizer.domain.restoration import restore
 
-__all__ = ["generate_call", "pseudonymize", "restore"]
+# `now` es el reloj del presupuesto de la seudonimización (NFR3.5): se lee por su nombre global
+# de este módulo y las pruebas lo sustituyen, porque `build_anonymizer` no recibe reloj (PD-7).
+__all__ = ["generate_call", "now", "pseudonymize", "restore"]
 
 
 def generate_call(request: GenerateRequest) -> GenerateResult:

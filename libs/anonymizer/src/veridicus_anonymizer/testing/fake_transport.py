@@ -60,7 +60,11 @@ class FakeResponse:
     @classmethod
     def http_error(cls, status: int) -> "FakeResponse":
         """Un error HTTP del proveedor (5xx, 4xx) con el cuerpo de error de la Messages API."""
-        payload = {"type": "error", "error": {"type": "api_error", "message": "error sintético"}}
+        payload = {
+            "type": "error",
+            "error": {"type": "api_error", "message": "error sintético"},
+            "request_id": "req_sintetico_0001",
+        }
         return cls(
             status=status,
             body=json.dumps(payload, ensure_ascii=False).encode("utf-8"),

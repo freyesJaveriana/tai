@@ -26,6 +26,10 @@ class MaskTable:
     def __repr__(self) -> str:
         return "MaskTable(<oculta>)"
 
+    def __len__(self) -> int:
+        """Cuántas formas tiene la tabla; las pruebas la leen justo antes de `clear()`."""
+        return len(self._entries)
+
     @property
     def is_empty(self) -> bool:
         return not self._entries

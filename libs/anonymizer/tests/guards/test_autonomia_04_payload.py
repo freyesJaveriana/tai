@@ -72,15 +72,18 @@ def test_e9_accented_entities_are_not_leaked_even_when_written_as_json_escapes(
     harness.anonymizer.generate(request)
 
     assert_no_entity_in_payload(
-        harness.transport, ["Eufrasio Mendívelso", "Anselmo Páez", "Mendívelso", "Páez"]
+        harness.transport,
+        ["Eufrasio Mendívelso", "Eufrasio", "Mendívelso", "Anselmo Páez", "Anselmo", "Páez"],
     )
 
 
 def test_e2_same_exact_form_gets_the_same_marker_and_a_different_form_another() -> None:
+    # Todos los turnos empiezan en minúscula: la prueba compara plantillas exactas y no depende de
+    # qué comienzos de oración haya en `allowed-words` (solo del nombre).
     turnos = [
-        {"turno": 1, "hablante": "TES", "texto": "Vi a Casilda Roncancio en la plaza."},
-        {"turno": 2, "hablante": "TES", "texto": "Casilda Roncancio compró pan."},
-        {"turno": 3, "hablante": "TES", "texto": "Luego Casilda se fue."},
+        {"turno": 1, "hablante": "TES", "texto": "ayer vi a Casilda Roncancio en la plaza."},
+        {"turno": 2, "hablante": "TES", "texto": "luego Casilda Roncancio compró pan."},
+        {"turno": 3, "hablante": "TES", "texto": "después Casilda se fue."},
     ]
     harness = make_harness(ok_response())
     harness.anonymizer.generate(make_request(turnos))
@@ -90,6 +93,9 @@ def test_e2_same_exact_form_gets_the_same_marker_and_a_different_form_another() 
     second = MARKER.search(texts[1])
     third = MARKER.search(texts[2])
     assert first and second and third
+    assert texts[0] == f"ayer vi a {first.group(0)} en la plaza."
+    assert texts[1] == f"luego {second.group(0)} compró pan."
+    assert texts[2] == f"después {third.group(0)} se fue."
     assert first.group(0) == second.group(0)
     assert third.group(0) != first.group(0)
     assert_no_entity_in_payload(harness.transport, ["Casilda Roncancio", "Roncancio", "Casilda"])
@@ -114,7 +120,8 @@ def test_a_common_word_given_name_opening_a_sentence_does_not_leak() -> None:
     harness.anonymizer.generate(make_request(turnos))
 
     assert_no_entity_in_payload(
-        harness.transport, ["Esperanza Quiñones", "Paz Villamar", "Esperanza", "Villamar"]
+        harness.transport,
+        ["Esperanza Quiñones", "Esperanza", "Quiñones", "Paz Villamar", "Paz", "Villamar"],
     )
 
 
@@ -137,5 +144,6 @@ def test_declared_limit_a_lowercase_nickname_is_not_detected_by_any_rule() -> No
 
     # Lo detectable sí se enmascara; el apodo en minúscula pasa: es el límite declarado de PD-2
     # (CG-U10-02), documentado aquí y fuera del conjunto de fuga cero.
-    assert_no_entity_in_payload(harness.transport, [fixture["entidad_enmascarada"]])
+    entity = fixture["entidad_enmascarada"]
+    assert_no_entity_in_payload(harness.transport, [entity, *entity.split()])
     assert fixture["apodo_limite"] in outgoing_bodies(harness.transport)[0]

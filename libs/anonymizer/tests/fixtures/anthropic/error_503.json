@@ -3,6 +3,7 @@
   "headers": {"content-type": "application/json"},
   "body": {
     "type": "error",
-    "error": {"type": "overloaded_error", "message": "Overloaded"}
+    "error": {"type": "api_error", "message": "Error interno sintético"},
+    "request_id": "req_sintetico_0503"
   }
 }

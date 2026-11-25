@@ -61,13 +61,15 @@ def test_a_call_to_the_fallback_slot_is_recorded_as_fallback_provider() -> None:
     ("expected", "script"),
     [
         (ProviderError, lambda: load_anthropic("error_503")),
+        (ProviderError, lambda: load_anthropic("error_529")),
+        (InvalidOutput, lambda: load_anthropic("max_tokens")),
         (ProviderError, lambda: load_anthropic("redirect_307")),
         (InvalidOutput, lambda: load_anthropic("not_json")),
         (InvalidOutput, lambda: load_anthropic("invalid_schema")),
         (ContentBlocked, lambda: load_anthropic("refusal")),
         (Timeout, FakeResponse.timeout),
     ],
-    ids=["503", "redireccion", "no_json", "no_valida", "bloqueo", "timeout"],
+    ids=["503", "529", "max_tokens", "redireccion", "no_json", "no_valida", "bloqueo", "timeout"],
 )
 def test_every_error_after_sending_carries_a_valid_model_call(
     expected: type[ModelCallError], script: Callable[[], FakeResponse]

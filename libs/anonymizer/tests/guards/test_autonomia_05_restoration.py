@@ -1,11 +1,14 @@
 """AUTONOMIA-05, lado de U10: la cita seudonimizada se restaura antes de verificarse (E5, E25, E26).
 
-Una sola entidad sembrada en el turno 4 fija la marca de la llamada: `[PERSONA_1]`. La respuesta
-guionada del proveedor usa esa marca (o una alterada o inventada) y se comprueba lo que devuelve
-el módulo: el texto restaurado byte a byte y los punteros RFC 6901 de las cadenas alteradas.
+Una sola entidad sembrada, precedida de un tratamiento («doña»), fija la marca de la llamada: la
+regla de tratamiento la clasifica como `PERSONA` aun sin NER (PD-2), así que es `[PERSONA_1]` y el
+tratamiento queda visible. La respuesta guionada del proveedor usa esa marca (o una alterada o
+inventada) y se comprueba lo que devuelve el módulo: el texto restaurado byte a byte y los
+punteros RFC 6901 de las cadenas alteradas.
 """
 
 import copy
+import re
 from typing import Any
 
 import pytest
@@ -21,8 +24,8 @@ from veridicus_anonymizer.domain.catalogs import load_catalogs
 from veridicus_anonymizer.domain.masking import pseudonymize
 from veridicus_anonymizer.domain.restoration import restore
 
-ORIGINAL = "Casilda Roncancio dijo que salió temprano."
-SECOND = "Después Casilda Roncancio se quedó en casa."
+ORIGINAL = "doña Casilda Roncancio dijo que salió temprano."
+SECOND = "luego doña Casilda Roncancio se quedó en casa."
 TURNOS = [
     {"turno": 4, "hablante": "TES", "texto": ORIGINAL},
     {"turno": 5, "hablante": "TES", "texto": SECOND},
@@ -33,8 +36,8 @@ def _finding(**overrides: Any) -> dict[str, Any]:
     finding: dict[str, Any] = {
         "hecho": "[PERSONA_1] salió temprano",
         "tipo": "temporal",
-        "cita_a": {"texto": "[PERSONA_1] dijo que salió temprano.", "turno": 4},
-        "cita_b": {"texto": "Después [PERSONA_1] se quedó en casa.", "turno": 5},
+        "cita_a": {"texto": "doña [PERSONA_1] dijo que salió temprano.", "turno": 4},
+        "cita_b": {"texto": "luego doña [PERSONA_1] se quedó en casa.", "turno": 5},
         "observaciones": "Sin observaciones",
     }
     finding.update(overrides)
@@ -144,7 +147,9 @@ def test_person_3_without_brackets_is_not_a_marker_and_invalidates_nothing() -> 
 def test_restore_works_on_the_table_that_pseudonymize_returned_and_never_touches_keys() -> None:
     messages = [Message("user", ORIGINAL)]
     masked, table = pseudonymize(messages, load_catalogs())
-    marker = masked[0].content.split(" dijo")[0]
+    found = re.search(r"\[[A-ZÁÉÍÓÚÑ]+_[1-9][0-9]*\]", masked[0].content)
+    assert found, "pseudonymize debía dejar una marca"
+    marker = found.group(0)
     content = {marker: marker, "lista": [marker, 3]}
 
     outcome = restore(copy.deepcopy(content), table)

@@ -9,10 +9,14 @@ stubs de `domain/` y `application/`):
 
 - `application.generate.pseudonymize` y `application.generate.restore`;
 - `domain.detection.apply_rules` y `domain.detection.safety_net`;
-- `domain.masking.build_table`, `domain.masking.serialize_messages` y `domain.masking.MaskTable`.
+- `domain.masking.build_table`, `domain.masking.serialize_messages` y `domain.masking.MaskTable`
+  (con `len()`, `is_empty` y `clear()`);
+- `api.load_catalogs` (catálogo alterado) y `application.generate.now` (reloj del presupuesto):
+  `build_anonymizer` no recibe catálogos ni reloj, porque su firma es la literal de PD-7.
 """
 
 import json
+import re
 import unicodedata
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
@@ -29,10 +33,11 @@ from veridicus_contracts.model_calls import (
     Provider,
 )
 
+from veridicus_anonymizer import api as api_module
 from veridicus_anonymizer.api import Anonymizer, build_anonymizer
 from veridicus_anonymizer.application import generate as generate_module
 from veridicus_anonymizer.domain import detection, masking
-from veridicus_anonymizer.domain.catalogs import Catalogs, ProviderDomain
+from veridicus_anonymizer.domain.catalogs import Catalogs, ProviderDomain, load_catalogs
 from veridicus_anonymizer.testing.fake_transport import FakeResponse, FakeTransport
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -81,10 +86,15 @@ EMPTY_FINDINGS: dict[str, Any] = {"hallazgos": []}
 
 
 def load_seeded() -> dict[str, Any]:
-    """El conjunto sembrado: turnos con entidades inventadas en cada posición de apertura."""
-    return cast(
+    """El conjunto sembrado; `entidades` es la unión de las de cada turno (cada palabra suelta)."""
+    seeded = cast(
         dict[str, Any], json.loads((FIXTURES / "transcripts" / "seeded.json").read_text("utf-8"))
     )
+    union: list[str] = []
+    for turn in seeded["turnos"]:
+        union.extend(e for e in turn["entidades"] if e not in union)
+    seeded["entidades"] = union
+    return seeded
 
 
 def turns_of(
@@ -197,20 +207,14 @@ class Harness:
     anonymizer: Anonymizer
 
 
-def make_harness(
-    *responses: FakeResponse,
-    env: Mapping[str, str] | None = None,
-    catalogs: Catalogs | None = None,
-    clock: Callable[[], float] | None = None,
-) -> Harness:
-    """Módulo con el `FakeTransport` guionado; se llama dentro de la prueba, nunca en un fixture."""
+def make_harness(*responses: FakeResponse, env: Mapping[str, str] | None = None) -> Harness:
+    """Módulo con el `FakeTransport` guionado; se llama dentro de la prueba, nunca en un fixture.
+
+    La firma de `build_anonymizer` es la de PD-7: catálogos y reloj se sustituyen con
+    `install_context`, no con parámetros.
+    """
     transport = FakeTransport(*responses)
-    anonymizer = build_anonymizer(
-        env if env is not None else default_env(),
-        transport,
-        catalogs=catalogs,
-        clock=clock if clock is not None else constant_clock,
-    )
+    anonymizer = build_anonymizer(env if env is not None else default_env(), transport)
     return Harness(transport, anonymizer)
 
 
@@ -254,6 +258,7 @@ def outgoing_views(transport: FakeTransport) -> list[str]:
             except ValueError:
                 continue
             views.append(json.dumps(inner, ensure_ascii=False))
+            _walk_strings(inner, views)  # el texto de cada turno ya decodificado
     return views
 
 
@@ -263,8 +268,12 @@ def assert_no_entity_in_payload(transport: FakeTransport, entities: Sequence[str
     for view in outgoing_views(transport):
         folded = fold(view)
         for entity in entities:
-            assert entity not in view, f"fuga de una entidad sembrada ({len(entity)} caracteres)"
-            assert fold(entity) not in folded, "fuga de una entidad sembrada sin tildes"
+            exact = re.compile(rf"(?<!\w){re.escape(entity)}(?!\w)")
+            loose = re.compile(rf"(?<!\w){re.escape(fold(entity))}(?!\w)")
+            assert not exact.search(view), (
+                f"fuga de una entidad sembrada ({len(entity)} caracteres)"
+            )
+            assert not loose.search(folded), "fuga de una entidad sembrada sin tildes"
 
 
 def user_texts(transport: FakeTransport) -> list[str]:
@@ -326,6 +335,32 @@ class Ctx:
     env: dict[str, str]
     catalogs: Catalogs
     clock: Callable[[], float]
+
+
+def make_ctx(turnos: Sequence[Mapping[str, Any]] | None = None) -> Ctx:
+    """Contexto de un escenario; carga el catálogo real, así que se llama dentro de la prueba."""
+    return Ctx(
+        request=make_request(turnos),
+        env=default_env(),
+        catalogs=load_catalogs(),
+        clock=constant_clock,
+    )
+
+
+def install_context(ctx: Ctx, mp: pytest.MonkeyPatch) -> None:
+    """Inyecta el catálogo y el reloj del escenario por las costuras internas (F-07)."""
+    mp.setattr(api_module, "load_catalogs", lambda *args, **kwargs: ctx.catalogs)
+    mp.setattr(generate_module, "now", ctx.clock)
+
+
+def leaked_values(ctx: Ctx) -> list[str]:
+    """Valores de configuración que ningún mensaje de error puede nombrar (F-10)."""
+    destination = ctx.request.destination
+    domains = [d.domain for d in ctx.catalogs.domains.values()]
+    values = [MODEL, KEY_REF, "api.anthropic.com", destination.model, KEY_CANARY, *domains]
+    if destination.api_key_ref is not None:
+        values.append(destination.api_key_ref)
+    return [v.lower() for v in values]
 
 
 @dataclass(frozen=True)

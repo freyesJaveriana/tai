@@ -17,3 +17,5 @@ repos:
     hooks:
       - id: yamllint
         args: [-s]
+        # Mismo alcance que repo-level0: .github/ y este archivo (los YAML de contracts/ son K-71).
+        files: ^(\.github/|\.pre-commit-config\.yaml$)

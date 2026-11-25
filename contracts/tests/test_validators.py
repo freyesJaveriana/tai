@@ -304,7 +304,20 @@ def test_k56_una_instancia_valida_de_c19_pasa(contracts_root: Path) -> None:
 def test_k56_cada_marca_de_la_lista_cerrada_se_admite_anidada() -> None:
     from veridicus_contracts.validators import MARCAS_X_VERIDICUS
 
-    assert len(MARCAS_X_VERIDICUS) == 10
+    # La lista literal de PD-4, escrita aquí a propósito: la constante no se compara consigo misma.
+    pd4 = {
+        "x-veridicus-version",
+        "x-veridicus-limit",
+        "x-veridicus-max-bytes",
+        "x-veridicus-cookie",
+        "x-veridicus-owner-only",
+        "x-veridicus-owner-only-for-role",
+        "x-veridicus-priority",
+        "x-veridicus-roles",
+        "x-veridicus-access-log",
+        "x-veridicus-demo",
+    }
+    assert set(MARCAS_X_VERIDICUS) == pd4
     for marca in MARCAS_X_VERIDICUS:
         if marca == "x-veridicus-version":
             continue
@@ -325,7 +338,7 @@ def test_k56_control_negativo_limit_anidado_roto_se_rechaza(contracts_root: Path
         validate_instance(esquema, {**LLAMADA_VALIDA, "role": "r" * 33})
 
 
-@pytest.mark.parametrize("version", ["1.0", "v1.0.0", "1.0.0-beta", "", 1, None])
+@pytest.mark.parametrize("version", ["1.0", "v1.0.0", "1.0.0-beta", "01.02.03", "", 1, None])
 def test_k56_control_negativo_version_que_no_es_semver_se_rechaza(version: Any) -> None:
     with pytest.raises(ValidationFailure, match="x-veridicus-version"):
         validate_json_schema({"type": "object", "x-veridicus-version": version})

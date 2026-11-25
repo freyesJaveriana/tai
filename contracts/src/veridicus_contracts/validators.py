@@ -17,13 +17,15 @@ import re
 from functools import cache
 from importlib.resources.abc import Traversable
 from typing import Any
+from urllib.parse import urljoin
 
 from jsonschema import Draft7Validator, Draft202012Validator
 from jsonschema.exceptions import ValidationError
-from referencing import Registry
+from referencing import Registry, Resource
 from referencing.exceptions import Unresolvable
+from referencing.jsonschema import DRAFT202012
 
-from veridicus_contracts.registry import build_registry, validator_for
+from veridicus_contracts.registry import BASE_URI, build_registry, validator_for
 
 ARCHIVO_DE_SUMAS = "SHA256SUMS"
 META_2020_12 = "https://json-schema.org/draft/2020-12/schema"
@@ -190,11 +192,20 @@ def validate_instance(esquema: Any, instancia: Any, registro: Registry[Any] | No
     formado es un `ValidationFailure`, no una excepción del validador.
     """
     validate_json_schema(esquema)
-    validador = Draft202012Validator(
-        esquema,
-        registry=registro if registro is not None else build_registry(),
-        format_checker=Draft202012Validator.FORMAT_CHECKER,
-    )
+    registro = registro if registro is not None else build_registry()
+    identificador = esquema.get("$id") if isinstance(esquema, dict) else None
+    if isinstance(identificador, str):
+        # Un `$id` relativo se ancla a BASE_URI y el esquema se valida como `{"$ref": uri}`, igual
+        # que `validator_for`: así sus referencias a otros contratos se resuelven con el registro.
+        uri = urljoin(BASE_URI, identificador)
+        recurso = Resource.from_contents(esquema, default_specification=DRAFT202012)
+        validador = validator_for(registro.with_resource(uri, recurso), uri)
+    else:
+        validador = Draft202012Validator(
+            esquema,
+            registry=registro,
+            format_checker=Draft202012Validator.FORMAT_CHECKER,
+        )
     problemas = _errores(validador, instancia)
     if problemas:
         raise ValidationFailure("instancia no válida: " + "; ".join(problemas))

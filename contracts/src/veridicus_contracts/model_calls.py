@@ -1,4 +1,4 @@
-"""Tipos de las llamadas a modelos (C13, revisión 4) y la puerta única al exterior (BR9.9).
+"""C13 v1.0.0: tipos de las llamadas a modelos (revisión 4) y la puerta única al exterior (BR9.9).
 
 Este módulo es neutral: lo importan U10 (anonimizador) y U11 (ModelGateway) y no importa a
 ninguno. Solo puede importar de `veridicus_contracts`, `typing`, `dataclasses`, `enum` y

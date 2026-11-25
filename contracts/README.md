@@ -30,7 +30,7 @@ mayor es siempre la del `.vN` del nombre (E-28, E-33). Un archivo nuevo entra aq
 | C10 | `Protocol` de HumanReview hacia InterviewSession y ConsoleApi | `src/veridicus_contracts/human_review.py` | 2.0.0 |
 | C11 | `Protocol` de lo que ReviewReport usa de los demás módulos | `src/veridicus_contracts/report_ports.py` | 2.0.0 |
 | C12 | `Protocol` de IdentityAccess hacia ConsoleApi | `src/veridicus_contracts/identity.py` | 2.0.0 |
-| C13 | Tipos de las llamadas a modelos y puerta única `AnonymizingProvider` | `src/veridicus_contracts/model_calls.py` | (el del paquete) |
+| C13 | Tipos de las llamadas a modelos y puerta única `AnonymizingProvider` | `src/veridicus_contracts/model_calls.py` | 1.0.0 |
 | (sin número) | Tabla de traducción de papeles | `model_calls/role-translation.v1.yaml` | 1.0.0 |
 | C15 | Métricas de revisión | `metrics/review.v2.yaml` | 2.0.0 |
 | (sin número) | Métricas del flujo de texto (familia de C15) | `metrics/text-flow.v1.yaml` | 1.0.0 |
@@ -150,7 +150,7 @@ errores = list(validador.iter_errors({"schema_version": "1.0.0", "profiles": {}}
 
 Todos corren desde la raíz del repositorio, en CPU y sin red, salvo los marcados «con red». La última columna dice
 qué *workflow* los corre: `contracts-level0.yml` (jobs `contracts-level0` y `errors-level0`) corre casi todos;
-`V-SURFACE` va dentro de la suite (`V-SUITE`) y `V-YAML` lo corre `repo-level0.yml`.
+`V-SURFACE` va dentro de la suite (`V-SUITE`) y `V-YAML` lo corre `repo-level0.yml` con otro comando (ver su fila).
 
 | Clave | Comando | Umbral | Lo corre |
 |---|---|---|---|
@@ -166,7 +166,7 @@ qué *workflow* los corre: `contracts-level0.yml` (jobs `contracts-level0` y `er
 | `V-TS-AUDIT` | `npm --prefix contracts/ts audit --audit-level=high` (con red) | 0 vulnerabilidades altas con corrección | contracts-level0.yml |
 | `V-PKG` | `timeout 180 uv run --frozen --directory contracts python -m veridicus_contracts.tools.check_package` | Verde, 180 s como máximo | contracts-level0.yml |
 | `V-ERRORS` | `uv sync --frozen --directory libs/errors` (con red); `timeout 60 uv run --frozen --offline --directory libs/errors pytest`; `uv run --frozen --offline --directory libs/errors mypy --strict src`; `uv run --frozen --offline --directory libs/errors ruff check .` | Verde, 80 % de líneas como mínimo; 0 errores; 0 hallazgos | contracts-level0.yml (job `errors-level0`) |
-| `V-YAML` | `uv run --frozen --offline --directory contracts yamllint -s ../.github/workflows/contracts-level0.yml ../.pre-commit-config.yaml` | Código 0 | repo-level0.yml |
+| `V-YAML` | `uv run --frozen --offline --directory contracts yamllint -s ../.github/workflows/contracts-level0.yml ../.pre-commit-config.yaml` | Código 0 | repo-level0.yml (corre `yamllint -s .github/`, no este comando literal, que además incluye `.pre-commit-config.yaml`, y el *workflow* no lo valida) |
 
 La etiqueta de la entrega se comprueba con `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.check_tag`
 (imprime la etiqueta esperada) y, con `--tag ETIQUETA`, sale con 0 solo si es exactamente esa. El *workflow*

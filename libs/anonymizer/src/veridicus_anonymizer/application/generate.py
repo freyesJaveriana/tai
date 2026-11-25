@@ -121,6 +121,45 @@ def _restore(reply: ProviderReply, table: MaskTable) -> GenerateResult:
     )
 
 
+def _release(table: MaskTable | None) -> None:
+    if table is not None:
+        table.clear()
+
+
+def _prepare(
+    request: GenerateRequest,
+    env: Mapping[str, str],
+    catalogs: Catalogs,
+    settings: GenerateSettings,
+    started: float,
+    trace: _Trace,
+) -> tuple[str, Capability, list[Message], MaskTable, float]:
+    """Toda la región previa al envío: cualquier fallo, previsto o no, es `AnonymizerUnavailable`.
+
+    Un error inesperado se traduce fuera del `except` y sin ningún valor en el mensaje (F-01); si ya
+    había una tabla, se vacía antes de salir (BR1.8).
+    """
+    table: MaskTable | None = None
+    try:
+        key, capability = _check_destination(request, env, catalogs)
+        effective_s = min(request.timeout_s, settings.call_timeout_cap_s)
+        budget_s = settings.masking_budget_ratio * effective_s
+        masked, table = _mask(request.messages, catalogs, started, budget_s)
+        trace.replacements = _replacements(table)
+        remaining_s = effective_s - (now() - started)
+        if remaining_s <= 0:
+            raise AnonymizerUnavailable("se agotó el plazo antes de enviar")
+        return key, capability, masked, table, remaining_s
+    except AnonymizerUnavailable:
+        _release(table)
+        raise
+    except Exception:  # noqa: BLE001 - toda falla antes del envío falla cerrado
+        _release(table)
+    raise AnonymizerUnavailable(
+        "falló un paso inesperado antes del envío; no salió ninguna llamada"
+    )
+
+
 def _run(
     request: GenerateRequest,
     *,
@@ -131,15 +170,10 @@ def _run(
     started: float,
     trace: _Trace,
 ) -> GenerateResult:
-    key, capability = _check_destination(request, env, catalogs)
-    effective_s = min(request.timeout_s, settings.call_timeout_cap_s)
-    budget_s = settings.masking_budget_ratio * effective_s
-    masked, table = _mask(request.messages, catalogs, started, budget_s)
+    key, capability, masked, table, remaining_s = _prepare(
+        request, env, catalogs, settings, started, trace
+    )
     try:
-        trace.replacements = _replacements(table)
-        remaining_s = effective_s - (now() - started)
-        if remaining_s <= 0:
-            raise AnonymizerUnavailable("se agotó el plazo antes de enviar")
         reply = send(
             client=client,
             request=request,

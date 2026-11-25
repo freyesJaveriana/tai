@@ -86,16 +86,18 @@ def test_a_call_that_fails_before_sending_logs_its_outcome_without_a_call(
     assert (values["tokens_in"], values["tokens_out"], values["replacements"]) == ("0", "0", "none")
 
 
-def test_no_log_line_from_any_logger_carries_a_canary_or_the_url(
+def test_no_log_line_from_any_logger_carries_a_canary_and_the_module_never_names_the_url(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
+    # F-10: el módulo no cambia el nivel de los loggers de httpx; su línea informativa (método, URL
+    # constante y estado) puede salir si quien lo usa lo permite, pero nunca lleva datos ni la clave.
     caplog.set_level(logging.DEBUG)
     harness = make_harness(ok_response())
 
     harness.anonymizer.generate(make_request(TURNOS))
 
-    assert caplog.records, "el módulo registra su línea"
+    assert _module_lines(caplog), "el módulo registra su línea"
     for record in caplog.records:
         text = record.getMessage()
         assert KEY_CANARY not in text and TESTIMONY_CANARY not in text
-        assert "api.anthropic.com" not in text
+    assert not any("api.anthropic.com" in line for line in _module_lines(caplog))

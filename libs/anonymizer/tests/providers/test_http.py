@@ -54,8 +54,16 @@ def test_the_client_never_follows_redirects_nor_reads_the_environment() -> None:
     client.close()
 
 
-def test_the_informational_logs_of_the_http_libraries_are_silenced() -> None:
-    build_client(httpx.MockTransport(lambda request: httpx.Response(204))).close()
+def test_f10_building_a_client_does_not_change_the_global_logger_levels() -> None:
+    names = ("httpx", "httpcore")
+    previous = {name: logging.getLogger(name).level for name in names}
+    try:
+        for name in names:
+            logging.getLogger(name).setLevel(logging.NOTSET)
 
-    assert logging.getLogger("httpx").level == logging.WARNING
-    assert logging.getLogger("httpcore").level == logging.WARNING
+        build_client(httpx.MockTransport(lambda request: httpx.Response(204))).close()
+
+        assert [logging.getLogger(name).level for name in names] == [logging.NOTSET] * 2
+    finally:
+        for name, level in previous.items():
+            logging.getLogger(name).setLevel(level)

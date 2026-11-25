@@ -4,6 +4,7 @@ Respuestas grabadas sintéticas, contrastadas con la documentación oficial cita
 Nada abre red: todo pasa por el `FakeTransport` o por un `MockTransport` propio.
 """
 
+import gzip
 import json
 from collections.abc import Callable, Iterator
 from dataclasses import replace
@@ -247,6 +248,37 @@ def test_a_body_over_the_cap_is_a_provider_error() -> None:
     assert transport.request_count == 1
 
 
+def test_f07_a_compressed_response_is_rejected_without_decompressing_it() -> None:
+    packed = gzip.compress(ok_response().body)
+    headers = {"content-type": "application/json", "content-encoding": "gzip"}
+    transport = FakeTransport(FakeResponse(status=200, body=packed, headers=headers))
+
+    with pytest.raises(ProviderError) as excinfo:
+        run(transport)
+
+    assert transport.request_count == 1
+    assert excinfo.value.call.anonymized is True
+    assert transport.requests[0].headers["accept-encoding"] == "identity"
+
+
+def test_f07_a_chunked_body_without_content_length_stops_reading_at_the_cap() -> None:
+    consumed: list[int] = []
+
+    class Chunks(httpx.SyncByteStream):
+        def __iter__(self) -> Iterator[bytes]:
+            for n in range(100):
+                consumed.append(n)
+                yield b"x" * 1000
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, headers={"content-type": "application/json"}, stream=Chunks())
+
+    with pytest.raises(ProviderError):
+        run(httpx.MockTransport(handler), max_bytes=2500)
+
+    assert len(consumed) < 100, "no se leyó todo el cuerpo"
+
+
 def test_a_body_exactly_at_the_cap_is_accepted() -> None:
     response = ok_response()
 
@@ -342,7 +374,7 @@ def test_an_unexpected_error_while_interpreting_is_a_provider_error_with_its_cal
 @pytest.mark.parametrize(
     "case",
     ["modo_herramienta_forzada", "esquema_invalido", "sin_mensajes", "esfuerzo_numerico"]
-    + ["esfuerzo_con_espacio", "esquema_no_serializable"],
+    + ["esfuerzo_con_espacio", "esquema_no_serializable", "esquema_a_gran_profundidad"],
 )
 def test_a_body_that_cannot_be_built_fails_closed_with_zero_requests(case: str) -> None:
     request = make_request()
@@ -351,6 +383,11 @@ def test_a_body_that_cannot_be_built_fails_closed_with_zero_requests(case: str) 
         mode = "forced_tool"
     if case == "esquema_invalido":
         request = replace(request, schema={"type": 5})
+    if case == "esquema_a_gran_profundidad":
+        deep: dict[str, Any] = {"type": "string"}
+        for _ in range(3000):
+            deep = {"type": "array", "items": deep}
+        request = replace(request, schema=deep)
     if case == "esquema_no_serializable":
         request = replace(request, schema={"type": "object", "default": {1, 2}})
     if case == "sin_mensajes":

@@ -8,6 +8,7 @@ Mensajes de todos los roles, con contenido JSON y no JSON, y las formas de los c
 """
 
 import json
+from dataclasses import replace
 from typing import Any
 from unittest import mock
 
@@ -67,7 +68,7 @@ def _echo(texts: list[str]) -> FakeResponse:
 @settings(deadline=None, max_examples=40)
 @given(
     texts=st.lists(synthetic_texts(), min_size=1, max_size=3),
-    system=PLAIN,
+    system=st.one_of(PLAIN, synthetic_texts()),  # F-08: `system` también recibe las formas sonda
     extra_user=st.one_of(PLAIN, synthetic_texts()),
     assistant=st.one_of(PLAIN, synthetic_texts()),
 )
@@ -88,8 +89,12 @@ def test_property_nothing_detected_leaves_and_the_masked_echo_is_restored_byte_f
     with mock.patch.object(generate_module, "pseudonymize", spy):
         first = make_harness(_echo([]))
         first.anonymizer.generate(request)
-    assert_no_entity_in_payload(first.transport, SEEDED["entidades"])
-    for view in outgoing_views(first.transport):
+    # `system` recibe las formas sonda (F-08): se comprueba que la llamada sale y se restaura igual,
+    # pero no que no filtre, porque `system` es configuración sin testimonio (BR1.2) y T03 declara
+    # que las palabras sueltas de un nombre no llegan a `system` (F-06). El resto sí se comprueba.
+    outgoing = _without_system(first.transport)
+    assert_no_entity_in_payload(outgoing, SEEDED["entidades"])
+    for view in outgoing_views(outgoing):
         visible = CANONICAL_MARKER.sub("", view)
         for form in forms:
             assert not _bounded_occurrence(visible, form), "una forma detectada salió"
@@ -101,6 +106,16 @@ def test_property_nothing_detected_leaves_and_the_masked_echo_is_restored_byte_f
 
     assert result.content == {"eco": texts}
     assert result.altered_markers == []
+
+
+def _without_system(transport: FakeTransport) -> FakeTransport:
+    """Una copia de lo capturado sin el campo `system` del cuerpo."""
+    stripped = FakeTransport()
+    for raw in transport.requests:
+        body = json.loads(raw.body)
+        body.pop("system", None)
+        stripped.requests.append(replace(raw, body=json.dumps(body).encode("utf-8")))
+    return stripped
 
 
 def user_texts_of_json_message(transport: FakeTransport) -> list[str]:

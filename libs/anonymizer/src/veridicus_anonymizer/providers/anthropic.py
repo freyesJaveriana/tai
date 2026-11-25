@@ -142,10 +142,37 @@ def _headers(api_key: str) -> dict[str, str]:
     }
 
 
+def _safe_build(
+    request: GenerateRequest,
+    messages: Sequence[Message],
+    structured_mode: str,
+    effort_parameter: str,
+    api_key: str,
+) -> tuple[bytes, str | None, dict[str, str]] | AnonymizerUnavailable:
+    """Todo lo previo al envío: cualquier excepción, incluso `RecursionError`, no envía nada (F-01).
+
+    Devuelve el error en vez de lanzarlo para que `send` lo lance fuera de todo `except`.
+    """
+    try:
+        body, effort = _build_body(request, messages, structured_mode, effort_parameter)
+        return body, effort, _headers(api_key)
+    except AnonymizerUnavailable as error:
+        return error
+    except Exception:  # noqa: BLE001 - antes de enviar, toda falla es fallo cerrado
+        return AnonymizerUnavailable("falló un paso inesperado al construir la petición")
+
+
 def _exchange(
     client: httpx.Client, body: bytes, headers: dict[str, str], timeout_s: float, max_bytes: int
 ) -> bytes | _Failure:
-    """Una sola petición; devuelve el cuerpo leído con tope o la falla que corresponda."""
+    """Una sola petición; devuelve el cuerpo leído con tope o la falla que corresponda.
+
+    Límite declarado (F-06): el plazo de `httpx` es por operación (conexión, escritura y cada lectura)
+    y el reloj total solo se mira al llegar un bloque, así que una respuesta que gotea puede acercarse
+    a dos veces `timeout_s` antes de cortarse. Se rechaza todo `content-encoding` distinto de
+    `identity` antes de leer nada, así `iter_bytes` no descomprime nunca y el tope cuenta bytes
+    recibidos (F-07). No se usa `iter_raw` porque el `FakeTransport` entrega el cuerpo ya leído.
+    """
     deadline = monotonic() + timeout_s
     timeout = httpx.Timeout(timeout_s, connect=min(CONNECT_TIMEOUT_S, timeout_s))
     try:
@@ -154,6 +181,8 @@ def _exchange(
         ) as response:
             if not response.is_success:
                 return _Failure("provider", "el proveedor respondió con un error o una redirección")
+            if response.headers.get("content-encoding", "identity").strip().lower() != "identity":
+                return _Failure("provider", "el proveedor respondió con un cuerpo comprimido")
             chunks: list[bytes] = []
             total = 0
             for chunk in response.iter_bytes():
@@ -258,9 +287,12 @@ def send(
     max_response_bytes: int,
 ) -> ProviderReply:
     """Envía una vez y devuelve el JSON validado, o lanza el error tipado de C13."""
-    body, effort = _build_body(request, messages, structured_mode, effort_parameter)
+    built = _safe_build(request, messages, structured_mode, effort_parameter, api_key)
+    if isinstance(built, AnonymizerUnavailable):
+        raise built
+    body, effort, headers = built
     sent_at = datetime.now(UTC).replace(microsecond=0)
-    outcome = _exchange(client, body, _headers(api_key), timeout_s, max_response_bytes)
+    outcome = _exchange(client, body, headers, timeout_s, max_response_bytes)
     result = outcome if isinstance(outcome, _Failure) else _safe_interpret(outcome, request.schema)
     if isinstance(result, _Failure) and result.kind == "unavailable":
         raise AnonymizerUnavailable(result.message)

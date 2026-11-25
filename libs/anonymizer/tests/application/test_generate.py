@@ -85,7 +85,25 @@ def _masking_error(ctx: Ctx, mp: pytest.MonkeyPatch) -> None:
     mp.setattr(generate_module, "pseudonymize", fail)
 
 
+def _deep_schema(ctx: Ctx, mp: pytest.MonkeyPatch) -> None:
+    schema: dict[str, Any] = {"type": "string"}
+    for _ in range(3000):
+        schema = {"type": "array", "items": schema}
+    ctx.request = replace(ctx.request, schema=schema)
+
+
+def _replacements_raise(ctx: Ctx, mp: pytest.MonkeyPatch) -> None:
+    mp.setattr(generate_module, "_replacements", boom)
+
+
+def _catalog_without_domain(ctx: Ctx, mp: pytest.MonkeyPatch) -> None:
+    ctx.catalogs = replace(ctx.catalogs, domains={})
+
+
 PRE_SEND_BREAKS: dict[str, Break] = {
+    "esquema_anidado_a_gran_profundidad": _deep_schema,
+    "error_inesperado_al_contar_reemplazos": _replacements_raise,
+    "catalogo_sin_el_dominio_del_proveedor": _catalog_without_domain,
     "dominio_con_mayusculas": _domain("API.anthropic.com"),
     "dominio_con_punto_final": _domain("api.anthropic.com."),
     "dominio_con_puerto_8443_en_el_catalogo": _domain("api.anthropic.com", 8443),
@@ -119,6 +137,48 @@ def test_every_pre_send_condition_fails_closed_with_zero_requests(
     for text in [*exception_texts(excinfo.value), caplog.text]:
         assert KEY_CANARY not in text
         assert not any(entity in text for entity in SEEDED["entidades"])
+
+
+def test_f04_the_masking_budget_is_enforced_even_when_the_total_deadline_still_has_room(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """El reloj solo avanza dentro de `pseudonymize`: 10 s de 30 s pasan del presupuesto (4,5 s)
+    pero no del plazo total. Un `has_budget` siempre verdadero enviaría y haría fallar la prueba."""
+    clock = [0.0]
+    real = generate_module.pseudonymize
+
+    def slow(*args: Any, **kwargs: Any) -> Any:
+        clock[0] += 10.0
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(generate_module, "now", lambda: clock[0])
+    monkeypatch.setattr(generate_module, "pseudonymize", slow)
+    harness = make_harness(ok_response())
+
+    with pytest.raises(AnonymizerUnavailable, match="presupuesto") as excinfo:
+        harness.anonymizer.generate(make_request(timeout_s=30.0))
+
+    assert harness.transport.request_count == 0
+    assert not hasattr(excinfo.value, "call")
+
+
+def test_f04_control_a_masking_that_stays_inside_the_budget_sends_once(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clock = [0.0]
+    real = generate_module.pseudonymize
+
+    def quick(*args: Any, **kwargs: Any) -> Any:
+        clock[0] += 1.0
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(generate_module, "now", lambda: clock[0])
+    monkeypatch.setattr(generate_module, "pseudonymize", quick)
+    harness = make_harness(ok_response())
+
+    harness.anonymizer.generate(make_request(timeout_s=30.0))
+
+    assert harness.transport.request_count == 1
 
 
 def test_the_baseline_scenario_sends_exactly_once_and_returns_the_result() -> None:

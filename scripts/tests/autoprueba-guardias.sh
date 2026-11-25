@@ -36,6 +36,7 @@ clave="Ser"; clave+="vidor"                    # la clave en un archivo de datos
 raiz_cl="/zi"; raiz_cl+="ne/"                  # inicio de una ruta absoluta del clúster
 copia="s"; copia+="cp"
 puerto_a="usua"; puerto_a+="rio@nod"; puerto_a+="o7:"
+host_a="no"; host_a+="do7"                     # host literal sin usuario
 documento="c"; documento+="édula "
 exento="1234"; exento+="5678"
 
@@ -81,6 +82,13 @@ caso S "$ids" "scripts/b.ps1" "$param = \"\$usuario@\" + \"otro-host\"" \
   "host literal concatenado tras la arroba en la asignación del servidor"
 caso S "$ids" "scripts/c.ps1" "$copia archivo.txt $puerto_a/tmp/" \
   "copia con destino de host literal y usuario"
+# F-01 (ronda 2): el destino con host literal que ya veía la guardia anterior sigue viéndose.
+caso S "$ids" "scripts/c.ps1" "$copia archivo.txt $puerto_a" \
+  "copia con destino de host literal y usuario, sin ruta, al final de la línea"
+caso S "$ids" "scripts/c.ps1" "$copia archivo.txt \"$host_a:\"" \
+  "copia con destino de host literal entre comillas, sin ruta"
+caso S "$ids" "scripts/c.ps1" "$copia archivo.txt $host_a: ruta/x" \
+  "copia con destino de host literal y un espacio después de los dos puntos"
 caso S "$ids" "docs/nota.md" "nodo de entrada $nodo para el trabajo" \
   "nombre de nodo en el contenido (regla previa)"
 caso S "$ids" "docs/ruta.md" "datos en ${raiz_cl}proyectos/x" \
@@ -103,6 +111,19 @@ caso C "$ids" "scripts/d.ps1" "$copia \$origen \"\${usuario}@\${destino}:/tmp/\"
   "copia con destino armado desde variables"
 caso C "$ids" "scripts/e.ps1" "$copia -v archivo.txt https://ejemplo.invalid/x" \
   "copia cuyo argumento es una URL y no un host"
+# F-02 (ronda 2): los tres falsos positivos reales de F-05 de la revisión de T29.
+caso C "$ids" "scripts/f.ps1" "$copia \$origen \$destino; Write-Host \"listo a las 12:30\"" \
+  "línea de copia que lleva una hora"
+caso C "$ids" "scripts/f.ps1" "$copia \$origen \$destino # nota:x" \
+  "comentario con palabra, dos puntos y una letra pegada en la línea de la copia"
+caso C "$ids" "scripts/f.ps1" "$copia \$origen \$destino:/tmp/" \
+  "destino que sale de una variable sin llaves seguida de dos puntos, sin comillas"
+caso C "$ids" "scripts/f.ps1" "$copia \$origen \"\$destino:/tmp/\"" \
+  "destino que sale de una variable sin llaves seguida de dos puntos, entre comillas"
+caso C "$ids" "scripts/f.ps1" "$copia \$origen \$env:DESTINO:/tmp/" \
+  "destino que sale de una variable de entorno sin llaves seguida de dos puntos"
+caso C "$ids" "scripts/f.ps1" "$copia \$origen \"\$env:DESTINO:/tmp/\"" \
+  "destino de variable de entorno sin llaves seguida de dos puntos, entre comillas"
 
 # --- Sondas de check-no-datos-personales.sh --------------------------------------------------------------
 caso S "$datos" "docs/a.md" "${documento}${exento}.456" \

@@ -9,7 +9,8 @@ Uso: `python -m veridicus_anonymizer.testing.coverage_gate coverage.json`.
 
 import json
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
+from pathlib import Path
 from typing import Any
 
 PACKAGE_MARKER = "veridicus_anonymizer/"
@@ -49,18 +50,41 @@ def _counts(path: str, entry: object) -> tuple[int, int, int, int] | str:
     return (values[0], values[1], values[2], values[3])
 
 
-def evaluate(report: Mapping[str, Any]) -> list[str]:
-    """Los fallos del informe (lista vacía si pasa), en español y sin más datos que rutas y cifras."""
+def guard_files(package_dir: Path) -> set[str]:
+    """Los archivos que el informe debe traer: cada `.py` de los grupos guardia que hay en `src/`.
+
+    Un grupo de archivo exacto se exige aunque no exista en disco (falla cerrado).
+    """
+    expected: set[str] = set()
+    for group in GUARD_GROUPS:
+        if group.endswith("/"):
+            expected.update(
+                path.relative_to(package_dir).as_posix()
+                for path in (package_dir / group).rglob("*.py")
+            )
+        else:
+            expected.add(group)
+    return expected
+
+
+def evaluate(report: Mapping[str, Any], expected_files: Collection[str] | None = None) -> list[str]:
+    """Los fallos del informe (lista vacía si pasa), en español y sin más datos que rutas y cifras.
+
+    `expected_files` son las rutas dentro del paquete (`domain/masking.py`) que el informe debe traer;
+    un `omit` de la configuración de cobertura no puede dejar fuera un módulo guardia sin aviso.
+    """
     files = report.get("files")
     if not isinstance(files, dict) or not files:
         return ["el informe no trae archivos"]
     failures: list[str] = []
     statements = covered_lines = 0
     seen_groups: set[str] = set()
+    reported: set[str] = set()
     for path, entry in sorted(files.items()):
         relative = _relative(str(path))
         if relative is None:
             continue
+        reported.add(relative)
         counts = _counts(str(path), entry)
         if isinstance(counts, str):
             failures.append(counts)
@@ -82,6 +106,10 @@ def evaluate(report: Mapping[str, Any]) -> list[str]:
         for group in GUARD_GROUPS
         if group not in seen_groups
     )
+    failures.extend(
+        f"el informe no trae el módulo guardia {relative}"
+        for relative in sorted(set(expected_files or ()) - reported)
+    )
     if statements == 0 or covered_lines * 100 < statements * LINE_FLOOR_PERCENT:
         failures.append(
             f"líneas del paquete: {covered_lines} de {statements} cubiertas "
@@ -90,8 +118,11 @@ def evaluate(report: Mapping[str, Any]) -> list[str]:
     return failures
 
 
-def main(argv: Sequence[str]) -> int:
-    """0 si el informe pasa, 1 si falla o no se puede leer, 2 si el uso es incorrecto."""
+def main(argv: Sequence[str], package_dir: Path | None = None) -> int:
+    """0 si el informe pasa, 1 si falla o no se puede leer, 2 si el uso es incorrecto.
+
+    `package_dir` es el directorio del paquete en `src/`; por defecto, el de este mismo módulo.
+    """
     if len(argv) != 1:
         print(
             "uso: python -m veridicus_anonymizer.testing.coverage_gate coverage.json",
@@ -107,7 +138,8 @@ def main(argv: Sequence[str]) -> int:
     if not isinstance(report, dict):
         print(f"no se pudo leer el informe {argv[0]}: no es un objeto JSON", file=sys.stderr)
         return 1
-    failures = evaluate(report)
+    root = Path(__file__).resolve().parents[1] if package_dir is None else package_dir
+    failures = evaluate(report, guard_files(root))
     for failure in failures:
         print(failure, file=sys.stderr)
     if failures:

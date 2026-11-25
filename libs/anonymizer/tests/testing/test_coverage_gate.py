@@ -9,7 +9,8 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from veridicus_anonymizer.testing.coverage_gate import evaluate, main
+import veridicus_anonymizer
+from veridicus_anonymizer.testing.coverage_gate import evaluate, guard_files, main
 
 PREFIX = "src/veridicus_anonymizer/"
 # Un archivo por grupo guardia, más uno que no lo es (fuera de la regla de ramas).
@@ -121,10 +122,24 @@ def write(tmp_path: Path, content: dict[str, Any]) -> Path:
     return target
 
 
+def make_package(root: Path, *extra: str) -> Path:
+    """Un directorio de paquete con los archivos guardia del informe sintético y los `extra`."""
+    package = root / "pkg"
+    for path in (*GUARD_FILES, OTHER_FILE):
+        target = package / path.removeprefix(PREFIX)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("", encoding="utf-8")
+    for relative in extra:
+        target = package / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("", encoding="utf-8")
+    return package
+
+
 def test_main_returns_zero_for_a_passing_report(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    assert main([str(write(tmp_path, report()))]) == 0
+    assert main([str(write(tmp_path, report()))], make_package(tmp_path)) == 0
     assert "100 % de ramas" in capsys.readouterr().out
 
 
@@ -132,8 +147,48 @@ def test_main_returns_one_and_names_the_failing_module(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     broken = report(**{GUARD_FILES[2]: file_entry(branches=2, covered_branches=1)})
-    assert main([str(write(tmp_path, broken))]) == 1
+    assert main([str(write(tmp_path, broken))], make_package(tmp_path)) == 1
     assert GUARD_FILES[2] in capsys.readouterr().err
+
+
+def test_a_guard_group_missing_one_file_fails_even_if_it_has_others() -> None:
+    expected = {"domain/masking.py", "domain/detection.py"}
+    failures = evaluate(report(), expected | {"api.py"})
+    assert failures == ["el informe no trae el módulo guardia domain/detection.py"]
+
+
+def test_guard_files_lists_every_python_file_of_each_group(tmp_path: Path) -> None:
+    package = make_package(
+        tmp_path, "domain/sub/deep.py", "providers/http.py", "domain/data.yaml", "other/x.py"
+    )
+    assert guard_files(package) == {
+        "domain/masking.py",
+        "domain/sub/deep.py",
+        "application/generate.py",
+        "api.py",
+        "providers/anthropic.py",
+        "providers/http.py",
+        "testing/fake_transport.py",
+    }
+
+
+def test_main_fails_when_a_guard_file_of_the_source_tree_is_not_in_the_report(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    package = make_package(tmp_path, "domain/detection.py")
+    assert main([str(write(tmp_path, report()))], package) == 1
+    assert "domain/detection.py" in capsys.readouterr().err
+
+
+def test_an_exact_guard_file_is_required_even_if_it_is_not_on_disk(tmp_path: Path) -> None:
+    assert "testing/fake_transport.py" in guard_files(tmp_path)
+
+
+def test_the_real_package_has_its_guard_modules_listed() -> None:
+    real = Path(veridicus_anonymizer.__file__).resolve().parent
+    listed = guard_files(real)
+    assert {"domain/masking.py", "application/generate.py", "api.py"} <= listed
+    assert all((real / relative).is_file() for relative in listed)
 
 
 def test_main_fails_when_the_file_is_missing(

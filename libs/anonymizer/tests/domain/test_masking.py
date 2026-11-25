@@ -283,17 +283,18 @@ def test_the_assistant_role_also_gets_the_safety_net() -> None:
     assert masked == [Message("assistant", "vi a [ENTIDAD_1].")]
 
 
-def test_f04_each_word_of_a_multiword_span_is_a_propagable_form_even_in_system() -> None:
+def test_f04_limit_a_loose_word_of_a_full_name_is_not_masked_in_system() -> None:
+    # Límite declarado: `system` es texto fijo del sistema y no lleva testimonio (F-06).
     system = Message("system", "Consulta a Pérez o a Casilda si dudas.")
 
     masked, table = pseudonymize([system, _user("vio a Casilda Pérez ayer.")], CATALOGS)
 
-    assert masked[0].content == "Consulta a [ENTIDAD_1] o a [ENTIDAD_2] si dudas."
-    assert _texts_of(masked[1]) == ["vio a [ENTIDAD_3] ayer."]
-    assert table.forms() == ["Pérez", "Casilda", "Casilda Pérez"]
+    assert masked[0].content == "Consulta a Pérez o a Casilda si dudas."
+    assert _texts_of(masked[1]) == ["vio a [ENTIDAD_1] ayer."]
+    assert table.forms() == ["Casilda Pérez"]
 
 
-def test_f04_only_capitalized_words_that_are_not_allowed_become_forms() -> None:
+def test_f04_a_form_that_is_a_whole_span_still_reaches_system_as_before() -> None:
     messages = [
         Message("user", "vivía en la vereda Cañada del Sauce y en La Esperanza."),
         Message("system", "Sauce, el río y Esperanza; del y La no se enmascaran."),
@@ -301,8 +302,9 @@ def test_f04_only_capitalized_words_that_are_not_allowed_become_forms() -> None:
 
     masked, _ = pseudonymize(messages, CATALOGS)
 
-    # «Sauce» es palabra del tramo «Cañada del Sauce» (LUGAR); «Esperanza» ya era forma suelta.
-    assert masked[1].content == "[LUGAR_2], el río y [ENTIDAD_1]; del y La no se enmascaran."
+    # «Esperanza» es un tramo entero (forma de tramo completo): llega a `system`. «Sauce», solo
+    # palabra del tramo «Cañada del Sauce», no.
+    assert masked[1].content == "Sauce, el río y [ENTIDAD_1]; del y La no se enmascaran."
 
 
 def test_pd5_stable_prefix_the_same_text_with_new_turns_keeps_the_numbers() -> None:
@@ -312,6 +314,32 @@ def test_pd5_stable_prefix_the_same_text_with_new_turns_keeps_the_numbers() -> N
 
     assert extended[:9] == base
     assert "[ENTIDAD_" in extended[9]
+
+
+SYSTEM_TEXT = Message("system", "Consulta a Pérez o a Casilda y a Ludovico si dudas.")
+
+
+@pytest.mark.parametrize(
+    ("before", "new_turn"),
+    [
+        (["vio a Aurelio ayer.", "luego Pérez salió."], "vieron a Casilda Pérez en la plaza."),
+        (["vio a Casilda ayer."], "luego Casilda Pérez llegó con Ludovico Barrantes."),
+        (["vio a Aurelio ayer."], "Entonces Ludovico Pérez y Casilda Barrantes hablaron."),
+    ],
+    ids=[
+        "palabra_de_system_solo_en_un_tramo_nuevo",
+        "palabra_suelta_en_user_anterior",
+        "dos_tramos",
+    ],
+)
+def test_f06_pd5_with_a_system_in_front_it_and_the_earlier_turns_are_identical_byte_for_byte(
+    before: list[str], new_turn: str
+) -> None:
+    base, _ = pseudonymize([SYSTEM_TEXT, _user(*before)], CATALOGS)
+    extended, _ = pseudonymize([SYSTEM_TEXT, _user(*before, new_turn)], CATALOGS)
+
+    assert extended[0] == base[0]
+    assert _texts_of(extended[1])[: len(before)] == _texts_of(base[1])
 
 
 # --- Presupuesto y fallo cerrado ------------------------------------------------------------------

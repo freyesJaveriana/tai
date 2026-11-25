@@ -111,38 +111,74 @@ def _occurrences(text: str, forms: dict[str, str]) -> Iterator[DetectedSpan]:
 _WORD_CATEGORIES = frozenset({"PERSONA", "LUGAR", "ENTIDAD"})
 
 
-def propagate(
+def _span_forms(texts: Sequence[str], spans: Sequence[Sequence[DetectedSpan]]) -> dict[str, str]:
+    """Cada forma de tramo completo con la categoría de su primera aparición."""
+    forms: dict[str, str] = {}
+    for text, group in zip(texts, spans, strict=True):
+        for span in group:
+            forms.setdefault(text[span.start : span.end], span.category)
+    return forms
+
+
+def _word_forms(
     texts: Sequence[str],
     spans: Sequence[Sequence[DetectedSpan]],
-    allowed_words: frozenset[str] = frozenset(),
-) -> list[list[DetectedSpan]]:
-    """Marca en todos los valores cada forma detectada en alguno, hasta que no crezca más (F4 paso 4).
+    allowed_words: frozenset[str],
+) -> dict[str, str]:
+    """Cada palabra con mayúscula, no permitida, de un tramo de varias palabras (F-11)."""
+    forms: dict[str, str] = {}
+    for text, group in zip(texts, spans, strict=True):
+        for span in group:
+            words = text[span.start : span.end].split()
+            if span.category in _WORD_CATEGORIES and len(words) > 1:
+                for word in words:
+                    if detection.has_capital(word) and word not in allowed_words:
+                        forms.setdefault(word, span.category)
+    return forms
 
-    El resultado nunca deja una forma detectada fuera de una marca: si un tramo nuevo se solapa con
-    otro, la unión es una forma nueva que también se propaga. Además, cada palabra con mayúscula de
-    un tramo de varias palabras (F-11) es una forma propagable con su propia marca: un apellido
-    suelto en otro mensaje, incluido `system`, queda enmascarado (F-04). Las palabras permitidas no.
-    """
+
+def _grow(
+    texts: Sequence[str],
+    spans: Sequence[Sequence[DetectedSpan]],
+    forms_of: Callable[[Sequence[list[DetectedSpan]]], dict[str, str]],
+    skip: Sequence[bool],
+) -> list[list[DetectedSpan]]:
+    """Propaga `forms_of(spans)` a los valores que no están en `skip`, hasta que no crezca más."""
     current = [list(group) for group in spans]
     while True:
-        forms: dict[str, str] = {}
-        for text, group in zip(texts, current, strict=True):
-            for span in group:
-                forms.setdefault(text[span.start : span.end], span.category)
-        for text, group in zip(texts, current, strict=True):
-            for span in group:
-                words = text[span.start : span.end].split()
-                if span.category in _WORD_CATEGORIES and len(words) > 1:
-                    for word in words:
-                        if detection.has_capital(word) and word not in allowed_words:
-                            forms.setdefault(word, span.category)
+        forms = forms_of(current)
         grown = [
-            detection.merge_spans([*group, *_occurrences(text, forms)])
-            for text, group in zip(texts, current, strict=True)
+            group if omit else detection.merge_spans([*group, *_occurrences(text, forms)])
+            for text, group, omit in zip(texts, current, skip, strict=True)
         ]
         if grown == current:
             return current
         current = grown
+
+
+def propagate(
+    texts: Sequence[str],
+    spans: Sequence[Sequence[DetectedSpan]],
+    allowed_words: frozenset[str] = frozenset(),
+    system: Sequence[bool] | None = None,
+) -> list[list[DetectedSpan]]:
+    """Marca en todos los valores cada forma detectada en alguno, hasta que no crezca más (F4 paso 4).
+
+    Primero, cada forma de tramo completo y de regla llega a todos los valores, también a `system`: si
+    un tramo nuevo se solapa con otro, la unión es una forma nueva que también se propaga. Después,
+    cada palabra con mayúscula de un tramo de varias palabras (F-11) es además una forma propagable,
+    pero solo hacia los valores que no son `system` (`system[i]` es verdadero): `system` es texto fijo
+    del sistema, sin testimonio, y un tramo nuevo no debe cambiarlo ni renumerar los turnos
+    anteriores (PD-5, F-04, F-06). Las palabras permitidas no son formas.
+    """
+    flags = [False] * len(texts) if system is None else list(system)
+    everywhere = _grow(texts, spans, lambda g: _span_forms(texts, g), [False] * len(texts))
+    return _grow(
+        texts,
+        everywhere,
+        lambda g: {**_word_forms(texts, g, allowed_words), **_span_forms(texts, g)},
+        flags,
+    )
 
 
 def build_table(texts: Sequence[str], spans: Sequence[Sequence[DetectedSpan]]) -> MaskTable:
@@ -262,7 +298,9 @@ def pseudonymize(
         if role != "system":
             found = [*found, *detection.safety_net(text, catalogs)]
         detected.append(detection.merge_spans(found))
-    spans = propagate(texts, detected, catalogs.allowed_words)
+    spans = propagate(
+        texts, detected, catalogs.allowed_words, [role == "system" for role, _ in units]
+    )
     _check(has_budget)
     table = build_table(texts, spans)
     try:

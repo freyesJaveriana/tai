@@ -9,15 +9,16 @@ Módulo guardia (100 % de ramas). Falla si un *workflow* de `.github/workflows/`
 - usa una acción de otro repositorio (`dueño/repo@ref`, `dueño/repo/ruta@ref`) cuyo `ref` no sea un SHA de 40
   caracteres hexadecimales en minúscula, o una `docker://` sin `@sha256:` de 64 caracteres. Una acción local
   (`./…`) no lleva `ref` y pasa (K-70, `team.md`, Deployment);
-- no declara `permissions: contents: read` en la raíz, o usa `contents: write` o `write-all` en cualquier otro
-  nivel. Los permisos de escritura de otros alcances de un *job* (`packages: write`) no se marcan.
+- no declara `permissions: contents: read` en la raíz, declara en la raíz cualquier valor `write` (P-T22b-2:
+  `packages: write` solo va en un *job*), o usa `contents: write` o `write-all` en cualquier otro nivel. Los
+  permisos de escritura de otros alcances dentro de un *job* (`packages: write`) no se marcan.
 
 Los permisos se leen con el cargador YAML del paquete; un *workflow* que no carga es un problema, no un salto.
 Los mensajes nombran el archivo, la línea cuando se conoce y el término.
 """
 
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 from veridicus_contracts.loaders import LoadError, load_yaml_text
@@ -28,19 +29,9 @@ LIMITACIONES = (
     "una herramienta invocada por una variable o un alias (`$K apply`) no se detecta",
     "un valor de opción entre comillas con espacios (`--namespace \"a b\"`) no se detecta",
     "que el SHA corresponda de verdad a la versión del comentario necesita red y no se comprueba (K-70)",
-    "un `uses:` escrito en una sola línea de flujo (`{uses: x@v4}`) no se detecta",
 )
-# `uses:` de un paso (con o sin guion inicial); el valor puede ir entre comillas. Un comentario no coincide.
-_USES = re.compile(r"""^\s*(?:-\s+)?uses:\s*["']?(?P<valor>[^\s"']+)""")
 _ACCION_FIJADA = re.compile(r"[^@\s]+@[0-9a-f]{40}")
 _DOCKER_FIJADA = re.compile(r"docker://\S+@sha256:[0-9a-f]{64}")
-
-
-def _fijada(valor: str) -> bool:
-    if valor.startswith("./"):
-        return True
-    patron = _DOCKER_FIJADA if valor.startswith("docker://") else _ACCION_FIJADA
-    return patron.fullmatch(valor) is not None
 # Entre la herramienta y el verbo pueden ir opciones globales (`-n x`, `--context=x`, `--namespace x`,
 # `--dry-run`, `--`). Cada opción es uno o dos guiones, un nombre cuyo primer carácter no es un guion, y a lo
 # sumo un valor tras `=` o un valor tras un espacio que no empieza por guion; o el `--` solo.
@@ -60,6 +51,13 @@ PROHIBIDOS = (
     ("helm upgrade", re.compile(rf"helm{_OPCIONES}\s+upgrade\b", re.IGNORECASE)),
     ("kubeconfig", re.compile(r"kube_?config", re.IGNORECASE)),
 )
+
+
+def _fijada(valor: str) -> bool:
+    if valor.startswith("./"):
+        return True
+    patron = _DOCKER_FIJADA if valor.startswith("docker://") else _ACCION_FIJADA
+    return patron.fullmatch(valor) is not None
 
 
 def workflows(raiz: Path) -> list[Path]:
@@ -82,15 +80,43 @@ def scan(paths: Iterable[Path]) -> list[str]:
     return problemas
 
 
+def _usos(nodo: object) -> Iterator[str]:
+    """Cada valor de una clave `uses` del documento cargado, en el orden del archivo."""
+    if isinstance(nodo, dict):
+        for clave, valor in nodo.items():
+            if clave == "uses":
+                yield str(valor)
+            else:
+                yield from _usos(valor)
+    elif isinstance(nodo, list):
+        for valor in nodo:
+            yield from _usos(valor)
+
+
 def scan_acciones(paths: Iterable[Path]) -> list[str]:
-    """Las acciones sin fijar por SHA (o por digest, si son `docker://`) de cada workflow, por línea."""
+    """Las acciones sin fijar por SHA (o por digest, si son `docker://`) de cada workflow.
+
+    Los `uses` se leen del YAML cargado, así que ninguna forma de escribirlos se escapa (valor en otra línea,
+    clave entre comillas, espacio antes de los dos puntos, flujo `{uses: x}`). La línea se busca en el texto
+    siguiendo el orden del documento; si no se encuentra, el mensaje va sin línea. Un workflow que no carga lo
+    reporta `scan_permisos`.
+    """
     problemas: list[str] = []
     for ruta in sorted(paths):
-        lineas = ruta.read_text(encoding="utf-8", errors="replace").splitlines()
-        for numero, linea in enumerate(lineas, start=1):
-            coincidencia = _USES.match(linea)
-            if coincidencia and not _fijada(coincidencia["valor"]):
-                problemas.append(f"{ruta.as_posix()}:{numero}: acción sin fijar por SHA: {coincidencia['valor']} {REGLA}")
+        texto = ruta.read_text(encoding="utf-8", errors="replace")
+        try:
+            datos = load_yaml_text(texto)
+        except LoadError:
+            continue
+        lineas = texto.splitlines()
+        cursor = 0
+        for valor in _usos(datos):
+            posicion = next((i for i in range(cursor, len(lineas)) if valor in lineas[i]), None)
+            if posicion is not None:
+                cursor = posicion + 1
+            if not _fijada(valor):
+                lugar = ruta.as_posix() if posicion is None else f"{ruta.as_posix()}:{posicion + 1}"
+                problemas.append(f"{lugar}: acción sin fijar por SHA: {valor} {REGLA}")
     return problemas
 
 
@@ -120,6 +146,9 @@ def scan_permisos(paths: Iterable[Path]) -> list[str]:
             problemas.append(f"{ruta.as_posix()}: falta `permissions: contents: read` en la raíz {REGLA}")
         elif not (isinstance(raiz, dict) and raiz.get("contents") == "read"):
             problemas.append(f"{ruta.as_posix()}: la raíz declara permisos distintos de `contents: read` {REGLA}")
+        elif "write" in raiz.values():
+            escrituras = ", ".join(clave for clave, valor in raiz.items() if valor == "write")
+            problemas.append(f"{ruta.as_posix()}: la raíz declara escritura ({escrituras}); solo un job puede tenerla {REGLA}")
         resto = {clave: valor for clave, valor in datos.items() if clave != "permissions"} if isinstance(datos, dict) else {}
         if _escritura_en_algun_nivel(resto):
             problemas.append(f"{ruta.as_posix()}: `contents: write` o `write-all` no se permite en ningún nivel {REGLA}")

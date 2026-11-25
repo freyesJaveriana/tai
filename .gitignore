@@ -98,3 +98,17 @@ aidlc/diagnostics/
 
 # Worktrees del loop de agentes (cambio 04)
 .worktrees/
+
+# Secretos y material sensible: nunca se versionan
+.env
+*.pem
+*.key
+kubeconfig*
+secrets*.yaml
+
+# Salidas de construcción y de auditoría
+build/
+
+# Resultados de corridas sobre el corpus del piloto: nunca se versionan (veridicus-01 §7, R-1)
+resultados/
+resultados-locales/

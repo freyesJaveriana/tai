@@ -1,0 +1,126 @@
+openapi: 3.1.0
+info:
+  title: Veridicus anonymizer-proxy
+  version: 1.0.0
+  description: >-
+    C21, la misma operación de C20 por la red dentro del clúster. Solo la llama `semantic-agent`.
+    El proxy no confía en el destino de quien llama: la petición nombra el perfil, su huella, el papel
+    y la ranura (`primary` o `fallback`), y el proveedor, el modelo y la clave los toma el proxy de su
+    propia copia validada de los perfiles. Petición y respuesta son estrictas en todos los niveles
+    (NFR1.3, AUTONOMIA-04): no hay campo `destination` ni `api_key_ref`.
+servers:
+  - url: http://veridicus-anonymizer-proxy:8080
+paths:
+  /v1/generate:
+    post:
+      operationId: generate
+      summary: Llama al destino externo del papel con el cuerpo ya seudonimizado
+      requestBody:
+        required: true
+        x-veridicus-max-bytes: anonymizer_request_max_bytes
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - schema_version
+                - run_id
+                - profile_name
+                - profile_sha256
+                - role
+                - destination_slot
+                - messages
+                - schema
+                - timeout_s
+              properties:
+                schema_version:
+                  type: string
+                  pattern: '^1\.[0-9]+\.[0-9]+$'
+                  maxLength: 128
+                  x-veridicus-limit: report_token_max_chars
+                run_id:
+                  type: string
+                  format: uuid
+                  description: Solo para logs con IDs
+                profile_name:
+                  type: string
+                  pattern: '^[a-z0-9-]{1,48}$'
+                profile_sha256:
+                  type: string
+                  pattern: '^[0-9a-f]{64}$'
+                  description: Huella de la entrada del perfil (C18)
+                role:
+                  type: string
+                  pattern: '^[a-z][a-z0-9_]{0,31}$'
+                  description: Se valida contra roles y role_aliases del perfil (revisión 4, FD-U10-17)
+                destination_slot:
+                  enum: [primary, fallback]
+                messages:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required: [role, content]
+                    properties:
+                      role:
+                        enum: [system, user, assistant]
+                      content:
+                        type: string
+                schema:
+                  type: object
+                seed:
+                  type: integer
+                timeout_s:
+                  type: number
+                  exclusiveMinimum: 0
+      responses:
+        '200':
+          description: Respuesta restaurada y su registro
+          content:
+            application/json:
+              x-veridicus-max-bytes: anonymizer_response_max_bytes
+              schema:
+                type: object
+                additionalProperties: false
+                required: [content, altered_markers, call]
+                properties:
+                  content:
+                    type: object
+                  altered_markers:
+                    type: array
+                    items:
+                      type: string
+                    description: Rutas JSON de las partes invalidadas
+                  call:
+                    $ref: '/veridicus/contracts/model_calls/model-call.v1'
+        '409':
+          description: >-
+            profile_sha256 no coincide con la copia del proxy; no salió ninguna llamada:
+            { "code": "anonymizer.profile_mismatch" }
+        '413':
+          description: >-
+            Cuerpo mayor que anonymizer_request_max_bytes; no salió ninguna llamada:
+            { "code": "limits.exceeded" } (revisión 4, NFRD-U10-17)
+        '422':
+          description: >-
+            Petición inválida, perfil o papel inexistente, ranura fallback sin fallback_provider,
+            destino local o dominio fuera de la lista; no salió ninguna llamada:
+            { "code": "anonymizer.destination_rejected" }
+        '451':
+          description: >-
+            Bloqueo de contenido del proveedor: { "code": "analysis.content_blocked", "call": … }
+            (FD-U10-04)
+        '502':
+          description: >-
+            Error del proveedor o salida que no valida; la llamada ya salió:
+            { "code": "analysis.provider", "call": … } o { "code": "analysis.invalid_output", "call": … }
+            (FD-U10-04)
+        '503':
+          description: >-
+            Anonimizador no disponible, o cupo de concurrencia lleno (al instante, NFR-U10-08); no salió
+            ninguna llamada: { "code": "analysis.anonymizer_unavailable" }
+        '504':
+          description: >-
+            Tiempo agotado: { "code": "analysis.timeout", "call": … } (FD-U10-04)

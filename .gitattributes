@@ -3,3 +3,6 @@
 *.sh  text eol=lf
 Dockerfile text eol=lf
 *.bat text eol=crlf
+
+# Paquete de contratos: LF siempre, para que las huellas no cambien por sistema (NFRD-U1-13).
+contracts/** text eol=lf

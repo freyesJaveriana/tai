@@ -1,0 +1,25 @@
+# BR3.5: consentimiento de tipo autoridad sin constancia.
+fixture_id: c6-entrada-autoridad-sin-constancia
+contract: C6.entrada
+synthetic: true
+expectation: reject
+reject_reason: BR3.5
+mentions: [Villa Rocamora]
+payload:
+  contrato: "1.0.0"
+  transcripcion:
+    entrevista: SINT-0002
+    origen: corpus
+    consentimiento:
+      tipo: autoridad
+      version_texto: "1.0.0"
+      autoriza_transferencia: false
+      autoriza_voz: false
+      autoriza_conservar_audio: false
+      requiere_mandato: false
+      registrado_en: "2026-11-20T10:00:00Z"
+    turnos:
+      - {n: 1, hablante: ENT, texto: "¿Dónde pasó usted la noche del suceso?"}
+      - {n: 2, hablante: TEST, texto: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana."}
+  modo: final
+  perfil: todo-local

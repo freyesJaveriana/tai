@@ -1,0 +1,34 @@
+fixture_id: c3-result-valid
+contract: C3.RunResult
+synthetic: true
+expectation: accept
+mentions: [Villa Rocamora, Puerto Altamira]
+payload:
+  schema_version: "2.0.0"
+  message_id: b9d4f2a6-1c8e-4b7d-9a3f-c6e1d8b5f2a0
+  run_id: c4e8b1f7-2d9a-4a6c-8b3e-d5f0a9c2e1b4
+  attempt: 1
+  salida:
+    contrato: "1.0.0"
+    analizador: incoherencias
+    version: "0.1.0"
+    entrevista: SINT-0001
+    prompt_sha256: ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12
+    perfil: todo-local
+    config_sha256: cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34
+    fecha: "2026-11-23T15:00:00Z"
+    estado: ok
+    hallazgos:
+      - id: SINT-0001-C01
+        hecho: Lugar donde pasó la noche del suceso
+        tipo: lugar
+        cita_a: {cita: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana.", turno: T2}
+        cita_b: {cita: "Yo estaba en Puerto Altamira esa noche, trabajando en el muelle.", turno: T4}
+        observaciones: Las dos citas ubican la noche del suceso en lugares distintos.
+    registro:
+      llamadas: []
+      descartes: []
+      fragmentado: {activo: false}
+      tokens_entrada: 0
+      tokens_salida: 0
+  finished_at: "2026-11-23T15:00:30Z"

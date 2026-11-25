@@ -1,0 +1,13 @@
+# NFRD-U1-07: la entrada fallida es estricta; un campo `text` se rechaza.
+fixture_id: c3-failed-con-texto
+contract: C3.ResultFailed
+synthetic: true
+expectation: reject
+reject_reason: NFRD-U1-07
+mentions: [Puerto Altamira]
+payload:
+  message_id: b9d4f2a6-1c8e-4b7d-9a3f-c6e1d8b5f2a0
+  run_id: c4e8b1f7-2d9a-4a6c-8b3e-d5f0a9c2e1b4
+  attempt: 1
+  code: analysis.invalid_output
+  text: "Yo estaba en Puerto Altamira esa noche, trabajando en el muelle."

@@ -1,0 +1,26 @@
+# Ganchos locales (team.md: gitleaks, Ruff y yamllint). La CI repite todo, porque el gancho se puede saltar.
+# Cada gancho va fijado a una versión. Ruff comprueba y formatea (K-61 cerrada en U01-T28),
+# solo en contracts/ y libs/ como la CI (K-74).
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        args: [--config, .gitleaks.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.6
+    hooks:
+      # Mismo alcance que la CI de Python: contracts/ y libs/ (K-74).
+      - id: ruff-check
+        files: ^(contracts|libs)/
+      - id: ruff-format
+        files: ^(contracts|libs)/
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: [-s]
+        # Alcance de repo-level0 (.github/ y este archivo) más los YAML de contracts/ (K-71 cerrada en U01-T28).
+        files: ^(\.github/|\.pre-commit-config\.yaml$|contracts/.*\.ya?ml$)

@@ -48,7 +48,8 @@ a `main` con *squash-merge*. `Approve Plan` lo elige el humano (team.md, Mandate
 | PD-5 | El orden del equipo (Testing Contract) se aplica así en una unidad `spec`: antes de cualquier contrato, el paso 5 escribe en rojo las pruebas de contratos de datos (C6, C2, C3, C5, C7, C18, C19, C21 y fallidos) y de las guardias AUTONOMIA-03/04/05. El resto de capas (carga, registro, funciones puras, comprobaciones, herramientas, mitad TypeScript) se implementa y se prueba enseguida, paso a paso. | Convertirlo en TDD por capa | Es la `ordering` exacta del contrato (custom); no se reinterpreta. |
 | PD-6 | El escáner `scan(text, literal_sources)` es de U11 (FD-U1-09). U1 publica `integrity/scan-cases.v1.yaml` y valida solo su forma (BR5.8); no reimplementa el escáner. `checks/veracity.py` compara nombres, rótulos y enum por igualdad de palabras (BR3.3, BR6.3). | Un comparador propio de texto libre en U1 | Un solo escáner en el sistema; los casos E10–E14, E30 y E40 los ejecuta U11 en B11. |
 | PD-7 | `libs/errors/` es una distribución aparte, `veridicus-errors` (importada como `veridicus_errors`), con su `pyproject.toml`, su `uv.lock`, sus pruebas y sus compuertas (V-ERRORS). `contracts/` **no** la importa ni la incluye en su rueda: `checks/error_codes.py` lee sus fuentes por ruta con `ast` (nombre de clase, base y atributo `code`) y las compara con el catálogo. | Dependencia por ruta en `uv` desde `contracts/`; meter las clases en la rueda de contratos | `check_package` (paso 22) y BR12.1 no cambian; `libs/errors` tiene sus propios tipos, *lint* y cobertura del 80 % (team.md) (R-03 de la revisión 1). |
-| PD-8 | Los pasos que escriben un contrato antes de C25 (pasos 7, 8 y 11) o de C1 (pasos 13–15) solo prueban su forma y sus *fixtures*; las marcas `x-veridicus-limit` y `x-veridicus-max-bytes` se comprueban contra el catálogo en el paso 16 (`limits_match`), y las guardias que miran C1 pasan a verde en el paso 16. Cada guardia del paso 5 marca sus pruebas con un marcador de pytest por contrato (`c1`, `c6`, `c7`, `c13`, `c16`, `c18`, `c19`, `c21`, `c8`, `labels`, `speech`, `asyncapi`) para poder acotarlas con `-m`. | Mover C25 y C1 al principio | Se conserva el orden de bolt-plan; ninguna verificación exige verde a una prueba cuyo contrato aún no existe (R-01, R-02, R-11). C7 va antes que C8 porque su esquema no depende del vocabulario (R-12). |
+| PD-8 | Los pasos que escriben un contrato antes de C25 (pasos 7, 8 y 11) o de C1 (pasos 13–15) solo prueban su forma y sus *fixtures*; las marcas `x-veridicus-limit` y `x-veridicus-max-bytes` se comprueban contra el catálogo en el paso 16 (`limits_match`), y las guardias que miran C1 pasan a verde en el paso 16. El esquema de C18 (`effective-config.v1.yaml`) lo escribe el paso 7 junto con C2, que lo referencia (E-5, sustituye a E-2). Cada guardia del paso 5 marca sus pruebas con un marcador de pytest por contrato (`c1`, `c6`, `c7`, `c13`, `c16`, `c18`, `c19`, `c21`, `c8`, `labels`, `speech`, `asyncapi`) para poder acotarlas con `-m`. | Mover C25 y C1 al principio | Se conserva el orden de bolt-plan; ninguna verificación exige verde a una prueba cuyo contrato aún no existe (R-01, R-02, R-11). C7 va antes que C8 porque su esquema no depende del vocabulario (R-12). |
+| PD-9 | Los módulos Python de contratos viven en `contracts/src/veridicus_contracts/<módulo>.py` y no en `contracts/python/`; el nombre de importación (`veridicus_contracts.<módulo>`) no cambia. Los esquemas y catálogos siguen en sus directorios de `contracts/` y entran a la rueda como datos (decisión del humano el 2026-11-23, tras tres rondas NO-VERDE de U01-T01: F-01, F-05, F-08). | Mantener `python/` con un mapa de desarrollo propio (`__path__` ampliado y lector de recursos sustituido): funciona al importar, pero mypy no resuelve las importaciones cruzadas (F-08) | Cambian las rutas de V-GUARD y V-TYPES y las de los pasos 3, 10, 11, 12, 17 y 19. Los artefactos aprobados que citan `contracts/python/` (functional-spec §1, contract-summary, components, bolt-plan y otros) no se editan: la precisión queda en `decisiones-humano.md` y se lleva a los originales si el humano lo decide al cerrar la etapa. |
 
 ## Dependencias y punto de partida
 
@@ -145,8 +146,8 @@ Todos corren desde la raíz del repositorio, en CPU. Las suites no tienen red; s
 |---|---|---|
 | V-INSTALL | `uv sync --frozen --directory contracts` (con red) | Código 0; `uv.lock` con *hashes* coincide |
 | V-SUITE | `timeout 60 uv run --frozen --offline --directory contracts pytest` | Verde, ≤ 60 s (meta ≤ 20 s), ≥ 80 % de líneas |
-| V-GUARD | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,python/profiles.py,python/limits.py,python/canonical.py,python/registry.py" --fail-under=100` | 100 % de ramas |
-| V-TYPES | `uv run --frozen --offline --directory contracts mypy --strict src python` | 0 errores |
+| V-GUARD | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,src/veridicus_contracts/profiles.py,src/veridicus_contracts/limits.py,src/veridicus_contracts/canonical.py,src/veridicus_contracts/registry.py" --fail-under=100` | 100 % de ramas |
+| V-TYPES | `uv run --frozen --offline --directory contracts mypy --strict src` | 0 errores |
 | V-LINT | `uv run --frozen --offline --directory contracts ruff check .` | 0 hallazgos (reglas `S` incluidas) |
 | V-AUDIT | `uv run --frozen --directory contracts pip-audit --format json --output build/pip-audit.json` (con red) y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.audit_gate build/pip-audit.json --ignore .pip-audit-ignore.yaml` | 0 vulnerabilidades con versión corregida fuera de excepciones vigentes |
 | V-GEN | `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check` y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_jcs_vectors --check` | Sin diferencias |
@@ -165,17 +166,18 @@ misma ola no dependen entre sí.
 
 ### Paso 1 — Estructura del paquete y configuración · tarea T01
 
-- [ ] `contracts/pyproject.toml`: distribución `veridicus-contracts` con `hatchling` y el mapa de rutas de
-  functional-spec §1 (`python/` a la raíz del paquete, esquemas y catálogos como datos, `*/fixtures/`
-  fuera) (D1, D15); dependencias de tech-stack-decisions §3 más `yamllint` en el grupo de desarrollo;
+- [x] `contracts/pyproject.toml`: distribución `veridicus-contracts` con `hatchling` y el mapa de rutas de
+  functional-spec §1 con la precisión PD-9 (módulos en `src/veridicus_contracts/`, esquemas y catálogos
+  como datos, `*/fixtures/` fuera) (D1, D15); la rueda, construida por `uv build` (sdist → rueda) o por
+  `uv build --wheel`, y la instalación editable ven los mismos módulos y datos; dependencias de tech-stack-decisions §3 más `yamllint` en el grupo de desarrollo;
   `uv lock --directory contracts` (con red) genera `uv.lock` con *hashes*, que se versiona.
-- [ ] `build/` en `.gitignore`; `tools/audit_gate.py` y el paso de `pip-audit` crean `build/` si falta.
-- [ ] Configuración en `pyproject.toml`: mypy estricto; Ruff con reglas por defecto + `S` (toda
+- [x] `build/` en `.gitignore`; `tools/audit_gate.py` y el paso de `pip-audit` crean `build/` si falta.
+- [x] Configuración en `pyproject.toml`: mypy estricto; Ruff con reglas por defecto + `S` (toda
   supresión `# noqa: S…` con motivo); cobertura con ramas y exclusión declarada solo para `ts/generated/`.
-- [ ] Directorios del inventario: `api/`, `errors/`, `queues/`, `analyzer/v1/`, `integrity/`, `ui/`,
-  `profiles/`, `model_calls/`, `cli/`, `metrics/`, `health/`, `format/`, `transcript/`, `python/`,
+- [x] Directorios del inventario: `api/`, `errors/`, `queues/`, `analyzer/v1/`, `integrity/`, `ui/`,
+  `profiles/`, `model_calls/`, `cli/`, `metrics/`, `health/`, `format/`, `transcript/`,
   `vendor/`, `fixtures/`, `src/veridicus_contracts/{checks,tools}/`, `tests/`; `py.typed`.
-- [ ] Fuera de `contracts/`: `.gitattributes` con `contracts/** text eol=lf` (NFRD-U1-13); `.gitignore`
+- [x] Fuera de `contracts/`: `.gitattributes` con `contracts/** text eol=lf` (NFRD-U1-13); `.gitignore`
   con `.env`, `*.pem`, `*.key`, `kubeconfig*`, `secrets*.yaml`, `.worktrees/` y `build/` si faltan.
 - Cubre: D1, D15, BR12.1; NFR13.2. Fuera: código de contratos y pruebas.
 - Verificación: `uv lock --check --directory contracts` → código 0, y `uv sync --frozen --directory contracts`
@@ -183,10 +185,10 @@ misma ola no dependen entre sí.
 
 ### Paso 2 — Ejecutor de pruebas listo (antes de la primera prueba) · tarea T01
 
-- [ ] `pytest` en `pyproject.toml`: `testpaths = ["tests"]`, `addopts` con `--disable-socket
+- [x] `pytest` en `pyproject.toml`: `testpaths = ["tests"]`, `addopts` con `--disable-socket
   --cov=veridicus_contracts --cov-branch --cov-fail-under=80` (D6, D7); perfil de Hypothesis determinista
   (`derandomize = true`, sin `deadline`).
-- [ ] `tests/conftest.py` (rutas al árbol `contracts/`) y `tests/test_runner.py`: abrir un *socket* lanza
+- [x] `tests/conftest.py` (rutas al árbol `contracts/`) y `tests/test_runner.py`: abrir un *socket* lanza
   `SocketBlockedError`; el árbol se resuelve.
 - Cubre: NFR2.1, NFR10.5. Fuera: F7 en `pytest_sessionstart` (paso 6).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_runner.py --no-cov`
@@ -194,14 +196,14 @@ misma ola no dependen entre sí.
 
 ### Paso 3 — Carga, registro y huella JCS (implementar y probar) · tarea T02
 
-- [ ] `src/veridicus_contracts/loaders.py`: único punto que crea `ruamel.yaml.YAML(typ="safe",
+- [x] `src/veridicus_contracts/loaders.py`: único punto que crea `ruamel.yaml.YAML(typ="safe",
   pure=True)` con `allow_duplicate_keys = False` y YAML 1.2; lectura de JSON (D5, §4.1).
-- [ ] `python/registry.py`: registro `referencing` que recorre los esquemas presentes bajo `contracts/`
+- [x] `src/veridicus_contracts/registry.py`: registro `referencing` que recorre los esquemas presentes bajo `contracts/`
   (incluido `vendor/` cuando el paso 4 lo cree) bajo `https://veridicus.invalid/` + `$id`; recuperación
   que lanza error ante cualquier URI ajena (§4.2, BR12.3, FD-U1-11). Las pruebas de este paso usan
   esquemas mínimos en `tests/data/`.
-- [ ] `python/canonical.py`: `sha256_jcs(obj)` sobre `rfc8785` (D14).
-- [ ] Pruebas (5–8 por módulo; 100 % de ramas en `registry` y `canonical`): YAML válido; clave duplicada
+- [x] `src/veridicus_contracts/canonical.py`: `sha256_jcs(obj)` sobre `rfc8785` (D14).
+- [x] Pruebas (5–8 por módulo; 100 % de ramas en `registry` y `canonical`): YAML válido; clave duplicada
   rechazada; `!!python/object` rechazado; `no`/`on` como texto; `$ref` canónico resuelto; forma antigua
   `contracts/analyzer/v1/salida.schema.json#/$defs/cita` no resuelta (E36); `https://` rechazado sin red;
   vectores JCS límite (`1e21`, `-0`, `5e-324`, `0.1`).
@@ -211,12 +213,12 @@ misma ola no dependen entre sí.
 
 ### Paso 4 — Validación estándar y meta-esquemas (implementar y probar) · tarea T02
 
-- [ ] `contracts/vendor/`: meta-esquemas empaquetados de AsyncAPI 3.0.0, JSON Schema 2020-12 y OpenAPI
+- [x] `contracts/vendor/`: meta-esquemas empaquetados de AsyncAPI 3.0.0, JSON Schema 2020-12 y OpenAPI
   3.1, con `vendor/SHA256SUMS` (D4, NFR10.9).
-- [ ] `src/veridicus_contracts/validators.py`: OpenAPI 3.1 con `openapi-spec-validator` (D3); AsyncAPI
+- [x] `src/veridicus_contracts/validators.py`: OpenAPI 3.1 con `openapi-spec-validator` (D3); AsyncAPI
   3.0 contra `vendor/` y extracción de la carga de cada mensaje (D4); JSON Schema 2020-12 estricto (palabra
   clave desconocida = error, BR1.9) con formatos `uuid` y `date-time` (D2).
-- [ ] `tests/test_validators.py` (7 pruebas): `vendor/` = `SHA256SUMS`; meta-esquema alterado falla;
+- [x] `tests/test_validators.py` (7 pruebas): `vendor/` = `SHA256SUMS`; meta-esquema alterado falla;
   OpenAPI y AsyncAPI mínimos válido e inválido; carga extraída; palabra clave desconocida rechazada.
 - Cubre: BR1.9; D2–D4; NFR10.9. Fuera: reglas propias de `checks/`.
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_validators.py --no-cov`
@@ -226,10 +228,10 @@ misma ola no dependen entre sí.
 
 Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contract, PD-5).
 
-- [ ] Formato de *fixture* (§4.10): YAML o JSON con `fixture_id`, `contract`, `synthetic: true`,
+- [x] Formato de *fixture* (§4.10): YAML o JSON con `fixture_id`, `contract`, `synthetic: true`,
   `expectation: accept|reject`, `reject_reason` (ID de regla, obligatorio en `reject`), `mentions` y
   `payload`. Catálogo `contracts/fixtures/synthetic-names.yaml` con nombres y lugares inventados.
-- [ ] *Fixtures* de datos, uno por escenario como mínimo:
+- [x] *Fixtures* de datos, uno por escenario como mínimo:
   - C6 `analyzer/v1/fixtures/`: salida válida; E5 `estado: error` con un hallazgo (BR3.6); E7
     `is_truthful` en un hallazgo (BR3.1, BR3.3); E8 `tipo: falso` (BR3.2); hallazgo sin cada uno de
     `hecho`, `tipo`, `cita_a`, `cita_b`, `observaciones` (BR3.1); E19 `origen: corpus` sin consentimiento
@@ -246,29 +248,29 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   - C19 `cli/fixtures/`: válido; E28 papel `prueba_a` (BR10.2); E29 frase en `model` y en
     `price_table_version` (BR10.1).
   - C21 `api/fixtures/anonymizer-proxy/`: válido; con `destination`; con `api_key_ref` (NFR1.3).
-- [ ] `tests/contracts/test_analyzer_copy.py`, `test_queue_messages.py`, `test_review_suggestion.py`,
+- [x] `tests/contracts/test_analyzer_copy.py`, `test_queue_messages.py`, `test_review_suggestion.py`,
   `test_profiles_contract.py`, `test_cli_report.py`, `test_anonymizer_proxy.py`, `test_model_call.py`:
   cargan cada *fixture*, validan contra su contrato y exigen aceptar o rechazar **por su**
   `reject_reason` (NFR10.10, F1).
-- [ ] `tests/helpers.py`: `load_contract(path)` convierte un contrato ausente en `pytest.fail("contrato
+- [x] `tests/helpers.py`: `load_contract(path)` convierte un contrato ausente en `pytest.fail("contrato
   ausente: <ruta>")`, para que el rojo sea un fallo y no un error; marcadores por contrato de PD-8
   registrados en `pyproject.toml` (`--strict-markers`).
-- [ ] `tests/guards/test_autonomia_03.py`: ningún nombre de propiedad, parámetro, enum o rótulo con un
+- [x] `tests/guards/test_autonomia_03.py`: ningún nombre de propiedad, parámetro, enum o rótulo con un
   término de C8 o de `categories_forbidden_in_schemas` (BR3.3); enum de C6 iguales en C1, C7 y C19
   (BR3.2); C8 con exactamente sus 9 términos (BR5.1); exactamente nueve rótulos (BR6.1–BR6.3); 0
   operaciones de C1 que escriban perfiles, proveedores, *prompts*, precios o límites, con control E15
   (`PUT /profiles`) (BR7.1, AC8.3.1); C7 con quién y cuándo (BR4.4).
-- [ ] `tests/guards/test_autonomia_04.py`: `servers` internos en C1, C16, C21, ruta interna de voz y
+- [x] `tests/guards/test_autonomia_04.py`: `servers` internos en C1, C16, C21, ruta interna de voz y
   AsyncAPI, con control de C21 con `https://api.openai.com` (NFR1.1); `AnonymizingProvider` con un solo
   `generate` (BR9.9, NFR1.2); C21 estricto (NFR1.3); C19 sin texto libre (NFR1.4).
-- [ ] `tests/guards/test_autonomia_05.py`: C6 rechaza el hallazgo sin cada campo obligatorio y la salida
+- [x] `tests/guards/test_autonomia_05.py`: C6 rechaza el hallazgo sin cada campo obligatorio y la salida
   `error` con hallazgos (BR3.1, BR3.6); C7 rechaza los *fixtures* de E9; F7 detecta E18 (BR1.7).
-- [ ] Correr y guardar la salida en rojo en la bitácora de la tarea.
+- [x] Correr y guardar la salida en rojo en la bitácora de la tarea.
 - Cubre: definición de terminado 2–5 de B1; AC3.2.1, AC3.6.2, AC5.5.3, AC8.3.1, AC12.6.1, AC13.3.1,
   AC15.4.7; BR1.2, BR1.3, BR1.7, BR2.1, BR2.3, BR3.1–BR3.6, BR4.1–BR4.4, BR5.1, BR6.1–BR6.3, BR7.1,
   BR9.3, BR9.9, BR10.1, BR10.2; NFR1.1–NFR1.4, NFR10.2, NFR10.8, NFR10.10, NFR11.3–NFR11.5. Fuera:
   cualquier contrato.
-- Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts tests/guards --co -q`
+- Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts tests/guards --co -q --no-cov`
   → código 0 (0 errores de recolección); y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts tests/guards --no-cov --junitxml=build/red.xml`
   → código 1 (fallos, no errores); y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.check_red build/red.xml`
   → código 0 solo si `errors="0"` y `failures` > 0 (herramienta pequeña de este paso, R-14 de la
@@ -276,14 +278,14 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 6 — Copia del contrato común C6 y F7 (verde) · tarea T04, con parada humana
 
-- [ ] **El humano** copia `entrada.schema.json` y `salida.schema.json` desde
+- [x] **El humano** copia `entrada.schema.json` y `salida.schema.json` desde
   `/insumos/app/contratos/analizador/v1/` a `contracts/analyzer/v1/` y escribe `SHA256SUMS` (dos líneas)
   con las huellas que recalcula allí con `sha256sum`; anota origen y huellas en la descripción del PR de
   la tarea (PD-4, BR1.8). El agente no edita esos archivos.
-- [ ] `tests/conftest.py`: F7 en `pytest_sessionstart` — `SHA256SUMS` de exactamente dos líneas, SHA-256
+- [x] `tests/conftest.py`: F7 en `pytest_sessionstart` — `SHA256SUMS` de exactamente dos líneas, SHA-256
   de bytes igual, `contrato: { const: "1.0.0" }` en los dos; si falla, aborta la sesión con el mensaje de
   F7 paso 4 (§4.19).
-- [ ] Prueba E18: copia en memoria de `salida.schema.json` con un byte cambiado en una `description` →
+- [x] Prueba E18: copia en memoria de `salida.schema.json` con un byte cambiado en una `description` →
   F7 en rojo.
 - Cubre: definición de terminado 2 y 4 de B1; BR1.7, BR1.8, BR3.1–BR3.6; NFR11.4. Fuera: editar C6.
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_analyzer_copy.py tests/guards/test_autonomia_05.py -m c6 --no-cov`
@@ -291,28 +293,30 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 7 — Mensajes de cola C2, C3 y C5 v2 (verde) · tarea T05 (ola con T06)
 
-- [ ] `contracts/queues/runs.v2.yaml` (C2), `results.v2.yaml` (C3), `speech.v2.yaml` (C5,
+- [x] `contracts/queues/runs.v2.yaml` (C2), `results.v2.yaml` (C3), `speech.v2.yaml` (C5,
   `x-veridicus-priority: SHOULD`) en AsyncAPI 3.0: sobre con `schema_version`, `message_id`,
   `attempt ≥ 1`; `entrada` y `salida` por `$ref` canónico a la copia de C6; `effective_config` contra C18;
   `audio_base64` con `x-veridicus-limit: audio_base64_max_chars`; `servers` internos. Sin el umbral ni las
   calificaciones retiradas (BR2.2, BR2.4, BR2.5 «Retirado»). `queues/indexing.v1.yaml` (C4) **no** se
   entrega. Las marcas `x-veridicus-limit` se comprueban contra C25 en el paso 16 (PD-8).
-- [ ] Los *fixtures* y `tests/contracts/test_queue_messages.py` ya existen (paso 5); este paso solo
+- [x] Los *fixtures* y `tests/contracts/test_queue_messages.py` ya existen (paso 5); este paso solo
   escribe los contratos.
-- [ ] Entradas de `<cola>:failed` con esquema estricto: solo `message_id`, ID de la corrida o del audio,
+- [x] Entradas de `<cola>:failed` con esquema estricto: solo `message_id`, ID de la corrida o del audio,
   `attempt` y `code` (NFRD-U1-07, NFR-U4-07, NFR-U9-03).
 - Cubre: C2, C3, C5; BR1.1–BR1.3, BR2.1, BR2.3; NFR10.2. Fuera: lógica de productores y consumidores (U4,
   U9).
+- [x] `contracts/profiles/effective-config.v1.yaml` (C18, estricto), que C2 referencia; la huella de
+  `effective-config.valid.json` es su `sha256_jcs` (BR9.7). Se adelanta desde el paso 11 (E-5).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_queue_messages.py --no-cov`
-  → verde.
+  → verde, incluido el caso `c18` de C2.
 
 ### Paso 8 — Sugerencia de revisión C7 v2 (verde) · tarea T06 (ola con T05)
 
-- [ ] `contracts/integrity/review-suggestion.v2.json`: JSON Schema 2020-12 estricto, `$id` versionado;
+- [x] `contracts/integrity/review-suggestion.v2.json`: JSON Schema 2020-12 estricto, `$id` versionado;
   `hecho`, `tipo`, `cita_a`, `cita_b`, `observaciones` obligatorios y no vacíos; citas por `$ref` canónico
   a `/veridicus/contracts/analyzer/v1/salida#/$defs/cita` (BR4.3); estados `pending`, `accepted`,
   `edited`, `dismissed` con las cuatro condiciones `if/then` de FD-U1-13 (BR4.4).
-- [ ] `src/veridicus_contracts/checks/suggestion_conditions.py` (módulo guardia): C7 declara las cuatro
+- [x] `src/veridicus_contracts/checks/suggestion_conditions.py` (módulo guardia): C7 declara las cuatro
   condiciones y hay un *fixture* negativo por cada una (§4.8, NFR11.5); 5–8 pruebas, 100 % de ramas.
 - Cubre: C7; AC5.5.3; BR4.1–BR4.4; NFR11.5; AUTONOMIA-03 (quién y cuándo). Fuera: máquina de estados en
   ejecución (U5).
@@ -322,22 +326,22 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 9 — Catálogo de errores v2 y excepciones de `libs/errors/` · tarea T07
 
-- [ ] `contracts/errors/error-codes.v2.yaml`: por `code`, un solo `status`, `class`, unidad dueña y
+- [x] `contracts/errors/error-codes.v2.yaml`: por `code`, un solo `status`, `class`, unidad dueña y
   `http: true|false`; `limits.exceeded` = `413` (D16); arranque y log con `http: false`
   (`config.invalid_profile`, `config.invalid_limit`, `run.publish_failed`); los `code` de NFR10.3 y de
   contract-summary revisión 3, incluidos `session.blocked` (CD-11), `route.not_found` (`404`,
   NFRD-U3-10), `report.view_outdated` (`409`, NFRD-U7-04), `import.invalid_type` y
   `research.invalid_type` (`415`); tabla `error.codigo` de C6 → `code` uno a uno, con
   `proveedor` → `analysis.provider` (BR3.4, E34).
-- [ ] `libs/errors/` (PD-7): distribución `veridicus-errors` con `pyproject.toml` (hatchling, Python 3.12,
+- [x] `libs/errors/` (PD-7): distribución `veridicus-errors` con `pyproject.toml` (hatchling, Python 3.12,
   mypy estricto, Ruff con `S`, `pytest-cov` al 80 %), `uv.lock` generado con `uv lock --directory
   libs/errors`, `src/veridicus_errors/` con una clase sin lógica por `code` (atributo de clase `code`)
   y su jerarquía (BR7.4), y `tests/` con 5–8 pruebas (jerarquía, `code` único, `status` no expuesto en
   la clase). El manejador que traduce a Problem Details es de cada servicio.
-- [ ] `src/veridicus_contracts/checks/error_codes.py` (módulo guardia, §4.7 a–e; la parte de C1 se
+- [x] `src/veridicus_contracts/checks/error_codes.py` (módulo guardia, §4.7 a–e; la parte de C1 se
   completa en el paso 16): catálogo y clases uno a uno leyendo `libs/errors/src/` con `ast`, sin importar
   (E31, E44); tabla de C6 completa (E34).
-- [ ] `tests/checks/test_error_codes.py` y `tests/test_errors_catalog.py` (forma del catálogo, un
+- [x] `tests/checks/test_error_codes.py` y `tests/test_errors_catalog.py` (forma del catálogo, un
   `status` por `code`, `limits.exceeded` = 413, `http: false` en los de arranque).
 - Cubre: definición de terminado 4 de B1; BR3.4, BR7.2, BR7.4; NFR10.3. Fuera: `ErrorCode` de C1 (paso
   16).
@@ -346,38 +350,38 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 10 — Tipos de llamadas a modelos y puerta única (implementar y probar) · tarea T08
 
-- [ ] `contracts/python/model_calls.py`: tipos de C13 con `Role` como `str` con patrón
+- [x] `contracts/src/veridicus_contracts/model_calls.py`: tipos de C13 con `Role` como `str` con patrón
   `^[a-z][a-z0-9_]{0,31}$` (FD-U1-01, BR9.1); `GenerateRequest`, `GenerateResult`, `ModelCall`;
   `ModelCallError` y sus cinco subclases (`ContentBlocked`, `Timeout`, `ProviderError` e `InvalidOutput`
   con `call: ModelCall`; `AnonymizerUnavailable` sin él); `Protocol` `AnonymizingProvider` con solo
   `generate(self, request: GenerateRequest) -> GenerateResult`, sin importar nada fuera de
   `veridicus_contracts`, `typing`, `dataclasses`, `enum` y `datetime` (BR9.9, revisión 3 de C13).
-- [ ] `contracts/model_calls/model-call.v1.yaml` (estricto, `role` con patrón) y `role-translation.v1.yaml`
+- [x] `contracts/model_calls/model-call.v1.yaml` (estricto, `role` con patrón) y `role-translation.v1.yaml`
   (solo los tres papeles del analizador a `registro.llamadas` de C6, BR9.6).
-- [ ] `src/veridicus_contracts/checks/protocol_surface.py` (módulo guardia, §4.17) y `tests/typing/`: doble
+- [x] `src/veridicus_contracts/checks/protocol_surface.py` (módulo guardia, §4.17) y `tests/typing/`: doble
   con solo `generate` → 0 errores de `mypy.api.run --strict`; doble sin él → el error esperado (E42);
   `check_ready()` en el `Protocol` o una importación ajena → rojo (E43); E27 (`role: "Prueba A"`).
-- [ ] `tests/typing/test_anonymizing_provider.py` y `tests/checks/test_protocol_surface.py` (5–8 pruebas);
+- [x] `tests/typing/test_anonymizing_provider.py` y `tests/checks/test_protocol_surface.py` (5–8 pruebas);
   `tests/contracts/test_model_call.py` ya existe (paso 5).
 - Cubre: definición de terminado 6 de B1; C13 (tipos); BR9.1, BR9.6, BR9.9; NFR1.2. Fuera: el
   ModelGateway y los adaptadores (U11, U10).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/typing tests/checks/test_protocol_surface.py tests/contracts/test_model_call.py --no-cov`
-  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src python` → 0 errores.
+  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src` → 0 errores.
 
 ### Paso 11 — Perfiles, configuración efectiva y `profiles.validate` (implementar y probar) · tarea T09
 
-- [ ] `contracts/profiles/profile-base.schema.v1.yaml` (abierto: al menos un papel, `role_aliases`, un
+- [x] `contracts/profiles/profile-base.schema.v1.yaml` (abierto: al menos un papel, `role_aliases`, un
   `fallback_provider`, `api_key_ref` con `^[A-Z][A-Z0-9_]{2,63}$`, `purpose` con patrón) y
   `profiles.schema.v1.yaml` (especialización del analizador cerrada con `unevaluatedProperties: false`:
   exactamente `judge` y `verifier`, alias `verifier_permuted → verifier`, `purpose` en su enum)
   (FD-U1-02, FD-U1-12, BR9.2–BR9.5).
-- [ ] `contracts/profiles/effective-config.v1.yaml` y `prices.schema.v1.yaml` (C18, estrictos); la huella
-  de `effective-config.valid.json` es su `sha256_jcs` (BR9.7).
-- [ ] `contracts/python/profiles.py`: `validate(data, *, key_prefix, kind)` sin E/S — sobre
+- [x] `contracts/profiles/prices.schema.v1.yaml` (C18, estricto). `effective-config.v1.yaml` ya lo
+  escribió el paso 7 (E-5).
+- [x] `contracts/src/veridicus_contracts/profiles.py`: `validate(data, *, key_prefix, kind)` sin E/S — sobre
   (`schema_version: 1.0.0`, nombres `^[a-z0-9-]{1,48}$`), referencias cruzadas de alias, prefijo de
   `api_key_ref` y especialización con `kind: analyzer`; `ProfileValidationError`
   (`config.invalid_profile`) que nombra perfil, papel y ajuste, nunca su valor (F8, BR9.8, §4.15).
-- [ ] Pruebas (módulo guardia, 100 % de ramas): E21–E26, E38, E39; pureza con `open`, `os.environ` y
+- [x] Pruebas (módulo guardia, 100 % de ramas): E21–E26, E38, E39; pureza con `open`, `os.environ` y
   `socket.socket` sustituidos; *canary* en `api_key_ref` ausente de todo mensaje.
 - Cubre: C18; AC13.3.1; BR9.2–BR9.5, BR9.7, BR9.8; NFR10.13, NFR10.15. Fuera: claves presentes y
   anonimizador obligatorio (U11).
@@ -386,17 +390,17 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 12 — Catálogo de límites C25 y `limits.load` (implementar y probar) · tarea T10
 
-- [ ] `contracts/limits.v1.yaml`: las cifras de security-design §5 más `transcript_body_max_bytes`
+- [x] `contracts/limits.v1.yaml`: las cifras de security-design §5 más `transcript_body_max_bytes`
   (1 004 096) e `import_body_max_bytes` (2 113 536) con `import_file_max_bytes` < `import_body_max_bytes`
   (NFRD-U6-01), `cursor_max_chars` (128, U4, NFRD-U7-04), `voice_body_max_bytes` (6 016 384,
   NFRD-U9-03) y `research_report_read_timeout_s` (30, NFRD-U12-02); cada entrada con `value`, `unit` de la
   lista cerrada, `owner`, `used_in` y `derived_from` opcional; sección `relations` (§4.4, NFRD-U1-01,
   NFRD-U1-02).
-- [ ] `contracts/python/limits.py`: `load(environ)` lee el catálogo empaquetado una vez y aplica
+- [x] `contracts/src/veridicus_contracts/limits.py`: `load(environ)` lee el catálogo empaquetado una vez y aplica
   `VERIDICUS_LIMIT_<NOMBRE>` solo para bajar; rechaza subir, nombre inexistente, variable
   `VERIDICUS_LIMIT_*` desconocida, valor inválido para su unidad y relación rota con `LimitsConfigError`
   (`config.invalid_limit`) (BR11.1, §4.15, NFRD-U1-09).
-- [ ] `src/veridicus_contracts/checks/limits_catalog.py` (módulo guardia): forma, tipos (entero salvo
+- [x] `src/veridicus_contracts/checks/limits_catalog.py` (módulo guardia): forma, tipos (entero salvo
   `ratio` y `s`), derivadas (`audio_base64_max_chars` = 8 000 000) y relaciones. Pruebas con E33 y E37.
 - Cubre: C25; BR11.1; NFR10.14; DS1. Fuera: marcas `x-veridicus-limit` en C1 (paso 16).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_limits.py tests/checks/test_limits_catalog.py --no-cov`
@@ -404,17 +408,17 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 13 — Vocabulario, aviso, casos de escaneo y rótulos (implementar y probar) · tarea T11
 
-- [ ] `contracts/integrity/forbidden-vocabulary.v2.yaml` (C8): los 9 términos, `match` (palabra completa,
+- [x] `contracts/integrity/forbidden-vocabulary.v2.yaml` (C8): los 9 términos, `match` (palabra completa,
   sin mayúsculas ni tildes), `excluded_spans` con `quote_delimiters: [«, »]` sobre `hecho`,
   `observaciones` y `tema`, exclusiones enteras de BR5.5 y `categories_forbidden_in_schemas`.
-- [ ] `integrity/neutral-clarification.v1.yaml` (VE-05, BR5.6), `integrity/notice.v1.yaml` (VE-01, frase
+- [x] `integrity/neutral-clarification.v1.yaml` (VE-05, BR5.6), `integrity/notice.v1.yaml` (VE-01, frase
   base y versión, BR5.7), `integrity/scan-cases.v1.yaml` (E10–E14, E30 y un caso por término y por frase,
   con sus `literal_sources`, BR5.8, PD-6) e `integrity/testimony-warning-cases.v1.yaml` con
   `whitespace_code_points` y los casos U+00A0, U+3000, U+FEFF, tabulador y salto de línea (NFR-U13-10,
   NFRD-U13-13).
-- [ ] `contracts/ui/result-labels.v2.yaml`: «Sugerencia de revisión», «Contradicción en el relato» y los 7
+- [x] `contracts/ui/result-labels.v2.yaml`: «Sugerencia de revisión», «Contradicción en el relato» y los 7
   de tipo «Fecha», «Número», «Lugar», «Persona», «Negación», «Secuencia», «Otro» (FD-U1-08, BR6.1–BR6.3).
-- [ ] `src/veridicus_contracts/checks/veracity.py` y `checks/scan_cases.py` (módulos guardia, §4.8): BR3.2,
+- [x] `src/veridicus_contracts/checks/veracity.py` y `checks/scan_cases.py` (módulos guardia, §4.8): BR3.2,
   BR3.3, BR5.1, BR6.1–BR6.3 sobre todos los documentos; forma de los casos y uno por término y por frase
   (E40); E17 (décimo rótulo) en rojo.
 - Cubre: C8; AC3.2.4, AC5.5.4; BR5.1–BR5.8, BR6.1–BR6.3; NFR11.3. Fuera: ejecutar el escáner (U11).
@@ -424,13 +428,13 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 14 — Reporte de la CLI C19 v2 (verde) · tarea T12 (ola con T13)
 
-- [ ] `contracts/cli/report.schema.v2.yaml` con `model-call.v1.yaml`: toda cadena `enum`, `const` o patrón
+- [x] `contracts/cli/report.schema.v2.yaml` con `model-call.v1.yaml`: toda cadena `enum`, `const` o patrón
   portátil sin espacios con `maxLength: 128` y `x-veridicus-limit: report_token_max_chars`; enteros con
   `minimum` y `maximum` (0..2^53 − 1, `seed` también negativo, `estimated_cost` ≤ 10^9); `origin`,
   `blocking`, latencia p50 y p95 por papel en ms enteros, sección opcional `clarifications` solo con
   enteros; `allOf` que restringe las llamadas a los tres papeles del analizador (§4.18, NFRD-U1-06,
   FD-U1-03).
-- [ ] `src/veridicus_contracts/checks/report_closed.py` (módulo guardia): E28, E29; límite declarado del
+- [x] `src/veridicus_contracts/checks/report_closed.py` (módulo guardia): E28, E29; límite declarado del
   *canary* de una palabra (FD-U1-05, lo cierra U12). `report_token_max_chars` se compara con C25 en el
   paso 16 (PD-8).
 - Cubre: definición de terminado 5 de B1; C19; AC12.6.1 (parte de U1); BR10.1, BR10.2; NFR1.4, NFR12.3.
@@ -440,24 +444,24 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 15 — C21, ruta interna de voz, salud C16 y soberanía (verde) · tarea T13 (ola con T12)
 
-- [ ] `contracts/api/anonymizer-proxy.v1.yaml` (C21): petición y respuesta estrictas en todos los niveles,
+- [x] `contracts/api/anonymizer-proxy.v1.yaml` (C21): petición y respuesta estrictas en todos los niveles,
   `role` con patrón, `profile_sha256` `^[0-9a-f]{64}$`, `x-veridicus-max-bytes` de petición y respuesta,
   `servers` internos (§4.17, NFRD-U1-04).
-- [ ] `contracts/api/speech-internal.v1.yaml`: `POST /internal/v1/speech` con `bearerAuth`, cuerpo
+- [x] `contracts/api/speech-internal.v1.yaml`: `POST /internal/v1/speech` con `bearerAuth`, cuerpo
   estricto, `401`, `422` con `rule_id` cerrado, `503` y `audio/wav` con
   `x-veridicus-max-bytes: speech_audio_max_bytes` (NFRD-U1-08).
-- [ ] `contracts/health/health.v2.yaml` (C16): `/healthz` y `/readyz` públicas dentro del clúster.
-- [ ] `src/veridicus_contracts/checks/servers.py` (módulo guardia, §4.9): ruta relativa, nombre corto
+- [x] `contracts/health/health.v2.yaml` (C16): `/healthz` y `/readyz` públicas dentro del clúster.
+- [x] `src/veridicus_contracts/checks/servers.py` (módulo guardia, §4.9): ruta relativa, nombre corto
   `http://veridicus-<nombre>:<puerto>` o `*.svc.cluster.local`, siempre `http`; control de C21 con
   `https://api.openai.com`.
 - Cubre: C16, C21; NFR1.1, NFR1.3; AUTONOMIA-04. Fuera: el proxy (U10) y `audio-worker` (U9).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/contracts/test_anonymizer_proxy.py tests/checks/test_servers.py --no-cov`
-  → verde, y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/guards/test_autonomia_04.py -m "not c1" --no-cov`
-  → verde. Las pruebas `c1` de `test_autonomia_04.py` pasan a verde en el paso 16 (PD-8).
+  → verde, y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/guards/test_autonomia_04.py -m "not c1 and not c19" --no-cov`
+  → verde. Las pruebas `c19` de `test_autonomia_04.py` las pone en verde el paso 14 (T12, misma ola; E-6) y las `c1`, el paso 16 (PD-8).
 
 ### Paso 16 — OpenAPI de la consola C1 v2 y sus comprobaciones (implementar y probar) · tareas T14 y T15
 
-- [ ] T14 — `contracts/api/console.v2.yaml` (C1) en OpenAPI 3.1, desde contract-summary §C1 revisión 3 más
+- [x] T14 — `contracts/api/console.v2.yaml` (C1) en OpenAPI 3.1, desde contract-summary §C1 revisión 3 más
   PD-1 y PD-2: `ErrorCode` igual al catálogo; `CsrfToken` (`minLength: 32`); `x-veridicus-roles` en toda
   operación salvo `/auth/login`, `/auth/logout`, `/auth/me` y la lista pública (NFRD-U1-12); extensiones
   cerradas de §4.6; `x-veridicus-limit` y `x-veridicus-max-bytes` iguales a C25; `413 limits.exceeded` y
@@ -465,7 +469,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   `POST /sessions/{session_id}/reports` (NFRD-U7-04); tope y `413` en la decisión (NFRD-U8-05);
   respuestas de NFR-U5-05, NFR-U7-02, NFR-U12-02 y NFR-U13-03; `x-veridicus-cookie` en `sessionCookie`;
   fechas con el formato único. Si dos precisiones chocan, el paso se detiene y lo anota en el PR.
-- [ ] T15 — módulos guardia, uno por regla: `checks/auth_surface.py` (§4.6, con la constante de seis
+- [x] T15 — módulos guardia, uno por regla: `checks/auth_surface.py` (§4.6, con la constante de seis
   `operationId` que encolan), `checks/strict_bodies.py` (§4.3), `checks/config_write.py` (§4.8, BR7.1,
   con la excepción `profile_name`; `checks/threshold.py` queda «Retirado»), `checks/limits_match.py`
   (§4.4, comprobación en los dos sentidos) y la parte de C1 de `checks/error_codes.py`; 5–8 pruebas por
@@ -480,24 +484,24 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 17 — Interfaces en proceso C10–C12, C23 y C24 (implementar y probar) · tarea T16
 
-- [ ] `contracts/python/human_review.py` (C10), `report_ports.py` (C11), `identity.py` (C12),
+- [x] `contracts/src/veridicus_contracts/human_review.py` (C10), `report_ports.py` (C11), `identity.py` (C12),
   `access_log.py` (C23) y `retention.py` (C24 v1.1.0 con `Purgeable.count_session(uow, session_id) ->
   Mapping[str, int]`, NFRD-U13-08) como `Protocol` tipados con su versión en el encabezado y las firmas de
   contract-summary revisión 3 y de las precisiones aprobadas (p. ej. `open_round(..., for_update=False)`,
   `discard_correction_round`).
-- [ ] `tests/typing/test_protocols.py` (5–8 pruebas): un *fake* mínimo de cada interfaz pasa mypy estricto
+- [x] `tests/typing/test_protocols.py` (5–8 pruebas): un *fake* mínimo de cada interfaz pasa mypy estricto
   y uno con firma distinta falla.
 - Cubre: C10–C12, C23, C24; NFR13.2. Fuera: implementaciones (U4, U5, U7, U13).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/typing/test_protocols.py --no-cov`
-  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src python` → 0 errores.
+  → verde, y `uv run --frozen --offline --directory contracts mypy --strict src` → 0 errores.
 
 ### Paso 18 — Métricas, formato de fecha y nombres (implementar y probar) · tarea T17
 
-- [ ] `contracts/metrics/review.v2.yaml` (C15, de U5) y `metrics/text-flow.v1.yaml`,
+- [x] `contracts/metrics/review.v2.yaml` (C15, de U5) y `metrics/text-flow.v1.yaml`,
   `session-lifecycle.v1.yaml`, `assistant-extras.v1.yaml`, `voice.v1.yaml`, `anonymizer.v1.yaml` con los
   nombres y valores de NFRD-U4-08, NFRD-U6-12, NFRD-U8-06, NFRD-U9-10 y NFRD-U10-02 (DS7, NFRD-U1-05).
-- [ ] `contracts/format/datetime.v1.yaml` (`AAAA-MM-DDTHH:MM:SSZ`, BR8.1).
-- [ ] Módulos guardia `checks/metrics.py` (prefijo, unicidad entre archivos, etiquetas de la lista
+- [x] `contracts/format/datetime.v1.yaml` (`AAAA-MM-DDTHH:MM:SSZ`, BR8.1).
+- [x] Módulos guardia `checks/metrics.py` (prefijo, unicidad entre archivos, etiquetas de la lista
   cerrada con `values`, `error_code` del catálogo, `session_id` con patrón UUID), `checks/datetime_format.py`
   (E16; la copia de C6 no se toca) y `checks/naming.py` (ASCII `snake_case` salvo los bloques de C6 de la
   regla 8, `code` en `dominio.motivo`), con 5–7 pruebas cada uno.
@@ -507,29 +511,29 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 19 — Integridad de la suite (implementar y probar) · tarea T18
 
-- [ ] Módulos guardia: `checks/loader_usage.py` (§4.1 y §4.2: PyYAML, `YAML(...)` fuera de `loaders.py`,
+- [x] Módulos guardia: `checks/loader_usage.py` (§4.1 y §4.2: PyYAML, `YAML(...)` fuera de `loaders.py`,
   `typ` distinto de `"safe"`, `load_all`, `Loader=`, `subprocess`/`multiprocessing`/`os.system` en
-  `checks/`, `tests/` o `python/`; publicada como `scan(paths)`), `checks/refs.py` (§4.2, E36),
+  `checks/`, `tests/` o los módulos de `src/veridicus_contracts/`; publicada como `scan(paths)`), `checks/refs.py` (§4.2, E36),
   `checks/redos.py` (§4.5: recorrido completo, subconjunto portátil, entrada acotada, Hypothesis con techo
   de 1 s y prueba de versión 3.12), `checks/synthetic.py` (§4.10, publicada como `scan(paths)`),
   `checks/fixture_coverage.py` (§4.10) y `checks/ci_workflows.py` (§4.11: ningún *workflow* con
   `--write`, `kubectl apply`, `helm install|upgrade` ni credenciales del clúster; AUTONOMIA-01).
-- [ ] Prueba AST de E32: ningún módulo importa `contracts.` como nombre de primer nivel (BR12.1).
-- [ ] 5–8 pruebas por módulo con los controles de §4.1, §4.2, §4.5, §4.10 y §4.11.
+- [x] Prueba AST de E32: ningún módulo importa `contracts.` como nombre de primer nivel (BR12.1).
+- [x] 5–8 pruebas por módulo con los controles de §4.1, §4.2, §4.5, §4.10 y §4.11.
 - Cubre: BR1.6, BR12.1; NFR10.4–NFR10.6, NFR10.10, NFR12.1; AUTONOMIA-01. Fuera: *workflow* (paso 24).
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/checks/test_loader_usage.py tests/checks/test_refs.py tests/checks/test_redos.py tests/checks/test_synthetic.py tests/checks/test_fixture_coverage.py tests/checks/test_ci_workflows.py --no-cov`
   → verde.
 
 ### Paso 20 — Herramientas deterministas (implementar y probar) · tarea T19
 
-- [ ] `tools/security_surface.py` (§4.11, DS3) con `--write` explícito; `contracts/security-surface.json`;
+- [x] `tools/security_surface.py` (§4.11, DS3) con `--write` explícito; `contracts/security-surface.json`;
   `.github/pull_request_template.md` con el apartado que justifica su cambio (NFRD-U1-13).
-- [ ] `tools/gen_ts.py` (D9): constantes `as const` del catálogo de `code`, rótulos, C8 y listas de §4.6 en
+- [x] `tools/gen_ts.py` (D9): constantes `as const` del catálogo de `code`, rótulos, C8 y listas de §4.6 en
   `contracts/ts/generated/` (crea la carpeta si falta; T20 la consume después); `--check`.
-- [ ] `tools/gen_jcs_vectors.py` (§4.14): `contracts/fixtures/jcs-vectors.json` con 200 vectores de semilla
+- [x] `tools/gen_jcs_vectors.py` (§4.14): `contracts/fixtures/jcs-vectors.json` con 200 vectores de semilla
   fija; `--check`.
-- [ ] `tools/audit_gate.py` y `contracts/.pip-audit-ignore.yaml` (NFRD-U1-11): excepción vencida = fallo.
-- [ ] Pruebas (5 por herramienta): regenerada = versionada; idempotencia en bytes; cambios de seguridad
+- [x] `tools/audit_gate.py` y `contracts/.pip-audit-ignore.yaml` (NFRD-U1-11): excepción vencida = fallo.
+- [x] Pruebas (5 por herramienta): regenerada = versionada; idempotencia en bytes; cambios de seguridad
   visibles en la huella; `--check` en rojo tras un cambio; plantilla de PR presente.
 - Cubre: DS3, DS6, DS8; D9; NFR10.9, NFR10.15. Fuera: la CI nunca ejecuta `--write`.
 - Verificación: V-SURFACE, V-GEN, y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/tools --no-cov`
@@ -537,15 +541,15 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 21 — Mitad TypeScript `contracts/ts/` (implementar y probar) · tarea T20
 
-- [ ] `contracts/ts/` (D13): `package.json` con Node 22 en `engines`, `.nvmrc`, `package-lock.json`
+- [x] `contracts/ts/` (D13): `package.json` con Node 22 en `engines`, `.nvmrc`, `package-lock.json`
   generado con `npm --prefix contracts/ts install` (con red) y versionado, script `gen:check` que corre
   `gen_ts --check` y `openapi-typescript` sin escribir,
   `tsconfig.json` estricto, ESLint con `no-restricted-imports` para `yaml`, `vitest.config.ts` con
   cobertura v8 al 80 % y *setup* sin red (§4.14).
-- [ ] `src/loaders.ts` (`yaml` con `uniqueKeys: true`), `src/registry.ts` (`Ajv2020` `strict`,
+- [x] `src/loaders.ts` (`yaml` con `uniqueKeys: true`), `src/registry.ts` (`Ajv2020` `strict`,
   `ajv-formats`, `addSchema` con base `https://veridicus.invalid/`, `addKeyword` solo con las extensiones
   de §4.6), `src/canonical.ts` (`canonicalize`); tipos de C1 con `openapi-typescript` en `generated/`.
-- [ ] Pruebas Vitest: mismos *fixtures* que Python comparados con su `expectation` (NFR10.16); vectores JCS
+- [x] Pruebas Vitest: mismos *fixtures* que Python comparados con su `expectation` (NFR10.16); vectores JCS
   y huella de `effective-config.valid.json`; control de `fetch` bloqueado; C8 con término repetido
   rechazado.
 - Cubre: NFR2.1, NFR10.4, NFR10.15, NFR10.16; D9, D13. Fuera: la consola (U4).
@@ -553,7 +557,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 22 — Paquete en entorno limpio (implementar y probar) · tarea T21
 
-- [ ] `tools/check_package.py` (§4.16, F9): `uv build`; lista de la rueda contra la tabla de rutas (falla
+- [x] `tools/check_package.py` (§4.16, F9): `uv build`; lista de la rueda contra la tabla de rutas (falla
   si falta un dato o aparece `fixtures/`, `tests/`, `.env*`, `*.pem`, `*.key`); `uv venv` limpio; guion con
   `python -I` y `socket.socket` bloqueado que importa `veridicus_contracts`, lee cada dato con
   `importlib.resources` y valida sin red los *fixtures* de C7, C1 y C19 (BR12.3).
@@ -562,19 +566,19 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 23 — Suite completa y compuertas de calidad · tarea T22
 
-- [ ] Correr todo. Ningún umbral se baja para que pase; un hueco se informa en el PR.
+- [x] Correr todo. Ningún umbral se baja para que pase; un hueco se informa en el PR.
 - Cubre: NFR2.1, NFR2.2, NFR10.9, NFR13.1, NFR13.2.
 - Verificación: V-SUITE (verde, ≤ 60 s, ≥ 80 %), V-GUARD (100 %), V-TYPES (0), V-LINT (0), V-AUDIT,
   V-GEN, V-SURFACE, V-TS, V-TS-AUDIT, V-PKG y V-ERRORS.
 
 ### Paso 24 — CI y ganchos locales · tarea T22
 
-- [ ] `.github/workflows/contracts-level0.yml`: *job* `contracts-level0` con los 12 pasos de §4.13 en orden,
+- [x] `.github/workflows/contracts-level0.yml`: *job* `contracts-level0` con los 12 pasos de §4.13 en orden,
   `permissions: contents: read`, acciones fijadas por SHA, sin `kubeconfig` ni credenciales del clúster, y
   `gitleaks` sobre el repositorio (NFR12.2); más un *job* hermano `errors-level0` con V-ERRORS, extensión
   de §4.13 por PD-7 que se anota en el PR (R-13 de la revisión 2).
-- [ ] `.pre-commit-config.yaml` en la raíz con `gitleaks`, Ruff y `yamllint`.
-- [ ] Pedir en el PR del Bolt que `contracts-level0` sea comprobación obligatoria de `main` (lo aplica el
+- [x] `.pre-commit-config.yaml` en la raíz con `gitleaks`, Ruff y `yamllint`.
+- [x] Pedir en el PR del Bolt que `contracts-level0` sea comprobación obligatoria de `main` (lo aplica el
   humano en GitHub).
 - Cubre: NFR10.9, NFR12.2; AUTONOMIA-01, AUTONOMIA-02.
 - Verificación: V-YAML → código 0, y
@@ -584,13 +588,13 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
 
 ### Paso 25 — Documentación, glosario y etiqueta · tarea T23
 
-- [ ] `contracts/README.md` en español: inventario, cómo cambiar un contrato (F5) y la copia de C6 (F7),
+- [x] `contracts/README.md` en español: inventario, cómo cambiar un contrato (F5) y la copia de C6 (F7),
   cómo usar `limits.load`, `profiles.validate` y `registry` desde un servicio, y los comandos V-*.
-- [ ] Glosario de identificadores en `contracts/README.md` con `cancel_token` y `view_outdated`
+- [x] Glosario de identificadores en `contracts/README.md` con `cancel_token` y `view_outdated`
   (NFRD-U7-11), `review_report`, `review_suggestion`, `undocumented_fact` (team.md, Code Style).
-- [ ] Docstrings en español en `loaders`, `validators`, cada función pura y cada módulo de `checks/` (regla
+- [x] Docstrings en español en `loaders`, `validators`, cada función pura y cada módulo de `checks/` (regla
   que protege).
-- [ ] `tests/test_readme.py`: el README existe y su glosario contiene `cancel_token`, `view_outdated`,
+- [x] `tests/test_readme.py`: el README existe y su glosario contiene `cancel_token`, `view_outdated`,
   `review_report`, `review_suggestion` y `undocumented_fact`.
 - Cubre: BR1.5; NFR14.1.
 - Verificación: `timeout 60 uv run --frozen --offline --directory contracts pytest tests/test_readme.py --no-cov`

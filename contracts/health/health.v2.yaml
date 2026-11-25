@@ -1,0 +1,91 @@
+openapi: 3.1.0
+info:
+  title: Salud de los servicios de Veridicus
+  version: 2.0.0
+  description: >-
+    C16. `session-api`, `semantic-agent`, `audio-worker` y `anonymizer-proxy` exponen estas dos rutas
+    en un puerto interno, sin cookie: son públicas dentro del clúster y solo las usan las sondas de
+    Kubernetes y `scripts/smoke.sh`. Las respuestas no llevan datos sensibles: solo nombres de
+    comprobaciones y su resultado. La ruta interna de voz no es de salud: va en
+    `api/speech-internal.v1.yaml` (NFRD-U1-08).
+servers:
+  - url: /
+paths:
+  /healthz:
+    get:
+      operationId: healthz
+      security: []
+      summary: Vida del proceso (sonda liveness)
+      responses:
+        '200':
+          description: 'Proceso vivo: { "status": "ok" }'
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status]
+                properties:
+                  status:
+                    const: ok
+  /readyz:
+    get:
+      operationId: readyz
+      security: []
+      summary: Listo para trabajar (sonda readiness y scripts/smoke.sh)
+      description: >-
+        200 solo si el archivo de perfiles es válido (C18), las claves que referencia existen, la
+        base y Redis responden, y los destinos del servicio responden: servidores locales internos
+        y, si algún perfil tiene destino externo, `anonymizer-proxy`. En `session-api`, `checks`
+        incluye `access_log: not_configured` mientras U13 no exista, como dato informativo, sin
+        dejar de responder 200 (UG-09). `/readyz` de `anonymizer-proxy` comprueba perfiles, claves,
+        el modelo NER (por `sha256`), las listas y la tabla de capacidades de C22, y nunca llama a
+        un proveedor (FD-U10-11).
+      responses:
+        '200':
+          description: >-
+            Listo: { "status": "ready", "checks": [{ "name": "access_log", "ok": true,
+            "info": "not_configured" }] }
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status, checks]
+                properties:
+                  status:
+                    const: ready
+                  checks:
+                    $ref: '#/components/schemas/Checks'
+        '503':
+          description: >-
+            No listo, sin datos sensibles: { "status": "not_ready", "checks": [{ "name": "redis",
+            "ok": false }] }
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status, checks]
+                properties:
+                  status:
+                    const: not_ready
+                  checks:
+                    $ref: '#/components/schemas/Checks'
+components:
+  schemas:
+    Checks:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [name, ok]
+        properties:
+          name:
+            type: string
+            pattern: '^[a-z][a-z0-9_]{0,63}$'
+          ok:
+            type: boolean
+          info:
+            type: string
+            pattern: '^[a-z][a-z0-9_]{0,63}$'

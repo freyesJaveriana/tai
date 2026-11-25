@@ -1,0 +1,95 @@
+# Métricas de U9 voice (NFRD-U9-10; observability-requirements §2). Forma de C15 (checks/metrics.py).
+# `veridicus_turn_latency_seconds{origin}` se declara aquí y no en C15 (E-21); `origin` solo trae
+# el valor que las fuentes nombran. Salió `veridicus_question_audio_requests_total` (retirada).
+# `error_code` de las series de voz sigue la lista de NFR10.12 más `none` (E-20).
+schema_version: 1.0.0
+endpoint: GET /metrics  # session-api y audio-worker, puerto interno
+metrics:
+  - name: veridicus_turn_latency_seconds
+    type: histogram
+    labels:
+      - name: origin
+        values: [voice]
+    description: >-
+      Latencia de un turno de voz, de submitted_at al fin de la corrida que lo incluye (session-api).
+  - name: veridicus_voice_submissions_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [accepted, duplicate, rejected]
+      - name: error_code
+        values:
+          - none
+          - auth.forbidden
+          - conductor_observation.not_found
+          - session.consent_missing
+          - session.blocked
+          - session.consent_withdrawn
+          - session.terminated
+          - session.finalized
+          - session.closed_to_new_turns
+          - session.suspended
+          - session.voice_not_authorized
+          - conductor_observation.not_approved
+          - speech.text_rejected
+          - limits.exceeded
+          - validation.invalid_request
+          - analysis.system
+          - speech.unavailable
+    description: Turnos de voz recibidos por POST /voice-turns, por resultado y code (session-api).
+  - name: veridicus_voice_upload_bytes
+    type: histogram
+    labels: []
+    description: Tamaño del audio recibido, en bytes (session-api).
+  - name: veridicus_transcription_seconds
+    type: histogram
+    labels: []
+    description: Duración de una transcripción (audio-worker).
+  - name: veridicus_transcriptions_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [transcribed, failed, duplicate, cancelled, dead_letter]
+      - name: error_code
+        values: [none, analysis.invalid_output, analysis.timeout, analysis.system]
+    description: Transcripciones terminadas, por resultado y code (audio-worker).
+  - name: veridicus_audio_queue_depth
+    type: gauge
+    labels: []
+    description: Mensajes en la cola de audio, XLEN más pendientes (audio-worker).
+  - name: veridicus_speech_synthesis_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [ok, timeout, error, rejected]
+    description: Duración de una síntesis de voz (audio-worker).
+  - name: veridicus_clarification_audio_requests_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [ok, not_found, not_approved, forbidden, session_state, text_rejected, unavailable]
+    description: Peticiones de audio de una aclaración, por resultado (session-api).
+  - name: veridicus_run_hold_wait_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [transcribed, error, timeout, withdrawn, cancelled]
+    description: >-
+      Espera de una corrida por la transcripción de un turno de voz; cancelled es la pausa, la
+      terminación o el bloqueo (session-api).
+  - name: veridicus_run_holds_active
+    type: gauge
+    labels: []
+    description: Corridas en espera de una transcripción (session-api).
+  - name: veridicus_audio_store_bytes
+    type: gauge
+    labels: []
+    description: Bytes de audio conservados (session-api).
+  - name: veridicus_aof_rewrite_requests_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [requested, in_progress, error]
+    description: >-
+      Peticiones de reescritura del AOF de Redis para no dejar rastro del audio en disco, por
+      resultado (AofRewriteRequester, NFRD-U9-06; observability-design de U9 §2).

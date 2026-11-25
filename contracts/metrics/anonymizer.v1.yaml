@@ -1,0 +1,83 @@
+# Métricas de U10 anonymizer (NFRD-U10-02; observability-design §3). Forma de C15 (checks/metrics.py).
+# La etiqueta `code` pasa a `error_code`; el valor `ok` de NFRD-U10-02 pasa a `none` (E-20).
+# Nunca hay etiquetas run_id, model ni profile_name. Los cubos de los histogramas no entran al contrato.
+schema_version: 1.0.0
+endpoint: GET /metrics  # anonymizer-proxy, puerto interno 9090
+metrics:
+  - name: veridicus_anonymizer_requests_total
+    type: counter
+    labels:
+      - name: outcome
+        values: [restored, failed_after_send, failed_closed, rejected]
+      - name: error_code
+        values:
+          - none
+          - limits.exceeded
+          - anonymizer.profile_mismatch
+          - anonymizer.destination_rejected
+          - analysis.content_blocked
+          - analysis.provider
+          - analysis.invalid_output
+          - analysis.anonymizer_unavailable
+          - analysis.timeout
+      - name: provider
+        values: [anthropic, google, openai]
+      - name: role
+        values: [judge, verifier, verifier_permuted]
+      - name: slot
+        values: [primary, fallback]
+    description: >-
+      Llamadas a generate y rechazos previos (409, 413 y 422), por resultado y code. En las series
+      rejected, provider, role y slot toman el valor resuelto si lo hay o no se emiten.
+  - name: veridicus_anonymizer_masking_seconds
+    type: histogram
+    labels:
+      - name: outcome
+        values: [restored, failed_after_send, failed_closed, rejected]
+    description: Duración del enmascarado, con metas en 20 s y 40,5 s.
+  - name: veridicus_anonymizer_upstream_seconds
+    type: histogram
+    labels:
+      - name: provider
+        values: [anthropic, google, openai]
+      - name: role
+        values: [judge, verifier, verifier_permuted]
+    description: Duración de la llamada al proveedor.
+  - name: veridicus_anonymizer_replacements_total
+    type: counter
+    labels:
+      - name: category
+        values: [PERSONA, LUGAR, EXPEDIENTE, IDENTIFICADOR, ENTIDAD]
+    description: Reemplazos hechos por el enmascarado, por categoría.
+  - name: veridicus_anonymizer_altered_markers_total
+    type: counter
+    labels:
+      - name: provider
+        values: [anthropic, google, openai]
+      - name: role
+        values: [judge, verifier, verifier_permuted]
+    description: Marcadores alterados por el proveedor en su respuesta.
+  - name: veridicus_anonymizer_input_tokens_total
+    type: counter
+    labels:
+      - name: provider
+        values: [anthropic, google, openai]
+      - name: role
+        values: [judge, verifier, verifier_permuted]
+    description: Tokens de entrada informados por el proveedor.
+  - name: veridicus_anonymizer_output_tokens_total
+    type: counter
+    labels:
+      - name: provider
+        values: [anthropic, google, openai]
+      - name: role
+        values: [judge, verifier, verifier_permuted]
+    description: Tokens de salida informados por el proveedor.
+  - name: veridicus_anonymizer_inflight
+    type: gauge
+    labels: []
+    description: Llamadas a generate en curso, frente al tope de simultáneas.
+  - name: veridicus_anonymizer_ready
+    type: gauge
+    labels: []
+    description: Vale 1 solo cuando /readyz daría 200.

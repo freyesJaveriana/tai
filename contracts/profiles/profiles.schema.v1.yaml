@@ -1,0 +1,70 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: veridicus/contracts/profiles/profiles.schema.v1
+x-veridicus-version: "1.0.0"
+title: Archivo de perfiles de ejecución del analizador (C18)
+description: >-
+  Especialización del analizador sobre `profile-base` (FD-U1-02, FD-U1-12, BR9.3): exactamente los
+  papeles `judge` y `verifier`, el alias `verifier_permuted` hacia `verifier` y `purpose` como
+  enum. Cada perfil se cierra con `unevaluatedProperties: false`, así que un campo que ni la base
+  ni esta especialización declaran se rechaza. El prefijo de `api_key_ref` lo exige
+  `profiles.validate` (BR9.4).
+type: object
+unevaluatedProperties: false
+required: [schema_version, profiles]
+properties:
+  schema_version:
+    const: "1.0.0"
+  profiles:
+    type: object
+    minProperties: 1
+    propertyNames:
+      pattern: '^[a-z0-9-]{1,48}$'
+    additionalProperties:
+      $ref: '#/$defs/analyzer_profile'
+$defs:
+  token:
+    type: string
+    pattern: '^[A-Za-z0-9._:/@+-]{1,128}$'
+    description: Sin espacios; nombres de modelo, versiones y motores (la usa la tabla de precios)
+  analyzer_profile:
+    allOf:
+      - $ref: '/veridicus/contracts/profiles/profile-base.schema.v1#/$defs/profile'
+    required: [purpose, roles, role_aliases, permutation]
+    unevaluatedProperties: false
+    properties:
+      purpose:
+        enum: [evaluation, demonstration, production]
+      roles:
+        type: object
+        required: [judge, verifier]
+        additionalProperties: false
+        properties:
+          judge: true
+          verifier: true
+      role_aliases:
+        type: object
+        required: [verifier_permuted]
+        additionalProperties: false
+        properties:
+          verifier_permuted:
+            const: verifier
+      fallback_provider: true
+      permutation:
+        type: boolean
+      chunking:
+        type: object
+        additionalProperties: false
+        required: [enabled]
+        properties:
+          enabled:
+            type: boolean
+          window:
+            type: integer
+            minimum: 1
+          overlap:
+            type: integer
+            minimum: 0
+      same_family_declared:
+        type: boolean
+      batch_only:
+        type: boolean

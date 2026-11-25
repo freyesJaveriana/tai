@@ -1,0 +1,14 @@
+# Excepciones de la compuerta de auditoria de Python (security-design §4.13 paso 3, NFRD-U1-11).
+# La lee `python -m veridicus_contracts.tools.audit_gate build/pip-audit.json --ignore .pip-audit-ignore.yaml`.
+#
+# La compuerta falla con toda vulnerabilidad que tenga version corregida (`fix_versions` no vacio).
+# Una excepcion la deja pasar mientras esta vigente. Formato de cada elemento de `excepciones`:
+#
+#   - id: PYSEC-AAAA-NNNN      # el id de la vulnerabilidad en pip-audit, o uno de sus alias (CVE, GHSA)
+#     motivo: por que se acepta y que lo mitiga
+#     caduca: '2026-12-31'     # AAAA-MM-DD, entre comillas; una excepcion vencida hace fallar el paso
+#
+# Una clave distinta de id, motivo y caduca, o un elemento incompleto, tambien hace fallar el paso.
+# Cada excepcion nueva entra por PR con su motivo; no se alarga una fecha sin revisar el motivo.
+schema_version: 1.0.0
+excepciones: []

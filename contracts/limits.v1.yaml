@@ -1,0 +1,95 @@
+# Catálogo único de límites C25 v1 (NFR10.7, NFR10.14; security-design §4.4 y §5).
+#
+# Es la única fuente de cada cifra: los contratos las marcan (x-veridicus-limit,
+# x-veridicus-max-bytes), los servicios las leen con limits.load y una variable
+# VERIDICUS_LIMIT_<NOMBRE> solo puede bajarlas, nunca subirlas (BR11.1).
+# Cada entrada lleva value, unit (lista cerrada), owner (la unidad que fijó la cifra) y
+# used_in (contratos donde aparece marcada; puede estar vacía), más derived_from si es derivada.
+# Los used_in exactos de las demás cifras los fija el PR de cada unidad.
+# Cambiar una cifra es un cambio del catálogo y del contrato que la usa, en un PR de U1.
+schema_version: 1.0.0
+limits:
+  # U3: sesión web y credenciales (NFR-U3-01)
+  web_session_max_s: {value: 43200, unit: s, owner: U3, used_in: [C1]}
+  web_session_idle_s: {value: 1800, unit: s, owner: U3, used_in: [C1]}
+  username_max_chars: {value: 32, unit: chars, owner: U3, used_in: [C1]}
+  password_max_chars: {value: 128, unit: chars, owner: U3, used_in: [C1]}
+  # U4: turnos, corridas y sondeo (NFR-U4-01, -04, -05; NFRD-U7-04)
+  turn_max_chars: {value: 20000, unit: chars, owner: U4, used_in: [C1, C2, C5]}
+  session_body_max_bytes: {value: 32768, unit: bytes, owner: U4, used_in: [C1]}
+  transcript_max_turns: {value: 2000, unit: turns, owner: U4, used_in: []}
+  transcript_max_chars: {value: 250000, unit: chars, owner: U4, used_in: []}
+  run_message_max_bytes: {value: 2097152, unit: bytes, owner: U4, used_in: [C2]}
+  claim_idle_ms: {value: 60000, unit: ms, owner: U4, used_in: []}
+  run_max_deliveries: {value: 3, unit: deliveries, owner: U4, used_in: []}
+  cancel_key_margin_s: {value: 120, unit: s, owner: U4, used_in: []}
+  poll_interval_s: {value: 15, unit: s, owner: U4, used_in: []}
+  poll_interval_active_s: {value: 2, unit: s, owner: U4, used_in: []}
+  run_queue_wait_max_s: {value: 10800, unit: s, owner: U4, used_in: []}
+  cursor_max_chars: {value: 128, unit: chars, owner: U4, used_in: [C1]}
+  # U5: revisión humana (NFR-U5-01)
+  review_text_max_chars: {value: 2000, unit: chars, owner: U5, used_in: [C1]}
+  review_body_max_bytes: {value: 65536, unit: bytes, owner: U5, used_in: [C1]}
+  dismissal_window_w: {value: 8, unit: suggestions, owner: U5, used_in: []}
+  # U6: importación y latido (NFR-U6-01; NFRD-U6-01)
+  import_file_max_bytes: {value: 2097152, unit: bytes, owner: U6, used_in: []}
+  import_body_max_bytes: {value: 2113536, unit: bytes, owner: U6, used_in: [C1], derived_from: import_file_max_bytes}
+  transcript_body_max_bytes: {value: 1004096, unit: bytes, owner: U6, used_in: [C1], derived_from: transcript_max_chars}
+  heartbeat_timeout_s: {value: 180, unit: s, owner: U6, used_in: []}
+  session_sweep_interval_s: {value: 30, unit: s, owner: U6, used_in: []}
+  heartbeat_write_min_s: {value: 15, unit: s, owner: U6, used_in: []}
+  # U7: reportes (NFR-U7-01)
+  report_max_bytes: {value: 8388608, unit: bytes, owner: U7, used_in: []}
+  # U9: voz (NFR-U9-02; NFRD-U9-03)
+  audio_max_bytes: {value: 6000000, unit: bytes, owner: U9, used_in: []}
+  audio_max_seconds: {value: 120, unit: s, owner: U9, used_in: []}
+  audio_base64_max_chars: {value: 8000000, unit: chars, owner: U9, used_in: [C5], derived_from: audio_max_bytes}
+  voice_body_max_bytes: {value: 6016384, unit: bytes, owner: U9, used_in: [C1], derived_from: audio_max_bytes}
+  voice_deadline_base_s: {value: 360, unit: s, owner: U9, used_in: []}
+  voice_deadline_max_s: {value: 1800, unit: s, owner: U9, used_in: []}
+  transcription_timeout_s: {value: 90, unit: s, owner: U9, used_in: []}
+  audio_claim_idle_ms: {value: 120000, unit: ms, owner: U9, used_in: []}
+  audio_max_deliveries: {value: 2, unit: deliveries, owner: U9, used_in: []}
+  voice_key_ttl_s: {value: 1920, unit: s, owner: U9, used_in: []}
+  tts_timeout_s: {value: 12, unit: s, owner: U9, used_in: []}
+  speech_route_timeout_s: {value: 15, unit: s, owner: U9, used_in: []}
+  speech_text_max_chars: {value: 400, unit: chars, owner: U9, used_in: []}
+  speech_audio_max_bytes: {value: 4194304, unit: bytes, owner: U9, used_in: []}
+  audio_store_max_bytes: {value: 2147483648, unit: bytes, owner: U9, used_in: []}
+  # U10: anonimizador (NFR-U10-01 a -03)
+  anonymizer_request_max_bytes: {value: 2097152, unit: bytes, owner: U10, used_in: [C21]}
+  anonymizer_masking_budget_ratio: {value: 0.15, unit: ratio, owner: U10, used_in: []}
+  anonymizer_response_max_bytes: {value: 2097152, unit: bytes, owner: U10, used_in: [C21]}
+  # U11: analizador (NFR-U11-05, -06)
+  model_call_timeout_s: {value: 3600, unit: s, owner: U11, used_in: []}
+  run_deadline_incremental_s: {value: 1200, unit: s, owner: U11, used_in: []}
+  run_deadline_final_s: {value: 43200, unit: s, owner: U11, used_in: []}
+  fragment_window_turns: {value: 60, unit: turns, owner: U11, used_in: []}
+  fragment_overlap_turns: {value: 20, unit: turns, owner: U11, used_in: []}
+  model_response_max_bytes: {value: 2097152, unit: bytes, owner: U11, used_in: []}
+  # U12: reportes del investigador (NFR-U12-01; NFRD-U12-02)
+  research_report_max_bytes: {value: 8388608, unit: bytes, owner: U12, used_in: [C1]}
+  research_report_max_json_depth: {value: 8, unit: levels, owner: U12, used_in: []}
+  research_report_write_timeout_s: {value: 15, unit: s, owner: U12, used_in: []}
+  research_report_read_timeout_s: {value: 30, unit: s, owner: U12, used_in: []}
+  # U13: ética (NFR-U13-01)
+  retention_max_days: {value: 90, unit: days, owner: U13, used_in: []}
+  retention_min_days: {value: 1, unit: days, owner: U13, used_in: []}
+  acknowledgement_validity_days: {value: 90, unit: days, owner: U13, used_in: []}
+  testimony_warning_words: {value: 8, unit: words, owner: U13, used_in: []}
+  problem_report_note_max_chars: {value: 2000, unit: chars, owner: U13, used_in: [C1]}
+  wellness_reminder_interval_s: {value: 2700, unit: s, owner: U13, used_in: []}
+  ethics_body_max_bytes: {value: 32768, unit: bytes, owner: U13, used_in: [C1]}
+  # U1: reporte de la CLI (NFR12.3)
+  report_token_max_chars: {value: 128, unit: chars, owner: U1, used_in: [C2, C5, C19, C21]}
+  model_call_role_max_chars: {value: 32, unit: chars, owner: U1, used_in: [C19]}
+  report_per_run_items: {value: 3, unit: runs, owner: U1, used_in: [C19]}
+relations:
+  - [fragment_overlap_turns, "<", fragment_window_turns]
+  - [retention_min_days, "<=", retention_max_days]
+  - [heartbeat_write_min_s, "<", heartbeat_timeout_s]
+  - [poll_interval_active_s, "<=", poll_interval_s]
+  - [voice_deadline_base_s, "<=", voice_deadline_max_s]
+  - [run_deadline_incremental_s, "<=", run_deadline_final_s]
+  - [import_file_max_bytes, "<=", run_message_max_bytes]
+  - [import_file_max_bytes, "<", import_body_max_bytes]

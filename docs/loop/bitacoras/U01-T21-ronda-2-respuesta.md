@@ -1,0 +1,3 @@
+F-06: Corregido en el commit de la ronda 3: CA-2 vuelto a correr; su salida literal está en la bitácora (sección Ronda 3), redirigida a un archivo del scratchpad y anexada con cat; el bloque editado de la ronda 2 se retiró.
+F-07: Corregido en el commit de la ronda 3: DIRECTORIOS_RESERVADOS es un MappingProxyType con el mismo contenido; una prueba exige TypeError al asignarle una clave.
+F-08: Corregido en el commit de la ronda 3: documentado en el docstring de _datos_del_arbol (un archivo ignorado por git y suelto da «falta el dato…»); no se filtra porque exigiría subprocess o una dependencia nueva.

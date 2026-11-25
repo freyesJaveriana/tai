@@ -1,0 +1,16 @@
+# E27 (BR9.1): `role: "Prueba A"` no cumple el patrón del papel.
+fixture_id: model-call-role-mayusculas
+contract: model-call
+synthetic: true
+expectation: reject
+reject_reason: BR9.1
+mentions: []
+payload:
+  role: "Prueba A"
+  provider: local
+  model: modelo-prueba-a
+  input_tokens: 100
+  output_tokens: 12
+  fallback_provider: false
+  anonymized: false
+  at: "2026-11-23T15:00:00Z"

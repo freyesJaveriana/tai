@@ -1,0 +1,114 @@
+# Catálogo único de errores v2 (NFR10.3, BR7.2, BR7.4, D16).
+# Por code: un solo status HTTP, la clase de excepción de libs/errors/, la unidad dueña y
+# http. Los de arranque y de log llevan http: false y ningún status. limits.exceeded es
+# siempre 413. c6 enlaza cada error.codigo de C6 con su code (BR3.4, E34).
+version: "2.0.0"
+codes:
+  auth.invalid_credentials: {status: 401, class: AuthInvalidCredentialsError, unit: U3, http: true}
+  auth.unauthenticated: {status: 401, class: AuthUnauthenticatedError, unit: U3, http: true}
+  auth.forbidden: {status: 403, class: AuthForbiddenError, unit: U3, http: true}
+  auth.csrf: {status: 403, class: AuthCsrfError, unit: U3, http: true}
+  auth.too_many_attempts: {status: 429, class: AuthTooManyAttemptsError, unit: U3, http: true}
+  validation.invalid_request: {status: 422, class: ValidationInvalidRequestError, unit: U3, http: true}
+  limits.exceeded: {status: 413, class: LimitsExceededError, unit: U3, http: true}
+  route.not_found: {status: 404, class: RouteNotFoundError, unit: U3, http: true}
+  system.internal: {status: 500, class: SystemInternalError, unit: U3, http: true}
+  system.unavailable: {status: 503, class: SystemUnavailableError, unit: U3, http: true}
+  user.duplicate_username: {status: 409, class: UserDuplicateUsernameError, unit: U3, http: true}
+  user.self_deactivation: {status: 409, class: UserSelfDeactivationError, unit: U3, http: true}
+  user.last_admin: {status: 409, class: UserLastAdminError, unit: U3, http: true}
+  user.has_pending_sessions: {status: 409, class: UserHasPendingSessionsError, unit: U3, http: true}
+  user.not_found: {status: 404, class: UserNotFoundError, unit: U3, http: true}
+  user.weak_password: {status: 422, class: UserWeakPasswordError, unit: U3, http: true}
+  profile.not_approved: {status: 422, class: ProfileNotApprovedError, unit: U4, http: true}
+  profile.transfer_not_authorized: {status: 422, class: ProfileTransferNotAuthorizedError, unit: U4, http: true}
+  session.not_owner: {status: 403, class: SessionNotOwnerError, unit: U4, http: true}
+  session.finalized: {status: 409, class: SessionFinalizedError, unit: U4, http: true}
+  session.not_suspended: {status: 409, class: SessionNotSuspendedError, unit: U4, http: true}
+  session.not_paused: {status: 409, class: SessionNotPausedError, unit: U4, http: true}
+  session.not_finalized: {status: 409, class: SessionNotFinalizedError, unit: U4, http: true}
+  session.suspended: {status: 409, class: SessionSuspendedError, unit: U4, http: true}
+  session.consolidated: {status: 409, class: SessionConsolidatedError, unit: U4, http: true}
+  session.closed_to_new_turns: {status: 409, class: SessionClosedToNewTurnsError, unit: U4, http: true}
+  session.paused: {status: 409, class: SessionPausedError, unit: U4, http: true}
+  session.terminated: {status: 409, class: SessionTerminatedError, unit: U4, http: true}
+  session.blocked: {status: 409, class: SessionBlockedError, unit: U4, http: true}
+  session.consent_missing: {status: 409, class: SessionConsentMissingError, unit: U4, http: true}
+  session.consent_withdrawn: {status: 409, class: SessionConsentWithdrawnError, unit: U4, http: true}
+  session.voice_not_authorized: {status: 409, class: SessionVoiceNotAuthorizedError, unit: U4, http: true}
+  import.invalid_type: {status: 415, class: ImportInvalidTypeError, unit: U6, http: true}
+  import.invalid_transcript: {status: 422, class: ImportInvalidTranscriptError, unit: U6, http: true}
+  import.profile_mismatch: {status: 422, class: ImportProfileMismatchError, unit: U6, http: true}
+  retention.above_maximum: {status: 422, class: RetentionAboveMaximumError, unit: U13, http: true}
+  retention.below_minimum: {status: 422, class: RetentionBelowMinimumError, unit: U13, http: true}
+  retention.cannot_extend: {status: 422, class: RetentionCannotExtendError, unit: U13, http: true}
+  ethics.text_version_outdated: {status: 422, class: EthicsTextVersionOutdatedError, unit: U13, http: true}
+  problem_report.ids_mismatch: {status: 422, class: ProblemReportIdsMismatchError, unit: U13, http: true}
+  run.not_in_error: {status: 409, class: RunNotInErrorError, unit: U4, http: true}
+  run.final_in_progress: {status: 409, class: RunFinalInProgressError, unit: U4, http: true}
+  analysis.invalid_output:
+    status: 502
+    class: AnalysisInvalidOutputError
+    unit: U4
+    http: true
+    c6: salida_invalida
+  analysis.content_blocked:
+    status: 451
+    class: AnalysisContentBlockedError
+    unit: U4
+    http: true
+    c6: bloqueo_contenido
+  analysis.timeout: {status: 504, class: AnalysisTimeoutError, unit: U4, http: true, c6: tiempo_agotado}
+  analysis.provider: {status: 502, class: AnalysisProviderError, unit: U4, http: true, c6: proveedor}
+  analysis.anonymizer_unavailable:
+    status: 503
+    class: AnalysisAnonymizerUnavailableError
+    unit: U4
+    http: true
+    c6: anonimizador_no_disponible
+  anonymizer.incident: {class: AnonymizerIncidentError, unit: U10, http: false, c6: incidente_anonimizacion}
+  anonymizer.profile_mismatch: {status: 409, class: AnonymizerProfileMismatchError, unit: U10, http: true}
+  anonymizer.destination_rejected: {status: 422, class: AnonymizerDestinationRejectedError, unit: U10, http: true}
+  analysis.system: {status: 503, class: AnalysisSystemError, unit: U4, http: true}
+  suggestion.not_found: {status: 404, class: SuggestionNotFoundError, unit: U5, http: true}
+  review.observations_not_viewed: {status: 409, class: ReviewObservationsNotViewedError, unit: U5, http: true}
+  review.note_required: {status: 422, class: ReviewNoteRequiredError, unit: U5, http: true}
+  review.invalid_transition: {status: 409, class: ReviewInvalidTransitionError, unit: U5, http: true}
+  review.round_locked: {status: 409, class: ReviewRoundLockedError, unit: U5, http: true}
+  report.session_not_finalized: {status: 409, class: ReportSessionNotFinalizedError, unit: U7, http: true}
+  report.final_mode_not_launched: {status: 409, class: ReportFinalModeNotLaunchedError, unit: U7, http: true}
+  report.runs_in_progress: {status: 409, class: ReportRunsInProgressError, unit: U7, http: true}
+  report.pending_suggestions: {status: 409, class: ReportPendingSuggestionsError, unit: U7, http: true}
+  report.forbidden_vocabulary: {status: 409, class: ReportForbiddenVocabularyError, unit: U7, http: true}
+  report.conflict: {status: 409, class: ReportConflictError, unit: U7, http: true}
+  report.view_outdated: {status: 409, class: ReportViewOutdatedError, unit: U7, http: true}
+  report.integrity_mismatch: {status: 409, class: ReportIntegrityMismatchError, unit: U7, http: true}
+  report.not_consolidated: {status: 409, class: ReportNotConsolidatedError, unit: U7, http: true}
+  report.not_found: {status: 404, class: ReportNotFoundError, unit: U7, http: true}
+  report.export_not_recorded: {status: 503, class: ReportExportNotRecordedError, unit: U7, http: true}
+  research.invalid_report: {status: 422, class: ResearchInvalidReportError, unit: U12, http: true}
+  research.invalid_type: {status: 415, class: ResearchInvalidTypeError, unit: U12, http: true}
+  research.not_found: {status: 404, class: ResearchNotFoundError, unit: U12, http: true}
+  research.duplicate: {status: 409, class: ResearchDuplicateError, unit: U12, http: true}
+  research.not_comparable: {status: 409, class: ResearchNotComparableError, unit: U12, http: true}
+  conductor_observation.not_approved:
+    status: 409
+    class: ConductorObservationNotApprovedError
+    unit: U8
+    http: true
+  conductor_observation.not_found: {status: 404, class: ConductorObservationNotFoundError, unit: U8, http: true}
+  conductor_observation.already_decided:
+    status: 409
+    class: ConductorObservationAlreadyDecidedError
+    unit: U8
+    http: true
+  conductor_observation.session_closed:
+    status: 409
+    class: ConductorObservationSessionClosedError
+    unit: U8
+    http: true
+  speech.unavailable: {status: 503, class: SpeechUnavailableError, unit: U9, http: true}
+  speech.text_rejected: {status: 409, class: SpeechTextRejectedError, unit: U9, http: true}
+  config.invalid_profile: {class: ConfigInvalidProfileError, unit: U1, http: false}
+  config.invalid_limit: {class: ConfigInvalidLimitError, unit: U1, http: false}
+  run.publish_failed: {class: RunPublishFailedError, unit: U4, http: false}

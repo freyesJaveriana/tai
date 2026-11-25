@@ -1,0 +1,14 @@
+# Métricas de U8 assistant-extras (NFRD-U8-06; observability-requirements §2). Forma de C15 (checks/metrics.py).
+schema_version: 1.0.0
+endpoint: GET /metrics  # session-api, puerto interno
+metrics:
+  - name: veridicus_conductor_observations_ingested_total
+    type: counter
+    labels: []
+    description: Observaciones del conductor ingeridas desde el resultado de una corrida.
+  - name: veridicus_conductor_observation_decisions_total
+    type: counter
+    labels:
+      - name: state
+        values: [approved, discarded]
+    description: Decisiones del analista sobre una observación del conductor, por estado.

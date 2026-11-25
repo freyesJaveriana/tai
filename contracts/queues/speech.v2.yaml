@@ -1,0 +1,161 @@
+asyncapi: 3.0.0
+info:
+  title: Veridicus speech
+  version: 2.0.0
+  x-veridicus-priority: SHOULD
+  description: >-
+    C5, colas de audio y transcripción (SHOULD, U9). El audio solo se acepta con `autoriza_voz`
+    y el turno transcrito encola una corrida de C2 como un turno escrito. Las entradas de
+    `veridicus:audio:failed` son estrictas: sin texto ni audio (NFRD-U1-07, NFR-U9-03).
+servers:
+  redis:
+    host: 'veridicus-redis:6379'
+    protocol: redis
+    description: Redis interno del clúster; ningún destino externo (AUTONOMIA-04)
+channels:
+  audio:
+    address: 'veridicus:audio'
+    description: Redis Stream; grupo `audio-worker`
+    messages:
+      AudioToTranscribe:
+        $ref: '#/components/messages/AudioToTranscribe'
+  audioFailed:
+    address: 'veridicus:audio:failed'
+    description: Audios que no se pudieron transcribir; solo IDs y `code`
+    messages:
+      AudioFailed:
+        $ref: '#/components/messages/AudioFailed'
+  transcripts:
+    address: 'veridicus:transcripts'
+    description: Redis Stream; grupo `session-api`
+    messages:
+      TranscriptResult:
+        $ref: '#/components/messages/TranscriptResult'
+operations:
+  sendAudio:
+    action: send
+    channel:
+      $ref: '#/channels/audio'
+  transcribe:
+    action: receive
+    channel:
+      $ref: '#/channels/audio'
+  failAudio:
+    action: send
+    channel:
+      $ref: '#/channels/audioFailed'
+  sendTranscript:
+    action: send
+    channel:
+      $ref: '#/channels/transcripts'
+  ingestTranscript:
+    action: receive
+    channel:
+      $ref: '#/channels/transcripts'
+components:
+  messages:
+    AudioToTranscribe:
+      contentType: application/json
+      payload:
+        type: object
+        additionalProperties: true
+        required:
+          - schema_version
+          - message_id
+          - turn_id
+          - session_id
+          - attempt
+          - audio_format
+          - audio_base64
+          - retain_audio
+          - deadline_at
+        properties:
+          schema_version:
+            type: string
+            pattern: '^1\.[0-9]+\.[0-9]+$'
+            maxLength: 128
+            x-veridicus-limit: report_token_max_chars
+          message_id:
+            type: string
+            format: uuid
+          turn_id:
+            type: string
+            format: uuid
+          session_id:
+            type: string
+            format: uuid
+          attempt:
+            type: integer
+            minimum: 1
+          audio_format:
+            type: string
+            enum: [wav, mp3]
+          audio_base64:
+            type: string
+            maxLength: 8000000
+            x-veridicus-limit: audio_base64_max_chars
+          retain_audio:
+            type: boolean
+            description: Copia de autoriza_conservar_audio (VE-08); el trabajador nunca guarda audio
+          deadline_at:
+            type: string
+            format: date-time
+            pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'
+    TranscriptResult:
+      contentType: application/json
+      payload:
+        type: object
+        additionalProperties: true
+        required: [schema_version, message_id, turn_id, attempt, outcome]
+        properties:
+          schema_version:
+            type: string
+            pattern: '^1\.[0-9]+\.[0-9]+$'
+            maxLength: 128
+            x-veridicus-limit: report_token_max_chars
+          message_id:
+            type: string
+            format: uuid
+          turn_id:
+            type: string
+            format: uuid
+          attempt:
+            type: integer
+            minimum: 1
+          outcome:
+            type: string
+            enum: [transcribed, error]
+          text:
+            type: string
+            maxLength: 20000
+            x-veridicus-limit: turn_max_chars
+            description: Solo si outcome es transcribed
+          error_code:
+            type: string
+            enum: [analysis.system, analysis.timeout, analysis.invalid_output]
+          model_digest:
+            type: string
+            maxLength: 128
+            x-veridicus-limit: report_token_max_chars
+    AudioFailed:
+      contentType: application/json
+      payload:
+        type: object
+        additionalProperties: false
+        required: [message_id, turn_id, attempt, code]
+        properties:
+          message_id:
+            type: string
+            format: uuid
+          turn_id:
+            type: string
+            format: uuid
+          attempt:
+            type: integer
+            minimum: 1
+          code:
+            type: string
+            pattern: '^[a-z][a-z_]*\.[a-z][a-z_]*$'
+            maxLength: 128
+            x-veridicus-limit: report_token_max_chars
+            description: Código estable del catálogo de errores; nunca texto libre

@@ -1,0 +1,19 @@
+# E35 (BR4.4): sugerencia pendiente con la fecha de una decisión.
+fixture_id: c7-pending-con-decided-at
+contract: C7
+synthetic: true
+expectation: reject
+reject_reason: BR4.4
+mentions: [Villa Rocamora, Puerto Altamira]
+payload:
+  suggestion_id: 2e9f7b4d-c5a1-4a8e-b3c6-8d2f5a1e9c7b
+  session_id: e7a2d5c9-6f1b-4d3e-a8c4-f9b3e0d7a2c5
+  first_run_id: c4e8b1f7-2d9a-4a6c-8b3e-d5f0a9c2e1b4
+  hecho: Lugar donde pasó la noche del suceso
+  tipo: lugar
+  cita_a: {cita: "Esa noche dormí en Villa Rocamora, en la casa de mi hermana.", turno: T2}
+  cita_b: {cita: "Yo estaba en Puerto Altamira esa noche, trabajando en el muelle.", turno: T4}
+  observaciones: Las dos citas ubican la noche del suceso en lugares distintos.
+  state: pending
+  observations_viewed: false
+  decided_at: "2026-11-23T16:00:00Z"

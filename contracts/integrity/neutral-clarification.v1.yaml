@@ -1,0 +1,8 @@
+# Regla de las aclaraciones neutras (VE-05, DT23, BR5.6, FD-U8-04). La aplica U11 y la muestra U8.
+schema_version: 1.1.0
+reject_if:
+  # «contradicción», «contradice» o «incoherencia» dentro de tema.
+  mentions_contradiction: true
+  phrases: [antes dijo, dijo antes, se contradice, antes mencionó, había dicho]
+  # «T<n>» o «turno <n>» dentro de tema.
+  cites_turn: true

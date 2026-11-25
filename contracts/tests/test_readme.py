@@ -152,8 +152,8 @@ def _seccion(texto: str, titulo: str) -> str:
 
 
 def terminos_que_faltan(texto: str) -> list[str]:
-    """Términos del glosario que no están en la sección `Glosario de identificadores`."""
-    glosario = _seccion(texto, "Glosario de identificadores")
+    """Términos del glosario único (`docs/glosario.md`) que no están en la sección `Contratos (U1)`."""
+    glosario = _seccion(texto, "Contratos (U1)")
     return [termino for termino in TERMINOS_DEL_GLOSARIO if f"`{termino}`" not in glosario]
 
 
@@ -266,14 +266,28 @@ def readme(contracts_root: Path) -> str:
     return ruta.read_text(encoding="utf-8")
 
 
-def test_el_glosario_tiene_los_cinco_terminos(readme: str) -> None:
-    assert terminos_que_faltan(readme) == []
+@pytest.fixture(scope="module")
+def glosario(contracts_root: Path) -> str:
+    """El glosario único del repositorio (`team.md`, Code Style): `docs/glosario.md`."""
+    ruta = contracts_root.parent / "docs" / "glosario.md"
+    assert ruta.is_file(), "falta docs/glosario.md"
+    return ruta.read_text(encoding="utf-8")
+
+
+def test_el_glosario_tiene_los_cinco_terminos(glosario: str) -> None:
+    assert terminos_que_faltan(glosario) == []
 
 
 @pytest.mark.parametrize("termino", TERMINOS_DEL_GLOSARIO)
-def test_control_negativo_un_readme_sin_un_termino_falla(readme: str, termino: str) -> None:
-    sin_el_termino = readme.replace(f"`{termino}`", "")
+def test_control_negativo_un_glosario_sin_un_termino_falla(glosario: str, termino: str) -> None:
+    sin_el_termino = glosario.replace(f"`{termino}`", "")
     assert terminos_que_faltan(sin_el_termino) == [termino]
+
+
+def test_el_readme_enlaza_el_glosario_unico_y_no_lo_repite(readme: str) -> None:
+    seccion = _seccion(readme, "Glosario de identificadores")
+    assert "../docs/glosario.md" in seccion
+    assert [t for t in TERMINOS_DEL_GLOSARIO if f"| `{t}` |" in readme] == []
 
 
 def test_control_negativo_sin_seccion_de_glosario_faltan_todos() -> None:

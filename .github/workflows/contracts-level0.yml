@@ -163,3 +163,6 @@ jobs:
 
       - name: Lint de libs/errors
         run: uv run --frozen --offline --directory libs/errors ruff check .
+
+      - name: Formato de libs/errors (K-76)
+        run: uv run --frozen --offline --directory libs/errors ruff format --check .

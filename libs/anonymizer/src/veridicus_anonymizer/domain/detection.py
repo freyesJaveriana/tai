@@ -4,8 +4,8 @@ Tres fuentes de tramos `[start, end)` sobre un valor de texto:
 
 - `apply_rules`: las reglas de `DetectionRuleSet` (`google-re2`) y las cadenas con forma de marca
   (`input_marker`, BR1.7), que se tratan como `ENTIDAD`;
-- `safety_net`: la red de seguridad ampliada de PD-2 (CG-U10-02). Toda palabra con mayúscula inicial
-  que no esté en `AllowedWordList` es `ENTIDAD`, abra oración o no. Las palabras con mayúscula
+- `safety_net`: la red de seguridad ampliada de PD-2 (CG-U10-02). Toda palabra con alguna mayúscula,
+  en cualquier posición y aunque vaya pegada con guion, guion bajo o dígitos, que no esté en `AllowedWordList` es `ENTIDAD`, abra oración o no. Las palabras con mayúscula
   seguidas y separadas solo por espacios forman un único tramo (F-11 de la revisión de U10-T02): un
   nombre completo sin tratamiento lleva una sola marca. No se aplica a `system` (lo decide `masking`);
 - `merge_spans`: la unión de los tramos que se solapan o se tocan, con la categoría de mayor
@@ -33,7 +33,12 @@ MARKER_FORM = (
     r"|(?i:(?:persona|lugar|expediente|identificador|entidad)_[0-9]+\]?)"
     r"|\[[A-ZÁÉÍÓÚÑ]+_[0-9]+\]"
 )
-_WORD_PATTERN = r"[\p{L}\p{M}\p{N}_]+(?:-[\p{L}\p{M}\p{N}_]+)*"
+# Una palabra es una racha de letras, dígitos y guion bajo, unida por guiones, con las secuencias
+# `\uXXXX` de un valor que no es JSON dentro de ella. Las secuencias `\n`, `\r` y `\t` escritas con
+# barra invertida son separadores: la palabra que sigue se evalúa sola (F-01).
+_UNICODE_ESCAPE = r"\\u[0-9A-Fa-f]{4}"
+_PIECE = rf"(?:{_UNICODE_ESCAPE}|[\p{{L}}\p{{M}}\p{{N}}_])"
+_WORD_PATTERN = rf"\\[nrt]|{_PIECE}+(?:-{_PIECE}+)*"
 _BLANKS = " " + chr(0xA0)  # espacio y espacio de no separaci\u00f3n
 
 
@@ -63,13 +68,30 @@ def apply_rules(text: str, catalogs: Catalogs) -> list[DetectedSpan]:
     return spans
 
 
+def has_capital(word: str) -> bool:
+    """`True` si la palabra tiene alguna letra mayúscula en cualquier posición (F-01).
+
+    Las secuencias `\\uXXXX` se leen como la letra que escriben.
+    """
+    decoded: list[str] = []
+    cursor = 0
+    for match in compile_pattern(_UNICODE_ESCAPE).finditer(word):
+        start, end = match.span()
+        decoded.extend((word[cursor:start], chr(int(word[start + 2 : end], 16))))
+        cursor = end
+    decoded.append(word[cursor:])
+    return any(unicodedata.category(c) == "Lu" for c in "".join(decoded))
+
+
 def safety_net(text: str, catalogs: Catalogs) -> list[DetectedSpan]:
     """Red de seguridad `ENTIDAD` (PD-2): se aplica a `user` y `assistant`, nunca a `system`."""
     runs: list[tuple[int, int]] = []
     for match in compile_pattern(_WORD_PATTERN).finditer(text):
         start, end = match.span()
         token = text[start:end]
-        if unicodedata.category(token[0]) != "Lu" or token in catalogs.allowed_words:
+        if token.startswith("\\") and len(token) == 2:  # `\n`, `\r` o `\t`: separador
+            continue
+        if not has_capital(token) or token in catalogs.allowed_words:
             continue
         if runs and text[runs[-1][1] : start].strip(_BLANKS) == "":
             runs[-1] = (runs[-1][0], end)

@@ -283,6 +283,28 @@ def test_the_assistant_role_also_gets_the_safety_net() -> None:
     assert masked == [Message("assistant", "vi a [ENTIDAD_1].")]
 
 
+def test_f04_each_word_of_a_multiword_span_is_a_propagable_form_even_in_system() -> None:
+    system = Message("system", "Consulta a Pérez o a Casilda si dudas.")
+
+    masked, table = pseudonymize([system, _user("vio a Casilda Pérez ayer.")], CATALOGS)
+
+    assert masked[0].content == "Consulta a [ENTIDAD_1] o a [ENTIDAD_2] si dudas."
+    assert _texts_of(masked[1]) == ["vio a [ENTIDAD_3] ayer."]
+    assert table.forms() == ["Pérez", "Casilda", "Casilda Pérez"]
+
+
+def test_f04_only_capitalized_words_that_are_not_allowed_become_forms() -> None:
+    messages = [
+        Message("user", "vivía en la vereda Cañada del Sauce y en La Esperanza."),
+        Message("system", "Sauce, el río y Esperanza; del y La no se enmascaran."),
+    ]
+
+    masked, _ = pseudonymize(messages, CATALOGS)
+
+    # «Sauce» es palabra del tramo «Cañada del Sauce» (LUGAR); «Esperanza» ya era forma suelta.
+    assert masked[1].content == "[LUGAR_2], el río y [ENTIDAD_1]; del y La no se enmascaran."
+
+
 def test_pd5_stable_prefix_the_same_text_with_new_turns_keeps_the_numbers() -> None:
     turns = [t["texto"] for t in turns_of(SEEDED)]
     base, _ = _mask(*turns[:9])
@@ -393,7 +415,7 @@ def test_propagation_grows_until_a_form_found_by_union_is_marked_everywhere() ->
 
     grown = propagate(texts, spans)
 
-    assert grown[0] == [DetectedSpan(0, 9, "ENTIDAD", "x")]
+    assert [(s.start, s.end, s.category) for s in grown[0]] == [(0, 9, "ENTIDAD")]
     assert [(s.start, s.end) for s in grown[1]] == [(0, 15), (22, 37)]
 
 
@@ -442,6 +464,8 @@ WORDS = st.sampled_from(
         "Eufrasio", "Paz", "Luz", "El", "Entonces", "Fiscalía", "llegó", "vio", "a", "en", "la",
         "plaza", "dijo", "doña", "don", "sargento", "vereda", "Puerto", "San", "José", "radicado",
         "110016000-2019-00123", "1.234.567.890", "[PERSONA_1]", "persona_3", "Ana@correo.example",
+        "ex-Benavides", "maría-Fernanda", "Benavides_2", "Benavides7", "a7Benavides", "x_Roncancio",
+        "dijo\\nBenavides", "vio\\tAna", "\\u00c1lvaro", "\\u00e9xito-Tafurt", "iPhone",
     ]
 )  # fmt: skip
 JOINERS = st.sampled_from(

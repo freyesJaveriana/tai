@@ -108,13 +108,20 @@ def _occurrences(text: str, forms: dict[str, str]) -> Iterator[DetectedSpan]:
             start = text.find(form, start + 1)
 
 
+_WORD_CATEGORIES = frozenset({"PERSONA", "LUGAR", "ENTIDAD"})
+
+
 def propagate(
-    texts: Sequence[str], spans: Sequence[Sequence[DetectedSpan]]
+    texts: Sequence[str],
+    spans: Sequence[Sequence[DetectedSpan]],
+    allowed_words: frozenset[str] = frozenset(),
 ) -> list[list[DetectedSpan]]:
     """Marca en todos los valores cada forma detectada en alguno, hasta que no crezca más (F4 paso 4).
 
     El resultado nunca deja una forma detectada fuera de una marca: si un tramo nuevo se solapa con
-    otro, la unión es una forma nueva que también se propaga.
+    otro, la unión es una forma nueva que también se propaga. Además, cada palabra con mayúscula de
+    un tramo de varias palabras (F-11) es una forma propagable con su propia marca: un apellido
+    suelto en otro mensaje, incluido `system`, queda enmascarado (F-04). Las palabras permitidas no.
     """
     current = [list(group) for group in spans]
     while True:
@@ -122,6 +129,13 @@ def propagate(
         for text, group in zip(texts, current, strict=True):
             for span in group:
                 forms.setdefault(text[span.start : span.end], span.category)
+        for text, group in zip(texts, current, strict=True):
+            for span in group:
+                words = text[span.start : span.end].split()
+                if span.category in _WORD_CATEGORIES and len(words) > 1:
+                    for word in words:
+                        if detection.has_capital(word) and word not in allowed_words:
+                            forms.setdefault(word, span.category)
         grown = [
             detection.merge_spans([*group, *_occurrences(text, forms)])
             for text, group in zip(texts, current, strict=True)
@@ -248,7 +262,7 @@ def pseudonymize(
         if role != "system":
             found = [*found, *detection.safety_net(text, catalogs)]
         detected.append(detection.merge_spans(found))
-    spans = propagate(texts, detected)
+    spans = propagate(texts, detected, catalogs.allowed_words)
     _check(has_budget)
     table = build_table(texts, spans)
     try:

@@ -171,8 +171,57 @@ def test_a_hyphenated_surname_is_one_word_and_a_no_break_space_joins_a_run() -> 
     assert _texts(text, safety_net(text, CATALOGS)) == [f"Ana Pérez-Gómez{nbsp}Tafurt"]
 
 
+F01_CASES = [
+    ("vio a ex-Benavides ayer", ["Benavides"]),
+    ("vio a maría-Fernanda ayer", ["Fernanda"]),
+    ("vio a Benavides_2 ayer", ["Benavides"]),
+    ("vio a Benavides7 ayer", ["Benavides"]),
+    ("vio a ex_Benavides ayer", ["Benavides"]),
+    ("vio a a7Benavides ayer", ["Benavides"]),
+    ("dijo\\nBenavides vino", ["Benavides"]),
+    ("vio a \\u00c1lvaro Tafurt ayer", ["lvaro", "Tafurt"]),
+]
+
+
+@pytest.mark.parametrize(
+    ("text", "covered"),
+    F01_CASES,
+    ids=[
+        "prefijo_con_guion",
+        "pila_minuscula_con_guion",
+        "guion_bajo",
+        "digito",
+        "prefijo_con_guion_bajo",
+        "prefijo_con_digito",
+        "escape_n",
+        "escape_unicode",
+    ],
+)
+def test_f01_a_word_with_any_capital_letter_is_masked_whole_whatever_it_is_glued_to(
+    text: str, covered: list[str]
+) -> None:
+    spans = _detect(text)
+
+    for part in covered:
+        start = text.index(part)
+        assert any(s.start <= start and start + len(part) <= s.end for s in spans), part
+
+
+def test_f01_an_escape_sequence_separates_words_and_is_never_an_entity() -> None:
+    assert _detect("hola\\nana\\tluz\\rdijo") == []
+    # La palabra que sigue al escape se evalúa sola: solo ella queda marcada.
+    text = "dijo\\nBenavides vino"
+    assert _texts(text, _detect(text)) == ["Benavides"]
+
+
+def test_f01_a_capital_inside_a_lowercase_word_is_masked_on_the_safe_side() -> None:
+    text = "compró un iPhone ayer"
+
+    assert _texts(text, _detect(text)) == ["iPhone"]
+
+
 def test_words_that_do_not_start_with_a_capital_letter_are_never_entities() -> None:
-    text = "compró un iPhone en 2019 con el código a1b2 y 3 mulas."
+    text = "compró un iphone en 2019 con el código a1b2 y 3 mulas."
 
     assert safety_net(text, CATALOGS) == []
 

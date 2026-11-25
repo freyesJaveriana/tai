@@ -42,6 +42,12 @@ python_version = "3.12"
 mypy_path = "src:../../contracts/src"
 explicit_package_bases = true
 
+# Al tomar la fuente de contracts, mypy también revisa validators.py, que importa una
+# dependencia de desarrollo de contracts que este paquete no instala.
+[[tool.mypy.overrides]]
+module = ["openapi_spec_validator", "openapi_spec_validator.*"]
+ignore_missing_imports = true
+
 [tool.ruff]
 target-version = "py312"
 line-length = 100

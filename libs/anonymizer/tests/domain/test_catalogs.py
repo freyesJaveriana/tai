@@ -108,6 +108,21 @@ def test_allowed_words_never_hold_a_seeded_entity_or_a_common_word_given_name() 
         assert fold(name) not in allowed, "un nombre de pila está en allowed-words"
 
 
+# Lista negativa propia (F-02): nombres de pila sintéticos que también son meses, días o palabras.
+GIVEN_NAMES_NEVER_ALLOWED = [
+    "Abril", "Mayo", "Junio", "Marzo", "Julio", "Domingo", "Marina", "Mercedes", "Rosario",
+    "Pilar", "Dolores", "Luz", "Paz", "Esperanza", "Consuelo", "Soledad", "Amparo", "Gloria",
+    "Victoria", "Carmen", "Estrella", "Alba", "Aurora", "Lourdes", "Socorro", "Remedios",
+    "Milagros", "Guadalupe", "Trinidad", "Jesús", "Nieves", "Rocío", "Cruz", "Sol", "Lucero",
+]  # fmt: skip
+
+
+def test_f02_allowed_words_hold_no_given_name_not_even_a_month_or_a_weekday() -> None:
+    allowed = {fold(w) for w in load_catalogs().allowed_words}
+
+    assert {fold(n) for n in GIVEN_NAMES_NEVER_ALLOWED} & allowed == set()
+
+
 def test_allowed_words_cover_the_function_words_and_institutions_the_safety_net_spares() -> None:
     allowed = load_catalogs().allowed_words
 

@@ -578,7 +578,7 @@ Se escriben **antes** de cualquier contrato y se corren en rojo (Testing Contrac
   `gitleaks` sobre el repositorio (NFR12.2); más un *job* hermano `errors-level0` con V-ERRORS, extensión
   de §4.13 por PD-7 que se anota en el PR (R-13 de la revisión 2).
 - [x] `.pre-commit-config.yaml` en la raíz con `gitleaks`, Ruff y `yamllint`.
-- [ ] Pedir en el PR del Bolt que `contracts-level0` sea comprobación obligatoria de `main` (lo aplica el
+- [x] Pedir en el PR del Bolt que `contracts-level0` sea comprobación obligatoria de `main` (lo aplica el
   humano en GitHub).
 - Cubre: NFR10.9, NFR12.2; AUTONOMIA-01, AUTONOMIA-02.
 - Verificación: V-YAML → código 0, y

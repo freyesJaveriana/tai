@@ -196,14 +196,14 @@ fusionar el PR del Bolt (BR12.2).
 
 ```toml
 [tool.uv.sources]
-veridicus-contracts = { git = "https://github.com/freyesJaveriana/tai", tag = "contracts-v0.1.0", subdirectory = "contracts" }
+veridicus-contracts = { git = "https://github.com/freyesJaveriana/tai", tag = "contracts-v0.1.1", subdirectory = "contracts" }
 ```
 
 La dependencia (`dependencies = ["veridicus-contracts"]`) se añade con `uv add`, que escribe también la
 fuente de arriba:
 
 ```bash
-uv add "veridicus-contracts @ git+https://github.com/freyesJaveriana/tai#subdirectory=contracts" --tag contracts-v0.1.0
+uv add "veridicus-contracts @ git+https://github.com/freyesJaveriana/tai#subdirectory=contracts" --tag contracts-v0.1.1
 ```
 
 `tests/test_readme.py` comprueba que la etiqueta de este apartado es la que imprime

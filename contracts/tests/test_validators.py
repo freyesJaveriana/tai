@@ -235,3 +235,123 @@ def test_un_mensaje_de_components_escrito_como_referencia_se_omite() -> None:
         "channels/turnos/messages/turno",
         "components/messages/fin",
     }
+
+
+# --- K-56: marcas x-veridicus-* del catálogo (PD-4) -------------------------------------------
+
+LLAMADA_VALIDA: dict[str, Any] = {
+    "role": "judge",
+    "provider": "local",
+    "model": "modelo-sintetico-1",
+    "input_tokens": 10,
+    "output_tokens": 5,
+    "fallback_provider": False,
+    "anonymized": False,
+    "at": "2026-11-25T10:00:00Z",
+}
+
+
+def _cargar(contracts_root: Path, relativa: str) -> Any:
+    from veridicus_contracts.loaders import load_file
+
+    return load_file(contracts_root / relativa)
+
+
+def test_k56_una_instancia_valida_de_model_call_pasa(contracts_root: Path) -> None:
+    esquema = _cargar(contracts_root, "model_calls/model-call.v1.yaml")
+    validate_instance(esquema, LLAMADA_VALIDA)
+
+
+def test_k56_los_esquemas_de_c18_y_c19_con_marcas_anidadas_son_validos(
+    contracts_root: Path,
+) -> None:
+    validate_json_schema(_cargar(contracts_root, "profiles/effective-config.v1.yaml"))
+    validate_json_schema(_cargar(contracts_root, "cli/report.schema.v2.yaml"))
+
+
+def test_k56_una_instancia_valida_de_c18_pasa(contracts_root: Path) -> None:
+    esquema = _cargar(contracts_root, "profiles/effective-config.v1.yaml")
+    destino = {"provider": "local", "model": "modelo-sintetico-1", "scope": "local"}
+    instancia = {
+        "schema_version": "1.0.0",
+        "analyzer_version": "0.1.0",
+        "profile_name": "demo-local",
+        "profile": {
+            "purpose": "demonstration",
+            "roles": {"judge": destino, "verifier": destino},
+            "role_aliases": {"verifier_permuted": "verifier"},
+            "permutation": True,
+        },
+        "profile_sha256": "a" * 64,
+        "prompt_sha256": "b" * 64,
+        "limits": {
+            "model_call_timeout_s": 60,
+            "run_deadline_incremental_s": 120,
+            "run_deadline_final_s": 600,
+            "fragment_window_turns": 20,
+            "fragment_overlap_turns": 4,
+        },
+    }
+    validate_instance(esquema, instancia)
+
+
+def test_k56_una_instancia_valida_de_c19_pasa(contracts_root: Path) -> None:
+    esquema = _cargar(contracts_root, "cli/report.schema.v2.yaml")
+    fixture = _cargar(contracts_root, "cli/fixtures/report.valid.json")
+    validate_instance(esquema, fixture["payload"])
+
+
+def test_k56_cada_marca_de_la_lista_cerrada_se_admite_anidada() -> None:
+    from veridicus_contracts.validators import MARCAS_X_VERIDICUS
+
+    # La lista literal de PD-4, escrita aquí a propósito: la constante no se compara consigo misma.
+    pd4 = {
+        "x-veridicus-version",
+        "x-veridicus-limit",
+        "x-veridicus-max-bytes",
+        "x-veridicus-cookie",
+        "x-veridicus-owner-only",
+        "x-veridicus-owner-only-for-role",
+        "x-veridicus-priority",
+        "x-veridicus-roles",
+        "x-veridicus-access-log",
+        "x-veridicus-demo",
+    }
+    assert set(MARCAS_X_VERIDICUS) == pd4
+    for marca in MARCAS_X_VERIDICUS:
+        if marca == "x-veridicus-version":
+            continue
+        validate_json_schema(
+            {"type": "object", "properties": {"a": {"type": "string", marca: "valor"}}}
+        )
+
+
+def test_k56_control_negativo_marca_fuera_de_la_lista_se_rechaza() -> None:
+    esquema = {"type": "object", "properties": {"a": {"type": "string", "x-veridicus-secreto": 1}}}
+    with pytest.raises(ValidationFailure, match="x-veridicus-secreto: palabra clave desconocida"):
+        validate_json_schema(esquema)
+
+
+def test_k56_control_negativo_limit_anidado_roto_se_rechaza(contracts_root: Path) -> None:
+    esquema = _cargar(contracts_root, "model_calls/model-call.v1.yaml")
+    with pytest.raises(ValidationFailure, match="instancia no válida"):
+        validate_instance(esquema, {**LLAMADA_VALIDA, "role": "r" * 33})
+
+
+@pytest.mark.parametrize("version", ["1.0", "v1.0.0", "1.0.0-beta", "01.02.03", "", 1, None])
+def test_k56_control_negativo_version_que_no_es_semver_se_rechaza(version: Any) -> None:
+    with pytest.raises(ValidationFailure, match="x-veridicus-version"):
+        validate_json_schema({"type": "object", "x-veridicus-version": version})
+
+
+def test_k56_una_version_semver_en_la_raiz_se_admite() -> None:
+    validate_json_schema({"type": "object", "x-veridicus-version": "1.12.3"})
+
+
+def test_k56_control_negativo_version_fuera_de_la_raiz_se_rechaza() -> None:
+    esquema = {
+        "type": "object",
+        "properties": {"a": {"type": "string", "x-veridicus-version": "1.0.0"}},
+    }
+    with pytest.raises(ValidationFailure, match="x-veridicus-version: palabra clave desconocida"):
+        validate_json_schema(esquema)

@@ -18,10 +18,16 @@
 #         relativa o absoluta) que no salga de una variable (F-06). Se excluye solo una letra de unidad suelta de
 #         Windows seguida de barra (C:\x, C:/x).
 #
+#   (d) K-76: un nombre de nodo con la forma de (a) en la RUTA de un archivo versionado (se informa su número en
+#       git ls-files, nunca la ruta); una URL file: con tres barras o más hacia /zine/; en .ps1, .psm1 y .psd1, la
+#       asignación del servidor con ámbito ($script:Servidor), el host concatenado tras la arroba y, en .psd1, la
+#       clave Servidor con un valor literal. La regla del destino de scp exige un argumento (sin espacio tras los
+#       dos puntos ni «//»), para no dar falsos positivos con mensajes ni URL (F-05 a F-07).
+#
 # Límites conocidos: se saltan los archivos binarios (git grep -I), y un nombre de archivo con dos puntos pierde
 # el número de línea en la salida (la aparición sí se cuenta). Un scp partido en varias líneas con una continuación
 # (una comilla invertida al final de línea) no se detecta: el destino queda en otra línea que no lleva la palabra scp.
-# Tampoco se mira el nombre de los archivos, solo su contenido.
+# Un destino de scp con un espacio tras los dos puntos (host: ruta) tampoco se detecta.
 #
 # Exenciones: una lista cerrada, por cadena y no por carpeta ni por archivo.
 #   Nombres inventados (se comparan como palabra completa y sin distinguir mayúsculas). Se usan en tareas, bitácoras,
@@ -88,20 +94,50 @@ done < "$nodos"
 # También cuentan las barras repetidas al inicio (que no sigan a dos puntos: no es una URL), en medio, y un segmento
 # punto: Linux los resuelve igual.
 buscar "$salida" -e '(?<![\w.\-/])(?:/|(?<!:)//+)zine/(?:\.?/)*\w' -- .
+# K-76 (F-07): una URL file: con tres barras o más deja una barra delante del segmento, que la regla anterior no
+# cuenta. Sin distinguir mayúsculas solo en «file:».
+buscar "$salida" -e '(?i:file:)/{3,}(?:\.?/)*zine/(?:\.?/)*\w' -- .
 
-# (c) en cualquier .ps1 o .psm1 del repositorio (también en mayúsculas), sin distinguir mayúsculas.
-#   1. Un parámetro [string]$Servidor con valor por defecto, o toda asignación literal de $Servidor entre comillas.
+# (a') K-76: un nombre de nodo en la RUTA de un archivo versionado. Misma forma y misma lista de exenciones que (a).
+# Nunca se imprime la ruta (el informe iría a un registro público): se imprime su número en la salida de git ls-files.
+indice=0
+while IFS= read -r ruta; do
+  indice=$((indice + 1))
+  while IFS= read -r nombre; do
+    [ -n "$nombre" ] || continue
+    exento=0
+    minuscula="${nombre,,}"
+    for permitido in "${nombres_inventados[@]}"; do
+      if [ "$minuscula" = "$permitido" ]; then
+        exento=1
+      fi
+    done
+    if [ "$exento" -eq 0 ]; then
+      echo "ruta#$indice:0:x" >> "$salida"
+    fi
+  done < <(printf '%s\n' "$ruta" | grep -o -i -P '(?<![A-Za-z0-9])hpc[\w-]+' || true)
+done < <(git -c core.quotePath=false -C "$raiz" ls-files)
+
+# (c) en cualquier .ps1, .psm1 o .psd1 del repositorio (también en mayúsculas), sin distinguir mayúsculas.
+#   1. Un parámetro [string]$Servidor con valor por defecto, o toda asignación literal de $Servidor entre comillas,
+#      también con ámbito (K-76: $script:Servidor, $global:Servidor...).
 #      El valor que empieza por $ (variable o sustitución) no es un servidor fijo por sí solo.
 #   2. F-05: una asignación de $Servidor con un literal de palabra o dígito (una IP) justo después de @ (el host fijo
-#      detrás de una sustitución). El valor que antepone ZINE_USUARIO y deja @ seguido de $Servidor no cuenta.
+#      detrás de una sustitución), o concatenado tras la arroba ("...@" + "host", F-07). El valor que antepone
+#      ZINE_USUARIO y deja @ seguido de $Servidor no cuenta.
 #   3. F-06: un scp con un destino de host literal: palabra: o usuario@palabra:, con o sin ruta remota (host:x,
 #      host:/x) y también una IP, sin $ ni llaves delante. No cuenta una letra de unidad suelta de Windows (C:\x, C:/x).
+#      F-05 a F-07 (falsos positivos): el destino es un argumento y no un mensaje, así que los dos puntos van seguidos
+#      de un carácter que no es espacio ni comilla ni «//» (no cuentan «scp falló: x» ni https://...).
 buscar "$salida" -i \
-  -e '\[string\]\s*\x24Servidor\s*=' \
-  -e '\x24Servidor\s*=\s*[\x27"](?!\x24)' \
-  -e '\x24Servidor\s*=[^#]*@\w' \
-  -e '\bscp\b.*(?<![\w\x24.{}\-])[\x27"]?(?![A-Za-z]:[\\/])(?:[\w.\-]+@)?\w[\w.\-]*:' \
-  -- ':(icase)*.ps1' ':(icase)*.psm1'
+  -e '\[string\]\s*\x24(?:\w+:)?Servidor\s*=' \
+  -e '\x24(?:\w+:)?Servidor\s*=\s*[\x27"](?!\x24)' \
+  -e '\x24(?:\w+:)?Servidor\s*=[^#]*@\w' \
+  -e '\x24(?:\w+:)?Servidor\s*=[^#]*@[\x27"]?\s*\+\s*[\x27"]\w' \
+  -e '\bscp\b.*(?<![\w\x24.{}\-])[\x27"]?(?![A-Za-z]:[\\/])(?:[\w.\-]+@)?\w[\w.\-]*:(?!//)(?=[^\s\x27"])' \
+  -- ':(icase)*.ps1' ':(icase)*.psm1' ':(icase)*.psd1'
+# K-76: en un .psd1 el servidor es una clave de la tabla («Servidor = '...'»), sin $.
+buscar "$salida" -i -e '(?<![\w\x24])Servidor\s*=\s*[\x27"](?!\x24)' -- ':(icase)*.psd1'
 
 n=0
 detalle=""

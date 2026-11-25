@@ -1,0 +1,11 @@
+# Capacidades por proveedor y modelo (BR5.2). En B10a solo Anthropic tiene adaptador.
+# Fuente: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+# (salida estructurada en `output_config.format` con `type: json_schema`; esfuerzo en
+# `output_config.effort`). Un modelo que no esté aquí hace fallar la llamada cerrada.
+schema_version: 1.0.0
+
+entries:
+  - provider: anthropic
+    model: claude-sonnet-5-5
+    structured_mode: json_schema_native
+    effort_parameter: effort

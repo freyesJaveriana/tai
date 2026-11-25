@@ -74,6 +74,23 @@ def test_un_argumento_desconocido_falla(capsys: pytest.CaptureFixture[str]) -> N
     assert "uso:" in capsys.readouterr().err
 
 
+@pytest.mark.parametrize(
+    "argumentos",
+    [
+        ["--tag", "x", "--tag", "contracts-v1.2.3"],
+        ["--tag", "contracts-v1.2.3", "--tag", "x"],
+        ["--pyproject", "a.toml", "--pyproject", "b.toml"],
+    ],
+)
+def test_una_opcion_repetida_sale_con_codigo_2(
+    tmp_path: Path, argumentos: list[str], capsys: pytest.CaptureFixture[str]
+) -> None:
+    ruta = _pyproject(tmp_path, "1.2.3")
+    completos = argumentos if "--pyproject" in argumentos else ["--pyproject", str(ruta), *argumentos]
+    assert main(completos) == 2
+    assert "uso:" in capsys.readouterr().err
+
+
 def test_por_omision_lee_el_pyproject_del_directorio_de_trabajo(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], contracts_root: Path
 ) -> None:

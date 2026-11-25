@@ -1,4 +1,4 @@
-"""Métricas de `contracts/metrics/`: prefijo, unicidad, etiquetas cerradas y sin texto libre (§4.12).
+"""Métricas de `contracts/metrics/`: prefijo, unicidad, etiquetas cerradas y sin texto libre (§4.12, BR8.2).
 
 Módulo guardia (100 % de ramas). Corre sobre todos los archivos de `metrics/`, que tienen la forma
 de C15: `schema_version`, `endpoint` y `metrics[]` con `name`, `type`, `labels` y `description`.

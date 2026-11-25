@@ -1,6 +1,7 @@
 """Ayudas comunes de las guardias de C1, C21 y la ruta interna de voz (paso 16).
 
-Reglas que sirve: BR7.1 (API de solo lectura de configuración) y NFR10.1 (cuerpos estrictos).
+Reglas que sirve: BR7.1 (ninguna operación escribe configuración), BR7.3 (todo cuerpo de petición
+de C1 rechaza campos adicionales; NFR10.1) y NFR10.11 y NFR10.12 (sesión, anti-CSRF y roles).
 
 Solo lectura: recorren el documento ya cargado y devuelven datos; nunca escriben. Las referencias
 que resuelve son las locales (`#/...`); una referencia por `$id` a otro contrato se deja tal cual,

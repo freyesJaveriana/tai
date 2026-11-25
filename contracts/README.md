@@ -17,35 +17,45 @@ mayor es siempre la del `.vN` del nombre (E-28, E-33). Un archivo nuevo entra aq
 | C2 | Cola de corridas | `queues/runs.v2.yaml` | 2.0.0 |
 | C3 | Cola de resultados | `queues/results.v2.yaml` | 2.0.0 |
 | C5 | Cola de voz | `queues/speech.v2.yaml` | 2.0.0 |
-| C5 | Ruta interna de voz | `api/speech-internal.v1.yaml` | 1.0.0 |
 | C6 | Contrato común del analizador: entrada | `analyzer/v1/entrada.schema.json` | 1.0.0 |
 | C6 | Contrato común del analizador: salida | `analyzer/v1/salida.schema.json` | 1.0.0 |
-| C6 | Huellas de la copia de C6 | `analyzer/v1/SHA256SUMS` | 1.0.0 |
+| (sin número) | Huellas aprobadas de la copia de C6 | `analyzer/v1/SHA256SUMS` | 1.0.0 |
 | C7 | Sugerencia de revisión | `integrity/review-suggestion.v2.json` | 2.0.0 |
 | C8 | Vocabulario prohibido | `integrity/forbidden-vocabulary.v2.yaml` | 2.0.0 |
 | C8 | Aclaraciones neutras | `integrity/neutral-clarification.v1.yaml` | 1.1.0 |
 | C8 | Aviso de testimonio | `integrity/notice.v1.yaml` | 1.0.0 |
-| C8 | Casos del aviso de testimonio | `integrity/testimony-warning-cases.v1.yaml` | 1.0.0 |
-| C8 | Casos del escáner de vocabulario | `integrity/scan-cases.v1.yaml` | 1.0.0 |
-| C8 | Rótulos de resultado | `ui/result-labels.v2.yaml` | 2.0.0 |
-| C13 | Registro de una llamada a un modelo | `model_calls/model-call.v1.yaml` | 1.0.0 |
-| C13 | Traducción de papeles | `model_calls/role-translation.v1.yaml` | 1.0.0 |
+| (sin número) | Casos del aviso de testimonio | `integrity/testimony-warning-cases.v1.yaml` | 1.0.0 |
+| (sin número) | Casos de escaneo del vocabulario prohibido | `integrity/scan-cases.v1.yaml` | 1.0.0 |
+| (sin número) | Catálogo de rótulos de resultado | `ui/result-labels.v2.yaml` | 2.0.0 |
+| C10 | `Protocol` de HumanReview hacia InterviewSession y ConsoleApi | `src/veridicus_contracts/human_review.py` | 2.0.0 |
+| C11 | `Protocol` de lo que ReviewReport usa de los demás módulos | `src/veridicus_contracts/report_ports.py` | 2.0.0 |
+| C12 | `Protocol` de IdentityAccess hacia ConsoleApi | `src/veridicus_contracts/identity.py` | 2.0.0 |
+| C13 | Tipos de las llamadas a modelos y puerta única `AnonymizingProvider` | `src/veridicus_contracts/model_calls.py` | (el del paquete) |
+| (sin número) | Tabla de traducción de papeles | `model_calls/role-translation.v1.yaml` | 1.0.0 |
 | C15 | Métricas de revisión | `metrics/review.v2.yaml` | 2.0.0 |
-| C15 | Métricas del flujo de texto | `metrics/text-flow.v1.yaml` | 1.0.0 |
-| C15 | Métricas de voz | `metrics/voice.v1.yaml` | 1.0.0 |
-| C15 | Métricas del ciclo de vida de la sesión | `metrics/session-lifecycle.v1.yaml` | 1.0.0 |
-| C15 | Métricas del asistente | `metrics/assistant-extras.v1.yaml` | 1.0.0 |
-| C15 | Métricas del anonimizador | `metrics/anonymizer.v1.yaml` | 1.0.0 |
+| (sin número) | Métricas del flujo de texto (familia de C15) | `metrics/text-flow.v1.yaml` | 1.0.0 |
+| (sin número) | Métricas de voz (familia de C15) | `metrics/voice.v1.yaml` | 1.0.0 |
+| (sin número) | Métricas del ciclo de vida de la sesión (familia de C15) | `metrics/session-lifecycle.v1.yaml` | 1.0.0 |
+| (sin número) | Métricas del asistente (familia de C15) | `metrics/assistant-extras.v1.yaml` | 1.0.0 |
+| (sin número) | Métricas del anonimizador (familia de C15) | `metrics/anonymizer.v1.yaml` | 1.0.0 |
 | C16 | Salud de cada servicio | `health/health.v2.yaml` | 2.0.0 |
 | C18 | Esquema base de perfiles | `profiles/profile-base.schema.v1.yaml` | 1.0.0 |
 | C18 | Esquema de perfiles del analizador | `profiles/profiles.schema.v1.yaml` | 1.0.0 |
 | C18 | Configuración efectiva | `profiles/effective-config.v1.yaml` | 1.0.0 |
 | C18 | Tabla de precios | `profiles/prices.schema.v1.yaml` | 1.0.0 |
 | C19 | Reporte de la CLI | `cli/report.schema.v2.yaml` | 2.0.0 |
+| C19 | Registro de una llamada a un modelo (parte estricta de C19) | `model_calls/model-call.v1.yaml` | 1.0.0 |
 | C21 | `anonymizer-proxy` por HTTP | `api/anonymizer-proxy.v1.yaml` | 1.0.0 |
+| C23 | `Protocol` del puerto `AccessLog` | `src/veridicus_contracts/access_log.py` | 1.0.0 |
+| C24 | `Protocol` de borrado por sesión para la retención | `src/veridicus_contracts/retention.py` | 1.1.0 |
 | C25 | Catálogo único de límites | `limits.v1.yaml` | 1.0.0 |
-| (transversal) | Catálogo de errores | `errors/error-codes.v2.yaml` | 2.0.0 |
-| (transversal) | Formato de fecha | `format/datetime.v1.yaml` | 1.0.0 |
+| (sin número) | Ruta interna de voz de `audio-worker` | `api/speech-internal.v1.yaml` | 1.0.0 |
+| (sin número) | Catálogo único de errores | `errors/error-codes.v2.yaml` | 2.0.0 |
+| (sin número) | Formato de fecha | `format/datetime.v1.yaml` | 1.0.0 |
+
+Las filas «(sin número)» son los archivos que el registro (`contract-summary.md` y `functional-spec.md` §1)
+declara sin número de contrato; no se les inventa uno. Las filas `.py` son los `Protocol` y tipos que U1
+entrega para las fronteras en proceso. `tests/test_readme.py` compara cada ID con una tabla fija del registro.
 
 La versión del contrato no es la del paquete. El paquete (`[project].version` de `pyproject.toml`) tiene su
 propia versión, que es igual a la de su etiqueta (`contracts-v<versión>`); la versión de cada contrato vive en
@@ -138,24 +148,25 @@ errores = list(validador.iter_errors({"schema_version": "1.0.0", "profiles": {}}
 
 ## Comandos V-*
 
-Todos corren desde la raíz del repositorio, en CPU y sin red, salvo los marcados «con red». Son los mismos
-que corre el *workflow* `.github/workflows/contracts-level0.yml`.
+Todos corren desde la raíz del repositorio, en CPU y sin red, salvo los marcados «con red». La última columna dice
+qué *workflow* los corre: `contracts-level0.yml` (jobs `contracts-level0` y `errors-level0`) corre casi todos;
+`V-SURFACE` va dentro de la suite (`V-SUITE`) y `V-YAML` lo corre `repo-level0.yml`.
 
-| Clave | Comando | Umbral |
-|---|---|---|
-| `V-INSTALL` | `uv sync --frozen --directory contracts` (con red) | Código 0 |
-| `V-SUITE` | `timeout 60 uv run --frozen --offline --directory contracts pytest` | Verde, 60 s como máximo, 80 % de líneas como mínimo |
-| `V-GUARD` | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,src/veridicus_contracts/profiles.py,src/veridicus_contracts/limits.py,src/veridicus_contracts/canonical.py,src/veridicus_contracts/registry.py" --fail-under=100` | 100 % de ramas |
-| `V-TYPES` | `uv run --frozen --offline --directory contracts mypy --strict src` | 0 errores |
-| `V-LINT` | `uv run --frozen --offline --directory contracts ruff check .` | 0 hallazgos |
-| `V-AUDIT` | `uv run --frozen --directory contracts pip-audit --format json --output build/pip-audit.json` (con red) y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.audit_gate build/pip-audit.json --ignore .pip-audit-ignore.yaml` | 0 vulnerabilidades con versión corregida fuera de excepciones vigentes |
-| `V-GEN` | `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check` y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_jcs_vectors --check` | Sin diferencias |
-| `V-SURFACE` | `timeout 60 uv run --frozen --offline --directory contracts pytest tests/tools/test_security_surface.py --no-cov` | Huella regenerada igual al archivo versionado |
-| `V-TS` | `npm --prefix contracts/ts ci` (con red), `timeout 60 npm --prefix contracts/ts test`, `npm --prefix contracts/ts run typecheck`, `npm --prefix contracts/ts run lint` y `npm --prefix contracts/ts run gen:check` | Verde, 80 % de líneas como mínimo; 0 errores; sin diferencias |
-| `V-TS-AUDIT` | `npm --prefix contracts/ts audit --audit-level=high` (con red) | 0 vulnerabilidades altas con corrección |
-| `V-PKG` | `timeout 180 uv run --frozen --directory contracts python -m veridicus_contracts.tools.check_package` | Verde, 180 s como máximo |
-| `V-ERRORS` | `uv sync --frozen --directory libs/errors` (con red); `timeout 60 uv run --frozen --offline --directory libs/errors pytest`; `uv run --frozen --offline --directory libs/errors mypy --strict src`; `uv run --frozen --offline --directory libs/errors ruff check .` | Verde, 80 % de líneas como mínimo; 0 errores; 0 hallazgos |
-| `V-YAML` | `uv run --frozen --offline --directory contracts yamllint -s ../.github/workflows/contracts-level0.yml ../.pre-commit-config.yaml` | Código 0 |
+| Clave | Comando | Umbral | Lo corre |
+|---|---|---|---|
+| `V-INSTALL` | `uv sync --frozen --directory contracts` (con red) | Código 0 | contracts-level0.yml |
+| `V-SUITE` | `timeout 60 uv run --frozen --offline --directory contracts pytest` | Verde, 60 s como máximo, 80 % de líneas como mínimo | contracts-level0.yml |
+| `V-GUARD` | `uv run --frozen --offline --directory contracts coverage report --include="src/veridicus_contracts/checks/*,src/veridicus_contracts/profiles.py,src/veridicus_contracts/limits.py,src/veridicus_contracts/canonical.py,src/veridicus_contracts/registry.py" --fail-under=100` | 100 % de ramas | contracts-level0.yml |
+| `V-TYPES` | `uv run --frozen --offline --directory contracts mypy --strict src` | 0 errores | contracts-level0.yml |
+| `V-LINT` | `uv run --frozen --offline --directory contracts ruff check .` | 0 hallazgos | contracts-level0.yml |
+| `V-AUDIT` | `uv run --frozen --directory contracts pip-audit --format json --output build/pip-audit.json` (con red) y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.audit_gate build/pip-audit.json --ignore .pip-audit-ignore.yaml` | 0 vulnerabilidades con versión corregida fuera de excepciones vigentes | contracts-level0.yml |
+| `V-GEN` | `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_ts --check` y `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.gen_jcs_vectors --check` | Sin diferencias | contracts-level0.yml |
+| `V-SURFACE` | `timeout 60 uv run --frozen --offline --directory contracts pytest tests/tools/test_security_surface.py --no-cov` | Huella regenerada igual al archivo versionado | la suite (`V-SUITE`) |
+| `V-TS` | `npm --prefix contracts/ts ci` (con red), `timeout 60 npm --prefix contracts/ts test`, `npm --prefix contracts/ts run typecheck`, `npm --prefix contracts/ts run lint` y `npm --prefix contracts/ts run gen:check` | Verde, 80 % de líneas como mínimo; 0 errores; sin diferencias | contracts-level0.yml |
+| `V-TS-AUDIT` | `npm --prefix contracts/ts audit --audit-level=high` (con red) | 0 vulnerabilidades altas con corrección | contracts-level0.yml |
+| `V-PKG` | `timeout 180 uv run --frozen --directory contracts python -m veridicus_contracts.tools.check_package` | Verde, 180 s como máximo | contracts-level0.yml |
+| `V-ERRORS` | `uv sync --frozen --directory libs/errors` (con red); `timeout 60 uv run --frozen --offline --directory libs/errors pytest`; `uv run --frozen --offline --directory libs/errors mypy --strict src`; `uv run --frozen --offline --directory libs/errors ruff check .` | Verde, 80 % de líneas como mínimo; 0 errores; 0 hallazgos | contracts-level0.yml (job `errors-level0`) |
+| `V-YAML` | `uv run --frozen --offline --directory contracts yamllint -s ../.github/workflows/contracts-level0.yml ../.pre-commit-config.yaml` | Código 0 | repo-level0.yml |
 
 La etiqueta de la entrega se comprueba con `uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.check_tag`
 (imprime la etiqueta esperada) y, con `--tag ETIQUETA`, sale con 0 solo si es exactamente esa. El *workflow*

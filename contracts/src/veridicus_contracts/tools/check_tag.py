@@ -6,7 +6,7 @@ igual a la de su etiqueta. La versión de cada contrato es otra cosa y no se mir
 Sin `--tag` imprime la etiqueta esperada y sale con 0. Con `--tag ETIQUETA` sale con 0 solo si es
 exactamente la esperada; si no, sale con 1 y un mensaje en español que nombra las dos. También sale
 con 1 si `pyproject.toml` no se puede leer o si `[project].version` no tiene la forma
-`MAYOR.MENOR.PARCHE`. Código 2: argumentos mal escritos.
+`MAYOR.MENOR.PARCHE`. Código 2: argumentos mal escritos, sin valor o repetidos.
 
 Solo usa la biblioteca estándar, no abre la red y nunca escribe. Lee `pyproject.toml` del directorio de
 trabajo (`uv run --directory contracts`) o el que indique `--pyproject RUTA`.
@@ -50,12 +50,15 @@ def etiqueta_esperada(pyproject: Path) -> str:
 
 
 def _leer_argumentos(argv: Sequence[str]) -> dict[str, str] | None:
-    """Valores de `--pyproject` y `--tag`, o `None` si hay un argumento desconocido o sin valor."""
+    """Valores de `--pyproject` y `--tag`.
+
+    Devuelve `None` si hay un argumento desconocido, una opción sin valor o una opción repetida.
+    """
     valores: dict[str, str] = {}
     posicion = 0
     while posicion < len(argv):
         opcion = argv[posicion]
-        if opcion not in ("--pyproject", "--tag") or posicion + 1 >= len(argv):
+        if opcion not in ("--pyproject", "--tag") or posicion + 1 >= len(argv) or opcion in valores:
             return None
         valores[opcion] = argv[posicion + 1]
         posicion += 2

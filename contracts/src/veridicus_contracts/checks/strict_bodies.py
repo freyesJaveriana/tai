@@ -1,4 +1,4 @@
-"""Estrictez de cuerpos, mensajes y archivos (§4.3 de NFR Design; NFR10.1, NFR10.2, NFR10.7).
+"""Estrictez de cuerpos, mensajes y archivos (§4.3 de NFR Design; NFR10.1, NFR10.2, NFR10.7; BR7.3, BR1.4).
 
 Módulo guardia (100 % de ramas). Comprueba, sobre los contratos ya cargados:
 

@@ -1,6 +1,7 @@
 """Módulo guardia del catálogo C25: forma, tipos, derivadas y relaciones (§4.4; E33, E37).
 
-Regla que protege: BR11.1 (toda cifra de límite vive en el catálogo único `limits.v1.yaml`).
+Reglas que protege: BR11.1 (el catálogo tiene un nombre único por cifra, con su unidad) y NFR10.14
+(catálogo único, completo y sin nulos).
 
 Módulo guardia (100 % de ramas). Comprueba `limits.v1.yaml` sin importar el catálogo
 empaquetado: recibe el documento ya cargado (`comprobar_catalogo`) o una ruta (`comprobar`) y

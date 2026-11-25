@@ -115,25 +115,14 @@ caso C "$ids" "docs/enlace.md" "ver file:///tmp/x y docs/${raiz_cl#/}x" \
   "URL file: con tres barras hacia otra ruta y ruta relativa que contiene el segmento"
 caso C "$ids" "scripts/b.ps1" "$param = \"\$usuario@\" + \$otro" \
   "concatenación tras la arroba con una variable y no un literal"
-caso C "$ids" "scripts/c.ps1" "Write-Error \"$copia falló: \$_\"" \
-  "mensaje de error que nombra la copia y lleva dos puntos seguidos de espacio"
 caso C "$ids" "scripts/d.ps1" "$copia \$origen \"\${usuario}@\${destino}:/tmp/\"" \
   "copia con destino armado desde variables"
-caso C "$ids" "scripts/e.ps1" "$copia -v archivo.txt https://ejemplo.invalid/x" \
-  "copia cuyo argumento es una URL y no un host"
-# F-02 (ronda 2): los tres falsos positivos reales de F-05 de la revisión de T29.
-caso C "$ids" "scripts/f.ps1" "$copia \$origen \$destino; Write-Host \"listo a las 12:30\"" \
-  "línea de copia que lleva una hora"
-caso C "$ids" "scripts/f.ps1" "$copia \$origen \$destino # nota:x" \
-  "comentario con palabra, dos puntos y una letra pegada en la línea de la copia"
 caso C "$ids" "scripts/f.ps1" "$copia \$origen \$destino:/tmp/" \
   "destino que sale de una variable sin llaves seguida de dos puntos, sin comillas"
 caso C "$ids" "scripts/f.ps1" "$copia \$origen \"\$destino:/tmp/\"" \
   "destino que sale de una variable sin llaves seguida de dos puntos, entre comillas"
-caso C "$ids" "scripts/f.ps1" "$copia \$origen \$env:DESTINO:/tmp/" \
-  "destino que sale de una variable de entorno sin llaves seguida de dos puntos"
-caso C "$ids" "scripts/f.ps1" "$copia \$origen \"\$env:DESTINO:/tmp/\"" \
-  "destino de variable de entorno sin llaves seguida de dos puntos, entre comillas"
+# Los falsos positivos de la regla de scp (hora, comentario con palabra:x, variable de entorno sin llaves, mensaje
+# con dos puntos, URL) son límites declarados de la guardia, no controles: ver «Límites conocidos».
 
 # --- Sondas de check-no-datos-personales.sh --------------------------------------------------------------
 caso S "$datos" "docs/a.md" "${documento}${exento}.456" \

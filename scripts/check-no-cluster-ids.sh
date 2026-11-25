@@ -21,13 +21,16 @@
 #   (d) K-76: un nombre de nodo con la forma de (a) en la RUTA de un archivo versionado (se informa su número en
 #       git ls-files, nunca la ruta); una URL file: con tres barras o más hacia /zine/; en .ps1, .psm1 y .psd1, la
 #       asignación del servidor con ámbito ($script:Servidor), el host concatenado tras la arroba y, en .psd1, la
-#       clave Servidor con un valor literal. La regla del destino de scp exige que scp sea el comando de la
-#       instrucción y que el host sea un argumento entero, para no dar falsos positivos con mensajes, horas,
-#       comentarios, variables ni URL (F-05 a F-07).
+#       clave Servidor con un valor literal. La regla del destino de scp no cambia respecto de 8732623.
 #
 # Límites conocidos: se saltan los archivos binarios (git grep -I), y un nombre de archivo con dos puntos pierde
 # el número de línea en la salida (la aparición sí se cuenta). Un scp partido en varias líneas con una continuación
 # (una comilla invertida al final de línea) no se detecta: el destino queda en otra línea que no lleva la palabra scp.
+# La regla de scp FALLA CERRADO ante ciertas líneas inocentes que contienen la palabra scp: una hora (12:30), un
+# comentario con «palabra:x», un destino que sale de una variable de entorno sin llaves seguida de dos puntos
+# ($env:X:/ruta, con comillas o sin ellas), un mensaje con una palabra seguida de dos puntos en la misma línea (por ejemplo, después de ;) y una URL.
+# Esas líneas se reescriben (por ejemplo, con llaves: ${env:X}). El refinamiento queda para después de la
+# demostración (F-05 a F-07 de T29).
 #
 # Exenciones: una lista cerrada, por cadena y no por carpeta ni por archivo.
 #   Nombres inventados (se comparan como palabra completa y sin distinguir mayúsculas). Se usan en tareas, bitácoras,
@@ -128,16 +131,16 @@ done < <(git -c core.quotePath=false -C "$raiz" ls-files)
 #   3. F-06: un scp con un destino de host literal: palabra: o usuario@palabra:, con ruta remota o sin ella (host:,
 #      host:x, host:/x, "host:", host: ruta) y también una IP, sin $ ni llaves delante. No cuenta una letra de unidad
 #      suelta de Windows (C:\x, C:/x).
-#      F-05 a F-07 (falsos positivos): lo que distingue un destino de un mensaje es que «scp» sea el comando al inicio
-#      de la instrucción (inicio de línea, o tras ; | & ( {), y que el host sea un argumento entero (tras espacio, comilla
-#      o la arroba) con una letra o un punto, antes de los dos puntos y sin «//» detrás. No cuentan una hora (12:30),
-#      lo que queda tras un comentario (#), un destino armado desde una variable ($destino:, $env:X:) ni una URL.
+#      Es la regla de 8732623, sin cambios: en la misma línea, tras la palabra scp, cualquier argumento que sea una
+#      palabra (o usuario@palabra) seguida de dos puntos y que no lleve $, llaves, punto ni guion delante. Por eso
+#      también ve el destino con sudo, con una asignación o con la ruta del binario delante. Falla cerrado ante
+#      líneas inocentes (ver «Límites conocidos»).
 buscar "$salida" -i \
   -e '\[string\]\s*\x24(?:\w+:)?Servidor\s*=' \
   -e '\x24(?:\w+:)?Servidor\s*=\s*[\x27"](?!\x24)' \
   -e '\x24(?:\w+:)?Servidor\s*=[^#]*@\w' \
   -e '\x24(?:\w+:)?Servidor\s*=[^#]*@[\x27"]?\s*\+\s*[\x27"]\w' \
-  -e '(?:^|[;|&({])\s*(?:&\s*)?scp(?:\.exe)?\s[^#]*?(?:(?<=[\s\x27"])(?:[\w.\-]+@)?|(?<=@))(?![A-Za-z]:[\\/])(?=[\w.\-]*[A-Za-z.])[\w.\-]+:(?!//)' \
+  -e '\bscp\b.*(?<![\w\x24.{}\-])[\x27"]?(?![A-Za-z]:[\\/])(?:[\w.\-]+@)?\w[\w.\-]*:' \
   -- ':(icase)*.ps1' ':(icase)*.psm1' ':(icase)*.psd1'
 # K-76: en un .psd1 el servidor es una clave de la tabla («Servidor = '...'»), sin $.
 buscar "$salida" -i -e '(?<![\w\x24])Servidor\s*=\s*[\x27"](?!\x24)' -- ':(icase)*.psd1'

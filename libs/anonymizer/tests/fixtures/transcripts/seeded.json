@@ -1,0 +1,154 @@
+{
+  "descripcion": "Conjunto sembrado sintético: nombres, lugares y expedientes inventados en cada posición de apertura de oración de PD-2, con tilde, sin tilde y a mitad de oración.",
+  "turnos": [
+    {
+      "turno": 1,
+      "hablante": "TES",
+      "posicion": "inicio_de_valor",
+      "texto": "Casilda Roncancio llegó a Villa Rocamora antes del mediodía.",
+      "entidades": ["Casilda Roncancio", "Villa Rocamora"]
+    },
+    {
+      "turno": 2,
+      "hablante": "TES",
+      "posicion": "tras_punto",
+      "texto": "Eso fue un martes. Aurelio Benavides lo vio salir.",
+      "entidades": ["Aurelio Benavides"]
+    },
+    {
+      "turno": 3,
+      "hablante": "TES",
+      "posicion": "tras_interrogacion_de_cierre",
+      "texto": "¿Quién abrió la puerta? Eufrasio Mendívelso respondió que nadie.",
+      "entidades": ["Eufrasio Mendívelso"]
+    },
+    {
+      "turno": 4,
+      "hablante": "TES",
+      "posicion": "tras_interrogacion_de_apertura",
+      "texto": "¿Eufrasio Mendivelso estaba en Puerto Altamira?",
+      "entidades": ["Eufrasio Mendivelso", "Puerto Altamira"]
+    },
+    {
+      "turno": 5,
+      "hablante": "TES",
+      "posicion": "tras_exclamacion_de_cierre",
+      "texto": "¡Corran! Anselmo Páez gritó desde el patio.",
+      "entidades": ["Anselmo Páez"]
+    },
+    {
+      "turno": 6,
+      "hablante": "TES",
+      "posicion": "tras_exclamacion_de_apertura",
+      "texto": "¡Anselmo Paez corrió hacia el río!",
+      "entidades": ["Anselmo Paez"]
+    },
+    {
+      "turno": 7,
+      "hablante": "TES",
+      "posicion": "tras_dos_puntos",
+      "texto": "Lo repitió así: Aurelio Benavides siempre llegaba tarde.",
+      "entidades": ["Aurelio Benavides"]
+    },
+    {
+      "turno": 8,
+      "hablante": "TES",
+      "posicion": "tras_punto_y_coma",
+      "texto": "Salió temprano; Casilda Roncancio ya no estaba.",
+      "entidades": ["Casilda Roncancio"]
+    },
+    {
+      "turno": 9,
+      "hablante": "TES",
+      "posicion": "tras_salto_de_linea",
+      "texto": "Primera línea del relato\nEufrasio Mendívelso entró sin avisar.",
+      "entidades": ["Eufrasio Mendívelso"]
+    },
+    {
+      "turno": 10,
+      "hablante": "TES",
+      "posicion": "tras_comilla_angular",
+      "texto": "Dijo «Anselmo Páez» y se quedó callado.",
+      "entidades": ["Anselmo Páez"]
+    },
+    {
+      "turno": 11,
+      "hablante": "TES",
+      "posicion": "tras_comilla_recta",
+      "texto": "Escribió \"Aurelio Benavides\" en el cuaderno.",
+      "entidades": ["Aurelio Benavides"]
+    },
+    {
+      "turno": 12,
+      "hablante": "TES",
+      "posicion": "tras_comilla_curva",
+      "texto": "Contó que “Casilda Roncancio” vendía fruta.",
+      "entidades": ["Casilda Roncancio"]
+    },
+    {
+      "turno": 13,
+      "hablante": "TES",
+      "posicion": "tras_raya",
+      "texto": "—Eufrasio Mendívelso vino a la vereda Cañada del Sauce —dijo.",
+      "entidades": ["Eufrasio Mendívelso", "Cañada del Sauce"]
+    },
+    {
+      "turno": 14,
+      "hablante": "TES",
+      "posicion": "nombre_de_pila_que_es_palabra_comun",
+      "texto": "Esperanza Quiñones cuidaba la finca. Paz Villamar la ayudaba.",
+      "entidades": ["Esperanza Quiñones", "Paz Villamar"]
+    },
+    {
+      "turno": 15,
+      "hablante": "TES",
+      "posicion": "apodo_con_mayuscula_y_tratamiento",
+      "texto": "Doña Casilda llamaba al Chigüiro desde la cocina.",
+      "entidades": ["Casilda", "Chigüiro"]
+    },
+    {
+      "turno": 16,
+      "hablante": "TES",
+      "posicion": "expediente_y_cedula",
+      "texto": "El radicado 110016000-2019-00123 y la cédula 1.234.567.890 aparecen en el acta.",
+      "entidades": ["110016000-2019-00123", "1.234.567.890"]
+    },
+    {
+      "turno": 17,
+      "hablante": "TES",
+      "posicion": "a_mitad_de_oracion",
+      "texto": "Después vieron a Aurelio Benavides con Casilda Roncancio en Puerto Altamira.",
+      "entidades": ["Aurelio Benavides", "Casilda Roncancio", "Puerto Altamira"]
+    }
+  ],
+  "entidades": [
+    "Casilda Roncancio",
+    "Villa Rocamora",
+    "Aurelio Benavides",
+    "Eufrasio Mendívelso",
+    "Eufrasio Mendivelso",
+    "Puerto Altamira",
+    "Anselmo Páez",
+    "Anselmo Paez",
+    "Cañada del Sauce",
+    "Esperanza Quiñones",
+    "Paz Villamar",
+    "Chigüiro",
+    "110016000-2019-00123",
+    "1.234.567.890",
+    "Casilda",
+    "Roncancio",
+    "Aurelio",
+    "Benavides",
+    "Eufrasio",
+    "Mendívelso",
+    "Mendivelso",
+    "Anselmo",
+    "Páez",
+    "Rocamora",
+    "Altamira",
+    "Quiñones",
+    "Villamar",
+    "Esperanza"
+  ]
+}

@@ -342,7 +342,7 @@ def test_an_unexpected_error_while_interpreting_is_a_provider_error_with_its_cal
 @pytest.mark.parametrize(
     "case",
     ["modo_herramienta_forzada", "esquema_invalido", "sin_mensajes", "esfuerzo_numerico"]
-    + ["esfuerzo_con_espacio"],
+    + ["esfuerzo_con_espacio", "esquema_no_serializable"],
 )
 def test_a_body_that_cannot_be_built_fails_closed_with_zero_requests(case: str) -> None:
     request = make_request()
@@ -351,6 +351,8 @@ def test_a_body_that_cannot_be_built_fails_closed_with_zero_requests(case: str) 
         mode = "forced_tool"
     if case == "esquema_invalido":
         request = replace(request, schema={"type": 5})
+    if case == "esquema_no_serializable":
+        request = replace(request, schema={"type": "object", "default": {1, 2}})
     if case == "sin_mensajes":
         request = replace(request, messages=request.messages[:1])
     if case == "esfuerzo_numerico":

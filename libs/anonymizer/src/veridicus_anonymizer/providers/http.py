@@ -7,6 +7,7 @@ verificación. `build_client` envuelve cualquier transporte (real o `FakeTranspo
 que nunca sigue redirecciones.
 """
 
+import logging
 import ssl
 
 import httpx
@@ -27,7 +28,13 @@ def default_transport() -> httpx.BaseTransport:
 
 
 def build_client(transport: httpx.BaseTransport) -> httpx.Client:
-    """Cliente sobre el transporte dado: sin redirecciones, sin entorno y sin cabeceras propias."""
+    """Cliente sobre el transporte dado: sin redirecciones, sin entorno y sin cabeceras propias.
+
+    Silencia los logs informativos de `httpx` y `httpcore` (llevan la URL y el estado de cada
+    petición): los logs del módulo llevan solo los campos de BR2.3.
+    """
+    for name in ("httpx", "httpcore"):
+        logging.getLogger(name).setLevel(logging.WARNING)
     return httpx.Client(
         transport=transport,
         follow_redirects=False,

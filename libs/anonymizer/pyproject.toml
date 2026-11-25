@@ -71,6 +71,18 @@ source = ["veridicus_anonymizer"]
 
 [tool.importlinter]
 root_package = "veridicus_anonymizer"
+include_external_packages = true
+
+# C20: el módulo no conoce a quien lo usa (BR5.1, FD-U10-03).
+[[tool.importlinter.contracts]]
+name = "anonymizer-independent"
+type = "forbidden"
+source_modules = ["veridicus_anonymizer"]
+forbidden_modules = [
+    "model_gateway",
+    "execution_profiles",
+    "incoherence_analyzer",
+]
 
 [[tool.importlinter.contracts]]
 name = "anonymizer-layers"

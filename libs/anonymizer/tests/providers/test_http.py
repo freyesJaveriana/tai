@@ -1,5 +1,6 @@
 """Transporte de producción (PD-7, R-12): se inspecciona lo que se construye, sin abrir red."""
 
+import logging
 import ssl
 from typing import Any
 
@@ -51,3 +52,10 @@ def test_the_client_never_follows_redirects_nor_reads_the_environment() -> None:
     assert client.trust_env is False
     assert client.max_redirects == 0
     client.close()
+
+
+def test_the_informational_logs_of_the_http_libraries_are_silenced() -> None:
+    build_client(httpx.MockTransport(lambda request: httpx.Response(204))).close()
+
+    assert logging.getLogger("httpx").level == logging.WARNING
+    assert logging.getLogger("httpcore").level == logging.WARNING

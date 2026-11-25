@@ -74,6 +74,13 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 ```
 
+## Prefijo estable y caché (PD-5, K-84)
+
+El prefijo es estable entre llamadas (PD-5) salvo en un caso. Si el mensaje `system` contiene una forma de
+tramo completo que aparece por primera vez en un turno posterior, `system` cambia de texto y los turnos
+anteriores se renumeran. La forma queda enmascarada igual, así que no hay riesgo de privacidad; solo se
+pierde la caché de esa llamada. Por eso, `system` debe llevar instrucciones fijas, sin testimonio.
+
 ## Qué no hace todavía
 
 Queda diferido a **B10b (DP-03)**; ninguna de estas piezas está en esta versión:

@@ -19,6 +19,7 @@ verificador por sobreviviente (con la permutación después de la directa), arma
 validación contra C6 (BR8.1).
 """
 
+import hashlib
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from functools import cache
@@ -104,10 +105,15 @@ def _destinations(config: EffectiveConfig) -> dict[str, Destination]:
     }
 
 
-def _prompt_matches(config: EffectiveConfig) -> bool:
-    """La huella de la configuración, la de los bytes leídos ahora y la referencia versionada
-    coinciden (BR3.1, PD-13, K-88). Con los 64 ceros del valor por omisión, no."""
-    return config.prompt_sha256 == messages.prompt_sha256() == messages.load_prompt_reference()
+def _prompt_matches(config: EffectiveConfig, digest: str) -> bool:
+    """La huella de la configuración, la de los bytes leídos y la referencia versionada coinciden
+    (BR3.1, PD-13, K-88). Con los 64 ceros del valor por omisión, no."""
+    return config.prompt_sha256 == digest == messages.load_prompt_reference()
+
+
+def _stamp(salida: Salida, digest: str) -> Salida:
+    """La salida informa la huella de los bytes del *prompt* que se leyeron (BR3.1)."""
+    return {**salida, "prompt_sha256": digest}
 
 
 def _is_valid(salida: Mapping[str, Any]) -> bool:
@@ -123,8 +129,10 @@ class _Run:
         gateway: ModelGateway,
         clock: RunClock,
         turns: Mapping[int, Mapping[str, Any]],
+        prompt: bytes,
     ) -> None:
         self.config = config
+        self.prompt = prompt  # los bytes leídos una vez: de ellos salen la huella y cada `system`
         self.state = RunState()
         self.calls: list[ModelCall] = []
         self._gateway = gateway
@@ -169,7 +177,7 @@ class _Run:
             profile_name=self.config.profile_name,
             profile_sha256=self.config.profile_sha256,
             destination=destination,
-            messages=messages.build_messages(kind, payload),
+            messages=messages.build_messages(kind, payload, self.prompt),
             schema=messages.load_response_schema(kind, "wire"),
             timeout_s=timeout_s,
             seed=destination.parameters.get("seed"),
@@ -240,16 +248,24 @@ class _Run:
 
 
 def _failed(
-    config: EffectiveConfig, interview: str, date: datetime, calls: Sequence[ModelCall], code: str
+    config: EffectiveConfig,
+    interview: str,
+    date: datetime,
+    calls: Sequence[ModelCall],
+    code: str,
+    digest: str,
 ) -> Salida:
-    return output.build_output(
-        config,
-        interview=interview,
-        date=date,
-        findings=[],
-        discards=[],
-        calls=calls,
-        error_code=code,
+    return _stamp(
+        output.build_output(
+            config,
+            interview=interview,
+            date=date,
+            findings=[],
+            discards=[],
+            calls=calls,
+            error_code=code,
+        ),
+        digest,
     )
 
 
@@ -262,17 +278,21 @@ def _finish(
     discards: Sequence[Discard],
 ) -> Salida:
     """Arma la salida y la valida contra C6 (BR8.1); si no valida, la sustituye por `salida_invalida`."""
-    salida = output.build_output(
-        run.config,
-        interview=interview,
-        date=date,
-        findings=output.assemble_findings(interview, confirmed, turns),
-        discards=discards,
-        calls=run.calls,
+    digest = hashlib.sha256(run.prompt).hexdigest()
+    salida = _stamp(
+        output.build_output(
+            run.config,
+            interview=interview,
+            date=date,
+            findings=output.assemble_findings(interview, confirmed, turns),
+            discards=discards,
+            calls=run.calls,
+        ),
+        digest,
     )
     if _is_valid(salida):
         return salida
-    replacement = _failed(run.config, interview, date, run.calls, INVALID_OUTPUT)
+    replacement = _failed(run.config, interview, date, run.calls, INVALID_OUTPUT, digest)
     if not _is_valid(replacement):
         raise SystemInternalError("la salida en error no valida contra C6: defecto del analizador")
     return replacement
@@ -290,16 +310,19 @@ def run_analysis(
     interview: str = transcription["entrevista"]
     turns = {turn["n"]: turn for turn in transcription["turnos"]}
     date = datetime.now(UTC)
-    if not _prompt_matches(config):
-        return _failed(config, interview, date, [], INVALID_OUTPUT)
+    prompt = messages.prompt_bytes()  # la única lectura del archivo en esta corrida
+    digest = hashlib.sha256(prompt).hexdigest()
+    if not _prompt_matches(config, digest):
+        return _failed(config, interview, date, [], INVALID_OUTPUT, digest)
     clock = RunClock(
         config.limits["model_call_timeout_s"], config.limits["run_deadline_final_s"], cancelled
     )
-    run = _Run(config, gateway, clock, turns)
+    run = _Run(config, gateway, clock, turns, prompt)
     try:
         window = run.judge()
         filtered = run.screen(window)
         confirmed, rejected = run.verify(filtered.survivors)
     except _Aborted:
-        return _failed(config, interview, date, run.calls, cast(str, run.state.error_code))
+        code = cast(str, run.state.error_code)
+        return _failed(config, interview, date, run.calls, code, digest)
     return _finish(run, interview, date, turns, confirmed, [*filtered.discards, *rejected])

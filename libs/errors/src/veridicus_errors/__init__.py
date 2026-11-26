@@ -583,3 +583,46 @@ class RunPublishFailedError(RunFamilyError):
     """`run.publish_failed`."""
 
     code: ClassVar[str] = "run.publish_failed"
+
+
+# --- Errores del analizador (U11, PD-5 / CG-U11-04) -----------------------------------------------
+# `InputRejected` lleva su `code` por instancia, porque una misma validación previa (BR1) rechaza con
+# cuatro `code` del catálogo; las otras tres tienen un `code` fijo. El `detail` es el texto en español.
+
+
+class InputRejected(VeridicusError):
+    """La entrada se rechazó antes de cualquier llamada (BR1.1 a BR1.5); trae su `code` y su `detail`."""
+
+    ALLOWED_CODES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "import.invalid_transcript",
+            "session.consent_missing",
+            "profile.transfer_not_authorized",
+            "profile.not_approved",
+        }
+    )
+
+    def __init__(self, code: str, detail: str) -> None:
+        if code not in self.ALLOWED_CODES:
+            raise ValueError("code de InputRejected fuera de los cuatro de BR1")
+        super().__init__(detail)
+        self.code = code
+        self.detail = detail
+
+
+class Cancelled(RunFamilyError):
+    """`run.cancelled`: la corrida se canceló y no devuelve salida (BR7.2)."""
+
+    code: ClassVar[str] = "run.cancelled"
+
+
+class GatewayConfigError(ConfigFamilyError):
+    """`config.invalid_gateway`: el gateway no se puede armar, por ejemplo un destino externo sin anonimizador."""
+
+    code: ClassVar[str] = "config.invalid_gateway"
+
+
+class CliInterrupted(SystemFamilyError):
+    """`system.interrupted`: SIGINT o SIGTERM cortaron la CLI (NFRD-U11-10)."""
+
+    code: ClassVar[str] = "system.interrupted"

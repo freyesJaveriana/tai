@@ -35,6 +35,10 @@ veridicus-errors = { path = "../errors" }
 [tool.hatch.build.targets.wheel]
 packages = ["src/veridicus_execution_profiles"]
 
+# El archivo de perfiles versionado viaja dentro del paquete instalado (loader._default_path).
+[tool.hatch.build.targets.wheel.force-include]
+"config/profiles.yaml" = "veridicus_execution_profiles/config/profiles.yaml"
+
 [tool.mypy]
 strict = true
 python_version = "3.12"

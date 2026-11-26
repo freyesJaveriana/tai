@@ -1,0 +1,26 @@
+# Perfiles de ejecución del analizador (C18, CG-U11-12). Solo cambia por PR (BR2.11).
+# El único perfil es la demostración con Anthropic: el juez y el verificador son de la misma
+# familia, y por eso declara `same_family_declared` y lleva el aviso `same_family` (BR2.5).
+# El archivo nombra la variable de la clave (`api_key_ref`), nunca su valor; los límites y la
+# referencia del prompt no van aquí: viven en la configuración efectiva.
+schema_version: "1.0.0"
+profiles:
+  demo-anthropic:
+    purpose: demonstration
+    same_family_declared: true
+    permutation: true
+    role_aliases:
+      verifier_permuted: verifier
+    roles:
+      judge:
+        provider: anthropic
+        model: claude-sonnet-5-5
+        scope: external
+        family: claude
+        api_key_ref: VERIDICUS_ANTHROPIC_API_KEY
+      verifier:
+        provider: anthropic
+        model: claude-sonnet-5-5
+        scope: external
+        family: claude
+        api_key_ref: VERIDICUS_ANTHROPIC_API_KEY

@@ -57,7 +57,8 @@ extend-select = ["S"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["tests"]
+# `src` primero: la prueba corre el código del árbol y no la copia que uv instaló sin modo editable.
+pythonpath = ["src", "tests"]
 addopts = "--strict-markers --disable-socket"
 
 [tool.coverage.run]

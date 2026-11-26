@@ -128,9 +128,11 @@ def build_output(
     """La salida C6. Con `error_code` es una salida en error: `hallazgos` y `descartes` vacíos, sin
     `observaciones_conductor` y con el registro de las llamadas que se alcanzaron a hacer (BR7.1).
 
-    `version`, `perfil`, `prompt_sha256` y `config_sha256` salen de la configuración, y solo `fecha`
-    y las fechas de las llamadas vienen del reloj (BR8.7). B11a declara `fragmentado: false`
-    (BR8.5) y no estima costo (BR8.4 se difiere).
+    `version`, `perfil` y `config_sha256` salen de la configuración, y solo `fecha` y las fechas de
+    las llamadas vienen del reloj (BR8.7). `prompt_sha256` es la huella de los bytes del *prompt*
+    leídos en la corrida (BR3.1): `analyze` la sobrescribe con ella, y aquí sale de la configuración
+    solo hasta entonces. B11a declara `fragmentado: false` (BR8.5) y no estima costo (BR8.4 se
+    difiere).
     """
     failed = error_code is not None
     output: dict[str, Any] = {

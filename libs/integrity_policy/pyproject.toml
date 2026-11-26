@@ -74,3 +74,15 @@ markers = [
 [tool.coverage.run]
 branch = true
 source = ["veridicus_integrity_policy"]
+
+# Frontera de U11 (BR10.5, SD §1). Su control negativo está en
+# `libs/incoherence_analyzer/tests/boundaries/`.
+[tool.importlinter]
+root_package = "veridicus_integrity_policy"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "u11-no-infra"
+type = "forbidden"
+source_modules = ["veridicus_integrity_policy"]
+forbidden_modules = ["redis", "kubernetes", "psycopg", "asyncpg", "sqlalchemy", "prometheus_client"]

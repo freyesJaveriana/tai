@@ -25,10 +25,10 @@ units:
     depends_on: []
   - name: platform
     kind: packaging
-    depends_on: [contracts]
+    depends_on: [contracts, incoherence-analyzer]
   - name: identity-access
     kind: service
-    depends_on: [contracts]
+    depends_on: [contracts, incoherence-analyzer]
   - name: anonymizer
     kind: service
     depends_on: [contracts]

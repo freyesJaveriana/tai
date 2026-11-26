@@ -14,6 +14,7 @@ codes:
   route.not_found: {status: 404, class: RouteNotFoundError, unit: U3, http: true}
   system.internal: {status: 500, class: SystemInternalError, unit: U3, http: true}
   system.unavailable: {status: 503, class: SystemUnavailableError, unit: U3, http: true}
+  system.interrupted: {class: CliInterruptedError, unit: U11, http: false}
   user.duplicate_username: {status: 409, class: UserDuplicateUsernameError, unit: U3, http: true}
   user.self_deactivation: {status: 409, class: UserSelfDeactivationError, unit: U3, http: true}
   user.last_admin: {status: 409, class: UserLastAdminError, unit: U3, http: true}
@@ -46,6 +47,7 @@ codes:
   problem_report.ids_mismatch: {status: 422, class: ProblemReportIdsMismatchError, unit: U13, http: true}
   run.not_in_error: {status: 409, class: RunNotInErrorError, unit: U4, http: true}
   run.final_in_progress: {status: 409, class: RunFinalInProgressError, unit: U4, http: true}
+  run.cancelled: {class: CancelledError, unit: U11, http: false}
   analysis.invalid_output:
     status: 502
     class: AnalysisInvalidOutputError
@@ -111,4 +113,5 @@ codes:
   speech.text_rejected: {status: 409, class: SpeechTextRejectedError, unit: U9, http: true}
   config.invalid_profile: {class: ConfigInvalidProfileError, unit: U1, http: false}
   config.invalid_limit: {class: ConfigInvalidLimitError, unit: U1, http: false}
+  config.invalid_gateway: {class: GatewayConfigError, unit: U11, http: false}
   run.publish_failed: {class: RunPublishFailedError, unit: U4, http: false}

@@ -14,6 +14,7 @@ filas ni en logs).
 import re
 import string
 from collections.abc import Iterator, Mapping
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -122,8 +123,12 @@ def _problemas_de_numero(
     ]
 
 
+@lru_cache(maxsize=4096)
 def _fragmento_admite_espacio(fragmento: str) -> bool:
-    """Un fragmento del patrón (clase, escape o carácter) acepta algún carácter de espacio en blanco."""
+    """Un fragmento del patrón (clase, escape o carácter) acepta algún carácter de espacio en blanco.
+
+    Función pura de una cadena: los mismos fragmentos se repiten en cada patrón de los contratos.
+    """
     try:
         return any(re.fullmatch(fragmento, sonda) for sonda in SONDAS)
     except re.error:
@@ -164,6 +169,7 @@ def _clase_valida(cuerpo: str) -> bool:
     return True
 
 
+@lru_cache(maxsize=4096)
 def _en_la_gramatica_blanca(patron: str) -> bool:
     """Solo `^`, `$`, clases con rangos de A-Za-z0-9, `\\.`, `\\-`, `\\+`, literales, `( ) | ?` y cuantificadores.
 

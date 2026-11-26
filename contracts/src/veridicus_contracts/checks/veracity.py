@@ -19,6 +19,7 @@ import unicodedata
 from collections import Counter
 from collections.abc import Iterator, Mapping
 from collections.abc import Set as AbstractSet
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -168,8 +169,13 @@ PALABRAS = re.compile(r"[^\W\d_]+")
 _FALLO = object()
 
 
+@lru_cache(maxsize=16384)
 def normalizar(texto: str) -> str:
-    """Minúsculas y sin tildes, para comparar sin distinguir mayúsculas ni tildes."""
+    """Minúsculas y sin tildes, para comparar sin distinguir mayúsculas ni tildes.
+
+    Función pura de una cadena inmutable: se recuerdan los últimos 16 384 resultados (los términos de C8
+    se normalizan una vez por consulta y no una por caso).
+    """
     descompuesto = unicodedata.normalize("NFKD", texto.lower())
     return "".join(c for c in descompuesto if not unicodedata.combining(c))
 
@@ -330,13 +336,16 @@ def problemas_de_aclaracion(documento: Any) -> list[str]:
 def _recorrer(nodo: Any, clave: str | None = None) -> Iterator[tuple[str | None, Any]]:
     """Recorre un documento en profundidad: (clave del padre, valor). Los elementos de una lista
     conservan la clave de la lista (p. ej. `enum`)."""
-    yield clave, nodo
-    if isinstance(nodo, dict):
-        for hija, valor in nodo.items():
-            yield from _recorrer(valor, hija)
-    elif isinstance(nodo, list):
-        for valor in nodo:
-            yield from _recorrer(valor, clave)
+    # Iterativo y en preorden, el mismo orden que el recorrido recursivo: un generador por nivel cuesta
+    # mucho más que una pila (el recorrido corre por cada contrato en cada consulta).
+    pila: list[tuple[str | None, Any]] = [(clave, nodo)]
+    while pila:
+        actual, valor = pila.pop()
+        yield actual, valor
+        if isinstance(valor, dict):
+            pila.extend(reversed(list(valor.items())))
+        elif isinstance(valor, list):
+            pila.extend((actual, elemento) for elemento in reversed(valor))
 
 
 def _nombres_de_parametros(parametros: Any) -> list[str]:
@@ -358,8 +367,11 @@ def nombres_de_un_documento(documento: Any) -> list[str]:
     return nombres
 
 
+@lru_cache(maxsize=16384)
 def con_veracidad(nombre: str) -> bool:
     """Igualdad de palabras: la categoría prohibida completa, o un segmento igual a un término de C8.
+
+    Función pura de una cadena: los mismos nombres de propiedad se repiten en cada contrato y en cada consulta.
 
     El nombre se normaliza a NFKC (el ancho completo pasa a ancho normal) y sus segmentos se parten
     en `_`, `-`, `.`, espacios, dígitos y las fronteras de camelCase y PascalCase. Los dígitos no

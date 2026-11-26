@@ -7,7 +7,6 @@ E30 y la decisión D-2, y la forma y coherencia de `integrity/testimony-warning-
 un control negativo con una copia con un defecto sembrado, en memoria o en `tmp_path`.
 """
 
-import copy
 import json
 import re
 import shutil
@@ -63,7 +62,8 @@ REQUERIDOS = {
 
 
 def copia(relativa: str) -> Any:
-    return copy.deepcopy(load_contract(relativa))
+    # `load_contract` ya entrega una copia nueva en cada llamada (loaders._copia): no se copia dos veces.
+    return load_contract(relativa)
 
 
 def casos() -> dict[str, Any]:

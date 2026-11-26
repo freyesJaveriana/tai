@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tomllib
 import zipfile
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -137,11 +138,32 @@ def _construir(contracts_root: Path, tmp_path: Path, argumentos: list[str]) -> s
         return set(zf.namelist())
 
 
+@pytest.fixture(scope="session")
+def rueda_de(
+    contracts_root: Path, tmp_path_factory: pytest.TempPathFactory
+) -> Callable[[list[str]], set[str]]:
+    """Construye una sola vez cada variante de `uv build`: la misma entrada da la misma rueda.
+
+    Cada variante parte de una copia nueva del árbol (`_construir`); lo que se comparte es el
+    resultado, un conjunto de rutas que cada llamada recibe como copia propia.
+    """
+    hechas: dict[tuple[str, ...], frozenset[str]] = {}
+
+    def construir(argumentos: list[str]) -> set[str]:
+        clave = tuple(argumentos)
+        if clave not in hechas:
+            destino = tmp_path_factory.mktemp("rueda")
+            hechas[clave] = frozenset(_construir(contracts_root, destino, argumentos))
+        return set(hechas[clave])
+
+    return construir
+
+
 @pytest.mark.parametrize("argumentos", [["--wheel"], []], ids=["wheel-directa", "sdist-y-rueda"])
 def test_la_rueda_trae_el_mapa_completo_y_sin_fixtures(
-    contracts_root: Path, tmp_path: Path, argumentos: list[str]
+    rueda_de: Callable[[list[str]], set[str]], argumentos: list[str]
 ) -> None:
-    nombres = _construir(contracts_root, tmp_path, argumentos)
+    nombres = rueda_de(argumentos)
     assert not [n for n in nombres if "/fixtures/" in n], nombres
     assert "veridicus_contracts/py.typed" in nombres
     for directorio in DIRECTORIOS_DE_DATOS:
@@ -155,15 +177,15 @@ def test_la_rueda_trae_el_mapa_completo_y_sin_fixtures(
 
 
 def test_las_dos_vias_de_construccion_dan_la_misma_rueda(
-    contracts_root: Path, tmp_path: Path
+    rueda_de: Callable[[list[str]], set[str]],
 ) -> None:
-    directa = _construir(contracts_root, tmp_path / "a", ["--wheel"])
-    por_sdist = _construir(contracts_root, tmp_path / "b", [])
+    directa = rueda_de(["--wheel"])
+    por_sdist = rueda_de([])
     assert directa == por_sdist
 
 
 def test_mypy_estricto_resuelve_una_importacion_cruzada(
-    contracts_root: Path, tmp_path: Path
+    contracts_root: Path, tmp_path: Path, cache_de_mypy: Path
 ) -> None:
     copia = _copiar(contracts_root, tmp_path)
     paquete = copia / "src" / "veridicus_contracts"
@@ -171,8 +193,8 @@ def test_mypy_estricto_resuelve_una_importacion_cruzada(
     (paquete / "dos.py").write_text(
         "from veridicus_contracts.uno import valor\n\n\ndef doble() -> int:\n    return 2 * valor()\n"
     )
-    resultado = subprocess.run(
-        [sys.executable, "-m", "mypy", "--strict", "src"],
+    resultado = subprocess.run(  # noqa: S603  # motivo: argumentos fijos y una ruta temporal de la sesión
+        [sys.executable, "-m", "mypy", "--strict", "--cache-dir", str(cache_de_mypy), "src"],
         cwd=copia,
         capture_output=True,
         text=True,

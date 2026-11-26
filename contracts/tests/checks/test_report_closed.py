@@ -36,11 +36,11 @@ pytestmark = pytest.mark.c19
 
 def _documentos() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     """Copia en memoria de C19, de `model-call.v1` y de los tres fixtures negativos."""
-    reporte = copy.deepcopy(load_contract(C19))
-    llamada = copy.deepcopy(load_contract(MODELO_DE_LLAMADA))
+    # `load_contract` ya entrega una copia nueva en cada llamada (loaders._copia): no se copia dos veces.
+    reporte = load_contract(C19)
+    llamada = load_contract(MODELO_DE_LLAMADA)
     fixtures = {
-        nombre: copy.deepcopy(load_contract(f"{DIRECTORIO_DE_FIXTURES}/{nombre}"))
-        for nombre in FIXTURES_NEGATIVOS
+        nombre: load_contract(f"{DIRECTORIO_DE_FIXTURES}/{nombre}") for nombre in FIXTURES_NEGATIVOS
     }
     return reporte, llamada, fixtures
 

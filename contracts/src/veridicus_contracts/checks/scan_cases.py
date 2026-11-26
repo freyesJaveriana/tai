@@ -11,6 +11,7 @@ posiciones de caso, nombres de campo y los términos y frases aprobados.
 
 import re
 from collections.abc import Mapping
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, TypeGuard
 
@@ -172,6 +173,12 @@ def _problemas_de_expect(
     return _problemas_de_vocabulario(prefijo, caso, esperado, terminos)
 
 
+@lru_cache(maxsize=8)
+def _terminos_normalizados(terminos: tuple[str, ...]) -> frozenset[str]:
+    """Los términos de C8 normalizados, una vez por lista y no una por caso."""
+    return frozenset(normalizar(t) for t in terminos)
+
+
 def _problemas_de_vocabulario(
     prefijo: str, caso: Mapping[str, Any], esperado: Mapping[str, Any], terminos: tuple[str, ...]
 ) -> list[str]:
@@ -191,7 +198,7 @@ def _problemas_de_vocabulario(
         problemas.append(
             f"{prefijo}expect.excluded trae un tramo que no está en ninguna fuente literal"
         )
-    solos = {normalizar(t) for t in terminos}
+    solos = _terminos_normalizados(terminos)
     if any(normalizar(" ".join(t.split())) in solos for t in excluidos):
         problemas.append(f"{prefijo}expect.excluded trae un tramo que es solo un término (D-2)")
     return problemas

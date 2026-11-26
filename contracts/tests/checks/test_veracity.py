@@ -7,7 +7,6 @@ toca). Ningún control toca el contrato versionado. Los mensajes llevan reglas y
 nunca texto del documento revisado: una prueba lo comprueba con una cadena canario.
 """
 
-import copy
 import json
 import shutil
 from pathlib import Path
@@ -81,7 +80,7 @@ CANARIO = "canario-de-testimonio-sintetico"
 
 
 def copia(relativa: str) -> Any:
-    return copy.deepcopy(load_contract(relativa))
+    return load_contract(relativa)  # ya es una copia nueva (loaders._copia)
 
 
 def br61(faltan: int, sobran: int, distintos: int) -> str:

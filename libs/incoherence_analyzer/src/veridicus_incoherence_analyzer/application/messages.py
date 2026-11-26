@@ -58,8 +58,8 @@ def load_prompt_reference() -> str:
     return text.strip()
 
 
-def _sections() -> dict[str, str]:
-    text = prompt_bytes().decode("utf-8")
+def _sections(data: bytes | None = None) -> dict[str, str]:
+    text = (prompt_bytes() if data is None else data).decode("utf-8")
     found = list(_SECTION.finditer(text))
     ends = [match.start() for match in found[1:]] + [len(text)]
     return {
@@ -68,13 +68,14 @@ def _sections() -> dict[str, str]:
     }
 
 
-def load_system_prompt(role: Role) -> str:
+def load_system_prompt(role: Role, prompt: bytes | None = None) -> str:
     """El texto fijo del mensaje `system` de un papel, sección de `data/prompt.v1.md` (PD-6, BR3.1).
 
     Es lo único que viaja en `system`: no lleva ningún carácter de la entrada. El verificador y el
-    verificador permutado usan el del papel `verifier`.
+    verificador permutado usan el del papel `verifier`. Con `prompt` (los bytes ya leídos y cuya
+    huella se comprobó), el texto sale de esos mismos bytes y no se vuelve a leer el archivo.
     """
-    return _sections()[role]
+    return _sections(prompt)[role]
 
 
 def load_response_schema(role: Role, kind: SchemaKind) -> dict[str, Any]:
@@ -120,10 +121,12 @@ def verifier_payload(candidate: Mapping[str, Any], *, permuted: bool) -> dict[st
     }
 
 
-def build_messages(role: Role, payload: Mapping[str, Any]) -> list[Message]:
+def build_messages(
+    role: Role, payload: Mapping[str, Any], prompt: bytes | None = None
+) -> list[Message]:
     """`system` fijo del papel y `user` con el JSON del documento (PD-6).
 
     Es la única función que arma mensajes: el testimonio nunca entra en `system`.
     """
     user = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
-    return [Message("system", load_system_prompt(role)), Message("user", user)]
+    return [Message("system", load_system_prompt(role, prompt)), Message("user", user)]

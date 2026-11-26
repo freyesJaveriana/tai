@@ -113,3 +113,47 @@ def test_a_format_character_used_as_a_separator_joins_the_two_words() -> None:
     text = "es" + chr(0x200B) + "falso"
 
     assert scan.scan(text, []) == []
+
+
+def _nfd(text: str) -> str:
+    return unicodedata.normalize("NFD", text)
+
+
+# K-91 (F-12 de U11-T02): el tramo informado incluye las marcas descartadas que siguen a la última letra.
+ENGANO = "enga" + chr(0xF1) + chr(0xF3)  # engañó, con ñ y ó precompuestas
+
+
+def test_a_term_in_nfd_is_reported_with_its_whole_span() -> None:
+    written = _nfd(ENGANO)
+    assert written != ENGANO and len(written) == len(ENGANO) + 2
+    text = "Dijo que " + written + " ayer."
+
+    matches = scan.scan(text, [])
+
+    assert [(match.term, text[match.start : match.end]) for match in matches] == [(ENGANO, written)]
+
+
+def test_a_term_at_the_very_end_of_the_text_keeps_its_trailing_marks() -> None:
+    written = _nfd(ENGANO)
+    text = "Dijo que " + written
+
+    matches = scan.scan(text, [])
+
+    assert [(match.start, match.end) for match in matches] == [(9, len(text))]
+
+
+@pytest.mark.parametrize("char", INVISIBLE, ids=[f"U+{ord(c):04X}" for c in INVISIBLE])
+def test_a_term_followed_by_an_invisible_character_includes_it_in_the_span(char: str) -> None:
+    text = f"Dijo que falso{char}{char} ayer."
+
+    matches = scan.scan(text, [])
+
+    assert [text[match.start : match.end] for match in matches] == [f"falso{char}{char}"]
+
+
+def test_control_a_visible_character_after_the_term_is_not_part_of_the_span() -> None:
+    text = "Dijo que falso. Y luego nada."
+
+    matches = scan.scan(text, [])
+
+    assert [text[match.start : match.end] for match in matches] == ["falso"]

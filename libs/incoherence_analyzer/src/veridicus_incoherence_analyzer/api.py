@@ -1,20 +1,17 @@
-"""API de la biblioteca (C17): `analyze` y `IncoherenceAnalyzer` (PD-4).
-
-Estado: *stubs* del paso 1 (U11-T01). Los implementa U11-T04.
+"""API de la biblioteca (C17): `analyze` e `IncoherenceAnalyzer` (PD-4, CG-U11-03).
 
 `Entrada` y `Salida` no se agregan a `veridicus_contracts.analyzer.v1` (PD-4): son los diccionarios
-de C6, que `analyze` valida con `validate_instance`.
+de C6, que `analyze` valida contra el esquema común antes de llamar (la entrada) y antes de
+devolver (la salida).
 """
-
-from collections.abc import Callable
-from typing import Any
 
 from veridicus_execution_profiles.loader import EffectiveConfig
 from veridicus_model_gateway.port import ModelGateway
 
-Entrada = dict[str, Any]
-Salida = dict[str, Any]
-CancelCheck = Callable[[], bool]
+from veridicus_incoherence_analyzer.application.analyze import Entrada, Salida, run_analysis
+from veridicus_incoherence_analyzer.application.deadline import CancelCheck
+
+__all__ = ["CancelCheck", "Entrada", "IncoherenceAnalyzer", "Salida", "analyze"]
 
 
 def analyze(
@@ -27,10 +24,10 @@ def analyze(
     con `estado: error` y hallazgos vacíos (AUTONOMIA-05).
 
     Lanza una de las clases de `InputRejected` (la tupla de `veridicus_errors`) ante una entrada
-    inválida (0 llamadas) y `CancelledError` si `cancelled()` es
-    verdadero. Nunca lanza una excepción por un fallo del modelo.
+    inválida (0 llamadas) y `CancelledError` si `cancelled()` es verdadero antes de una llamada.
+    Nunca lanza una excepción por un fallo del modelo ni del anonimizador.
     """
-    raise NotImplementedError("analyze: lo implementa U11-T04 (paso 9)")
+    return run_analysis(entrada, config, gateway, cancelled)
 
 
 class IncoherenceAnalyzer:
@@ -43,4 +40,4 @@ class IncoherenceAnalyzer:
         gateway: ModelGateway,
         cancelled: CancelCheck | None = None,
     ) -> Salida:
-        raise NotImplementedError("IncoherenceAnalyzer.analyze: lo implementa U11-T04 (paso 9)")
+        return analyze(entrada, config, gateway, cancelled)

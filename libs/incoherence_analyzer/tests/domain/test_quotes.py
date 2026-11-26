@@ -1,6 +1,8 @@
 """Verificación de citas con la regla del piloto (BR5.5, AUTONOMIA-05): solo se normalizan espacios.
 
 Función pura: devuelve `verified` o `not_found`; `other_turn` y `unknown_turn` los deriva el filtro.
+Los espacios Unicode se escriben con `\\N{...}` o con `chr(...)`, nunca como caracteres invisibles:
+un literal U+2028 corta la línea al leer el archivo (F-05 de U11-T03).
 """
 
 import pytest
@@ -10,6 +12,8 @@ from hypothesis import strategies as st
 from veridicus_incoherence_analyzer.domain.quotes import normalize_spaces, verify_quote
 
 TURN = "Casilda Roncancio llegó a Villa Rocamora antes del mediodía."
+NBSP = chr(0xA0)
+EM_SPACE = chr(0x2003)
 
 
 def test_an_exact_substring_verifies() -> None:
@@ -23,7 +27,7 @@ def test_an_exact_substring_verifies() -> None:
         "Casilda   Roncancio llegó",
         "Casilda\tRoncancio\nllegó",
         "  Casilda Roncancio llegó  ",
-        "Casilda Roncancio llegó",
+        f"Casilda{NBSP}Roncancio{EM_SPACE}llegó",
     ],
     ids=["varios_espacios", "tab_y_salto", "bordes", "unicode"],
 )
@@ -55,7 +59,9 @@ def test_a_quote_that_is_not_in_the_turn_does_not_verify() -> None:
     assert verify_quote(TURN, "Esa noche estuvo en el puerto") == "not_found"
 
 
-@pytest.mark.parametrize("quote", ["", " ", " \t\n ", " "], ids=["vacia", "espacio", "tab", "nbsp"])
+@pytest.mark.parametrize(
+    "quote", ["", " ", " \t\n ", NBSP], ids=["vacia", "espacio", "tab", "nbsp"]
+)
 def test_an_empty_or_blank_quote_never_verifies(quote: str) -> None:
     assert verify_quote(TURN, quote) == "not_found"
 
@@ -99,7 +105,11 @@ def test_control_separators_are_not_white_space_so_they_do_not_normalize_to_a_sp
     assert normalize_spaces(f"a{char}b") == f"a{char}b"
 
 
-@pytest.mark.parametrize("char", [" ", " ", "　", "\u0085", " ", " ", " ", " ", "\v", "\f"])
+# U+00A0, U+2003, U+3000, U+0085, U+1680, U+2028, U+202F y U+205F, por punto de código.
+WHITE_SPACE = [chr(code) for code in (0xA0, 0x2003, 0x3000, 0x85, 0x1680, 0x2028, 0x202F, 0x205F)]
+
+
+@pytest.mark.parametrize("char", [*WHITE_SPACE, "\v", "\f"])
 def test_every_unicode_white_space_character_normalizes_to_one_space(char: str) -> None:
     assert verify_quote(f"a{char}b", "a b") == "verified"
     assert verify_quote("a b", f"a{char}{char}b") == "verified"
@@ -121,8 +131,9 @@ def test_the_normalized_characters_are_exactly_the_unicode_white_space_property(
 
 
 def test_normalize_spaces_collapses_runs_and_trims() -> None:
-    assert normalize_spaces("  a \t\n b  c  ") == "a b c"
+    assert normalize_spaces("  a \t\n b  c  ") == "a b c"
     assert normalize_spaces("") == ""
+    assert normalize_spaces("  a \t\n b" + NBSP + EM_SPACE + "c  ") == "a b c"
 
 
 TURN_TEXT = st.text(alphabet="abcdefgh \t", min_size=1, max_size=60).filter(

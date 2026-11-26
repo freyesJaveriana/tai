@@ -309,6 +309,49 @@ def test_exit_4_stops_the_batch_and_writes_only_the_error_output_of_the_incident
     assert not (out / "reporte.json").exists(), "B11a no escribe reporte.json (CG-U11-13)"
 
 
+@pytest.mark.parametrize("number", [signal.SIGINT, signal.SIGTERM])
+def test_exit_4_when_a_signal_arrives_during_the_call_of_an_incident_the_incident_wins(
+    number: signal.Signals,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A-02 (CG-U11-14): el incidente tiene precedencia sobre la señal (BR7.6 frente a BR11.3).
+
+    Se escribe la salida en error del incidente, con la llamada marcada `anonimizado: false`, para que
+    U4 bloquee la sesión; el lote se detiene sin más llamadas y el código es 4, no 5.
+    """
+
+    def unanonymized_then_signal(self: Anonymizer, request: GenerateRequest) -> GenerateResult:
+        signal.raise_signal(number)
+        return GenerateResult(
+            content={"hallazgos": []},
+            altered_markers=[],
+            call=make_call(request.role, anonymized=False),
+        )
+
+    monkeypatch.setattr(Anonymizer, "generate", unanonymized_then_signal)
+    entradas = tmp_path / "entradas"
+    write_input(entradas, "SINT-0001.json")
+    write_input(entradas, "SINT-0002.json")
+    out = tmp_path / "salida"
+    before = signal.getsignal(number)
+
+    code = go(entradas, out)
+
+    assert code == 4
+    assert [path.name for path in files_under(out)] == ["AVISO.txt", "SINT-0001.salida.json"]
+    salida = json.loads((out / "SINT-0001.salida.json").read_text("utf-8"))
+    assert (salida["estado"], salida["error"]["codigo"]) == ("error", "incidente_anonimizacion")
+    assert salida["hallazgos"] == [], "sin resultado parcial (AUTONOMIA-05)"
+    assert [call["anonimizado"] for call in salida["registro"]["llamadas"]] == [False]
+    assert c6_problems(salida) == []
+    stderr = capsys.readouterr().err
+    assert "Incidente de anonimización" in stderr and "interrupción" in stderr
+    assert "quedó sin salida" not in stderr
+    assert signal.getsignal(number) is before, "los manejadores se restauran"
+
+
 # --- Código 5: error inesperado, escritura fallida e interrupción (BR11.3, BR11.4) --------------------
 
 

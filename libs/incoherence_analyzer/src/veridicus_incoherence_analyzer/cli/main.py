@@ -255,13 +255,18 @@ def _analyze_batch(
             composition.gateway,
             interrupts.flag.is_set,
         )
+        target = directory / f"{path.stem}.salida.json"
+        if _is_incident(salida):
+            # El incidente tiene precedencia sobre una señal (BR7.6; A-02, CG-U11-14): su salida en
+            # error, sin hallazgos, es la evidencia con la que U4 bloquea la sesión.
+            _write(target, _dump(salida))
+            interrupted = interrupts.flag.is_set()
+            key = "run.incident_interrupted" if interrupted else "run.incident"
+            _emit(catalog.render(key, path=target))
+            return catalog.EXIT_INCIDENT
         if interrupts.flag.is_set():  # la señal llegó durante la última llamada: sin salida
             raise CancelledError("interrupción durante la corrida en curso")
-        target = directory / f"{path.stem}.salida.json"
         _write(target, _dump(salida))
-        if _is_incident(salida):
-            _emit(catalog.render("run.incident", path=target))
-            return catalog.EXIT_INCIDENT
         _emit(catalog.render("run.written", path=target))
     if interrupts.flag.is_set():  # una señal tras la última llamada también es una interrupción
         # Todas las salidas ya están escritas: el mensaje no dice que alguna quedó sin salida (A-03).

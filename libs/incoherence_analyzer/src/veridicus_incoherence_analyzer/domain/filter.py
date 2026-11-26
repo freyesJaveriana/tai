@@ -38,7 +38,9 @@ DiscardReason = Literal[
     "vocabulario_prohibido",
 ]
 
-_TURN_LABEL: Final = re.compile(r"T([0-9]+)")
+# Acotada a 9 dígitos: el juez puede producir cualquier etiqueta y `int()` falla con más de 4300.
+# Una etiqueta más larga no nombra ningún turno de la entrada (C25: 2 000 turnos como máximo).
+_TURN_LABEL: Final = re.compile(r"T([0-9]{1,9})")
 _TEXT_FIELDS: Final = ("hecho", "observaciones")
 _QUOTE_FIELDS: Final = ("cita_a", "cita_b")
 

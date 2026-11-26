@@ -157,6 +157,33 @@ def test_a_quote_in_its_own_turn_wins_even_if_it_also_appears_in_another() -> No
     assert len(survivors) == 1
 
 
+@pytest.mark.parametrize(
+    "label",
+    ["T" + "9" * 5000, "T" + "9" * 10, "T" + "0" * 5000 + "2"],
+    ids=["5000_digitos", "10_digitos", "ceros_a_la_izquierda_sin_limite"],
+)
+def test_a_turn_label_that_is_too_long_is_cita_no_verificada_and_never_raises(label: str) -> None:
+    candidate = finding()
+    candidate["cita_a"]["turno"] = label
+
+    survivors, discards = run([candidate])
+
+    assert survivors == ()
+    assert reasons(discards) == ["cita_no_verificada"]
+    assert discards[0].turno_a is None, "una etiqueta fuera de la forma acotada no se copia"
+
+
+def test_a_nine_digit_turn_label_reaches_the_turn_lookup() -> None:
+    turns = default_turns()
+    turns[1]["n"] = 999_999_999
+    candidate = finding(a=(999_999_999, T2))
+
+    survivors, discards = run([candidate], turns=turns_by_number(turns))
+
+    assert discards == ()
+    assert survivors[0].turn_a == 999_999_999
+
+
 @pytest.mark.parametrize("label", ["T9", "T0", "turno 2", "2", "T", "T-1", "t2", "T2x", ""])
 def test_an_unknown_or_malformed_turn_is_cita_no_verificada(label: str) -> None:
     candidate = finding()

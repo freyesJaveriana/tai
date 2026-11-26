@@ -90,6 +90,36 @@ def test_a_turn_that_literally_contains_the_ellipsis_still_verifies_its_pieces()
     assert verify_quote("uno […] dos", "uno […] dos") == "verified"
 
 
+@pytest.mark.parametrize("char", [chr(code) for code in (0x1C, 0x1D, 0x1E, 0x1F)])
+def test_control_separators_are_not_white_space_so_they_do_not_normalize_to_a_space(
+    char: str,
+) -> None:
+    assert verify_quote(f"a{char}b", "a b") == "not_found"
+    assert verify_quote("a b", f"a{char}b") == "not_found"
+    assert normalize_spaces(f"a{char}b") == f"a{char}b"
+
+
+@pytest.mark.parametrize("char", [" ", " ", "　", "\u0085", " ", " ", " ", " ", "\v", "\f"])
+def test_every_unicode_white_space_character_normalizes_to_one_space(char: str) -> None:
+    assert verify_quote(f"a{char}b", "a b") == "verified"
+    assert verify_quote("a b", f"a{char}{char}b") == "verified"
+
+
+def test_the_normalized_characters_are_exactly_the_unicode_white_space_property() -> None:
+    """`str.isspace` coincide con `White_Space` salvo U+001C a U+001F, que BR5.5 no normaliza."""
+    expected = {
+        code for code in range(0x110000) if chr(code).isspace() and code not in range(0x1C, 0x20)
+    }
+
+    normalized = {
+        code for code in range(0x110000) if normalize_spaces("a" + chr(code) + "b") == "a b"
+    }
+
+    assert normalized == expected
+    assert {0xA0, 0x2003, 0x3000} <= normalized
+    assert not normalized & set(range(0x1C, 0x20))
+
+
 def test_normalize_spaces_collapses_runs_and_trims() -> None:
     assert normalize_spaces("  a \t\n b  c  ") == "a b c"
     assert normalize_spaces("") == ""

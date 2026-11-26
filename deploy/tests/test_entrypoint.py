@@ -10,6 +10,7 @@ resultado parcial) y AUTONOMIA-03 (los rótulos propios pasan el escáner de voc
 
 import io
 import json
+import os
 import runpy
 import sys
 from collections.abc import Callable, Mapping, Sequence
@@ -101,7 +102,8 @@ def test_a_scripted_finding_over_the_seeded_contradiction_prints_its_fact_type_a
 
     assert code == 0
     assert transport.request_count == 3, "juez, verificador y verificador permutado"
-    assert "contradiccion: estado=ok, 1 hallazgos" in out
+    assert "contradiccion: estado=ok, 1 hallazgo\n" in out, "F-05: singular con un hallazgo"
+    assert "1 hallazgos" not in out
     assert f"hecho: {HECHO}" in out
     assert "tipo: lugar" in out
     assert f"cita A (turno T4): «{QUOTE_A}»" in out
@@ -208,6 +210,58 @@ def test_the_labels_the_entrypoint_adds_pass_the_forbidden_vocabulary_scan(
 
     assert scan(out, [QUOTE_A, QUOTE_B]) == []
     assert scan("el testigo miente sobre el hecho", []) != [], "control negativo: el escáner mira"
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        pytest.param(entrypoint.ARGS_MESSAGE, id="args"),
+        pytest.param(entrypoint.CLI_FAILED_MESSAGE.format(code=4), id="cli-failed"),
+        pytest.param(entrypoint.NO_OUTPUT_MESSAGE, id="no-output"),
+        pytest.param(entrypoint.UNEXPECTED_MESSAGE.format(kind="RuntimeError"), id="unexpected"),
+    ],
+)
+def test_each_fixed_message_passes_the_forbidden_vocabulary_scan(message: str) -> None:
+    """F-03: los cuatro mensajes fijos, no solo los rótulos de la corrida feliz."""
+    assert scan(message, []) == []
+
+
+@pytest.mark.parametrize("count", [0, 1, 2, 5])
+def test_every_label_line_passes_the_scan_for_any_number_of_findings(
+    count: int, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """F-03: todos los rótulos (estado, hallazgos, hecho, tipo, cita A, cita B) con 0, 1 y varios."""
+    salida = _salida("ok", [_hallazgo(quote_a="Una cita.", quote_b="Otra cita.") for _ in range(count)])
+    monkeypatch.setattr(entrypoint, "run", _fake_run(0, {"contradiccion": salida}))
+    entrada = stage_input(tmp_path, "contradiccion")
+
+    code, out = _run(entrada, tmp_path / "salida", None)
+
+    assert code == 0
+    assert scan(out, ["Una cita.", "Otra cita.", HECHO]) == []
+
+
+@pytest.mark.parametrize(
+    "count, expected",
+    [(0, "0 hallazgos"), (1, "1 hallazgo"), (2, "2 hallazgos"), (11, "11 hallazgos")],
+)
+def test_the_count_agrees_in_singular_and_plural(
+    count: int, expected: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """F-05: «1 hallazgo» y «N hallazgos»; es texto que ve el público de la demo."""
+    salida = _salida("ok", [_hallazgo() for _ in range(count)])
+    monkeypatch.setattr(entrypoint, "run", _fake_run(0, {"contradiccion": salida}))
+    entrada = stage_input(tmp_path, "contradiccion")
+
+    _, out = _run(entrada, tmp_path / "salida", None)
+
+    first_line = out.splitlines()[0]
+    assert first_line == f"contradiccion: estado=ok, {expected}"
+
+
+def test_the_test_environment_never_carries_the_real_provider_key() -> None:
+    """F-04: un conftest autouse la retira de `os.environ` en cada prueba."""
+    assert KEY_REF not in os.environ
 
 
 # --- Secretos: ni la clave ni un turno que no es cita salen en stdout ni en stderr --------------------
@@ -445,6 +499,7 @@ def test_running_the_module_as_main_exits_with_the_cli_code(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """`python -m veridicus_demo.entrypoint` es el ENTRYPOINT de la imagen: sin entrada, código 2."""
+    monkeypatch.delenv(KEY_REF, raising=False)  # F-04: ni la clave real del contenedor
     monkeypatch.setenv("VERIDICUS_DEMO_ENTRADA", str(tmp_path / "no-existe"))
     monkeypatch.setenv("VERIDICUS_DEMO_SALIDA", str(tmp_path / "salida"))
     monkeypatch.setattr(sys, "argv", ["entrypoint"])

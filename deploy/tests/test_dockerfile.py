@@ -45,6 +45,29 @@ def check_from_pinned(text: str) -> list[str]:
     return problems
 
 
+def check_copy_from_pinned(text: str) -> list[str]:
+    """Todo `COPY --from=<imagen>` lleva un digest real. Una etapa propia (`AS build`) no es imagen."""
+    instructions = _instructions(text)
+    stages = {
+        rest.lower().split(" as ")[1].split()[0]
+        for keyword, rest in instructions
+        if keyword == "FROM" and " as " in rest.lower()
+    }
+    problems: list[str] = []
+    for keyword, rest in instructions:
+        if keyword != "COPY":
+            continue
+        for part in rest.split():
+            if not part.startswith("--from="):
+                continue
+            source = part.removeprefix("--from=")
+            if source.lower() in stages or source.isdigit():
+                continue
+            if not REAL_DIGEST.search(source + " "):
+                problems.append(f"COPY --from sin digest real: {source}")
+    return problems
+
+
 def check_final_user(text: str) -> list[str]:
     """El último USER es numérico (uid[:gid]) y distinto de 0."""
     users = [rest for keyword, rest in _instructions(text) if keyword == "USER"]
@@ -82,7 +105,17 @@ def check_latest_anywhere(text: str) -> list[str]:
 def check_ignore(text: str) -> list[str]:
     """`.dockerignore` excluye `.env`, `**/tests`, `**/.venv` y `resultados-locales`."""
     lines = {line.strip() for line in text.splitlines() if line.strip()}
-    required = {".env", "**/tests", "**/.venv", "resultados-locales"}
+    required = {
+        ".env",
+        "**/.env.*",
+        "**/*.pem",
+        "**/*.key",
+        "**/kubeconfig*",
+        "**/secrets*.yaml",
+        "**/tests",
+        "**/.venv",
+        "resultados-locales",
+    }
     return [
         f"falta {rule}"
         for rule in sorted(required)
@@ -121,11 +154,41 @@ def test_the_entrypoint_is_the_demo_module_in_exec_form(real: str) -> None:
     )
 
 
-def test_the_build_stage_uses_uv_sync_frozen_no_dev_no_editable_and_pins_uv(real: str) -> None:
+UV_COPY = re.compile(
+    r"^--from=ghcr\.io/astral-sh/uv:\d+\.\d+\.\d+(?:@\S+)? /uv /usr/local/bin/uv$"
+)
+
+
+def test_the_build_stage_uses_uv_sync_frozen_no_dev_no_editable(real: str) -> None:
     runs = [rest for keyword, rest in _instructions(real) if keyword == "RUN"]
 
     assert any("uv sync --frozen --no-dev --no-editable" in run for run in runs)
-    assert any(re.search(r"uv==\d+\.\d+\.\d+", run) for run in runs), "uv fijado por versión"
+    assert not any("pip install" in run for run in runs), "F-01: uv ya no se instala con pip"
+
+
+def test_uv_is_copied_from_the_official_image_pinned_by_version(real: str) -> None:
+    copies = [rest for keyword, rest in _instructions(real) if keyword == "COPY"]
+
+    assert sum(1 for copy in copies if UV_COPY.match(copy)) == 1, "uv:<versión> en una línea COPY"
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="F-01: la línea de uv lleva REEMPLAZAR_DIGEST_UV hasta que el humano traiga el digest; "
+    "al ponerlo, esta prueba pasa y el xfail estricto obliga a quitar esta marca",
+)
+def test_every_copy_from_an_external_image_has_a_real_digest(real: str) -> None:
+    assert check_copy_from_pinned(real) == []
+
+
+def test_the_only_external_copy_from_without_a_real_digest_is_the_uv_placeholder(
+    real: str,
+) -> None:
+    """Mientras dure el xfail, el único pendiente es uv y nada más se cuela sin digest."""
+    problems = check_copy_from_pinned(real)
+
+    assert all("astral-sh/uv" in problem for problem in problems)
+    assert len(problems) <= 1
 
 
 def test_the_final_stage_copies_only_the_virtual_environment(real: str) -> None:
@@ -208,4 +271,36 @@ def test_negative_control_a_dockerignore_missing_a_rule_fails(tmp_path: Path) ->
     bad = tmp_path / ".dockerignore"
     bad.write_text("*\n!deploy\n.env\n", encoding="utf-8")
 
-    assert len(check_ignore(bad.read_text(encoding="utf-8"))) == 3
+    problems = check_ignore(bad.read_text(encoding="utf-8"))
+
+    assert len(problems) == 8
+    for rule in ("**/.env.*", "**/*.pem", "**/*.key", "**/kubeconfig*", "**/secrets*.yaml"):
+        assert f"falta {rule}" in problems, "F-02: cada patrón de secretos se exige"
+
+
+@pytest.mark.parametrize(
+    "reference",
+    [
+        "ghcr.io/astral-sh/uv:0.13.9",
+        "ghcr.io/astral-sh/uv:0.13.9@sha256:REEMPLAZAR_DIGEST_UV",
+        "ghcr.io/astral-sh/uv:latest",
+        "ghcr.io/astral-sh/uv:0.13.9@sha256:" + "a" * 63,
+    ],
+)
+def test_negative_control_a_copy_from_without_a_real_digest_fails(reference: str) -> None:
+    text = f"FROM x AS build\nCOPY --from={reference} /uv /usr/local/bin/uv\n"
+
+    assert check_copy_from_pinned(text) != []
+
+
+def test_a_copy_from_with_a_real_digest_or_from_an_own_stage_passes() -> None:
+    pinned = "ghcr.io/astral-sh/uv:0.13.9@sha256:" + "a" * 64
+    text = (
+        "FROM x AS build\n"
+        f"COPY --from={pinned} /uv /usr/local/bin/uv\n"
+        "FROM x AS final\n"
+        "COPY --from=build /app/.venv /app/.venv\n"
+        "COPY --from=0 /a /b\n"
+    )
+
+    assert check_copy_from_pinned(text) == []

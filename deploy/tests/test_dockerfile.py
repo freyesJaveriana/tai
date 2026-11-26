@@ -27,8 +27,9 @@ def _instructions(text: str) -> list[tuple[str, str]]:
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
-        keyword, _, rest = stripped.partition(" ")
-        pairs.append((keyword.upper(), rest.strip()))
+        # El analizador de Dockerfile acepta cualquier espacio en blanco, también el tabulador (F-06).
+        parts = re.split(r"\s+", stripped, maxsplit=1)
+        pairs.append((parts[0].upper(), parts[1].strip() if len(parts) > 1 else ""))
     return pairs
 
 
@@ -46,26 +47,42 @@ def check_from_pinned(text: str) -> list[str]:
     return problems
 
 
+def _references(keyword: str, rest: str) -> list[str]:
+    """Lo que una instrucción trae de fuera de su etapa: `COPY --from=` y `RUN --mount=...from=`.
+
+    `ONBUILD <instrucción>` se mira como la instrucción que envuelve (F-07).
+    """
+    if keyword == "ONBUILD":
+        inner = re.split(r"\s+", rest, maxsplit=1)
+        return _references(inner[0].upper(), inner[1] if len(inner) > 1 else "")
+    found: list[str] = []
+    for token in rest.split():
+        if keyword == "COPY" and token.startswith("--from="):
+            found.append(token.removeprefix("--from="))
+        elif keyword == "RUN" and token.startswith("--mount="):
+            options = token.removeprefix("--mount=").split(",")
+            found.extend(item.removeprefix("from=") for item in options if item.startswith("from="))
+    return found
+
+
 def check_copy_from_pinned(text: str) -> list[str]:
-    """Todo `COPY --from=<imagen>` lleva un digest real. Una etapa propia (`AS build`) no es imagen."""
-    instructions = _instructions(text)
-    stages = {
-        rest.lower().split(" as ")[1].split()[0]
-        for keyword, rest in instructions
-        if keyword == "FROM" and " as " in rest.lower()
-    }
+    """Toda imagen externa (`COPY --from`, `RUN --mount from=`, también tras `ONBUILD`) lleva un
+    digest real. Una etapa solo es interna si se declara ANTES de usarse: por nombre (`AS build`)
+    o por número, que debe ser menor que la cantidad de `FROM` ya vistos (F-07)."""
+    stages: set[str] = set()
+    declared = 0
     problems: list[str] = []
-    for keyword, rest in instructions:
-        if keyword != "COPY":
+    for keyword, rest in _instructions(text):
+        if keyword == "FROM":
+            named = re.search(r"\sas\s+(\S+)\s*$", rest, re.IGNORECASE)
+            if named:
+                stages.add(named.group(1).lower())
+            declared += 1
             continue
-        for part in rest.split():
-            if not part.startswith("--from="):
-                continue
-            source = part.removeprefix("--from=")
-            if source.lower() in stages or source.isdigit():
-                continue
-            if not REAL_DIGEST.search(source + " "):
-                problems.append(f"COPY --from sin digest real: {source}")
+        for source in _references(keyword, rest):
+            internal = source.lower() in stages or (source.isdigit() and int(source) < declared)
+            if not internal and not REAL_DIGEST.search(source + " "):
+                problems.append(f"{keyword} con imagen sin digest real: {source}")
     return problems
 
 

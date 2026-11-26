@@ -533,6 +533,7 @@ No se edita ningún artefacto aprobado. En la aprobación decides cuáles se lle
 
 | CG-U11-12 | TS (`model_call_timeout_s = 300`), SD/RD (`prompt_sha256` «de la configuración») y SD:85 (PD-11) | El perfil solo lleva campos de `profiles.schema.v1.yaml`. Los 300 s se fijan con `VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S=300`. La referencia del *prompt* es `data/prompt.v1.sha256`. Los esquemas de respuesta se separan en uno de cable y uno local, porque la API de Anthropic no admite `minLength` en `output_config.format` | R-01; R-02 |
 | CG-U11-13 | FS F9 y BR11.1/BR11.3 (`reporte.json`, C19 `kind: run`) | B11a no escribe `reporte.json`: el reporte C19 entra con el costo y las métricas en B11b. Con el código 4, la CLI escribe solo la salida en error | DP-03 («sin reporte»); R-11 |
+| CG-U11-14 | BR11.3 («la interrupción deja sin salida la corrida en curso», código 5) y NFRD-U11-10, frente a BR7.6 (el incidente tiene precedencia) | Si la corrida en curso terminó con `incidente_anonimizacion` y llegó una señal, **gana el incidente**: se escribe su `.salida.json` con la llamada marcada `anonimizado: false`, se avisa del incidente y de la interrupción, y el código es 4. La salida en error no lleva hallazgos, así que no hay resultado parcial (AUTONOMIA-05). Fuera de ese caso, la interrupción sigue igual | A-02 (revisión de U11-T05, ronda 3); decisión del humano (A), 2026-11-26 |
 
 ## Riesgos y preguntas abiertas
 

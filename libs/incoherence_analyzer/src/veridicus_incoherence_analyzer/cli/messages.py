@@ -51,6 +51,10 @@ MESSAGES: Final[Mapping[str, str]] = {
     "run.incident": (
         "Incidente de anonimización: el lote se detuvo y solo se escribió la salida en error: {path}"
     ),
+    "run.incident_interrupted": (
+        "Incidente de anonimización durante una interrupción: el lote se detuvo y se escribió la "
+        "salida en error del incidente: {path}"
+    ),
     "run.interrupted": "Interrupción: la corrida en curso quedó sin salida.",
     "run.interrupted_after_output": (
         "Interrupción tras escribir la última salida: las salidas ya escritas se conservan."
@@ -76,6 +80,7 @@ FIELDS: Final[Mapping[str, frozenset[str]]] = {
     "output.write_failed": frozenset({"path"}),
     "run.written": frozenset({"path"}),
     "run.incident": frozenset({"path"}),
+    "run.incident_interrupted": frozenset({"path"}),
     "run.unexpected": frozenset({"kind"}),
 }
 

@@ -92,7 +92,8 @@ def _plegado(fold: Mapping[str, Any]) -> str:
     return (
         f"\nexport const FOLD_NORMALIZATION = {_literal(fold['normalization'])} as const;\n"
         f"\nexport const FOLD_COMPATIBILITY_SCOPE = {_literal(fold['compatibility_scope'])} as const;\n"
-        f"\nexport const FOLD_CASE ={_literal(fold['case'])} as const;\n"
+        f"\nexport const FOLD_ALSO_AS_SEPARATORS = {_literal(fold['also_as_separators'])} as const;\n"
+        f"\nexport const FOLD_CASE = {_literal(fold['case'])} as const;\n"
         + _lista("FOLD_DROPPED_CATEGORIES", None, fold["dropped_categories"])
         + _lista("FOLD_DROPPED_CODE_POINTS", None, fold["dropped_code_points"])
     )

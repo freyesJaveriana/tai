@@ -31,8 +31,15 @@ match:
     normalization: NFKD
     # Alcance de la descomposición de compatibilidad (F-01 de la ronda 1): NFKD solo a los caracteres
     # que son letra o dígito (`\w`: ancho completo, letras matemáticas, ligaduras); el resto (™, №, ⓐ,
-    # ㎡…) sigue con NFD y conserva su papel de separador. Así el plegado solo amplía la detección.
+    # ㎡…) sigue con NFD y conserva su papel de separador, como antes de 2.1.0.
     compatibility_scope: word_characters
+    # Doble pliegue (F-04 de la ronda 2): los puntos de `dropped_code_points` que antes de 2.1.0 no se
+    # descartaban (los `Cn` sin asignar, que eran separadores, y los 4 rellenos Hangul) se descartan
+    # en una primera pasada y cuentan como separadores en una segunda, solo si el texto trae alguno.
+    # Se informa la unión de las dos pasadas, sin duplicados exactos y ordenada por posición. Así el
+    # escáner detecta todo lo que detectaba antes (AUTONOMIA-03) y además lo que estos puntos
+    # escondían.
+    also_as_separators: newly_dropped
     case: casefold
     dropped_categories: [Mn, Me, Cf]
     # Default_Ignorable_Code_Point (Unicode 15.0/16.0, DerivedCoreProperties.txt), en rangos cerrados.

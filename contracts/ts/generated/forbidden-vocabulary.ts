@@ -75,7 +75,9 @@ export const FOLD_NORMALIZATION = "NFKD" as const;
 
 export const FOLD_COMPATIBILITY_SCOPE = "word_characters" as const;
 
-export const FOLD_CASE ="casefold" as const;
+export const FOLD_ALSO_AS_SEPARATORS = "newly_dropped" as const;
+
+export const FOLD_CASE = "casefold" as const;
 
 export const FOLD_DROPPED_CATEGORIES = [
   "Mn",

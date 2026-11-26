@@ -28,16 +28,25 @@ _WHITESPACE = re.compile(r"\s+")
 # C8 que el escáner no entiende y la carga falla.
 _NORMALIZATION: Literal["NFKD"] = "NFKD"
 _CASE = "casefold"
-# La descomposición de compatibilidad solo se aplica a los caracteres que ya son letra o dígito
-# (`\w`). Los demás (™, №, ⓐ, ㎡…) siguen con NFD, como antes de C8 2.1.0, y conservan su papel de
-# separador: así el plegado solo amplía lo que el escáner detecta (AUTONOMIA-03).
+# El plegado nunca debe detectar menos que el de antes de C8 2.1.0 (AUTONOMIA-03). Dos reglas lo
+# garantizan:
+# 1. La descomposición de compatibilidad solo se aplica a los caracteres que ya son letra o dígito
+#    (`\w`). Los demás (™, №, ⓐ, ㎡…) siguen con NFD y conservan su papel de separador.
+# 2. Doble pliegue (`also_as_separators: newly_dropped`): los puntos de `dropped_code_points` que
+#    antes no se descartaban (los `Cn` sin asignar, que eran separadores, y los rellenos Hangul) se
+#    descartan en la primera pasada y cuentan como separadores en una segunda; el resultado es la
+#    unión de las dos. Una sola pasada uniría `es` + U+2065 + `falso`, que antes se detectaba.
 _COMPATIBILITY_SCOPE = "word_characters"
+_ALSO_AS_SEPARATORS = "newly_dropped"
 _WORD_CHARACTER = re.compile(r"\w")
 _MAX_CODE_POINT = 0x10FFFF
-# Mínimo de fallo cerrado en tiempo de ejecución (F-02): un C8 adulterado no puede dejar ciego al
-# escáner. Solo se descartan marcas y caracteres de formato, y ningún rango cubre una letra o un
-# dígito, salvo los cuatro rellenos Hangul (`Lo`), que van nombrados por su punto de código.
+# Mínimo de fallo cerrado en tiempo de ejecución (F-02, F-05): un C8 adulterado no puede dejar ciego
+# al escáner. Las categorías que se descartan son solo marcas y caracteres de formato, y todo punto
+# de `dropped_code_points` debe ser invisible: `Cf`, `Mn`, `Me`, `Cn` (sin asignar) o uno de los
+# cuatro rellenos Hangul (`Lo`), nombrados por su punto de código. Ningún rango cubre un espacio, un
+# signo, un símbolo, una letra ni un dígito.
 _DROPPABLE_CATEGORIES = frozenset({"Mn", "Me", "Cf"})
+_INVISIBLE_CATEGORIES = _DROPPABLE_CATEGORIES | {"Cn"}
 _HANGUL_FILLERS = frozenset({0x115F, 0x1160, 0x3164, 0xFFA0})
 
 
@@ -65,6 +74,10 @@ class _Fold:
     categories: frozenset[str]
     starts: tuple[int, ...]
     ends: tuple[int, ...]
+    # Los puntos de los rangos que antes no se descartaban, y un patrón para saber si el texto trae
+    # alguno (la segunda pasada solo corre entonces).
+    newly_dropped: frozenset[int]
+    newly_dropped_pattern: re.Pattern[str]
 
     def covers(self, code_point: int) -> bool:
         """El punto de código está en alguno de los rangos cerrados (búsqueda binaria)."""
@@ -102,6 +115,8 @@ def _read_fold(document: Any) -> _Fold:
         raise _fold_error(f"case desconocido (se espera {_CASE})")
     if fold.get("compatibility_scope") != _COMPATIBILITY_SCOPE:
         raise _fold_error(f"compatibility_scope desconocido (se espera {_COMPATIBILITY_SCOPE})")
+    if fold.get("also_as_separators") != _ALSO_AS_SEPARATORS:
+        raise _fold_error(f"also_as_separators desconocido (se espera {_ALSO_AS_SEPARATORS})")
     categories = fold.get("dropped_categories")
     if (
         not isinstance(categories, list)
@@ -113,6 +128,7 @@ def _read_fold(document: Any) -> _Fold:
     if not isinstance(ranges, list) or not ranges:
         raise _fold_error("dropped_code_points debe ser una lista de rangos [inicio, fin]")
     previous_end = -1
+    newly_dropped: set[int] = set()
     for item in ranges:
         if not (isinstance(item, list) and len(item) == 2 and all(_is_int(n) for n in item)):
             raise _fold_error("dropped_code_points trae un rango que no es [inicio, fin] entero")
@@ -123,16 +139,36 @@ def _read_fold(document: Any) -> _Fold:
             )
         previous_end = end
         for code_point in range(start, end + 1):
-            kind = unicodedata.category(chr(code_point))[0]
-            if kind in "LN" and code_point not in _HANGUL_FILLERS:
+            char = chr(code_point)
+            if code_point not in _HANGUL_FILLERS and (
+                unicodedata.category(char) not in _INVISIBLE_CATEGORIES
+            ):
                 raise _fold_error(
-                    f"dropped_code_points cubre una letra o un dígito (U+{code_point:04X})"
+                    f"dropped_code_points cubre un carácter que no es invisible (U+{code_point:04X})"
                 )
+            if not (
+                unicodedata.category(char) in _DROPPABLE_CATEGORIES or unicodedata.combining(char)
+            ):
+                newly_dropped.add(code_point)  # antes no se descartaba: era separador o letra
     return _Fold(
         categories=frozenset(categories),
         starts=tuple(item[0] for item in ranges),
         ends=tuple(item[1] for item in ranges),
+        newly_dropped=frozenset(newly_dropped),
+        newly_dropped_pattern=_pattern_of(sorted(newly_dropped)),
     )
+
+
+def _pattern_of(code_points: list[int]) -> re.Pattern[str]:
+    """Un patrón que acepta cualquiera de los puntos de código, agrupados en tramos seguidos."""
+    runs: list[tuple[int, int]] = []
+    for code_point in code_points:
+        if runs and runs[-1][1] == code_point - 1:
+            runs[-1] = (runs[-1][0], code_point)
+        else:
+            runs.append((code_point, code_point))
+    body = "".join(f"\\U{first:08x}-\\U{last:08x}" for first, last in runs)
+    return re.compile(f"[{body}]" if runs else "(?!)")
 
 
 @cache
@@ -164,17 +200,24 @@ def _decompose(char: str) -> str:
     return unicodedata.normalize("NFD", char)
 
 
-def _fold(text: str) -> tuple[str, list[int]]:
+def _fold(text: str, separate_newly_dropped: bool = False) -> tuple[str, list[int]]:
     """El texto plegado y, por cada carácter, su posición en el original.
 
     Por carácter y en el orden de C8: descomposición (NFKD para letras y dígitos, NFD para el resto),
     descarte y plegado de mayúsculas (`casefold`). `ｆａｌｓｏ` (ancho completo) y las letras
-    matemáticas pasan a ASCII; `™` o `№` no se vuelven letras y siguen separando palabras.
+    matemáticas pasan a ASCII; `™` o `№` no se vuelven letras y siguen separando palabras. En la
+    segunda pasada (`separate_newly_dropped`), los puntos que antes no se descartaban cuentan como
+    un espacio en lugar de desaparecer.
     """
+    newly_dropped = _rules().newly_dropped
     chars: list[str] = []
     origin: list[int] = []
     for index, char in enumerate(text):
         for part in _decompose(char):
+            if separate_newly_dropped and ord(part) in newly_dropped:
+                chars.append(" ")
+                origin.append(index)
+                continue
             if _dropped(part):
                 continue
             for folded in part.casefold():
@@ -259,15 +302,19 @@ def scan_detailed(text: str, literal_sources: Sequence[str]) -> ScanResult:
     pattern, by_form = _vocabulary()
     quotes = _literal_quotes(text, literal_sources)
     skipped = [(start, end) for start, end, _ in quotes] + _notice_spans(text)
-    folded, origin = _fold(text)
-    matches: list[Match] = []
-    for found in pattern.finditer(folded):
-        start = origin[found.start()]
-        end = _span_end(text, origin[found.end() - 1])
-        if any(start >= first and end <= last for first, last in skipped):
-            continue
-        term = _name(by_form[found.group()], text[start:end])
-        matches.append(Match(term=term, start=start, end=end))
+    passes = [_fold(text)]
+    if _rules().newly_dropped_pattern.search(text):
+        passes.append(_fold(text, separate_newly_dropped=True))
+    found: dict[Match, None] = {}
+    for folded, origin in passes:
+        for hit in pattern.finditer(folded):
+            start = origin[hit.start()]
+            end = _span_end(text, origin[hit.end() - 1])
+            if any(start >= first and end <= last for first, last in skipped):
+                continue
+            term = _name(by_form[hit.group()], text[start:end])
+            found[Match(term=term, start=start, end=end)] = None
+    matches = sorted(found, key=lambda match: (match.start, match.end))
     return ScanResult(matches=matches, excluded=[content for _, _, content in quotes])
 
 

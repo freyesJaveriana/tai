@@ -198,7 +198,7 @@ def test_controles_del_cargador_yaml_de_4_1(guardia: ModuleType) -> None:
     texto = (CONTRACTS_ROOT / "integrity" / "forbidden-vocabulary.v2.yaml").read_text(
         encoding="utf-8"
     )
-    assert load_contract("integrity/forbidden-vocabulary.v2.yaml")["schema_version"] == "2.0.1"
+    assert load_contract("integrity/forbidden-vocabulary.v2.yaml")["schema_version"] == "2.1.0"
     with pytest.raises(LoadError):
         load_yaml_text(texto + "schema_version: 2.0.0\n")
     with pytest.raises(LoadError):

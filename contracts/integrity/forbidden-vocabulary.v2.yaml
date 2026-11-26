@@ -1,7 +1,9 @@
 # C8: vocabulario prohibido (AUTONOMIA-03, BR5.1–BR5.5). Lo lee el escáner de U11 y lo valida
 # checks/veracity.py. Cada ampliación de la lista entra por su propio PR con su control negativo.
 # La lista es plana: ninguna fuente asigna una categoría a cada término.
-schema_version: 2.0.1
+# 2.1.0 (K-89, K-91): `match.fold` declara el plegado del texto; el escáner de U11 y la consola de U8
+# lo leen de aquí en lugar de tenerlo escrito en su código.
+schema_version: 2.1.0
 match:
   whole_word: true
   case_insensitive: true
@@ -22,6 +24,44 @@ match:
     - sugerencia.note
     - sugerencia.reformulation
     - aviso.text
+  # Plegado del texto antes de buscar, por carácter y en este orden: descomposición de compatibilidad,
+  # descarte y plegado de mayúsculas. Se descarta todo carácter con clase combinante distinta de 0, de
+  # las categorías `dropped_categories` o dentro de `dropped_code_points`.
+  fold:
+    normalization: NFKD
+    # Alcance de la descomposición de compatibilidad (F-01 de la ronda 1): NFKD solo a los caracteres
+    # que son letra o dígito (`\w`: ancho completo, letras matemáticas, ligaduras); el resto (™, №, ⓐ,
+    # ㎡…) sigue con NFD y conserva su papel de separador, como antes de 2.1.0.
+    compatibility_scope: word_characters
+    # Doble pliegue (F-04 de la ronda 2): los puntos de `dropped_code_points` que antes de 2.1.0 no se
+    # descartaban (los `Cn` sin asignar, que eran separadores, y los 4 rellenos Hangul) se descartan
+    # en una primera pasada y cuentan como separadores en una segunda, solo si el texto trae alguno.
+    # Se informa la unión de las dos pasadas, sin duplicados exactos y ordenada por posición. Así el
+    # escáner detecta todo lo que detectaba antes (AUTONOMIA-03) y además lo que estos puntos
+    # escondían.
+    also_as_separators: newly_dropped
+    case: casefold
+    dropped_categories: [Mn, Me, Cf]
+    # Default_Ignorable_Code_Point (Unicode 15.0/16.0, DerivedCoreProperties.txt), en rangos cerrados.
+    # Incluye los 4 rellenos Hangul (`Lo`) y los 3769 `Cn` sin asignar del grupo (K-91).
+    dropped_code_points:
+      - [0x00AD, 0x00AD]
+      - [0x034F, 0x034F]
+      - [0x061C, 0x061C]
+      - [0x115F, 0x1160]
+      - [0x17B4, 0x17B5]
+      - [0x180B, 0x180F]
+      - [0x200B, 0x200F]
+      - [0x202A, 0x202E]
+      - [0x2060, 0x206F]
+      - [0x3164, 0x3164]
+      - [0xFE00, 0xFE0F]
+      - [0xFEFF, 0xFEFF]
+      - [0xFFA0, 0xFFA0]
+      - [0xFFF0, 0xFFF8]
+      - [0x1BCA0, 0x1BCA3]
+      - [0x1D173, 0x1D17A]
+      - [0xE0000, 0xE0FFF]
 terms:
   - mentiroso
   - mentirosa

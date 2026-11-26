@@ -21,7 +21,7 @@ mayor es siempre la del `.vN` del nombre (E-28, E-33). Un archivo nuevo entra aq
 | C6 | Contrato común del analizador: salida | `analyzer/v1/salida.schema.json` | 1.0.0 |
 | (sin número) | Huellas aprobadas de la copia de C6 | `analyzer/v1/SHA256SUMS` | 1.0.0 |
 | C7 | Sugerencia de revisión | `integrity/review-suggestion.v2.json` | 2.0.0 |
-| C8 | Vocabulario prohibido | `integrity/forbidden-vocabulary.v2.yaml` | 2.0.1 |
+| C8 | Vocabulario prohibido | `integrity/forbidden-vocabulary.v2.yaml` | 2.1.0 |
 | C8 | Aclaraciones neutras | `integrity/neutral-clarification.v1.yaml` | 1.1.0 |
 | C8 | Aviso de testimonio | `integrity/notice.v1.yaml` | 1.0.0 |
 | (sin número) | Casos del aviso de testimonio | `integrity/testimony-warning-cases.v1.yaml` | 1.0.0 |

@@ -36,6 +36,9 @@ DiscardReason = Literal[
     "marca_alterada",
     "campo_faltante",
     "vocabulario_prohibido",
+    # Los dos motivos del verificador los asigna `analyze` (BR6.2, BR6.3), no el filtro.
+    "rechazado_verificador",
+    "rechazado_permutacion",
 ]
 
 # Acotada a 9 dígitos: el juez puede producir cualquier etiqueta y `int()` falla con más de 4300.

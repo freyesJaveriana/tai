@@ -15,6 +15,7 @@ DOCKERFILE = DEPLOY / "images" / "analyzer-cli" / "Dockerfile"
 DOCKERIGNORE = ROOT / ".dockerignore"
 
 DIGEST = "sha256:191083cdf6c7bda8c76158983163ead5d5cf7b77cf3033e805bb0f5296f51b4b"
+UV_DIGEST = "sha256:d3b601f0c7b118bc1753febf7c41cc80981df678445e0254284eecf84db79a7d"
 REAL_DIGEST = re.compile(r"@sha256:[0-9a-f]{64}(?:\s|$)")
 
 
@@ -137,7 +138,7 @@ def test_every_from_of_the_real_dockerfile_has_a_real_digest_and_none_uses_lates
     assert check_from_pinned(real) == []
     assert check_latest_anywhere(real) == []
     assert DIGEST in real, "el digest del índice multiarquitectura de python:3.12-slim"
-    assert not re.search(r"REEMPLAZAR_DIGEST(?!_UV)", real), "solo uv puede seguir pendiente"
+    assert "REEMPLAZAR" not in real, "ningún marcador de digest pendiente"
 
 
 def test_the_final_user_is_numeric_and_not_root(real: str) -> None:
@@ -170,23 +171,11 @@ def test_uv_is_copied_from_the_official_image_pinned_by_version(real: str) -> No
     assert sum(1 for copy in copies if UV_COPY.match(copy)) == 1, "uv:<versión> en una línea COPY"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="F-01: la línea de uv lleva REEMPLAZAR_DIGEST_UV hasta que el humano traiga el digest; "
-    "al ponerlo, esta prueba pasa y el xfail estricto obliga a quitar esta marca",
-)
 def test_every_copy_from_an_external_image_has_a_real_digest(real: str) -> None:
+    """F-01, estricta: sin marcador ni xfail; exige el digest real del índice de uv 0.13.9."""
     assert check_copy_from_pinned(real) == []
-
-
-def test_the_only_external_copy_from_without_a_real_digest_is_the_uv_placeholder(
-    real: str,
-) -> None:
-    """Mientras dure el xfail, el único pendiente es uv y nada más se cuela sin digest."""
-    problems = check_copy_from_pinned(real)
-
-    assert all("astral-sh/uv" in problem for problem in problems)
-    assert len(problems) <= 1
+    assert UV_DIGEST in real
+    assert "REEMPLAZAR" not in real
 
 
 def test_the_final_stage_copies_only_the_virtual_environment(real: str) -> None:

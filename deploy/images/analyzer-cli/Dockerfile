@@ -12,10 +12,9 @@ ENV UV_PROJECT_ENVIRONMENT=/app/.venv \
     UV_PYTHON_DOWNLOADS=never \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# uv 0.13.9 desde su imagen oficial, fijado por versión y digest (F-01). Mientras el humano no traiga
-# el digest, la línea lleva REEMPLAZAR_DIGEST_UV y la imagen no se puede construir: la prueba
-# test_every_copy_from_an_external_image_has_a_real_digest está en xfail estricto por eso.
-COPY --from=ghcr.io/astral-sh/uv:0.13.9@sha256:REEMPLAZAR_DIGEST_UV /uv /usr/local/bin/uv
+# uv 0.13.9 desde su imagen oficial, fijado por versión y digest (F-01). El digest es el del índice
+# OCI multiarquitectura, dado por `docker buildx imagetools inspect ghcr.io/astral-sh/uv:0.13.9`.
+COPY --from=ghcr.io/astral-sh/uv:0.13.9@sha256:d3b601f0c7b118bc1753febf7c41cc80981df678445e0254284eecf84db79a7d /uv /usr/local/bin/uv
 
 WORKDIR /src
 COPY contracts /src/contracts

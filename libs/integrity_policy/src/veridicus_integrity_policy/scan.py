@@ -43,22 +43,43 @@ class ScanResult:
     excluded: list[str]
 
 
+def _dropped(part: str) -> bool:
+    """El carácter no cuenta para la forma plegada.
+
+    Los combinantes, las marcas no espaciadas (`Mn`, `Me`, aunque su clase combinante sea 0: U+034F,
+    U+FE00, U+FE0F, U+E0100, U+180B, U+17B4) y los caracteres de formato (`Cf`: U+00AD, U+200B a
+    U+200D, U+2060, U+FEFF) no se ven en la consola y no parten la palabra (UAX #29, WB4: `Extend`
+    y `Format`).
+    """
+    return bool(unicodedata.combining(part)) or unicodedata.category(part) in _IGNORED_CATEGORIES
+
+
 def _fold(text: str) -> tuple[str, list[int]]:
     """El texto sin mayúsculas ni tildes y, por cada carácter, su posición en el original."""
     chars: list[str] = []
     origin: list[int] = []
     for index, char in enumerate(text):
         for part in unicodedata.normalize("NFD", char):
-            # Los combinantes, las marcas no espaciadas (`Mn`, `Me`, aunque su clase combinante sea 0:
-            # U+034F, U+FE00, U+FE0F, U+E0100, U+180B, U+17B4) y los caracteres de formato (`Cf`:
-            # U+00AD, U+200B a U+200D, U+2060, U+FEFF) no se ven en la consola y no parten la
-            # palabra (UAX #29, WB4: `Extend` y `Format`).
-            if unicodedata.combining(part) or unicodedata.category(part) in _IGNORED_CATEGORIES:
+            if _dropped(part):
                 continue
             for folded in part.casefold():
                 chars.append(folded)
                 origin.append(index)
     return "".join(chars), origin
+
+
+def _span_end(text: str, last_letter: int) -> int:
+    """El final del tramo: después de la última letra y de las marcas descartadas que la siguen.
+
+    `engañó` escrito en NFD termina en `o` seguida de un combinante; el tramo informado (K-91) lleva
+    también esa marca, para que el término y su posición cubran lo que se ve escrito.
+    """
+    end = last_letter + 1
+    while end < len(text) and all(
+        _dropped(part) for part in unicodedata.normalize("NFD", text[end])
+    ):
+        end += 1
+    return end
 
 
 @cache
@@ -130,7 +151,7 @@ def scan_detailed(text: str, literal_sources: Sequence[str]) -> ScanResult:
     matches: list[Match] = []
     for found in pattern.finditer(folded):
         start = origin[found.start()]
-        end = origin[found.end() - 1] + 1
+        end = _span_end(text, origin[found.end() - 1])
         if any(start >= first and end <= last for first, last in skipped):
             continue
         term = _name(by_form[found.group()], text[start:end])

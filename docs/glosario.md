@@ -29,3 +29,21 @@ sección. Excepción: los campos del contrato común del TG conservan su nombre 
 | `safety_net` | red de seguridad de la detección: marca lo que las reglas no clasificaron (PD-2) |
 | `FakeTransport` | transporte HTTP falso para las pruebas y la demostración; captura la petición cruda y no abre red |
 | `coverage_gate` | compuerta de cobertura: 100 % de ramas en los módulos guardia y 80 % de líneas |
+
+## Analizador de incoherencias (U11)
+
+| Identificador | Término del PRD o significado |
+|---|---|
+| `AnalysisRun` | una corrida del analizador sobre una transcripción: de la validación previa a la salida C6 |
+| `JudgeCandidate` | candidato a hallazgo que propone el juez, con sus dos citas, antes de filtrarlo y verificarlo |
+| `DiscardRecord` | `Discard` en el código: registro de un candidato descartado (por ejemplo, cita alterada o en otro turno); no sale como hallazgo |
+| `Survivor` | candidato cuyas dos citas se verificaron en su turno y que pasa al verificador |
+| `FilterResult` | resultado del filtro determinista de citas: sobrevivientes y descartes |
+| `RunState` | estado de la corrida con su fase (`Phase`); `error` implica hallazgos vacíos |
+| `preflight` | validación previa a toda llamada: entrada, consentimiento y límites (F1) |
+| `EffectiveConfig` | configuración efectiva del perfil: límites, perfil y SHA-256 del *prompt* |
+| `ModelGateway` | puerto de llamadas a modelos; el adaptador `anonymizing` envía todo destino externo por el `Anonymizer` |
+| `same_family` | aviso del perfil de demostración: juez y verificador son de la misma familia, así que no sirve para medir |
+| `permuted_verifier` | segunda consulta al verificador con las dos citas permutadas |
+| `composition_root` | `cli/composition.py`, el único lugar que importa el anonimizador (PD-7) |
+| `coverage_gate` (U11) | compuerta de los cuatro paquetes: 100 % de ramas en 9 módulos guardia y 80 % de líneas por paquete |

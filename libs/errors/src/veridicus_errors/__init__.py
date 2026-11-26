@@ -583,3 +583,34 @@ class RunPublishFailedError(RunFamilyError):
     """`run.publish_failed`."""
 
     code: ClassVar[str] = "run.publish_failed"
+
+
+# --- Errores del analizador (U11, PD-5 / CG-U11-04) -----------------------------------------------
+# `InputRejected` no es una clase: BR1 rechaza con cuatro `code` que el catálogo ya tiene, cada uno con
+# su clase de un solo `code` (V-ERRORS), así que se agrupan en una tupla para `except InputRejected`.
+# Las otras tres tienen un `code` fijo. El texto de cada excepción es su `detail` en español.
+
+InputRejected: tuple[type[VeridicusError], ...] = (
+    ImportInvalidTranscriptError,
+    SessionConsentMissingError,
+    ProfileTransferNotAuthorizedError,
+    ProfileNotApprovedError,
+)
+
+
+class CancelledError(RunFamilyError):
+    """`run.cancelled`: la corrida se canceló y no devuelve salida (BR7.2)."""
+
+    code: ClassVar[str] = "run.cancelled"
+
+
+class GatewayConfigError(ConfigFamilyError):
+    """`config.invalid_gateway`: el gateway no se puede armar, por ejemplo un destino externo sin anonimizador."""
+
+    code: ClassVar[str] = "config.invalid_gateway"
+
+
+class CliInterruptedError(SystemFamilyError):
+    """`system.interrupted`: SIGINT o SIGTERM cortaron la CLI (NFRD-U11-10)."""
+
+    code: ClassVar[str] = "system.interrupted"

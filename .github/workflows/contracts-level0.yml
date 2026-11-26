@@ -65,6 +65,11 @@ jobs:
           uv run --frozen --offline --directory contracts python -m veridicus_contracts.tools.audit_gate
           build/pip-audit.json --ignore .pip-audit-ignore.yaml
 
+      # NFR2.1 deja la instalación fuera de los 60 s: aquí se sincroniza el entorno (sin red) y se compilan
+      # los .pyc de lo instalado, para que esa compilación no ocurra dentro del timeout del paso 4.
+      - name: Paso 3b - Sincronizar el entorno y compilar los .pyc (sin red, fuera del límite de 60 s)
+        run: uv sync --frozen --offline --compile-bytecode --directory contracts
+
       - name: Paso 4 - Suite Python (sin red, cobertura de líneas >= 80 %)
         run: timeout 60 uv run --frozen --offline --directory contracts pytest
 

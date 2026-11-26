@@ -266,7 +266,7 @@ def _catalogo() -> dict[str, dict[str, Any]]:
 
 
 def _c1() -> dict[str, Any]:
-    return copy.deepcopy(load_contract(CONSOLA))
+    return load_contract(CONSOLA)  # ya es una copia nueva (loaders._copia)
 
 
 def _respuestas(documento: dict[str, Any], nombre: str = CONSOLA, problem: bool = True) -> set[str]:

@@ -82,3 +82,9 @@ def pytest_sessionstart(session: pytest.Session) -> None:
 def contracts_root() -> Path:
     """Raíz del árbol contracts/."""
     return CONTRACTS_ROOT
+
+
+@pytest.fixture(scope="session")
+def cache_de_mypy(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Caché de mypy compartida por toda la sesión: los módulos de la biblioteca estándar se analizan una vez."""
+    return tmp_path_factory.mktemp("cache-mypy")

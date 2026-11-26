@@ -47,11 +47,6 @@ usar(SinGenerate())
 """
 
 
-@pytest.fixture(scope="module")
-def cache_de_mypy(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    return tmp_path_factory.mktemp("cache-mypy")
-
-
 def _mypy(tmp_path: Path, cache: Path, contracts_root: Path, fuente: str) -> tuple[str, int]:
     """Pasa `fuente` por mypy estricto con `src/` en la ruta de módulos; devuelve (salida, código)."""
     importar_o_fallar("veridicus_contracts.model_calls", "T08")

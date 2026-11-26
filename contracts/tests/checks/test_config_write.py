@@ -21,7 +21,7 @@ def guardia() -> ModuleType:
 
 
 def _c1() -> dict[str, Any]:
-    return copy.deepcopy(load_contract("api/console.v2.yaml"))
+    return load_contract("api/console.v2.yaml")  # ya es una copia nueva (loaders._copia)
 
 
 def _cuerpo(**propiedades: Any) -> dict[str, Any]:

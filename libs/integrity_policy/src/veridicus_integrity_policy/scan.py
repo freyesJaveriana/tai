@@ -10,11 +10,12 @@ entero (BR9.2).
 
 import re
 import unicodedata
-from collections.abc import Sequence
+from bisect import bisect_right
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 from importlib.resources import files
-from typing import Any
+from typing import Any, Literal
 
 from veridicus_contracts.loaders import load_file
 
@@ -23,7 +24,15 @@ from veridicus_integrity_policy import notice
 _QUOTED = re.compile("«([^«»]*)»")
 _NOT_WORD_EDGES = re.compile(r"^\W+|\W+$")
 _WHITESPACE = re.compile(r"\s+")
-_IGNORED_CATEGORIES = frozenset({"Cf", "Mn", "Me"})
+# Los valores de `match.fold` que este escáner sabe aplicar (C8 2.1.0). Cualquier otro valor es un
+# C8 que el escáner no entiende y la carga falla.
+_NORMALIZATION: Literal["NFKD"] = "NFKD"
+_CASE = "casefold"
+_MAX_CODE_POINT = 0x10FFFF
+_GENERAL_CATEGORIES = frozenset(
+    {"Lu", "Ll", "Lt", "Lm", "Lo", "Mn", "Mc", "Me", "Nd", "Nl", "No", "Pc", "Pd", "Ps", "Pe"}
+    | {"Pi", "Pf", "Po", "Sm", "Sc", "Sk", "So", "Zs", "Zl", "Zp", "Cc", "Cf", "Cs", "Co", "Cn"}
+)
 
 
 @dataclass(frozen=True)
@@ -43,23 +52,109 @@ class ScanResult:
     excluded: list[str]
 
 
+@dataclass(frozen=True)
+class _Fold:
+    """El plegado que declara C8 en `match.fold`: qué se descarta, ya listo para consultar."""
+
+    categories: frozenset[str]
+    starts: tuple[int, ...]
+    ends: tuple[int, ...]
+
+    def covers(self, code_point: int) -> bool:
+        """El punto de código está en alguno de los rangos cerrados (búsqueda binaria)."""
+        index = bisect_right(self.starts, code_point) - 1
+        return index >= 0 and code_point <= self.ends[index]
+
+
+def _fold_error(problem: str) -> ValueError:
+    return ValueError(f"C8: match.fold {problem}")
+
+
+def _is_int(value: object) -> bool:
+    return type(value) is int
+
+
+@cache
+def _c8() -> Any:
+    """El documento de C8, leído una sola vez del archivo versionado."""
+    return load_file(files("veridicus_contracts") / "integrity" / "forbidden-vocabulary.v2.yaml")
+
+
+def _read_fold(document: Any) -> _Fold:
+    """Lee `match.fold` de C8. Falla cerrado con `ValueError` si falta o trae un valor desconocido.
+
+    Nunca vuelve en silencio a un pliegue anterior: un escáner que plegara distinto de C8 dejaría
+    pasar lo que la consola ve (AUTONOMIA-03).
+    """
+    match = document.get("match") if isinstance(document, Mapping) else None
+    fold = match.get("fold") if isinstance(match, Mapping) else None
+    if not isinstance(fold, Mapping):
+        raise _fold_error("falta o no es un objeto")
+    if fold.get("normalization") != _NORMALIZATION:
+        raise _fold_error(f"normalization desconocida (se espera {_NORMALIZATION})")
+    if fold.get("case") != _CASE:
+        raise _fold_error(f"case desconocido (se espera {_CASE})")
+    categories = fold.get("dropped_categories")
+    if (
+        not isinstance(categories, list)
+        or not categories
+        or not all(isinstance(c, str) and c in _GENERAL_CATEGORIES for c in categories)
+    ):
+        raise _fold_error(
+            "dropped_categories debe ser una lista de categorías generales de Unicode"
+        )
+    ranges = fold.get("dropped_code_points")
+    if not isinstance(ranges, list) or not ranges:
+        raise _fold_error("dropped_code_points debe ser una lista de rangos [inicio, fin]")
+    previous_end = -1
+    for item in ranges:
+        if not (isinstance(item, list) and len(item) == 2 and all(_is_int(n) for n in item)):
+            raise _fold_error("dropped_code_points trae un rango que no es [inicio, fin] entero")
+        start, end = item
+        if not previous_end < start <= end <= _MAX_CODE_POINT:
+            raise _fold_error(
+                "dropped_code_points trae un rango invertido, solapado o fuera de rango"
+            )
+        previous_end = end
+    return _Fold(
+        categories=frozenset(categories),
+        starts=tuple(item[0] for item in ranges),
+        ends=tuple(item[1] for item in ranges),
+    )
+
+
+@cache
+def _rules() -> _Fold:
+    """El plegado de C8, leído y comprobado una sola vez."""
+    return _read_fold(_c8())
+
+
 def _dropped(part: str) -> bool:
     """El carácter no cuenta para la forma plegada.
 
-    Los combinantes, las marcas no espaciadas (`Mn`, `Me`, aunque su clase combinante sea 0: U+034F,
-    U+FE00, U+FE0F, U+E0100, U+180B, U+17B4) y los caracteres de formato (`Cf`: U+00AD, U+200B a
-    U+200D, U+2060, U+FEFF) no se ven en la consola y no parten la palabra (UAX #29, WB4: `Extend`
-    y `Format`).
+    Se descarta lo que C8 manda en `match.fold`: los combinantes (clase combinante distinta de 0),
+    las categorías de `dropped_categories` (`Mn`, `Me`, `Cf`) y los rangos de
+    `dropped_code_points` (Default_Ignorable_Code_Point: rellenos Hangul y `Cn` sin asignar
+    incluidos). No se ven en la consola y no parten la palabra (UAX #29, WB4: `Extend` y `Format`).
     """
-    return bool(unicodedata.combining(part)) or unicodedata.category(part) in _IGNORED_CATEGORIES
+    rules = _rules()
+    return (
+        bool(unicodedata.combining(part))
+        or unicodedata.category(part) in rules.categories
+        or rules.covers(ord(part))
+    )
 
 
 def _fold(text: str) -> tuple[str, list[int]]:
-    """El texto sin mayúsculas ni tildes y, por cada carácter, su posición en el original."""
+    """El texto plegado y, por cada carácter, su posición en el original.
+
+    Por carácter y en el orden de C8: descomposición de compatibilidad (NFKD), descarte y plegado de
+    mayúsculas (`casefold`). `ｆａｌｓｏ` (ancho completo) y las letras matemáticas pasan a ASCII.
+    """
     chars: list[str] = []
     origin: list[int] = []
     for index, char in enumerate(text):
-        for part in unicodedata.normalize("NFD", char):
+        for part in unicodedata.normalize(_NORMALIZATION, char):
             if _dropped(part):
                 continue
             for folded in part.casefold():
@@ -76,7 +171,7 @@ def _span_end(text: str, last_letter: int) -> int:
     """
     end = last_letter + 1
     while end < len(text) and all(
-        _dropped(part) for part in unicodedata.normalize("NFD", text[end])
+        _dropped(part) for part in unicodedata.normalize(_NORMALIZATION, text[end])
     ):
         end += 1
     return end
@@ -85,9 +180,8 @@ def _span_end(text: str, last_letter: int) -> int:
 @cache
 def _vocabulary() -> tuple[re.Pattern[str], dict[str, list[str]]]:
     """El patrón de palabra completa de C8 y los términos de la lista que cada forma plegada nombra."""
-    document: Any = load_file(
-        files("veridicus_contracts") / "integrity" / "forbidden-vocabulary.v2.yaml"
-    )
+    document = _c8()
+    _rules()
     by_form: dict[str, list[str]] = {}
     for term in document["terms"]:
         by_form.setdefault(_fold(term)[0], []).append(str(term))

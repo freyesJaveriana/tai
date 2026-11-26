@@ -20,6 +20,7 @@ from collections import Counter
 from collections.abc import Iterator, Mapping
 from collections.abc import Set as AbstractSet
 from functools import lru_cache
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -106,6 +107,36 @@ COINCIDENCIA: dict[str, bool | tuple[str, ...]] = {
         "aviso.text",
     ),
 }
+VERSION_DE_C8 = "2.1.0"
+MAXIMO_UNICODE = 0x10FFFF
+# Plegado del texto que escanean U11 y U8 (K-89, K-91): `match.fold`. Los rangos son los
+# Default_Ignorable_Code_Point de Unicode 15.0/16.0, cerrados y ordenados; incluyen los 4 rellenos
+# Hangul (`Lo`) y los 3769 `Cn` sin asignar del grupo.
+RANGOS_DE_PLEGADO: tuple[tuple[int, int], ...] = (
+    (0x00AD, 0x00AD),
+    (0x034F, 0x034F),
+    (0x061C, 0x061C),
+    (0x115F, 0x1160),
+    (0x17B4, 0x17B5),
+    (0x180B, 0x180F),
+    (0x200B, 0x200F),
+    (0x202A, 0x202E),
+    (0x2060, 0x206F),
+    (0x3164, 0x3164),
+    (0xFE00, 0xFE0F),
+    (0xFEFF, 0xFEFF),
+    (0xFFA0, 0xFFA0),
+    (0xFFF0, 0xFFF8),
+    (0x1BCA0, 0x1BCA3),
+    (0x1D173, 0x1D17A),
+    (0xE0000, 0xE0FFF),
+)
+PLEGADO: dict[str, str | tuple[str, ...]] = {
+    "normalization": "NFKD",
+    "case": "casefold",
+    "dropped_categories": ("Mn", "Me", "Cf"),
+}
+CLAVES_DE_PLEGADO = frozenset({*PLEGADO, "dropped_code_points"})
 CLAVES_DE_C8 = frozenset(
     {"schema_version", "match", "terms", "categories_forbidden_in_schemas", "scanned"}
 )
@@ -190,9 +221,11 @@ def _cuentas(esperado: tuple[str, ...], valor: list[str]) -> tuple[int, int]:
     return faltan, sobran
 
 
-def _igual(valor: Any, esperado: bool | tuple[str, ...]) -> bool:
+def _igual(valor: Any, esperado: bool | str | tuple[str, ...]) -> bool:
     if isinstance(esperado, bool):
         return valor is esperado
+    if isinstance(esperado, str):
+        return isinstance(valor, str) and valor == esperado
     return isinstance(valor, list) and valor == list(esperado)
 
 
@@ -206,8 +239,8 @@ def problemas_de_vocabulario(c8: Any) -> list[str]:
     problemas: list[str] = []
     if set(c8) != CLAVES_DE_C8:
         problemas.append("C8: las claves de primer nivel no son las aprobadas")
-    if c8.get("schema_version") != "2.0.1":
-        problemas.append("C8: schema_version debe ser 2.0.1")
+    if c8.get("schema_version") != VERSION_DE_C8:
+        problemas.append(f"C8: schema_version debe ser {VERSION_DE_C8}")
     problemas += _problemas_de_coincidencia(c8.get("match"))
     problemas += _problemas_de_lista(c8.get("terms"), TERMINOS, "terms", "la lista de términos")
     problemas += _problemas_de_lista(
@@ -229,8 +262,52 @@ def _problemas_de_coincidencia(match: Any) -> list[str]:
         for clave, esperado in COINCIDENCIA.items()
         if not _igual(match.get(clave), esperado)
     ]
-    if set(match) - set(COINCIDENCIA):
+    if set(match) - set(COINCIDENCIA) - {"fold"}:
         problemas.append("C8: match trae claves no aprobadas")
+    return problemas + _problemas_de_plegado(match.get("fold"))
+
+
+def _problemas_de_plegado(fold: Any) -> list[str]:
+    """`match.fold` (K-89, K-91): valores aprobados y forma de los rangos, un problema por subcampo."""
+    if not isinstance(fold, Mapping):
+        return ["C8: match.fold no es el aprobado"]
+    problemas: list[str] = []
+    if set(fold) - CLAVES_DE_PLEGADO:
+        problemas.append("C8: match.fold trae claves no aprobadas")
+    problemas += [
+        f"C8: match.fold.{clave} no es el aprobado"
+        for clave, esperado in PLEGADO.items()
+        if not _igual(fold.get(clave), esperado)
+    ]
+    rangos: Any = fold.get("dropped_code_points")
+    de_forma = _problemas_de_rangos(rangos)
+    if de_forma:
+        return problemas + de_forma
+    if [tuple(rango) for rango in rangos] != list(RANGOS_DE_PLEGADO):
+        problemas.append("C8: match.fold.dropped_code_points no es el aprobado")
+    return problemas
+
+
+def _problemas_de_rangos(rangos: Any) -> list[str]:
+    """Forma de `dropped_code_points`: rangos `[inicio, fin]` enteros, ordenados y sin solaparse."""
+    clave = "C8: match.fold.dropped_code_points"
+    if not isinstance(rangos, list) or not rangos:
+        return [f"{clave} debe ser una lista no vacía de rangos [inicio, fin]"]
+    if not all(isinstance(r, list) and len(r) == 2 for r in rangos):
+        return [f"{clave}: cada rango debe ser [inicio, fin]"]
+    if not all(type(extremo) is int for rango in rangos for extremo in rango):
+        return [f"{clave}: los extremos de cada rango deben ser enteros"]
+    problemas: list[str] = []
+    for inicio, fin in rangos:
+        if inicio > fin:
+            problemas.append(f"{clave}: rango invertido [{inicio}, {fin}]")
+        elif inicio < 0 or fin > MAXIMO_UNICODE:
+            problemas.append(f"{clave}: rango [{inicio}, {fin}] fuera de 0 a 0x10FFFF")
+    for anterior, actual in pairwise(rangos):
+        if actual[0] < anterior[0]:
+            problemas.append(f"{clave}: los rangos no están ordenados")
+        elif actual[0] <= anterior[1]:
+            problemas.append(f"{clave}: el rango {actual} se solapa con {anterior}")
     return problemas
 
 

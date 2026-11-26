@@ -326,6 +326,32 @@ def test_the_versioned_c8_declares_the_fold_the_oracle_expects() -> None:
         pytest.param(lambda d: d["match"]["fold"].pop("case"), id="sin-case"),
         pytest.param(lambda d: d["match"]["fold"].pop("dropped_code_points"), id="sin-rangos"),
         pytest.param(lambda d: d["match"]["fold"].pop("dropped_categories"), id="sin-categorias"),
+        pytest.param(lambda d: d["match"]["fold"].update(dropped_categories=["Xx"]), id="cat-xx"),
+        pytest.param(lambda d: d["match"]["fold"].update(dropped_categories=[]), id="cat-vacia"),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[]), id="rangos-vacio"
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[5]]), id="un-extremo"
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[["a", 5]]), id="texto"
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[9, 5]]), id="invertido"
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[1, 5], [5, 9]]), id="solapado"
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[10, 12], [1, 5]]),
+            id="desordenado",
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x10FFFE, 0x110000]]),
+            id="fuera-de-unicode",
+        ),
+        pytest.param(lambda d: d.update(match=None), id="match-nulo"),
     ],
 )
 def test_a_c8_without_a_known_fold_fails_closed_at_load(

@@ -70,3 +70,33 @@ export const QUOTE_DELIMITERS = [
   "«",
   "»",
 ] as const;
+
+export const FOLD_NORMALIZATION = "NFKD" as const;
+
+export const FOLD_CASE = "casefold" as const;
+
+export const FOLD_DROPPED_CATEGORIES = [
+  "Mn",
+  "Me",
+  "Cf",
+] as const;
+
+export const FOLD_DROPPED_CODE_POINTS = [
+  [173, 173],
+  [847, 847],
+  [1564, 1564],
+  [4447, 4448],
+  [6068, 6069],
+  [6155, 6159],
+  [8203, 8207],
+  [8234, 8238],
+  [8288, 8303],
+  [12644, 12644],
+  [65024, 65039],
+  [65279, 65279],
+  [65440, 65440],
+  [65520, 65528],
+  [113824, 113827],
+  [119155, 119162],
+  [917504, 921599],
+] as const;

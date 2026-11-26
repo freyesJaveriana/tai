@@ -9,6 +9,7 @@ nunca texto del documento revisado: una prueba lo comprueba con una cadena canar
 
 import json
 import shutil
+import unicodedata
 from pathlib import Path
 from typing import Any
 
@@ -119,7 +120,7 @@ def test_c8_versionado_tiene_los_nueve_terminos_y_las_cinco_categorias() -> None
     c8 = load_contract(C8)
     assert c8["terms"] == TERMINOS_APROBADOS
     assert c8["categories_forbidden_in_schemas"] == CATEGORIAS_APROBADAS
-    assert c8["schema_version"] == "2.0.1"
+    assert c8["schema_version"] == "2.1.0"
 
 
 def test_c8_versionado_fija_la_coincidencia_y_las_exclusiones() -> None:
@@ -360,7 +361,7 @@ def test_c8_con_scanned_o_version_o_claves_distintas() -> None:
     assert problemas_de_vocabulario(c8) == ["C8: scanned no es el aprobado"]
     c8 = _vocabulario()
     c8["schema_version"] = "1.0.0"
-    assert problemas_de_vocabulario(c8) == ["C8: schema_version debe ser 2.0.1"]
+    assert problemas_de_vocabulario(c8) == ["C8: schema_version debe ser 2.1.0"]
     c8 = _vocabulario()
     c8["extra"] = 1
     assert problemas_de_vocabulario(c8) == ["C8: las claves de primer nivel no son las aprobadas"]
@@ -376,12 +377,217 @@ def test_c8_que_no_es_un_objeto() -> None:
     assert problemas_de_vocabulario(["mentiroso"]) == ["C8: no es un objeto"]
 
 
-@pytest.mark.parametrize("version", ["2.0.0", "2.0.2", "2.1.0", "3.0.1", "2.0", "", 2, None])
-def test_c8_solo_acepta_la_version_2_0_1(version: Any) -> None:
-    """K-86, caso sonda 7: la corrección de las rutas sube C8 a 2.0.1 (BR1.1, BR1.5)."""
+@pytest.mark.parametrize(
+    "version", ["2.0.0", "2.0.1", "2.1.1", "2.2.0", "3.1.0", "2.1", "", 2, None]
+)
+def test_c8_solo_acepta_la_version_2_1_0(version: Any) -> None:
+    """K-89, caso sonda 9: el campo `match.fold` sube C8 de 2.0.1 a 2.1.0 (BR1.3, BR1.5)."""
     c8 = _vocabulario()
     c8["schema_version"] = version
-    assert problemas_de_vocabulario(c8) == ["C8: schema_version debe ser 2.0.1"]
+    assert problemas_de_vocabulario(c8) == ["C8: schema_version debe ser 2.1.0"]
+
+
+# ---------------------------------------------------------------- plegado de C8 (K-89, K-91)
+
+# Default_Ignorable_Code_Point (Unicode 15.0/16.0), en rangos cerrados: la lista que propone la tarea.
+RANGOS_DESCARTADOS = [
+    [0x00AD, 0x00AD],
+    [0x034F, 0x034F],
+    [0x061C, 0x061C],
+    [0x115F, 0x1160],
+    [0x17B4, 0x17B5],
+    [0x180B, 0x180F],
+    [0x200B, 0x200F],
+    [0x202A, 0x202E],
+    [0x2060, 0x206F],
+    [0x3164, 0x3164],
+    [0xFE00, 0xFE0F],
+    [0xFEFF, 0xFEFF],
+    [0xFFA0, 0xFFA0],
+    [0xFFF0, 0xFFF8],
+    [0x1BCA0, 0x1BCA3],
+    [0x1D173, 0x1D17A],
+    [0xE0000, 0xE0FFF],
+]
+
+
+def _puntos(rangos: list[list[int]]) -> list[int]:
+    return [punto for inicio, fin in rangos for punto in range(inicio, fin + 1)]
+
+
+def _problemas_de_plegado(c8: Any) -> list[str]:
+    return [p for p in problemas_de_vocabulario(c8) if "fold" in p]
+
+
+def test_c8_versionado_declara_el_plegado() -> None:
+    """Caso sonda 9: el plegado vive en C8 (`match.fold`) y no en el código del escáner."""
+    fold = load_contract(C8)["match"]["fold"]
+    assert fold["normalization"] == "NFKD"
+    assert fold["case"] == "casefold"
+    assert fold["dropped_categories"] == ["Mn", "Me", "Cf"]
+    assert fold["dropped_code_points"] == RANGOS_DESCARTADOS
+
+
+def test_la_lista_de_rangos_trae_4_rellenos_hangul_y_3769_cn() -> None:
+    """Caso sonda 4 y K-91: las cifras de la lista salen de `unicodedata`, no del texto de la tarea."""
+    puntos = _puntos(RANGOS_DESCARTADOS)
+    categorias = [unicodedata.category(chr(punto)) for punto in puntos]
+    assert len(puntos) == len(set(puntos)) == 4174
+    assert [hex(p) for p, c in zip(puntos, categorias, strict=True) if c == "Lo"] == [
+        "0x115f",
+        "0x1160",
+        "0x3164",
+        "0xffa0",
+    ]
+    assert categorias.count("Cn") == 3769
+
+
+def _con_fold() -> dict[str, Any]:
+    """C8 en la forma 2.1.0, armado con las constantes de esta prueba y no con el archivo versionado."""
+    c8 = _vocabulario()
+    c8["schema_version"] = "2.1.0"
+    c8["match"]["fold"] = {
+        "normalization": "NFKD",
+        "case": "casefold",
+        "dropped_categories": ["Mn", "Me", "Cf"],
+        "dropped_code_points": [list(rango) for rango in RANGOS_DESCARTADOS],
+    }
+    return c8
+
+
+def test_c8_con_el_plegado_aprobado_pasa_entero() -> None:
+    assert problemas_de_vocabulario(_con_fold()) == []
+
+
+def test_c8_versionado_pasa_entero_con_plegado() -> None:
+    assert problemas_de_vocabulario(_vocabulario()) == []
+    assert "fold" in _vocabulario()["match"]
+
+
+def test_c8_sin_fold_se_nombra() -> None:
+    """Caso sonda 5: C8 sin `fold` falla cerrado y el problema nombra el campo."""
+    c8 = _con_fold()
+    del c8["match"]["fold"]
+    problemas = _problemas_de_plegado(c8)
+    assert problemas
+    assert all(problema.startswith("C8: match.fold") for problema in problemas)
+    assert problemas == [p for p in problemas_de_vocabulario(c8) if p.startswith("C8: match")]
+
+
+@pytest.mark.parametrize("valor", [None, [], "NFKD", 3, {}])
+def test_c8_con_un_fold_que_no_es_el_aprobado_se_nombra(valor: Any) -> None:
+    c8 = _con_fold()
+    c8["match"]["fold"] = valor
+    problemas = _problemas_de_plegado(c8)
+    assert problemas
+    assert all(problema.startswith("C8: match.fold") for problema in problemas)
+
+
+@pytest.mark.parametrize(
+    ("clave", "valor"),
+    [
+        ("normalization", "NFC"),
+        ("normalization", "NFD"),
+        ("normalization", "NFKC"),
+        ("normalization", None),
+        ("case", "lower"),
+        ("case", "upper"),
+        ("case", None),
+        ("dropped_categories", ["Mn", "Me"]),
+        ("dropped_categories", ["Mn", "Me", "Cf", "Cn"]),
+        ("dropped_categories", "Mn"),
+    ],
+)
+def test_c8_con_un_valor_de_fold_distinto_nombra_el_subcampo(clave: str, valor: Any) -> None:
+    c8 = _con_fold()
+    c8["match"]["fold"][clave] = valor
+    problemas = _problemas_de_plegado(c8)
+    assert problemas
+    assert all(f"match.fold.{clave}" in problema for problema in problemas)
+
+
+@pytest.mark.parametrize(
+    "clave", ["normalization", "case", "dropped_categories", "dropped_code_points"]
+)
+def test_c8_con_un_fold_al_que_le_falta_un_subcampo_lo_nombra(clave: str) -> None:
+    c8 = _con_fold()
+    del c8["match"]["fold"][clave]
+    problemas = _problemas_de_plegado(c8)
+    assert problemas
+    assert all(f"match.fold.{clave}" in problema for problema in problemas)
+
+
+def test_c8_con_un_fold_con_claves_de_mas_se_nombra() -> None:
+    c8 = _con_fold()
+    c8["match"]["fold"]["extra"] = 1
+    problemas = _problemas_de_plegado(c8)
+    assert problemas
+    assert all("match.fold" in problema for problema in problemas)
+
+
+@pytest.mark.parametrize(
+    ("rangos", "palabra"),
+    [
+        pytest.param([[0x2060, 0x200B]], "invertido", id="invertido"),
+        pytest.param([[0x200B, 0x200F], [0x200F, 0x2010]], "solapa", id="solapado-en-un-punto"),
+        pytest.param([[0x2060, 0x206F], [0x2065, 0x2066]], "solapa", id="contenido-en-otro"),
+        pytest.param([[0x2060, 0x206F], [0x200B, 0x200F]], "ordenado", id="desordenado"),
+        pytest.param([[0x10FFFE, 0x110000]], "0x10FFFF", id="fuera-de-unicode"),
+        pytest.param([[-1, 5]], "0x10FFFF", id="negativo"),
+        pytest.param([[0x2060]], "[inicio, fin]", id="un-solo-extremo"),
+        pytest.param([[0x2060, 0x2061, 0x2062]], "[inicio, fin]", id="tres-extremos"),
+        pytest.param([["0x2060", "0x206F"]], "entero", id="cadenas"),
+        pytest.param([[True, 5]], "entero", id="booleano"),
+        pytest.param([[1.5, 5]], "entero", id="decimal"),
+        pytest.param([0x2060], "[inicio, fin]", id="no-es-par"),
+        pytest.param("0x2060-0x206F", "[inicio, fin]", id="no-es-lista"),
+        pytest.param([], "[inicio, fin]", id="vacio"),
+        pytest.param(None, "[inicio, fin]", id="nulo"),
+    ],
+)
+def test_c8_con_rangos_mal_formados_dan_un_mensaje_de_forma(rangos: Any, palabra: str) -> None:
+    """Caso sonda 5 (F-03): la comprobación de forma habla por sí sola.
+
+    Además del mensaje de «no es el aprobado», cada caso trae un problema propio de forma, con la
+    palabra que lo describe (convención de esta tarea: «invertido», «solapa», «ordenado»,
+    «0x10FFFF», «entero» y «[inicio, fin]»). Una comparación con la lista aprobada no lo da.
+    """
+    c8 = _con_fold()
+    c8["match"]["fold"]["dropped_code_points"] = rangos
+    problemas = _problemas_de_plegado(c8)
+    assert problemas
+    de_forma = [
+        problema
+        for problema in problemas
+        if "match.fold.dropped_code_points" in problema and "no es el aprobado" not in problema
+    ]
+    assert any(palabra.lower() in problema.lower() for problema in de_forma), problemas
+
+
+def test_c8_con_un_rango_valido_pero_que_no_es_el_aprobado_se_nombra() -> None:
+    """La forma correcta no basta: quitar un rango (o ampliarlo) reduciría lo que el escáner ve."""
+    for cambiado in (RANGOS_DESCARTADOS[:-1], [*RANGOS_DESCARTADOS, [0xE1000, 0xE1000]]):
+        c8 = _con_fold()
+        c8["match"]["fold"]["dropped_code_points"] = cambiado
+        problemas = _problemas_de_plegado(c8)
+        assert problemas
+        assert all("match.fold.dropped_code_points" in problema for problema in problemas)
+
+
+def test_el_resto_de_match_no_cambia() -> None:
+    """Fuera de alcance: `fold` se suma a `match` sin tocar las demás claves."""
+    c8 = _vocabulario()
+    assert set(c8["match"]) == {
+        "whole_word",
+        "case_insensitive",
+        "accent_insensitive",
+        "excluded_spans",
+        "quote_delimiters",
+        "quote_fields",
+        "scan_bare_term_spans",
+        "excluded_whole_texts",
+        "fold",
+    }
 
 
 # ---------------------------------------------------------------- rutas de C8 contra C6 (K-86)

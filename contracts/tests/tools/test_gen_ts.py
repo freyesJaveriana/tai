@@ -1,6 +1,7 @@
 """Constantes TypeScript generadas en `contracts/ts/generated/` (D9, §4.14, U01-T19)."""
 
 import json
+import re
 import shutil
 from pathlib import Path
 from types import ModuleType
@@ -72,6 +73,38 @@ def test_las_constantes_traen_el_contenido_de_sus_fuentes(contracts_root: Path) 
     for metodo, ruta in auth_surface.PUBLICAS:
         assert json.dumps(ruta) in superficie
         assert json.dumps(metodo) in superficie
+
+
+def _bloque(texto: str, nombre: str) -> str:
+    """El cuerpo de `export const <nombre> = ...;` hasta el cierre `as const`."""
+    inicio = texto.index(f"export const {nombre}")
+    return texto[inicio : texto.index("as const", inicio)]
+
+
+def _enteros(bloque: str) -> list[int]:
+    """Los enteros de un bloque, en decimal o en hexadecimal `0x…`, en el orden en que aparecen."""
+    cuerpo = bloque.split("=", 1)[1]
+    return [int(numero, 0) for numero in re.findall(r"0[xX][0-9A-Fa-f]+|[0-9]+", cuerpo)]
+
+
+def test_el_plegado_de_c8_se_exporta_a_typescript(contracts_root: Path) -> None:
+    """Caso sonda 9 (K-89): la consola (U8) lee el plegado de aquí y no lo tiene escrito en su código."""
+    fold = load_contract("integrity/forbidden-vocabulary.v2.yaml")["match"]["fold"]
+    texto = herramienta().generar(contracts_root)["forbidden-vocabulary.ts"].decode("utf-8")
+
+    assert re.search(r'export const FOLD_NORMALIZATION\s*=\s*"NFKD"\s*as const', texto)
+    categorias = _bloque(texto, "FOLD_DROPPED_CATEGORIES")
+    assert re.findall(r'"([A-Z][a-z])"', categorias) == fold["dropped_categories"]
+    rangos = _enteros(_bloque(texto, "FOLD_DROPPED_CODE_POINTS"))
+    assert rangos == [punto for rango in fold["dropped_code_points"] for punto in rango]
+    assert len(rangos) == 2 * 17
+
+
+def test_el_typescript_versionado_trae_el_plegado() -> None:
+    """La deriva: el archivo que se publica, no solo lo que la herramienta generaría."""
+    texto = (ruta_de(CARPETA) / "forbidden-vocabulary.ts").read_text(encoding="utf-8")
+    assert "FOLD_NORMALIZATION" in texto
+    assert "FOLD_DROPPED_CODE_POINTS" in texto
 
 
 def test_check_sale_con_uno_si_un_archivo_cambia_o_falta(

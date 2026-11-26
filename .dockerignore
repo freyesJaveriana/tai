@@ -1,0 +1,17 @@
+*
+!contracts
+!libs
+!deploy
+.env
+**/.env
+**/tests
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.coverage
+resultados-locales
+**/resultados-locales
+coverage.json
+**/coverage.json

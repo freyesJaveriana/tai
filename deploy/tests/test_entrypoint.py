@@ -77,9 +77,7 @@ def _salida(estado: str = "ok", hallazgos: list[dict[str, Any]] | None = None) -
     return {"estado": estado, "hallazgos": hallazgos or []}
 
 
-def _hallazgo(
-    quote_a: str = QUOTE_A, quote_b: str = QUOTE_B, hecho: str = HECHO
-) -> dict[str, Any]:
+def _hallazgo(quote_a: str = QUOTE_A, quote_b: str = QUOTE_B, hecho: str = HECHO) -> dict[str, Any]:
     return {
         "id": "X-C01",
         "hecho": hecho,

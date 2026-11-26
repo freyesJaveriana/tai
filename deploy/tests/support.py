@@ -23,7 +23,9 @@ QUOTE_A = (
     "Por la mañana subí al pueblo de San Isidro a vender queso y regresé a la finca "
     "a las cuatro de la tarde."
 )
-QUOTE_B = "Yo nunca bajé a la finca ese día, pasé toda la jornada en San Isidro hasta que oscureció."
+QUOTE_B = (
+    "Yo nunca bajé a la finca ese día, pasé toda la jornada en San Isidro hasta que oscureció."
+)
 HECHO = "Dónde estuvo la compareciente durante la tarde de la crecida"
 
 
@@ -65,7 +67,9 @@ def recorded(payload: object) -> FakeResponse:
     return FakeResponse.ok_json(anthropic_envelope(payload))
 
 
-def finding(a: tuple[int, str] = (4, QUOTE_A), b: tuple[int, str] = (10, QUOTE_B)) -> dict[str, Any]:
+def finding(
+    a: tuple[int, str] = (4, QUOTE_A), b: tuple[int, str] = (10, QUOTE_B)
+) -> dict[str, Any]:
     """Un candidato del juez con la forma del esquema local."""
     return {
         "hecho": HECHO,

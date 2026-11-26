@@ -26,8 +26,9 @@ def guardia() -> ModuleType:
 
 
 def _estado(guardia: ModuleType) -> tuple[dict[str, Any], dict[str, Any]]:
-    catalogo = copy.deepcopy(load_contract("limits.v1.yaml"))["limits"]
-    documentos = {r: copy.deepcopy(load_contract(r)) for r in guardia.ARCHIVOS}
+    # `load_contract` ya entrega una copia nueva en cada llamada (loaders._copia): no se copia dos veces.
+    catalogo = load_contract("limits.v1.yaml")["limits"]
+    documentos = {r: load_contract(r) for r in guardia.ARCHIVOS}
     return catalogo, documentos
 
 

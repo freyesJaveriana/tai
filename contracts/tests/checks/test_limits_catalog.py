@@ -4,7 +4,6 @@ Los controles negativos trabajan sobre copias en memoria o en `tmp_path`; nunca 
 catálogo versionado.
 """
 
-import copy
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -20,7 +19,7 @@ def _guardia() -> ModuleType:
 
 
 def _doc() -> dict[str, Any]:
-    return copy.deepcopy(load_contract(CATALOGO))
+    return load_contract(CATALOGO)  # ya es una copia nueva (loaders._copia)
 
 
 def _problemas(doc: Any) -> list[str]:

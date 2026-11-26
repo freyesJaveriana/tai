@@ -22,7 +22,7 @@ def guardia() -> ModuleType:
 
 
 def _copia(relativa: str) -> Any:
-    return copy.deepcopy(load_contract(relativa))
+    return load_contract(relativa)  # ya es una copia nueva (loaders._copia)
 
 
 def _nuevos(comprobar: Callable[[Any], list[str]], original: Any, cambiado: Any) -> list[str]:

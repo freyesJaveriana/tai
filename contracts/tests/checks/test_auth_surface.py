@@ -5,7 +5,6 @@ con el original: lo que la guardia añade a lo que ya decía del contrato versio
 hallazgo que provoca la prueba. El control positivo corre sobre el contrato real.
 """
 
-import copy
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -24,7 +23,7 @@ def guardia() -> ModuleType:
 
 
 def _c1() -> dict[str, Any]:
-    return copy.deepcopy(load_contract("api/console.v2.yaml"))
+    return load_contract("api/console.v2.yaml")  # ya es una copia nueva (loaders._copia)
 
 
 def _nuevos(guardia: ModuleType, documento: dict[str, Any]) -> list[str]:

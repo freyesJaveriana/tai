@@ -19,6 +19,7 @@ import unicodedata
 from collections import Counter
 from collections.abc import Iterator, Mapping
 from collections.abc import Set as AbstractSet
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -330,13 +331,16 @@ def problemas_de_aclaracion(documento: Any) -> list[str]:
 def _recorrer(nodo: Any, clave: str | None = None) -> Iterator[tuple[str | None, Any]]:
     """Recorre un documento en profundidad: (clave del padre, valor). Los elementos de una lista
     conservan la clave de la lista (p. ej. `enum`)."""
-    yield clave, nodo
-    if isinstance(nodo, dict):
-        for hija, valor in nodo.items():
-            yield from _recorrer(valor, hija)
-    elif isinstance(nodo, list):
-        for valor in nodo:
-            yield from _recorrer(valor, clave)
+    # Iterativo y en preorden, el mismo orden que el recorrido recursivo: un generador por nivel cuesta
+    # mucho más que una pila (el recorrido corre por cada contrato en cada consulta).
+    pila: list[tuple[str | None, Any]] = [(clave, nodo)]
+    while pila:
+        actual, valor = pila.pop()
+        yield actual, valor
+        if isinstance(valor, dict):
+            pila.extend(reversed(list(valor.items())))
+        elif isinstance(valor, list):
+            pila.extend((actual, elemento) for elemento in reversed(valor))
 
 
 def _nombres_de_parametros(parametros: Any) -> list[str]:
@@ -372,10 +376,20 @@ def con_veracidad(nombre: str) -> bool:
     return any(segmento in TERMINOS_NORMALIZADOS for segmento in segmentos)
 
 
+@lru_cache(maxsize=16384)
+def _con_veracidad_recordada(nombre: str) -> bool:
+    """`con_veracidad` con los últimos 16 384 resultados recordados; solo la usa `problemas_de_nombres`.
+
+    Los mismos nombres de propiedad se repiten en cada contrato y en cada consulta. La función pública no
+    recuerda nada (P-T18d-1).
+    """
+    return con_veracidad(nombre)
+
+
 def problemas_de_nombres(ruta: str, documento: Any) -> list[str]:
     """BR3.3: los nombres de un contrato que declaran veracidad."""
     culpables = list(
-        dict.fromkeys(n for n in nombres_de_un_documento(documento) if con_veracidad(n))
+        dict.fromkeys(n for n in nombres_de_un_documento(documento) if _con_veracidad_recordada(n))
     )
     if culpables:
         return [f"BR3.3: {ruta}: nombres con vocabulario de veracidad: {culpables}"]

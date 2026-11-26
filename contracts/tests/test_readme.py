@@ -102,7 +102,7 @@ VERSION_POR_ARCHIVO = {
     "analyzer/v1/salida.schema.json": "1.0.0",
     "analyzer/v1/SHA256SUMS": "1.0.0",
     "integrity/review-suggestion.v2.json": "2.0.0",
-    "integrity/forbidden-vocabulary.v2.yaml": "2.0.0",
+    "integrity/forbidden-vocabulary.v2.yaml": "2.0.1",
     "integrity/neutral-clarification.v1.yaml": "1.1.0",
     "integrity/notice.v1.yaml": "1.0.0",
     "src/veridicus_contracts/human_review.py": "2.0.0",

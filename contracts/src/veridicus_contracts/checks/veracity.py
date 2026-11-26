@@ -99,8 +99,8 @@ COINCIDENCIA: dict[str, bool | tuple[str, ...]] = {
     "quote_fields": ("hecho", "observaciones", "tema"),
     "scan_bare_term_spans": True,
     "excluded_whole_texts": (
-        "salida.hallazgos[].cita_a.texto",
-        "salida.hallazgos[].cita_b.texto",
+        "salida.hallazgos[].cita_a.cita",
+        "salida.hallazgos[].cita_b.cita",
         "sugerencia.note",
         "sugerencia.reformulation",
         "aviso.text",
@@ -206,8 +206,8 @@ def problemas_de_vocabulario(c8: Any) -> list[str]:
     problemas: list[str] = []
     if set(c8) != CLAVES_DE_C8:
         problemas.append("C8: las claves de primer nivel no son las aprobadas")
-    if c8.get("schema_version") != "2.0.0":
-        problemas.append("C8: schema_version debe ser 2.0.0")
+    if c8.get("schema_version") != "2.0.1":
+        problemas.append("C8: schema_version debe ser 2.0.1")
     problemas += _problemas_de_coincidencia(c8.get("match"))
     problemas += _problemas_de_lista(c8.get("terms"), TERMINOS, "terms", "la lista de términos")
     problemas += _problemas_de_lista(
@@ -243,6 +243,86 @@ def _problemas_de_lista(
     if faltan or sobran:
         return [f"BR5.1: {nombre} no es la aprobada (faltan {faltan}, sobran {sobran})"]
     return []
+
+
+# ---------------------------------------------------------------------------- rutas de C8 en C6 (K-86)
+
+PREFIJO_DE_RUTA = "salida."
+SUFIJO_DE_LISTA = "[]"
+PROFUNDIDAD_DE_REF = 16
+
+
+class _SinResolver(Exception):
+    """Una ruta de C8 o un `$ref` de C6 no lleva a ningún nodo."""
+
+
+def _apuntado_por(raiz: Any, referencia: Any) -> Any:
+    """Nodo al que apunta un `$ref` interno (`#/…`) dentro de `raiz`; todo lo demás no se resuelve."""
+    if not (isinstance(referencia, str) and referencia.startswith("#/")):
+        raise _SinResolver
+    nodo = raiz
+    for parte in referencia.removeprefix("#/").split("/"):
+        parte = parte.replace("~1", "/").replace("~0", "~")
+        if not (isinstance(nodo, dict) and parte in nodo):
+            raise _SinResolver
+        nodo = nodo[parte]
+    return nodo
+
+
+def _sin_ref(nodo: Any, raiz: Any) -> Any:
+    """`nodo` con sus `$ref` internos seguidos hasta un nodo sin `$ref` (con tope contra los ciclos)."""
+    for _ in range(PROFUNDIDAD_DE_REF):
+        if not (isinstance(nodo, dict) and "$ref" in nodo):
+            return nodo
+        nodo = _apuntado_por(raiz, nodo["$ref"])
+    raise _SinResolver
+
+
+def _nodo_de_ruta(c6: Any, ruta: str) -> Any:
+    """Nodo del esquema C6 al que llega una ruta `salida.a[].b`: `properties` y `items`, con sus `$ref`."""
+    nodo = _sin_ref(c6, c6)
+    for segmento in ruta.removeprefix(PREFIJO_DE_RUTA).split("."):
+        nombre = segmento.removesuffix(SUFIJO_DE_LISTA)
+        propiedades = nodo.get("properties") if isinstance(nodo, dict) else None
+        if not (isinstance(propiedades, dict) and nombre in propiedades):
+            raise _SinResolver
+        nodo = _sin_ref(propiedades[nombre], c6)
+        if segmento.endswith(SUFIJO_DE_LISTA):
+            if not (isinstance(nodo, dict) and nodo.get("type") == "array"):
+                raise _SinResolver
+            nodo = _sin_ref(nodo.get("items"), c6)
+    return nodo
+
+
+def _rutas_de_salida(valor: Any) -> list[str]:
+    """Las rutas `salida.…` de una lista de C8 (las demás no son campos de C6)."""
+    if not isinstance(valor, list):
+        return []
+    return [r for r in valor if isinstance(r, str) and r.startswith(PREFIJO_DE_RUTA)]
+
+
+def problemas_de_rutas(c8: Any, c6: Any) -> list[str]:
+    """Cada ruta `salida.…` de `match.excluded_whole_texts` y de `scanned` existe en C6 y llega a un texto.
+
+    Límite declarado: las rutas que no empiezan por `salida.` (`sugerencia.*`, `aviso.text`, el reporte
+    consolidado y el catálogo de la consola) no son campos de C6 y no se comprueban. Si C6 no es un objeto,
+    se informa y no se calla.
+    """
+    if not isinstance(c6, Mapping):
+        return ["C8: no se pueden comprobar las rutas salida.… porque C6 no se cargó"]
+    match = c8.get("match") if isinstance(c8, Mapping) else None
+    excluidas = match.get("excluded_whole_texts") if isinstance(match, Mapping) else None
+    escaneadas = c8.get("scanned") if isinstance(c8, Mapping) else None
+    problemas: list[str] = []
+    for ruta in (*_rutas_de_salida(excluidas), *_rutas_de_salida(escaneadas)):
+        try:
+            nodo = _nodo_de_ruta(c6, ruta)
+        except _SinResolver:
+            problemas.append(f"C8: la ruta {ruta} no existe en C6")
+            continue
+        if not (isinstance(nodo, dict) and nodo.get("type") == "string"):
+            problemas.append(f"C8: la ruta {ruta} no apunta a un texto de C6")
+    return problemas
 
 
 # ---------------------------------------------------------------------------- rótulos (BR6.1–BR6.3)
@@ -492,6 +572,8 @@ def comprobar(raiz: Path) -> list[str]:
     tipos = c6["tipo"] if c6 else TIPOS_APROBADOS
     if C8 in leidos:
         problemas += problemas_de_vocabulario(leidos[C8])
+        if c6 is not None:  # si C6 no se leyó o no se decodificó, ya se informó arriba
+            problemas += problemas_de_rutas(leidos[C8], leidos[SALIDA_C6])
     if RUTA_DE_ROTULOS in leidos:
         problemas += problemas_de_rotulos(leidos[RUTA_DE_ROTULOS], tipos)
     if AVISO in leidos:

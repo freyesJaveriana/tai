@@ -14,6 +14,8 @@ from typing import Any
 
 import pytest
 from helpers import CONTRACTS_ROOT, load_contract
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from veridicus_contracts.checks import veracity
 from veridicus_contracts.checks.veracity import (
@@ -117,7 +119,7 @@ def test_c8_versionado_tiene_los_nueve_terminos_y_las_cinco_categorias() -> None
     c8 = load_contract(C8)
     assert c8["terms"] == TERMINOS_APROBADOS
     assert c8["categories_forbidden_in_schemas"] == CATEGORIAS_APROBADAS
-    assert c8["schema_version"] == "2.0.0"
+    assert c8["schema_version"] == "2.0.1"
 
 
 def test_c8_versionado_fija_la_coincidencia_y_las_exclusiones() -> None:
@@ -130,8 +132,8 @@ def test_c8_versionado_fija_la_coincidencia_y_las_exclusiones() -> None:
     assert match["quote_fields"] == ["hecho", "observaciones", "tema"]
     assert match["excluded_spans"] == ["cita_literal", "analyst_text", "notice_text"]
     assert match["excluded_whole_texts"] == [
-        "salida.hallazgos[].cita_a.texto",
-        "salida.hallazgos[].cita_b.texto",
+        "salida.hallazgos[].cita_a.cita",
+        "salida.hallazgos[].cita_b.cita",
         "sugerencia.note",
         "sugerencia.reformulation",
         "aviso.text",
@@ -358,7 +360,7 @@ def test_c8_con_scanned_o_version_o_claves_distintas() -> None:
     assert problemas_de_vocabulario(c8) == ["C8: scanned no es el aprobado"]
     c8 = _vocabulario()
     c8["schema_version"] = "1.0.0"
-    assert problemas_de_vocabulario(c8) == ["C8: schema_version debe ser 2.0.0"]
+    assert problemas_de_vocabulario(c8) == ["C8: schema_version debe ser 2.0.1"]
     c8 = _vocabulario()
     c8["extra"] = 1
     assert problemas_de_vocabulario(c8) == ["C8: las claves de primer nivel no son las aprobadas"]
@@ -372,6 +374,289 @@ def test_c8_con_scanned_o_version_o_claves_distintas() -> None:
 
 def test_c8_que_no_es_un_objeto() -> None:
     assert problemas_de_vocabulario(["mentiroso"]) == ["C8: no es un objeto"]
+
+
+@pytest.mark.parametrize("version", ["2.0.0", "2.0.2", "2.1.0", "3.0.1", "2.0", "", 2, None])
+def test_c8_solo_acepta_la_version_2_0_1(version: Any) -> None:
+    """K-86, caso sonda 7: la corrección de las rutas sube C8 a 2.0.1 (BR1.1, BR1.5)."""
+    c8 = _vocabulario()
+    c8["schema_version"] = version
+    assert problemas_de_vocabulario(c8) == ["C8: schema_version debe ser 2.0.1"]
+
+
+# ---------------------------------------------------------------- rutas de C8 contra C6 (K-86)
+
+RUTAS_DE_TEXTO_EXCLUIDAS = ["salida.hallazgos[].cita_a.cita", "salida.hallazgos[].cita_b.cita"]
+RUTAS_ESCANEADAS_DE_SALIDA = [
+    "salida.hallazgos[].hecho",
+    "salida.hallazgos[].observaciones",
+    "salida.observaciones_conductor[].tema",
+]
+
+
+def _problemas_de_rutas(c8: Any, c6: Any = None) -> list[str]:
+    return veracity.problemas_de_rutas(c8, load_contract(SALIDA) if c6 is None else c6)
+
+
+def _c8_con_ruta(lista: str, ruta: str) -> dict[str, Any]:
+    c8 = _vocabulario()
+    if lista == "excluded_whole_texts":
+        c8["match"]["excluded_whole_texts"][0] = ruta
+    else:
+        c8["scanned"][0] = ruta
+    return c8
+
+
+def no_existe(ruta: str) -> str:
+    return f"C8: la ruta {ruta} no existe en C6"
+
+
+def no_es_texto(ruta: str) -> str:
+    return f"C8: la ruta {ruta} no apunta a un texto de C6"
+
+
+def test_las_rutas_aprobadas_de_c8_existen_en_c6_sin_falso_positivo() -> None:
+    """Caso sonda 5: C8 versionado pasa y las rutas `salida.…` que declara son las cinco esperadas."""
+    c8 = _vocabulario()
+    assert c8["match"]["excluded_whole_texts"][:2] == RUTAS_DE_TEXTO_EXCLUIDAS
+    assert c8["scanned"][:3] == RUTAS_ESCANEADAS_DE_SALIDA
+    assert _problemas_de_rutas(c8) == []
+
+
+def test_observaciones_conductor_es_opcional_en_c6_y_la_ruta_pasa() -> None:
+    """Caso sonda 5: la comprobación resuelve la ruta aunque la propiedad no sea obligatoria."""
+    c6 = copia(SALIDA)
+    assert "observaciones_conductor" in c6["properties"]
+    assert "observaciones_conductor" not in c6["required"]
+    c8 = _c8_con_ruta("scanned", "salida.observaciones_conductor[].tema")
+    assert _problemas_de_rutas(c8, c6) == []
+
+
+@pytest.mark.parametrize("letra", ["a", "b"])
+def test_el_defecto_original_texto_en_lugar_de_cita_se_nombra(letra: str) -> None:
+    """Caso sonda 1: `…cita_a.texto` (el campo no existe en C6) falla y la ruta se nombra."""
+    ruta = f"salida.hallazgos[].cita_{letra}.texto"
+    c8 = _vocabulario()
+    c8["match"]["excluded_whole_texts"] = [
+        ruta if r.endswith(f"cita_{letra}.cita") else r for r in c8["match"]["excluded_whole_texts"]
+    ]
+    assert _problemas_de_rutas(c8) == [no_existe(ruta)]
+
+
+def test_el_defecto_original_se_ve_en_comprobar_sobre_un_arbol(tmp_path: Path) -> None:
+    """Caso sonda 1, de punta a punta: un C8 con las rutas viejas no pasa la guardia."""
+    raiz = _arbol(tmp_path)
+    c8 = copia(C8)
+    c8["match"]["excluded_whole_texts"][0] = "salida.hallazgos[].cita_a.texto"
+    c8["match"]["excluded_whole_texts"][1] = "salida.hallazgos[].cita_b.texto"
+    _escribir(raiz, C8, c8)
+    problemas = comprobar(raiz)
+    assert no_existe("salida.hallazgos[].cita_a.texto") in problemas
+    assert no_existe("salida.hallazgos[].cita_b.texto") in problemas
+
+
+@pytest.mark.parametrize("lista", ["excluded_whole_texts", "scanned"])
+@pytest.mark.parametrize(
+    "ruta",
+    [
+        "salida.hallazgos.cita_a.cita",  # sin `[]`
+        "salida.hallazgo[].cita_a.cita",  # singular
+        "salida.hallazgos[].cita_c.cita",
+        "salida.hallazgos[].cita_a[].cita",  # `[]` sobre un objeto
+        "salida.hallazgos[][].cita_a.cita",
+        "salida.hallazgos[].cita_a.cita.otro",  # sigue tras un texto
+        "salida.hallazgos[].cita_a..cita",
+        "salida.hallazgos[].cita_a.cita[]",  # `[]` sobre un texto
+        "salida.Hallazgos[].cita_a.cita",
+        "salida.estado.cita",
+        "salida.",
+    ],
+)
+def test_una_ruta_casi_buena_que_no_existe_se_rechaza(lista: str, ruta: str) -> None:
+    """Caso sonda 2."""
+    assert _problemas_de_rutas(_c8_con_ruta(lista, ruta)) == [no_existe(ruta)]
+
+
+@pytest.mark.parametrize("lista", ["excluded_whole_texts", "scanned"])
+@pytest.mark.parametrize(
+    "ruta",
+    [
+        "salida.hallazgos[].cita_a",  # el objeto, no el texto
+        "salida.hallazgos[].cita_b",
+        "salida.hallazgos[].cita_a.pagina",  # entero
+        "salida.hallazgos[].cita_a.avisos",  # arreglo
+        "salida.hallazgos[].cita_a.avisos[]",  # elementos de un enum sin tipo de texto
+        "salida.hallazgos[].actos",
+        "salida.hallazgos[]",
+        "salida.hallazgos",
+        "salida.registro",
+        "salida.registro.llamadas[].semilla",
+        "salida.registro.llamadas[].anonimizado",
+    ],
+)
+def test_una_ruta_que_no_apunta_a_un_texto_se_rechaza(lista: str, ruta: str) -> None:
+    """Caso sonda 3: una exclusión de texto entero (y un campo escaneado) tiene que ser un `string`."""
+    assert _problemas_de_rutas(_c8_con_ruta(lista, ruta)) == [no_es_texto(ruta)]
+
+
+def test_una_ruta_que_no_empieza_por_salida_queda_fuera_de_la_comprobacion() -> None:
+    """Límite declarado: `sugerencia.note`, `aviso.text`, `reporte consolidado` y el catálogo no son de C6."""
+    c8 = _vocabulario()
+    c8["match"]["excluded_whole_texts"] = ["sugerencia.note", "aviso.text", "salida", "salidas.x"]
+    c8["scanned"] = ["reporte consolidado", "catálogo de mensajes de la consola"]
+    assert _problemas_de_rutas(c8) == []
+
+
+def test_scanned_tambien_se_comprueba() -> None:
+    """Caso sonda 4: `hechos` (plural) en `scanned` falla y se nombra."""
+    ruta = "salida.hallazgos[].hechos"
+    c8 = _vocabulario()
+    c8["scanned"][0] = ruta
+    assert _problemas_de_rutas(c8) == [no_existe(ruta)]
+    assert problemas_de_vocabulario(c8) == ["C8: scanned no es el aprobado"]
+
+
+def test_cada_ruta_mala_se_informa_una_vez_y_en_orden() -> None:
+    c8 = _vocabulario()
+    c8["match"]["excluded_whole_texts"][:2] = ["salida.a", "salida.hallazgos[].cita_a"]
+    c8["scanned"][0] = "salida.b"
+    assert _problemas_de_rutas(c8) == [
+        no_existe("salida.a"),
+        no_es_texto("salida.hallazgos[].cita_a"),
+        no_existe("salida.b"),
+    ]
+
+
+@pytest.mark.parametrize("c6", [None, [], "salida", 3, {"$ref": "#/no/esta"}, {"properties": []}])
+def test_si_c6_no_se_puede_usar_no_pasa_en_silencio(c6: Any) -> None:
+    """Caso sonda 6: sin esquema C6 utilizable, la comprobación informa un problema."""
+    problemas = veracity.problemas_de_rutas(_vocabulario(), c6)
+    assert problemas
+    assert all(p.startswith("C8: ") for p in problemas)
+
+
+def test_sin_c6_se_informa_un_solo_problema_claro() -> None:
+    assert veracity.problemas_de_rutas(_vocabulario(), None) == [
+        "C8: no se pueden comprobar las rutas salida.… porque C6 no se cargó"
+    ]
+
+
+@pytest.mark.parametrize(
+    "ref",
+    [
+        "#/$defs/no-existe",
+        "#/$defs/cita/properties/cita/otro",
+        "#",
+        "#cita",
+        "otro.json#/$defs/cita",
+        "https://veridicus.invalid/veridicus/contracts/analyzer/v1/salida#/$defs/cita",
+        "/$defs/cita",
+        3,
+        None,
+        "#/$defs/cita/",
+    ],
+)
+def test_un_ref_que_no_se_resuelve_falla_cerrado(ref: Any) -> None:
+    """Caso sonda 6: un `$ref` roto en la ruta informa el problema de cada ruta que lo cruza."""
+    c6 = copia(SALIDA)
+    c6["$defs"]["hallazgo"]["properties"]["cita_a"] = {"$ref": ref}
+    c8 = _vocabulario()
+    assert _problemas_de_rutas(c8, c6) == [no_existe("salida.hallazgos[].cita_a.cita")]
+
+
+def test_un_ref_en_ciclo_falla_cerrado_sin_colgarse() -> None:
+    c6 = copia(SALIDA)
+    c6["$defs"]["cita"] = {"$ref": "#/$defs/cita"}
+    assert _problemas_de_rutas(_vocabulario(), c6) == [
+        no_existe("salida.hallazgos[].cita_a.cita"),
+        no_existe("salida.hallazgos[].cita_b.cita"),
+    ]
+    c6["$defs"]["cita"] = {"$ref": "#/$defs/a"}
+    c6["$defs"]["a"] = {"$ref": "#/$defs/cita"}
+    assert len(_problemas_de_rutas(_vocabulario(), c6)) == 2
+
+
+def test_un_ref_con_escapes_de_puntero_se_resuelve() -> None:
+    """`~0` y `~1` del puntero JSON se resuelven; sin falso positivo."""
+    c6 = copia(SALIDA)
+    c6["$defs"]["a/b~c"] = c6["$defs"]["cita"]
+    c6["$defs"]["hallazgo"]["properties"]["cita_a"] = {"$ref": "#/$defs/a~1b~0c"}
+    assert _problemas_de_rutas(_vocabulario(), c6) == []
+
+
+def test_un_ref_encadenado_se_resuelve() -> None:
+    c6 = copia(SALIDA)
+    c6["$defs"]["otra"] = {"$ref": "#/$defs/cita"}
+    c6["$defs"]["hallazgo"]["properties"]["cita_a"] = {"$ref": "#/$defs/otra"}
+    assert _problemas_de_rutas(_vocabulario(), c6) == []
+
+
+def test_c8_con_forma_incorrecta_no_rompe_la_comprobacion_de_rutas() -> None:
+    assert _problemas_de_rutas(["salida.x"]) == []
+    c8 = _vocabulario()
+    c8["match"] = ["salida.x"]
+    c8["scanned"] = "salida.x"
+    assert _problemas_de_rutas(c8) == []
+    c8["match"] = {"excluded_whole_texts": ["salida.hallazgos[].cita_a.cita", 3, None, {"a": 1}]}
+    c8["scanned"] = {"salida.x": 1}
+    assert _problemas_de_rutas(c8) == []
+
+
+def test_comprobar_informa_una_ruta_rota_de_c6_sin_decir_que_c6_falta(tmp_path: Path) -> None:
+    """Caso sonda 6, de punta a punta: C6 con un `$ref` roto da el problema de cada ruta."""
+    raiz = _arbol(tmp_path)
+    salida = copia(SALIDA)
+    salida["$defs"]["hallazgo"]["properties"]["cita_b"] = {"$ref": "#/$defs/no-existe"}
+    _escribir(raiz, SALIDA, salida)
+    assert comprobar(raiz) == [no_existe("salida.hallazgos[].cita_b.cita")]
+
+
+def test_comprobar_no_repite_el_aviso_cuando_c6_ya_se_informo_ausente(tmp_path: Path) -> None:
+    raiz = _arbol(tmp_path)
+    (raiz / SALIDA).unlink()
+    assert comprobar(raiz) == [f"{SALIDA}: ausente o ilegible"]
+
+
+_JSON = st.recursive(
+    st.none() | st.booleans() | st.integers() | st.text(max_size=12),
+    lambda hijos: (
+        st.lists(hijos, max_size=4) | st.dictionaries(st.text(max_size=8), hijos, max_size=4)
+    ),
+    max_leaves=12,
+)
+_PARTES = st.sampled_from(
+    ["hallazgos[]", "hallazgos", "hallazgo[]", "cita_a", "cita_b", "cita", "texto", "pagina", "hecho",
+     "observaciones", "observaciones_conductor[]", "tema", "estado", ""]
+)  # fmt: skip
+
+
+@settings(max_examples=60, deadline=None)
+@given(c8=_JSON, c6=_JSON)
+def test_propiedad_la_comprobacion_de_rutas_nunca_lanza_y_devuelve_textos(c8: Any, c6: Any) -> None:
+    """Invariante: para cualquier forma de C8 y de C6 el resultado es una lista de textos de C8."""
+    problemas = veracity.problemas_de_rutas(c8, c6)
+    assert isinstance(problemas, list)
+    assert all(isinstance(p, str) and p.startswith("C8: ") for p in problemas)
+
+
+@settings(max_examples=80, deadline=None)
+@given(
+    partes=st.lists(_PARTES, min_size=0, max_size=6), lista=st.sampled_from(["excluded", "scanned"])
+)
+def test_propiedad_una_ruta_pasa_solo_si_llega_a_un_texto_de_c6(
+    partes: list[str], lista: str
+) -> None:
+    """Invariante: una ruta `salida.…` arbitraria se acepta si y solo si es una de las que llegan a
+    un `string` de C6 (las cinco aprobadas y sus equivalentes); en otro caso se informa una vez."""
+    ruta = "salida." + ".".join(partes)
+    c8 = _c8_con_ruta("excluded_whole_texts" if lista == "excluded" else "scanned", ruta)
+    problemas = _problemas_de_rutas(c8)
+    # Con estas partes, las únicas rutas que llegan a un `string` de C6 son las cinco aprobadas.
+    if ruta in {*RUTAS_DE_TEXTO_EXCLUIDAS, *RUTAS_ESCANEADAS_DE_SALIDA}:
+        assert problemas == []
+    else:
+        assert len(problemas) == 1
+        assert problemas[0] in {no_existe(ruta), no_es_texto(ruta)}
 
 
 # ---------------------------------------------------------------- rótulos

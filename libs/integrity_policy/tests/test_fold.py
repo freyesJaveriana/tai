@@ -181,7 +181,8 @@ def test_a_hangul_filler_inside_a_term_does_not_evade_the_scanner(char: str) -> 
 @pytest.mark.parametrize("char", HANGUL_FILLERS, ids=[f"U+{ord(c):04X}" for c in HANGUL_FILLERS])
 def test_a_hangul_filler_at_the_edge_of_a_term_keeps_the_word_boundary(char: str) -> None:
     assert terms_of(f"{char}falso{char} y nada más") == ["falso"]
-    assert terms_of(f"es{char}falso") == []  # igual que hoy con Cf: el relleno no separa palabras.
+    # F-04 (ronda 2): en la segunda pasada el relleno cuenta como separador, como un `Cn`.
+    assert terms_of(f"es{char}falso") == ["falso"]
 
 
 @pytest.mark.parametrize("char", HANGUL_FILLERS, ids=[f"U+{ord(c):04X}" for c in HANGUL_FILLERS])
@@ -286,6 +287,7 @@ def _c8_with(change: Callable[[dict[str, Any]], Any]) -> dict[str, Any]:
     document["match"]["fold"] = {
         "normalization": "NFKD",
         "compatibility_scope": "word_characters",
+        "also_as_separators": "newly_dropped",
         "case": "casefold",
         "dropped_categories": ["Mn", "Me", "Cf"],
         "dropped_code_points": [list(rango) for rango in DROPPED_RANGES],
@@ -311,6 +313,7 @@ def test_the_versioned_c8_declares_the_fold_the_oracle_expects() -> None:
     assert document["schema_version"] == "2.1.0"
     assert fold["normalization"] == "NFKD"
     assert fold["compatibility_scope"] == "word_characters"
+    assert fold["also_as_separators"] == "newly_dropped"
     assert fold["case"] == "casefold"
     assert fold["dropped_categories"] == ["Mn", "Me", "Cf"]
     assert [tuple(rango) for rango in fold["dropped_code_points"]] == DROPPED_RANGES
@@ -330,6 +333,23 @@ def test_the_versioned_c8_declares_the_fold_the_oracle_expects() -> None:
         pytest.param(lambda d: d["match"]["fold"].pop("dropped_code_points"), id="sin-rangos"),
         pytest.param(lambda d: d["match"]["fold"].pop("dropped_categories"), id="sin-categorias"),
         pytest.param(lambda d: d["match"]["fold"].update(dropped_categories=["Xx"]), id="cat-xx"),
+        pytest.param(lambda d: d["match"]["fold"].pop("also_as_separators"), id="sin-separadores"),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(also_as_separators="none"), id="separadores-no"
+        ),
+        # F-05 de la ronda 2: todo punto de `dropped_code_points` debe ser invisible.
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x20, 0x20]]),
+            id="rango-sobre-el-espacio",
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x2E, 0x2E]]),
+            id="rango-sobre-un-signo",
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x2B, 0x2B]]),
+            id="rango-sobre-un-simbolo",
+        ),
         pytest.param(lambda d: d["match"]["fold"].pop("compatibility_scope"), id="sin-alcance"),
         pytest.param(
             lambda d: d["match"]["fold"].update(compatibility_scope="all"), id="alcance-all"
@@ -448,6 +468,18 @@ TERMS = _terms()
 RANGE = st.sampled_from(DROPPED_RANGES).flatmap(
     lambda r: st.integers(min_value=r[0], max_value=r[1])
 )
+# Solo los puntos que `main` ya descartaba (`Cf`, `Mn`, `Me` o con clase combinante): no separan.
+# Los `Cn` y los rellenos Hangul cuentan como separador en la segunda pasada y pueden partir una
+# palabra sin término en dos, una de ellas un término (`menti` + relleno + `ra`), como en `main`.
+QUIET = st.sampled_from(
+    [
+        code_point
+        for first, last in DROPPED_RANGES
+        for code_point in range(first, last + 1)
+        if unicodedata.category(chr(code_point)) in {"Cf", "Mn", "Me"}
+        or unicodedata.combining(chr(code_point))
+    ]
+)
 
 
 @st.composite
@@ -483,11 +515,14 @@ def test_property_a_term_with_hidden_characters_and_fullwidth_letters_is_always_
 
     matches = scan.scan(text, [])
 
-    assert len(matches) == 1
-    match = matches[0]
-    assert plain(match.term) == plain(term)
-    assert 0 <= match.start <= first
-    assert last < match.end <= len(text)
+    # Con un `Cn` dentro del término, la segunda pasada lo cuenta como separador y puede añadir una
+    # coincidencia más corta (`menti` + U+E0000 + `roso`, como en `main`): basta con que esté la
+    # coincidencia del término entero y que todas caigan dentro del texto.
+    assert any(
+        plain(match.term) == plain(term) and 0 <= match.start <= first and last < match.end
+        for match in matches
+    )
+    assert all(0 <= match.start < match.end <= len(text) for match in matches)
 
 
 @settings(max_examples=60, deadline=None)
@@ -495,7 +530,7 @@ def test_property_a_term_with_hidden_characters_and_fullwidth_letters_is_always_
     words=st.lists(
         st.sampled_from(["hola", "mundo", "casa", "falsete", "mentira", "Ñandú"]), min_size=1
     ),
-    insertions=st.lists(st.tuples(st.integers(min_value=0, max_value=30), RANGE), max_size=5),
+    insertions=st.lists(st.tuples(st.integers(min_value=0, max_value=30), QUIET), max_size=5),
     wide=st.booleans(),
 )
 def test_property_a_text_without_terms_never_matches_however_it_is_written(
@@ -553,36 +588,110 @@ def _old_detects(text: str) -> bool:
     return re.search(r"(?<!\w)falso(?!\w)", _old_fold(text)) is not None
 
 
-def _differing_code_points() -> list[str]:
-    """Los caracteres cuya descomposición NFKD difiere de la NFD: los únicos donde el pliegue cambió.
+def _checked_code_points() -> list[str]:
+    """Los caracteres donde el pliegue pudo cambiar frente a `main`.
 
-    En el resto la forma plegada es la misma que la de `main`; lo único que cambia son los rangos de
-    `dropped_code_points`, que solo descartan más.
+    Los que NFKD descompone distinto de NFD (el alcance de la compatibilidad) y todos los puntos de
+    los 17 rangos de `dropped_code_points` (el descarte). En ningún otro carácter cambia la forma
+    plegada. Son unos 8000 puntos; el recorrido completo tarda alrededor de un segundo, así que no se
+    reduce a una muestra.
     """
-    return [
-        chr(code_point)
+    points = {
+        code_point
         for code_point in range(0x110000)
         if not 0xD800 <= code_point <= 0xDFFF
         and unicodedata.normalize("NFKD", chr(code_point))
         != unicodedata.normalize("NFD", chr(code_point))
-    ]
+    }
+    points.update(
+        code_point for first, last in DROPPED_RANGES for code_point in range(first, last + 1)
+    )
+    return [chr(code_point) for code_point in sorted(points)]
 
 
-def test_the_fold_only_widens_what_the_scanner_detects() -> None:
-    """Todo carácter que separaba el término en `main` lo sigue separando (o lo deja pasar igual).
+# Las siete plantillas: letra + punto + término, término + punto + letra, el punto pegado al término
+# por cada lado, dentro del término y rodeándolo.
+TEMPLATES = (
+    "es{c}falso",
+    "falso{c}es",
+    "Es falso{c}",
+    "{c}falso y",
+    "fal{c}so",
+    "{c}fal{c}so{c}",
+    "es {c}falso{c} es",
+)
 
-    Para cada carácter que NFKD cambia, cuatro textos con él pegado al término, antes, después, en
-    medio y en los dos lados: si el pliegue de `main` detectaba `falso`, el escáner también.
+
+def test_the_fold_never_detects_less_than_before() -> None:
+    """AUTONOMIA-03: todo lo que el pliegue de `main` detectaba, el escáner lo detecta.
+
+    Para cada punto que pudo cambiar, siete plantillas: si el pliegue de `main` detectaba `falso`,
+    el escáner también. El control: la comparación se hizo de verdad (más de 5000 casos).
     """
     checked = 0
-    for char in _differing_code_points():
-        for text in (
-            f"Es falso{char}",
-            f"{char}falso y",
-            f"fal{char}so",
-            f"{char}fal{char}so{char}",
-        ):
+    for char in _checked_code_points():
+        for template in TEMPLATES:
+            text = template.format(c=char)
             if _old_detects(text):
                 checked += 1
                 assert "falso" in terms_of(text), f"U+{ord(char):04X} en {text!r}"
-    assert checked > 2000  # el control: la comparación se hizo de verdad (hoy 2214).
+    assert checked > 5000
+
+
+# --- F-04 de la ronda 2: los puntos que antes separaban siguen separando (doble pliegue) -----------------
+
+
+def test_an_unassigned_point_between_a_letter_and_a_term_still_separates_them() -> None:
+    text = "es" + chr(0x2065) + "falso"
+
+    assert [(m.term, m.start, m.end) for m in scan.scan(text, [])] == [("falso", 3, 8)]
+
+
+def test_an_unassigned_point_inside_a_term_still_joins_it() -> None:
+    text = "fal" + chr(0x2065) + "so"
+
+    assert [(m.term, m.start, m.end) for m in scan.scan(text, [])] == [("falso", 0, 6)]
+
+
+def test_a_hangul_filler_between_a_letter_and_a_term_counts_as_a_separator_in_the_second_pass() -> (
+    None
+):
+    text = "es" + chr(0x3164) + "falso"
+
+    assert [(m.term, m.start, m.end) for m in scan.scan(text, [])] == [("falso", 3, 8)]
+
+
+def test_the_union_of_both_passes_has_no_duplicates_and_is_sorted() -> None:
+    text = "es" + chr(0x2065) + "falso y miente y fal" + chr(0x2065) + "so, falso" + chr(0x2065)
+
+    spans = [(m.term, m.start, m.end) for m in scan.scan(text, [])]
+
+    assert spans == sorted(set(spans), key=lambda span: (span[1], span[2]))
+    assert [term for term, _start, _end in spans] == ["falso", "miente", "falso", "falso"]
+
+
+def test_a_text_with_an_unassigned_point_and_no_term_has_no_matches() -> None:
+    assert scan.scan("es" + chr(0x2065) + "casa" + chr(0xFFF0) + "hoy", []) == []
+
+
+def test_the_exclusions_apply_to_the_second_pass_too() -> None:
+    inner = "era" + chr(0x2065) + "falso, dijo"
+    text = f"Dijo «{inner}» y miente."
+
+    result = scan.scan_detailed(text, [inner])
+
+    assert result.excluded == [inner]
+    assert [match.term for match in result.matches] == ["miente"]
+
+
+def test_a_c8_with_only_format_characters_has_no_second_pass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Sin puntos «nuevos» en los rangos, el patrón no acepta nada y no hay segunda pasada."""
+    document = _c8_with(lambda d: d["match"]["fold"].update(dropped_code_points=[[0x200B, 0x200F]]))
+    monkeypatch.setattr(scan, "load_file", lambda _path: document)
+    _clear_caches()
+
+    assert terms_of("mi" + chr(0x200B) + "ente") == ["miente"]
+    # U+2065 no está en este C8: es un `Cn` sin descartar y separa, como en `main`.
+    assert terms_of("es" + chr(0x2065) + "miente") == ["miente"]

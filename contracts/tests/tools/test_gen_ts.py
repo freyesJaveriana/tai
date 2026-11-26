@@ -96,6 +96,10 @@ def test_el_plegado_de_c8_se_exporta_a_typescript(contracts_root: Path) -> None:
     assert re.search(
         r'export const FOLD_COMPATIBILITY_SCOPE\s*=\s*"word_characters"\s*as const', texto
     )
+    assert re.search(
+        r'export const FOLD_ALSO_AS_SEPARATORS\s*=\s*"newly_dropped"\s*as const', texto
+    )
+    assert re.search(r'export const FOLD_CASE\s*=\s*"casefold"\s*as const', texto)
     categorias = _bloque(texto, "FOLD_DROPPED_CATEGORIES")
     assert re.findall(r'"([A-Z][a-z])"', categorias) == fold["dropped_categories"]
     rangos = _enteros(_bloque(texto, "FOLD_DROPPED_CODE_POINTS"))

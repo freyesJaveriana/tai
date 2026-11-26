@@ -424,6 +424,7 @@ def test_c8_versionado_declara_el_plegado() -> None:
     fold = load_contract(C8)["match"]["fold"]
     assert fold["normalization"] == "NFKD"
     assert fold["compatibility_scope"] == "word_characters"
+    assert fold["also_as_separators"] == "newly_dropped"
     assert fold["case"] == "casefold"
     assert fold["dropped_categories"] == ["Mn", "Me", "Cf"]
     assert fold["dropped_code_points"] == RANGOS_DESCARTADOS
@@ -455,6 +456,7 @@ def _con_fold() -> dict[str, Any]:
     c8["match"]["fold"] = {
         "normalization": "NFKD",
         "compatibility_scope": "word_characters",
+        "also_as_separators": "newly_dropped",
         "case": "casefold",
         "dropped_categories": ["Mn", "Me", "Cf"],
         "dropped_code_points": [list(rango) for rango in RANGOS_DESCARTADOS],
@@ -490,6 +492,7 @@ def test_c8_con_un_fold_que_no_es_el_aprobado_se_nombra(valor: Any) -> None:
     [
         ("normalization", "NFC"),
         ("compatibility_scope", "all"),
+        ("also_as_separators", "none"),
         ("case", "lower"),
         ("dropped_categories", ["Mn", "Me"]),
     ],
@@ -502,7 +505,7 @@ def test_c8_con_un_valor_de_fold_distinto_nombra_el_subcampo(clave: str, valor: 
     assert all(f"match.fold.{clave}" in problema for problema in problemas)
 
 
-@pytest.mark.parametrize("clave", ["compatibility_scope", "dropped_code_points"])
+@pytest.mark.parametrize("clave", ["also_as_separators", "dropped_code_points"])
 def test_c8_con_un_fold_al_que_le_falta_un_subcampo_lo_nombra(clave: str) -> None:
     c8 = _con_fold()
     del c8["match"]["fold"][clave]

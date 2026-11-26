@@ -5,11 +5,13 @@ citas literales; la salida no tiene ningún campo de veracidad; la CLI avisa o n
 Las pruebas que pasan por `cli.main.run` llevan `@pytest.mark.cli`.
 """
 
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
 import pytest
 from veridicus_anonymizer.api import build_anonymizer
+from veridicus_contracts.loaders import load_file
 from veridicus_errors import ConfigInvalidProfileError
 from veridicus_integrity_policy import notice
 from veridicus_model_gateway.gateway import build
@@ -32,13 +34,16 @@ from veridicus_incoherence_analyzer.api import analyze
 from veridicus_incoherence_analyzer.application.messages import load_response_schema
 from veridicus_incoherence_analyzer.cli.main import run
 
-FORBIDDEN_FIELD_NAMES = {
-    "veracity_score",
-    "is_lying",
-    "truthfulness",
-    "veracidad",
-    "credibilidad",
-}
+
+def _forbidden_field_names() -> set[str]:
+    """`categories_forbidden_in_schemas` de C8, leídas de `veridicus_contracts` (F-04)."""
+    document = load_file(
+        files("veridicus_contracts") / "integrity" / "forbidden-vocabulary.v2.yaml"
+    )
+    return {str(name) for name in document["categories_forbidden_in_schemas"]}
+
+
+FORBIDDEN_FIELD_NAMES = _forbidden_field_names()
 
 
 @pytest.mark.parametrize("campo", ["hecho", "observaciones"])
@@ -66,6 +71,45 @@ def test_a_forbidden_term_inside_a_literal_quote_does_not_discard_the_candidate(
 
     assert len(salida["hallazgos"]) == 1
     assert salida["registro"]["descartes"] == []
+
+
+LITERAL_TURN = "Dijo que eso era falso porque estaba en la casa de su hermana."
+
+
+@pytest.mark.parametrize("campo", ["hecho", "observaciones"])
+def test_a_quoted_span_that_is_literal_in_a_turn_is_not_scanned_in_hecho_or_observaciones(
+    campo: str,
+) -> None:
+    config = make_config()
+    turns = default_turns()
+    turns[1]["texto"] = LITERAL_TURN
+    candidate = finding(a=(2, LITERAL_TURN))
+    candidate[campo] = "El relato dice «era falso» y el otro turno lo contradice."
+    gateway = ScriptedGateway(findings=[candidate])
+
+    salida = analyze(make_entrada(turns), config, gateway)
+
+    assert salida["estado"] == "ok"
+    assert len(salida["hallazgos"]) == 1, "el hallazgo sale"
+    assert salida["registro"]["descartes"] == []
+
+
+@pytest.mark.parametrize("campo", ["hecho", "observaciones"])
+def test_a_quoted_span_that_is_in_no_turn_is_scanned_and_discards_the_candidate(
+    campo: str,
+) -> None:
+    config = make_config()
+    turns = default_turns()
+    turns[1]["texto"] = LITERAL_TURN
+    candidate = finding(a=(2, LITERAL_TURN))
+    candidate[campo] = "El relato dice «miente ahí» y el otro turno lo contradice."
+    gateway = ScriptedGateway(findings=[candidate])
+
+    salida = analyze(make_entrada(turns), config, gateway)
+
+    assert salida["estado"] == "ok"
+    assert salida["hallazgos"] == []
+    assert discard_reasons(salida) == ["vocabulario_prohibido"]
 
 
 @pytest.mark.parametrize("role", ["judge", "verifier"])

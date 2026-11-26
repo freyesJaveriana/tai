@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "headers": {"content-type": "application/json"},
+  "body": {
+    "id": "msg_sintetico_0005",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-sonnet-5-5",
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"hallazgos\": [{\"hecho\": \"[Persona_1] salió temprano\", \"tipo\": \"temporal\", \"cita_a\": {\"texto\": \"[PERSONA_1] vio a [PERSONA_9]\", \"turno\": 4}, \"cita_b\": {\"texto\": \"[PERSONA_1] se quedó\", \"turno\": 5}, \"observaciones\": \"[PERSONA 1] y [PERSONA_1]\"}]}"
+      }
+    ],
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "usage": {"input_tokens": 420, "output_tokens": 96}
+  }
+}

@@ -2,6 +2,22 @@
 
 Estado de trabajo entre sesiones. Solo cifras y referencias: nada de texto de las entrevistas ni salidas de los modelos.
 
+## 2026-11-25 · Anonimizador mínimo B10a: CI, guardias y documentación (U10-T05)
+
+**Dónde está:** Bolt B10a, rama `tarea/U10-T05` (U10-T01 a T04 fusionadas en `bolt/b10a-anonymizer`).
+Versión `0.1.0` de `libs/anonymizer`; la etiqueta `anonymizer-v0.1.0` la pone el humano al fusionar.
+
+**Hecho**
+- CI de nivel 0 de `libs/anonymizer` (`anonymizer-level0.yml`, sin filtro de rutas) y `ruff format --check` en
+  `errors-level0`.
+- K-76: huecos de `check-no-cluster-ids.sh` y `check-no-datos-personales.sh` cerrados, con su autoprueba
+  (`scripts/tests/autoprueba-guardias.sh`, 10 sondas y 10 controles) y `repo-level0.yml`.
+- `testing/coverage_gate.py`: 100 % de ramas en los módulos guardia y 80 % de líneas.
+- `libs/anonymizer/README.md`, `examples/demo_fake.py` y `docs/glosario.md`.
+
+**Siguiente paso:** revisión de U10-T05, PR del Bolt y, después, B11a (la CLI usa `build_anonymizer`). Lo diferido
+(NER, proxy, adaptadores de OpenAI y Google, Corefile) queda en B10b (DP-03).
+
 ## 2026-11-03 · Validación de modelos locales en ZINE (US14.1, FR16.3)
 
 **Dónde está AI-DLC:** intent `261002-veridicus-mvp` (scope `classic`), aparcado en `domain-design` tras aprobar

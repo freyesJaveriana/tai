@@ -176,17 +176,8 @@ la corre al empujar una etiqueta `contracts-v*`.
 
 ## Glosario de identificadores
 
-Un identificador de código se escribe en inglés y su traducción del PRD es única: ningún término se traduce
-de dos formas (`team.md`, Code Style). Excepción: los campos del contrato común del TG conservan su nombre en
-español.
-
-| Identificador | Término del PRD o significado |
-|---|---|
-| `review_report` | «reporte de revisión»; sustituye a «reporte forense» (D10.4, VE-03) |
-| `review_suggestion` | «sugerencia de revisión»: todo hallazgo de la IA, con estado editable que cambia un humano |
-| `undocumented_fact` | «Hecho No Documentado»: resultado normal por debajo del umbral, no un error |
-| `cancel_token` | token de cancelación cooperativa del almacén de archivos de reportes (NFRD-U7-11) |
-| `view_outdated` | `report.view_outdated`, error 409 cuando el resumen cambió desde que el analista lo abrió (NFRD-U7-11) |
+El glosario es único en el repositorio (`team.md`, Code Style) y vive en [`docs/glosario.md`](../docs/glosario.md);
+los identificadores de los contratos están en su sección «Contratos (U1)».
 
 ## Instalar desde otro repositorio
 
@@ -196,14 +187,14 @@ fusionar el PR del Bolt (BR12.2).
 
 ```toml
 [tool.uv.sources]
-veridicus-contracts = { git = "https://github.com/freyesJaveriana/tai", tag = "contracts-v0.1.0", subdirectory = "contracts" }
+veridicus-contracts = { git = "https://github.com/freyesJaveriana/tai", tag = "contracts-v0.1.1", subdirectory = "contracts" }
 ```
 
 La dependencia (`dependencies = ["veridicus-contracts"]`) se añade con `uv add`, que escribe también la
 fuente de arriba:
 
 ```bash
-uv add "veridicus-contracts @ git+https://github.com/freyesJaveriana/tai#subdirectory=contracts" --tag contracts-v0.1.0
+uv add "veridicus-contracts @ git+https://github.com/freyesJaveriana/tai#subdirectory=contracts" --tag contracts-v0.1.1
 ```
 
 `tests/test_readme.py` comprueba que la etiqueta de este apartado es la que imprime

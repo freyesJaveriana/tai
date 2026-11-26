@@ -1,0 +1,11 @@
+# Dominios de los proveedores permitidos (C22, BR3.1): exactamente los tres pares del contrato.
+# El puerto no se declara aquí: es siempre 443.
+schema_version: 1.0.0
+
+entries:
+  - provider: anthropic
+    domain: api.anthropic.com
+  - provider: google
+    domain: generativelanguage.googleapis.com
+  - provider: openai
+    domain: api.openai.com

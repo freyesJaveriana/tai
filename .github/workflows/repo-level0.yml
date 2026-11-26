@@ -62,3 +62,6 @@ jobs:
 
       - name: Ningún dato personal del autor en el repositorio público (E-32, K-75)
         run: bash scripts/check-no-datos-personales.sh .
+
+      - name: Autoprueba de las guardias del repositorio público, sondas y controles (K-76, R-11)
+        run: bash scripts/tests/autoprueba-guardias.sh

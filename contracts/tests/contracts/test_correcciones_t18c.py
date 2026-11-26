@@ -207,7 +207,7 @@ def test_control_negativo_otra_clave_x_en_la_raiz_se_rechaza() -> None:
     from veridicus_contracts.validators import ValidationFailure, validate_json_schema
 
     with pytest.raises(ValidationFailure, match="palabra clave desconocida"):
-        validate_json_schema({"type": "object", "x-veridicus-limit": "report_token_max_chars"})
+        validate_json_schema({"type": "object", "x-veridicus-otra": "report_token_max_chars"})
 
 
 @pytest.mark.parametrize(

@@ -1,0 +1,12 @@
+{
+  "descripcion": "Límite declarado de PD-2: un apodo escrito todo en minúscula no lo detecta ninguna regla. No forma parte del conjunto de fuga cero.",
+  "turnos": [
+    {
+      "turno": 1,
+      "hablante": "TES",
+      "texto": "Casilda Roncancio contó que todos le decían chiguirito al hijo menor."
+    }
+  ],
+  "entidad_enmascarada": "Casilda Roncancio",
+  "apodo_limite": "chiguirito"
+}

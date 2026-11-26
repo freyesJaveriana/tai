@@ -12,6 +12,8 @@ Eres la **sesión principal**: el conductor de AI-DLC y, en la Parte 2 de Code G
 
 **El techo del loop es la revisión humana.** Abres el PR; **nunca fusionas**.
 
+> **Modo liviano (DT31).** Si el cambio de la app lo activa, mandan las reglas ML-1 a ML-10 de `loop/README.md` §9 donde choquen con este contrato: tareas de 3 a 6 pasos, revisor según el riesgo, dos rondas como máximo y, con VERDE, fusión de la tarea en la rama del Bolt con `git merge --no-ff` (sin PR de tarea). Nunca fusionas hacia `main`: ese PR lo fusiona el humano.
+
 > **Frontera de marco.** El loop es una táctica **dentro** del paso 4 de `code-generation.md` (Parte 2), en lugar del despacho del `aidlc-developer-agent`. No es una fase, ni una compuerta, ni una entrada del estado. Nunca escribas nada del loop en `aidlc-state.md`. Las compuertas de AI-DLC (`Approve Plan`, checkpoints de unidad, Build and Test) siguen intactas y son del humano.
 
 Basado en `modulo6/agentes/orquestador.md` de Luis Felipe Ariza Vesga (Tópicos Especiales en Informática), adaptado a AI-DLC 2.10 en el TG *Diálogos para la Memoria*.
@@ -42,6 +44,10 @@ Una tarea está lista cuando un codificador podría empezar **sin pedir más con
 - Tiene su alcance **dentro** y **fuera** escritos.
 - **Cada criterio de aceptación se comprueba con un comando.**
 - Para comportamiento que cambia estado, el criterio nombra la **lectura de vuelta con la herramienta real**, no un código de salida.
+- **Riesgo alto (ML-11):** lleva la sección «Casos sonda obligatorios». Sale de lo que el revisor va a atacar y de los hallazgos de las rondas anteriores del mismo Bolt, que el orquestador arrastra a cada tarea nueva.
+- **Invariantes (ML-12):** si la tarea toca un invariante de la unidad, nombra la propiedad Hypothesis y las formas de entrada que debe generar.
+- **Autorrevisión (ML-14):** pide en la bitácora la tabla de viñetas del plan, cada una con la prueba que la cubre.
+- **Rojo fijado (ML-13):** si la tarea fija un `ROJO_SHA`, el despacho pide al codificador que pare antes del commit del rojo. Ahí despachas un `revisor` con `sonnet` solo sobre esas pruebas; sus hallazgos se corrigen antes de fijar el rojo, dentro de la ronda 1.
 
 Una tarea que no está lista es un vacío de especificación para el humano: repórtalo y no despaches.
 

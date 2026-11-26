@@ -13,16 +13,19 @@ descargan en ejecución.
 
 import hashlib
 import importlib.resources
+import re
 from functools import cache
 from importlib.resources.abc import Traversable
 from typing import Any
+from urllib.parse import urljoin
 
 from jsonschema import Draft7Validator, Draft202012Validator
 from jsonschema.exceptions import ValidationError
-from referencing import Registry
+from referencing import Registry, Resource
 from referencing.exceptions import Unresolvable
+from referencing.jsonschema import DRAFT202012
 
-from veridicus_contracts.registry import build_registry, validator_for
+from veridicus_contracts.registry import BASE_URI, build_registry, validator_for
 
 ARCHIVO_DE_SUMAS = "SHA256SUMS"
 META_2020_12 = "https://json-schema.org/draft/2020-12/schema"
@@ -57,6 +60,23 @@ _SUBESQUEMA = frozenset(
     }
 )
 VERSION_DEL_CONTRATO = "x-veridicus-version"
+# Lista cerrada de marcas `x-veridicus-*` que usan los contratos (PD-4, K-56): cualquier otra se
+# rechaza. `x-veridicus-version` solo vale en la raíz (E-30); las demás, en cualquier nivel.
+MARCAS_X_VERIDICUS = frozenset(
+    {
+        VERSION_DEL_CONTRATO,
+        "x-veridicus-limit",
+        "x-veridicus-max-bytes",
+        "x-veridicus-cookie",
+        "x-veridicus-owner-only",
+        "x-veridicus-owner-only-for-role",
+        "x-veridicus-priority",
+        "x-veridicus-roles",
+        "x-veridicus-access-log",
+        "x-veridicus-demo",
+    }
+)
+_SEMVER = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)")
 _LISTA_DE_SUBESQUEMAS = frozenset({"allOf", "anyOf", "oneOf", "prefixItems"})
 _MAPA_DE_SUBESQUEMAS = frozenset({"properties", "patternProperties", "dependentSchemas", "$defs"})
 
@@ -133,7 +153,12 @@ def _desconocidas(esquema: Any, ruta: str, conocidas: frozenset[str], salida: li
         return
     for clave, valor in esquema.items():
         if clave == VERSION_DEL_CONTRATO and ruta == "$":
-            continue  # anotacion de BR1.1 (E-30): solo la raiz del esquema
+            # anotacion de BR1.1 (E-30): solo la raiz del esquema, con forma semver
+            if not (isinstance(valor, str) and _SEMVER.fullmatch(valor)):
+                salida.append(f"{ruta}/{clave}: debe ser una versión semver X.Y.Z, no {valor!r}")
+            continue
+        if clave in MARCAS_X_VERIDICUS and clave != VERSION_DEL_CONTRATO:
+            continue  # marca de la lista cerrada de PD-4; su valor es un dato, no un subesquema
         if clave not in conocidas:
             salida.append(f"{ruta}/{clave}: palabra clave desconocida")
         elif clave in _SUBESQUEMA:
@@ -167,11 +192,20 @@ def validate_instance(esquema: Any, instancia: Any, registro: Registry[Any] | No
     formado es un `ValidationFailure`, no una excepción del validador.
     """
     validate_json_schema(esquema)
-    validador = Draft202012Validator(
-        esquema,
-        registry=registro if registro is not None else build_registry(),
-        format_checker=Draft202012Validator.FORMAT_CHECKER,
-    )
+    registro = registro if registro is not None else build_registry()
+    identificador = esquema.get("$id") if isinstance(esquema, dict) else None
+    if isinstance(identificador, str):
+        # Un `$id` relativo se ancla a BASE_URI y el esquema se valida como `{"$ref": uri}`, igual
+        # que `validator_for`: así sus referencias a otros contratos se resuelven con el registro.
+        uri = urljoin(BASE_URI, identificador)
+        recurso = Resource.from_contents(esquema, default_specification=DRAFT202012)
+        validador = validator_for(registro.with_resource(uri, recurso), uri)
+    else:
+        validador = Draft202012Validator(
+            esquema,
+            registry=registro,
+            format_checker=Draft202012Validator.FORMAT_CHECKER,
+        )
     problemas = _errores(validador, instancia)
     if problemas:
         raise ValidationFailure("instancia no válida: " + "; ".join(problemas))

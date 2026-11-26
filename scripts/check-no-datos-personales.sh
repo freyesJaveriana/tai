@@ -71,13 +71,14 @@ buscar() {
 # Los exentos se excluyen dentro de la expresión (lookahead negativo, F-01): así un exento no tapa a un número
 # vecino, porque el motor sigue buscando dentro de los mismos 20 caracteres. CC. seguido de espacio también
 # cuenta (A-01); el lookbehind deja fuera rutas como /cc/ de los lockfiles.
+# A-05 (K-76): un exento seguido de punto y cifras (12345678.456) ya no se exime; un punto de fin de frase sí.
 exentos_er=""
 for permitido in "${numeros_inventados[@]}"; do
   exentos_er+="${permitido//./\\.}|"
 done
 exentos_er="${exentos_er%|}"
 buscar "$numeros" -i -o \
-  -e "(?:\\bC\\.C\\.|(?<![\\w/.\\-])CC(?![\\w/.\\-])|(?<![\\w/.\\-])CC\\.(?=\\s)|\\bc(?:é|e)dula|\\bdocumento de identidad).{0,19}?\\K(?<![\\d.])(?!(?:${exentos_er})(?![\\d]))(?:\\d{6,10}|\\d{1,3}(?:\\.\\d{3}){2,3})(?![\\d])" \
+  -e "(?:\\bC\\.C\\.|(?<![\\w/.\\-])CC(?![\\w/.\\-])|(?<![\\w/.\\-])CC\\.(?=\\s)|\\bc(?:é|e)dula|\\bdocumento de identidad).{0,19}?\\K(?<![\\d.])(?!(?:${exentos_er})(?![\\d]|\\.\\d))(?:\\d{6,10}|\\d{1,3}(?:\\.\\d{3}){2,3})(?![\\d])" \
   -- .
 while IFS=: read -r archivo numero texto; do
   [ -n "$archivo" ] || continue

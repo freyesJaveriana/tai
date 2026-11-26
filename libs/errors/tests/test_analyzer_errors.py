@@ -3,8 +3,8 @@
 import pytest
 
 from veridicus_errors import (
-    Cancelled,
-    CliInterrupted,
+    CancelledError,
+    CliInterruptedError,
     ConfigFamilyError,
     GatewayConfigError,
     ImportInvalidTranscriptError,
@@ -41,9 +41,9 @@ def test_input_rejected_no_agrupa_otras_clases() -> None:
 
 
 def test_cancelled_tiene_code_fijo_y_cuelga_de_su_familia() -> None:
-    assert issubclass(Cancelled, RunFamilyError)
-    with pytest.raises(Cancelled) as capturada:
-        raise Cancelled("La corrida se canceló.")
+    assert issubclass(CancelledError, RunFamilyError)
+    with pytest.raises(CancelledError) as capturada:
+        raise CancelledError("La corrida se canceló.")
     assert capturada.value.code == "run.cancelled"
     assert str(capturada.value) == "La corrida se canceló."
 
@@ -57,8 +57,8 @@ def test_gateway_config_error_tiene_code_fijo_y_cuelga_de_su_familia() -> None:
 
 
 def test_cli_interrupted_tiene_code_fijo_y_cuelga_de_su_familia() -> None:
-    assert issubclass(CliInterrupted, SystemFamilyError)
-    with pytest.raises(CliInterrupted) as capturada:
-        raise CliInterrupted("La ejecución se interrumpió.")
+    assert issubclass(CliInterruptedError, SystemFamilyError)
+    with pytest.raises(CliInterruptedError) as capturada:
+        raise CliInterruptedError("La ejecución se interrumpió.")
     assert capturada.value.code == "system.interrupted"
     assert str(capturada.value) == "La ejecución se interrumpió."

@@ -27,7 +27,7 @@ def analyze(
     con `estado: error` y hallazgos vacíos (AUTONOMIA-05).
 
     Lanza una de las clases de `InputRejected` (la tupla de `veridicus_errors`) ante una entrada
-    inválida (0 llamadas) y `Cancelled` si `cancelled()` es
+    inválida (0 llamadas) y `CancelledError` si `cancelled()` es
     verdadero. Nunca lanza una excepción por un fallo del modelo.
     """
     raise NotImplementedError("analyze: lo implementa U11-T04 (paso 9)")

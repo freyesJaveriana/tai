@@ -598,7 +598,7 @@ InputRejected: tuple[type[VeridicusError], ...] = (
 )
 
 
-class Cancelled(RunFamilyError):
+class CancelledError(RunFamilyError):
     """`run.cancelled`: la corrida se canceló y no devuelve salida (BR7.2)."""
 
     code: ClassVar[str] = "run.cancelled"
@@ -610,7 +610,7 @@ class GatewayConfigError(ConfigFamilyError):
     code: ClassVar[str] = "config.invalid_gateway"
 
 
-class CliInterrupted(SystemFamilyError):
+class CliInterruptedError(SystemFamilyError):
     """`system.interrupted`: SIGINT o SIGTERM cortaron la CLI (NFRD-U11-10)."""
 
     code: ClassVar[str] = "system.interrupted"

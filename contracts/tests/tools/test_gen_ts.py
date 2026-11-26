@@ -93,6 +93,9 @@ def test_el_plegado_de_c8_se_exporta_a_typescript(contracts_root: Path) -> None:
     texto = herramienta().generar(contracts_root)["forbidden-vocabulary.ts"].decode("utf-8")
 
     assert re.search(r'export const FOLD_NORMALIZATION\s*=\s*"NFKD"\s*as const', texto)
+    assert re.search(
+        r'export const FOLD_COMPATIBILITY_SCOPE\s*=\s*"word_characters"\s*as const', texto
+    )
     categorias = _bloque(texto, "FOLD_DROPPED_CATEGORIES")
     assert re.findall(r'"([A-Z][a-z])"', categorias) == fold["dropped_categories"]
     rangos = _enteros(_bloque(texto, "FOLD_DROPPED_CODE_POINTS"))

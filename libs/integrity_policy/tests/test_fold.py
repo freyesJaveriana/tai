@@ -4,6 +4,7 @@ Casos sonda 1 a 8 de U01-T33. Todo sintético. Los caracteres que no son ASCII s
 para que se vea qué se prueba.
 """
 
+import re
 import unicodedata
 from collections.abc import Callable, Iterator
 from importlib.resources import files
@@ -284,6 +285,7 @@ def _c8_with(change: Callable[[dict[str, Any]], Any]) -> dict[str, Any]:
     document["schema_version"] = "2.1.0"
     document["match"]["fold"] = {
         "normalization": "NFKD",
+        "compatibility_scope": "word_characters",
         "case": "casefold",
         "dropped_categories": ["Mn", "Me", "Cf"],
         "dropped_code_points": [list(rango) for rango in DROPPED_RANGES],
@@ -308,6 +310,7 @@ def test_the_versioned_c8_declares_the_fold_the_oracle_expects() -> None:
 
     assert document["schema_version"] == "2.1.0"
     assert fold["normalization"] == "NFKD"
+    assert fold["compatibility_scope"] == "word_characters"
     assert fold["case"] == "casefold"
     assert fold["dropped_categories"] == ["Mn", "Me", "Cf"]
     assert [tuple(rango) for rango in fold["dropped_code_points"]] == DROPPED_RANGES
@@ -327,6 +330,34 @@ def test_the_versioned_c8_declares_the_fold_the_oracle_expects() -> None:
         pytest.param(lambda d: d["match"]["fold"].pop("dropped_code_points"), id="sin-rangos"),
         pytest.param(lambda d: d["match"]["fold"].pop("dropped_categories"), id="sin-categorias"),
         pytest.param(lambda d: d["match"]["fold"].update(dropped_categories=["Xx"]), id="cat-xx"),
+        pytest.param(lambda d: d["match"]["fold"].pop("compatibility_scope"), id="sin-alcance"),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(compatibility_scope="all"), id="alcance-all"
+        ),
+        # F-02: un C8 adulterado no puede dejar ciego al escáner.
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_categories=["Lu", "Ll"]), id="cat-letras"
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_categories=["Mn", "Me", "Cf", "Cn"]),
+            id="cat-cn",
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x41, 0x7A]]),
+            id="rango-letras-ascii",
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x30, 0x39]]),
+            id="rango-digitos",
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x3164, 0x3165]]),
+            id="rango-con-lo-que-no-es-relleno",
+        ),
+        pytest.param(
+            lambda d: d["match"]["fold"].update(dropped_code_points=[[0x0, 0x10FFFF]]),
+            id="rango-de-todo",
+        ),
         pytest.param(lambda d: d["match"]["fold"].update(dropped_categories=[]), id="cat-vacia"),
         pytest.param(
             lambda d: d["match"]["fold"].update(dropped_code_points=[]), id="rangos-vacio"
@@ -478,3 +509,80 @@ def test_property_a_text_without_terms_never_matches_however_it_is_written(
             text = text[:spot] + chr(code_point) + text[spot:]
 
     assert scan.scan(text, []) == []
+
+
+# --- F-01 de la ronda 1: el plegado solo amplía lo que se detecta (AUTONOMIA-03) -----------------------
+
+TRADEMARK = chr(0x2122)  # ™
+NUMERO = chr(0x2116)  # №
+CIRCLED_A = chr(0x24D0)  # ⓐ
+SQUARE_M2 = chr(0x33A1)  # ㎡
+SERVICE_MARK = chr(0x2120)  # ℠
+SEPARATING_SYMBOLS = [TRADEMARK, NUMERO, CIRCLED_A, SQUARE_M2, SERVICE_MARK]
+
+
+@pytest.mark.parametrize(
+    "char", SEPARATING_SYMBOLS, ids=[f"U+{ord(c):04X}" for c in SEPARATING_SYMBOLS]
+)
+def test_a_compatibility_symbol_glued_to_a_term_still_separates_it(char: str) -> None:
+    """Antes de C8 2.1.0 estos símbolos partían la palabra; NFKD los volvía letras y escondía el término."""
+    assert terms_of(f"Es falso{char}") == ["falso"]
+    assert terms_of(f"{char}falso y nada") == ["falso"]
+    assert terms_of(f"Dijo {char}falso{char} hoy") == ["falso"]
+    assert covered(f"Es falso{char}") == ["falso"]
+
+
+def test_a_compatibility_letter_glued_to_a_term_still_hides_it_like_any_letter() -> None:
+    """Control: una letra de compatibilidad sí es letra y pega la palabra (no hay falso positivo nuevo)."""
+    assert terms_of("falso" + chr(0xFF41)) == []  # «ａ» de ancho completo
+    assert terms_of(chr(0x1D41A) + "falso") == []  # «𝐚» matemática
+
+
+def _old_fold(text: str) -> str:
+    """El pliegue de `main` (NFD para todo carácter), escrito aparte para comparar."""
+    chars: list[str] = []
+    for char in text:
+        for part in unicodedata.normalize("NFD", char):
+            if unicodedata.combining(part) or unicodedata.category(part) in {"Cf", "Mn", "Me"}:
+                continue
+            chars.append(part.casefold())
+    return "".join(chars)
+
+
+def _old_detects(text: str) -> bool:
+    return re.search(r"(?<!\w)falso(?!\w)", _old_fold(text)) is not None
+
+
+def _differing_code_points() -> list[str]:
+    """Los caracteres cuya descomposición NFKD difiere de la NFD: los únicos donde el pliegue cambió.
+
+    En el resto la forma plegada es la misma que la de `main`; lo único que cambia son los rangos de
+    `dropped_code_points`, que solo descartan más.
+    """
+    return [
+        chr(code_point)
+        for code_point in range(0x110000)
+        if not 0xD800 <= code_point <= 0xDFFF
+        and unicodedata.normalize("NFKD", chr(code_point))
+        != unicodedata.normalize("NFD", chr(code_point))
+    ]
+
+
+def test_the_fold_only_widens_what_the_scanner_detects() -> None:
+    """Todo carácter que separaba el término en `main` lo sigue separando (o lo deja pasar igual).
+
+    Para cada carácter que NFKD cambia, cuatro textos con él pegado al término, antes, después, en
+    medio y en los dos lados: si el pliegue de `main` detectaba `falso`, el escáner también.
+    """
+    checked = 0
+    for char in _differing_code_points():
+        for text in (
+            f"Es falso{char}",
+            f"{char}falso y",
+            f"fal{char}so",
+            f"{char}fal{char}so{char}",
+        ):
+            if _old_detects(text):
+                checked += 1
+                assert "falso" in terms_of(text), f"U+{ord(char):04X} en {text!r}"
+    assert checked > 2000  # el control: la comparación se hizo de verdad (hoy 2214).

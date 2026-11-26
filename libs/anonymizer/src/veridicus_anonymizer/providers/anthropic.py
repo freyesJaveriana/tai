@@ -12,6 +12,9 @@ Reglas que cumple este módulo:
 - La clave solo va en la cabecera `x-api-key` (BR5.4) y nunca en un mensaje de error.
 - Devuelve el JSON ya parseado en modo estricto y validado contra `req.schema`, **sin restaurar**
   (PD-8): la restauración es de `application/`. Por eso este módulo no importa `domain/`.
+- Descarta los bloques `thinking` y `redacted_thinking` y exige exactamente un bloque `text`: en
+  los modelos con pensamiento encendido por defecto (p. ej. `claude-sonnet-5-5`, que no admite
+  `thinking: disabled`), la respuesta puede traer esos bloques antes del texto.
 - Todo error posterior al envío lleva su `ModelCall` (BR2.6); lo que ocurre antes de enviar o al
   abrir la conexión es `AnonymizerUnavailable`, sin `ModelCall`.
 
@@ -50,6 +53,8 @@ API_VERSION: Final = "2026-10-21"
 MAX_TOKENS: Final = 16000
 CONNECT_TIMEOUT_S: Final = 10.0
 MAX_COUNT: Final = 9007199254740991
+# Bloques de pensamiento de la Messages API que `_single_text` descarta antes del bloque de texto.
+THINKING_BLOCK_TYPES: Final = frozenset({"thinking", "redacted_thinking"})
 _TOKEN = re.compile(r"[A-Za-z0-9._:/@+-]{1,128}")
 _INVALID: Final = object()
 
@@ -236,12 +241,25 @@ def _count(value: Any) -> int:
     return int(value) if ok else 0
 
 
+def _is_thinking(block: Any) -> bool:
+    return isinstance(block, dict) and block.get("type") in THINKING_BLOCK_TYPES
+
+
 def _single_text(blocks: Any) -> str | None:
-    """El texto del único bloque de `content`, o `None` si no hay uno solo y de tipo texto."""
-    if not (isinstance(blocks, list) and len(blocks) == 1 and isinstance(blocks[0], dict)):
+    """El texto del único bloque `text` de `content`, o `None` si no hay exactamente uno.
+
+    Los bloques de pensamiento se descartan sin leerlos: los modelos con pensamiento adaptativo
+    encendido por defecto pueden anteponerlos a la respuesta, y con `display: "omitted"` llegan con
+    el texto vacío y una firma cifrada que aquí no sirve. Cualquier otro bloque sigue contando, así
+    que un bloque de herramienta o un segundo texto hacen inválida la respuesta.
+    """
+    if not isinstance(blocks, list):
         return None
-    text = blocks[0].get("text")
-    return text if blocks[0].get("type") == "text" and isinstance(text, str) else None
+    visible = [block for block in blocks if not _is_thinking(block)]
+    if not (len(visible) == 1 and isinstance(visible[0], dict)):
+        return None
+    text = visible[0].get("text")
+    return text if visible[0].get("type") == "text" and isinstance(text, str) else None
 
 
 def _interpret(raw: bytes, schema: dict[str, Any]) -> _Parsed | _Failure:

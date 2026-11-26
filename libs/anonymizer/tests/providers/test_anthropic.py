@@ -308,12 +308,52 @@ def _with_content(content: object, **changes: Any) -> FakeResponse:
     return FakeResponse.ok_json(envelope)
 
 
+def _thinking_block() -> dict[str, Any]:
+    """Bloque de pensamiento con `display: "omitted"`: texto vacío y firma cifrada (sintética)."""
+    return {"type": "thinking", "thinking": "", "signature": "firma_sintetica_cifrada"}
+
+
+def _redacted_thinking_block() -> dict[str, Any]:
+    return {"type": "redacted_thinking", "data": "datos_sinteticos_cifrados"}
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        [_thinking_block(), _text_block()],
+        [_redacted_thinking_block(), _text_block()],
+        [_thinking_block(), _redacted_thinking_block(), _text_block()],
+        [_text_block(), _thinking_block()],
+    ],
+    ids=["pensamiento_omitido", "pensamiento_redactado", "dos_pensamientos", "pensamiento_despues"],
+)
+def test_thinking_blocks_are_ignored_and_the_single_text_block_is_the_answer(
+    content: list[dict[str, Any]],
+) -> None:
+    transport = FakeTransport(_with_content(content), ok_response())
+
+    reply = run(transport)
+
+    assert reply.content == EMPTY_FINDINGS
+    assert transport.request_count == 1
+    assert (reply.call.input_tokens, reply.call.output_tokens) == (412, 37)
+
+
 INVALID_RESPONSES: dict[str, Callable[[], FakeResponse]] = {
     "envoltura_que_no_es_objeto": lambda: FakeResponse.ok_json([1, 2]),
     "cuerpo_que_no_es_utf8": lambda: FakeResponse(status=200, body=b"\xff\xfe"),
     "contenido_vacio": lambda: _with_content([]),
     "varios_bloques_de_texto": lambda: _with_content([_text_block(), _text_block()]),
     "bloque_que_no_es_texto": lambda: _with_content([{"type": "thinking", "thinking": "x"}]),
+    "solo_pensamiento_redactado": lambda: _with_content([_redacted_thinking_block()]),
+    "pensamiento_y_dos_textos": lambda: _with_content(
+        [_thinking_block(), _text_block(), _text_block()]
+    ),
+    "pensamiento_y_herramienta": lambda: _with_content(
+        [_thinking_block(), {"type": "tool_use", "id": "toolu_x", "name": "x", "input": {}}]
+    ),
+    "bloque_que_no_es_objeto": lambda: _with_content(["texto"]),
+    "pensamiento_y_bloque_que_no_es_objeto": lambda: _with_content([_thinking_block(), "texto"]),
     "bloque_sin_texto": lambda: _with_content([{"type": "text", "text": 5}]),
     "contenido_que_no_es_lista": lambda: _with_content("texto"),
     "sin_stop_reason": lambda: _with_content([_text_block()], stop_reason=None),

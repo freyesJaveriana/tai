@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: otro-con-volumen
+  namespace: veridicus-demo
+spec:
+  containers:
+    - name: otro
+      image: ghcr.io/freyesjaveriana/otro:v1
+      volumeMounts:
+        - name: clave
+          mountPath: /clave
+  volumes:
+    - name: clave
+      secret:
+        secretName: veridicus-anthropic

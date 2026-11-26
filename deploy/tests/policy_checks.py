@@ -1,6 +1,6 @@
 """Comprobaciones estáticas de los manifiestos de la demo: reglas (a) a (d) y la `NetworkPolicy`.
 
-Cada función recibe los recursos ya renderizados (lo que `kubectl apply -k` enviaría) y devuelve la
+Cada función recibe los recursos ya renderizados (lo que la kustomization enviaría al clúster) y devuelve la
 lista de infracciones; vacía quiere decir que cumple. Así una prueba puede alterar un recurso en
 memoria y comprobar que la regla lo ve. No ejecuta kubectl ni kustomize: aplica a mano los tres
 efectos de la kustomization que importan aquí (namespace, imágenes y generador de ConfigMap).

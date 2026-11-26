@@ -1,0 +1,40 @@
+---
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: veridicus-imagen-con-etiqueta
+policies:
+  - policy.yaml
+resources:
+  - resources/pass-pod-con-etiqueta.yaml
+  - resources/pass-pod-con-digest.yaml
+  - resources/fail-pod-latest.yaml
+  - resources/fail-pod-sin-etiqueta.yaml
+results:
+  - policy: veridicus-imagen-con-etiqueta
+    rule: imagen-con-etiqueta
+    kind: Pod
+    resources:
+      - con-etiqueta
+      - con-digest
+    result: pass
+  - policy: veridicus-imagen-con-etiqueta
+    rule: imagen-con-etiqueta
+    kind: Pod
+    resources:
+      - sin-etiqueta
+    result: fail
+  - policy: veridicus-imagen-con-etiqueta
+    rule: imagen-sin-latest
+    kind: Pod
+    resources:
+      - con-etiqueta
+      - con-digest
+      - sin-etiqueta
+    result: pass
+  - policy: veridicus-imagen-con-etiqueta
+    rule: imagen-sin-latest
+    kind: Pod
+    resources:
+      - con-latest
+    result: fail

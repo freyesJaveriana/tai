@@ -1,0 +1,38 @@
+---
+# Regla (c): el securityContext restricted del paso 4. Se limita al namespace de la demo: aplicarla a
+# todo el clúster rechazaría los pods del sistema.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: veridicus-pod-restricted
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: pod-restricted
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - veridicus-demo
+      validate:
+        message: >-
+          El pod debe correr sin root, con seccomp RuntimeDefault, sistema de archivos de solo
+          lectura, sin escalada de privilegios y sin capacidades.
+        pattern:
+          spec:
+            securityContext:
+              runAsNonRoot: true
+              seccompProfile:
+                type: RuntimeDefault
+            containers:
+              - securityContext:
+                  readOnlyRootFilesystem: true
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                      - ALL

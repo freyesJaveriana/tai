@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Lo ejecuta el humano (AUTONOMIA-01)
+# Crea el Secret veridicus-anthropic con la clave del proveedor, leída de un .env que no se versiona.
+#
+# Uso: bash scripts/humano/crear-secret-anthropic.sh <archivo .env>
+#
+# La clave nunca se guarda en una variable, no se imprime y no viaja como argumento de ningún
+# comando (se vería en `ps`): va de grep a un archivo temporal 0600 y de ahí a kubectl con
+# --from-file. El .env se analiza con grep y cut sobre una sola llave; no se hace source.
+set -euo pipefail
+
+archivo="${1:-}"
+if [ -z "$archivo" ] || [ ! -f "$archivo" ]; then
+  echo "Uso: bash scripts/humano/crear-secret-anthropic.sh <archivo .env>" >&2
+  exit 2
+fi
+
+namespace="veridicus-demo"
+
+# leer <archivo> <llave>: el valor de la primera línea LLAVE=valor, sin comillas ni saltos de línea.
+leer() {
+  grep -m 1 -E "^$2=" "$1" | cut -d= -f2- | tr -d "\r\n\"'"
+}
+
+if ! grep -qE '^VERIDICUS_ANTHROPIC_API_KEY=.' "$archivo"; then
+  echo "El archivo no trae la llave VERIDICUS_ANTHROPIC_API_KEY con un valor." >&2
+  exit 2
+fi
+
+umask 077
+temporal="$(mktemp)"
+trap 'rm -f "$temporal"' EXIT
+
+leer "$archivo" VERIDICUS_ANTHROPIC_API_KEY > "$temporal"
+if [ ! -s "$temporal" ]; then
+  echo "La llave VERIDICUS_ANTHROPIC_API_KEY está vacía." >&2
+  exit 2
+fi
+
+if ! kubectl get namespace "$namespace" > /dev/null 2>&1; then
+  kubectl create namespace "$namespace"
+fi
+
+kubectl create secret generic veridicus-anthropic --namespace "$namespace" --from-file=api-key="$temporal" --dry-run=client -o yaml | kubectl apply -f -
+echo "Secret veridicus-anthropic creado o actualizado en el namespace $namespace."

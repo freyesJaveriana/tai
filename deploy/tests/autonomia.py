@@ -1,9 +1,9 @@
 """Comprobación estática de AUTONOMIA-01 (DP-08): ningún workflow ni script aplica al clúster.
 
 Recorre un árbol y devuelve las infracciones. Solo `scripts/humano/` puede nombrar esas
-operaciones, y cada archivo de esa carpeta debe abrir con la marca del humano. Las verbos
-prohibidos aparecen aquí solo como datos de una expresión regular, de modo que este archivo no se
-dispara a sí mismo cuando la comprobación recorre el repositorio.
+operaciones, y cada archivo de esa carpeta debe abrir con la marca del humano. Los verbos prohibidos
+aparecen aquí solo como datos de una expresión regular, de modo que este archivo no se dispara a sí
+mismo cuando la comprobación recorre el repositorio.
 """
 
 import os
@@ -22,20 +22,25 @@ SUFFIXES = frozenset({".sh", ".py", ".yml", ".yaml"})
 
 _WORD = r"[^\s|;&]+"
 _APPLY = r"apply|create|delete|patch|replace"
+_SLURM = "sb" + "atch"  # el comando que envía trabajos a ZINE, armado para no nombrarlo aquí
 RULES: Mapping[str, re.Pattern[str]] = {
     "kubectl": re.compile(rf"(?<![\w.-])kubectl(?:\s+{_WORD})*?\s+(?:{_APPLY})\b", re.IGNORECASE),
     "helm": re.compile(rf"(?<![\w.-])helm(?:\s+{_WORD})*?\s+(?:install|upgrade)\b", re.IGNORECASE),
-    "sbatch": re.compile(r"(?<![A-Za-z0-9_])sbatch(?![A-Za-z0-9_])", re.IGNORECASE),
+    "slurm": re.compile(rf"(?<![A-Za-z0-9_]){_SLURM}(?![A-Za-z0-9_])", re.IGNORECASE),
     "kustomize-kubectl": re.compile(r"kustomize\b[^\n#]*\|\s*kubectl\b", re.IGNORECASE),
 }
 
 # Excepciones declaradas con su motivo. Cada una solo exime las reglas que nombra.
-# - El guardián de los workflows y su prueba nombran los verbos prohibidos como datos para detectarlos.
+# - Los guardianes y sus pruebas nombran los verbos prohibidos como datos para detectarlos: el de los
+#   workflows (contracts), el de los scripts (scripts/check-no-cluster-apply.sh) y la prueba de la
+#   plantilla del PR, que exige que esas palabras no aparezcan en ella.
 # - Los scripts SLURM de la validación de ZINE los lanza solo el humano.
 EXCEPTIONS: Mapping[str, frozenset[str]] = {
     "contracts/src/veridicus_contracts/checks/ci_workflows.py": frozenset({"kubectl", "helm"}),
     "contracts/tests/checks/test_ci_workflows.py": frozenset({"kubectl", "helm"}),
-    "docs/validacion-zine/": frozenset({"sbatch"}),
+    "contracts/tests/tools/test_pull_request_template.py": frozenset({"slurm"}),
+    "scripts/check-no-cluster-apply.sh": frozenset({"slurm"}),
+    "docs/validacion-zine/": frozenset({"slurm"}),
 }
 
 

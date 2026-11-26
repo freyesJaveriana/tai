@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: otro-con-envfrom
+  namespace: veridicus-demo
+spec:
+  containers:
+    - name: otro
+      image: ghcr.io/freyesjaveriana/otro:v1
+      envFrom:
+        - secretRef:
+            name: veridicus-anthropic

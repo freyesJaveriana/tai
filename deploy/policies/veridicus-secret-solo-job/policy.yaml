@@ -1,0 +1,36 @@
+---
+# Regla (a), AC11.6.4 en la lectura de DP-04: solo el pod del Job veridicus-analyzer-demo usa el
+# Secret veridicus-anthropic, sea por secretKeyRef, envFrom o volumen. Se reconoce al Job por su
+# ownerReference y no por una etiqueta, que cualquiera podría copiar.
+# Se desactiva la generación automática para controladores: los pods creados por un Deployment o un
+# Job llegan igual a esta regla cuando el controlador los crea.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: veridicus-secret-solo-job
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: solo-el-job-referencia-el-secret
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - veridicus-demo
+      validate:
+        message: >-
+          Solo el Job veridicus-analyzer-demo puede usar el Secret veridicus-anthropic.
+        deny:
+          conditions:
+            all:
+              - key: "{{ contains(to_string(request.object.spec), 'veridicus-anthropic') }}"
+                operator: Equals
+                value: true
+              - key: "{{ request.object.metadata.ownerReferences[?kind=='Job'].name | [0] || '' }}"
+                operator: NotEquals
+                value: veridicus-analyzer-demo

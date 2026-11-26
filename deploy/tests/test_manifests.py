@@ -1,7 +1,7 @@
 """Los manifiestos de la demo (pasos 4 y 5): el Job, el namespace y la NetworkPolicy.
 
 Las pruebas leen los YAML de `deploy/demo-analyzer/`, los renderizan como lo haría
-`kubectl apply -k` y comprueban campo por campo. Cada regla lleva su control negativo: un
+la kustomization y comprueban campo por campo. Cada regla lleva su control negativo: un
 manifiesto alterado en memoria que la regla debe ver. No se ejecuta kubectl.
 """
 
@@ -284,7 +284,12 @@ ALLOW_MUTATIONS: dict[str, Callable[[Resource], None]] = {
         ["spec", "egress", 1, "to", 0, "podSelector", "matchLabels"], {"k8s-app": "otro"}
     ),
     "DNS con un puerto extra": _set(
-        ["spec", "egress", 1, "ports", 2], {"protocol": "TCP", "port": 22}
+        ["spec", "egress", 1, "ports"],
+        [
+            {"protocol": "UDP", "port": 53},
+            {"protocol": "TCP", "port": 53},
+            {"protocol": "TCP", "port": 22},
+        ],
     ),
     "DNS solo UDP": _set(["spec", "egress", 1, "ports"], [{"protocol": "UDP", "port": 53}]),
     "selector de otro pod": _set(["spec", "podSelector"], {"matchLabels": {"app": "otro"}}),

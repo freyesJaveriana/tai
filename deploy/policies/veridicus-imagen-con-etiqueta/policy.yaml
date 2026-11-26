@@ -1,0 +1,44 @@
+---
+# Regla (b): toda imagen lleva una etiqueta o un digest, y ninguna es latest.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: veridicus-imagen-con-etiqueta
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: imagen-con-etiqueta
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - veridicus-demo
+      validate:
+        message: Toda imagen lleva una etiqueta o un digest.
+        pattern:
+          spec:
+            containers:
+              - image: "*?:?*"
+            =(initContainers):
+              - image: "*?:?*"
+    - name: imagen-sin-latest
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - veridicus-demo
+      validate:
+        message: Ninguna imagen puede ser latest.
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest"
+            =(initContainers):
+              - image: "!*:latest"

@@ -12,7 +12,7 @@ from collections.abc import Mapping
 from autonomia import logical_lines, mark_violations
 
 _KEY_VAR = r"\$\{?\w*(?:clave|token|auth|password|api_key)\w*"
-_COMMAND_START = r"(?:^\s*|[;&|(]\s*)"
+_COMMAND_START = r"(?:^\s*|[;&|({]\s*|\b(?:then|do|else)\s+)"
 
 LINE_RULES: Mapping[str, re.Pattern[str]] = {
     "echo o printf de una variable secreta": re.compile(

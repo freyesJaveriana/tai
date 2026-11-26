@@ -1,0 +1,25 @@
+---
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: veridicus-recursos-requeridos
+policies:
+  - policy.yaml
+resources:
+  - resources/pass-pod-con-recursos.yaml
+  - resources/fail-pod-sin-recursos.yaml
+  - resources/fail-pod-sin-limits.yaml
+results:
+  - policy: veridicus-recursos-requeridos
+    rule: requests-y-limits
+    kind: Pod
+    resources:
+      - con-recursos
+    result: pass
+  - policy: veridicus-recursos-requeridos
+    rule: requests-y-limits
+    kind: Pod
+    resources:
+      - sin-recursos
+      - sin-limits
+    result: fail

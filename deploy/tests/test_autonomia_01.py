@@ -102,10 +102,10 @@ DISGUISED = {
     "continuación de línea": f"{K} \\\n  -n x \\\n  apply -f y",
     "tras una tubería": f"echo x | {K} apply -f -",
     "kustomize canalizado": f"kustomize build deploy | {K} -n x apply -f -",
-    "helm upgrade --install": f"{H} upgrade --install veridicus charts/veridicus",
-    "helm con opciones": f"{H} --namespace v -n w install a b",
-    "helm install": f"{H} install a b",
-    "envío a SLURM": f"{S} trabajos/m1.sbatch",
+    "upgrade con --install": f"{H} upgrade --install veridicus charts/veridicus",
+    "paquetes con opciones": f"{H} --namespace v -n w install a b",
+    "instalación de un chart": f"{H} install a b",
+    "envío a SLURM": f"{S} trabajos/m1.sh",
     "envío a SLURM tras un comando": f"cd x && {S} --parsable job",
 }
 
@@ -158,7 +158,7 @@ def test_a_makefile_and_a_yaml_manifest_are_read(tmp_path: Path) -> None:
 
 
 def test_an_exception_exempts_only_the_rules_it_names(tmp_path: Path) -> None:
-    exceptions = {"docs/validacion-zine/": frozenset({"sbatch"}), "uno.py": frozenset({"helm"})}
+    exceptions = {"docs/validacion-zine/": frozenset({"slurm"}), "uno.py": frozenset({"helm"})}
     _write(tmp_path, "docs/validacion-zine/a.sh", f"{S} job\n")
     _write(tmp_path, "docs/validacion-zine/b.sh", f"{K} apply -f y\n")
     _write(tmp_path, "uno.py", f"{H} install a b\n")
@@ -171,7 +171,9 @@ def test_the_declared_exceptions_are_only_the_known_ones() -> None:
     assert sorted(EXCEPTIONS) == [
         "contracts/src/veridicus_contracts/checks/ci_workflows.py",
         "contracts/tests/checks/test_ci_workflows.py",
+        "contracts/tests/tools/test_pull_request_template.py",
         "docs/validacion-zine/",
+        "scripts/check-no-cluster-apply.sh",
     ]
 
 

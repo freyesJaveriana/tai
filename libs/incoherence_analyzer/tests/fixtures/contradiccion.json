@@ -1,0 +1,20 @@
+{
+  "entrevista": "SINT-E2E-01",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Qué hizo usted esa mañana?"},
+    {
+      "n": 2,
+      "hablante": "TEST",
+      "pagina": 1,
+      "texto": "Esa mañana salí de la casa a las ocho y caminé hasta el mercado."
+    },
+    {"n": 3, "hablante": "ENT", "texto": "¿Y después qué pasó?"},
+    {
+      "n": 4,
+      "hablante": "TEST",
+      "pagina": 2,
+      "texto": "Esa mañana no salí de la casa, me quedé adentro hasta la tarde."
+    }
+  ]
+}

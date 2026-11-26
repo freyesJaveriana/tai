@@ -246,25 +246,25 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 4 — Perfiles de ejecución y configuración (arranque de F8) · tarea U11-T02
 
-- [ ] **`execution_profiles/loader.py`:**
+- [x] **`execution_profiles/loader.py`:**
   - carga `config/profiles.yaml` con el cargador seguro y lo valida con `profiles.validate` de U1;
   - llama a `limits.load(environ)`;
   - resuelve la `EffectiveConfig` (`effective-config.v1.yaml`), con huellas `canonical.sha256_jcs` que no incluyen el valor de la clave.
-- [ ] **`execution_profiles/validate.py`:**
+- [x] **`execution_profiles/validate.py`:**
   - BR2.1;
   - BR2.2: la variable de `api_key_ref` existe en el entorno; si no, CLI 3 nombrando la variable;
   - BR2.3: `base_url` privada solo en destinos locales;
   - BR2.5: misma familia solo con `purpose: demonstration` y `same_family_declared`;
   - BR2.11: la configuración es de solo lectura.
-- [ ] **`execution_profiles/floors.py`** (NFRD-U11-03): `COMMERCIAL_MIN_CALL_TIMEOUT_S = 270`. Con un papel externo, 269 falla y 270 arranca.
-- [ ] **`config/profiles.yaml`** (R-01; CG-U11-12): `schema_version: "1.0.0"` y **un solo perfil**, `demo-anthropic`. Solo lleva campos de `profiles.schema.v1.yaml` y `profile-base`:
+- [x] **`execution_profiles/floors.py`** (NFRD-U11-03): `COMMERCIAL_MIN_CALL_TIMEOUT_S = 270`. Con un papel externo, 269 falla y 270 arranca.
+- [x] **`config/profiles.yaml`** (R-01; CG-U11-12): `schema_version: "1.0.0"` y **un solo perfil**, `demo-anthropic`. Solo lleva campos de `profiles.schema.v1.yaml` y `profile-base`:
   - `roles.judge` y `roles.verifier`: los dos con `scope: external`, proveedor `anthropic`, modelo `claude-sonnet-5-5`, `family: claude` y `api_key_ref: VERIDICUS_ANTHROPIC_API_KEY`;
   - `role_aliases: {verifier_permuted: verifier}`;
   - `permutation: true`, sin `fallback_provider`;
   - `purpose: demonstration` y `same_family_declared: true`.
 
   `prompt_sha256` y los límites **no** van en el perfil; viven en la `EffectiveConfig` (PD-13; «Dependencias»). Antes de escribir el perfil, el codificador lee `profile-base.schema.v1` y anota en la bitácora los nombres exactos de los campos de cada papel.
-- [ ] Prueba de que el perfil escrito valida con `profiles.validate(..., kind="analyzer")` real, sin *stub*. Esta prueba no forma parte del rojo.
+- [x] Prueba de que el perfil escrito valida con `profiles.validate(..., kind="analyzer")` real, sin *stub*. Esta prueba no forma parte del rojo.
 - **Riesgo:** alto (esta configuración decide si salen datos).
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/execution_profiles pytest --cov=veridicus_execution_profiles.validate --cov=veridicus_execution_profiles.floors --cov-branch --cov-fail-under=100 --cov-report=term-missing`
 - **Umbral:** código 0, al menos 10 pruebas, 100 % de ramas en `validate.py` y `floors.py`, y la prueba de contrato del paso 3 pasa.
@@ -272,9 +272,9 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 5 — Escáner de vocabulario y aviso VE-01 · tarea U11-T02
 
-- [ ] `integrity_policy/scan.py`: `scan(text, literal_sources)` con la lista de C8 de `contracts`. Excluye las citas literales y la cadena completa del aviso (BR9.1 a BR9.4).
-- [ ] `integrity_policy/notice.py`: lee `contracts/integrity/notice.v1.yaml` y devuelve el texto y la versión. Si el archivo falta o no trae versión, lanza el error de configuración (BR9.5).
-- [ ] `tests/test_scan_cases.py` (BR9.4; R-06; N-01): una prueba parametrizada ejecuta **todos** los casos `rule: vocabulary` de `contracts/integrity/scan-cases.v1.yaml` y falla si alguno no da lo esperado.
+- [x] `integrity_policy/scan.py`: `scan(text, literal_sources)` con la lista de C8 de `contracts`. Excluye las citas literales y la cadena completa del aviso (BR9.1 a BR9.4).
+- [x] `integrity_policy/notice.py`: lee `contracts/integrity/notice.v1.yaml` y devuelve el texto y la versión. Si el archivo falta o no trae versión, lanza el error de configuración (BR9.5).
+- [x] `tests/test_scan_cases.py` (BR9.4; R-06; N-01): una prueba parametrizada ejecuta **todos** los casos `rule: vocabulary` de `contracts/integrity/scan-cases.v1.yaml` y falla si alguno no da lo esperado.
   - Los casos `rule: clarification` son de U8 (FD-U8-09) y quedan fuera de U11.
   - Otra prueba fija el conjunto de valores de `rule` en `{vocabulary, clarification}`. Si aparece cualquier otro, la suite falla.
   - El control negativo es un caso `vocabulary` con el resultado esperado invertido, que tiene que fallar.

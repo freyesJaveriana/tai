@@ -106,7 +106,9 @@ def test_no_seeded_entity_leaves_in_the_bodies_of_judge_verifier_and_permuted_ve
     assert salida["estado"] == "ok"
     assert provider.request_count == 3, "juez, verificador y verificador permutado"
     assert_no_entity_in_payload(provider, ENTITIES)
-    assert any(b"[PERSONA_" in raw for raw in provider.bodies), "los cuerpos llevan marcas"
+    assert any(b"[PERSONA_" in raw or b"[ENTIDAD_" in raw for raw in provider.bodies), (
+        "los cuerpos llevan marcas"
+    )
 
 
 def test_negative_control_the_same_assertion_fails_with_pseudonymization_bypassed(

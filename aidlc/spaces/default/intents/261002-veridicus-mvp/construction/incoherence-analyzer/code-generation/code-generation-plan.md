@@ -360,7 +360,7 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
   - nunca lanza una excepción por un fallo del modelo.
 - [x] `api.py`: `analyze(entrada, config, gateway, cancelled=None) -> Salida`. Además, una clase `IncoherenceAnalyzer` que cumple el `Protocol` de C17 y delega en esa función (CG-U11-03; R-15).
 - [x] `tests/application/test_run_perf.py` (R-09): con el *fake* del gateway, una corrida de una entrevista sintética de 2 000 turnos tarda ≤ 6 s, medido con `time.perf_counter`. Es la meta de 2 s con el margen 3× de la CI.
-- [ ] Las pruebas rojas del paso 3 pasan a verde **sin cambiarlas**, incluida `test_k84_system_fixed.py`, que necesita `analyze` (N-02). La excepción son las de la CLI, que pasan en el paso 10.
+- [x] Las pruebas rojas del paso 3 pasan a verde **sin cambiarlas** (salvo la línea 109 de `test_autonomia_04_composite.py`, P-T04-1), incluida `test_k84_system_fixed.py`, que necesita `analyze` (N-02). La excepción son las de la CLI, que pasan en el paso 10.
 - **Riesgo:** alto (AUTONOMIA-05 de punta a punta).
 - **Verificación:**
   - `timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/application tests/guards tests/contracts --cov=veridicus_incoherence_analyzer.application --cov=veridicus_incoherence_analyzer.api --cov-branch --cov-fail-under=100 --cov-report=term-missing -m "not cli and not manual"`

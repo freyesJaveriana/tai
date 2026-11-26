@@ -89,3 +89,37 @@ markers = [
 [tool.coverage.run]
 branch = true
 source = ["veridicus_incoherence_analyzer"]
+
+# Fronteras de U11 (BR10.5, SD §1). Cada contrato tiene su control negativo en `tests/boundaries/`.
+[tool.importlinter]
+root_package = "veridicus_incoherence_analyzer"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "u11-no-infra"
+type = "forbidden"
+source_modules = ["veridicus_incoherence_analyzer"]
+forbidden_modules = ["redis", "kubernetes", "psycopg", "asyncpg", "sqlalchemy", "prometheus_client"]
+
+# Solo la raíz de composición de la CLI importa el anonimizador (PD-7); ningún `__init__` la
+# reexporta (lo comprueba una prueba AST). `gateway-no-anonymizer` vive en `libs/model_gateway`.
+[[tool.importlinter.contracts]]
+name = "core-no-anonymizer"
+type = "forbidden"
+source_modules = ["veridicus_incoherence_analyzer"]
+forbidden_modules = ["veridicus_anonymizer"]
+ignore_imports = ["veridicus_incoherence_analyzer.cli.composition -> veridicus_anonymizer"]
+
+# El dominio es código puro: no conoce la aplicación, la CLI, los adaptadores ni el cliente HTTP.
+[[tool.importlinter.contracts]]
+name = "layers"
+type = "forbidden"
+source_modules = ["veridicus_incoherence_analyzer.domain"]
+forbidden_modules = [
+    "veridicus_incoherence_analyzer.application",
+    "veridicus_incoherence_analyzer.api",
+    "veridicus_incoherence_analyzer.cli",
+    "veridicus_model_gateway",
+    "veridicus_anonymizer",
+    "httpx",
+]

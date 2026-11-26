@@ -77,3 +77,22 @@ markers = [
 [tool.coverage.run]
 branch = true
 source = ["veridicus_model_gateway"]
+
+# Fronteras de U11 (BR10.5, SD §1). Cada contrato tiene su control negativo en
+# `libs/incoherence_analyzer/tests/boundaries/`.
+[tool.importlinter]
+root_package = "veridicus_model_gateway"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "u11-no-infra"
+type = "forbidden"
+source_modules = ["veridicus_model_gateway"]
+forbidden_modules = ["redis", "kubernetes", "psycopg", "asyncpg", "sqlalchemy", "prometheus_client"]
+
+# El gateway recibe el `AnonymizingProvider` inyectado y nunca importa el módulo (ADR-010).
+[[tool.importlinter.contracts]]
+name = "gateway-no-anonymizer"
+type = "forbidden"
+source_modules = ["veridicus_model_gateway"]
+forbidden_modules = ["veridicus_anonymizer"]

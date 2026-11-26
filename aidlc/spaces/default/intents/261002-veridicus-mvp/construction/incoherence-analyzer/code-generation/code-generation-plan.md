@@ -370,22 +370,22 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 10 — CLI `veridicus analyze` (F9) · tarea U11-T05
 
-- [ ] `cli/main.py`, con `argparse` y la costura de PD-12 (`main()` → `run(argv, env, *, transport=None)`):
+- [x] `cli/main.py`, con `argparse` y la costura de PD-12 (`main()` → `run(argv, env, *, transport=None)`):
   - uso: `veridicus analyze <archivo.json | directorio> --perfil <nombre> [--salida <dir>]`;
   - lee el objeto `transcripcion` y arma la `Entrada` (PD-3);
   - al inicio escribe en stderr el aviso VE-01 y el aviso `same_family`, y los deja también en `AVISO.txt` dentro del directorio de salida (BR9.5; PD-2).
-- [ ] `cli/composition.py` (PD-7):
+- [x] `cli/composition.py` (PD-7):
   - arranca en el orden de RD: límites, perfiles, *prompt*, aviso y gateway con el piso;
   - importa `veridicus_anonymizer` de forma diferida, solo cuando hay un papel externo;
   - cualquier fallo da CLI 3 y 0 llamadas.
-- [ ] `cli/io_atomic.py` y `cli/results_dir.py`:
+- [x] `cli/io_atomic.py` y `cli/results_dir.py`:
   - escritura atómica de `<nombre>.salida.json` (BR11.4);
   - validación previa completa del lote, y 0 archivos si falla (BR11.2);
   - una salida con origen corpus solo puede ir a un directorio que Git no rastrea (BR11.5);
   - BR11.6 (R-11): `.gitignore` cubre `resultados-locales/`, y una prueba de nivel 0 lo comprueba con `git check-ignore`. El control negativo es una ruta que Git sí rastrea, que tiene que fallar.
-- [ ] Sin `reporte.json` en B11a. Con el código 4, la CLI escribe solo la salida en error (CG-U11-13).
-- [ ] `cli/messages.py`: catálogo cerrado de mensajes en español. stderr nunca lleva testimonio, y un *canary* lo comprueba (BR11.7).
-- [ ] Códigos de salida: 0, 2, 3, 4 y 5 (BR11.3).
+- [x] Sin `reporte.json` en B11a. Con el código 4, la CLI escribe solo la salida en error (CG-U11-13).
+- [x] `cli/messages.py`: catálogo cerrado de mensajes en español. stderr nunca lleva testimonio, y un *canary* lo comprueba (BR11.7).
+- [x] Códigos de salida: 0, 2, 3, 4 y 5 (BR11.3).
 - **Riesgo:** alto (fallo cerrado y frontera del disco).
 - **Verificación:**
   - `timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/cli tests/guards -m cli --cov=veridicus_incoherence_analyzer.cli.composition --cov-branch --cov-fail-under=100 --cov-report=term-missing`
@@ -399,14 +399,14 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 11 — Fronteras · tarea U11-T05
 
-- [ ] Contratos de import-linter (SD §1):
+- [x] Contratos de import-linter (SD §1):
   - `u11-no-infra`: nada de `redis`, `kubernetes`, `psycopg`, `asyncpg`, `sqlalchemy` ni `prometheus_client`;
   - `gateway-no-anonymizer` y `core-no-anonymizer`, con `cli.composition` como única excepción;
   - `layers`: `domain` no importa `application`, `adapters`, `cli` ni `httpx`.
-- [ ] En `tests/boundaries/`:
+- [x] En `tests/boundaries/`:
   - por cada contrato, un módulo que lo viola y hace fallar `lint-imports` (control negativo);
   - una prueba AST que impide que un `__init__` reexporte `cli.composition`.
-- [ ] La lista prohibida de `libs/anonymizer/pyproject.toml` suma `veridicus_integrity_policy` (CG-U11-08).
+- [x] La lista prohibida de `libs/anonymizer/pyproject.toml` suma `veridicus_integrity_policy` (CG-U11-08).
 - **Riesgo:** alto (fronteras de seguridad).
 - **Verificación:** `timeout 120 uv run --frozen --offline --directory libs/<P> lint-imports` en los cuatro paquetes y en `libs/anonymizer`, y `timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/boundaries --no-cov -q`
 - **Umbral:** `lint-imports` termina con 0 en los cinco paquetes. Las pruebas terminan con 0 y son al menos 5, y cada control negativo hace fallar `lint-imports` dentro de su prueba.
@@ -414,12 +414,12 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 12 — Punta a punta con el doble y corrida manual · tarea U11-T05
 
-- [ ] `tests/e2e/test_cli_fake.py` corre la CLI por su punto de entrada sobre transcripciones sintéticas de `tests/fixtures/`. Usa el `Anonymizer` real y el `FakeTransport` de B10a, con respuestas grabadas del juez y del verificador, y comprueba que:
+- [x] `tests/e2e/test_cli_fake.py` corre la CLI por su punto de entrada sobre transcripciones sintéticas de `tests/fixtures/`. Usa el `Anonymizer` real y el `FakeTransport` de B10a, con respuestas grabadas del juez y del verificador, y comprueba que:
   - una contradicción sembrada produce ≥ 1 hallazgo con sus dos citas verificadas y código 0;
   - un relato coherente produce 0 hallazgos y código 0;
   - una respuesta del juez con una cita alterada produce un descarte, y ningún hallazgo sale con esa cita;
   - las pruebas de la CLI del paso 3 pasan sin cambios.
-- [ ] `tests/manual/test_real_provider.py`, marcada `manual` y excluida por defecto. Corre la CLI con el proveedor real y una entrevista **sintética**, usando la clave de `VERIDICUS_ANTHROPIC_API_KEY` y `VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S=300`. La lanza el humano **el viernes 27, en cuanto cierre U11-T05** (R-13). Su resultado no se versiona.
+- [x] `tests/manual/test_real_provider.py`, marcada `manual` y excluida por defecto. Corre la CLI con el proveedor real y una entrevista **sintética**, usando la clave de `VERIDICUS_ANTHROPIC_API_KEY` y `VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S=300`. La lanza el humano **el viernes 27, en cuanto cierre U11-T05** (R-13). Su resultado no se versiona.
   - **Comando**, que queda en el README y en la bitácora de U11-T05: `timeout 900 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/manual -m manual --no-cov --force-enable-socket -q` (R-04).
 - **Riesgo:** alto (es la demostración del sábado).
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/e2e --no-cov -q` y `timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/manual -m manual --no-cov --force-enable-socket --collect-only -q`

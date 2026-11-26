@@ -17,3 +17,12 @@ def load_response_schema(role: Role, kind: SchemaKind) -> dict[str, Any]:
     `minLength: 1`). Las pruebas rojas pasan por esta función y nunca leen el archivo (R-07).
     """
     raise NotImplementedError("load_response_schema: lo implementa U11-T03 (paso 8)")
+
+
+def load_system_prompt(role: Role) -> str:
+    """El texto fijo del mensaje `system` de un papel, sección de `data/prompt.v1.md` (PD-6, BR3.1).
+
+    Es lo único que viaja en `system`: no lleva ningún carácter de la entrada. El verificador y el
+    verificador permutado usan el del papel `verifier`.
+    """
+    raise NotImplementedError("load_system_prompt: lo implementa U11-T03 (paso 8)")

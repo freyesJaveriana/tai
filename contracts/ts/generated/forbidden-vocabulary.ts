@@ -73,7 +73,9 @@ export const QUOTE_DELIMITERS = [
 
 export const FOLD_NORMALIZATION = "NFKD" as const;
 
-export const FOLD_CASE = "casefold" as const;
+export const FOLD_COMPATIBILITY_SCOPE = "word_characters" as const;
+
+export const FOLD_CASE ="casefold" as const;
 
 export const FOLD_DROPPED_CATEGORIES = [
   "Mn",

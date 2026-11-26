@@ -16,7 +16,7 @@
   "integrity": {
     "analyzer_v1_sha256sums": "98fd33f1008efe2b10ce6b09155f4fe01c82f11786b0f50b4a32796e79364c18",
     "error_codes": "1570a4361434a7ea768b613f42d6338f012e08376064c5f8fd15bfa7f2d33c4b",
-    "forbidden_vocabulary": "be8ca9301bd226800108ebb550b7dd85230cc87b2fb6e22f9d24ed61999cab4d",
+    "forbidden_vocabulary": "5b73dcb0caac9161603882b28c70015df657c5d5c19df004fcd70b051c26543b",
     "limits": "91adfdc4f9046974c02991daf165ac17982e4d942bf0715a0862c1cc0ae8a259",
     "result_labels": "71146ea55c275b9044cdf96a7a9731286418f7f17a61d708de309a1aa7db48ae"
   },

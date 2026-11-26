@@ -28,11 +28,17 @@ _WHITESPACE = re.compile(r"\s+")
 # C8 que el escáner no entiende y la carga falla.
 _NORMALIZATION: Literal["NFKD"] = "NFKD"
 _CASE = "casefold"
+# La descomposición de compatibilidad solo se aplica a los caracteres que ya son letra o dígito
+# (`\w`). Los demás (™, №, ⓐ, ㎡…) siguen con NFD, como antes de C8 2.1.0, y conservan su papel de
+# separador: así el plegado solo amplía lo que el escáner detecta (AUTONOMIA-03).
+_COMPATIBILITY_SCOPE = "word_characters"
+_WORD_CHARACTER = re.compile(r"\w")
 _MAX_CODE_POINT = 0x10FFFF
-_GENERAL_CATEGORIES = frozenset(
-    {"Lu", "Ll", "Lt", "Lm", "Lo", "Mn", "Mc", "Me", "Nd", "Nl", "No", "Pc", "Pd", "Ps", "Pe"}
-    | {"Pi", "Pf", "Po", "Sm", "Sc", "Sk", "So", "Zs", "Zl", "Zp", "Cc", "Cf", "Cs", "Co", "Cn"}
-)
+# Mínimo de fallo cerrado en tiempo de ejecución (F-02): un C8 adulterado no puede dejar ciego al
+# escáner. Solo se descartan marcas y caracteres de formato, y ningún rango cubre una letra o un
+# dígito, salvo los cuatro rellenos Hangul (`Lo`), que van nombrados por su punto de código.
+_DROPPABLE_CATEGORIES = frozenset({"Mn", "Me", "Cf"})
+_HANGUL_FILLERS = frozenset({0x115F, 0x1160, 0x3164, 0xFFA0})
 
 
 @dataclass(frozen=True)
@@ -94,15 +100,15 @@ def _read_fold(document: Any) -> _Fold:
         raise _fold_error(f"normalization desconocida (se espera {_NORMALIZATION})")
     if fold.get("case") != _CASE:
         raise _fold_error(f"case desconocido (se espera {_CASE})")
+    if fold.get("compatibility_scope") != _COMPATIBILITY_SCOPE:
+        raise _fold_error(f"compatibility_scope desconocido (se espera {_COMPATIBILITY_SCOPE})")
     categories = fold.get("dropped_categories")
     if (
         not isinstance(categories, list)
         or not categories
-        or not all(isinstance(c, str) and c in _GENERAL_CATEGORIES for c in categories)
+        or not all(isinstance(c, str) and c in _DROPPABLE_CATEGORIES for c in categories)
     ):
-        raise _fold_error(
-            "dropped_categories debe ser una lista de categorías generales de Unicode"
-        )
+        raise _fold_error("dropped_categories debe ser una lista no vacía dentro de Mn, Me y Cf")
     ranges = fold.get("dropped_code_points")
     if not isinstance(ranges, list) or not ranges:
         raise _fold_error("dropped_code_points debe ser una lista de rangos [inicio, fin]")
@@ -116,6 +122,12 @@ def _read_fold(document: Any) -> _Fold:
                 "dropped_code_points trae un rango invertido, solapado o fuera de rango"
             )
         previous_end = end
+        for code_point in range(start, end + 1):
+            kind = unicodedata.category(chr(code_point))[0]
+            if kind in "LN" and code_point not in _HANGUL_FILLERS:
+                raise _fold_error(
+                    f"dropped_code_points cubre una letra o un dígito (U+{code_point:04X})"
+                )
     return _Fold(
         categories=frozenset(categories),
         starts=tuple(item[0] for item in ranges),
@@ -145,16 +157,24 @@ def _dropped(part: str) -> bool:
     )
 
 
+def _decompose(char: str) -> str:
+    """La descomposición del carácter: NFKD si es letra o dígito (`\\w`), NFD si no (C8, `fold`)."""
+    if _WORD_CHARACTER.match(char):
+        return unicodedata.normalize(_NORMALIZATION, char)
+    return unicodedata.normalize("NFD", char)
+
+
 def _fold(text: str) -> tuple[str, list[int]]:
     """El texto plegado y, por cada carácter, su posición en el original.
 
-    Por carácter y en el orden de C8: descomposición de compatibilidad (NFKD), descarte y plegado de
-    mayúsculas (`casefold`). `ｆａｌｓｏ` (ancho completo) y las letras matemáticas pasan a ASCII.
+    Por carácter y en el orden de C8: descomposición (NFKD para letras y dígitos, NFD para el resto),
+    descarte y plegado de mayúsculas (`casefold`). `ｆａｌｓｏ` (ancho completo) y las letras
+    matemáticas pasan a ASCII; `™` o `№` no se vuelven letras y siguen separando palabras.
     """
     chars: list[str] = []
     origin: list[int] = []
     for index, char in enumerate(text):
-        for part in unicodedata.normalize(_NORMALIZATION, char):
+        for part in _decompose(char):
             if _dropped(part):
                 continue
             for folded in part.casefold():
@@ -170,9 +190,7 @@ def _span_end(text: str, last_letter: int) -> int:
     también esa marca, para que el término y su posición cubran lo que se ve escrito.
     """
     end = last_letter + 1
-    while end < len(text) and all(
-        _dropped(part) for part in unicodedata.normalize(_NORMALIZATION, text[end])
-    ):
+    while end < len(text) and all(_dropped(part) for part in _decompose(text[end])):
         end += 1
     return end
 

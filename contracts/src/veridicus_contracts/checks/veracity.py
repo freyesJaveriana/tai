@@ -133,6 +133,7 @@ RANGOS_DE_PLEGADO: tuple[tuple[int, int], ...] = (
 )
 PLEGADO: dict[str, str | tuple[str, ...]] = {
     "normalization": "NFKD",
+    "compatibility_scope": "word_characters",
     "case": "casefold",
     "dropped_categories": ("Mn", "Me", "Cf"),
 }

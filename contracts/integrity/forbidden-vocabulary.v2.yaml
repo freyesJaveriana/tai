@@ -29,6 +29,10 @@ match:
   # las categorías `dropped_categories` o dentro de `dropped_code_points`.
   fold:
     normalization: NFKD
+    # Alcance de la descomposición de compatibilidad (F-01 de la ronda 1): NFKD solo a los caracteres
+    # que son letra o dígito (`\w`: ancho completo, letras matemáticas, ligaduras); el resto (™, №, ⓐ,
+    # ㎡…) sigue con NFD y conserva su papel de separador. Así el plegado solo amplía la detección.
+    compatibility_scope: word_characters
     case: casefold
     dropped_categories: [Mn, Me, Cf]
     # Default_Ignorable_Code_Point (Unicode 15.0/16.0, DerivedCoreProperties.txt), en rangos cerrados.

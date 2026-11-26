@@ -1,3 +1,6 @@
 """ModelGateway del analizador (C13): puerto y adaptador `anonymizing`."""
 
-__all__: list[str] = []
+from veridicus_model_gateway.gateway import RecordingGateway, build
+from veridicus_model_gateway.port import ModelGateway
+
+__all__ = ["ModelGateway", "RecordingGateway", "build"]

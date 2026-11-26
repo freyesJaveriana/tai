@@ -90,7 +90,17 @@ Corren desde la raíz del worktree `/workspace/.worktrees/U11-T04`.
   ```bash
   git -C /workspace/.worktrees/U11-T04 diff --exit-code c7e6542c26f14ad6c4b35636bbfc791ff60a5145 -- libs/incoherence_analyzer/tests/guards libs/incoherence_analyzer/tests/contracts libs/execution_profiles/tests/contracts libs/incoherence_analyzer/tests/support.py libs/integrity_policy/tests/guards libs/integrity_policy/tests/conftest.py
   ```
-  Se espera: código 0.
+  Se espera: código 0 (con P-T04-1, solo el cambio de la línea 109). Salida de `git diff c7e6542… -- <las 6 rutas>` tras el cambio:
+  ```diff
+  --- a/libs/incoherence_analyzer/tests/guards/test_autonomia_04_composite.py
+  +++ b/libs/incoherence_analyzer/tests/guards/test_autonomia_04_composite.py
+  @@ -106,7 +106,9 @@ def test_no_seeded_entity_leaves_in_the_bodies_of_judge_verifier_and_permuted_ve
+       assert_no_entity_in_payload(provider, ENTITIES)
+  -    assert any(b"[PERSONA_" in raw for raw in provider.bodies), "los cuerpos llevan marcas"
+  +    assert any(b"[PERSONA_" in raw or b"[ENTIDAD_" in raw for raw in provider.bodies), (
+  +        "los cuerpos llevan marcas"
+  +    )
+  ```
 - [ ] **CA-3:** el rojo que queda es solo el de la CLI.
   ```bash
   timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer --extra cli pytest tests/guards tests/contracts -p no:cacheprovider -rfE --tb=no --rojo
@@ -138,6 +148,14 @@ Corren desde la raíz del worktree `/workspace/.worktrees/U11-T04`.
   Se espera: los tres imprimen `0 apariciones`. Además, `grep -rnoP "sk-[A-Za-z0-9_-]{6,}"` sobre `libs/` solo encuentra `sk-sintetico-canario-7f3a91c2d4e5`.
 
 ---
+
+## Decisión del humano (2026-11-26, ronda 1)
+
+- **P-T04-1:** se autoriza cambiar **solo** la línea 109 de `libs/incoherence_analyzer/tests/guards/test_autonomia_04_composite.py`, que está congelada. Ahora debe aceptar `[PERSONA_` o `[ENTIDAD_` en los cuerpos que salen.
+  - **Motivo:** B10a marca como `[ENTIDAD_n]` los nombres sembrados que no llevan tratamiento.
+  - **Lo que no cambia:** la guardia de fuga de la línea 108 y la prueba de control negativo se quedan como están.
+  - **El cambio en CA-2:** el `git diff` contra `ROJO_SHA` solo puede mostrar ese cambio de esa línea. Ninguna otra ruta congelada puede cambiar.
+  - **Fuera de esta tarea:** que el anonimizador marque como `[PERSONA_n]` los nombres sin tratamiento queda como candidata de U10, para después de la demo.
 
 ## Notas
 

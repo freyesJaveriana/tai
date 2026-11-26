@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "veridicus-model-gateway"
+version = "0.1.0"
+description = "ModelGateway del analizador (C13): puerto y adaptador anonymizing, que delega todo destino externo en el anonimizador."
+requires-python = ">=3.12"
+dependencies = [
+    "jsonschema>=4.23",
+    "veridicus-contracts",
+    "veridicus-errors",
+    "veridicus-execution-profiles",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "pytest-socket>=0.7",
+    "hypothesis>=6.120",
+    "mypy>=1.13",
+    "ruff>=0.8",
+    "import-linter>=2.1",
+    "pip-audit>=2.7",
+    "hatchling>=1.26",
+    "types-jsonschema>=4.23",
+]
+
+# veridicus-contracts y veridicus-errors se toman por ruta: el Bolt usa la versión del mismo árbol.
+# El paquete hermano va editable para que un cambio suyo se vea sin volver a bloquear.
+[tool.uv.sources]
+veridicus-contracts = { path = "../../contracts" }
+veridicus-errors = { path = "../errors" }
+veridicus-execution-profiles = { path = "../execution_profiles", editable = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/veridicus_model_gateway"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+# veridicus_contracts instalado trae model_calls.py junto al directorio de datos model_calls/,
+# y mypy elige el directorio y pierde los tipos; la fuente del mismo árbol va primero.
+mypy_path = "src:../../contracts/src:../execution_profiles/src"
+explicit_package_bases = true
+
+# Al tomar la fuente de contracts, mypy también revisa validators.py, que importa una
+# dependencia de desarrollo de contracts que este paquete no instala.
+[[tool.mypy.overrides]]
+module = ["openapi_spec_validator", "openapi_spec_validator.*"]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+# Reglas por defecto más S (bandit). Toda supresión "# noqa: S..." lleva su motivo.
+extend-select = ["S"]
+
+[tool.ruff.lint.per-file-ignores]
+# assert es el idioma de pytest.
+"tests/**" = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Sin --cov (R-01): cada paso pide la cobertura de sus propios módulos. `manual` es el proveedor
+# real y no corre aquí; `cli` marca las pruebas que pasan por `cli.main.run`.
+addopts = "--strict-markers --disable-socket -m 'not manual'"
+markers = [
+    "manual: llama a un proveedor real; solo lo lanza el humano con su clave",
+    "cli: pasa por cli.main.run",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["veridicus_model_gateway"]
+
+# Fronteras de U11 (BR10.5, SD §1). Cada contrato tiene su control negativo en
+# `libs/incoherence_analyzer/tests/boundaries/`.
+[tool.importlinter]
+root_package = "veridicus_model_gateway"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "u11-no-infra"
+type = "forbidden"
+source_modules = ["veridicus_model_gateway"]
+forbidden_modules = ["redis", "kubernetes", "psycopg", "asyncpg", "sqlalchemy", "prometheus_client"]
+
+# El gateway recibe el `AnonymizingProvider` inyectado y nunca importa el módulo (ADR-010).
+[[tool.importlinter.contracts]]
+name = "gateway-no-anonymizer"
+type = "forbidden"
+source_modules = ["veridicus_model_gateway"]
+forbidden_modules = ["veridicus_anonymizer"]

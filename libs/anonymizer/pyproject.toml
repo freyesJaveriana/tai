@@ -88,6 +88,7 @@ forbidden_modules = [
     "veridicus_model_gateway",
     "veridicus_execution_profiles",
     "veridicus_incoherence_analyzer",
+    "veridicus_integrity_policy",
 ]
 
 [[tool.importlinter.contracts]]

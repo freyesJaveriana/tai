@@ -1,0 +1,10 @@
+{
+  "title": "Respuesta del verificador (esquema de cable, PD-11)",
+  "description": "Es el que viaja en GenerateRequest.schema hacia la salida estructurada del proveedor: exactamente un booleano y nada más.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["confirma"],
+  "properties": {
+    "confirma": { "type": "boolean" }
+  }
+}

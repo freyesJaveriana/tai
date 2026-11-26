@@ -1,0 +1,73 @@
+"""Corrida manual con el proveedor real (paso 12, R-04, R-13). La lanza el humano; no corre por defecto.
+
+Usa la clave de `VERIDICUS_ANTHROPIC_API_KEY`, el plazo `VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S=300` y
+una entrevista **sintética** de `tests/fixtures/`. El anonimizador real de B10a seudonimiza lo que
+sale. Sale por la red, así que se lanza con `--force-enable-socket`:
+
+    timeout 900 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/manual -m manual --no-cov --force-enable-socket -q
+
+Se lanza desde la raíz del repositorio. El README recomienda la variante con `--extra cli` y
+`timeout 7200` (A-01: la prueba corre dos entrevistas y el peor caso es de 2 × (1 + 2N) llamadas de
+hasta 300 s, por comando y no por entrevista; N no tiene tope, así que es una cota práctica).
+
+Las salidas quedan en `libs/incoherence_analyzer/resultados-locales/manual-real-provider/` (cubierto
+por `.gitignore`) y su resultado no se versiona. Un modelo real no es determinista, y por eso la prueba
+exige `estado: ok`, al menos una llamada registrada y una salida C6 válida, pero no un número de
+hallazgos, salvo en `contradiccion`, que debe producir al menos uno.
+"""
+
+import json
+import os
+import shutil
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from tests.support import KEY_REF, PROFILE, c6_problems
+from veridicus_incoherence_analyzer.cli.main import run
+
+# Sin la marca `cli`: `-m cli` sustituye al `-m 'not manual'` de addopts y la correría por defecto.
+pytestmark = pytest.mark.manual
+
+FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
+OUT = Path("resultados-locales") / "manual-real-provider"
+
+
+def _real_env() -> dict[str, str]:
+    if not os.environ.get(KEY_REF):
+        pytest.fail(f"falta la variable de entorno {KEY_REF}: es la clave del proveedor real")
+    return {**os.environ, "VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S": "300"}
+
+
+@pytest.fixture(scope="module")
+def results() -> Path:
+    shutil.rmtree(OUT, ignore_errors=True)
+    return OUT
+
+
+@pytest.mark.parametrize("name", ["contradiccion", "coherente"])
+def test_the_cli_with_the_real_provider_ends_with_0_and_a_valid_c6_output(
+    name: str, results: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code = run(
+        ["analyze", str(FIXTURES / f"{name}.json"), "--perfil", PROFILE, "--salida", str(results)],
+        _real_env(),
+    )
+
+    salida: dict[str, Any] = json.loads((results / f"{name}.salida.json").read_text("utf-8"))
+    with capsys.disabled():
+        print(
+            f"\n[manual] {name}: código {code}, estado {salida['estado']} "
+            f"({salida.get('error', {}).get('codigo', 'sin error')}), "
+            f"{len(salida['hallazgos'])} hallazgo(s), "
+            f"{len(salida['registro']['descartes'])} descarte(s); salida en {results}"
+        )
+    assert code == 0
+    assert c6_problems(salida) == []
+    # Una clave inválida (401) o un proveedor caído también salen con 0 y `estado: error`.
+    assert salida["estado"] == "ok", f"la corrida terminó en error: {salida.get('error')}"
+    assert len(salida["registro"]["llamadas"]) >= 1, "ninguna llamada llegó al proveedor"
+    if name == "contradiccion":
+        # Sin hallazgos no hay éxito: el modelo no vio la contradicción sembrada (revise descartes).
+        assert len(salida["hallazgos"]) >= 1, "la contradicción sembrada no produjo ningún hallazgo"

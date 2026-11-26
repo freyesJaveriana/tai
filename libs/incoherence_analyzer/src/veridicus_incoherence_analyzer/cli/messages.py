@@ -52,6 +52,9 @@ MESSAGES: Final[Mapping[str, str]] = {
         "Incidente de anonimización: el lote se detuvo y solo se escribió la salida en error: {path}"
     ),
     "run.interrupted": "Interrupción: la corrida en curso quedó sin salida.",
+    "run.interrupted_after_output": (
+        "Interrupción tras escribir la última salida: las salidas ya escritas se conservan."
+    ),
     "run.unexpected": "Error inesperado ({kind}). No se escribió ninguna salida parcial.",
 }
 

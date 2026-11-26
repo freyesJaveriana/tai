@@ -2,6 +2,23 @@
 
 Estado de trabajo entre sesiones. Solo cifras y referencias: nada de texto de las entrevistas ni salidas de los modelos.
 
+## 2026-11-26 · Analizador de incoherencias B11a: CI, compuerta, documentación y 0.1.0 (U11-T06)
+
+**Dónde está:** Bolt B11a, rama `tarea/U11-T06` (U11-T01 a T05 fusionadas en `bolt/b11a-analyzer`). Versión `0.1.0`
+de los cuatro paquetes (`incoherence_analyzer`, `model_gateway`, `execution_profiles`, `integrity_policy`); la
+etiqueta `analyzer-v0.1.0` la pone el humano.
+
+**Hecho**
+- CI de nivel 0 (`analyzer-level0.yml`, sin filtro de rutas, un *job* por paquete y la compuerta al final).
+- `testing/coverage_gate.py` de U11 con sus pruebas y dos controles negativos: 100 % de ramas en 9 módulos guardia
+  y 80 % de líneas por paquete.
+- README del analizador, `examples/demo_fake.py`, sección de U11 en el glosario.
+- Hallazgos de T05: A-01 (plazo de la corrida manual, `timeout 7200`) y A-03 (mensaje de la señal tras la última
+  salida).
+
+**Siguiente paso:** revisión de U11-T06, quitar las aristas temporales `identity-access` y `platform` →
+`incoherence-analyzer` (CG-U11-11) en su propio commit, y PR del Bolt a `main`. Lo diferido queda en B11b (DP-03).
+
 ## 2026-11-25 · Anonimizador mínimo B10a: CI, guardias y documentación (U10-T05)
 
 **Dónde está:** Bolt B10a, rama `tarea/U10-T05` (U10-T01 a T04 fusionadas en `bolt/b10a-anonymizer`).

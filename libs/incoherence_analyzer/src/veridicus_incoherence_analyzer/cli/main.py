@@ -264,7 +264,8 @@ def _analyze_batch(
             return catalog.EXIT_INCIDENT
         _emit(catalog.render("run.written", path=target))
     if interrupts.flag.is_set():  # una señal tras la última llamada también es una interrupción
-        raise CancelledError("interrupción tras la última corrida")
+        # Todas las salidas ya están escritas: el mensaje no dice que alguna quedó sin salida (A-03).
+        raise _Stop(catalog.EXIT_UNEXPECTED, catalog.render("run.interrupted_after_output"))
     return catalog.EXIT_OK
 
 

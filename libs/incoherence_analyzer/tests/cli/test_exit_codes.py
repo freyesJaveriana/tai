@@ -387,9 +387,12 @@ def test_exit_5_and_no_output_when_the_signal_arrives_during_the_last_call_of_a_
 
 
 def test_exit_5_when_the_signal_arrives_right_after_the_last_output_was_written(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """F-05 de la ronda 1: una señal tras escribir la última salida no es un código 0."""
+    """F-05 de la ronda 1: una señal tras escribir la última salida no es un código 0.
+
+    A-03 de la ronda 3: el mensaje no dice que la corrida quedó sin salida, porque ya la tiene.
+    """
     real_write = write_atomic
 
     def write_then_signal(path: Path, data: bytes) -> None:
@@ -404,6 +407,9 @@ def test_exit_5_when_the_signal_arrives_right_after_the_last_output_was_written(
 
     assert code == 5
     assert (out / "SINT-0001.salida.json").is_file(), "esa salida ya estaba escrita entera"
+    stderr = capsys.readouterr().err
+    assert "quedó sin salida" not in stderr
+    assert "ya escritas se conservan" in stderr
 
 
 def test_exit_5_when_a_second_signal_arrives_during_the_shutdown(tmp_path: Path) -> None:

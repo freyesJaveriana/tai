@@ -7,7 +7,8 @@ sale. Sale por la red, así que se lanza con `--force-enable-socket`:
     timeout 900 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/manual -m manual --no-cov --force-enable-socket -q
 
 Se lanza desde la raíz del repositorio. El README recomienda la variante con `--extra cli` y
-`timeout 3600` (cota práctica: una entrevista hace 1 + 2N llamadas de hasta 300 s).
+`timeout 7200` (A-01: la prueba corre dos entrevistas y el peor caso es de 2 × (1 + 2N) llamadas de
+hasta 300 s, por comando y no por entrevista; N no tiene tope, así que es una cota práctica).
 
 Las salidas quedan en `libs/incoherence_analyzer/resultados-locales/manual-real-provider/` (cubierto
 por `.gitignore`) y su resultado no se versiona. Un modelo real no es determinista, y por eso la prueba

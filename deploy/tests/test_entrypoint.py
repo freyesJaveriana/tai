@@ -10,6 +10,7 @@ resultado parcial) y AUTONOMIA-03 (los rótulos propios pasan el escáner de voc
 
 import io
 import json
+import runpy
 import sys
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
@@ -298,6 +299,7 @@ def test_with_exit_0_but_a_file_in_error_state_the_code_is_4_and_no_findings_are
         pytest.param("{no es json", id="no-es-json"),
         pytest.param("[1, 2]", id="no-es-objeto"),
         pytest.param('{"estado": "ok"}', id="sin-hallazgos"),
+        pytest.param('{"estado": "otro", "hallazgos": []}', id="estado-desconocido"),
         pytest.param('{"estado": "ok", "hallazgos": [{"hecho": "x"}]}', id="hallazgo-incompleto"),
     ],
 )
@@ -318,6 +320,38 @@ def test_a_missing_or_corrupt_output_file_ends_non_zero_with_a_fixed_message(
     assert code == 5
     assert out.strip() == entrypoint.NO_OUTPUT_MESSAGE
     assert TURN_CANARY not in out, "no se lee ni se imprime la entrada"
+
+
+def test_an_empty_input_directory_with_exit_0_is_a_failure_with_the_fixed_message(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(entrypoint, "run", _fake_run(0))
+    entrada = tmp_path / "entrada"
+    entrada.mkdir()
+
+    code, out = _run(entrada, tmp_path / "salida", None)
+
+    assert code == 5
+    assert out.strip() == entrypoint.NO_OUTPUT_MESSAGE
+
+
+@pytest.mark.parametrize(
+    "files, raw",
+    [
+        pytest.param({}, {"contradiccion": "{dañado"}, id="salida-dañada"),
+        pytest.param({"contradiccion": _salida("ok")}, {}, id="salida-en-ok"),
+    ],
+)
+def test_with_exit_4_only_files_read_in_error_state_are_listed(
+    files: dict[str, Any], raw: dict[str, str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(entrypoint, "run", _fake_run(4, files, raw))
+    entrada = stage_input(tmp_path, "contradiccion")
+
+    code, out = _run(entrada, tmp_path / "salida", None)
+
+    assert code == 4
+    assert out.strip() == entrypoint.CLI_FAILED_MESSAGE.format(code=4)
 
 
 def test_one_missing_output_among_two_inputs_is_a_failure_and_prints_no_findings(
@@ -407,6 +441,22 @@ def test_main_passes_argv_and_environ_and_exits_with_its_code(
 
     assert stop.value.code == 7
     assert calls == [([], {"A": "1"})]
+
+
+def test_running_the_module_as_main_exits_with_the_cli_code(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """`python -m veridicus_demo.entrypoint` es el ENTRYPOINT de la imagen: sin entrada, código 2."""
+    monkeypatch.setenv("VERIDICUS_DEMO_ENTRADA", str(tmp_path / "no-existe"))
+    monkeypatch.setenv("VERIDICUS_DEMO_SALIDA", str(tmp_path / "salida"))
+    monkeypatch.setattr(sys, "argv", ["entrypoint"])
+    monkeypatch.delitem(sys.modules, "veridicus_demo.entrypoint")
+
+    with pytest.raises(SystemExit) as stop:
+        runpy.run_module("veridicus_demo.entrypoint", run_name="__main__")
+
+    assert stop.value.code == 2
+    assert entrypoint.CLI_FAILED_MESSAGE.format(code=2) in capsys.readouterr().out
 
 
 def test_stdout_defaults_to_sys_stdout(

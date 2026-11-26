@@ -1,0 +1,48 @@
+{
+  "entrevista": "SINT-DEMO-01",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Puede contarme qué pasó el día de la crecida del río?"},
+    {
+      "n": 2,
+      "hablante": "TEST",
+      "pagina": 1,
+      "texto": "Ese día me levanté temprano en la finca La Ceiba, donde vivo con mi hermana Aurelia Montenegro."
+    },
+    {"n": 3, "hablante": "ENT", "texto": "¿Qué hizo después de levantarse?"},
+    {
+      "n": 4,
+      "hablante": "TEST",
+      "pagina": 1,
+      "texto": "Por la mañana subí al pueblo de San Isidro a vender queso y regresé a la finca a las cuatro de la tarde."
+    },
+    {"n": 5, "hablante": "ENT", "texto": "¿Y cuándo empezó a subir el agua?"},
+    {
+      "n": 6,
+      "hablante": "TEST",
+      "pagina": 2,
+      "texto": "El agua empezó a subir cerca de las cinco, cuando yo ya estaba en la finca con mi hermana."
+    },
+    {"n": 7, "hablante": "ENT", "texto": "¿Cómo recuerda el resto de la tarde?"},
+    {
+      "n": 8,
+      "hablante": "TEST",
+      "pagina": 2,
+      "texto": "Esa tarde ayudé a mover los marranos al corral alto antes de que oscureciera."
+    },
+    {"n": 9, "hablante": "ENT", "texto": "¿Dónde pasó la jornada de ese día?"},
+    {
+      "n": 10,
+      "hablante": "TEST",
+      "pagina": 3,
+      "texto": "Yo nunca bajé a la finca ese día, pasé toda la jornada en San Isidro hasta que oscureció."
+    },
+    {"n": 11, "hablante": "ENT", "texto": "¿Qué más recuerda de ese día?"},
+    {
+      "n": 12,
+      "hablante": "TEST",
+      "pagina": 3,
+      "texto": "Recuerdo que la tienda de doña Rosalba Cuéllar estaba cerrada cuando pasé por la plaza."
+    }
+  ]
+}

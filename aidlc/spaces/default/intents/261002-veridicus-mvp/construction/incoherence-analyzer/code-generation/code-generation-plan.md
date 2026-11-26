@@ -326,7 +326,7 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 ### Paso 8 — *Prompt*, mensajes y esquemas de respuesta · tarea U11-T03
 
 - [x] `data/prompt.v1.md`: un solo archivo para el juez y el verificador, que se lee con `importlib.resources`. `prompt_sha256` es el SHA-256 de sus bytes y debe coincidir con el de la configuración; si no coincide, la corrida da `salida_invalida` sin llamar (BR3.1).
-- [ ] `data/prompt.v1.sha256` con la referencia del *prompt* (PD-13). Una prueba cambia un byte del *prompt* en memoria y comprueba que da `salida_invalida` sin llamar.
+- [x] `data/prompt.v1.sha256` con la referencia del *prompt* (PD-13). Una prueba cambia un byte del *prompt* en memoria y comprueba que da `salida_invalida` sin llamar.
 - [x] En `data/schemas/`, los esquemas locales `judge.v1.json` y `verifier.v1.json`, cerrados (BR3.4), y los de cable `judge.wire.v1.json` y `verifier.wire.v1.json` (PD-11). El esquema de cable es el que va en `GenerateRequest.schema`.
 - [x] `tests/application/test_prompt_through_anonymizer.py` (R-14): el texto del *prompt* pasa por el `Anonymizer` real sin ninguna marca. Así el `system` que sale es byte a byte el del archivo.
 - [x] `application/messages.py::build_messages` (PD-6):
@@ -344,23 +344,23 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 9 — `analyze`: validación previa, juez, verificador y permutación (F1 a F7) · tarea U11-T04
 
-- [ ] `application/preflight.py` (BR1.1 a BR1.4): todo se comprueba antes de llamar, y un fallo lanza `InputRejected`.
+- [x] `application/preflight.py` (BR1.1 a BR1.4): todo se comprueba antes de llamar, y un fallo lanza `InputRejected`.
   - esquema C6 de entrada (Draft 2020-12);
   - límites de C25: 20 000 caracteres por turno, 2 000 turnos y 250 000 caracteres en total;
   - consentimiento según el origen;
   - transferencia autorizada;
   - perfil aprobado.
-- [ ] `application/deadline.py` (BR7.2; PD-10): `timeout_s = min(model_call_timeout_s, plazo − ahora)`; la cancelación se revisa antes de cada llamada y el plazo, después de cada llamada.
-- [ ] `application/analyze.py` (BR3.2, BR6.1 a BR6.4):
+- [x] `application/deadline.py` (BR7.2; PD-10): `timeout_s = min(model_call_timeout_s, plazo − ahora)`; la cancelación se revisa antes de cada llamada y el plazo, después de cada llamada.
+- [x] `application/analyze.py` (BR3.2, BR6.1 a BR6.4):
   - una sola ventana con todos los turnos, sin fragmentar, porque el juez es externo;
   - después, el filtro;
   - una llamada `verifier` por cada sobreviviente, en el orden del primer turno citado;
   - con `permutation: true`, la llamada `verifier_permuted` siempre va después de la directa;
   - los descartes `rechazado_verificador` y `rechazado_permutacion`;
   - nunca lanza una excepción por un fallo del modelo.
-- [ ] `api.py`: `analyze(entrada, config, gateway, cancelled=None) -> Salida`. Además, una clase `IncoherenceAnalyzer` que cumple el `Protocol` de C17 y delega en esa función (CG-U11-03; R-15).
-- [ ] `tests/application/test_run_perf.py` (R-09): con el *fake* del gateway, una corrida de una entrevista sintética de 2 000 turnos tarda ≤ 6 s, medido con `time.perf_counter`. Es la meta de 2 s con el margen 3× de la CI.
-- [ ] Las pruebas rojas del paso 3 pasan a verde **sin cambiarlas**, incluida `test_k84_system_fixed.py`, que necesita `analyze` (N-02). La excepción son las de la CLI, que pasan en el paso 10.
+- [x] `api.py`: `analyze(entrada, config, gateway, cancelled=None) -> Salida`. Además, una clase `IncoherenceAnalyzer` que cumple el `Protocol` de C17 y delega en esa función (CG-U11-03; R-15).
+- [x] `tests/application/test_run_perf.py` (R-09): con el *fake* del gateway, una corrida de una entrevista sintética de 2 000 turnos tarda ≤ 6 s, medido con `time.perf_counter`. Es la meta de 2 s con el margen 3× de la CI.
+- [x] Las pruebas rojas del paso 3 pasan a verde **sin cambiarlas**, incluida `test_k84_system_fixed.py`, que necesita `analyze` (N-02). La excepción son las de la CLI, que pasan en el paso 10.
 - **Riesgo:** alto (AUTONOMIA-05 de punta a punta).
 - **Verificación:**
   - `timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/application tests/guards tests/contracts --cov=veridicus_incoherence_analyzer.application --cov=veridicus_incoherence_analyzer.api --cov-branch --cov-fail-under=100 --cov-report=term-missing -m "not cli and not manual"`

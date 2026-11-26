@@ -428,12 +428,12 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 13 — CI de nivel 0 · tarea U11-T06
 
-- [ ] `.github/workflows/analyzer-level0.yml`, **sin filtro por rutas** y con el patrón de `anonymizer-level0.yml`:
+- [x] `.github/workflows/analyzer-level0.yml`, **sin filtro por rutas** y con el patrón de `anonymizer-level0.yml`:
   - un *job* por paquete con `uv sync --frozen`, `uv lock --check`, `ruff check`, `ruff format --check`, `mypy --strict`, `lint-imports`, `pip-audit` (`HIGH`+ con corrección) y la suite con su mínimo;
   - el `coverage_gate`;
   - disparo también con `tags: ["analyzer-v*"]`;
   - acciones fijadas por SHA (solo `actions/*` y el `astral-sh/setup-uv` ya permitido) y `permissions: contents: read`.
-- [ ] Sin `analyzer-level2-gate.yml` en B11a (CG-U11-05).
+- [x] Sin `analyzer-level2-gate.yml` en B11a (CG-U11-05).
 - **Riesgo:** bajo (configuración).
 - **Verificación:** `timeout 60 uv run --frozen --offline --directory contracts pytest tests/checks/test_ci_workflows.py --no-cov` y `bash scripts/check-no-cluster-apply.sh`
 - **Umbral:** los dos comandos terminan con código 0, y la prueba recorre todos los *workflows* reales, incluido el nuevo.
@@ -441,12 +441,12 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 14 — Suite completa y compuertas de calidad · tarea U11-T06
 
-- [ ] `testing/coverage_gate.py` lee los `coverage.json` de los cuatro paquetes y exige:
+- [x] `testing/coverage_gate.py` lee los `coverage.json` de los cuatro paquetes y exige:
   - el 100 % de ramas en los módulos guardia: `domain/quotes.py`, `domain/filter.py`, `domain/run_state.py`, `domain/output.py`, `application/preflight.py`, `cli/composition.py`, `model_gateway/adapters/anonymizing.py`, `integrity_policy/scan.py` y `execution_profiles/validate.py`;
   - el 80 % de líneas por paquete;
   - fallar cerrado si falta alguno de esos archivos;
   - tener sus propias pruebas, con dos controles negativos (R-09): un `coverage.json` con un módulo guardia al 99 % de ramas y otro sin uno de los archivos guardia. Los dos tienen que hacer fallar la compuerta.
-- [ ] Correr en el worktree todo lo de «Comandos de verificación».
+- [x] Correr en el worktree todo lo de «Comandos de verificación».
 - **Riesgo:** bajo (agregación).
 - **Verificación:** las filas «Suite de un paquete», «Ramas de los módulos guardia», «Tipos», «*Lint* y formato», «Fronteras», «Anonimizador», «Errores» y «Guardias del repositorio» de la tabla de comandos.
 - **Umbral:** todos terminan con código 0, incluidas las pruebas de tiempo de los pasos 7 y 9. La suite de cada paquete termina dentro de su `timeout 300`.
@@ -454,15 +454,15 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 15 — Documentación, demostración y versión · tarea U11-T06
 
-- [ ] `libs/incoherence_analyzer/README.md`, en español. Explica:
+- [x] `libs/incoherence_analyzer/README.md`, en español. Explica:
   - qué hace la CLI y el comando de la demostración;
   - las variables `VERIDICUS_*`;
   - el perfil único con su aviso de una sola familia;
   - el comando de la corrida manual;
   - los límites declarados (PD-10, una sola familia) y lo que queda diferido a B11b.
-- [ ] `libs/incoherence_analyzer/examples/demo_fake.py`: corre la CLI con el `FakeTransport` sobre una transcripción sintética e imprime la ruta de la salida y el número de hallazgos.
-- [ ] En `docs/glosario.md`, la sección de U11 (EN: `AnalysisRun`, `JudgeCandidate`, `DiscardRecord`…). En `docs/devlog.md`, la entrada del Bolt.
-- [ ] Los cuatro paquetes quedan en la versión 0.1.0. La etiqueta `analyzer-v0.1.0` la pone el humano.
+- [x] `libs/incoherence_analyzer/examples/demo_fake.py`: corre la CLI con el `FakeTransport` sobre una transcripción sintética e imprime la ruta de la salida y el número de hallazgos.
+- [x] En `docs/glosario.md`, la sección de U11 (EN: `AnalysisRun`, `JudgeCandidate`, `DiscardRecord`…). En `docs/devlog.md`, la entrada del Bolt.
+- [x] Los cuatro paquetes quedan en la versión 0.1.0. La etiqueta `analyzer-v0.1.0` la pone el humano.
 - **Riesgo:** bajo (documentación).
 - **Verificación:** `timeout 120 uv run --frozen --offline --directory libs/incoherence_analyzer python examples/demo_fake.py` y `bash scripts/check-no-datos-personales.sh`
 - **Umbral:** los dos comandos terminan con 0, y la salida de la demostración nombra el archivo `.salida.json` y al menos 1 hallazgo.

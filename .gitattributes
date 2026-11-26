@@ -6,3 +6,7 @@ Dockerfile text eol=lf
 
 # Paquete de contratos: LF siempre, para que las huellas no cambien por sistema (NFRD-U1-13).
 contracts/** text eol=lf
+
+# Datos del analizador con huella fijada (prompt.v1.sha256, PD-13): LF siempre, para que el
+# SHA-256 de los bytes no cambie por sistema.
+libs/incoherence_analyzer/src/veridicus_incoherence_analyzer/data/** text eol=lf

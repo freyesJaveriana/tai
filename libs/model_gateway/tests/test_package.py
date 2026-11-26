@@ -9,8 +9,8 @@ from pytest_socket import SocketBlockedError
 import veridicus_model_gateway
 
 
-def test_package_imports_and_exposes_no_public_surface_yet() -> None:
-    assert veridicus_model_gateway.__all__ == []
+def test_package_imports_and_exposes_its_public_surface() -> None:
+    assert veridicus_model_gateway.__all__ == ["ModelGateway", "RecordingGateway", "build"]
 
 
 def test_package_ships_py_typed() -> None:

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Respuesta del juez (esquema local estricto, BR3.4)",
+  "description": "Con este esquema se valida la respuesta del juez. Es cerrado en todos los niveles, con cadenas de al menos un carácter y los siete tipos. Sin id, pagina, avisos ni actos: los pone el núcleo. El esquema de cable es judge.wire.v1.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["hallazgos"],
+  "properties": {
+    "hallazgos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["hecho", "tipo", "cita_a", "cita_b", "observaciones"],
+        "properties": {
+          "hecho": { "type": "string", "minLength": 1 },
+          "tipo": {
+            "enum": ["fecha", "numero", "lugar", "persona", "negacion", "secuencia", "otro"]
+          },
+          "cita_a": { "$ref": "#/$defs/cita" },
+          "cita_b": { "$ref": "#/$defs/cita" },
+          "observaciones": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "cita": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cita", "turno"],
+      "properties": {
+        "cita": { "type": "string", "minLength": 1 },
+        "turno": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

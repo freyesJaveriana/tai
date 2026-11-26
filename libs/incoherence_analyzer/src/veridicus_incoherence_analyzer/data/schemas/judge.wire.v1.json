@@ -1,0 +1,43 @@
+{
+  "title": "Respuesta del juez (esquema de cable, PD-11)",
+  "description": "Es el que viaja en GenerateRequest.schema hacia la salida estructurada del proveedor. Sin las palabras clave que la API de Anthropic no admite (minLength, maxLength, pattern, minimum, maximum, minItems mayor que 1): la cadena vacía la rechaza el esquema local judge.v1.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["hallazgos"],
+  "properties": {
+    "hallazgos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["hecho", "tipo", "cita_a", "cita_b", "observaciones"],
+        "properties": {
+          "hecho": { "type": "string" },
+          "tipo": {
+            "type": "string",
+            "enum": ["fecha", "numero", "lugar", "persona", "negacion", "secuencia", "otro"]
+          },
+          "cita_a": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cita", "turno"],
+            "properties": {
+              "cita": { "type": "string" },
+              "turno": { "type": "string" }
+            }
+          },
+          "cita_b": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cita", "turno"],
+            "properties": {
+              "cita": { "type": "string" },
+              "turno": { "type": "string" }
+            }
+          },
+          "observaciones": { "type": "string" }
+        }
+      }
+    }
+  }
+}

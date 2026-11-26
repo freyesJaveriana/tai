@@ -92,6 +92,14 @@ Corren desde `/workspace/.worktrees/U01-T18e`.
   Se espera: código 0 en todos, y `0 apariciones` en los tres guiones.
 - [ ] **CA-6 (en la CI, lo comprueba el orquestador en el PR):** el paso 4 de `contracts-level0` pasa en **40 s o menos** de principio a fin. Así quedan al menos 20 s de margen bajo el techo.
 
+## Decisión del humano (2026-11-26, después de la ronda 1), P-T18e-1
+
+Con las palancas permitidas, la suite bajó a 23,5 s en local. En la CI (PR #49), el paso 4 tardó 51 s: 47,96 s de pytest y unos 3,5 s de arranque. La CI corre a la mitad de velocidad del contenedor, así que llegar a 40 s exigiría bajar a unos 17 s en local. El humano decidió aceptar el resultado:
+
+- **CA-1** pasa a **24 s o menos** (antes, 22 s).
+- **CA-6** pasa a **52 s o menos** en la CI (antes, 40 s). El techo de 60 s de NFR2.1 no cambia.
+- Pytest-xdist y otras dependencias nuevas siguen fuera de esta tarea.
+
 ## Notas
 
 - **Bitácora:** `docs/loop/bitacoras/U01-T18e.md`. Incluye la medición base, el diagnóstico de dónde se iba el tiempo, cada palanca usada con su ahorro y las salidas literales de los criterios.

@@ -169,13 +169,8 @@ PALABRAS = re.compile(r"[^\W\d_]+")
 _FALLO = object()
 
 
-@lru_cache(maxsize=16384)
 def normalizar(texto: str) -> str:
-    """Minúsculas y sin tildes, para comparar sin distinguir mayúsculas ni tildes.
-
-    Función pura de una cadena inmutable: se recuerdan los últimos 16 384 resultados (los términos de C8
-    se normalizan una vez por consulta y no una por caso).
-    """
+    """Minúsculas y sin tildes, para comparar sin distinguir mayúsculas ni tildes."""
     descompuesto = unicodedata.normalize("NFKD", texto.lower())
     return "".join(c for c in descompuesto if not unicodedata.combining(c))
 
@@ -367,11 +362,8 @@ def nombres_de_un_documento(documento: Any) -> list[str]:
     return nombres
 
 
-@lru_cache(maxsize=16384)
 def con_veracidad(nombre: str) -> bool:
     """Igualdad de palabras: la categoría prohibida completa, o un segmento igual a un término de C8.
-
-    Función pura de una cadena: los mismos nombres de propiedad se repiten en cada contrato y en cada consulta.
 
     El nombre se normaliza a NFKC (el ancho completo pasa a ancho normal) y sus segmentos se parten
     en `_`, `-`, `.`, espacios, dígitos y las fronteras de camelCase y PascalCase. Los dígitos no
@@ -384,10 +376,20 @@ def con_veracidad(nombre: str) -> bool:
     return any(segmento in TERMINOS_NORMALIZADOS for segmento in segmentos)
 
 
+@lru_cache(maxsize=16384)
+def _con_veracidad_recordada(nombre: str) -> bool:
+    """`con_veracidad` con los últimos 16 384 resultados recordados; solo la usa `problemas_de_nombres`.
+
+    Los mismos nombres de propiedad se repiten en cada contrato y en cada consulta. La función pública no
+    recuerda nada (P-T18d-1).
+    """
+    return con_veracidad(nombre)
+
+
 def problemas_de_nombres(ruta: str, documento: Any) -> list[str]:
     """BR3.3: los nombres de un contrato que declaran veracidad."""
     culpables = list(
-        dict.fromkeys(n for n in nombres_de_un_documento(documento) if con_veracidad(n))
+        dict.fromkeys(n for n in nombres_de_un_documento(documento) if _con_veracidad_recordada(n))
     )
     if culpables:
         return [f"BR3.3: {ruta}: nombres con vocabulario de veracidad: {culpables}"]

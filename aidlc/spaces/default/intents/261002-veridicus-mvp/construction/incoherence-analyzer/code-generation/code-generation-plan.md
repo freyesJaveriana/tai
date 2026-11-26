@@ -289,14 +289,14 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 6 — `ModelGateway`: puerto, armado y adaptador `anonymizing` · tarea U11-T03
 
-- [ ] `port.py`: `ModelGateway.generate(req: GenerateRequest) -> GenerateResult`. Solo lanza los errores de `model_calls` (C13).
-- [ ] `gateway.py::build(config, anonymizing_provider=None)`:
+- [x] `port.py`: `ModelGateway.generate(req: GenerateRequest) -> GenerateResult`. Solo lanza los errores de `model_calls` (C13).
+- [x] `gateway.py::build(config, anonymizing_provider=None)`:
   - recorre los papeles;
   - `scope: external` exige el proveedor inyectado y el piso de 270 s, que importa de `veridicus_execution_profiles.floors`; si falta alguno, lanza `GatewayConfigError`;
   - `scope: local` lanza `GatewayConfigError` («adaptador local diferido a B11b»);
   - registra cada `ModelCall` en orden y mide la latencia en memoria, fuera de C6.
-- [ ] `adapters/anonymizing.py`: delega `generate(req)` en el `AnonymizingProvider` y no reintenta (BR10.3). Deja pasar los errores de `model_calls` tal cual. Cualquier otra excepción del proveedor la traduce a `AnonymizerUnavailable`, conservando la causa sin testimonio (BR7.4; SD; R-05).
-- [ ] `testing/`: un *fake* determinista del gateway, para las pruebas de `incoherence_analyzer` (team.md, Dobles de prueba).
+- [x] `adapters/anonymizing.py`: delega `generate(req)` en el `AnonymizingProvider` y no reintenta (BR10.3). Deja pasar los errores de `model_calls` tal cual. Cualquier otra excepción del proveedor la traduce a `AnonymizerUnavailable`, conservando la causa sin testimonio (BR7.4; SD; R-05).
+- [x] `testing/`: un *fake* determinista del gateway, para las pruebas de `incoherence_analyzer` (team.md, Dobles de prueba).
 - **Riesgo:** alto (frontera de salida de datos).
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/model_gateway pytest --cov=veridicus_model_gateway --cov-branch --cov-fail-under=100 --cov-report=term-missing`
 - **Umbral:** código 0, al menos 8 pruebas y 100 % de ramas en `adapters/anonymizing.py` y `gateway.py`.
@@ -304,10 +304,10 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 7 — Dominio: verificación de citas, filtro, estado y salida · tarea U11-T03
 
-- [ ] `domain/quotes.py::verify_quote(turn_text, quote) -> QuoteCheck`: función pura con la regla del piloto (`project.md`).
-- [ ] `domain/filter.py`: filtro sin llamadas, en el orden fijo de BR5.2 (marca alterada, campo vacío, `cita_a`, `cita_b`, vocabulario), más la deduplicación por par no ordenado (BR4.3).
-- [ ] `domain/run_state.py`: la máquina de estados de la corrida y `fail`, con la precedencia de `incidente_anonimizacion` (BR7.1, BR7.6).
-- [ ] `domain/output.py` e `ids.py`: arman la salida C6.
+- [x] `domain/quotes.py::verify_quote(turn_text, quote) -> QuoteCheck`: función pura con la regla del piloto (`project.md`).
+- [x] `domain/filter.py`: filtro sin llamadas, en el orden fijo de BR5.2 (marca alterada, campo vacío, `cita_a`, `cita_b`, vocabulario), más la deduplicación por par no ordenado (BR4.3).
+- [x] `domain/run_state.py`: la máquina de estados de la corrida y `fail`, con la precedencia de `incidente_anonimizacion` (BR7.1, BR7.6).
+- [x] `domain/output.py` e `ids.py`: arman la salida C6.
   - `id` determinista con la forma `<entrevista>-Cnn` (BR8.2);
   - `pagina` y `avisos` tomados del turno citado;
   - `registro.llamadas` con la tabla de papeles (BR8.3);
@@ -325,15 +325,15 @@ Estas pruebas se escriben primero y se ejecutan en rojo, en un commit propio (PD
 
 ### Paso 8 — *Prompt*, mensajes y esquemas de respuesta · tarea U11-T03
 
-- [ ] `data/prompt.v1.md`: un solo archivo para el juez y el verificador, que se lee con `importlib.resources`. `prompt_sha256` es el SHA-256 de sus bytes y debe coincidir con el de la configuración; si no coincide, la corrida da `salida_invalida` sin llamar (BR3.1).
+- [x] `data/prompt.v1.md`: un solo archivo para el juez y el verificador, que se lee con `importlib.resources`. `prompt_sha256` es el SHA-256 de sus bytes y debe coincidir con el de la configuración; si no coincide, la corrida da `salida_invalida` sin llamar (BR3.1).
 - [ ] `data/prompt.v1.sha256` con la referencia del *prompt* (PD-13). Una prueba cambia un byte del *prompt* en memoria y comprueba que da `salida_invalida` sin llamar.
-- [ ] En `data/schemas/`, los esquemas locales `judge.v1.json` y `verifier.v1.json`, cerrados (BR3.4), y los de cable `judge.wire.v1.json` y `verifier.wire.v1.json` (PD-11). El esquema de cable es el que va en `GenerateRequest.schema`.
-- [ ] `tests/application/test_prompt_through_anonymizer.py` (R-14): el texto del *prompt* pasa por el `Anonymizer` real sin ninguna marca. Así el `system` que sale es byte a byte el del archivo.
-- [ ] `application/messages.py::build_messages` (PD-6):
+- [x] En `data/schemas/`, los esquemas locales `judge.v1.json` y `verifier.v1.json`, cerrados (BR3.4), y los de cable `judge.wire.v1.json` y `verifier.wire.v1.json` (PD-11). El esquema de cable es el que va en `GenerateRequest.schema`.
+- [x] `tests/application/test_prompt_through_anonymizer.py` (R-14): el texto del *prompt* pasa por el `Anonymizer` real sin ninguna marca. Así el `system` que sale es byte a byte el del archivo.
+- [x] `application/messages.py::build_messages` (PD-6):
   - `system` fijo por papel;
   - `user` con el JSON de los turnos para el juez, y con `{hecho, tipo, cita_a, cita_b}` para el verificador (BR3.3);
   - con la permutación, las citas van intercambiadas.
-- [ ] El texto del *prompt* no lleva vocabulario de C8; lo comprueba el escáner del paso 5.
+- [x] El texto del *prompt* no lleva vocabulario de C8; lo comprueba el escáner del paso 5.
 - **Riesgo:** alto (es lo que sale hacia el proveedor).
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/application/test_messages.py tests/application/test_prompt_through_anonymizer.py tests/contracts/test_response_schemas.py --cov=veridicus_incoherence_analyzer.application.messages --cov-branch --cov-fail-under=100 --cov-report=term-missing`
 - **Umbral:**

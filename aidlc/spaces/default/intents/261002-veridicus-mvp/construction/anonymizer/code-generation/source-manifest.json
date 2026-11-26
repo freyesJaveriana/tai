@@ -1,0 +1,26 @@
+{
+  "stage": "code-generation",
+  "unit": "anonymizer",
+  "version": 1,
+  "writes": [
+    { "path": "libs/anonymizer/" },
+    { "path": "contracts/src/veridicus_contracts/validators.py" },
+    { "path": "contracts/tests/test_validators.py" },
+    { "path": "contracts/tests/contracts/test_correcciones_t18c.py" },
+    { "path": "contracts/tests/test_readme.py" },
+    { "path": "contracts/README.md" },
+    { "path": "contracts/pyproject.toml" },
+    { "path": "contracts/uv.lock" },
+    { "path": "scripts/check-no-cluster-ids.sh" },
+    { "path": "scripts/check-no-datos-personales.sh" },
+    { "path": "scripts/tests/autoprueba-guardias.sh" },
+    { "path": ".github/workflows/anonymizer-level0.yml" },
+    { "path": ".github/workflows/contracts-level0.yml" },
+    { "path": ".github/workflows/repo-level0.yml" },
+    { "path": ".claude/agents/codificador.md" },
+    { "path": ".claude/agents/revisor.md" },
+    { "path": "docs/glosario.md" },
+    { "path": "docs/devlog.md" },
+    { "path": "docs/loop/" }
+  ]
+}

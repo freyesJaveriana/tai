@@ -284,7 +284,7 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
   - fusionan los tramos por precedencia, propagan por forma exacta con límites de palabra Unicode y numeran por primera aparición;
   - reemplazan de derecha a izquierda y vuelven a serializar sin escapar caracteres no ASCII.
 - [x] `MaskTable` vive solo en memoria: no tiene `__repr__` ni `__str__` que muestren valores, no se serializa y tiene un método para vaciarla.
-- [ ] El presupuesto es `anonymizer_masking_budget_ratio` × `timeout_s`, leído de C25 con la carga de límites de U1; si se supera, la llamada falla cerrado (NFR3.5).
+- [x] El presupuesto es `anonymizer_masking_budget_ratio` × `timeout_s`, leído de C25 con la carga de límites de U1; si se supera, la llamada falla cerrado (NFR3.5).
 - [x] Pruebas:
   - E1, E2, E3, E9, E10, E11, E12, E13 y E15;
   - cada posición de apertura de PD-2;
@@ -307,7 +307,7 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
   - una respuesta vacía válida (`hallazgos: []`);
   - «persona 3» sin corchetes no cuenta como marca;
   - Hypothesis: restaurar lo seudonimizado devuelve el original byte a byte.
-- [ ] `test_autonomia_05_restoration.py` del paso 4 pasa a verde **sin cambios**.
+- [x] `test_autonomia_05_restoration.py` del paso 4 pasa a verde **sin cambios**.
 - **Riesgo:** alto (lo usa la verificación de citas de AUTONOMIA-05 en B11a).
 - **Verificación:** `timeout 300 uv run --frozen --offline --directory libs/anonymizer pytest tests/domain/test_restoration.py tests/guards/test_autonomia_05_restoration.py --cov=veridicus_anonymizer.domain.restoration --cov-branch --cov-fail-under=100 --cov-report=term-missing`
 - **Umbral:** código 0; al menos 6 pruebas propias más las del paso 4; 100 % de ramas en `domain/restoration.py`.
@@ -315,13 +315,13 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 9 — Adaptador nativo de Anthropic y transporte de producción (F5, C22) · tarea U10-T04
 
-- [ ] `providers/http.py::default_transport()`: TLS ≥ 1.2 con verificación, `follow_redirects=False`, `retries=0` y `trust_env=False` (R-12). Su prueba inspecciona el cliente construido, sin abrir red.
-- [ ] `providers/anthropic.py`:
+- [x] `providers/http.py::default_transport()`: TLS ≥ 1.2 con verificación, `follow_redirects=False`, `retries=0` y `trust_env=False` (R-12). Su prueba inspecciona el cliente construido, sin abrir red.
+- [x] `providers/anthropic.py`:
   - **Envío.** La URL base es la constante `https://api.anthropic.com`, con la ruta de la Messages API. La salida estructurada va por JSON Schema, construida desde `req.schema`, y el esfuerzo va según la tabla de capacidades. Los nombres de los parámetros y la versión de la API se citan de la documentación oficial vigente en la bitácora (FD-U10-09). Se envía **una sola vez**, con lectura por bloques con tope `anonymizer_response_max_bytes` y un *timeout* igual al plazo restante.
   - **Clave.** Va solo en la cabecera de autenticación de Anthropic.
   - **Respuesta (BR5.3).** Devuelve el JSON parseado y validado contra `req.schema`, sin restaurar (PD-8). Bloqueo o rechazo de contenido → `ContentBlocked`; plazo agotado → `Timeout`; 5xx, redirección o corte → `ProviderError`; respuesta que no es JSON estricto o no valida → `InvalidOutput`. Todos llevan su `ModelCall`.
   - **`ModelCall`.** Cumple BR2.5: tokens del proveedor (0 si no los informa), `fallback_provider` según la ranura y `anonymized: true`.
-- [ ] Pruebas en `tests/providers/`:
+- [x] Pruebas en `tests/providers/`:
   - prueba de contrato con respuestas grabadas sintéticas cuya forma se contrasta con la documentación oficial, citada en la bitácora: E27, solo el lado de Anthropic;
   - E19, E20, E21 y E23;
   - una sola petición ante un 503 seguido de un 200 (BR2.4);
@@ -333,19 +333,19 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 10 — `Anonymizer.generate` y construcción en la CLI (F1, F7, F3b) · tarea U10-T04
 
-- [ ] Primero se regenera `libs/anonymizer/uv.lock` contra `contracts` 0.1.1 (R-04).
-- [ ] `application/generate.py` y `api.py`:
+- [x] Primero se regenera `libs/anonymizer/uv.lock` contra `contracts` 0.1.1 (R-04).
+- [x] `application/generate.py` y `api.py`:
   - **Comprobación del destino:** `scope` externo; proveedor `anthropic` (`openai` y `google` fallan cerrado hasta B10b); dominio en la lista; puerto 443; modelo en la tabla; clave en el entorno recibido.
   - **Orden:** seudonimizar, enviar **una vez**, restaurar (PD-8) y devolver `GenerateResult`.
   - **Liberación de la tabla:** en todos los finales, con `try/finally`.
   - **Logs:** solo IDs y cifras.
   - **Errores:** cualquier excepción antes del envío sale como `AnonymizerUnavailable`; una excepción inesperada después del envío sale como `ProviderError` con su `ModelCall` (PD-9).
   - **Protocolo:** `Anonymizer` cumple `AnonymizingProvider`, y mypy lo comprueba.
-- [ ] `build_anonymizer(env, transport=None)` (PD-7):
+- [x] `build_anonymizer(env, transport=None)` (PD-7):
   - carga y valida `data/`;
   - falla con el error de configuración de `libs/errors` antes de cualquier llamada;
   - no tiene ningún parámetro para saltarse la seudonimización, cosa que comprueba una prueba de su firma.
-- [ ] Las pruebas rojas del paso 4 pasan a verde **sin cambiarlas**.
+- [x] Las pruebas rojas del paso 4 pasan a verde **sin cambiarlas**.
 - **Riesgo:** alto (fallo cerrado, AUTONOMIA-04).
 - **Verificación:**
   - `timeout 120 uv lock --check --directory libs/anonymizer`
@@ -360,14 +360,14 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 11 — Fronteras y logs · tarea U10-T04
 
-- [ ] Contratos de import-linter:
+- [x] Contratos de import-linter:
   - `anonymizer-independent`: el paquete no importa `model_gateway`, `execution_profiles` ni `incoherence_analyzer`;
   - `anonymizer-layers`: `providers` y `domain` no se importan entre sí;
   - `anonymizer-testing-not-in-production`: nada de `src/` fuera de `testing/` importa `testing`.
 
   Que nada fuera del paquete importe `providers` lo configura U4 en `semantic-agent` (BR5.1).
-- [ ] En `tests/boundaries/`, un módulo de prueba que viola cada contrato hace fallar `lint-imports` (control negativo).
-- [ ] Prueba con `caplog`: cada línea de log solo lleva campos de la lista de BR2.3.
+- [x] En `tests/boundaries/`, un módulo de prueba que viola cada contrato hace fallar `lint-imports` (control negativo).
+- [x] Prueba con `caplog`: cada línea de log solo lleva campos de la lista de BR2.3.
 - **Riesgo:** alto (fronteras de seguridad).
 - **Verificación:** `timeout 120 uv run --frozen --offline --directory libs/anonymizer lint-imports` y `timeout 300 uv run --frozen --offline --directory libs/anonymizer pytest tests/boundaries --no-cov -q`
 - **Umbral:**
@@ -378,10 +378,10 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 12 — CI de nivel 0 · tarea U10-T05
 
-- [ ] `.github/workflows/anonymizer-level0.yml`, **sin filtro por rutas**, para que pueda ser comprobación obligatoria de `main` (R-11):
+- [x] `.github/workflows/anonymizer-level0.yml`, **sin filtro por rutas**, para que pueda ser comprobación obligatoria de `main` (R-11):
   - *job* `anonymizer-level0` con `uv sync --frozen`, `uv lock --check`, `ruff check`, `ruff format --check`, `mypy --strict`, `lint-imports`, `pip-audit` (`HIGH`+ con corrección), la suite con su mínimo y `coverage_gate`;
   - acciones fijadas por SHA y `permissions: contents: read`.
-- [ ] En `contracts-level0.yml`, el *job* `errors-level0` suma `ruff format --check` (K-76).
+- [x] En `contracts-level0.yml`, el *job* `errors-level0` suma `ruff format --check` (K-76).
 - **Riesgo:** bajo (configuración).
 - **Verificación:** `timeout 60 uv run --frozen --offline --directory contracts pytest tests/checks/test_ci_workflows.py` y `bash scripts/check-no-cluster-apply.sh`
 - **Umbral:** los dos comandos terminan con código 0. La prueba recorre todos los *workflows* reales, también el nuevo.
@@ -389,22 +389,22 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 13 — K-76: huecos de las guardias del repositorio público · tarea U10-T05
 
-- [ ] `scripts/check-no-cluster-ids.sh` detecta:
+- [x] `scripts/check-no-cluster-ids.sh` detecta:
   - una asignación con ámbito del servidor;
   - un nombre de nodo en la ruta de un archivo versionado;
   - `.psd1`;
   - una URL `file:` con tres barras;
   - un host concatenado tras `@`.
 - [ ] La regla del destino de `scp` deja de dar los falsos positivos de F-05 a F-07.
-- [ ] `scripts/check-no-datos-personales.sh` no exime un número exento seguido de punto y cifras (A-05).
-- [ ] Hoy las guardias no tienen suite, así que se crea `scripts/tests/autoprueba-guardias.sh` (R-11). La autoprueba:
+- [x] `scripts/check-no-datos-personales.sh` no exime un número exento seguido de punto y cifras (A-05).
+- [x] Hoy las guardias no tienen suite, así que se crea `scripts/tests/autoprueba-guardias.sh` (R-11). La autoprueba:
   - arma un repositorio de Git temporal fuera del árbol versionado;
   - construye **en tiempo de ejecución, a partir de fragmentos**, una sonda sintética por caso y su control negativo, para que ninguna sonda quede escrita entera en un archivo versionado;
   - corre cada guardia sobre ese repositorio, con su raíz como argumento;
   - termina con 0 solo si cada sonda da 1 y cada control da 0.
 
   Los informes describen las sondas con palabras (P-T29-2).
-- [ ] `.github/workflows/repo-level0.yml` corre la autoprueba.
+- [x] `.github/workflows/repo-level0.yml` corre la autoprueba.
 - **Riesgo:** alto (seguridad del repositorio público).
 - **Verificación:** `bash scripts/tests/autoprueba-guardias.sh`, `bash scripts/check-no-cluster-ids.sh`, `bash scripts/check-no-datos-personales.sh` y `timeout 60 uv run --frozen --offline --directory contracts pytest tests/checks/test_ci_workflows.py`
 - **Umbral:**
@@ -414,10 +414,10 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 14 — Suite completa y compuertas de calidad · tarea U10-T05
 
-- [ ] `testing/coverage_gate.py` lee `coverage.json` y exige:
+- [x] `testing/coverage_gate.py` lee `coverage.json` y exige:
   - el 100 % de ramas en `domain/`, `application/`, `api.py`, `providers/` y `testing/fake_transport.py`;
   - el 80 % de líneas en el paquete.
-- [ ] Corre en el worktree todo lo de «Comandos de verificación».
+- [x] Corre en el worktree todo lo de «Comandos de verificación».
 - **Riesgo:** bajo (agregación).
 - **Verificación:** los comandos «Suite de la unidad, con su mínimo», «Ramas de los módulos guardia», «Tipos», «*Lint* y formato», «Fronteras», «Contratos (U1)» y «Guardias del repositorio» de la tabla de arriba.
 - **Umbral:**
@@ -428,19 +428,19 @@ Se escriben primero y se ejecutan en rojo, en un commit propio (PD-10). Fallan p
 
 ### Paso 15 — Documentación, demostración y versión · tarea U10-T05
 
-- [ ] `libs/anonymizer/README.md`, en español, con:
+- [x] `libs/anonymizer/README.md`, en español, con:
   - qué hace el módulo;
   - cómo lo construye la CLI de B11a (`build_anonymizer`);
   - las variables de entorno, solo con nombres `VERIDICUS_*`;
   - qué no hace todavía, es decir, lo diferido a B10b (DP-03);
   - el límite declarado de PD-2.
-- [ ] `libs/anonymizer/examples/demo_fake.py` corre con el `FakeTransport` y una transcripción sintética, e imprime:
+- [x] `libs/anonymizer/examples/demo_fake.py` corre con el `FakeTransport` y una transcripción sintética, e imprime:
   - el cuerpo que saldría, que solo lleva marcas;
   - la respuesta restaurada;
   - con un destino `openai`, que falla cerrado, la línea `AnonymizerUnavailable` y el texto `peticiones=0`.
 
   La garantía de fuga cero no la da la demostración sino `test_autonomia_04_payload.py` (R-13).
-- [ ] Entradas en el glosario (`docs/`) y en `docs/devlog.md`. Versión 0.1.0; la etiqueta `anonymizer-v0.1.0` la pone el humano.
+- [x] Entradas en el glosario (`docs/`) y en `docs/devlog.md`. Versión 0.1.0; la etiqueta `anonymizer-v0.1.0` la pone el humano.
 - **Riesgo:** bajo (documentación).
 - **Verificación:** `timeout 120 uv run --frozen --offline --directory libs/anonymizer python examples/demo_fake.py` y `bash scripts/check-no-datos-personales.sh`
 - **Umbral:** los dos comandos terminan con código 0, y la salida de la demostración contiene `AnonymizerUnavailable` y `peticiones=0`.

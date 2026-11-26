@@ -39,8 +39,13 @@ def load_profiles(path: Path | None = None) -> dict[str, Any]:
     raise NotImplementedError("load_profiles: lo implementa U11-T02 (paso 4)")
 
 
-def load_config(profile_name: str, env: Mapping[str, str]) -> EffectiveConfig:
+def load_config(
+    profile_name: str, env: Mapping[str, str], path: Path | None = None
+) -> EffectiveConfig:
     """Resuelve la configuración efectiva del perfil `profile_name` con el entorno `env`.
+
+    Sin `path`, lee el `config/profiles.yaml` versionado; con `path`, ese archivo (las pruebas de
+    huellas lo usan con otros formatos del mismo contenido, BR2.10).
 
     Valida con `validate.validate_profile`, carga los límites con `limits.load(env)` y calcula las
     dos huellas con `canonical.sha256_jcs`. El valor de ninguna clave entra en ellas (BR2.10).

@@ -586,28 +586,16 @@ class RunPublishFailedError(RunFamilyError):
 
 
 # --- Errores del analizador (U11, PD-5 / CG-U11-04) -----------------------------------------------
-# `InputRejected` lleva su `code` por instancia, porque una misma validación previa (BR1) rechaza con
-# cuatro `code` del catálogo; las otras tres tienen un `code` fijo. El `detail` es el texto en español.
+# `InputRejected` no es una clase: BR1 rechaza con cuatro `code` que el catálogo ya tiene, cada uno con
+# su clase de un solo `code` (V-ERRORS), así que se agrupan en una tupla para `except InputRejected`.
+# Las otras tres tienen un `code` fijo. El texto de cada excepción es su `detail` en español.
 
-
-class InputRejected(VeridicusError):
-    """La entrada se rechazó antes de cualquier llamada (BR1.1 a BR1.5); trae su `code` y su `detail`."""
-
-    ALLOWED_CODES: ClassVar[frozenset[str]] = frozenset(
-        {
-            "import.invalid_transcript",
-            "session.consent_missing",
-            "profile.transfer_not_authorized",
-            "profile.not_approved",
-        }
-    )
-
-    def __init__(self, code: str, detail: str) -> None:
-        if code not in self.ALLOWED_CODES:
-            raise ValueError("code de InputRejected fuera de los cuatro de BR1")
-        super().__init__(detail)
-        self.code = code
-        self.detail = detail
+InputRejected: tuple[type[VeridicusError], ...] = (
+    ImportInvalidTranscriptError,
+    SessionConsentMissingError,
+    ProfileTransferNotAuthorizedError,
+    ProfileNotApprovedError,
+)
 
 
 class Cancelled(RunFamilyError):

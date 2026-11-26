@@ -29,7 +29,7 @@ from tests.support import (
     make_transcription,
 )
 from veridicus_incoherence_analyzer.cli import main as cli_main
-from veridicus_incoherence_analyzer.cli.io_atomic import AtomicWriteError
+from veridicus_incoherence_analyzer.cli.io_atomic import AtomicWriteError, write_atomic
 from veridicus_incoherence_analyzer.cli.main import run
 
 pytestmark = pytest.mark.cli
@@ -390,7 +390,7 @@ def test_exit_5_when_the_signal_arrives_right_after_the_last_output_was_written(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """F-05 de la ronda 1: una señal tras escribir la última salida no es un código 0."""
-    real_write = cli_main.write_atomic
+    real_write = write_atomic
 
     def write_then_signal(path: Path, data: bytes) -> None:
         real_write(path, data)

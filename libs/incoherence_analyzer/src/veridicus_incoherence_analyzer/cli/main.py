@@ -255,6 +255,8 @@ def _analyze_batch(
             composition.gateway,
             interrupts.flag.is_set,
         )
+        if interrupts.flag.is_set():  # la señal llegó durante la última llamada: sin salida
+            raise CancelledError("interrupción durante la corrida en curso")
         target = directory / f"{path.stem}.salida.json"
         _write(target, _dump(salida))
         if _is_incident(salida):

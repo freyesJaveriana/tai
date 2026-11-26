@@ -30,14 +30,16 @@ timeout 900 uv run --frozen --offline --directory libs/incoherence_analyzer pyte
 Variante recomendada, con `--extra cli` y un plazo mayor:
 
 ```bash
-timeout 1800 uv run --frozen --offline --directory libs/incoherence_analyzer --extra cli pytest tests/manual -m manual --no-cov --force-enable-socket -q
+timeout 3600 uv run --frozen --offline --directory libs/incoherence_analyzer --extra cli pytest tests/manual -m manual --no-cov --force-enable-socket -q
 ```
 
 - `--extra cli` instala el anonimizador, sin el cual un destino externo no arranca (código 3). Con un
   entorno que ya lo tiene instalado da lo mismo.
-- El peor caso pasa de 900 s: dos entrevistas, hasta tres llamadas cada una y 300 s por llamada
-  (`VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S=300`) son unos 1800 s. Con `timeout 900` el humano podría ver
-  un corte sin que el proveedor haya fallado.
+- El peor caso pasa de 900 s: una entrevista hace 1 + 2N llamadas (el juez y, por cada uno de los N
+  candidatos que sobreviven al filtro, el verificador y el verificador permutado), con hasta 300 s
+  por llamada (`VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S=300`). Con N = 5 son 11 llamadas, unos 3300 s
+  por entrevista. `timeout 3600` es una cota práctica, **no un máximo garantizado**: N no tiene tope
+  en esta prueba. Con `timeout 900` el humano podría ver un corte sin que el proveedor haya fallado.
 - La prueba falla si la corrida termina en `estado: error` (por ejemplo, una clave inválida) o sin
   ninguna llamada, y si la entrevista con la contradicción sembrada no produce ningún hallazgo.
 

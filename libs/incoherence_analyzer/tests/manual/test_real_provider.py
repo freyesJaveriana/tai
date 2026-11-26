@@ -6,9 +6,13 @@ sale. Sale por la red, así que se lanza con `--force-enable-socket`:
 
     timeout 900 uv run --frozen --offline --directory libs/incoherence_analyzer pytest tests/manual -m manual --no-cov --force-enable-socket -q
 
-Las salidas quedan en `resultados-locales/manual-real-provider/` (cubierto por `.gitignore`) y su
-resultado no se versiona. Un modelo real no es determinista: la prueba no exige un número de hallazgos
-y solo comprueba que la CLI termina con 0 y que cada salida es una salida C6 válida.
+Se lanza desde la raíz del repositorio. El README recomienda la variante con `--extra cli` y
+`timeout 3600` (cota práctica: una entrevista hace 1 + 2N llamadas de hasta 300 s).
+
+Las salidas quedan en `libs/incoherence_analyzer/resultados-locales/manual-real-provider/` (cubierto
+por `.gitignore`) y su resultado no se versiona. Un modelo real no es determinista, y por eso la prueba
+exige `estado: ok`, al menos una llamada registrada y una salida C6 válida, pero no un número de
+hallazgos, salvo en `contradiccion`, que debe producir al menos uno.
 """
 
 import json

@@ -187,6 +187,23 @@ def test_a_clean_copy_keeps_every_contract(package: str, tmp_path: Path) -> None
     assert f"Contracts: {len(contracts)} kept, 0 broken." in result.stdout
 
 
+def test_negative_control_layers_names_the_direct_import_of_api_not_only_the_chain(
+    tmp_path: Path,
+) -> None:
+    """F-07/F-03: `domain -> api` también rompería `layers` por la cadena `api -> application`;
+    la entrada explícita se distingue porque `lint-imports` nombra el import directo."""
+    _, _, relative, source = VIOLATIONS["layers:domain->api"]
+
+    result = _lint(tmp_path, "incoherence_analyzer", (relative, source))
+
+    assert result.returncode != 0, result.stdout
+    flat = " ".join(result.stdout.split())  # lint-imports parte las líneas largas
+    assert (
+        "veridicus_incoherence_analyzer.domain is not allowed to import "
+        "veridicus_incoherence_analyzer.api:"
+    ) in flat, result.stdout
+
+
 @pytest.mark.parametrize("case", list(VIOLATIONS), ids=list(VIOLATIONS))
 def test_negative_control_a_module_that_violates_the_contract_makes_lint_imports_fail(
     case: str, tmp_path: Path

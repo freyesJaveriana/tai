@@ -619,7 +619,9 @@ def test_comprobar_no_repite_el_aviso_cuando_c6_ya_se_informo_ausente(tmp_path: 
 
 _JSON = st.recursive(
     st.none() | st.booleans() | st.integers() | st.text(max_size=12),
-    lambda hijos: st.lists(hijos, max_size=4) | st.dictionaries(st.text(max_size=8), hijos, max_size=4),
+    lambda hijos: (
+        st.lists(hijos, max_size=4) | st.dictionaries(st.text(max_size=8), hijos, max_size=4)
+    ),
     max_leaves=12,
 )
 _PARTES = st.sampled_from(
@@ -638,8 +640,12 @@ def test_propiedad_la_comprobacion_de_rutas_nunca_lanza_y_devuelve_textos(c8: An
 
 
 @settings(max_examples=80, deadline=None)
-@given(partes=st.lists(_PARTES, min_size=0, max_size=6), lista=st.sampled_from(["excluded", "scanned"]))
-def test_propiedad_una_ruta_pasa_solo_si_llega_a_un_texto_de_c6(partes: list[str], lista: str) -> None:
+@given(
+    partes=st.lists(_PARTES, min_size=0, max_size=6), lista=st.sampled_from(["excluded", "scanned"])
+)
+def test_propiedad_una_ruta_pasa_solo_si_llega_a_un_texto_de_c6(
+    partes: list[str], lista: str
+) -> None:
     """Invariante: una ruta `salida.…` arbitraria se acepta si y solo si es una de las que llegan a
     un `string` de C6 (las cinco aprobadas y sus equivalentes); en otro caso se informa una vez."""
     ruta = "salida." + ".".join(partes)

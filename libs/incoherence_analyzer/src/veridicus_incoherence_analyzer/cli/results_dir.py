@@ -43,7 +43,7 @@ def _inside_git_work_tree(directory: Path) -> bool:
 
 def is_safe_for_corpus(directory: Path) -> bool:
     """BR11.5: fuera de todo repositorio, o dentro de uno que lo ignora. Git ausente o con error, no."""
-    absolute = directory.absolute()
+    absolute = directory.resolve()  # un enlace simbólico se sigue hasta donde realmente escribe
     if not _inside_git_work_tree(absolute):
         return True
     try:

@@ -343,13 +343,14 @@ def test_exit_5_when_an_output_cannot_be_written(
 class _SignalingProvider(ScriptedProvider):
     """Un proveedor que envía señales al proceso durante su primera llamada."""
 
-    def __init__(self, *numbers: signal.Signals) -> None:
+    def __init__(self, *numbers: signal.Signals, at: int = 1) -> None:
         super().__init__(echo_finding)
         self._numbers = numbers
+        self._at = at
 
     def _handle(self, request: httpx.Request) -> httpx.Response:
         response = super()._handle(request)
-        if self.request_count == 1:
+        if self.request_count == self._at:
             for number in self._numbers:
                 signal.raise_signal(number)
         return response
@@ -369,6 +370,20 @@ def test_exit_5_when_interrupted_the_run_in_progress_has_no_output_and_no_more_c
     assert provider.request_count == 1, "tras la señal no sale ninguna llamada más"
     assert [path.name for path in files_under(out)] == ["AVISO.txt"], "sin salida de esa corrida"
     assert signal.getsignal(number) is before, "los manejadores se restauran"
+
+
+def test_exit_5_when_the_signal_arrives_after_the_last_call_of_the_last_run(
+    tmp_path: Path,
+) -> None:
+    """F-05: una señal tras la última llamada también es una interrupción, no un código 0."""
+    provider = _SignalingProvider(
+        signal.SIGTERM, at=3
+    )  # la tercera es la del verificador permutado
+
+    code = go(write_input(tmp_path), tmp_path / "salida", transport=provider)
+
+    assert code == 5
+    assert provider.request_count == 3
 
 
 def test_exit_5_when_a_second_signal_arrives_during_the_shutdown(tmp_path: Path) -> None:

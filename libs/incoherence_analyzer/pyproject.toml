@@ -117,6 +117,7 @@ type = "forbidden"
 source_modules = ["veridicus_incoherence_analyzer.domain"]
 forbidden_modules = [
     "veridicus_incoherence_analyzer.application",
+    "veridicus_incoherence_analyzer.api",
     "veridicus_incoherence_analyzer.cli",
     "veridicus_model_gateway",
     "veridicus_anonymizer",

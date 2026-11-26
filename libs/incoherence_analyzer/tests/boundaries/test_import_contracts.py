@@ -79,6 +79,12 @@ VIOLATIONS.update(
             "domain/violacion.py",
             "from veridicus_incoherence_analyzer.application import preflight  # noqa: F401\n",
         ),
+        "layers:domain->api": (
+            "incoherence_analyzer",
+            "layers",
+            "domain/violacion.py",
+            "from veridicus_incoherence_analyzer import api  # noqa: F401\n",
+        ),
         "layers:domain->cli": (
             "incoherence_analyzer",
             "layers",

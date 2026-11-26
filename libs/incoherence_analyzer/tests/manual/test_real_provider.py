@@ -60,4 +60,9 @@ def test_the_cli_with_the_real_provider_ends_with_0_and_a_valid_c6_output(
         )
     assert code == 0
     assert c6_problems(salida) == []
-    assert salida["estado"] in {"ok", "error"}
+    # Una clave inválida (401) o un proveedor caído también salen con 0 y `estado: error`.
+    assert salida["estado"] == "ok", f"la corrida terminó en error: {salida.get('error')}"
+    assert len(salida["registro"]["llamadas"]) >= 1, "ninguna llamada llegó al proveedor"
+    if name == "contradiccion":
+        # Sin hallazgos no hay éxito: el modelo no vio la contradicción sembrada (revise descartes).
+        assert len(salida["hallazgos"]) >= 1, "la contradicción sembrada no produjo ningún hallazgo"

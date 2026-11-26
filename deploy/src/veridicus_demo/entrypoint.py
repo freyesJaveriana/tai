@@ -116,8 +116,13 @@ def _read(directory: Path, name: str, *, with_findings: bool) -> _Result:
     return _Result(name, state, tuple(_finding(item) for item in items))
 
 
+def _count(number: int) -> str:
+    """«1 hallazgo» en singular y «N hallazgos» en cualquier otro caso (incluido 0)."""
+    return f"{number} hallazgo" if number == 1 else f"{number} hallazgos"
+
+
 def _lines(result: _Result) -> list[str]:
-    lines = [f"{result.name}: estado={result.state}, {len(result.findings)} hallazgos"]
+    lines = [f"{result.name}: estado={result.state}, {_count(len(result.findings))}"]
     for item in result.findings:
         lines.append(f"  hecho: {item.fact}")
         lines.append(f"  tipo: {item.kind}")

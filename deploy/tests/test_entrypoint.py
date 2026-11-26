@@ -231,7 +231,9 @@ def test_every_label_line_passes_the_scan_for_any_number_of_findings(
     count: int, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """F-03: todos los rótulos (estado, hallazgos, hecho, tipo, cita A, cita B) con 0, 1 y varios."""
-    salida = _salida("ok", [_hallazgo(quote_a="Una cita.", quote_b="Otra cita.") for _ in range(count)])
+    salida = _salida(
+        "ok", [_hallazgo(quote_a="Una cita.", quote_b="Otra cita.") for _ in range(count)]
+    )
     monkeypatch.setattr(entrypoint, "run", _fake_run(0, {"contradiccion": salida}))
     entrada = stage_input(tmp_path, "contradiccion")
 

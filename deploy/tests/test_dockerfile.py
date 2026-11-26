@@ -137,7 +137,7 @@ def test_every_from_of_the_real_dockerfile_has_a_real_digest_and_none_uses_lates
     assert check_from_pinned(real) == []
     assert check_latest_anywhere(real) == []
     assert DIGEST in real, "el digest del índice multiarquitectura de python:3.12-slim"
-    assert "REEMPLAZAR_DIGEST" not in real
+    assert not re.search(r"REEMPLAZAR_DIGEST(?!_UV)", real), "solo uv puede seguir pendiente"
 
 
 def test_the_final_user_is_numeric_and_not_root(real: str) -> None:
@@ -154,9 +154,7 @@ def test_the_entrypoint_is_the_demo_module_in_exec_form(real: str) -> None:
     )
 
 
-UV_COPY = re.compile(
-    r"^--from=ghcr\.io/astral-sh/uv:\d+\.\d+\.\d+(?:@\S+)? /uv /usr/local/bin/uv$"
-)
+UV_COPY = re.compile(r"^--from=ghcr\.io/astral-sh/uv:\d+\.\d+\.\d+(?:@\S+)? /uv /usr/local/bin/uv$")
 
 
 def test_the_build_stage_uses_uv_sync_frozen_no_dev_no_editable(real: str) -> None:

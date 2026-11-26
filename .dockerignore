@@ -4,6 +4,11 @@
 !deploy
 .env
 **/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/kubeconfig*
+**/secrets*.yaml
 **/tests
 **/.venv
 **/__pycache__

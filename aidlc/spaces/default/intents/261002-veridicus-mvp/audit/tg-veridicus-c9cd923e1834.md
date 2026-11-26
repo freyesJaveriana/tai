@@ -59809,3 +59809,124 @@
 **Context**: construction > incoherence-analyzer > code-generation > code-generation-plan.md
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:07:56Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:15:21Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-26T14:15:44Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0fd6ea860e681100
+**Message**: Sí, abre U01-T18e con el 1 y el 2
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:20:49Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-26T14:28:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a5df784a76d610dbf
+**Message**: TAREA: U11-T04\nRAMA: tarea/U11-T04   SHA: 064139a\nCRITERIOS: 5 de 7 verificados en verde. Dos no cierran por una prueba congelada (ver BLOQUEOS).\n- CA-1: 232 pasan y 1 falla (la congelada). Las ramas 
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:28:31Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-11-26T14:28:43Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: code-generation
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-26T14:29:45Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a92be17540ca91ef5
+**Message**: <analysis>\nRepaso la sesión para dejar el estado exacto.\n\n1. Rol: orquestador del loop (Parte 2 de Code Generation, U11 B11a). Redacta tareas, despacha codificador y revisor, guarda informes, arbitra,
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:44:36Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-26T14:46:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: codificador
+**Agent ID**: a5df784a76d610dbf
+**Message**: TAREA: U11-T04\nRAMA: tarea/U11-T04   SHA: 5665b1d\nCRITERIOS: 7 de 7 verificados. P-T04-1 resolvió el bloqueo.\n- CA-1: 233 pasan, 0 fallan. Las ramas de `application/*` y `api.py` están al 100 % y el c
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:46:23Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:56:58Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-11-26T14:57:08Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: revisor
+**Agent ID**: ac8c27102f21fdaeb
+**Message**: # Ronda 1 — U11-T04\n\nVEREDICTO: NO-VERDE\n\nCorrí yo mismo los siete criterios en `<project-dir>/.worktrees/U11-T04`, en `3fdf3b3`, y todos pasan. Las sondas de AUTONOMIA-05 también pasan, y los 11 mutante
+
+---
+
+## Human Turn
+**Timestamp**: 2026-11-26T14:57:13Z
+**Event**: HUMAN_TURN
+**Session**: 87e67c60-aa1c-4b11-8928-da89d2e300bd
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-11-26T14:58:16Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: u12
+**Content-Hash**: c843b2684c48814f03d922a23531bf88f6195a5d160776b698c3854cb9a6bd11
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Corrections
+**Source**: user_addition
+
+---

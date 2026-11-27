@@ -1,7 +1,11 @@
 """Pruebas del visor web de la demo (scripts/humano/visor-demo.py), sin kubectl ni red."""
 
+import base64
+import hashlib
 import importlib.util
+import re
 import sys
+from pathlib import Path
 from types import ModuleType
 
 import pytest
@@ -91,6 +95,32 @@ def test_a_failed_run_shows_the_error_and_no_findings() -> None:
     ).decode()
     assert "terminó con el código 4" in pagina
     assert "Sugerencia de revisión 1" not in pagina
+
+
+def test_the_only_script_is_the_one_the_csp_allows_by_hash() -> None:
+    pagina = visor.pagina_formulario("SINT-1", "TEST: hola").decode()
+    scripts = re.findall(r"<script>(.*?)</script>", pagina, flags=re.DOTALL)
+    assert scripts == [visor._GUION]
+    digest = base64.b64encode(hashlib.sha256(scripts[0].encode()).digest()).decode()
+    assert f"script-src 'sha256-{digest}'" in visor.CSP
+    assert "unsafe-inline" not in visor.CSP.split("script-src")[1]
+
+
+def test_the_form_shows_the_waiting_layer_and_the_course_credits() -> None:
+    pagina = visor.pagina_formulario("SINT-1", "TEST: hola").decode()
+    assert "<form id='analizar'" in pagina
+    assert "id='cargando' class='cargando' hidden" in pagina and "Analizando…" in pagina
+    assert "name='sintetico' value='si' required" in pagina
+    for dato in (visor.UNIVERSIDAD, visor.AUTOR, visor.CORREO, visor.PROFESOR, "Tópicos"):
+        assert dato in pagina
+
+
+def test_the_logo_is_embedded_as_a_data_uri(tmp_path: Path) -> None:
+    escudo = tmp_path / "escudo.png"
+    escudo.write_bytes(b"\x89PNG")
+    assert visor.logo_data_uri(escudo) == "data:image/png;base64,iVBORw=="
+    with pytest.raises(SystemExit):
+        visor.logo_data_uri(tmp_path / "escudo.gif")
 
 
 def test_the_result_page_escapes_html_and_highlights_quotes() -> None:

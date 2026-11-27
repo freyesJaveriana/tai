@@ -131,6 +131,126 @@ def test_candidate_both_secret_scripts_apply_server_side() -> None:
         assert not re.search(rf"{K} apply -f", text), name
 
 
+def _script(base: str, line: str) -> str:
+    return (FIXTURES / "ok.sh").read_text(encoding="utf-8") + base + line + "\n"
+
+
+POLICIES = DEPLOY / "policies"
+
+
+@pytest.mark.parametrize("name", ["veridicus-secret-solo-job", "veridicus-imagen-con-etiqueta"])
+def test_f12_the_policies_declare_the_ephemeral_containers_gap(name: str) -> None:
+    text = (POLICIES / name / "policy.yaml").read_text(encoding="utf-8")
+    assert "pods/ephemeralcontainers" in text
+
+
+def test_f12_the_match_of_the_policies_is_unchanged() -> None:
+    for name in ("veridicus-secret-solo-job", "veridicus-imagen-con-etiqueta"):
+        text = (POLICIES / name / "policy.yaml").read_text(encoding="utf-8")
+        assert "ephemeralcontainers\n" not in text.split("match:")[1].split("validate:")[0]
+
+
+def test_f13_text_after_a_comment_does_not_count_as_server_side() -> None:
+    for line in (
+        f"{K} apply -f - # --server-side",
+        f"{K} apply -f - #--server-side",
+        f"{K} apply -f y # -k",
+    ):
+        assert any("apply sin --server-side" in x for x in violations("x.sh", _script("", line))), (
+            line
+        )
+
+
+def test_f13_a_hash_inside_quotes_is_not_a_comment() -> None:
+    line = f"{K} apply --server-side -f - --field-manager='a#b'"
+    assert violations("x.sh", _script("", line)) == []
+    line = f"{K} apply -f - --field-manager='a#b'"
+    assert any("apply sin --server-side" in x for x in violations("x.sh", _script("", line)))
+
+
+def test_f13_server_side_before_a_comment_passes() -> None:
+    line = f"{K} apply --server-side -f - # sin copiar el valor"
+    assert violations("x.sh", _script("", line)) == []
+
+
+def _kustomization(root: Path, rel: str, body: str) -> None:
+    path = root / rel / "kustomization.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(body, encoding="utf-8")
+
+
+KUSTOMIZE_LINES = [
+    '{K} apply -k "$raiz/deploy/x"',
+    "{K} apply -k deploy/x",
+    '{K} apply --kustomize "${{raiz}}/deploy/x"',
+    "{K} apply --kustomize=deploy/x",
+    "{K} apply -k=deploy/x",
+]
+
+
+@pytest.mark.parametrize("template", KUSTOMIZE_LINES)
+def test_f13_a_kustomization_with_a_secret_generator_fails(tmp_path: Path, template: str) -> None:
+    _kustomization(tmp_path, "deploy/x", "secretGenerator:\n  - name: a\n    literals: [b=c]\n")
+    found = violations("x.sh", _script("", template.format(K=K)), root=tmp_path)
+    assert any("secretGenerator" in item for item in found), template
+
+
+@pytest.mark.parametrize("template", KUSTOMIZE_LINES)
+def test_f13_a_kustomization_without_a_secret_generator_passes(
+    tmp_path: Path, template: str
+) -> None:
+    _kustomization(tmp_path, "deploy/x", "resources:\n  - a.yaml\n")
+    assert violations("x.sh", _script("", template.format(K=K)), root=tmp_path) == []
+
+
+def test_f13_a_kustomization_that_cannot_be_resolved_passes_and_is_documented(
+    tmp_path: Path,
+) -> None:
+    for line in (
+        f'{K} apply -k "$otra/deploy/x"',
+        f"{K} apply -k deploy/no-existe",
+        f'{K} apply -k "$(dirname x)"',
+    ):
+        assert violations("x.sh", _script("", line), root=tmp_path) == [], line
+    assert "no se puede resolver" in (DEPLOY / "tests" / "humano_checks.py").read_text("utf-8")
+
+
+def test_f13_the_real_demo_kustomization_has_no_secret_generator() -> None:
+    text = _text("demo-analyzer.sh")
+    assert violations("scripts/humano/demo-analyzer.sh", text, root=ROOT) == []
+    assert "secretGenerator" not in (ROOT / "deploy/demo-analyzer/kustomization.yaml").read_text(
+        encoding="utf-8"
+    )
+
+
+SECRET_SCRIPTS = {
+    "crear-secret-anthropic.sh": "veridicus-anthropic",
+    "crear-pull-secret-ghcr.sh": "veridicus-ghcr",
+}
+
+
+@pytest.mark.parametrize("name", SECRET_SCRIPTS)
+def test_f11_the_secret_scripts_refuse_a_secret_that_keeps_last_applied(name: str) -> None:
+    text = _text(name)
+    secret = SECRET_SCRIPTS[name]
+    check = text.index("last-applied-configuration'")
+    assert check < text.index(f"{K} apply --server-side")
+    block = text[check : text.index(f"{K} apply --server-side")]
+    line = next(x for x in text.splitlines() if "last-applied-configuration'" in x)
+    assert f"{K} get secret {secret} " in line
+    assert f"{K} delete secret {secret} --namespace" in block
+    assert re.search(r"exit 2", block)
+    assert "conflicto" not in text
+
+
+@pytest.mark.parametrize("name", SECRET_SCRIPTS)
+def test_f11_the_check_never_prints_or_stores_the_annotation(name: str) -> None:
+    text = _text(name)
+    line = next(x for x in text.splitlines() if "last-applied-configuration'" in x)
+    assert "| grep -q ." in line
+    assert not re.search(r"\$\(|=\s*\"", line.split("|")[0]), line
+
+
 def test_the_script_that_creates_the_anthropic_secret_never_holds_the_key_in_a_variable() -> None:
     name = "crear-secret-anthropic.sh"
     text = _text(name)
@@ -202,12 +322,22 @@ def test_the_probe_image_is_pinned_by_digest() -> None:
     assert PINNED.search(_text("demo-analyzer.sh"))
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="El digest de curlimages/curl lo trae el humano (sin red aquí); ver la bitácora de U02-T02",
-)
-def test_the_probe_image_digest_is_a_real_one() -> None:
-    assert REAL_DIGEST.search(_text("demo-analyzer.sh"))
+CURL_DIGEST = "c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69"
+
+
+def test_the_probe_image_is_pinned_by_a_real_digest_and_carries_no_marker() -> None:
+    text = _text("demo-analyzer.sh")
+    assert REAL_DIGEST.search(text)
+    assert f'imagen_sonda="curlimages/curl:8.11.1@sha256:{CURL_DIGEST}"' in text
+    assert not re.search(r'imagen_sonda="[^"]*REEMPLAZAR', text)
+    assert "8.11.1" in text.split("imagen_sonda=")[0].rsplit("\n\n", 1)[-1]
+    assert "multiarquitectura" in text.split("imagen_sonda=")[0]
+
+
+def test_a_tag_before_the_digest_is_accepted_and_a_tag_alone_is_not() -> None:
+    assert REAL_DIGEST.search(f"curlimages/curl:8.11.1@sha256:{CURL_DIGEST}")
+    assert PINNED.search(f"curlimages/curl:8.11.1@sha256:{CURL_DIGEST}")
+    assert PINNED.search("curlimages/curl:8.11.1") is None
 
 
 @pytest.mark.parametrize(

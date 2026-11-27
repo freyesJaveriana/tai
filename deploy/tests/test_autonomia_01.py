@@ -150,6 +150,97 @@ def test_f02_the_finding_names_the_line_of_the_list(tmp_path: Path) -> None:
     assert scan(tmp_path) == ["ops/x.yaml:4: kubectl fuera de scripts/humano/"]
 
 
+def _container(body: str, kind: str = "Pod") -> str:
+    """Un manifiesto con un contenedor cuyo cuerpo (command y args) se pasa ya sangrado."""
+    if kind == "CronJob":
+        head = (
+            "kind: CronJob\nspec:\n  jobTemplate:\n    spec:\n      template:\n        spec:\n"
+            "          containers:\n            - name: c\n"
+        )
+        return head + "".join(f"              {line}\n" for line in body.splitlines())
+    if kind == "Deployment":
+        head = "kind: Deployment\nspec:\n  template:\n    spec:\n      initContainers:\n        - name: c\n"
+        return head + "".join(f"          {line}\n" for line in body.splitlines())
+    head = "kind: Pod\nspec:\n  containers:\n    - name: c\n"
+    return head + "".join(f"      {line}\n" for line in body.splitlines())
+
+
+F10_FORMS = {
+    "command y args en flujo": _container(f'command: ["{K}"]\nargs: ["apply", "-f", "x"]'),
+    "command y args en bloque": _container(f"command:\n  - {K}\nargs:\n  - apply\n  - -f"),
+    "command y args en flujo sin comillas": _container(f"command: [{K}]\nargs: [delete, job]"),
+    "command con la ruta absoluta": _container(f'command: ["/usr/bin/{K}"]\nargs: ["create"]'),
+    "CronJob": _container(f'command: ["{K}"]\nargs: ["apply", "-f", "x"]', "CronJob"),
+    "contenedor de inicio de un Deployment": _container(
+        f'command: ["{K}"]\nargs: ["patch", "x"]', "Deployment"
+    ),
+    "helm en command y args": _container(f'command: ["{H}"]\nargs: ["upgrade", "--install"]'),
+    "orden completa en command": _container(f'command: ["sh", "-c", "{K} apply -f y"]'),
+}
+
+
+@pytest.mark.parametrize("text", F10_FORMS.values(), ids=F10_FORMS.keys())
+def test_f10_command_and_args_of_a_container_are_joined(tmp_path: Path, text: str) -> None:
+    _write(tmp_path, "ops/job.yaml", text)
+    assert scan(tmp_path)
+
+
+def test_f10_command_and_args_in_a_second_document_of_the_file(tmp_path: Path) -> None:
+    other = "kind: ConfigMap\ndata:\n  a: b\n---\n"
+    _write(tmp_path, "ops/job.yaml", other + F10_FORMS["command y args en flujo"])
+    assert len(scan(tmp_path)) == 1
+
+
+F10_SAFE = {
+    "lectura": _container(f'command: ["{K}"]\nargs: ["get", "pods"]'),
+    "otra herramienta": _container('command: ["echo"]\nargs: ["apply"]'),
+    "solo args": _container('args: ["apply"]'),
+    "command que no es lista": _container("command: hola"),
+    "args con un número": _container(f'command: ["{K}"]\nargs: [1, get]'),
+}
+
+
+@pytest.mark.parametrize("text", F10_SAFE.values(), ids=F10_SAFE.keys())
+def test_f10_read_only_commands_and_odd_shapes_do_not_fail(tmp_path: Path, text: str) -> None:
+    _write(tmp_path, "ops/job.yaml", text)
+    assert scan(tmp_path) == []
+
+
+def test_f10_a_yaml_that_does_not_parse_still_gets_the_text_rule(tmp_path: Path) -> None:
+    _write(tmp_path, "ops/roto.yaml", f"a: [\n{K} apply -f y\n")
+    assert scan(tmp_path)
+    _write(tmp_path, "ops/plantilla.yaml", "a: {{ .Values.x }}\nb: [\n")
+    assert [item.split(":")[0] for item in scan(tmp_path)] == ["ops/roto.yaml"]
+
+
+def test_f10_an_exempt_yaml_is_exempt_for_command_and_args_too(tmp_path: Path) -> None:
+    _write(tmp_path, "uno.yaml", F10_FORMS["command y args en flujo"])
+    assert scan(tmp_path, {"uno.yaml": frozenset({"kubectl"})}) == []
+
+
+F10_TEXT = {
+    "bloque con ruta absoluta": f"command:\n  - /usr/bin/{K}\n  - apply\n  - -f",
+    "bloque con ruta relativa y comillas": f'command:\n  - "./bin/{K}"\n  - "apply"',
+    "tupla de Python": f'subprocess.run(("{K}", "apply"))',
+    "tupla con opciones": f"run(('{K}', '-n', 'x', 'delete', 'job'))",
+    "tupla de helm": f'run(("{H}", "install", "a"))',
+}
+
+
+@pytest.mark.parametrize("line", F10_TEXT.values(), ids=F10_TEXT.keys())
+@pytest.mark.parametrize("where", ["scripts/aplicar.py", "ops/x.yaml"])
+def test_f10_an_absolute_path_in_a_block_and_a_tuple_fail(
+    tmp_path: Path, line: str, where: str
+) -> None:
+    _write(tmp_path, where, f"{line}\n")
+    assert scan(tmp_path)
+
+
+def test_f10_a_block_with_a_path_to_another_tool_does_not_fail(tmp_path: Path) -> None:
+    _write(tmp_path, "ops/x.yaml", f"command:\n  - /usr/bin/{K}-otro\n  - apply\n")
+    assert scan(tmp_path) == []
+
+
 SAFE_LISTS = {
     "lectura en lista": f'run(["{K}", "get", "pods", "-n", "x"])',
     "lectura en bloque": f"command:\n  - {K}\n  - get\n  - applyset",

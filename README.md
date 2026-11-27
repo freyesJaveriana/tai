@@ -1,13 +1,347 @@
-# Veridicus — Diálogos para la Memoria
+# Veridicus
 
-Proyecto de curso: un sistema de entrevista asistida por IA que detecta, en Kubernetes,
-contradicciones dentro del relato de un compareciente sobre hechos centrales, cada una con
-dos citas literales verificadas, para apoyar (no reemplazar) al analista humano en procesos
-de justicia transicional en Colombia. Desde el cambio 01 (DT27, 2026-10-27) es además el
-analizador de incoherencias del Trabajo de Grado *Diálogos para la Memoria*
-([`docs/iteracion2.md`](./docs/iteracion2.md)).
+Grupo: Felipe Reyes Palacio | Fecha de presentación: 28 de noviembre de 2026
+
+Veridicus es un analizador que propone las contradicciones internas de un testimonio. Cada
+contradicción lleva dos citas literales verificadas y nunca un veredicto de veracidad. Corre en
+Kubernetes local, y un humano decide. Es el analizador de incoherencias del Trabajo de Grado
+*Diálogos para la Memoria* (cambio 01, DT27, [`docs/iteracion2.md`](./docs/iteracion2.md)).
+
+Este README sigue la [guía de entrega del curso](https://github.com/lfarizav/topicos-especiales/blob/main/modulo8/guia-entrega-proyecto-final.md).
+
+**Qué está construido y qué no.** Hoy corren:
+
+- la biblioteca del analizador y su CLI (`libs/incoherence_analyzer/`);
+- el anonimizador (`libs/anonymizer/`);
+- un Job en Minikube;
+- un visor web reconciliado por Argo CD.
+
+Los microservicios, la consola completa y la evaluación de nivel 2 del diseño de AI-DLC **no** están
+construidos (sección 8).
 
 ---
+
+## 1. Problema
+
+- **Usuario:** el analista que lee testimonios largos. Por ejemplo, investigadores y juristas de la
+  JEP, la Unidad de Víctimas y el CNMH ([`specs/prd.md`](./specs/prd.md), Segmento 1).
+- **Dolor de hoy:**
+  - cotejar a mano una entrevista contra sí misma «puede tomar días»;
+  - el relato traumático desgasta al analista;
+  - dos analistas no marcan lo mismo.
+
+  La Comisión de la Verdad recogió más de 14 000 testimonios (`specs/prd.md`, Segmento 1; `pvb.md`).
+- **Costo de hoy:** por hora de entrevista, 4–6 h para transcribir y 1,5–3 h para codificar, antes de
+  cotejar. Las cifras vienen de la literatura de análisis cualitativo:
+  [courses2.cit.cornell.edu/fit117/CP_T.htm](https://courses2.cit.cornell.edu/fit117/CP_T.htm) y
+  [PMC12021444](https://pmc.ncbi.nlm.nih.gov/articles/PMC12021444) (consulta 2026-11-27). Nuestra línea
+  base propia no está medida; el PRD la marca como no verificada.
+- **Métrica de éxito:**
+  - el 100 % de las citas emitidas existen literalmente en el turno que indican;
+  - el 0 % de las salidas JSON está mal formado;
+  - menos de 10 minutos por transcripción sintética (MTTV, meta interna).
+
+  Las metas de adopción del PRD son hipótesis, no criterios del MVP.
+- **Qué cambió desde el PVB (cambio 01):**
+
+  | Antes | Ahora |
+  |---|---|
+  | Se contrastaba el relato con un «marco de verdad» documental. | Se buscan contradicciones dentro del propio relato, con dos citas. |
+  | El anonimizador era condicional. | El anonimizador es obligatorio. |
+
+  En ningún caso hay una etiqueta de veracidad sobre la persona (AUTONOMIA-03).
+
+## 2. Arquitectura en Kubernetes
+
+### Diagrama real (lo que corre hoy)
+
+```mermaid
+flowchart LR
+    subgraph Dev["Desarrollo"]
+        CC["Claude Code: orquestador, codificador y revisor"]
+        MCP["MCP solo de documentación (lectura)"]
+        H["Humano: revisa la evidencia y fusiona"]
+    end
+    subgraph GH["GitHub"]
+        MAIN["main protegida (también frente al administrador)"]
+        CI["Actions: nivel 0 e imagen a GHCR con el SHA"]
+    end
+    subgraph MK["Minikube (Kubernetes 1.31, Calico)"]
+        ARGO["Argo CD v3.2.12"]
+        VIS["ns veridicus-visor: Deployment del visor (NodePort 30851)"]
+        JOB["ns veridicus-demo: Job del analizador con el anonimizador en proceso; NetworkPolicy deny-all"]
+    end
+    EXT["api.anthropic.com:443 (solo texto seudonimizado)"]
+    CC -->|PR con evidencia| MAIN
+    H -->|fusiona| MAIN
+    MAIN --> CI
+    MAIN -->|lee y reconcilia| ARGO
+    ARGO --> VIS
+    VIS -->|crea el Job| JOB
+    JOB --> EXT
+```
+
+En texto: los agentes de Claude Code proponen por PR, y el humano fusiona en `main` protegida. Argo CD
+lee `main` y reconcilia el visor. El visor lanza el Job del analizador, y ese Job es el único pod que sale
+a internet, solo hacia el proveedor y solo con texto seudonimizado. Ningún agente ni la CI hace
+`kubectl apply` (AUTONOMIA-01).
+
+### Objetos y manifiestos
+
+| Pieza | Objeto de Kubernetes | Manifiesto |
+|---|---|---|
+| Análisis de un caso | Job, ConfigMap de entrada | [`deploy/demo-analyzer/job.yaml`](./deploy/demo-analyzer/job.yaml), [`kustomization.yaml`](./deploy/demo-analyzer/kustomization.yaml) |
+| Aislamiento de red | NetworkPolicy (deny-all y salida 443) | [`deploy/demo-analyzer/networkpolicy.yaml`](./deploy/demo-analyzer/networkpolicy.yaml) |
+| Clave del proveedor | Secret, que crea el humano | [`scripts/humano/crear-secret-anthropic.sh`](./scripts/humano/crear-secret-anthropic.sh) |
+| Espacio y política | Namespace con Pod Security `restricted` | [`deploy/demo-analyzer/namespace.yaml`](./deploy/demo-analyzer/namespace.yaml) |
+| Visor web | Deployment, Service NodePort, ConfigMaps | [`deploy/demo-visor/`](./deploy/demo-visor/) |
+| Identidad del visor | ServiceAccount, Role, ClusterRole | [`deploy/demo-visor/rbac.yaml`](./deploy/demo-visor/rbac.yaml) |
+| GitOps | Application de Argo CD | [`deploy/argocd/veridicus-visor.yaml`](./deploy/argocd/veridicus-visor.yaml) |
+| Políticas | 4 ClusterPolicy de Kyverno, **solo en la CI** | [`deploy/policies/`](./deploy/policies/) |
+
+### Seguridad, con evidencia
+
+- **RBAC de mínimo privilegio.** La cuenta `veridicus-visor` hace lo que hace el humano con el visor, y nada más:
+  - crea, lee y borra el Job;
+  - aplica su ConfigMap, su ServiceAccount y su NetworkPolicy;
+  - lee los pods y sus logs;
+  - lee por nombre los dos Secrets, solo para saber que existen.
+
+  No hay comodines. La cuenta del Job no tiene RBAC y lleva `automountServiceAccountToken: false`.
+  La evidencia en vivo se obtiene con
+  [`scripts/humano/rbac-evidencia.sh`](./scripts/humano/rbac-evidencia.sh), que solo lee. El script corre:
+
+  ```bash
+  kubectl auth can-i --list --namespace veridicus-demo \
+    --as=system:serviceaccount:veridicus-visor:veridicus-visor
+  ```
+
+  Después comprueba, una por una, cosas que la cuenta no puede hacer: crear pods, listar Secrets, leer
+  `kube-system` o tocar Argo CD. Las pruebas de [`deploy/tests/test_visor_pod.py`](./deploy/tests/test_visor_pod.py)
+  fallan si alguien agrega un comodín.
+- **Pod Security `restricted`** en los dos namespaces:
+  - sin root ni escalada de privilegios;
+  - sin capabilities;
+  - raíz de solo lectura;
+  - seccomp `RuntimeDefault`.
+- **Red.** `veridicus-deny-all` cierra el namespace `veridicus-demo`. Solo el Job sale, por 443 y DNS, y nunca
+  hacia rangos privados. `demo-analyzer.sh` lo comprueba con un pod `curl` que debe fallar.
+- **La CI no despliega:** no tiene kubeconfig, sus permisos son `contents: read` y las acciones están fijadas
+  por SHA. [`scripts/check-no-cluster-apply.sh`](./scripts/check-no-cluster-apply.sh) falla la CI si un script o
+  un workflow fuera de `scripts/humano/` contiene un `apply`.
+
+### El bucle GitOps
+
+Argo CD reconcilia `deploy/demo-visor` desde `main`, con `prune` y `selfHeal`. Hay dos demos:
+
+- un PR agrega un ejemplo a `deploy/demo-visor/ejemplos.json`;
+- [`scripts/humano/gitops-color.sh`](./scripts/humano/gitops-color.sh) cambia el color de la barra superior
+  (`deploy/demo-visor/apariencia.properties`), y luego `--revertir` lo devuelve.
+
+Al fusionar el PR, Argo CD aplica el ConfigMap con un sufijo nuevo y el pod se renueva.
+[`scripts/humano/gitops-observar.sh`](./scripts/humano/gitops-observar.sh) espera a que la Application esté
+`Synced`/`Healthy` en el commit de `main` y comprueba que la página sirve el cambio. Nadie ejecuta un `apply`
+a mano. El paso a paso está en [`deploy/demo-visor/README.md`](./deploy/demo-visor/README.md).
+
+## 3. Loop de agentes
+
+Es el loop con el que se construyó el producto ([`docs/loop/README.md`](./docs/loop/README.md)):
+
+- **Entrada:** un archivo de tarea con su alcance, el hash de git de partida y un
+  `Verificación: <comando>` por criterio. Una tarea sin comando no entra al loop (AUTONOMIA-02).
+- **Codificador (Sonnet):**
+  - confirma el hash;
+  - escribe primero la prueba que falla y después el código, en su propio worktree;
+  - responde cada hallazgo con «Corregido», «No es un defecto» o «Fuera de alcance».
+- **Revisor (Opus):** no tiene Write ni Edit, así que no puede corregir lo que juzga.
+  - Corre él mismo los criterios.
+  - Emite hallazgos ROJO, NARANJA o AMARILLO.
+  - Da VERDE solo si no hay ROJO ni NARANJA.
+- **Cuándo se detiene:**
+  - con VERDE, sigue la tarea siguiente;
+  - a la tercera ronda NO-VERDE (ML-5), para y lleva el caso al humano;
+  - con un hash distinto, no empieza.
+- **Salida:** un PR con la salida de cada comando. El humano lo revisa y lo fusiona.
+
+**Herramientas permitidas.** Los límites viven en la herramienta, no en el prompt:
+
+| Actor | Puede | No puede |
+|---|---|---|
+| Codificador | Bash, Read, Edit, Write, Grep y Glob en su worktree | Agent, fusionar, `kubectl apply`, `helm`, `sbatch` |
+| Revisor | Bash, Read, Grep, Glob | Write, Edit, Agent |
+| MCP | Documentación de solo lectura (claude-platform docs, context7), con términos genéricos | Toda herramienta que escriba o envíe datos pide aprobación |
+| Hooks de AI-DLC | `plan-approval-guard`, `write-audit-log`, `run-sensors` | Escribir código sin el `Approve Plan` del humano |
+
+Fuentes: [`.claude/agents/codificador.md`](./.claude/agents/codificador.md),
+[`.claude/agents/revisor.md`](./.claude/agents/revisor.md), [`.claude/settings.json`](./.claude/settings.json).
+
+**En cifras (U1 contracts):**
+
+- 45 tareas: 33 del plan y 12 correctivas (PR #5 a #41);
+- 2,4 rondas de revisión por tarea, en promedio;
+- 76 informes NO-VERDE frente a 54 VERDE;
+- unas 39 h y unos 501 USD equivalentes de uso de modelos (registro propio).
+
+Fuente: [`docs/loop/DECISIONES-LOOP.md`](./docs/loop/DECISIONES-LOOP.md).
+
+**Casos de fallo:**
+
+- **Anonimizador caído:** el analizador devuelve `estado: error` con hallazgos vacíos y no sale ninguna
+  llamada (pruebas en `libs/anonymizer/tests/guards/`).
+- **Sin plan aprobado:** el hook `plan-approval-guard` rechazó toda escritura.
+- **K-98, un límite que falló:** el codificador llamó al proveedor real porque la clave estaba en su entorno.
+  Ver [`docs/loop/CANDIDATAS.md`](./docs/loop/CANDIDATAS.md) y la sección 8.
+
+**El agente del producto.** El analizador del clúster recibe un caso, llama al juez y al verificador con
+texto seudonimizado y verifica cada cita con código determinista. Un hallazgo sin sus dos citas verificadas
+no sale (AUTONOMIA-05). Lo que entrega es una sugerencia de revisión.
+
+## 4. Comparación (con fuentes)
+
+| Alternativa | Tiempo | Seguridad | Costo | Adopción |
+|---|---|---|---|---|
+| A mano | 4–6 h para transcribir y 1,5–3 h para codificar, por hora de entrevista | Nada sale del equipo | USD 0 en software; horas de analista | Exige pericia |
+| NVivo, ATLAS.ti o MAXQDA con IA | Resúmenes y códigos sugeridos; no documentan detección de contradicciones | IA por API (OpenAI o Bedrock), sin entrenamiento | NVivo estudiante: USD 118 al año; IA aparte | Media: curva de aprendizaje |
+| Chat de IA genérico | Minutos | Los planes de consumo pueden entrenar con los datos; citas sin verificar (18–55 % de referencias inventadas) | USD 20 al mes | Muy fácil |
+| Reglas y PLN clásico | Segundos | Local | USD 0 | Alta: hay que programar; falla en la inferencia |
+| **Veridicus** | ≈ 10 s por caso sintético de 8 turnos (CLI con Sonnet 5.5) | Seudonimiza antes de salir; falla cerrado | ≈ USD 0,012 por caso con Sonnet 5.5; ≈ 0,022 con Opus 5.5 | Alta: Kubernetes y perfil |
+
+Fuentes (consulta 2026-11-27):
+
+- trabajo a mano: [courses2.cit.cornell.edu/fit117/CP_T.htm](https://courses2.cit.cornell.edu/fit117/CP_T.htm)
+  y [PMC12021444](https://pmc.ncbi.nlm.nih.gov/articles/PMC12021444);
+- herramientas QDA: [library.virginia.edu/node/2208](https://library.virginia.edu/node/2208),
+  [atlasti.com/ai-data-security-and-privacy](https://atlasti.com/ai-data-security-and-privacy) y
+  [help.maxqda.com](https://help.maxqda.com);
+- chat genérico: [claude.com/pricing](https://claude.com/pricing), [chatgpt.com/pricing](https://chatgpt.com/pricing)
+  y Walters y Wilder 2023 ([PMC10484980](https://pmc.ncbi.nlm.nih.gov/articles/PMC10484980));
+- PLN clásico: [aclanthology.org/P08-1118](https://aclanthology.org/P08-1118);
+- Veridicus: corrida de `scripts/humano/cambio-modelo.sh` del 2026-11-27.
+  - 12 casos con Sonnet: 122 s, 42 614 tokens de entrada y 6 077 de salida.
+  - 12 casos con Opus: 39 114 y 5 126.
+  - Precios USD 2 / 10 (Sonnet 5.5) y USD 4 / 20 (Opus 5.5) por millón de tokens, de
+    [platform.claude.com/docs/en/models/sonnet-5-5/overview](https://platform.claude.com/docs/en/models/sonnet-5-5/overview).
+  - Las cifras de Veridicus son de casos sintéticos cortos: una entrevista real es mucho más larga y cuesta más.
+
+**Dónde perdemos:**
+
+- **Frente a las QDA:** tienen más de 20 años de madurez, soporte, trabajo en equipo y aceptación académica,
+  y nosotros no tenemos consola todavía.
+- **Frente al chat genérico:** se adopta en minutos. Nosotros exigimos un clúster, un perfil aprobado por PR
+  y una clave en un Secret.
+- **Frente al analista:** el juicio contextual es suyo; por eso proponemos y no decidimos.
+- **Frente a reglas y PLN:** tienen costo cero y son deterministas, y nuestro juez no lo es.
+
+## 5. Vigencia ante nuevos modelos
+
+| Lo que un modelo mejor absorberá | Lo que es nuestro |
+|---|---|
+| Encontrar la contradicción y redactar el hecho | Verificación determinista de cada cita en su turno |
+| Clasificarla en uno de los 7 tipos | Anonimizador que falla cerrado, delante de todo proveedor |
+| Leer relatos más largos sin fragmentar | Contrato común con el TG y su esquema de hallazgo |
+| | Revisión humana: sugerencias, nunca veredictos (AUTONOMIA-03) |
+| | RBAC, NetworkPolicy, Pod Security y entrega por GitOps |
+| | Pruebas: 100 % de ramas en los módulos guardia |
+
+Por eso el trabajo del modelo vive en un prompt y un perfil
+([`libs/execution_profiles/config/profiles.yaml`](./libs/execution_profiles/config/profiles.yaml)), no en código.
+
+**Prueba de cambio de modelo.** El cambio de modelo se hace solo por configuración: el perfil
+`demo-anthropic-opus` cambia `claude-sonnet-5-5` por `claude-opus-5-5`, sin tocar código.
+[`scripts/humano/cambio-modelo.sh`](./scripts/humano/cambio-modelo.sh) corre los 12 casos sintéticos de
+[`evaluation/cambio-modelo/`](./evaluation/cambio-modelo/) (7 con una contradicción sembrada y 5 coherentes o
+trampa) contra los dos perfiles y los compara. Resultado del 2026-11-27, una corrida por modelo:
+
+| | Sonnet 5.5 | Opus 5.5 |
+|---|---|---|
+| Contradicciones detectadas | 6/7 | 3/7 |
+| … con el tipo esperado | 5/7 | 3/7 |
+| … con los turnos esperados | 6/7 | 3/7 |
+| Hallazgos de más en casos sin contradicción | 1/5 | 0/5 |
+| Errores | 0/12 | 1/12 (`salida_invalida`, sin resultado parcial) |
+| Citas verificadas | 14/14 | 6/6 |
+| Llamadas | 28 | 24 |
+| Segundos | 122 | 151 |
+
+El sistema siguió funcionando con los dos modelos. Toda cita emitida quedó verificada. El error de Opus en
+SINT-EVAL-07 falló cerrado, como exige AUTONOMIA-05. El caso de lugar (SINT-EVAL-03) no lo detectó ninguno de
+los dos. Con 12 casos y una sola corrida por modelo, esto es una comparación y no una medición, y no dice que
+un modelo sea mejor en general.
+
+## 6. Moat
+
+> «Un competidor con el mismo modelo tardaría **lo que cuesta un trabajo de grado completo, unas 1 200 h**,
+> en igualarnos porque Veridicus es una pieza del TG *Diálogos para la Memoria*: la verificación de citas, el
+> anonimizador con fallo cerrado y la validación contra la codificación humana del piloto se apoyan en ese
+> trabajo, que no es público».
+
+Las 1 200 h son una proyección propia: es la última estimación del esfuerzo total del TG. El PVB estimó
+6 semanas para copiar solo la aplicación con la misma API (`pvb.md`). Lo que no se copia en ese tiempo es lo
+que hay debajo:
+
+- **Datos:** la validación contra la codificación humana del piloto, fuera del repositorio.
+- **Confianza:** las reglas AUTONOMIA-01 a 05 ([`docs/limite-autonomia.md`](./docs/limite-autonomia.md)), con
+  pruebas que fallan la CI, y la adenda ética VE-01 a VE-17.
+- **Integración:** el contrato común con la app del TG; el mismo código sirve a los dos.
+
+## 7. Cómo reproducirlo desde cero
+
+Todo lo que toca el clúster lo ejecuta el humano (AUTONOMIA-01).
+
+1. **Pruebas sin clúster ni red**, desde la raíz:
+
+   ```bash
+   uv run --frozen --offline --directory deploy pytest --cov=veridicus_demo --cov-branch --cov-fail-under=100
+   ```
+
+2. **Minikube con Calico** (sin Calico, la NetworkPolicy no se cumple):
+
+   ```bash
+   minikube start --cni=calico --memory=8g --cpus=4
+   kubectl get pods -n kube-system -l k8s-app=calico-node   # deben estar en Running
+   ```
+
+3. **Secrets.** Se crean desde un `.env` que nunca se versiona, con `VERIDICUS_ANTHROPIC_API_KEY`,
+   `VERIDICUS_GHCR_USER` y `VERIDICUS_GHCR_TOKEN`:
+
+   ```bash
+   bash scripts/humano/crear-secret-anthropic.sh ~/.env
+   bash scripts/humano/crear-pull-secret-ghcr.sh ~/.env
+   ```
+
+4. **Análisis como Job:** `bash scripts/humano/demo-analyzer.sh`. El script aplica el Job, muestra los
+   hallazgos y comprueba que la red está cerrada. Detalle en
+   [`deploy/demo-analyzer/README.md`](./deploy/demo-analyzer/README.md).
+5. **Visor y GitOps:**
+   - `bash scripts/humano/visor-pod.sh` construye la imagen en Minikube y despliega el visor;
+   - `bash scripts/humano/argocd-instalar.sh` instala Argo CD y registra la Application.
+
+   Detalle en [`deploy/demo-visor/README.md`](./deploy/demo-visor/README.md).
+6. **Prueba de cambio de modelo:** `bash scripts/humano/cambio-modelo.sh`. Ver
+   [`evaluation/cambio-modelo/README.md`](./evaluation/cambio-modelo/README.md).
+7. **Evidencia de RBAC:** `bash scripts/humano/rbac-evidencia.sh`.
+
+Reversión: `kubectl delete -k deploy/demo-analyzer`, `kubectl delete -k deploy/demo-visor` y
+`kubectl delete namespace argocd`.
+
+## 8. Riesgos y cómo los mitigamos
+
+| Riesgo | Mitigación |
+|---|---|
+| El NER deja pasar un nombre real (R12) | Solo datos sintéticos en el repositorio y la CI; anonimizador con fallo cerrado |
+| La clave estaba en el entorno del agente (K-98) | El punto de entrada solo corre en pytest y los agentes no usan la red. Queda pendiente que la clave no exista en el entorno de desarrollo |
+| Kyverno no corre como admisión en el clúster | Las políticas bloquean en la CI antes de fusionar |
+| La NetworkPolicy no excluye 100.64.0.0/10 (K-100) | Registrado en `docs/loop/CANDIDATAS.md` para un PR propio |
+| Microservicios, consola y nivel 2 sin construir | Primero la rebanada mínima (CLI y Job); el resto va en B11b y siguientes |
+| Un solo proveedor de modelos (solo existe el adaptador de Anthropic) | Los perfiles y el esquema están listos para otros adaptadores |
+| Un CI lento durante la demo en vivo del bucle GitOps | Se usa una grabación de respaldo |
+
+Fuentes: [`risk-and-sequencing-rationale.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/risk-and-sequencing-rationale.md),
+[`docs/loop/CANDIDATAS.md`](./docs/loop/CANDIDATAS.md).
+
+---
+
+# Anexo: curso, entregables previos y flujo AI-DLC
 
 ## Datos del curso
 

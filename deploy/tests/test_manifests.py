@@ -7,6 +7,7 @@ manifiesto alterado en memoria que la regla debe ver. No se ejecuta kubectl.
 
 import copy
 import os
+import re
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -35,6 +36,8 @@ from support import DEPLOY
 
 MANIFESTS = DEPLOY / "demo-analyzer"
 IMAGE = "ghcr.io/freyesjaveriana/veridicus-analyzer-cli"
+# El SHA del commit de main cuya imagen publicó analyzer-image.yml (#64, paso 11 del plan).
+PUBLISHED_TAG = "923ecfff4b03b4168814278eb7e2bdf811016642"
 
 
 def _current_render() -> list[Resource]:
@@ -89,7 +92,7 @@ def _network(resources: list[Resource]) -> list[Resource]:
 def test_the_kustomization_sets_namespace_images_and_the_input_configmap() -> None:
     kustomization = load(MANIFESTS / "kustomization.yaml")[0]
     assert kustomization["namespace"] == "veridicus-demo"
-    assert kustomization["images"] == [{"name": IMAGE, "newName": IMAGE, "newTag": "sha-pendiente"}]
+    assert kustomization["images"] == [{"name": IMAGE, "newName": IMAGE, "newTag": PUBLISHED_TAG}]
     [generator] = kustomization["configMapGenerator"]
     assert generator["name"] == "veridicus-demo-entrada"
     assert sorted(generator["files"]) == ["entrada/coherente.json", "entrada/contradiccion.json"]
@@ -194,10 +197,11 @@ def test_the_environment_takes_the_key_from_the_secret_and_never_holds_its_value
     assert "value" not in env["VERIDICUS_ANTHROPIC_API_KEY"]
 
 
-def test_the_image_comes_from_ghcr_with_the_provisional_tag_and_a_pull_secret(
+def test_the_image_comes_from_ghcr_with_the_published_sha_and_a_pull_secret(
     rendered: list[Resource],
 ) -> None:
-    assert _container(rendered)["image"] == f"{IMAGE}:sha-pendiente"
+    assert re.fullmatch(r"[0-9a-f]{40}", PUBLISHED_TAG)
+    assert _container(rendered)["image"] == f"{IMAGE}:{PUBLISHED_TAG}"
     assert _pod(rendered)["imagePullSecrets"] == [{"name": "veridicus-ghcr"}]
     raw = _job(load(MANIFESTS / "job.yaml"))
     assert next(iter(containers(raw["spec"]["template"]["spec"])))["image"] == IMAGE

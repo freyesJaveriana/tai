@@ -86,12 +86,13 @@ con `minikube image rm ghcr.io/freyesjaveriana/veridicus-analyzer-cli:<etiqueta>
 ## Plan A y plan B de la imagen
 
 Imagen: `ghcr.io/freyesjaveriana/veridicus-analyzer-cli`, con la etiqueta fijada en
-`deploy/demo-analyzer/kustomization.yaml` (`images:`). Hoy es provisional (`sha-pendiente`).
+`deploy/demo-analyzer/kustomization.yaml` (`images:`). Hoy es `923ecfff4b03b4168814278eb7e2bdf811016642`, el SHA
+del commit de `main` que publicó la CI (digest `sha256:7e87b25c771338ed8f0ff84b2fcfa36ed90ee3aeb40d38413ee30be17bc2f4b5`).
 
 - **Plan A (normal):** `.github/workflows/analyzer-image.yml` la publica en GHCR con el SHA del commit al
   fusionar el Bolt en `main`; un PR de una línea fija ese SHA en `kustomization.yaml` (paso 11). Requiere el paquete
   vinculado al repositorio con acceso de Actions en escritura, y el Secret `veridicus-ghcr` del script 2, cuyo
-  token es un PAT clásico con `read:packages`. Con la etiqueta provisional la descarga falla (`ImagePullBackOff`).
+  token es un PAT clásico con `read:packages`. Sin ese Secret la descarga falla (`ImagePullBackOff`).
 - **Plan B (solo para la demo, desviación de `team.md`: las imágenes salen de la CI):** si la publicación falla,
   construirla en la VM con el mismo Dockerfile y el mismo contexto (la raíz del repositorio):
   `minikube image build -t ghcr.io/freyesjaveriana/veridicus-analyzer-cli:<etiqueta de kustomization.yaml> -f deploy/images/analyzer-cli/Dockerfile .`

@@ -1,0 +1,24 @@
+---
+# Control negativo (N3): la verificación es la condición de un if de varias líneas; si falla, el if solo
+# toma la otra rama y el script sigue.
+name: verificacion-en-if
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar con la verificación dentro de un if
+        env:
+          SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          if
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -
+          then true
+          fi
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP"

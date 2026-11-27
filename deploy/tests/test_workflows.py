@@ -335,6 +335,11 @@ NEGATIVES = {
     "push-sin-etiqueta.yml": "sin etiqueta",
     "build-sin-etiqueta.yml": "sin etiqueta",
     "expresion-en-run.yml": "expresión de Actions dentro de un run",
+    # Ronda 3 (F-05): la forma fija de la verificación.
+    "sha256sum-conjuncion.yml": "forma fija",
+    "set-relajado.yml": "set -euo pipefail",
+    "verificacion-en-if.yml": "dentro de un if, while o until",
+    "verificacion-en-segundo-plano.yml": "forma fija",
 }
 
 
@@ -422,10 +427,132 @@ def test_negative_f01_a_check_whose_exit_code_is_annulled_fails(masked: str) -> 
     assert any("anula" in item for item in checks.violations("x.yml", text))
 
 
+# --- Ronda 3 (F-05): la verificación tiene una forma fija, no una lista de máscaras ---------------
+
+GOOD_LINE = 'echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -'
+CURL_LINE = 'curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"'
+INDENT = "          "
+
+
 @pytest.mark.parametrize("kept", [f"{VERIFY} && echo ok", f"{VERIFY} && true"])
-def test_f01_a_check_followed_by_a_conjunction_still_passes(kept: str) -> None:
+def test_negative_f05_a_check_followed_by_a_conjunction_fails(kept: str) -> None:
+    """Invierte la prueba de la ronda 2: con set -e, `&&` deja una suma mala sin efecto."""
     text = _mutate(_text(FIXTURES / "ok.yml"), VERIFY, kept)
 
+    assert any("forma fija" in item for item in checks.violations("x.yml", text))
+
+
+F05_SHAPES = [
+    f"{GOOD_LINE} &",
+    f"{GOOD_LINE} && echo ok",
+    f"{GOOD_LINE} && true",
+    f"! {GOOD_LINE}",
+    f"({GOOD_LINE})",
+    f"{{ {GOOD_LINE}; }}",
+    'echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" \\\n' + INDENT + "| sha256sum -c -",
+    'echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum --check -',
+    'echo "${SHA256} $RUNNER_TEMP/a.tar.gz" | sha256sum -c -',
+    'echo "$SHA256  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -',
+    'sha256sum -c "$RUNNER_TEMP/a.sha256"',
+    'sha256sum -c - <<< "${SHA256}  $RUNNER_TEMP/a.tar.gz"',
+    f"true; {GOOD_LINE}",
+    f"{GOOD_LINE}  # no se comprueba",
+]
+
+
+@pytest.mark.parametrize("shape", F05_SHAPES, ids=range(len(F05_SHAPES)))
+def test_negative_f05_any_verification_that_is_not_the_fixed_line_fails(shape: str) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), GOOD_LINE, shape)
+
+    assert any("forma fija" in item for item in checks.violations("x.yml", text))
+
+
+@pytest.mark.parametrize("chain", ["&&", "||", "|", "\\"])
+def test_negative_f05_a_verification_chained_to_the_previous_line_fails(chain: str) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), f"{CURL_LINE}\n", f"{CURL_LINE} {chain}\n")
+
+    assert any("forma fija" in item for item in checks.violations("x.yml", text))
+
+
+@pytest.mark.parametrize(
+    "good",
+    [
+        GOOD_LINE,
+        'echo "${SHA256}  ${RUNNER_TEMP}/a.tar.gz" | sha256sum -c -',
+        f"# primero se verifica\n{INDENT}{GOOD_LINE}",
+    ],
+)
+def test_f05_the_fixed_line_passes_alone_in_its_line(good: str) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), GOOD_LINE, good)
+
+    assert checks.violations("x.yml", text) == []
+
+
+NESTED = [
+    f"if\n{INDENT}{GOOD_LINE}\n{INDENT}then true\n{INDENT}fi",
+    f"if true; then\n{INDENT}{GOOD_LINE}\n{INDENT}fi",
+    f"while\n{INDENT}{GOOD_LINE}\n{INDENT}do break\n{INDENT}done",
+    f"until\n{INDENT}{GOOD_LINE}\n{INDENT}do break\n{INDENT}done",
+    f"if false; then true\n{INDENT}elif\n{INDENT}{GOOD_LINE}\n{INDENT}then true\n{INDENT}fi",
+    f"case x in\n{INDENT}x)\n{INDENT}{GOOD_LINE}\n{INDENT};;\n{INDENT}esac",
+]
+
+
+@pytest.mark.parametrize("nested", NESTED, ids=range(len(NESTED)))
+def test_negative_f05_a_verification_inside_a_control_structure_fails(nested: str) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), GOOD_LINE, nested)
+
+    assert any("dentro de un if, while o until" in x for x in checks.violations("x.yml", text))
+
+
+def test_f05_a_closed_structure_before_the_verification_does_not_count() -> None:
+    closed = f"if true; then true; fi\n{INDENT}{GOOD_LINE}"
+    text = _mutate(_text(FIXTURES / "ok.yml"), GOOD_LINE, closed)
+
+    assert checks.violations("x.yml", text) == []
+
+
+PROLOGUES = [
+    "set +e",
+    "set -eu",
+    "set -e",
+    "set -uo pipefail",
+    "set -euo pipefail\n" + INDENT + "set +e",
+    "set -euo pipefail\n" + INDENT + "set +o pipefail",
+    "set -euo pipefail\n" + INDENT + "set +eu",
+    "echo hola\n" + INDENT + "set -euo pipefail",
+    "",
+]
+
+
+@pytest.mark.parametrize("prologue", PROLOGUES, ids=range(len(PROLOGUES)))
+def test_negative_f05_a_download_script_must_start_with_set_euo_pipefail_and_keep_it(
+    prologue: str,
+) -> None:
+    base = _text(FIXTURES / "ok.yml")
+    text = _mutate(
+        base, "set -euo pipefail\n" + INDENT, prologue + ("\n" + INDENT if prologue else "")
+    )
+
+    assert any("set -euo pipefail" in item for item in checks.violations("x.yml", text))
+
+
+def test_f05_comments_and_blank_lines_before_the_prologue_are_fine() -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        "set -euo pipefail",
+        "# nota\n" + INDENT + "\n" + INDENT + "set -euo pipefail",
+    )
+
+    assert checks.violations("x.yml", text) == []
+
+
+def test_f05_a_script_that_downloads_nothing_does_not_need_the_prologue() -> None:
+    text = _text(FIXTURES / "ok.yml")
+    document = yaml.safe_load(text)
+    publish = document["jobs"]["publish"]["steps"][0]["run"]
+
+    assert "curl" not in publish and "set -euo" not in publish
     assert checks.violations("x.yml", text) == []
 
 
@@ -494,6 +621,49 @@ def test_f01_a_tag_variable_of_the_step_env_wins_over_the_one_of_the_workflow() 
     text = _mutate(text, '      - run: docker push "ghcr.io/o/i:${GITHUB_SHA}"', step)
 
     assert any("no es el SHA" in item for item in checks.violations("x.yml", text))
+
+
+# --- Ronda 3 (F-06): buildx, image push/tag y una etiqueta que solo contiene una variable --------
+
+F06_COMMANDS = [
+    'docker buildx build --push --tag "$IMAGE" .',  # N6
+    "docker buildx build -t ghcr.io/o/i -f Dockerfile .",
+    'docker image push "$IMAGE"',  # N7
+    "docker image push ghcr.io/o/i",
+    "docker image tag a:1 ghcr.io/o/i",
+    "docker image build --tag ghcr.io/o/i .",
+    'docker push "ghcr.io/o/i:x$GITHUB_HEAD_REF"',  # N5
+    'docker push "ghcr.io/o/i:${GITHUB_SHA}-x"',
+    'docker push "ghcr.io/o/i:x${GITHUB_SHA}"',
+    'docker push "$IMAGE:${TAG}x"',
+    'docker buildx build --tag "ghcr.io/o/i:$GITHUB_HEAD_REF" .',
+]
+
+
+@pytest.mark.parametrize("command", F06_COMMANDS, ids=range(len(F06_COMMANDS)))
+def test_negative_f06_buildx_image_commands_and_mixed_tags_fail(command: str) -> None:
+    base = _with_env(_text(FIXTURES / "ok.yml"), "  IMAGE: ghcr.io/o/i\n  TAG: ${{ github.sha }}\n")
+    text = _mutate(base, 'docker push "ghcr.io/o/i:${GITHUB_SHA}"', command)
+    found = checks.violations("x.yml", text)
+
+    assert any("sin etiqueta" in item or "SHA del commit" in item for item in found), found
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        'docker buildx build --push --tag "ghcr.io/o/i:${GITHUB_SHA}" .',
+        'docker image push "ghcr.io/o/i:$GITHUB_SHA"',
+        "docker image tag a:1 ghcr.io/o/i:abc1234",
+        'docker buildx build --tag "$IMAGE:$SHA" .',
+    ],
+)
+def test_f06_the_same_commands_pass_with_the_whole_tag_from_the_sha(command: str) -> None:
+    env = "  IMAGE: ghcr.io/o/i\n  SHA: ${{ github.sha }}\n"
+    base = _with_env(_text(FIXTURES / "ok.yml"), env)
+    text = _mutate(base, 'docker push "ghcr.io/o/i:${GITHUB_SHA}"', command)
+
+    assert checks.violations("x.yml", text) == []
 
 
 @pytest.mark.parametrize(
@@ -648,6 +818,45 @@ def _real_mutants() -> dict[str, tuple[Path, str, str, str]]:
             "IMAGE_TAG: ${{ github.sha }}",
             "IMAGE_TAG: main",
             "no es el SHA",
+        ),
+        # Ronda 3: N1, N2, N3 y N8 (F-05) y N5, N6 y N7 (F-06), sobre los workflows reales.
+        "N1 conjunción tras la verificación": (
+            DEPLOY_WORKFLOW,
+            "sha256sum -c -",
+            "sha256sum -c - && echo ok",
+            "forma fija",
+        ),
+        "N2 set +e": (IMAGE_WORKFLOW, "set -euo pipefail", "set +e", "set -euo pipefail"),
+        "N3 verificación en un if": (
+            DEPLOY_WORKFLOW,
+            'echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -',
+            f"if\n{INDENT}" + 'echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -'
+            f"\n{INDENT}then true\n{INDENT}fi",
+            "dentro de un if, while o until",
+        ),
+        "N8 verificación en segundo plano": (
+            IMAGE_WORKFLOW,
+            "sha256sum -c -",
+            "sha256sum -c - &",
+            "forma fija",
+        ),
+        "N5 etiqueta con una variable dentro": (
+            IMAGE_WORKFLOW,
+            'docker push "$IMAGE:$IMAGE_TAG"',
+            'docker push "$IMAGE:x$GITHUB_HEAD_REF"',
+            "SHA del commit",
+        ),
+        "N6 buildx build": (
+            IMAGE_WORKFLOW,
+            'docker build --tag "$IMAGE:$IMAGE_TAG"',
+            'docker buildx build --push --tag "$IMAGE"',
+            "sin etiqueta",
+        ),
+        "N7 image push": (
+            IMAGE_WORKFLOW,
+            'docker push "$IMAGE:$IMAGE_TAG"',
+            'docker image push "$IMAGE"',
+            "sin etiqueta",
         ),
     }
 

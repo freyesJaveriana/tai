@@ -47,11 +47,28 @@ La ServiceAccount `veridicus-visor` hace lo mismo que el humano con el visor, y 
 - leer por nombre los dos Secrets, solo para comprobar que existen; la clave la sigue montando el Job;
 - leer y parchear el Namespace `veridicus-demo`.
 
+## Bucle GitOps con Argo CD
+
+Después del primer despliegue, el humano instala Argo CD una vez con
+`bash scripts/humano/argocd-instalar.sh` (versión v3.2.12, la última probada con Kubernetes 1.31). El script
+registra `deploy/argocd/veridicus-visor.yaml`: Argo CD lee `deploy/demo-visor` de `main` y lo reconcilia
+solo (`prune` y `selfHeal`). El Job del análisis queda fuera a propósito: corre una vez por caso.
+
+El bucle se muestra así: un PR cambia `deploy/demo-visor/ejemplos.json`, que viaja como ConfigMap; el
+humano lo fusiona en `main` protegida, Argo CD lo sincroniza (unos 3 minutos, o «Refresh» en su
+interfaz) y el menú del visor muestra el ejemplo nuevo. Nadie aplica nada a mano. Estado:
+`kubectl get applications --namespace argocd`.
+
+La imagen sigue construyéndose en Minikube con `visor-pod.sh`: Argo CD aplica manifiestos, no construye.
+
 ## Reversión
 
 ```bash
+kubectl delete --namespace argocd application veridicus-visor
 kubectl delete -k deploy/demo-visor
 minikube image rm veridicus-visor:demo
 ```
+
+Argo CD entero se quita con `kubectl delete namespace argocd`.
 
 El visor en la VM (`python3 scripts/humano/visor-demo.py`) sigue sirviendo como respaldo.

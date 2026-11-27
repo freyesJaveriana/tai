@@ -34,6 +34,7 @@ def test_the_real_repository_has_no_workflow_or_script_that_touches_the_cluster(
 def test_scripts_humano_exists_and_every_script_carries_the_mark() -> None:
     scripts = sorted((ROOT / "scripts" / "humano").glob("*.sh"))
     assert [item.name for item in scripts] == [
+        "argocd-instalar.sh",
         "crear-pull-secret-ghcr.sh",
         "crear-secret-anthropic.sh",
         "demo-analyzer.sh",

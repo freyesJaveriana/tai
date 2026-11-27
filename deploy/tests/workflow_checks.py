@@ -72,7 +72,20 @@ _NEXT_LINE_MASKS = re.compile(r"\s*(?:\|\||;)")
 # F-02: una expresión de Actions se expande antes de que corra el shell, así que dentro de un run
 # deja inyectar comandos con un título de pull request o una rama.
 _EXPRESSION = re.compile(r"\$\{\{")
-_DOCKER = re.compile(r"(?:^|[\s;&|(])docker\s+(build|tag|push)\b([^\n;&|]*)")
+# F-06: también `docker buildx build` y `docker image build|push|tag`.
+_DOCKER = re.compile(
+    r"(?:^|[\s;&|(])docker\s+(buildx\s+build|image\s+(?:build|push|tag)|build|tag|push)\b"
+    r"([^\n;&|]*)"
+)
+# F-05: la verificación de una descarga tiene una forma fija, como línea propia, y no se acepta nada
+# distinto (ni `&&`, ni `&`, ni un `if`): con set -e, cualquiera de esas formas deja pasar una suma mala.
+_VERIFY_LINE = re.compile(r'echo "\$\{[A-Za-z_][A-Za-z0-9_]*\}  [^"\n]+" \| sha256sum -c -')
+_SHA_WORD = re.compile(r"\bsha256sum\b")
+_PROLOGUE = "set -euo pipefail"
+_RELAXES_SET = re.compile(r"(?:^|[;&|(])\s*set\s+\+")
+_OPENS = re.compile(r"\b(?:if|while|until|case|for|select)\b")
+_CLOSES = re.compile(r"\b(?:fi|done|esac)\b")
+_CHAINED = ("\\", "&&", "||", "|")
 _WHOLE_VAR = re.compile(r"^\$(?:\{(\w+)\}|(\w+))$")
 _SHA_EXPRESSION = "${{ github.sha }}"
 _SHA_VARIABLE = "GITHUB_SHA"
@@ -153,6 +166,59 @@ def _code(run: str) -> str:
     return re.sub(r"\\\n", " ", "\n".join(lines))
 
 
+def _code_lines(run: str) -> list[str]:
+    return [line.strip() for line in run.splitlines() if line.strip() and not _is_comment(line)]
+
+
+def _is_comment(line: str) -> bool:
+    return line.lstrip().startswith("#")
+
+
+def _prologue_violations(rel: str, where: str, run: str) -> list[str]:
+    """Todo run que descarga empieza por `set -euo pipefail` y nunca lo relaja."""
+    lines = _code_lines(run)
+    found: list[str] = []
+    if not lines or lines[0] != _PROLOGUE:
+        found.append(f"{rel}: {where} descarga y su script no empieza por {_PROLOGUE}")
+    if any(_RELAXES_SET.search(line) for line in lines):
+        found.append(f"{rel}: {where} relaja {_PROLOGUE} con set +")
+    return found
+
+
+def _verify_line_violations(rel: str, where: str, run: str) -> list[str]:
+    """Cada línea con sha256sum es exactamente la forma fija y nada la encadena a la anterior."""
+    found: list[str] = []
+    lines = run.splitlines()
+    for number, raw in enumerate(lines):
+        line = raw.strip()
+        if _is_comment(raw) or not _SHA_WORD.search(line):
+            continue
+        if not _VERIFY_LINE.fullmatch(line):
+            found.append(
+                f"{rel}: {where} la verificación no tiene la forma fija "
+                'echo "${VAR}  ruta" | sha256sum -c - sola en su línea'
+            )
+            continue
+        previous = _code_lines("\n".join(lines[:number]))[-1:]
+        if previous and previous[0].endswith(_CHAINED):
+            found.append(
+                f"{rel}: {where} la forma fija de la verificación va encadenada a la anterior"
+            )
+    return found
+
+
+def _nesting_violations(rel: str, where: str, run: str) -> list[str]:
+    """La verificación no va dentro de un if, while, until, case ni for: con set -e no detendría nada."""
+    depth = 0
+    for line in _code_lines(run):
+        if _SHA_WORD.search(line):
+            if depth > 0:
+                return [f"{rel}: {where} la verificación va dentro de un if, while o until"]
+            continue
+        depth = max(depth + len(_OPENS.findall(line)) - len(_CLOSES.findall(line)), 0)
+    return []
+
+
 def _download_violations(rel: str, document: dict[Any, Any]) -> list[str]:
     found: list[str] = []
     for where, step in _steps(document):
@@ -160,6 +226,10 @@ def _download_violations(rel: str, document: dict[Any, Any]) -> list[str]:
         fetches = [match.start() for match in _FETCH.finditer(code)]
         if not fetches:
             continue
+        run = str(step.get("run") or "")
+        found.extend(_prologue_violations(rel, where, run))
+        found.extend(_verify_line_violations(rel, where, run))
+        found.extend(_nesting_violations(rel, where, run))
         sums = set(_SUM.findall(code + " " + str(step.get("env") or "")))
         if not sums:
             found.append(f"{rel}: {where} descarga con curl y no lleva ninguna suma SHA-256")
@@ -218,6 +288,9 @@ def _ref_problem(ref: str, env: dict[str, str], depth: int = 0) -> str | None:
         return None
     if tag_name is not None and env.get(tag_name, "").strip() != _SHA_EXPRESSION:
         return f"{ref}: la etiqueta {tag} no es el SHA del commit"
+    if tag_name is None and "$" in tag:
+        # F-06: una etiqueta que contiene una variable junto con otra cosa no viene entera del SHA.
+        return f"{ref}: la etiqueta {tag} no viene entera del SHA del commit"
     return None
 
 
@@ -226,6 +299,7 @@ def _docker_refs(command: str, arguments: str) -> list[str]:
         words = shlex.split(arguments)
     except ValueError:
         words = arguments.split()
+    command = command.split()[-1]
     if command == "build":
         refs = [words[i + 1] for i, word in enumerate(words[:-1]) if word in {"--tag", "-t"}]
         return refs + [word.partition("=")[2] for word in words if word.startswith("--tag=")]

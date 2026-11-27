@@ -165,3 +165,29 @@ def test_the_script_copies_what_the_viewer_reads() -> None:
         assert (ROOT / source).exists(), source
     assert "minikube image build" in script
     assert "rollout restart deployment/veridicus-visor" in script
+
+
+def _commands() -> str:
+    """El script sin sus líneas de comentario: las reglas miran solo lo que se ejecuta."""
+    text = (ROOT / "scripts" / "humano" / "visor-pod.sh").read_text(encoding="utf-8")
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+
+
+def test_the_script_writes_the_kubectl_version_into_the_dockerfile_without_build_args() -> None:
+    # Con containerd, minikube image build rechaza --build-opt=build-arg y aun así sale con 0.
+    script = _commands()
+    dockerfile = (VISOR / "Dockerfile").read_text(encoding="utf-8")
+    assert "--build-opt" not in script
+    for name in ("KUBECTL_VERSION", "KUBECTL_ARCH"):
+        assert f"s/^ARG {name}=.*/ARG {name}=" in script, name
+        assert f"\nARG {name}=" in dockerfile, name
+    assert '> "$contexto/Dockerfile"' in script
+
+
+def test_the_script_stops_before_applying_when_the_image_is_missing() -> None:
+    script = _commands()
+    check = script.index('if ! minikube image ls | grep -q "veridicus-visor:demo"; then')
+    assert script.index('minikube image rm "$imagen"') < script.index("minikube image build -t")
+    assert script.index("minikube image build -t") < check
+    assert check < script.index("apply -k")
+    assert "exit 1" in script[check : script.index("apply -k")]

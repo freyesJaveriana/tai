@@ -38,7 +38,11 @@ mkdir -p "$contexto/app/scripts/humano" "$contexto/app/deploy/demo-visor"
 cp "$raiz/scripts/humano/visor-demo.py" "$contexto/app/scripts/humano/"
 cp -r "$raiz/deploy/demo-analyzer" "$contexto/app/deploy/"
 cp "$raiz/deploy/demo-visor/ejemplos.json" "$contexto/app/deploy/demo-visor/"
-cp "$raiz/deploy/demo-visor/Dockerfile" "$contexto/"
+# La versión y la arquitectura de kubectl se escriben en la copia del Dockerfile y no van como build-arg:
+# con containerd, minikube image build no acepta --build-opt=build-arg (y aun así termina con 0).
+sed -e "s/^ARG KUBECTL_VERSION=.*/ARG KUBECTL_VERSION=$version_servidor/" \
+  -e "s/^ARG KUBECTL_ARCH=.*/ARG KUBECTL_ARCH=$arquitectura/" \
+  "$raiz/deploy/demo-visor/Dockerfile" > "$contexto/Dockerfile"
 if [ -n "$escudo" ]; then
   extension="${escudo##*.}"
   extension="${extension,,}"
@@ -53,10 +57,13 @@ fi
 chmod -R a+rX "$contexto/app"
 
 echo "Construyendo $imagen en Minikube (kubectl $version_servidor, $arquitectura)..."
-minikube image build -t "$imagen" \
-  --build-opt="build-arg=KUBECTL_VERSION=$version_servidor" \
-  --build-opt="build-arg=KUBECTL_ARCH=$arquitectura" \
-  "$contexto"
+# Se borra la imagen anterior para que la comprobación de abajo vea solo la recién construida.
+minikube image rm "$imagen" > /dev/null 2>&1 || true
+minikube image build -t "$imagen" "$contexto"
+if ! minikube image ls | grep -q "veridicus-visor:demo"; then
+  echo "La imagen $imagen no quedó en Minikube: revise la salida de minikube image build." >&2
+  exit 1
+fi
 
 kubectl apply -k "$raiz/deploy/demo-visor"
 # La etiqueta es fija: el reinicio hace que el pod tome la imagen recién construida.

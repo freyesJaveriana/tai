@@ -26,6 +26,8 @@ El script hace estos pasos:
 1. Arma el contexto de la imagen en una carpeta temporal: el visor, `deploy/demo-analyzer`, los ejemplos
    y el escudo, si se da.
 2. Construye `veridicus-visor:demo` con `minikube image build`, con el `kubectl` de la versión del servidor.
+   La versión se escribe en la copia del Dockerfile, porque con containerd `minikube image build` no acepta
+   `build-arg`. Si la imagen no queda en Minikube, el script se detiene antes de aplicar nada.
 3. Aplica esta carpeta y reinicia el pod.
 4. Imprime la URL, `http://<minikube ip>:30851`.
 

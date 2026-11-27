@@ -1,0 +1,8 @@
+---
+# Un usuario cualquiera que copia las ownerReferences del Job al crear su propio pod.
+apiVersion: cli.kyverno.io/v1alpha1
+kind: UserInfo
+metadata:
+  name: otro-usuario
+userInfo:
+  username: mary@example.com

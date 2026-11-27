@@ -7,14 +7,17 @@ policies:
   - policy.yaml
 resources:
   - resources/pass-pod-con-recursos.yaml
+  - resources/pass-pod-init-con-recursos.yaml
   - resources/fail-pod-sin-recursos.yaml
   - resources/fail-pod-sin-limits.yaml
+  - resources/fail-init-y-efimero-sin-recursos.yaml
 results:
   - policy: veridicus-recursos-requeridos
     rule: requests-y-limits
     kind: Pod
     resources:
       - con-recursos
+      - init-con-recursos
     result: pass
   - policy: veridicus-recursos-requeridos
     rule: requests-y-limits
@@ -22,4 +25,6 @@ results:
     resources:
       - sin-recursos
       - sin-limits
+      - init-sin-recursos
+      - efimero-sin-limits
     result: fail

@@ -1,0 +1,74 @@
+---
+# F-04: un puerto de registro no es una etiqueta.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: registro-con-puerto
+  namespace: veridicus-demo
+spec:
+  containers:
+    - name: analyzer
+      image: registry:5000/img
+---
+# F-04: latest con digest sigue siendo latest.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: latest-con-digest
+  namespace: veridicus-demo
+spec:
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:latest@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-sin-etiqueta
+  namespace: veridicus-demo
+spec:
+  initContainers:
+    - name: preparar
+      image: busybox
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-latest
+  namespace: veridicus-demo
+spec:
+  initContainers:
+    - name: preparar
+      image: busybox:latest
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: efimero-sin-etiqueta
+  namespace: veridicus-demo
+spec:
+  ephemeralContainers:
+    - name: depurar
+      image: busybox
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: efimero-latest
+  namespace: veridicus-demo
+spec:
+  ephemeralContainers:
+    - name: depurar
+      image: busybox:latest
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1

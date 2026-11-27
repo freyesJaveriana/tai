@@ -63,6 +63,15 @@ NEGATIVES = {
     "allexport.sh": "set -x o allexport",
     "clave-en-kubectl.sh": "variable secreta como argumento de kubectl",
     "eval.sh": "eval",
+    # F-09: formas que la ronda 1 no cubría.
+    "shebang-x.sh": "set -x o allexport",
+    "export-sustitucion.sh": "export con sustitución",
+    "export-cat.sh": "export con sustitución",
+    "echo-secreto.sh": "echo o printf de una variable secreta",
+    "echo-key.sh": "echo o printf de una variable secreta",
+    # Candidata de la ronda 1: el Secret no puede quedar en last-applied-configuration.
+    "apply-sin-server-side.sh": "apply sin --server-side",
+    "apply-archivo-sin-server-side.sh": "apply sin --server-side",
 }
 
 
@@ -90,13 +99,45 @@ def test_a_continued_line_is_read_as_one() -> None:
     assert any("from-literal" in item for item in violations("ok.sh", broken))
 
 
+def test_f09_variable_names_that_hold_a_key_are_seen() -> None:
+    base = (FIXTURES / "ok.sh").read_text(encoding="utf-8")
+    for name in ("secreto", "key", "api_key", "clave", "token", "password", "credencial"):
+        broken = base + f'{name}=x\necho "${name}"\necho "${{{name}_dos}}"\n'
+        assert len([x for x in violations("x.sh", broken) if "echo o printf" in x]) == 2, name
+
+
+def test_f09_the_shebang_and_the_export_rules_do_not_flag_the_clean_forms() -> None:
+    base = (FIXTURES / "ok.sh").read_text(encoding="utf-8")
+    harmless = base + 'export LC_ALL=C\nexport dir="$(mktemp -d)"\n'
+    assert violations("x.sh", harmless) == []
+    assert violations("x.sh", base.replace("#!/usr/bin/env bash", "#!/bin/bash -eu")) == []
+
+
+def test_candidate_a_server_side_apply_of_a_secret_passes() -> None:
+    base = (FIXTURES / "ok.sh").read_text(encoding="utf-8")
+    good = (
+        base
+        + f'{K} create secret generic x --from-file=a="$temporal" --dry-run=client -o yaml | {K} apply --server-side -f -\n'
+    )
+    assert violations("x.sh", good) == []
+    kustomized = base + f"{K} apply -k deploy/demo-analyzer\n"
+    assert violations("x.sh", kustomized) == []
+
+
+def test_candidate_both_secret_scripts_apply_server_side() -> None:
+    for name in ("crear-secret-anthropic.sh", "crear-pull-secret-ghcr.sh"):
+        text = _text(name)
+        assert re.search(rf"\|\s*{K} apply --server-side -f -", text), name
+        assert not re.search(rf"{K} apply -f", text), name
+
+
 def test_the_script_that_creates_the_anthropic_secret_never_holds_the_key_in_a_variable() -> None:
     name = "crear-secret-anthropic.sh"
     text = _text(name)
     assert f"{K} create secret generic veridicus-anthropic" in text
     assert "--from-file=api-key=" in text
     assert "--dry-run=client -o yaml" in text
-    assert re.search(rf"\|\s*{K} apply -f -", text)
+    assert re.search(rf"\|\s*{K} apply --server-side -f -", text)
     assert "umask 077" in text
     assert re.search(r"^temporal=\"\$\(mktemp\)\"$", text, re.MULTILINE)
     assert re.search(r"^trap 'rm -f \"\$temporal\"' EXIT$", text, re.MULTILINE)
@@ -112,7 +153,7 @@ def test_the_script_that_creates_the_pull_secret_uses_a_dockerconfig_file() -> N
     assert f"{K} create secret docker-registry veridicus-ghcr" in text
     assert "--from-file=.dockerconfigjson=" in text
     assert "--dry-run=client -o yaml" in text
-    assert re.search(rf"\|\s*{K} apply -f -", text)
+    assert re.search(rf"\|\s*{K} apply --server-side -f -", text)
     assert "VERIDICUS_GHCR_USER" in text
     assert "VERIDICUS_GHCR_TOKEN" in text
     assert "ghcr.io" in text

@@ -119,6 +119,61 @@ def test_probe_4_a_disguised_cluster_operation_outside_scripts_humano_fails(
     assert scan(tmp_path)
 
 
+LIST_FORMS = {
+    "lista de Python": f'subprocess.run(["{K}", "apply", "-f", "x.yaml"], check=True)',
+    "lista de Python con comillas simples": f"run(['{K}', 'delete', 'job', 'x'])",
+    "lista con opciones": f'run(["{K}", "-n", "x", "--context=y", "create", "-f", "z"])',
+    "lista de Python en varias líneas": f'run(\n    [\n        "{K}",\n        "patch",\n    ]\n)',
+    "lista flujo de YAML": f'command: ["{K}","apply","-f","x"]',
+    "lista flujo de YAML sin comillas": f"command: [{K}, replace, -f, x]",
+    "bloque de YAML": f"command:\n  - {K}\n  - apply\n  - -f",
+    "bloque de YAML con opciones y comillas": f'args:\n  - "{K}"\n  - -n\n  - x\n  - "create"',
+    "paquetes en lista": f'run(["{H}", "upgrade", "--install", "x"])',
+    "paquetes en lista con opciones": f'run(["{H}", "--namespace", "v", "install", "a"])',
+    "paquetes en bloque de YAML": f"command:\n  - {H}\n  - install\n  - a",
+    "tras una sustitución": f"(which {K}) apply -f y",
+    "con una sustitución de comando": f"$(command -v {K}) create secret generic x",
+}
+
+
+@pytest.mark.parametrize("line", LIST_FORMS.values(), ids=LIST_FORMS.keys())
+@pytest.mark.parametrize("where", ["scripts/aplicar.py", "ops/x.yaml", ".github/workflows/x.yml"])
+def test_f02_an_operation_written_as_an_argument_list_fails(
+    tmp_path: Path, line: str, where: str
+) -> None:
+    _write(tmp_path, where, f"{line}\n")
+    assert scan(tmp_path)
+
+
+def test_f02_the_finding_names_the_line_of_the_list(tmp_path: Path) -> None:
+    _write(tmp_path, "ops/x.yaml", f"a: 1\nb: 2\ncommand:\n  - {K}\n  - apply\n")
+    assert scan(tmp_path) == ["ops/x.yaml:4: kubectl fuera de scripts/humano/"]
+
+
+SAFE_LISTS = {
+    "lectura en lista": f'run(["{K}", "get", "pods", "-n", "x"])',
+    "lectura en bloque": f"command:\n  - {K}\n  - get\n  - applyset",
+    "listas distintas": f"command:\n  - {K}\n  - get\nenv:\n  - apply",
+    "otra herramienta": 'run(["echo", "apply"])',
+    "helm de lectura": f'run(["{H}", "template", "x"])',
+    "bloque de otra cosa": f"args:\n  - {K}\n  - logs\n  - job/x\n",
+}
+
+
+@pytest.mark.parametrize("line", SAFE_LISTS.values(), ids=SAFE_LISTS.keys())
+def test_f02_read_only_lists_do_not_fail(tmp_path: Path, line: str) -> None:
+    _write(tmp_path, "ops/x.yaml", f"{line}\n")
+    assert scan(tmp_path) == []
+
+
+def test_f02_a_list_in_an_exempt_file_is_exempt_only_for_its_rule(tmp_path: Path) -> None:
+    exceptions = {"uno.py": frozenset({"kubectl"})}
+    _write(tmp_path, "uno.py", f'run(["{K}", "apply"])\nrun(["{H}", "install"])\n')
+    found = scan(tmp_path, exceptions)
+    assert [item.split(":")[0] for item in found] == ["uno.py"]
+    assert "helm" in found[0]
+
+
 SAFE = {
     "lectura": f"{K} get pods -n x",
     "describe": f"{K} -n x describe applyset",
@@ -172,9 +227,23 @@ def test_the_declared_exceptions_are_only_the_known_ones() -> None:
         "contracts/src/veridicus_contracts/checks/ci_workflows.py",
         "contracts/tests/checks/test_ci_workflows.py",
         "contracts/tests/tools/test_pull_request_template.py",
-        "docs/validacion-zine/",
+        "docs/validacion-zine/comprobar_reporte.py",
+        "docs/validacion-zine/comun.sh",
         "scripts/check-no-cluster-apply.sh",
     ]
+
+
+def test_f08_no_exception_is_a_whole_folder_and_every_one_exists() -> None:
+    for path in EXCEPTIONS:
+        assert not path.endswith("/"), path
+        assert (ROOT / path).is_file(), path
+
+
+def test_f08_a_new_file_in_the_zine_folder_is_not_exempt(tmp_path: Path) -> None:
+    _write(tmp_path, "docs/validacion-zine/comun.sh", f"{S} job\n")
+    _write(tmp_path, "docs/validacion-zine/nuevo.sh", f"{S} job\n")
+    found = scan(tmp_path)
+    assert [item.split(":")[0] for item in found] == ["docs/validacion-zine/nuevo.sh"]
 
 
 def test_a_human_script_is_exempt_from_the_verbs_but_not_from_the_mark(tmp_path: Path) -> None:

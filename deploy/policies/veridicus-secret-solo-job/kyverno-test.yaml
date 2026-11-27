@@ -11,6 +11,7 @@ resources:
   - resources/fail-pod-con-envfrom.yaml
   - resources/fail-pod-con-volumen.yaml
   - resources/fail-pod-con-la-etiqueta-del-job.yaml
+userinfo: userinfo.yaml
 results:
   - policy: veridicus-secret-solo-job
     rule: solo-el-job-referencia-el-secret

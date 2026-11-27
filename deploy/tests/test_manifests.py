@@ -292,6 +292,14 @@ ALLOW_MUTATIONS: dict[str, Callable[[Resource], None]] = {
         ],
     ),
     "DNS solo UDP": _set(["spec", "egress", 1, "ports"], [{"protocol": "UDP", "port": 53}]),
+    "endPort en el 443 abre hasta el 65535": _set(
+        ["spec", "egress", 0, "ports", 0, "endPort"], 65535
+    ),
+    "endPort igual al puerto 443": _set(["spec", "egress", 0, "ports", 0, "endPort"], 443),
+    "endPort en el 53 abre hasta el 65535": _set(
+        ["spec", "egress", 1, "ports", 0, "endPort"], 65535
+    ),
+    "endPort igual al puerto 53": _set(["spec", "egress", 1, "ports", 1, "endPort"], 53),
     "selector de otro pod": _set(["spec", "podSelector"], {"matchLabels": {"app": "otro"}}),
     "selector vacío": _set(["spec", "podSelector"], {}),
     "abre entrada": _set(["spec", "ingress"], [{}]),
@@ -377,6 +385,16 @@ def test_probe_3_a_port_53_rule_without_selectors_fails(rendered: list[Resource]
             rule["to"] = destination
         extra = _extra_policy([rule], {"matchLabels": {"app.kubernetes.io/name": JOB_NAME}})
         assert network_violations([*rendered, extra]), destination
+
+
+def test_f01_an_extra_policy_with_an_end_port_for_the_job_fails(rendered: list[Resource]) -> None:
+    selector = {"matchLabels": {"app.kubernetes.io/name": JOB_NAME}}
+    for port, name in ((443, "https"), (53, "dns")):
+        allow = copy.deepcopy(_one(rendered, "NetworkPolicy", JOB_POLICY))
+        egress = allow["spec"]["egress"][0 if name == "https" else 1]
+        egress["ports"][0]["endPort"] = 65535
+        extra = _extra_policy([egress], selector)
+        assert any("endPort" in item for item in network_violations([*rendered, extra])), port
 
 
 def test_a_rule_that_mixes_port_53_with_others_fails(rendered: list[Resource]) -> None:
@@ -506,6 +524,12 @@ def _set_container(key: str, value: Any) -> Callable[[dict[str, Any]], None]:
     return lambda pod: pod["containers"][0]["securityContext"].__setitem__(key, value)
 
 
+_RESTRICTED: dict[str, Any] = {
+    "readOnlyRootFilesystem": True,
+    "allowPrivilegeEscalation": False,
+    "capabilities": {"drop": ["ALL"]},
+}
+
 SECURITY_MUTATIONS: dict[str, Callable[[dict[str, Any]], None]] = {
     "sin runAsNonRoot": _drop_pod("runAsNonRoot"),
     "runAsNonRoot falso": _set_pod("runAsNonRoot", False),
@@ -520,6 +544,22 @@ SECURITY_MUTATIONS: dict[str, Callable[[dict[str, Any]], None]] = {
     "drop sin ALL": _set_container("capabilities", {"drop": ["NET_RAW"]}),
     "privileged": _set_container("privileged", True),
     "hostNetwork": lambda pod: pod.__setitem__("hostNetwork", True),
+    "hostPID": lambda pod: pod.__setitem__("hostPID", True),
+    "hostIPC": lambda pod: pod.__setitem__("hostIPC", True),
+    "runAsUser 0 en el contenedor": _set_container("runAsUser", 0),
+    "runAsNonRoot falso en el contenedor": _set_container("runAsNonRoot", False),
+    "seccomp Unconfined en el contenedor": _set_container("seccompProfile", {"type": "Unconfined"}),
+    "capabilities.add": _set_container("capabilities", {"drop": ["ALL"], "add": ["SYS_ADMIN"]}),
+    "capabilities.add vacío": _set_container("capabilities", {"drop": ["ALL"], "add": []}),
+    "volumen hostPath": lambda pod: pod["volumes"].append({"name": "h", "hostPath": {"path": "/"}}),
+    "contenedor de inicio como root": lambda pod: pod.__setitem__(
+        "initContainers",
+        [{"name": "i", "image": "x:1", "securityContext": {**_RESTRICTED, "runAsUser": 0}}],
+    ),
+    "contenedor efímero privilegiado": lambda pod: pod.__setitem__(
+        "ephemeralContainers",
+        [{"name": "e", "image": "x:1", "securityContext": {**_RESTRICTED, "privileged": True}}],
+    ),
     "contenedor sin securityContext": lambda pod: pod["containers"][0].pop("securityContext"),
     "pod sin securityContext": lambda pod: pod.pop("securityContext"),
     "contenedor de inicio sin securityContext": lambda pod: pod.__setitem__(
@@ -535,6 +575,32 @@ def test_a_pod_that_loses_a_security_field_fails(
     broken = copy.deepcopy(rendered)
     change(_pod(broken))
     assert security_violations(broken)
+
+
+@pytest.mark.parametrize(
+    "context",
+    [
+        {"runAsUser": 10001},
+        {"runAsNonRoot": True},
+        {"seccompProfile": {"type": "RuntimeDefault"}},
+        {"seccompProfile": {"type": "Localhost", "localhostProfile": "p.json"}},
+        {"capabilities": {"drop": ["ALL"]}},
+    ],
+)
+def test_f03_a_container_that_only_repeats_the_restricted_values_passes(
+    rendered: list[Resource], context: dict[str, Any]
+) -> None:
+    fixed = copy.deepcopy(rendered)
+    _container(fixed)["securityContext"].update(context)
+    assert security_violations(fixed) == []
+
+
+def test_f03_an_ephemeral_container_without_security_context_fails(
+    rendered: list[Resource],
+) -> None:
+    broken = copy.deepcopy(rendered)
+    _pod(broken)["ephemeralContainers"] = [{"name": "e", "image": "x:1"}]
+    assert any("contenedor e:" in item for item in security_violations(broken))
 
 
 def test_another_workload_without_security_context_fails(rendered: list[Resource]) -> None:

@@ -1,0 +1,19 @@
+---
+# Control negativo (caso sonda 5): una imagen publicada con la etiqueta latest.
+name: imagen-latest
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Publicar
+        run: docker push ghcr.io/o/i:latest

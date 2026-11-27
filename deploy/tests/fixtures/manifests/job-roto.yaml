@@ -1,0 +1,17 @@
+---
+# Control negativo de kubeconform en la CI: un Job con un campo del tipo equivocado (backoffLimit es una
+# cadena) y un campo que no existe. `kubeconform -strict` debe darlo por inválido.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: roto
+  namespace: veridicus-demo
+spec:
+  backoffLimit: cero
+  campoInventado: true
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: analyzer
+          image: ghcr.io/o/a:v1

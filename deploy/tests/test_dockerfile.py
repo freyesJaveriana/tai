@@ -403,3 +403,50 @@ def test_f07_a_stage_declared_before_its_use_is_internal() -> None:
     text = "FROM x AS uv\nFROM y AS a\nCOPY --from=uv /uv /b\nRUN --mount=from=0,target=/x true\n"
 
     assert check_copy_from_pinned(text) == []
+
+
+# --- K-97: la clave `from=` sin distinguir mayúsculas y los campos de `--mount` con comillas --------
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "RUN --mount=type=cache,FROM=img:latest,target=/c true",
+        "RUN --mount=type=cache,FROM=img:latest",
+        "RUN --mount=type=bind,From=img:1,target=/x true",
+        'RUN --mount="type=bind,from=img" true',
+        "RUN --mount='type=bind,from=img' true",
+        'RUN --mount=type=bind,"from=img:1",target=/x true',
+        'RUN --mount=type=bind,"FROM=img:1",target=/x true',
+        "RUN --mount=type=bind,'from=img:1',target=/x true",
+        'ONBUILD RUN --mount="type=bind,FROM=img:1" true',
+        'RUN --mount="type=cache,target=/c" --mount="type=bind,from=img:1,target=/x" true',
+    ],
+)
+def test_negative_k97_a_mount_from_an_image_without_a_digest_fails_in_any_spelling(
+    line: str,
+) -> None:
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") != []
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        f"RUN --mount=type=bind,FROM={PINNED_A},target=/x true",
+        f'RUN --mount="type=bind,from={PINNED_A},target=/x" true',
+        f'RUN --mount=type=bind,"from={PINNED_A}",target=/x true',
+        'RUN --mount="type=cache,target=/c" true',
+        'RUN --mount="type=bind,FROM=a,target=/x" true',
+        "RUN --mount=type=bind,From=0,target=/x true",
+    ],
+)
+def test_k97_a_mount_with_a_real_digest_or_from_an_internal_stage_passes_in_any_spelling(
+    line: str,
+) -> None:
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") == []
+
+
+def test_k97_a_quoted_mount_value_with_a_space_is_read_whole() -> None:
+    line = 'RUN --mount="type=bind,target=/a b,from=img:1" true'
+
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") != []

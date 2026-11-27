@@ -8,6 +8,7 @@ ninguna de las que prohíbe la comprobación de AUTONOMIA-01.
 import re
 from pathlib import Path
 
+import humano_checks
 import pytest
 from autonomia import MARK
 from humano_checks import PINNED, REAL_DIGEST, violations
@@ -233,22 +234,138 @@ SECRET_SCRIPTS = {
 def test_f11_the_secret_scripts_refuse_a_secret_that_keeps_last_applied(name: str) -> None:
     text = _text(name)
     secret = SECRET_SCRIPTS[name]
-    check = text.index("last-applied-configuration}'")
+    check = text.index(f'if [ "$({K} get secret {secret} ')
     assert check < text.index(f"{K} apply --server-side")
     block = text[check : text.index(f"{K} apply --server-side")]
-    line = next(x for x in text.splitlines() if "last-applied-configuration}'" in x)
-    assert f"{K} get secret {secret} " in line
     assert f"{K} delete secret {secret} --namespace" in block
     assert re.search(r"exit 2", block)
     assert "conflicto" not in text
 
 
+# --- K-104: la anotación se comprueba con un literal fijo, sin que su valor pase por un pipe ------
+
+K8S = K + ".kubernetes.io/last-applied-configuration"
+SECRET_NAME = "veridicus-anthropic"  # noqa: S105 (nombre del Secret, nunca su valor)
+
+
+def _good_check(secret: str = SECRET_NAME) -> str:
+    template = f'{{{{if index .metadata.annotations "{K8S}"}}}}si{{{{end}}}}'
+    return (
+        f'if [ "$({K} get secret {secret} --namespace "$namespace" '
+        f'-o go-template=\'{template}\' 2> /dev/null)" = "si" ]; then'
+    )
+
+
+def _check_script(check: str, secret: str = SECRET_NAME, after: str = "") -> str:
+    return (
+        "#!/usr/bin/env bash\nset -euo pipefail\n"
+        f"{check}\n"
+        f'  echo "El Secret {secret} ya existe con la anotación last-applied-configuration." >&2\n'
+        f'  echo "Bórrelo y repita este script: {K} delete secret {secret} --namespace $namespace" >&2\n'
+        "  exit 2\nfi\n"
+        f"{K} create secret generic {secret} --dry-run=client -o yaml | {K} apply --server-side -f -\n"
+        f"{after}"
+    )
+
+
 @pytest.mark.parametrize("name", SECRET_SCRIPTS)
-def test_f11_the_check_never_prints_or_stores_the_annotation(name: str) -> None:
-    text = _text(name)
-    line = next(x for x in text.splitlines() if "last-applied-configuration}'" in x)
-    assert "| grep -q ." in line
-    assert not re.search(r"\$\(|=\s*\"", line.split("|")[0]), line
+def test_k104_each_secret_script_uses_the_fixed_literal_check(name: str) -> None:
+    secret = SECRET_SCRIPTS[name]
+
+    assert humano_checks.last_applied_violations(name, _text(name), secret) == []
+    assert _good_check(secret) in _text(name)
+
+
+@pytest.mark.parametrize("name", SECRET_SCRIPTS)
+def test_k104_the_annotation_never_goes_through_a_pipe_or_a_variable(name: str) -> None:
+    line = next(x for x in _text(name).splitlines() if x.startswith("if [") and "last-applied" in x)
+
+    assert "jsonpath" not in line
+    assert "grep" not in line
+    assert "|" not in line
+    assert not re.match(r"\s*\w+=", line)
+    assert line.count("$(") == 1, "la única sustitución es la comparación con el literal"
+
+
+def test_k104_the_model_check_passes_its_own_rule() -> None:
+    text = _check_script(_good_check())
+
+    assert humano_checks.last_applied_violations("x.sh", text, SECRET_NAME) == []
+
+
+def _old_check(secret: str = SECRET_NAME) -> str:
+    path = "{.metadata.annotations." + K + r"\.kubernetes\.io/last-applied-configuration}"
+    return (
+        f"if {K} get secret {secret} --namespace \"$namespace\" -o jsonpath='{path}' "
+        "2> /dev/null | grep -q .; then"
+    )
+
+
+def _value_check() -> str:
+    template = f'{{{{index .metadata.annotations "{K8S}"}}}}'
+    return (
+        f'if [ "$({K} get secret {SECRET_NAME} --namespace "$namespace" '
+        f'-o go-template=\'{template}\' 2> /dev/null)" = "si" ]; then'
+    )
+
+
+def _variable_check() -> str:
+    template = f'{{{{if index .metadata.annotations "{K8S}"}}}}si{{{{end}}}}'
+    return (
+        f'valor="$({K} get secret {SECRET_NAME} --namespace "$namespace" '
+        f"-o go-template='{template}' 2> /dev/null)\"\n"
+        'if [ "$valor" = "si" ]; then'
+    )
+
+
+K104_NEGATIVES = {
+    "forma vieja con jsonpath y grep (caso sonda 6)": _old_check(),
+    "plantilla que imprime el valor": _value_check(),
+    "valor guardado en una variable": _variable_check(),
+    "comparación con otro literal": _good_check().replace('= "si"', '= "ok"'),
+    "plantilla que imprime otro literal": _good_check().replace("}}si{{", "}}ok{{"),
+    "con un pipe": _good_check().replace("2> /dev/null)", "2> /dev/null | cat)"),
+    "sin la comprobación": "if false; then",
+}
+
+
+@pytest.mark.parametrize("check", K104_NEGATIVES.values(), ids=K104_NEGATIVES.keys())
+def test_negative_k104_the_old_or_a_leaky_check_fails(check: str) -> None:
+    found = humano_checks.last_applied_violations("x.sh", _check_script(check), SECRET_NAME)
+
+    assert found, check
+
+
+def test_negative_k104_a_check_after_the_apply_fails() -> None:
+    text = (
+        "#!/usr/bin/env bash\nset -euo pipefail\n"
+        f"{K} create secret generic {SECRET_NAME} --dry-run=client -o yaml | {K} apply --server-side -f -\n"
+        f"{_good_check()}\n  exit 2\nfi\n"
+    )
+
+    assert humano_checks.last_applied_violations("x.sh", text, SECRET_NAME)
+
+
+def test_negative_k104_a_check_without_the_delete_hint_or_the_exit_fails() -> None:
+    no_hint = _check_script(_good_check()).replace(f"{K} delete secret", "borre el secret")
+    no_exit = _check_script(_good_check()).replace("  exit 2\n", "  true\n")
+
+    assert humano_checks.last_applied_violations("x.sh", no_hint, SECRET_NAME)
+    assert humano_checks.last_applied_violations("x.sh", no_exit, SECRET_NAME)
+
+
+def test_negative_k104_a_check_for_another_secret_fails() -> None:
+    text = _check_script(_good_check("otro"))
+
+    assert humano_checks.last_applied_violations("x.sh", text, SECRET_NAME)
+
+
+def test_negative_k104_two_checks_or_a_commented_form_are_read_as_the_rule_says() -> None:
+    twice = _check_script(_good_check() + "\n  true\nfi\n" + _good_check())
+    commented = _check_script(_good_check()).replace("set -euo", f"# {_old_check()}\nset -euo")
+
+    assert humano_checks.last_applied_violations("x.sh", twice, SECRET_NAME)
+    assert humano_checks.last_applied_violations("x.sh", commented, SECRET_NAME) == []
 
 
 def test_the_script_that_creates_the_anthropic_secret_never_holds_the_key_in_a_variable() -> None:
@@ -348,11 +465,23 @@ def test_a_tag_before_the_digest_is_accepted_and_a_tag_alone_is_not() -> None:
         "curlimages/curl",
         "curlimages/curl@sha256:abc",
         "curlimages/curl@sha256:" + "G" * 64,
+        # K-103: `latest` con digest tampoco sirve, igual que en los manifiestos y en Kyverno.
+        "curlimages/curl:latest@sha256:" + "a" * 64,
+        "curlimages/curl:LATEST@sha256:" + "a" * 64,
+        "curlimages/curl:latest@sha256:REEMPLAZAR_DIGEST_CURL",
     ],
 )
 def test_negative_a_probe_image_without_a_digest_fails(line: str) -> None:
     assert PINNED.search(line) is None
     assert REAL_DIGEST.search(line) is None
+
+
+@pytest.mark.parametrize("tag", ["8.11.1", "v8", "latest-slim", "7.0-latest", "x"])
+def test_k103_another_tag_with_a_real_digest_still_passes(tag: str) -> None:
+    line = f"curlimages/curl:{tag}@sha256:" + "a" * 64
+
+    assert PINNED.search(line)
+    assert REAL_DIGEST.search(line)
 
 
 def test_the_digest_checks_accept_a_real_digest_and_the_marker() -> None:

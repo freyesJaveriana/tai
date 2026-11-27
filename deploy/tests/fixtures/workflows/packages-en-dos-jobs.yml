@@ -1,0 +1,27 @@
+---
+# Control negativo: packages: write en más de un job (los dos solo corren en un push a main).
+name: packages-en-dos-jobs
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  uno:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+  dos:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

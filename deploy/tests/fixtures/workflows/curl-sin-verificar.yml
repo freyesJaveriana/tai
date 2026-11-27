@@ -1,0 +1,15 @@
+---
+# Control negativo (caso sonda 3): una descarga canalizada a tar, sin sha256sum -c.
+name: curl-sin-verificar
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar sin verificar
+        run: |
+          curl -fsSL "https://example.org/a.tar.gz" | tar -xz -C "$RUNNER_TEMP"

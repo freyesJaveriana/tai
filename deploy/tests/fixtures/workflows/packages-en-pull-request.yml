@@ -1,0 +1,19 @@
+---
+# Control negativo (caso sonda 1): un job con packages: write que puede correr en un pull_request,
+# porque no se limita a un push a main.
+name: packages-en-pull-request
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

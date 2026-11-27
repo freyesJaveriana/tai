@@ -1,0 +1,36 @@
+---
+# Workflow que cumple todas las reglas de workflow_checks: base de los controles negativos.
+name: ok
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+      - name: Instalar una herramienta verificada
+        env:
+          SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP"
+  publish:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - run: docker push "ghcr.io/o/i:${GITHUB_SHA}"

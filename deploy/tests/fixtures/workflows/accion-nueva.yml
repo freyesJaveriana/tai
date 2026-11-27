@@ -1,0 +1,14 @@
+---
+# Control negativo (caso sonda 2): una acción fijada por un SHA de 40 hex, pero que no es una de las dos
+# que el repositorio permite.
+name: accion-nueva
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/upload-artifact@0123456789abcdef0123456789abcdef01234567

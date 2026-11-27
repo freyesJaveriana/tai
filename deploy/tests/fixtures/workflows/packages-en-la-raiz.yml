@@ -1,0 +1,15 @@
+---
+# Control negativo (caso sonda 1): packages: write en el nivel del workflow.
+name: packages-en-la-raiz
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

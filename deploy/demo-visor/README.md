@@ -61,6 +61,34 @@ interfaz) y el menú del visor muestra el ejemplo nuevo. Nadie aplica nada a man
 
 La imagen sigue construyéndose en Minikube con `visor-pod.sh`: Argo CD aplica manifiestos, no construye.
 
+### Demo con el color de la barra superior
+
+Un cambio más visible: el color de la barra superior sale de `deploy/demo-visor/apariencia.properties`.
+Viaja como el ConfigMap `veridicus-visor-apariencia`. Si el color no tiene la forma `#rrggbb`, el visor usa
+el azul de siempre.
+
+1. Una sola vez, después de fusionar este cambio, reconstruya la imagen en la VM con
+   `bash scripts/humano/visor-pod.sh`. El código que lee el color va en la imagen.
+2. Proponga el cambio desde una copia del repositorio con permiso de *push* y `gh` autenticado:
+   `bash scripts/humano/gitops-color.sh '#c2410c'`. El script solo crea la rama, el commit y el PR;
+   no toca el clúster.
+3. Fusione el PR en GitHub cuando la CI esté en verde. Esa fusión es la aprobación humana.
+4. En la VM, corra `bash scripts/humano/gitops-observar.sh`. El script:
+   - pide a Argo CD un refresco;
+   - espera a que la Application tenga el commit de `main`, con estado `Synced` y `Healthy`;
+   - espera a que el pod nuevo esté listo;
+   - comprueba que la página sirve el color nuevo.
+5. Para devolver el cambio, corra `bash scripts/humano/gitops-color.sh --revertir`. Propone el
+   `git revert` del último cambio de color. Fusiónelo y repita el paso 4.
+
+## Evidencia de permisos
+
+`bash scripts/humano/rbac-evidencia.sh` corre solo lecturas: `kubectl auth can-i`. Muestra:
+
+- lo que pueden hacer la cuenta del visor y la del Job;
+- una lista de cosas que no pueden hacer, por ejemplo crear pods, listar Secrets o leer `kube-system`;
+- el nivel de Pod Security de los dos namespaces.
+
 ## Reversión
 
 ```bash

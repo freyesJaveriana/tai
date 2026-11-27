@@ -24,6 +24,9 @@ SCRIPTS = [
     "crear-pull-secret-ghcr.sh",
     "crear-secret-anthropic.sh",
     "demo-analyzer.sh",
+    "gitops-color.sh",
+    "gitops-observar.sh",
+    "rbac-evidencia.sh",
     "visor-pod.sh",
 ]
 

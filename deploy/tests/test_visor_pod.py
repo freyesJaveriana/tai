@@ -5,6 +5,7 @@ el pod no monte la clave, que su cuenta no salga de lo que hace el visor y que e
 dice el script.
 """
 
+import re
 from typing import Any
 
 import yaml
@@ -60,7 +61,47 @@ def test_the_pod_uses_the_local_image_and_never_mounts_a_secret() -> None:
     text = yaml.safe_dump(deployment)
     assert "secretKeyRef" not in text
     assert "secretName" not in text
-    assert "envFrom" not in text
+    assert "secretRef" not in text
+    # Lo único que entra al entorno es el ConfigMap del color de la barra (demo GitOps).
+    assert container["envFrom"] == [{"configMapRef": {"name": "veridicus-visor-apariencia"}}]
+    assert "env" not in container
+
+
+def test_the_appearance_config_map_holds_only_a_valid_bar_color() -> None:
+    kustomization = yaml.safe_load((VISOR / "kustomization.yaml").read_text(encoding="utf-8"))
+    [generator] = [
+        item
+        for item in kustomization["configMapGenerator"]
+        if item["name"] == "veridicus-visor-apariencia"
+    ]
+    assert generator == {
+        "name": "veridicus-visor-apariencia",
+        "namespace": "veridicus-visor",
+        "envs": ["apariencia.properties"],
+    }
+    lines = (VISOR / "apariencia.properties").read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    assert re.fullmatch(r"VERIDICUS_VISOR_COLOR_BANDA=#[0-9a-f]{6}", lines[0])
+
+
+def test_the_color_scripts_only_propose_by_pr_and_only_read_the_cluster() -> None:
+    humano = ROOT / "scripts" / "humano"
+    color = (humano / "gitops-color.sh").read_text(encoding="utf-8")
+    assert "kube" + "ctl" not in color
+    assert "gh pr create" in color
+    assert 'git -C "$raiz" revert --no-edit' in color
+    assert "deploy/demo-visor/apariencia.properties" in color
+    watch = (humano / "gitops-observar.sh").read_text(encoding="utf-8")
+    commands = [line for line in watch.splitlines() if not line.lstrip().startswith("#")]
+    writes = [line for line in commands if re.search(r"kubectl (annotate|label|set|scale)", line)]
+    refresh = (
+        'kubectl annotate application "$app" --namespace "$ns_argo" '
+        "argocd.argoproj.io/refresh=normal --overwrite > /dev/null"
+    )
+    assert writes == [refresh]
+    rbac = (humano / "rbac-evidencia.sh").read_text(encoding="utf-8")
+    verbs = set(re.findall(r"\bkubectl (\w+)", rbac))
+    assert verbs == {"auth", "get"}
 
 
 def test_the_pod_meets_pod_security_restricted() -> None:
@@ -172,8 +213,12 @@ def test_the_script_copies_what_the_viewer_reads() -> None:
 
 def test_the_examples_come_from_a_config_map_mounted_where_the_viewer_reads_them() -> None:
     kustomization = yaml.safe_load((VISOR / "kustomization.yaml").read_text(encoding="utf-8"))
-    [generator] = kustomization["configMapGenerator"]
-    assert generator == {
+    generators = kustomization["configMapGenerator"]
+    assert [item["name"] for item in generators] == [
+        "veridicus-visor-ejemplos",
+        "veridicus-visor-apariencia",
+    ]
+    assert generators[0] == {
         "name": "veridicus-visor-ejemplos",
         "namespace": "veridicus-visor",
         "files": ["ejemplos.json"],

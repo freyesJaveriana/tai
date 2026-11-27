@@ -27,6 +27,7 @@ import base64
 import hashlib
 import html
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -59,6 +60,19 @@ CORREO = "freyes@javeriana.edu.co"
 AZUL = "#2c5697"
 AZUL_OSCURO = "#1b3a6b"
 DORADO = "#f2b705"
+# Color de la barra superior: llega del ConfigMap veridicus-visor-apariencia (deploy/demo-visor/
+# apariencia.properties). Es el cambio visible de la demo del bucle GitOps (scripts/humano/gitops-color.sh).
+VARIABLE_COLOR_BANDA = "VERIDICUS_VISOR_COLOR_BANDA"
+
+
+def color_banda(valor: str | None) -> str:
+    """Un color #rrggbb; cualquier otro valor deja el azul de siempre, para que nada entre al CSS."""
+    if valor is not None and re.fullmatch(r"#[0-9A-Fa-f]{6}", valor.strip()):
+        return valor.strip().lower()
+    return AZUL
+
+
+COLOR_BANDA = color_banda(os.environ.get(VARIABLE_COLOR_BANDA))
 
 # Escudo opcional (--logo): se incrusta como data URI; el archivo nunca entra al repositorio.
 _logo: dict[str, str] = {"uri": ""}
@@ -295,7 +309,7 @@ def leer_logs(logs: str) -> dict[str, object]:
 _ESTILO = f"""
 body{{font-family:system-ui,sans-serif;margin:0;color:#1f2328;background:#f4f6fa}}
 main{{max-width:1100px;margin:0 auto;padding:1rem 1rem 2rem;background:#fff;min-height:70vh}}
-.banda{{background:{AZUL};color:#fff;border-bottom:5px solid {DORADO}}}
+.banda{{background:{COLOR_BANDA};color:#fff;border-bottom:5px solid {DORADO}}}
 .banda .dentro{{max-width:1100px;margin:0 auto;padding:.8rem 1rem;display:flex;align-items:center;gap:1rem}}
 .banda img{{height:56px;background:#fff;border-radius:4px;padding:4px}}
 .banda .u{{font-size:1.15rem;font-weight:700;letter-spacing:.02em}}

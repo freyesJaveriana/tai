@@ -19,3 +19,9 @@ configMapGenerator:
     namespace: veridicus-visor
     files:
       - ejemplos.json
+  # El color de la barra superior: lo cambia scripts/humano/gitops-color.sh por PR, para mostrar el
+  # bucle GitOps con un cambio visible y sin importancia (y su reversión con git revert).
+  - name: veridicus-visor-apariencia
+    namespace: veridicus-visor
+    envs:
+      - apariencia.properties

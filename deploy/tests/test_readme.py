@@ -115,6 +115,96 @@ def test_negative_no_minikube_start_at_all_fails() -> None:
     assert violations(text, ROOT) == ["el comando minikube start no lleva --cni=calico"]
 
 
+def test_negative_the_user_form_must_not_admit_an_underscore() -> None:
+    assert violations(_fixture("usuario-guion-bajo.md"), ROOT) == [
+        "dice que el usuario admite guion bajo"
+    ]
+
+
+def test_the_user_form_may_say_it_has_no_underscore() -> None:
+    text = OK + "\nEl usuario: letras, cifras y guion, sin guion bajo.\n"
+    assert violations(text, ROOT) == []
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "scripts/otra/nada.sh",
+        ".github/workflows/no-existe.yml",
+        "redeploy/demo-analyzer/job.yaml",
+        "libs/no-existe/modulo.py",
+        "contracts/no-existe.json",
+    ],
+)
+def test_negative_f03_a_cited_path_outside_scripts_humano_is_checked(path: str) -> None:
+    assert violations(OK + f"\nVea `{path}`.\n", ROOT) == [
+        "cita una ruta del repositorio que no existe"
+    ]
+
+
+@pytest.mark.parametrize(
+    "path", [".github/workflows/analyzer-image.yml", "libs/errors", "libs/anonymizer"]
+)
+def test_f03_a_cited_path_that_exists_passes(path: str) -> None:
+    assert violations(OK + f"\nVea `{path}`.\n", ROOT) == []
+
+
+@pytest.mark.parametrize("prefix", ["ghs_", "gho_", "ghu_", "ghr_", "ghp_"])
+def test_negative_f03_every_github_token_prefix_fails(prefix: str) -> None:
+    assert violations(OK + f"\n{prefix}A1b2C3d4E5f6G7h8\n", ROOT) == [
+        "lleva algo con forma de clave o token"
+    ]
+
+
+def test_f03_a_minikube_start_continued_over_two_lines_passes() -> None:
+    text = OK.replace(
+        "`minikube start --cni=calico --memory=8g --cpus=4`",
+        "`minikube start \\\n  --cni=calico --memory=8g --cpus=4`",
+    )
+    assert text != OK
+    assert violations(text, ROOT) == []
+
+
+def test_negative_f03_a_continued_minikube_start_without_calico_fails() -> None:
+    text = OK + "\n`minikube start \\\n  --memory=8g`\n"
+    assert violations(text, ROOT) == ["el comando minikube start no lleva --cni=calico"]
+
+
+def test_negative_f03_one_heading_cannot_cover_every_section() -> None:
+    body = [line for line in OK.splitlines() if not line.startswith("#")]
+    heading = "## " + " ".join(REQUIRED_SECTIONS)
+    text = "\n".join([heading, *body])
+    assert violations(text, ROOT) == ["un encabezado cubre varias secciones obligatorias"]
+
+
+def _real() -> str:
+    return README.read_text(encoding="utf-8")
+
+
+def test_f01_the_real_readme_gives_the_literal_ghcr_filler_and_the_order() -> None:
+    text = _real()
+    assert "VERIDICUS_GHCR_USER=relleno" in text
+    assert "VERIDICUS_GHCR_TOKEN=relleno" in text
+    assert "antes de `demo-analyzer.sh`" in text
+
+
+def test_f02_the_real_readme_states_what_each_control_does() -> None:
+    text = _real()
+    assert "del namespace `veridicus-demo`" in text
+    assert "kube-dns" in text
+    assert "IP públicas" in text
+    assert "dentro del proceso" in text
+    assert "Kyverno" in text
+
+
+def test_f04_the_real_readme_names_the_token_kind_and_removes_the_local_image() -> None:
+    text = _real()
+    assert "PAT clásico" in text
+    assert "read:packages" in text
+    assert "minikube image rm" in text
+    assert "antes del script 3" in text
+
+
 def test_every_script_in_the_folder_is_named_by_the_required_list() -> None:
     names = sorted(path.name for path in (ROOT / "scripts" / "humano").glob("*.sh"))
     assert names == sorted(REQUIRED_SCRIPTS)

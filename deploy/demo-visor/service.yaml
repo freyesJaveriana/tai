@@ -1,0 +1,18 @@
+---
+# El visor en http://<minikube ip>:30851 (sin contraseña: la VM es solo para la demo).
+apiVersion: v1
+kind: Service
+metadata:
+  name: veridicus-visor
+  namespace: veridicus-visor
+  labels:
+    app.kubernetes.io/name: veridicus-visor
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: veridicus-visor
+  ports:
+    - name: http
+      port: 8501
+      targetPort: http
+      nodePort: 30851

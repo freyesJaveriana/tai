@@ -32,6 +32,9 @@ Se corren desde la raíz del repositorio, con `bash`, en este orden:
 
 Ningún script imprime las claves. Si un Secret falta, el script lo dice y no aplica nada más.
 
+Para usar la demo desde el navegador, el visor puede correr en la VM (`python3 scripts/humano/visor-demo.py`)
+o como un pod con NodePort; lo segundo se explica en `deploy/demo-visor/README.md`.
+
 ## Qué se ve en los logs
 
 `demo-analyzer.sh` imprime `kubectl logs` del Job, un bloque por entrada (en orden alfabético):

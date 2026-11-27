@@ -1,0 +1,38 @@
+[
+  {
+    "id": "lugar",
+    "titulo": "Contradicción de lugar: la escuela o el mercado",
+    "entrevista": "SINT-VISOR-03",
+    "relato": "ENT: ¿Dónde estaba usted la mañana en que llegaron los hombres armados a la vereda?\nTEST: Esa mañana yo estaba en la escuela de la vereda, porque era la maestra y tenía clase con los niños de primero.\nENT: ¿Qué hizo cuando oyó los disparos?\nTEST: Encerré a los niños en el salón y nos tiramos al piso hasta que se fueron.\nENT: ¿Alguien más estaba con usted?\nTEST: Solo la señora que hacía el almuerzo de los niños, que se escondió en la cocina.\nENT: Volvamos a esa mañana. ¿Por dónde andaba cuando empezó todo?\nTEST: Esa mañana yo no fui a la escuela, estaba en el mercado del pueblo vendiendo plátano desde temprano.\nENT: ¿Cómo se enteró de lo que había pasado?\nTEST: Me contaron en la tarde, cuando volví a la casa."
+  },
+  {
+    "id": "cantidad",
+    "titulo": "Contradicción de cantidad: tres hombres o diez",
+    "entrevista": "SINT-VISOR-04",
+    "relato": "ENT: ¿Cuántas personas llegaron a la casa esa noche?\nTEST: Llegaron tres hombres, todos con botas de caucho y la cara tapada.\nENT: ¿Qué le dijeron?\nTEST: Que teníamos un día para irnos de la finca y que no avisáramos a nadie.\nENT: ¿Recuerda algo más de ellos?\nTEST: Uno tenía un radio y hablaba todo el tiempo con alguien que no estaba ahí.\nENT: Cuando abrió la puerta, ¿cuántos vio afuera?\nTEST: Afuera había como diez hombres armados, rodeando toda la casa, y todos entraron a la sala.\nENT: ¿Qué hicieron ustedes al día siguiente?\nTEST: Cargamos lo que pudimos en la mula y salimos antes del amanecer."
+  },
+  {
+    "id": "cronica",
+    "titulo": "Inspirado en «Crónica de una muerte anunciada»: el tiempo de esa mañana",
+    "entrevista": "SINT-VISOR-05",
+    "relato": "ENT: ¿Recuerda cómo amaneció el día en que llegó el obispo en el buque?\nTEST: Amaneció radiante, con un sol tan limpio que desde el muelle se veía brillar el agua del río.\nENT: ¿Dónde estaba usted cuando pasó el buque?\nTEST: En el muelle, con medio pueblo, esperando que el obispo bajara a dar la bendición, pero no bajó.\nENT: ¿Vio al joven aquella mañana?\nTEST: Lo vi pasar hacia el muelle vestido de lino blanco, como para una fiesta.\nENT: ¿Qué tiempo hacía mientras esperaban al obispo?\nTEST: Caía una llovizna menuda desde antes del alba y todos estábamos con los sombreros mojados en el muelle.\nENT: ¿Qué recuerda de lo que pasó después?\nTEST: Que todo el pueblo sabía lo que iba a ocurrir y nadie hizo nada para impedirlo."
+  },
+  {
+    "id": "doce-hombres",
+    "titulo": "Inspirado en «Doce hombres en pugna»: la testigo y sus gafas",
+    "entrevista": "SINT-VISOR-06",
+    "relato": "ENT: ¿Desde dónde vio usted lo que ocurrió en el apartamento de enfrente?\nTEST: Desde mi cama, por la ventana, a través de los vagones del tren elevado que iba pasando.\nENT: ¿Qué vio exactamente?\nTEST: Vi clarísimo al muchacho levantar el brazo; tengo muy buena vista y nunca he necesitado gafas.\nENT: ¿A qué hora fue?\nTEST: Pasada la medianoche, no podía dormir por el calor.\nENT: ¿Qué hace usted para dormir cuando hace calor?\nTEST: Me acuesto temprano y me quito las gafas, porque sin ellas no distingo ni la puerta de mi propia habitación.\nENT: ¿Llamó a alguien después?\nTEST: Llamé a la policía en cuanto el tren terminó de pasar."
+  },
+  {
+    "id": "rashomon",
+    "titulo": "Inspirado en «Rashomon»: el leñador que no vio nada",
+    "entrevista": "SINT-VISOR-08",
+    "relato": "ENT: ¿Cómo encontró usted al samurái en el bosque?\nTEST: Iba a cortar leña temprano y tropecé con el cuerpo en un claro; antes de eso no había visto a nadie en el camino.\nENT: ¿Qué había cerca del cuerpo?\nTEST: Un sombrero de mujer colgado de una rama, una cuerda cortada y las hojas aplastadas alrededor.\nENT: ¿Qué hizo después?\nTEST: Corrí a avisar a las autoridades del pueblo, sin tocar nada.\nENT: ¿Escuchó algo antes de encontrarlo?\nTEST: Escuché gritos y me escondí entre los arbustos; desde ahí vi cómo los dos hombres peleaban con las espadas hasta que uno cayó.\nENT: ¿Por qué no lo contó antes?\nTEST: Porque no quería problemas con nadie."
+  },
+  {
+    "id": "aclaracion",
+    "titulo": "Caso trampa: el relato se corrige a sí mismo (coherente)",
+    "entrevista": "SINT-VISOR-07",
+    "relato": "ENT: ¿A qué hora llegó usted al puesto de salud?\nTEST: Llegué como a las diez de la mañana, con mi hija cargada.\nENT: ¿La atendieron rápido?\nTEST: No, tuvimos que esperar porque solo había una enfermera.\nENT: ¿Cuánto tiempo esperaron?\nTEST: Me equivoqué antes con la hora: no eran las diez, ya eran casi las doce, porque recuerdo que sonaron las campanas del mediodía mientras esperábamos.\nENT: ¿Qué le dijeron de su hija?\nTEST: Que tenía una fractura en el brazo y que había que llevarla al hospital del municipio.\nENT: ¿Cómo llegaron allá?\nTEST: Un señor de la vereda nos llevó en su camioneta esa misma tarde."
+  }
+]

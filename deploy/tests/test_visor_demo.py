@@ -123,6 +123,26 @@ def test_the_logo_is_embedded_as_a_data_uri(tmp_path: Path) -> None:
         visor.logo_data_uri(tmp_path / "escudo.gif")
 
 
+def test_there_are_at_least_five_examples_and_each_one_is_a_valid_synthetic_case() -> None:
+    lista = visor.ejemplos()
+    assert len(lista) >= 5
+    assert len({item["id"] for item in lista}) == len(lista)
+    assert len({item["entrevista"] for item in lista}) == len(lista)
+    for item in lista:
+        caso = visor.caso_c6(item["entrevista"], item["relato"])
+        assert caso["origen"] == "sintetico"
+        assert len(caso["turnos"]) >= 6, item["id"]
+
+
+def test_the_dropdown_lists_every_example_and_marks_the_chosen_one() -> None:
+    lista = visor.ejemplos()
+    pagina = visor.pagina_formulario("SINT-1", "TEST: hola", actual=lista[2]["id"]).decode()
+    assert pagina.count("<option ") == len(lista) + 1
+    assert f"<option value='{lista[2]['id']}' selected>" in pagina
+    assert visor.ejemplo(lista[2]["id"]) == (lista[2]["entrevista"], lista[2]["relato"])
+    assert visor.ejemplo("no-existe") is None
+
+
 def test_the_result_page_escapes_html_and_highlights_quotes() -> None:
     caso = visor.caso_c6(
         "SINT-1",

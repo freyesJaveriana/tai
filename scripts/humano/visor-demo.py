@@ -42,7 +42,7 @@ NAMESPACE = "veridicus-demo"
 JOB = "veridicus-analyzer-demo"
 RAIZ = Path(__file__).resolve().parents[2]
 BASE = RAIZ / "deploy" / "demo-analyzer"
-EJEMPLO = BASE / "entrada" / "contradiccion.json"
+EJEMPLOS = RAIZ / "deploy" / "demo-visor" / "ejemplos.json"
 ENTRADAS_BASE = "      - entrada/coherente.json\n      - entrada/contradiccion.json\n"
 ENTRADA_CASO = "      - entrada/caso.json\n"
 PLAZO_S = 900
@@ -115,12 +115,33 @@ def caso_c6(entrevista: str, relato: str) -> dict[str, object]:
     return {"entrevista": entrevista, "origen": "sintetico", "turnos": relato_a_turnos(relato)}
 
 
-def ejemplo() -> tuple[str, str]:
+def ejemplos() -> list[dict[str, str]]:
+    """Las dos entradas del Job (contradicción y coherente) y los casos de deploy/demo-visor/ejemplos.json."""
+    lista: list[dict[str, str]] = []
+    for clave, titulo, archivo in (
+        ("crecida", "La crecida del río: ¿en la finca o en el pueblo?", "contradiccion.json"),
+        ("crecida-coherente", "La crecida del río, versión coherente", "coherente.json"),
+    ):
+        try:
+            documento = json.loads((BASE / "entrada" / archivo).read_text(encoding="utf-8"))
+            relato = turnos_a_relato(documento["turnos"])
+        except (OSError, ValueError, KeyError):
+            continue
+        lista.append(
+            {"id": clave, "titulo": titulo, "entrevista": documento["entrevista"], "relato": relato}
+        )
     try:
-        documento = json.loads(EJEMPLO.read_text(encoding="utf-8"))
-        return "SINT-VISOR-01", turnos_a_relato(documento["turnos"])
-    except (OSError, ValueError, KeyError):
-        return "SINT-VISOR-01", "ENT: ¿Qué pasó ese día?\nTEST: "
+        lista += json.loads(EJEMPLOS.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+    return lista
+
+
+def ejemplo(clave: str) -> tuple[str, str] | None:
+    for item in ejemplos():
+        if item["id"] == clave:
+            return item["entrevista"], item["relato"]
+    return None
 
 
 # ------------------------------------------------------------------ Kubernetes (lo lanza el humano)
@@ -275,6 +296,8 @@ mark.b{background:#ffedd5;border-bottom:3px dashed #c2410c;padding:0 .1rem}
 .cita{margin:.35rem 0;padding-left:.6rem;font-size:.92rem}
 .cita.a{border-left:4px solid #1d4ed8} .cita.b{border-left:4px dashed #c2410c}
 .letra{font-weight:700;margin-right:.3rem}
+select{font-size:1rem;padding:.4rem;max-width:100%;min-width:26rem}
+.ejemplos{background:#eef2f8;border-radius:6px;padding:.2rem .9rem .8rem;margin-top:1rem}
 small{color:#57606a} pre{white-space:pre-wrap;font-size:.8rem;background:#f6f8fa;padding:.6rem}
 """
 
@@ -340,12 +363,26 @@ def _pagina(cuerpo: str) -> bytes:
     ).encode()
 
 
-def pagina_formulario(entrevista: str, relato: str, error: str = "") -> bytes:
+def _selector(actual: str) -> str:
+    opciones = ["<option value=''>— Caso en blanco —</option>"]
+    for item in ejemplos():
+        marcado = " selected" if item["id"] == actual else ""
+        opciones.append(
+            f"<option value='{html.escape(item['id'])}'{marcado}>{html.escape(item['titulo'])}</option>"
+        )
+    return (
+        "<form class='ejemplos' method='get' action='/'><h2>1. Elija un ejemplo (opcional)</h2>"
+        f"<select name='ejemplo'>{''.join(opciones)}</select> <button type='submit'>Cargar</button>"
+        "<small> Casos sintéticos, algunos inspirados en libros y películas.</small></form>"
+    )
+
+
+def pagina_formulario(entrevista: str, relato: str, error: str = "", actual: str = "") -> bytes:
     aviso_error = f"<div class='error'>{html.escape(error)}</div>" if error else ""
     return _pagina(
-        f"""{aviso_error}
+        f"""{aviso_error}{_selector(actual)}
 <form id='analizar' method='post' action='/analizar'>
-<h2>1. Escriba el caso</h2>
+<h2>2. Escriba o ajuste el caso</h2>
 <p>Un turno por línea, empezando por <code>ENT:</code> (entrevistador) o <code>TEST:</code> (relato que se
 analiza). Una línea sin prefijo continúa el turno anterior. Los turnos se numeran T1, T2, … en orden.</p>
 <p><label>Identificador del caso: <input type='text' name='entrevista' value='{html.escape(entrevista)}'></label>
@@ -355,8 +392,7 @@ analiza). Una línea sin prefijo continúa el turno anterior. Los turnos se nume
 nombre. <strong>No escriba datos reales</strong>: el texto se envía, seudonimizado, a un proveedor externo.</div>
 <p><label><input type='checkbox' name='sintetico' value='si' required> Confirmo que el caso es sintético.</label></p>
 <p><button type='submit'>Analizar</button> <small>Tarda alrededor de un minuto; no cierre la página.</small></p>
-</form>
-<form method='get' action='/'><button type='submit' name='ejemplo' value='si'>Cargar el ejemplo</button></form>"""
+</form>"""
     )
 
 
@@ -463,11 +499,11 @@ class Visor(BaseHTTPRequestHandler):
         if urllib.parse.urlparse(self.path).path != "/":
             self._responder(_pagina("<p>No existe.</p>"), 404)
             return
-        entrevista, relato = ejemplo()
-        if "ejemplo=si" not in self.path:
-            relato = "ENT: \nTEST: "
-            entrevista = "SINT-VISOR-01"
-        self._responder(pagina_formulario(entrevista, relato))
+        consulta = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        clave = consulta.get("ejemplo", [""])[0]
+        elegido = ejemplo(clave) if clave else None
+        entrevista, relato = elegido or ("SINT-VISOR-01", "ENT: \nTEST: ")
+        self._responder(pagina_formulario(entrevista, relato, actual=clave if elegido else ""))
 
     def do_POST(self) -> None:
         if self.path != "/analizar":

@@ -30,7 +30,16 @@ FROM python:3.12-slim@sha256:191083cdf6c7bda8c76158983163ead5d5cf7b77cf3033e805b
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-RUN groupadd --gid 10001 demo \
+# Vincula el paquete de GHCR a este repositorio: sin ella el GITHUB_TOKEN del workflow no puede publicarlo.
+LABEL org.opencontainers.image.source="https://github.com/freyesJaveriana/tai"
+
+# Trivy: CVE-2026-124851 (HIGH, con corrección) en libzstd1 de la base, cuyo digest no ha cambiado.
+# Se actualiza solo ese paquete, fijado por versión, y no se conservan las listas de apt. Va en el mismo
+# RUN que crea el usuario para no abrir una capa más (hadolint DL3059).
+RUN apt-get update \
+    && apt-get install --only-upgrade -y --no-install-recommends libzstd1=1.5.7+dfsg-1+deb13u1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 demo \
     && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin demo
 
 COPY --from=build /app/.venv /app/.venv

@@ -6,11 +6,15 @@ manifiesto alterado en memoria que la regla debe ver. No se ejecuta kubectl.
 """
 
 import copy
+import os
+import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import policy_checks as checks
 import pytest
+import yaml
 from policy_checks import (
     DENY_ALL,
     JOB_NAME,
@@ -33,9 +37,14 @@ MANIFESTS = DEPLOY / "demo-analyzer"
 IMAGE = "ghcr.io/freyesjaveriana/veridicus-analyzer-cli"
 
 
+def _current_render() -> list[Resource]:
+    """K-102: el render real si la CI pasa `VERIDICUS_RENDER`; si no, la lectura de primer nivel."""
+    return checks.render_resources(MANIFESTS, os.environ)
+
+
 @pytest.fixture(name="rendered")
 def _rendered() -> list[Resource]:
-    return render(MANIFESTS)
+    return _current_render()
 
 
 def _one(resources: list[Resource], kind: str, name: str) -> Resource:
@@ -663,3 +672,100 @@ def test_the_render_leaves_untouched_what_the_kustomization_does_not_name(
     [pod] = render(tmp_path)
     assert "namespace" not in pod["metadata"]
     assert pod["spec"]["containers"][0]["image"] == "x"
+
+
+# ---------------------------------------------------------------- K-102: las reglas sobre el render real
+# La CI corre estas mismas pruebas con VERIDICUS_RENDER apuntando al resultado de `kustomize build`.
+# Sin la variable, todo sigue como hasta ahora (la lectura de primer nivel de `render`).
+
+RENDER_ENV = "VERIDICUS_RENDER"
+
+
+def _write_render(path: Path, resources: list[Resource]) -> Path:
+    path.write_text(yaml.safe_dump_all(resources), encoding="utf-8")
+    return path
+
+
+def test_k102_the_variable_is_named_as_the_task_says() -> None:
+    assert checks.RENDER_ENV == RENDER_ENV
+
+
+def test_k102_without_the_variable_the_render_is_the_first_level_reading() -> None:
+    assert checks.render_resources(MANIFESTS, {}) == render(MANIFESTS)
+    assert checks.render_resources(MANIFESTS, {RENDER_ENV: ""}) == render(MANIFESTS)
+
+
+def test_k102_with_the_variable_the_resources_are_the_ones_of_the_file(tmp_path: Path) -> None:
+    only = [{"kind": "Namespace", "metadata": {"name": "otro"}}]
+    path = _write_render(tmp_path / "render.yaml", only)
+
+    assert checks.render_resources(MANIFESTS, {RENDER_ENV: str(path)}) == only
+
+
+def test_negative_k102_a_broken_real_render_fails_the_rules(tmp_path: Path) -> None:
+    broken = copy.deepcopy(render(MANIFESTS))
+    _container(broken)["image"] = f"{IMAGE}:latest"
+    del _pod(broken)["securityContext"]
+    path = _write_render(tmp_path / "render.yaml", broken)
+
+    loaded = checks.render_resources(MANIFESTS, {RENDER_ENV: str(path)})
+
+    assert image_violations(loaded)
+    assert security_violations(loaded)
+    assert image_violations(render(MANIFESTS)) == [], "la lectura de primer nivel no ve ese cambio"
+
+
+def test_k102_a_clean_render_file_passes_every_rule(tmp_path: Path) -> None:
+    path = _write_render(tmp_path / "render.yaml", render(MANIFESTS))
+    loaded = checks.render_resources(MANIFESTS, {RENDER_ENV: str(path)})
+
+    assert loaded == render(MANIFESTS)
+    assert network_violations(loaded) == []
+    assert secret_violations(loaded) == []
+    assert image_violations(loaded) == []
+    assert security_violations(loaded) == []
+    assert resources_violations(loaded) == []
+
+
+def test_k102_the_hash_suffix_kustomize_adds_to_a_generated_configmap_is_removed(
+    tmp_path: Path,
+) -> None:
+    suffixed = copy.deepcopy(render(MANIFESTS))
+    for item in suffixed:
+        if item["kind"] == "ConfigMap":
+            item["metadata"]["name"] = "veridicus-demo-entrada-7d9f2k5g8m"
+    _pod(suffixed)["volumes"][0]["configMap"]["name"] = "veridicus-demo-entrada-7d9f2k5g8m"
+    path = _write_render(tmp_path / "render.yaml", suffixed)
+
+    loaded = checks.render_resources(MANIFESTS, {RENDER_ENV: str(path)})
+
+    assert loaded == render(MANIFESTS)
+
+
+def test_k102_a_name_that_only_looks_like_a_suffixed_one_is_left_alone(tmp_path: Path) -> None:
+    other = [{"kind": "ConfigMap", "metadata": {"name": "otro-0123456789"}, "data": {}}]
+    path = _write_render(tmp_path / "render.yaml", other)
+
+    assert checks.render_resources(MANIFESTS, {RENDER_ENV: str(path)}) == other
+
+
+def test_negative_k102_a_missing_or_empty_render_file_fails_closed(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        checks.render_resources(MANIFESTS, {RENDER_ENV: str(tmp_path / "no-existe.yaml")})
+    empty = tmp_path / "vacio.yaml"
+    empty.write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="sin recursos"):
+        checks.render_resources(MANIFESTS, {RENDER_ENV: str(empty)})
+
+
+def test_k102_the_rendered_fixture_of_this_file_reads_the_variable(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    only = [{"kind": "Namespace", "metadata": {"name": "otro"}}]
+    path = _write_render(tmp_path / "render.yaml", only)
+    current = sys.modules[__name__]._current_render
+
+    monkeypatch.delenv(RENDER_ENV, raising=False)
+    assert current() == render(MANIFESTS)
+    monkeypatch.setenv(RENDER_ENV, str(path))
+    assert current() == only

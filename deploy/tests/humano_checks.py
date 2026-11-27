@@ -116,7 +116,57 @@ def violations(rel: str, text: str, root: Path | None = None) -> list[str]:
     return found
 
 
-PINNED = re.compile(
-    r"curlimages/curl(?::[\w.-]+)?@sha256:(?:[0-9a-f]{64}|REEMPLAZAR_DIGEST_CURL)\b"
-)
-REAL_DIGEST = re.compile(r"curlimages/curl(?::[\w.-]+)?@sha256:[0-9a-f]{64}\b")
+# K-103: la etiqueta `latest` se rechaza también cuando lleva digest, igual que los manifiestos y
+# Kyverno. El tramo `(?!latest@)` solo la excluye cuando es la etiqueta entera; `latest-slim` es otra.
+_TAG = r"(?::(?!(?i:latest)@)[\w.-]+)?"
+PINNED = re.compile(rf"curlimages/curl{_TAG}@sha256:(?:[0-9a-f]{{64}}|REEMPLAZAR_DIGEST_CURL)\b")
+REAL_DIGEST = re.compile(rf"curlimages/curl{_TAG}@sha256:[0-9a-f]{{64}}\b")
+
+
+# K-104: un Secret aplicado del lado del cliente deja su valor en la anotación
+# last-applied-configuration. Los dos scripts que crean un Secret la comprueban con una plantilla que
+# imprime un literal fijo («si»): el valor de la anotación se evalúa dentro de kubectl y nunca pasa por
+# un pipe, una variable ni la salida.
+_ANNOTATION = "last-applied-configuration"
+_KEY = f"{_KUBECTL}.kubernetes.io/{_ANNOTATION}"
+_FIXED_LITERAL = "si"
+
+
+def _expected_check(secret: str) -> re.Pattern[str]:
+    template = rf'\{{\{{if index \.metadata\.annotations "{re.escape(_KEY)}"\}}\}}{_FIXED_LITERAL}\{{\{{end\}}\}}'
+    return re.compile(
+        rf'if \[ "\$\({_KUBECTL} get secret {re.escape(secret)} --namespace "\$namespace" '
+        rf"-o go-template='{template}' 2> /dev/null\)\" = \"{_FIXED_LITERAL}\" \]; then"
+    )
+
+
+def last_applied_violations(rel: str, text: str, secret: str) -> list[str]:
+    """Infracciones de la comprobación de la anotación en un script que crea el Secret `secret`.
+
+    Debe haber exactamente una línea de código (sin comentarios ni `echo`) que nombre la anotación, con
+    la forma fija de `_expected_check`; el bloque que sigue debe sugerir borrar el Secret y salir con 2,
+    y todo eso antes de aplicarlo con `--server-side`.
+    """
+    lines = [
+        (number, line)
+        for number, line in logical_lines(text)
+        if _ANNOTATION in line
+        and not line.lstrip().startswith("#")
+        and not line.lstrip().startswith("echo")
+    ]
+    if len(lines) != 1:
+        return [f"{rel}: debe haber una sola comprobación de {_ANNOTATION} y hay {len(lines)}"]
+    number, line = lines[0]
+    found: list[str] = []
+    if not _expected_check(secret).fullmatch(line.strip()):
+        found.append(f"{rel}:{number}: la comprobación de {_ANNOTATION} no usa el literal fijo")
+    after = "\n".join(text.splitlines()[number - 1 :])
+    apply = after.find(f"{_KUBECTL} apply --server-side")
+    block = after if apply < 0 else after[:apply]
+    if apply < 0:
+        found.append(f"{rel}:{number}: la comprobación debe ir antes de aplicar con --server-side")
+    if f"{_KUBECTL} delete secret {secret} --namespace" not in block:
+        found.append(f"{rel}:{number}: falta sugerir borrar el Secret {secret}")
+    if not re.search(r"^\s*exit 2\s*$", block, re.MULTILINE):
+        found.append(f"{rel}:{number}: falta salir con 2")
+    return found

@@ -8,7 +8,7 @@ efectos de la kustomization que importan aquí (namespace, imágenes y generador
 
 import json
 import re
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -64,6 +64,51 @@ def render(directory: Path) -> list[Resource]:
                 if replacement:
                     container["image"] = f"{replacement['newName']}:{replacement['newTag']}"
     return resources
+
+
+# K-102: la CI renderiza con `kustomize build` y pasa la ruta del resultado en esta variable. Sin ella,
+# las reglas leen lo mismo que hasta ahora (la lectura de primer nivel de `render`).
+RENDER_ENV = "VERIDICUS_RENDER"
+# kustomize añade a un ConfigMap generado un sufijo de 10 caracteres derivado de su contenido y lo
+# reescribe en cada referencia; las reglas conocen el nombre sin sufijo, que es el de la kustomization.
+_GENERATED_SUFFIX = re.compile(r"^(?P<base>.+)-[a-z0-9]{10}$")
+
+
+def _rename(node: Any, names: dict[str, str]) -> Any:
+    """Copia de `node` donde cada cadena que sea uno de los nombres con sufijo lleva el nombre base."""
+    if isinstance(node, dict):
+        return {key: _rename(value, names) for key, value in node.items()}
+    if isinstance(node, list):
+        return [_rename(value, names) for value in node]
+    if isinstance(node, str):
+        return names.get(node, node)
+    return node
+
+
+def render_resources(directory: Path, env: Mapping[str, str]) -> list[Resource]:
+    """Los recursos que revisan las reglas: el render real si `VERIDICUS_RENDER` apunta a un archivo
+    (la salida de `kustomize build`), y si no, la lectura de primer nivel de `render(directory)`.
+
+    Falla si el archivo no existe o no trae recursos: una ruta equivocada no puede dar un «todo bien».
+    """
+    path = env.get(RENDER_ENV)
+    if not path:
+        return render(directory)
+    resources = load(Path(path))
+    if not resources:
+        raise ValueError(f"el render {path} está sin recursos")
+    kustomization = load(directory / "kustomization.yaml")[0]
+    generated = {item["name"] for item in kustomization.get("configMapGenerator", [])}
+    names: dict[str, str] = {}
+    for resource in resources:
+        if resource.get("kind") != "ConfigMap":
+            continue
+        name = str((resource.get("metadata") or {}).get("name", ""))
+        match = _GENERATED_SUFFIX.match(name)
+        if match and match.group("base") in generated:
+            names[name] = match.group("base")
+    renamed: list[Resource] = [_rename(resource, names) for resource in resources]
+    return renamed
 
 
 def pod_specs(resource: Resource) -> list[tuple[str, dict[str, Any]]]:

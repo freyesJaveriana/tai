@@ -1,0 +1,19 @@
+---
+# Control negativo (caso sonda 3): desempaqueta la descarga antes de verificarla.
+name: curl-usa-antes-de-verificar
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar y verificar tarde
+        env:
+          SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP"
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -

@@ -1,0 +1,15 @@
+---
+# Control negativo (P4): una expresión de Actions dentro de un run, que se expande antes de que corra el
+# shell y permite inyectar comandos con un título de pull request.
+name: expresion-en-run
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Saludar
+        run: echo ${{ github.event.pull_request.title }} && true

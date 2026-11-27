@@ -1,0 +1,24 @@
+---
+# Control negativo (B8c): lo mismo que B8, con la suma cualquiera en el env del WORKFLOW.
+name: suma-en-el-env-del-workflow
+on:
+  pull_request:
+permissions:
+  contents: read
+env:
+  SHA256: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar con la suma del workflow
+        env:
+          SUMA_TABLA: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/trivy_0.76.2_Linux-64bit.tar.gz"
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"

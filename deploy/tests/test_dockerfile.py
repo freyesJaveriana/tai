@@ -5,6 +5,7 @@ negativo: un Dockerfile de prueba que la rompe debe fallar la comprobación.
 """
 
 import re
+import shlex
 from pathlib import Path
 
 import pytest
@@ -56,13 +57,32 @@ def _references(keyword: str, rest: str) -> list[str]:
         inner = re.split(r"\s+", rest, maxsplit=1)
         return _references(inner[0].upper(), inner[1] if len(inner) > 1 else "")
     found: list[str] = []
-    for token in rest.split():
+    for token in _tokens(rest):
         if keyword == "COPY" and token.startswith("--from="):
             found.append(token.removeprefix("--from="))
         elif keyword == "RUN" and token.startswith("--mount="):
-            options = token.removeprefix("--mount=").split(",")
-            found.extend(item.removeprefix("from=") for item in options if item.startswith("from="))
+            for item in _mount_fields(token.removeprefix("--mount=")):
+                if item.lower().startswith("from="):
+                    found.append(item[len("from=") :])
     return found
+
+
+def _tokens(rest: str) -> list[str]:
+    """Las palabras de una instrucción como las lee un shell: las comillas agrupan y se quitan (K-97).
+
+    Si las comillas no cierran (un `RUN` con un apóstrofo en su texto), se vuelve a partir por espacios.
+    """
+    try:
+        return shlex.split(rest)
+    except ValueError:
+        return rest.split()
+
+
+def _mount_fields(value: str) -> list[str]:
+    """Los campos `clave=valor` de un `--mount`, al estilo CSV: separados por comas y con comillas
+    en cualquier campo, que se quitan (K-97). Quitar todas las comillas puede juntar de más, y eso
+    solo hace la regla más estricta."""
+    return [field.strip() for field in re.sub(r"[\"']", "", value).split(",")]
 
 
 def check_copy_from_pinned(text: str) -> list[str]:
@@ -195,11 +215,69 @@ def test_every_copy_from_an_external_image_has_a_real_digest(real: str) -> None:
     assert "REEMPLAZAR" not in real
 
 
+FIXED_LIBZSTD = "libzstd1=1.5.7+dfsg-1+deb13u1"
+
+
+def test_the_final_stage_upgrades_libzstd1_to_the_fixed_version_before_the_user(real: str) -> None:
+    """Trivy: CVE-2026-124851 (HIGH, con corrección) en libzstd1 de la base. El digest de la base no
+    cambia, así que la etapa final actualiza ese paquete, fijado por versión (DL3008), sin
+    `.trivyignore`."""
+    final = "FROM " + real.rsplit("\nFROM ", 1)[1]
+    instructions = _instructions(final)
+    upgrades = [
+        (number, rest)
+        for number, (keyword, rest) in enumerate(instructions)
+        if keyword == "RUN" and "apt-get install" in rest
+    ]
+
+    assert len(upgrades) == 1
+    number, run = upgrades[0]
+    assert run.startswith("apt-get update"), "el índice se actualiza en la misma capa"
+    assert "--only-upgrade" in run
+    assert "-y" in run.split()
+    assert "--no-install-recommends" in run
+    assert FIXED_LIBZSTD in run.split(), "versión fijada y corregida"
+    assert run.index("apt-get install") < run.index("rm -rf /var/lib/apt/lists/*")
+    assert "rm -rf /var/lib/apt/lists/*" in run, "la capa no conserva las listas de apt"
+    assert "&&" in run.split("rm -rf /var/lib/apt/lists/*")[0], "encadenado: si apt falla, falla"
+    assert len([k for k, _ in instructions if k == "RUN"]) == 1, "una sola capa RUN (DL3059)"
+    users = [i for i, (keyword, _) in enumerate(instructions) if keyword == "USER"]
+    assert number < users[-1], "se actualiza como root, antes del USER numérico"
+    assert "libzstd1" not in real.rsplit("\nFROM ", 1)[0], "solo la etapa final lo toca"
+    assert not (ROOT / ".trivyignore").exists(), "ninguna excepción de Trivy"
+
+
+def test_the_final_stage_stays_pinned_numeric_and_without_latest_after_the_upgrade(
+    real: str,
+) -> None:
+    assert check_from_pinned(real) == []
+    assert check_copy_from_pinned(real) == []
+    assert check_final_user(real) == []
+    assert check_latest_anywhere(real) == []
+    assert DIGEST in real
+
+
 def test_the_final_stage_copies_only_the_virtual_environment(real: str) -> None:
     final = real.rsplit("\nFROM ", 1)[1]
     copies = [rest for keyword, rest in _instructions("FROM " + final) if keyword == "COPY"]
 
     assert copies == ["--from=build /app/.venv /app/.venv"]
+
+
+SOURCE_LABEL = 'org.opencontainers.image.source="https://github.com/freyesJaveriana/tai"'
+
+
+def test_the_final_stage_carries_the_oci_source_label_that_links_the_ghcr_package(
+    real: str,
+) -> None:
+    """Sin esta etiqueta el paquete de GHCR no se vincula al repositorio y el GITHUB_TOKEN no puede
+    publicarlo (F-04)."""
+    final = real.rsplit("\nFROM ", 1)[1]
+    labels = [rest for keyword, rest in _instructions("FROM " + final) if keyword == "LABEL"]
+    build = real.rsplit("\nFROM ", 1)[0]
+
+    assert labels == [SOURCE_LABEL]
+    assert "LABEL" not in build, "solo la etapa final lleva la etiqueta"
 
 
 def test_no_copy_of_env_tests_or_local_results_and_no_secret_in_the_image(real: str) -> None:
@@ -403,3 +481,70 @@ def test_f07_a_stage_declared_before_its_use_is_internal() -> None:
     text = "FROM x AS uv\nFROM y AS a\nCOPY --from=uv /uv /b\nRUN --mount=from=0,target=/x true\n"
 
     assert check_copy_from_pinned(text) == []
+
+
+# --- K-97: la clave `from=` sin distinguir mayúsculas y los campos de `--mount` con comillas --------
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "RUN --mount=type=cache,FROM=img:latest,target=/c true",
+        "RUN --mount=type=cache,FROM=img:latest",
+        "RUN --mount=type=bind,From=img:1,target=/x true",
+        'RUN --mount="type=bind,from=img" true',
+        "RUN --mount='type=bind,from=img' true",
+        'RUN --mount=type=bind,"from=img:1",target=/x true',
+        'RUN --mount=type=bind,"FROM=img:1",target=/x true',
+        "RUN --mount=type=bind,'from=img:1',target=/x true",
+        'ONBUILD RUN --mount="type=bind,FROM=img:1" true',
+        'RUN --mount="type=cache,target=/c" --mount="type=bind,from=img:1,target=/x" true',
+    ],
+)
+def test_negative_k97_a_mount_from_an_image_without_a_digest_fails_in_any_spelling(
+    line: str,
+) -> None:
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") != []
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        f"RUN --mount=type=bind,FROM={PINNED_A},target=/x true",
+        f'RUN --mount="type=bind,from={PINNED_A},target=/x" true',
+        f'RUN --mount=type=bind,"from={PINNED_A}",target=/x true',
+        'RUN --mount="type=cache,target=/c" true',
+        'RUN --mount="type=bind,FROM=a,target=/x" true',
+        "RUN --mount=type=bind,From=0,target=/x true",
+    ],
+)
+def test_k97_a_mount_with_a_real_digest_or_from_an_internal_stage_passes_in_any_spelling(
+    line: str,
+) -> None:
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") == []
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        'RUN --mount=type=bind,"from=img:1",target=/x echo it\'s',
+        'RUN --mount=type=bind,"FROM=img:1",target=/x echo it\'s',
+        "RUN --mount=type=bind,'from=img:1',target=/x echo it\"s",
+    ],
+)
+def test_negative_k97_a_run_with_an_unbalanced_quote_still_reads_the_quoted_mount_fields(
+    line: str,
+) -> None:
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") != []
+
+
+def test_k97_a_run_with_an_unbalanced_quote_and_a_pinned_mount_passes() -> None:
+    line = f'RUN --mount=type=bind,"from={PINNED_A}",target=/x echo it\'s'
+
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") == []
+
+
+def test_k97_a_quoted_mount_value_with_a_space_is_read_whole() -> None:
+    line = 'RUN --mount="type=bind,target=/a b,from=img:1" true'
+
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") != []

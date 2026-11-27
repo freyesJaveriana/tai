@@ -1,0 +1,224 @@
+# Comprobaciones de nivel 0 de deploy/ (U2 platform, paso 8 del plan, DP-07 y DP-08).
+# Sin filtro de rutas, para que pueda ser comprobación obligatoria de main sin quedar pendiente en un
+# PR que no toca deploy/. La CI no despliega: ningún paso lleva credenciales del clúster ni lo toca
+# (AUTONOMIA-01); lo único que se renderiza y se valida es el YAML.
+# Solo las dos acciones que el repositorio ya permite, fijadas por SHA. Las herramientas se bajan con
+# curl y se verifican con sha256sum -c contra la suma de su release antes de usarlas. Los esquemas de
+# kubeconform se descargan en el job desde su ubicación por defecto, fijada por la versión de
+# Kubernetes (no por suma). Los pasos con red (instalar y descargar) van separados de los que no la
+# tienen, que usan --frozen --offline.
+name: deploy-level0
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-level0-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-level0:
+    name: deploy-level0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.13.9"
+          enable-cache: false
+
+      - name: Instalar deploy/ con el lockfile y sus hashes (red)
+        run: uv sync --frozen --directory deploy
+
+      - name: Instalar kustomize v5.8.3 verificado por SHA-256 (red)
+        env:
+          ASSET: kustomize_v5.8.3_linux_amd64.tar.gz
+          SHA256: "cb9e31198d3f63b44848bd0afc4c8efc56e6cfef9c93a4a39a211940e6decd61"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ASSET" \
+            "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.8.3/$ASSET"
+          echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$ASSET" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Instalar kubeconform v0.8.0 verificado por SHA-256 (red)
+        env:
+          ASSET: kubeconform-linux-amd64.tar.gz
+          SHA256: "9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ASSET" \
+            "https://github.com/yannh/kubeconform/releases/download/v0.8.0/$ASSET"
+          echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$ASSET" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      # 1.19.2: Kyverno 1.20 ya no ejecuta ClusterPolicy (kyverno.io/v1); migrar a ValidatingPolicy es K-107.
+      - name: Instalar la CLI de Kyverno v1.19.2 verificada por SHA-256 (red)
+        env:
+          ASSET: kyverno-cli_v1.19.2_linux_x86_64.tar.gz
+          SHA256: "357eaf1df8bc24ddd5a73979fadeaae6a032e8710f11af264229756e4956bf4a"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ASSET" \
+            "https://github.com/kyverno/kyverno/releases/download/v1.19.2/$ASSET"
+          echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$ASSET" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Instalar hadolint v2.15.1 verificado por SHA-256 (red)
+        env:
+          ASSET: hadolint-linux-x86_64
+          SHA256: "c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ASSET" \
+            "https://github.com/hadolint/hadolint/releases/download/v2.15.1/$ASSET"
+          echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -
+          mv "$RUNNER_TEMP/$ASSET" "$RUNNER_TEMP/bin/hadolint"
+          chmod +x "$RUNNER_TEMP/bin/hadolint"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Instalar shellcheck v0.11.0 verificado por SHA-256 (red)
+        env:
+          ASSET: shellcheck-v0.11.0.linux.x86_64.tar.xz
+          SHA256: "8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ASSET" \
+            "https://github.com/koalaman/shellcheck/releases/download/v0.11.0/$ASSET"
+          echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/$ASSET" -C "$RUNNER_TEMP/bin" --strip-components=1
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: El lockfile está al día
+        run: uv lock --check --directory deploy
+
+      - name: Lint de Python
+        run: uv run --frozen --offline --directory deploy ruff check .
+
+      - name: Formato de Python
+        run: uv run --frozen --offline --directory deploy ruff format --check .
+
+      - name: Tipos de Python
+        run: uv run --frozen --offline --directory deploy mypy --strict src tests
+
+      - name: Renderizar la kustomization de la demo
+        run: |
+          set -euo pipefail
+          kustomize build deploy/demo-analyzer > "$RUNNER_TEMP/render.yaml"
+
+      # K-102: las pruebas de los manifiestos leen el render real de kustomize (VERIDICUS_RENDER) y no
+      # solo la lectura de primer nivel de los archivos.
+      - name: Suite de deploy sobre el render real (sin red, cobertura 100 %)
+        env:
+          VERIDICUS_RENDER: ${{ runner.temp }}/render.yaml
+        run: >-
+          uv run --frozen --offline --directory deploy
+          pytest --cov=veridicus_demo --cov-branch --cov-fail-under=100
+
+      - name: Esquemas de Kubernetes 1.31 sobre el render (kubeconform estricto)
+        run: kubeconform -strict -summary -kubernetes-version 1.31.0 "$RUNNER_TEMP/render.yaml"
+
+      - name: Control negativo, kubeconform rechaza un Job roto (el fallo se invierte)
+        run: |
+          set -euo pipefail
+          manifiesto=deploy/tests/fixtures/manifests/job-roto.yaml
+          if salida="$(kubeconform -strict -summary -kubernetes-version 1.31.0 "$manifiesto")"; then
+            echo "$salida"
+            echo "kubeconform dio por válido un manifiesto roto." >&2
+            exit 1
+          fi
+          echo "$salida"
+          echo "$salida" | grep -Eq 'Invalid: 1, Errors: 0'
+
+      - name: Pruebas de las políticas de Kyverno
+        run: kyverno test deploy/policies
+
+      # kyverno test debería descubrir también esta subcarpeta; el paso aparte no depende de que lo haga.
+      - name: Prueba de la política del Secret con otro usuario
+        run: kyverno test deploy/policies/veridicus-secret-solo-job/otro-usuario
+
+      - name: Las cuatro políticas sobre el render real (0 fallos)
+        run: >-
+          kyverno apply
+          deploy/policies/veridicus-imagen-con-etiqueta/policy.yaml
+          deploy/policies/veridicus-pod-restricted/policy.yaml
+          deploy/policies/veridicus-recursos-requeridos/policy.yaml
+          deploy/policies/veridicus-secret-solo-job/policy.yaml
+          --resource "$RUNNER_TEMP/render.yaml"
+
+      - name: Control negativo, veridicus-imagen-con-etiqueta rechaza un pod con latest
+        run: |
+          set -euo pipefail
+          if salida="$(kyverno apply deploy/policies/veridicus-imagen-con-etiqueta/policy.yaml \
+            --resource deploy/policies/veridicus-imagen-con-etiqueta/resources/fail-pod-latest.yaml)"; then
+            echo "$salida"
+            echo "La política veridicus-imagen-con-etiqueta debía rechazar el recurso." >&2
+            exit 1
+          fi
+          echo "$salida"
+          echo "$salida" | grep -Eq 'fail: [1-9]'
+
+      - name: Control negativo, veridicus-pod-restricted rechaza un pod como root
+        run: |
+          set -euo pipefail
+          if salida="$(kyverno apply deploy/policies/veridicus-pod-restricted/policy.yaml \
+            --resource deploy/policies/veridicus-pod-restricted/resources/fail-pod-como-root.yaml)"; then
+            echo "$salida"
+            echo "La política veridicus-pod-restricted debía rechazar el recurso." >&2
+            exit 1
+          fi
+          echo "$salida"
+          echo "$salida" | grep -Eq 'fail: [1-9]'
+
+      - name: Control negativo, veridicus-recursos-requeridos rechaza un pod sin recursos
+        run: |
+          set -euo pipefail
+          if salida="$(kyverno apply deploy/policies/veridicus-recursos-requeridos/policy.yaml \
+            --resource deploy/policies/veridicus-recursos-requeridos/resources/fail-pod-sin-recursos.yaml)"; then
+            echo "$salida"
+            echo "La política veridicus-recursos-requeridos debía rechazar el recurso." >&2
+            exit 1
+          fi
+          echo "$salida"
+          echo "$salida" | grep -Eq 'fail: [1-9]'
+
+      - name: Control negativo, veridicus-secret-solo-job rechaza a otro pod con el Secret
+        run: |
+          set -euo pipefail
+          if salida="$(kyverno apply deploy/policies/veridicus-secret-solo-job/policy.yaml \
+            --userinfo deploy/policies/veridicus-secret-solo-job/userinfo.yaml \
+            --resource deploy/policies/veridicus-secret-solo-job/resources/fail-pod-con-envfrom.yaml)"; then
+            echo "$salida"
+            echo "La política veridicus-secret-solo-job debía rechazar el recurso." >&2
+            exit 1
+          fi
+          echo "$salida"
+          echo "$salida" | grep -Eq 'fail: [1-9]'
+
+      - name: Dockerfile de la imagen de la CLI (hadolint)
+        run: hadolint deploy/images/analyzer-cli/Dockerfile
+
+      # Los scripts se listan con git y un patrón; el workflow no nombra ninguna carpeta (DP-08).
+      - name: Scripts de shell (shellcheck)
+        run: |
+          set -euo pipefail
+          git ls-files -z -- 'scripts/*.sh' | xargs -0 -r shellcheck

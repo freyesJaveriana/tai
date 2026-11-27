@@ -1,0 +1,20 @@
+---
+# Control negativo (P2): sha256sum -c con su código de salida anulado por un or.
+name: sha256sum-anulado
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar con la verificación anulada
+        env:
+          SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c - || true
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP"

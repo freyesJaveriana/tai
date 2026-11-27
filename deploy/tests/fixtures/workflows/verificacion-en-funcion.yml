@@ -1,0 +1,26 @@
+---
+# Control negativo (M4): la línea fija dentro de una función que se llama con || true. Con set -e, bash no
+# sale cuando falla un comando dentro de una función usada en una lista ||.
+name: verificacion-en-funcion
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar con la verificación en una función
+        env:
+          SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          verificar() {
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -
+          }
+          verificar || true
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"

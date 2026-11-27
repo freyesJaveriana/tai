@@ -10,6 +10,10 @@
 # El token nunca se guarda en una variable, no se imprime y no viaja como argumento de ningún
 # comando: se arma el archivo de configuración de Docker con grep y cut directamente en un archivo
 # temporal 0600 y kubectl lo lee con --from-file. El .env no se carga con source.
+# Se aplica con --server-side para que el valor del Secret no se copie a la anotación
+# kubectl.kubernetes.io/last-applied-configuration. Si un Secret anterior se creó del lado del
+# cliente y kubectl avisa de un conflicto de propietario del campo, borre ese Secret y vuelva a
+# correr el script.
 set -euo pipefail
 
 archivo="${1:-}"
@@ -51,5 +55,5 @@ if ! kubectl get namespace "$namespace" > /dev/null 2>&1; then
   kubectl create namespace "$namespace"
 fi
 
-kubectl create secret docker-registry veridicus-ghcr --namespace "$namespace" --from-file=.dockerconfigjson="$config" --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret docker-registry veridicus-ghcr --namespace "$namespace" --from-file=.dockerconfigjson="$config" --dry-run=client -o yaml | kubectl apply --server-side -f -
 echo "Secret veridicus-ghcr creado o actualizado en el namespace $namespace."

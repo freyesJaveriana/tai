@@ -114,11 +114,13 @@ def secret_violations(resources: list[Resource]) -> list[str]:
     return found
 
 
-def _is_pinned(image: str) -> bool:
-    if re.search(r"@sha256:[0-9a-f]{64}$", image):
-        return True
-    last = image.rsplit("/", 1)[-1]
-    return ":" in last and not last.endswith(":")
+# Las dos expresiones que la política de Kyverno `veridicus-imagen-con-etiqueta` usa dentro de
+# `regex_match`: una prueba exige que el texto sea idéntico en los dos lados. Sin llaves de
+# cuantificador ni barras invertidas, para que la plantilla `{{ }}` de Kyverno no las confunda.
+# Fijada: una etiqueta en el último segmento de la ruta (el puerto del registro no cuenta), con o sin
+# digest, o solo un digest. Latest: la etiqueta `latest`, también cuando le sigue un digest.
+IMAGE_PINNED = "^([^@]*/)?[^/@:]+:[^/@:]+(@sha256:[0-9a-f]+)?$|^[^@]+@sha256:[0-9a-f]+$"
+IMAGE_LATEST = ":latest(@|$)"
 
 
 def image_violations(resources: list[Resource]) -> list[str]:
@@ -128,11 +130,11 @@ def image_violations(resources: list[Resource]) -> list[str]:
         for _, spec in pod_specs(resource):
             for container in containers(spec):
                 image = str(container.get("image", ""))
-                if not _is_pinned(image):
+                if not re.search(IMAGE_PINNED, image):
                     found.append(
                         f"{_where(resource, container)}: la imagen {image!r} no tiene etiqueta"
                     )
-                elif re.search(r":latest(@|$)", image):
+                elif re.search(IMAGE_LATEST, image):
                     found.append(f"{_where(resource, container)}: la imagen {image!r} es latest")
     return found
 
@@ -153,17 +155,36 @@ def security_violations(resources: list[Resource]) -> list[str]:
             for flag in ("hostNetwork", "hostPID", "hostIPC"):
                 if spec.get(flag) is True:
                     found.append(f"{label}: {flag} activado")
+            for volume in spec.get("volumes") or []:
+                if "hostPath" in volume:
+                    found.append(f"{label}: el volumen {volume.get('name')} es hostPath")
             for container in containers(spec):
-                context = container.get("securityContext") or {}
-                where = _where(resource, container)
-                if context.get("readOnlyRootFilesystem") is not True:
-                    found.append(f"{where}: falta readOnlyRootFilesystem: true")
-                if context.get("allowPrivilegeEscalation") is not False:
-                    found.append(f"{where}: falta allowPrivilegeEscalation: false")
-                if "ALL" not in ((context.get("capabilities") or {}).get("drop") or []):
-                    found.append(f"{where}: falta capabilities.drop: [ALL]")
-                if context.get("privileged") is True:
-                    found.append(f"{where}: privileged activado")
+                found.extend(_container_security_violations(_where(resource, container), container))
+    return found
+
+
+def _container_security_violations(where: str, container: dict[str, Any]) -> list[str]:
+    """El `securityContext` de un contenedor: lo exigido y lo que sobrescribe al pod."""
+    found: list[str] = []
+    context = container.get("securityContext") or {}
+    capabilities = context.get("capabilities") or {}
+    if context.get("readOnlyRootFilesystem") is not True:
+        found.append(f"{where}: falta readOnlyRootFilesystem: true")
+    if context.get("allowPrivilegeEscalation") is not False:
+        found.append(f"{where}: falta allowPrivilegeEscalation: false")
+    if "ALL" not in (capabilities.get("drop") or []):
+        found.append(f"{where}: falta capabilities.drop: [ALL]")
+    if capabilities.get("add") is not None:
+        found.append(f"{where}: lleva capabilities.add (se rechaza la clave, aun vacía)")
+    if context.get("privileged") is True:
+        found.append(f"{where}: privileged activado")
+    if context.get("runAsUser") == 0:
+        found.append(f"{where}: runAsUser es 0")
+    if context.get("runAsNonRoot") is False:
+        found.append(f"{where}: runAsNonRoot es false")
+    seccomp = (context.get("seccompProfile") or {}).get("type")
+    if seccomp not in (None, "RuntimeDefault", "Localhost"):
+        found.append(f"{where}: seccompProfile {seccomp} no es RuntimeDefault ni Localhost")
     return found
 
 
@@ -181,8 +202,15 @@ def resources_violations(resources: list[Resource]) -> list[str]:
     return found
 
 
+def _end_port_violations(rule: dict[str, Any]) -> list[str]:
+    """`endPort` abre un rango de puertos; las reglas de la demo nombran un solo puerto."""
+    if any("endPort" in item for item in rule.get("ports") or []):
+        return ["la regla lleva endPort: abriría un rango de puertos"]
+    return []
+
+
 def _https_rule_violations(rule: dict[str, Any]) -> list[str]:
-    found: list[str] = []
+    found: list[str] = _end_port_violations(rule)
     ports = {(item.get("protocol", "TCP"), item.get("port")) for item in rule.get("ports") or []}
     if ports != {("TCP", 443)}:
         found.append(f"la regla de internet no es solo TCP 443: {sorted(map(str, ports))}")
@@ -210,7 +238,7 @@ def _dns_destination_ok(destination: dict[str, Any]) -> bool:
 
 
 def _dns_rule_violations(rule: dict[str, Any]) -> list[str]:
-    found: list[str] = []
+    found: list[str] = _end_port_violations(rule)
     ports = {(item.get("protocol", "TCP"), item.get("port")) for item in rule.get("ports") or []}
     if ports != DNS_PORTS:
         found.append(f"la regla de DNS no es solo UDP y TCP 53: {sorted(map(str, ports))}")

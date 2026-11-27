@@ -10,11 +10,19 @@ set -euo pipefail
 
 raiz="${1:-.}"
 rutas=()
-for ruta in "$raiz/.github" "$raiz/scripts"; do
-  if [ -d "$ruta" ]; then
-    rutas+=("$ruta")
-  fi
-done
+if [ -d "$raiz/.github" ]; then
+  rutas+=("$raiz/.github")
+fi
+# Excepción de U2 (DP-08): se excluye la ruta exacta scripts/humano, no cualquier carpeta que se
+# llame humano. Por eso scripts/ se recorre entrada por entrada en vez de con --exclude-dir, que solo
+# compara el nombre base de la carpeta.
+if [ -d "$raiz/scripts" ]; then
+  for ruta in "$raiz/scripts"/* "$raiz/scripts"/.[!.]*; do
+    if [ -e "$ruta" ] && [ "$ruta" != "$raiz/scripts/humano" ]; then
+      rutas+=("$ruta")
+    fi
+  done
+fi
 
 if [ "${#rutas[@]}" -eq 0 ]; then
   echo "check-no-cluster-apply: no hay .github/ ni scripts/ que revisar."
@@ -29,7 +37,7 @@ patron='kubectl[[:space:]]+(apply|create|replace|patch|delete|edit|scale|rollout
 # porque son los scripts que el humano revisa y ejecuta. deploy/tests/test_autonomia_01.py exige que
 # cada uno abra con la marca «# Lo ejecuta el humano (AUTONOMIA-01)» y que ningún workflow los
 # mencione, así que esa carpeta no queda sin vigilancia.
-if hallazgos="$(grep -rInE --exclude=check-no-cluster-apply.sh --exclude-dir=humano "$patron" "${rutas[@]}")"; then
+if hallazgos="$(grep -rInE --exclude=check-no-cluster-apply.sh "$patron" "${rutas[@]}")"; then
   echo "check-no-cluster-apply: AUTONOMIA-01 incumplida. Estas líneas aplican cambios a un clúster o envían trabajos a ZINE:"
   echo "$hallazgos"
   exit 1

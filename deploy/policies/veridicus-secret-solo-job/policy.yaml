@@ -1,7 +1,13 @@
 ---
 # Regla (a), AC11.6.4 en la lectura de DP-04: solo el pod del Job veridicus-analyzer-demo usa el
-# Secret veridicus-anthropic, sea por secretKeyRef, envFrom o volumen. Se reconoce al Job por su
-# ownerReference y no por una etiqueta, que cualquiera podría copiar.
+# Secret veridicus-anthropic, sea por secretKeyRef, envFrom o volumen.
+# El pod debe cumplir dos cosas a la vez: tener como dueño al Job (ownerReference) y haber sido
+# admitido por el controlador de Jobs. Una etiqueta la copia cualquiera, y un ownerReference también
+# se puede escribir a mano al crear un pod (la API no valida el uid al admitirlo); lo que quien crea
+# un pod no puede falsear es su propio usuario, que Kyverno lee de la solicitud de admisión
+# (request.userInfo.username). Quien tenga permiso de crear pods en el namespace y use ese usuario
+# (por ejemplo, un administrador del clúster que se haga pasar por el controlador) sigue fuera de lo
+# que esta política puede frenar.
 # Se desactiva la generación automática para controladores: los pods creados por un Deployment o un
 # Job llegan igual a esta regla cuando el controlador los crea.
 apiVersion: kyverno.io/v1
@@ -24,13 +30,18 @@ spec:
                 - veridicus-demo
       validate:
         message: >-
-          Solo el Job veridicus-analyzer-demo puede usar el Secret veridicus-anthropic.
+          Solo el pod que el controlador de Jobs crea para el Job veridicus-analyzer-demo puede usar
+          el Secret veridicus-anthropic.
         deny:
           conditions:
             all:
               - key: "{{ contains(to_string(request.object.spec), 'veridicus-anthropic') }}"
                 operator: Equals
                 value: true
+            any:
               - key: "{{ request.object.metadata.ownerReferences[?kind=='Job'].name | [0] || '' }}"
                 operator: NotEquals
                 value: veridicus-analyzer-demo
+              - key: "{{ request.userInfo.username }}"
+                operator: NotEquals
+                value: system:serviceaccount:kube-system:job-controller

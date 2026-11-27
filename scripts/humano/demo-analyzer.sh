@@ -26,9 +26,9 @@ esac
 
 trap 'kubectl delete pod "$pod_sonda" --namespace "$namespace" --ignore-not-found > /dev/null 2>&1 || true' EXIT
 
-for secreto in veridicus-anthropic veridicus-ghcr; do
-  if ! kubectl get secret "$secreto" --namespace "$namespace" > /dev/null 2>&1; then
-    echo "Falta el Secret $secreto en el namespace $namespace: cree los Secrets primero." >&2
+for nombre in veridicus-anthropic veridicus-ghcr; do
+  if ! kubectl get secret "$nombre" --namespace "$namespace" > /dev/null 2>&1; then
+    echo "Falta el Secret $nombre en el namespace $namespace: cree los Secrets primero." >&2
     exit 2
   fi
 done

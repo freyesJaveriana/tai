@@ -7,6 +7,10 @@
 # La clave nunca se guarda en una variable, no se imprime y no viaja como argumento de ningún
 # comando (se vería en `ps`): va de grep a un archivo temporal 0600 y de ahí a kubectl con
 # --from-file. El .env se analiza con grep y cut sobre una sola llave; no se hace source.
+# Se aplica con --server-side: el apply del lado del cliente copiaría el valor del Secret a la
+# anotación kubectl.kubernetes.io/last-applied-configuration, donde cualquiera que lea el Secret
+# lo vería dos veces. Si un Secret anterior se creó del lado del cliente y kubectl avisa de un
+# conflicto de propietario del campo, borre ese Secret y vuelva a correr el script.
 set -euo pipefail
 
 archivo="${1:-}"
@@ -41,5 +45,5 @@ if ! kubectl get namespace "$namespace" > /dev/null 2>&1; then
   kubectl create namespace "$namespace"
 fi
 
-kubectl create secret generic veridicus-anthropic --namespace "$namespace" --from-file=api-key="$temporal" --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic veridicus-anthropic --namespace "$namespace" --from-file=api-key="$temporal" --dry-run=client -o yaml | kubectl apply --server-side -f -
 echo "Secret veridicus-anthropic creado o actualizado en el namespace $namespace."

@@ -1,6 +1,12 @@
 ---
 # Regla (c): el securityContext restricted del paso 4. Se limita al namespace de la demo: aplicarla a
 # todo el clúster rechazaría los pods del sistema.
+# Cubre lo mismo que security_violations de deploy/tests/policy_checks.py: el pod y cada contenedor
+# (containers, initContainers y ephemeralContainers), lo que el contenedor sobrescribe (runAsUser 0,
+# runAsNonRoot false, seccomp distinto de RuntimeDefault o Localhost, capabilities.add, privileged),
+# los volúmenes hostPath y hostNetwork, hostPID y hostIPC. Un contenedor efímero real se agrega por
+# el subrecurso pods/ephemeralcontainers, que el match de esta regla (solo Pod) no incluye: el patrón
+# cubre un Pod que ya los lleva; vigilar el subrecurso queda como mejora (ver la bitácora).
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
@@ -22,11 +28,19 @@ spec:
       validate:
         message: >-
           El pod debe correr sin root, con seccomp RuntimeDefault, sistema de archivos de solo
-          lectura, sin escalada de privilegios y sin capacidades.
+          lectura, sin escalada de privilegios, sin capacidades añadidas, sin privilegios, sin
+          volúmenes hostPath y sin usar la red, los procesos ni el IPC del anfitrión; lo mismo
+          vale para cada contenedor, también los de inicio y los efímeros.
         pattern:
           spec:
+            =(hostNetwork): "false"
+            =(hostPID): "false"
+            =(hostIPC): "false"
+            =(volumes):
+              - X(hostPath): "null"
             securityContext:
               runAsNonRoot: true
+              =(runAsUser): ">0"
               seccompProfile:
                 type: RuntimeDefault
             containers:
@@ -36,3 +50,35 @@ spec:
                   capabilities:
                     drop:
                       - ALL
+                    X(add): "null"
+                  =(privileged): "false"
+                  =(runAsUser): ">0"
+                  =(runAsNonRoot): true
+                  =(seccompProfile):
+                    =(type): "RuntimeDefault | Localhost"
+            =(initContainers):
+              - securityContext:
+                  readOnlyRootFilesystem: true
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                      - ALL
+                    X(add): "null"
+                  =(privileged): "false"
+                  =(runAsUser): ">0"
+                  =(runAsNonRoot): true
+                  =(seccompProfile):
+                    =(type): "RuntimeDefault | Localhost"
+            =(ephemeralContainers):
+              - securityContext:
+                  readOnlyRootFilesystem: true
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                      - ALL
+                    X(add): "null"
+                  =(privileged): "false"
+                  =(runAsUser): ">0"
+                  =(runAsNonRoot): true
+                  =(seccompProfile):
+                    =(type): "RuntimeDefault | Localhost"

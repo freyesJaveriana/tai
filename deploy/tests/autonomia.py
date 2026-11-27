@@ -22,25 +22,67 @@ SUFFIXES = frozenset({".sh", ".py", ".yml", ".yaml"})
 
 _WORD = r"[^\s|;&]+"
 _APPLY = r"apply|create|delete|patch|replace"
+_INSTALL = r"install|upgrade"
 _SLURM = "sb" + "atch"  # el comando que envía trabajos a ZINE, armado para no nombrarlo aquí
+# Los nombres de las herramientas también se arman con fragmentos: este archivo guarda sus verbos
+# como datos y no debe dispararse a sí mismo.
+_KUBECTL = "kube" + "ctl"
+_HELM = "he" + "lm"
 RULES: Mapping[str, re.Pattern[str]] = {
-    "kubectl": re.compile(rf"(?<![\w.-])kubectl(?:\s+{_WORD})*?\s+(?:{_APPLY})\b", re.IGNORECASE),
-    "helm": re.compile(rf"(?<![\w.-])helm(?:\s+{_WORD})*?\s+(?:install|upgrade)\b", re.IGNORECASE),
+    # Tras el nombre se admiten comillas y el cierre de una sustitución: `(which <tool>) <verbo>`.
+    "kubectl": re.compile(
+        rf"(?<![\w.-]){_KUBECTL}[\"')]*(?:\s+{_WORD})*?\s+(?:{_APPLY})\b", re.IGNORECASE
+    ),
+    "helm": re.compile(
+        rf"(?<![\w.-]){_HELM}[\"')]*(?:\s+{_WORD})*?\s+(?:{_INSTALL})\b", re.IGNORECASE
+    ),
     "slurm": re.compile(rf"(?<![A-Za-z0-9_]){_SLURM}(?![A-Za-z0-9_])", re.IGNORECASE),
     "kustomize-kubectl": re.compile(r"kustomize\b[^\n#]*\|\s*kubectl\b", re.IGNORECASE),
 }
 
-# Excepciones declaradas con su motivo. Cada una solo exime las reglas que nombra.
+
+def _list_forms(tool: str, verbs: str) -> tuple[re.Pattern[str], re.Pattern[str]]:
+    """Las dos formas de una orden escrita como lista de argumentos, que las líneas no ven.
+
+    - Lista entre corchetes (Python o YAML de flujo): `["<tool>", "-n", "x", "<verbo>", …]`, con o
+      sin comillas, en una o en varias líneas. Los elementos no cruzan un corchete.
+    - Bloque de YAML: `- <tool>` seguido de elementos `- …` consecutivos hasta `- <verbo>`.
+    """
+    quote = "[\"']?"
+    element = rf"\s*{quote}[^,\[\]\"'\n]*{quote}\s*,"
+    flow = re.compile(
+        rf"(?<![\w.-]){quote}{tool}{quote}\s*,(?:{element})*?\s*{quote}(?:{verbs}){quote}\s*[,\]]",
+        re.IGNORECASE,
+    )
+    block = re.compile(
+        rf"^[ \t]*-[ \t]+{quote}{tool}{quote}[ \t]*\n"
+        rf"(?:[ \t]*-[ \t]+[^\n]*\n)*?"
+        rf"[ \t]*-[ \t]+{quote}(?:{verbs}){quote}[ \t]*(?:#[^\n]*)?$",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    return flow, block
+
+
+# Reglas que miran el texto entero, con el mismo nombre que la regla de línea de su herramienta.
+LIST_RULES: Mapping[str, tuple[re.Pattern[str], ...]] = {
+    "kubectl": _list_forms(_KUBECTL, _APPLY),
+    "helm": _list_forms(_HELM, _INSTALL),
+}
+
+# Excepciones declaradas con su motivo. Cada una solo exime las reglas que nombra y solo vale para la
+# ruta exacta (o para la carpeta si termina en «/», que hoy ninguna usa).
 # - Los guardianes y sus pruebas nombran los verbos prohibidos como datos para detectarlos: el de los
 #   workflows (contracts), el de los scripts (scripts/check-no-cluster-apply.sh) y la prueba de la
 #   plantilla del PR, que exige que esas palabras no aparezcan en ella.
-# - Los scripts SLURM de la validación de ZINE los lanza solo el humano.
+# - Los dos archivos de la validación de ZINE que nombran el envío a SLURM como dato (la lista de
+#   trabajos y la comprobación del reporte); los scripts de envío los lanza solo el humano.
 EXCEPTIONS: Mapping[str, frozenset[str]] = {
     "contracts/src/veridicus_contracts/checks/ci_workflows.py": frozenset({"kubectl", "helm"}),
     "contracts/tests/checks/test_ci_workflows.py": frozenset({"kubectl", "helm"}),
     "contracts/tests/tools/test_pull_request_template.py": frozenset({"slurm"}),
+    "docs/validacion-zine/comprobar_reporte.py": frozenset({"slurm"}),
+    "docs/validacion-zine/comun.sh": frozenset({"slurm"}),
     "scripts/check-no-cluster-apply.sh": frozenset({"slurm"}),
-    "docs/validacion-zine/": frozenset({"slurm"}),
 }
 
 
@@ -101,8 +143,17 @@ def scan(root: Path, exceptions: Mapping[str, frozenset[str]] = EXCEPTIONS) -> l
         if rel.startswith(".github/") and HUMANO in text:
             found.append(f"{rel}: un workflow no puede mencionar {HUMANO}/")
         allowed = _exempt(rel, exceptions)
+        hits: list[str] = []
         for number, line in logical_lines(text):
             for name, pattern in RULES.items():
                 if name not in allowed and pattern.search(line):
-                    found.append(f"{rel}:{number}: {name} fuera de {HUMANO}/")
+                    hits.append(f"{rel}:{number}: {name} fuera de {HUMANO}/")
+        for name, patterns in LIST_RULES.items():
+            if name in allowed:
+                continue
+            for pattern in patterns:
+                for match in pattern.finditer(text):
+                    number = text.count("\n", 0, match.start()) + 1
+                    hits.append(f"{rel}:{number}: {name} fuera de {HUMANO}/")
+        found.extend(dict.fromkeys(hits))
     return found

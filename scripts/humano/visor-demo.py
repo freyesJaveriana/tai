@@ -42,7 +42,7 @@ NAMESPACE = "veridicus-demo"
 JOB = "veridicus-analyzer-demo"
 RAIZ = Path(__file__).resolve().parents[2]
 BASE = RAIZ / "deploy" / "demo-analyzer"
-EJEMPLO = BASE / "entrada" / "contradiccion.json"
+EJEMPLOS = RAIZ / "deploy" / "demo-visor" / "ejemplos.json"
 ENTRADAS_BASE = "      - entrada/coherente.json\n      - entrada/contradiccion.json\n"
 ENTRADA_CASO = "      - entrada/caso.json\n"
 PLAZO_S = 900
@@ -115,12 +115,33 @@ def caso_c6(entrevista: str, relato: str) -> dict[str, object]:
     return {"entrevista": entrevista, "origen": "sintetico", "turnos": relato_a_turnos(relato)}
 
 
-def ejemplo() -> tuple[str, str]:
+def ejemplos() -> list[dict[str, str]]:
+    """Las dos entradas del Job (contradicción y coherente) y los casos de deploy/demo-visor/ejemplos.json."""
+    lista: list[dict[str, str]] = []
+    for clave, titulo, archivo in (
+        ("crecida", "La crecida del río: ¿en la finca o en el pueblo?", "contradiccion.json"),
+        ("crecida-coherente", "La crecida del río, versión coherente", "coherente.json"),
+    ):
+        try:
+            documento = json.loads((BASE / "entrada" / archivo).read_text(encoding="utf-8"))
+            relato = turnos_a_relato(documento["turnos"])
+        except (OSError, ValueError, KeyError):
+            continue
+        lista.append(
+            {"id": clave, "titulo": titulo, "entrevista": documento["entrevista"], "relato": relato}
+        )
     try:
-        documento = json.loads(EJEMPLO.read_text(encoding="utf-8"))
-        return "SINT-VISOR-01", turnos_a_relato(documento["turnos"])
-    except (OSError, ValueError, KeyError):
-        return "SINT-VISOR-01", "ENT: ¿Qué pasó ese día?\nTEST: "
+        lista += json.loads(EJEMPLOS.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+    return lista
+
+
+def ejemplo(clave: str) -> tuple[str, str] | None:
+    for item in ejemplos():
+        if item["id"] == clave:
+            return item["entrevista"], item["relato"]
+    return None
 
 
 # ------------------------------------------------------------------ Kubernetes (lo lanza el humano)
@@ -204,6 +225,28 @@ def analizar(caso: dict[str, object]) -> tuple[str, str, float]:
 
 # ------------------------------------------------------------------ logs → hallazgos
 
+# Explicación de cada `error.codigo` de C6, para una demo académica.
+MOTIVOS = {
+    "salida_invalida": (
+        "El modelo respondió algo que no cumple el esquema JSON del contrato (por ejemplo, un campo "
+        "faltante o un JSON mal formado). El analizador no repara ni rescata respuestas a medias."
+    ),
+    "bloqueo_contenido": "El proveedor bloqueó la respuesta con sus filtros de contenido.",
+    "tiempo_agotado": "La llamada al modelo superó el plazo configurado en el perfil.",
+    "proveedor": (
+        "El proveedor devolvió un error (clave, cuota, saturación o red). Revise la clave del "
+        "Secret y el saldo de la cuenta."
+    ),
+    "anonimizador_no_disponible": (
+        "El anonimizador no estaba disponible, así que no salió ninguna llamada al proveedor."
+    ),
+    "incidente_anonimizacion": (
+        "El anonimizador detectó un problema al seudonimizar o al restaurar, y el análisis se "
+        "detuvo antes de mostrar nada."
+    ),
+    "otro": "Motivo no reconocido por el visor.",
+}
+
 _CABECERA = re.compile(r"^(\S+): estado=(ok|error), (\d+) hallazgos?$")
 _CITA = re.compile(r"^  cita ([AB]) \(turno (\S+)\): «(.*)»$")
 
@@ -216,8 +259,19 @@ def leer_logs(logs: str) -> dict[str, object]:
     hallazgo: dict[str, object] | None = None
     for linea in logs.splitlines():
         if cabecera := _CABECERA.match(linea):
-            actual = {"nombre": cabecera.group(1), "estado": cabecera.group(2), "hallazgos": []}
+            actual = {
+                "nombre": cabecera.group(1),
+                "estado": cabecera.group(2),
+                "hallazgos": [],
+                "motivo": "",
+                "registro": [],
+            }
             bloques.append(actual)
+            hallazgo = None
+        elif linea.startswith("  motivo: ") and actual is not None:
+            actual["motivo"] = linea[len("  motivo: ") :].strip()
+        elif linea.startswith(("  llamadas: ", "  tokens: ", "  descartes: ")) and actual:
+            actual["registro"].append(linea.strip())  # type: ignore[union-attr]
         elif linea.startswith("  hecho: ") and actual is not None:
             hallazgo = {"hecho": linea[len("  hecho: ") :]}
             actual["hallazgos"].append(hallazgo)  # type: ignore[union-attr]
@@ -275,6 +329,8 @@ mark.b{background:#ffedd5;border-bottom:3px dashed #c2410c;padding:0 .1rem}
 .cita{margin:.35rem 0;padding-left:.6rem;font-size:.92rem}
 .cita.a{border-left:4px solid #1d4ed8} .cita.b{border-left:4px dashed #c2410c}
 .letra{font-weight:700;margin-right:.3rem}
+select{font-size:1rem;padding:.4rem;max-width:100%;min-width:26rem}
+.ejemplos{background:#eef2f8;border-radius:6px;padding:.2rem .9rem .8rem;margin-top:1rem}
 small{color:#57606a} pre{white-space:pre-wrap;font-size:.8rem;background:#f6f8fa;padding:.6rem}
 """
 
@@ -340,12 +396,26 @@ def _pagina(cuerpo: str) -> bytes:
     ).encode()
 
 
-def pagina_formulario(entrevista: str, relato: str, error: str = "") -> bytes:
+def _selector(actual: str) -> str:
+    opciones = ["<option value=''>— Caso en blanco —</option>"]
+    for item in ejemplos():
+        marcado = " selected" if item["id"] == actual else ""
+        opciones.append(
+            f"<option value='{html.escape(item['id'])}'{marcado}>{html.escape(item['titulo'])}</option>"
+        )
+    return (
+        "<form class='ejemplos' method='get' action='/'><h2>1. Elija un ejemplo (opcional)</h2>"
+        f"<select name='ejemplo'>{''.join(opciones)}</select> <button type='submit'>Cargar</button>"
+        "<small> Casos sintéticos, algunos inspirados en libros y películas.</small></form>"
+    )
+
+
+def pagina_formulario(entrevista: str, relato: str, error: str = "", actual: str = "") -> bytes:
     aviso_error = f"<div class='error'>{html.escape(error)}</div>" if error else ""
     return _pagina(
-        f"""{aviso_error}
+        f"""{aviso_error}{_selector(actual)}
 <form id='analizar' method='post' action='/analizar'>
-<h2>1. Escriba el caso</h2>
+<h2>2. Escriba o ajuste el caso</h2>
 <p>Un turno por línea, empezando por <code>ENT:</code> (entrevistador) o <code>TEST:</code> (relato que se
 analiza). Una línea sin prefijo continúa el turno anterior. Los turnos se numeran T1, T2, … en orden.</p>
 <p><label>Identificador del caso: <input type='text' name='entrevista' value='{html.escape(entrevista)}'></label>
@@ -355,8 +425,7 @@ analiza). Una línea sin prefijo continúa el turno anterior. Los turnos se nume
 nombre. <strong>No escriba datos reales</strong>: el texto se envía, seudonimizado, a un proveedor externo.</div>
 <p><label><input type='checkbox' name='sintetico' value='si' required> Confirmo que el caso es sintético.</label></p>
 <p><button type='submit'>Analizar</button> <small>Tarda alrededor de un minuto; no cierre la página.</small></p>
-</form>
-<form method='get' action='/'><button type='submit' name='ejemplo' value='si'>Cargar el ejemplo</button></form>"""
+</form>"""
     )
 
 
@@ -397,8 +466,20 @@ def pagina_resultado(caso: dict[str, object], estado: str, logs: str, segundos: 
             "<div class='error'>No se encontró el resultado del caso en los logs (ver abajo).</div>"
         )
     elif bloque is not None and bloque["estado"] == "error":
+        motivo = str(bloque.get("motivo") or "")
+        if motivo:
+            explicacion = MOTIVOS.get(motivo, MOTIVOS["otro"])
+            detalle = f" Motivo: <code>{html.escape(motivo)}</code>. {html.escape(explicacion)}"
+        else:
+            detalle = " Esta versión de la imagen no informa el motivo."
         partes.append(
-            "<div class='error'>El análisis terminó en estado «error»: no hay hallazgos.</div>"
+            "<div class='error'>El análisis terminó en estado «error»: por diseño no se muestra "
+            f"ningún resultado parcial (AUTONOMIA-05).{detalle}</div>"
+        )
+    if bloque is not None and bloque.get("registro"):
+        lineas = "".join(f"<li>{html.escape(str(r))}</li>" for r in bloque["registro"])  # type: ignore[attr-defined]
+        partes.append(
+            f"<details><summary>Detalle técnico de la corrida</summary><ul>{lineas}</ul></details>"
         )
 
     marcas: dict[str, list[tuple[str, str, int]]] = {}
@@ -463,11 +544,11 @@ class Visor(BaseHTTPRequestHandler):
         if urllib.parse.urlparse(self.path).path != "/":
             self._responder(_pagina("<p>No existe.</p>"), 404)
             return
-        entrevista, relato = ejemplo()
-        if "ejemplo=si" not in self.path:
-            relato = "ENT: \nTEST: "
-            entrevista = "SINT-VISOR-01"
-        self._responder(pagina_formulario(entrevista, relato))
+        consulta = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        clave = consulta.get("ejemplo", [""])[0]
+        elegido = ejemplo(clave) if clave else None
+        entrevista, relato = elegido or ("SINT-VISOR-01", "ENT: \nTEST: ")
+        self._responder(pagina_formulario(entrevista, relato, actual=clave if elegido else ""))
 
     def do_POST(self) -> None:
         if self.path != "/analizar":

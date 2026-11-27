@@ -7,6 +7,7 @@ no se dispare a sí mismo cuando la comprobación de AUTONOMIA-01 recorre el rep
 """
 
 import re
+import shlex
 from typing import Any
 
 import yaml
@@ -60,8 +61,20 @@ _VERIFY = re.compile(r"sha256sum\s+(?:--check|-c)\b")
 _USE = re.compile(
     r"(?:^|\n|;|&&|\|\|?)\s*(?:sudo\s+)?(?:tar|unzip|chmod|install|bash|sh|python3?|\./\S+)(?:\s|$)"
 )
-_PULL_REQUEST_TRIGGERS = ("pull_request", "pull_request_target")
-_MAIN_ONLY = ("github.event_name == 'push'", "github.ref == 'refs/heads/main'")
+# F-01: la condición de un job con packages: write es esta y ninguna otra. Una condición que solo la
+# contiene (`… || always()`, `!cancelled() && …`) puede dejar correr el job en un pull_request.
+MAIN_CONDITION = "github.event_name == 'push' && github.ref == 'refs/heads/main'"
+# F-01: lo que anula el código de salida de sha256sum -c si va tras él en su línea (o empieza la
+# siguiente): un `||`, un `;` o un pipe.
+_MASKS_EXIT = re.compile(r"\|\||;|\|")
+_NEXT_LINE_MASKS = re.compile(r"\s*(?:\|\||;)")
+# F-02: una expresión de Actions se expande antes de que corra el shell, así que dentro de un run
+# deja inyectar comandos con un título de pull request o una rama.
+_EXPRESSION = re.compile(r"\$\{\{")
+_DOCKER = re.compile(r"(?:^|[\s;&|(])docker\s+(build|tag|push)\b([^\n;&|]*)")
+_WHOLE_VAR = re.compile(r"^\$(?:\{(\w+)\}|(\w+))$")
+_SHA_EXPRESSION = "${{ github.sha }}"
+_SHA_VARIABLE = "GITHUB_SHA"
 
 
 def _triggers(document: dict[Any, Any]) -> list[str]:
@@ -96,7 +109,6 @@ def _permission_violations(rel: str, document: dict[Any, Any]) -> list[str]:
         found.append(f"{rel}: falta «permissions: contents: read» en el nivel del workflow")
     elif "write" in root.values():
         found.append(f"{rel}: el nivel del workflow declara una escritura; solo un job puede")
-    in_pull_request = any(item in _PULL_REQUEST_TRIGGERS for item in _triggers(document))
     writers = 0
     for name, job in (document.get("jobs") or {}).items():
         permissions = (job or {}).get("permissions")
@@ -107,10 +119,11 @@ def _permission_violations(rel: str, document: dict[Any, Any]) -> list[str]:
         if not _packages_write(permissions):
             continue
         writers += 1
-        condition = str((job or {}).get("if") or "")
-        if in_pull_request and not all(part in condition for part in _MAIN_ONLY):
+        condition = str((job or {}).get("if") or "").strip()
+        if condition != MAIN_CONDITION:
             found.append(
-                f"{rel}: el job {name} tiene packages: write y puede correr en un pull_request"
+                f"{rel}: el job {name} tiene packages: write y su if no es exactamente la "
+                "condición de push a main (puede correr en un pull_request)"
             )
     if writers > 1:
         found.append(f"{rel}: packages: write en {writers} jobs; solo el que publica puede")
@@ -162,6 +175,80 @@ def _download_violations(rel: str, document: dict[Any, Any]) -> list[str]:
                 found.append(f"{rel}: {where} no verifica la descarga con sha256sum -c")
             elif _USE.search(segment[: verify.start()]):
                 found.append(f"{rel}: {where} usa lo descargado antes de verificarlo")
+            else:
+                line, _, following = segment[verify.end() :].partition("\n")
+                if _MASKS_EXIT.search(line) or _NEXT_LINE_MASKS.match(following):
+                    found.append(f"{rel}: {where} anula el código de salida de sha256sum")
+    return found
+
+
+def _expression_violations(rel: str, document: dict[Any, Any]) -> list[str]:
+    return [
+        f"{rel}: {where} lleva una expresión de Actions dentro de un run; va por env"
+        for where, step in _steps(document)
+        if _EXPRESSION.search(str(step.get("run") or ""))
+    ]
+
+
+def _var_name(text: str) -> str | None:
+    match = _WHOLE_VAR.match(text)
+    return (match.group(1) or match.group(2)) if match else None
+
+
+def _ref_problem(ref: str, env: dict[str, str], depth: int = 0) -> str | None:
+    """Por qué una referencia de imagen no lleva una etiqueta aceptable; None si la lleva.
+
+    Una referencia sin `:` etiqueta (ni `@sha256:`) es un `latest` implícito. Si es solo una variable
+    se mira su definición, y una etiqueta que es una variable debe estar definida con el SHA del commit.
+    """
+    name = _var_name(ref)
+    if name is not None:
+        if name not in env or depth > 5:
+            return f"{ref} sin etiqueta: la variable no está definida con una referencia"
+        return _ref_problem(env[name].strip(), env, depth + 1)
+    segment = ref.rsplit("/", 1)[-1]
+    if "@sha256:" in segment:
+        return None
+    tag = segment.partition(":")[2]
+    if not tag:
+        return f"{ref} sin etiqueta: es un latest implícito"
+    tag_name = _var_name(tag)
+    if tag == _SHA_EXPRESSION or tag_name == _SHA_VARIABLE:
+        return None
+    if tag_name is not None and env.get(tag_name, "").strip() != _SHA_EXPRESSION:
+        return f"{ref}: la etiqueta {tag} no es el SHA del commit"
+    return None
+
+
+def _docker_refs(command: str, arguments: str) -> list[str]:
+    try:
+        words = shlex.split(arguments)
+    except ValueError:
+        words = arguments.split()
+    if command == "build":
+        refs = [words[i + 1] for i, word in enumerate(words[:-1]) if word in {"--tag", "-t"}]
+        return refs + [word.partition("=")[2] for word in words if word.startswith("--tag=")]
+    positional = [word for word in words if not word.startswith("-")]
+    return positional[:2] if command == "tag" else positional[:1]
+
+
+def _image_violations(rel: str, document: dict[Any, Any]) -> list[str]:
+    found: list[str] = []
+    for job_name, job in (document.get("jobs") or {}).items():
+        for index, step in enumerate((job or {}).get("steps") or []):
+            if not isinstance(step, dict):
+                continue
+            env = {
+                str(key): str(value)
+                for source in (document, job, step)
+                for key, value in (source.get("env") or {}).items()
+            }
+            for match in _DOCKER.finditer(_code(str(step.get("run") or ""))):
+                for ref in _docker_refs(match.group(1), match.group(2)):
+                    problem = _ref_problem(ref, env)
+                    if problem:
+                        where = f"{job_name}[{index}]"
+                        found.append(f"{rel}: {where} docker {match.group(1)}: {problem}")
     return found
 
 
@@ -184,4 +271,6 @@ def violations(rel: str, text: str) -> list[str]:
     found.extend(_permission_violations(rel, document))
     found.extend(_action_violations(rel, document))
     found.extend(_download_violations(rel, document))
+    found.extend(_expression_violations(rel, document))
+    found.extend(_image_violations(rel, document))
     return found

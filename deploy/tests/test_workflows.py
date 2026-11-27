@@ -391,8 +391,12 @@ def test_the_triggers_are_read_from_a_string_a_list_and_a_mapping() -> None:
     assert checks._triggers({}) == []
 
 
-def test_a_job_with_packages_write_is_fine_when_the_workflow_has_no_pull_request_trigger() -> None:
-    text = _text(FIXTURES / "packages-en-pull-request.yml").replace("  pull_request:\n", "")
+def test_a_job_with_packages_write_and_the_exact_main_condition_is_fine_without_a_pull_request() -> (
+    None
+):
+    """Ronda 2: sin el disparador de pull_request sigue exigiéndose la condición exacta, no basta
+    con la ausencia del disparador (la ronda 1 lo aceptaba sin `if`)."""
+    text = _text(FIXTURES / "ok.yml").replace("  pull_request:\n", "")
 
     assert checks.violations("x.yml", text) == []
 
@@ -506,7 +510,7 @@ def test_f01_a_tag_variable_of_the_step_env_wins_over_the_one_of_the_workflow() 
 def test_negative_f01_a_packages_write_condition_that_is_not_exactly_the_main_one_fails(
     condition: str,
 ) -> None:
-    text = _mutate(_text(FIXTURES / "ok.yml"), f"if: {ONLY_MAIN}", f"if: {condition}")
+    text = _mutate(_text(FIXTURES / "ok.yml"), f"if: {ONLY_MAIN}", f'if: "{condition}"')
 
     assert any("exactamente" in item for item in checks.violations("x.yml", text))
 

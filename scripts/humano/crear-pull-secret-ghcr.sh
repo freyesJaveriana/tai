@@ -11,9 +11,9 @@
 # comando: se arma el archivo de configuración de Docker con grep y cut directamente en un archivo
 # temporal 0600 y kubectl lo lee con --from-file. El .env no se carga con source.
 # Se aplica con --server-side para que el valor del Secret no se copie a la anotación
-# kubectl.kubernetes.io/last-applied-configuration. Si un Secret anterior se creó del lado del
-# cliente y kubectl avisa de un conflicto de propietario del campo, borre ese Secret y vuelva a
-# correr el script.
+# kubectl.kubernetes.io/last-applied-configuration. Un Secret creado antes del lado del cliente
+# conserva esa anotación (el servidor la mantiene): si existe con ella, el script termina sin
+# aplicar y pide borrar el Secret y repetir.
 set -euo pipefail
 
 archivo="${1:-}"
@@ -53,6 +53,12 @@ trap 'rm -f "$config"' EXIT
 
 if ! kubectl get namespace "$namespace" > /dev/null 2>&1; then
   kubectl create namespace "$namespace"
+fi
+
+if kubectl get secret veridicus-ghcr --namespace "$namespace" -o jsonpath='{.metadata.annotations.kubectl\.kubernetes\.io/last-applied-configuration}' 2> /dev/null | grep -q .; then
+  echo "El Secret veridicus-ghcr ya existe con la anotación last-applied-configuration, que guarda el valor del token." >&2
+  echo "Bórrelo y repita este script: kubectl delete secret veridicus-ghcr --namespace $namespace" >&2
+  exit 2
 fi
 
 kubectl create secret docker-registry veridicus-ghcr --namespace "$namespace" --from-file=.dockerconfigjson="$config" --dry-run=client -o yaml | kubectl apply --server-side -f -

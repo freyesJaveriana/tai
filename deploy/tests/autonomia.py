@@ -11,6 +11,8 @@ import re
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 
+import yaml
+
 MARK = "# Lo ejecuta el humano (AUTONOMIA-01)"
 HUMANO = "scripts/humano"
 FIXTURES = "deploy/tests/fixtures"
@@ -51,11 +53,11 @@ def _list_forms(tool: str, verbs: str) -> tuple[re.Pattern[str], re.Pattern[str]
     quote = "[\"']?"
     element = rf"\s*{quote}[^,\[\]\"'\n]*{quote}\s*,"
     flow = re.compile(
-        rf"(?<![\w.-]){quote}{tool}{quote}\s*,(?:{element})*?\s*{quote}(?:{verbs}){quote}\s*[,\]]",
+        rf"(?<![\w.-]){quote}{tool}{quote}\s*,(?:{element})*?\s*{quote}(?:{verbs}){quote}\s*[,\])]",
         re.IGNORECASE,
     )
     block = re.compile(
-        rf"^[ \t]*-[ \t]+{quote}{tool}{quote}[ \t]*\n"
+        rf"^[ \t]*-[ \t]+{quote}(?:[^\n\"']*/)?{tool}{quote}[ \t]*\n"
         rf"(?:[ \t]*-[ \t]+[^\n]*\n)*?"
         rf"[ \t]*-[ \t]+{quote}(?:{verbs}){quote}[ \t]*(?:#[^\n]*)?$",
         re.IGNORECASE | re.MULTILINE,
@@ -84,6 +86,57 @@ EXCEPTIONS: Mapping[str, frozenset[str]] = {
     "docs/validacion-zine/comun.sh": frozenset({"slurm"}),
     "scripts/check-no-cluster-apply.sh": frozenset({"slurm"}),
 }
+
+
+CONTAINER_KEYS = ("containers", "initContainers", "ephemeralContainers")
+
+
+def _argv(container: object) -> str:
+    """`command` y `args` de un contenedor unidos en una sola línea; vacío si no son listas."""
+    if not isinstance(container, dict):
+        return ""
+    parts: list[str] = []
+    for key in ("command", "args"):
+        value = container.get(key)
+        if isinstance(value, list):
+            parts.extend(str(item) for item in value)
+    return " ".join(parts)
+
+
+def _argvs(node: object) -> Iterator[str]:
+    """Las órdenes de todo contenedor del documento, a cualquier profundidad."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key in CONTAINER_KEYS and isinstance(value, list):
+                for container in value:
+                    line = _argv(container)
+                    if line:
+                        yield line
+            else:
+                yield from _argvs(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _argvs(item)
+
+
+def _container_hits(text: str) -> list[tuple[str, int]]:
+    """Reglas de línea aplicadas a `command` + `args` de cada contenedor de un YAML.
+
+    Si el archivo no se puede leer como YAML devuelve vacío: la regla de texto sigue aplicándose.
+    """
+    try:
+        documents = list(yaml.safe_load_all(text))
+    except yaml.YAMLError:
+        return []
+    hits: list[tuple[str, int]] = []
+    for document in documents:
+        for line in _argvs(document):
+            for name, pattern in RULES.items():
+                if name in {"kubectl", "helm"} and pattern.search(line):
+                    first = line.split()[0] if line.split() else ""
+                    number = text[: text.find(first)].count("\n") + 1 if first in text else 1
+                    hits.append((name, number))
+    return hits
 
 
 def logical_lines(text: str) -> Iterator[tuple[int, str]]:
@@ -147,6 +200,10 @@ def scan(root: Path, exceptions: Mapping[str, frozenset[str]] = EXCEPTIONS) -> l
         for number, line in logical_lines(text):
             for name, pattern in RULES.items():
                 if name not in allowed and pattern.search(line):
+                    hits.append(f"{rel}:{number}: {name} fuera de {HUMANO}/")
+        if path.suffix in {".yml", ".yaml"}:
+            for name, number in _container_hits(text):
+                if name not in allowed:
                     hits.append(f"{rel}:{number}: {name} fuera de {HUMANO}/")
         for name, patterns in LIST_RULES.items():
             if name in allowed:

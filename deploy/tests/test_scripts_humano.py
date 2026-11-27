@@ -233,10 +233,10 @@ SECRET_SCRIPTS = {
 def test_f11_the_secret_scripts_refuse_a_secret_that_keeps_last_applied(name: str) -> None:
     text = _text(name)
     secret = SECRET_SCRIPTS[name]
-    check = text.index("last-applied-configuration'")
+    check = text.index("last-applied-configuration}'")
     assert check < text.index(f"{K} apply --server-side")
     block = text[check : text.index(f"{K} apply --server-side")]
-    line = next(x for x in text.splitlines() if "last-applied-configuration'" in x)
+    line = next(x for x in text.splitlines() if "last-applied-configuration}'" in x)
     assert f"{K} get secret {secret} " in line
     assert f"{K} delete secret {secret} --namespace" in block
     assert re.search(r"exit 2", block)
@@ -246,7 +246,7 @@ def test_f11_the_secret_scripts_refuse_a_secret_that_keeps_last_applied(name: st
 @pytest.mark.parametrize("name", SECRET_SCRIPTS)
 def test_f11_the_check_never_prints_or_stores_the_annotation(name: str) -> None:
     text = _text(name)
-    line = next(x for x in text.splitlines() if "last-applied-configuration'" in x)
+    line = next(x for x in text.splitlines() if "last-applied-configuration}'" in x)
     assert "| grep -q ." in line
     assert not re.search(r"\$\(|=\s*\"", line.split("|")[0]), line
 

@@ -9,8 +9,9 @@
 # --from-file. El .env se analiza con grep y cut sobre una sola llave; no se hace source.
 # Se aplica con --server-side: el apply del lado del cliente copiaría el valor del Secret a la
 # anotación kubectl.kubernetes.io/last-applied-configuration, donde cualquiera que lea el Secret
-# lo vería dos veces. Si un Secret anterior se creó del lado del cliente y kubectl avisa de un
-# conflicto de propietario del campo, borre ese Secret y vuelva a correr el script.
+# lo vería dos veces. Un Secret creado antes del lado del cliente conserva esa anotación (el
+# servidor la mantiene): si existe con ella, el script termina sin aplicar y pide borrar el Secret
+# y repetir.
 set -euo pipefail
 
 archivo="${1:-}"
@@ -43,6 +44,12 @@ fi
 
 if ! kubectl get namespace "$namespace" > /dev/null 2>&1; then
   kubectl create namespace "$namespace"
+fi
+
+if kubectl get secret veridicus-anthropic --namespace "$namespace" -o jsonpath='{.metadata.annotations.kubectl\.kubernetes\.io/last-applied-configuration}' 2> /dev/null | grep -q .; then
+  echo "El Secret veridicus-anthropic ya existe con la anotación last-applied-configuration, que guarda el valor de la clave." >&2
+  echo "Bórrelo y repita este script: kubectl delete secret veridicus-anthropic --namespace $namespace" >&2
+  exit 2
 fi
 
 kubectl create secret generic veridicus-anthropic --namespace "$namespace" --from-file=api-key="$temporal" --dry-run=client -o yaml | kubectl apply --server-side -f -

@@ -12,9 +12,9 @@ set -euo pipefail
 
 namespace="veridicus-demo"
 pod_sonda="veridicus-sonda-red"
-# Sustituir por el digest de la imagen de curl que se elija:
-#   docker buildx imagetools inspect curlimages/curl:<versión>
-imagen_sonda="curlimages/curl@sha256:REEMPLAZAR_DIGEST_CURL"
+# curl 8.11.1, fijado por el digest del índice multiarquitectura de docker.io/curlimages/curl:8.11.1,
+# obtenido con: docker buildx imagetools inspect curlimages/curl:8.11.1
+imagen_sonda="curlimages/curl:8.11.1@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69"
 raiz="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 case "$imagen_sonda" in

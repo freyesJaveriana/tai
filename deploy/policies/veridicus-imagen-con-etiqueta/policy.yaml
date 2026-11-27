@@ -3,6 +3,9 @@
 # Las dos expresiones son las de IMAGE_PINNED e IMAGE_LATEST de deploy/tests/policy_checks.py, y
 # una prueba exige que el texto sea idéntico en los dos lados. La primera exige la etiqueta en el
 # último segmento de la ruta, así que el puerto de un registro (registry:5000/img) no cuenta.
+# Hueco declarado: un contenedor efímero real (kubectl debug) se agrega por el subrecurso
+# pods/ephemeralcontainers, que el match de estas reglas (solo Pod) no vigila; vigilarlo queda como
+# mejora.
 # Cubre containers, initContainers y ephemeralContainers. Un patrón con comodines (*?:?*) no sirve
 # aquí: acepta registry:5000/img y !*:latest deja pasar x:latest@sha256:….
 apiVersion: kyverno.io/v1

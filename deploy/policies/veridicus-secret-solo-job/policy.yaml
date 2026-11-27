@@ -8,6 +8,9 @@
 # (request.userInfo.username). Quien tenga permiso de crear pods en el namespace y use ese usuario
 # (por ejemplo, un administrador del clúster que se haga pasar por el controlador) sigue fuera de lo
 # que esta política puede frenar.
+# Hueco declarado: un contenedor efímero real (kubectl debug) se agrega por el subrecurso
+# pods/ephemeralcontainers, que el match de esta regla (solo Pod) no vigila; podría usar el Secret.
+# Vigilar el subrecurso queda como mejora.
 # Se desactiva la generación automática para controladores: los pods creados por un Deployment o un
 # Job llegan igual a esta regla cuando el controlador los crea.
 apiVersion: kyverno.io/v1

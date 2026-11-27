@@ -6,6 +6,7 @@ manifiesto alterado en memoria que la regla debe ver. No se ejecuta kubectl.
 """
 
 import copy
+import os
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -36,9 +37,14 @@ MANIFESTS = DEPLOY / "demo-analyzer"
 IMAGE = "ghcr.io/freyesjaveriana/veridicus-analyzer-cli"
 
 
+def _current_render() -> list[Resource]:
+    """K-102: el render real si la CI pasa `VERIDICUS_RENDER`; si no, la lectura de primer nivel."""
+    return checks.render_resources(MANIFESTS, os.environ)
+
+
 @pytest.fixture(name="rendered")
 def _rendered() -> list[Resource]:
-    return render(MANIFESTS)
+    return _current_render()
 
 
 def _one(resources: list[Resource], kind: str, name: str) -> Resource:

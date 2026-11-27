@@ -5,6 +5,7 @@ negativo: un Dockerfile de prueba que la rompe debe fallar la comprobación.
 """
 
 import re
+import shlex
 from pathlib import Path
 
 import pytest
@@ -56,13 +57,32 @@ def _references(keyword: str, rest: str) -> list[str]:
         inner = re.split(r"\s+", rest, maxsplit=1)
         return _references(inner[0].upper(), inner[1] if len(inner) > 1 else "")
     found: list[str] = []
-    for token in rest.split():
+    for token in _tokens(rest):
         if keyword == "COPY" and token.startswith("--from="):
             found.append(token.removeprefix("--from="))
         elif keyword == "RUN" and token.startswith("--mount="):
-            options = token.removeprefix("--mount=").split(",")
-            found.extend(item.removeprefix("from=") for item in options if item.startswith("from="))
+            for item in _mount_fields(token.removeprefix("--mount=")):
+                if item.lower().startswith("from="):
+                    found.append(item[len("from=") :])
     return found
+
+
+def _tokens(rest: str) -> list[str]:
+    """Las palabras de una instrucción como las lee un shell: las comillas agrupan y se quitan (K-97).
+
+    Si las comillas no cierran (un `RUN` con un apóstrofo en su texto), se vuelve a partir por espacios.
+    """
+    try:
+        return shlex.split(rest)
+    except ValueError:
+        return rest.split()
+
+
+def _mount_fields(value: str) -> list[str]:
+    """Los campos `clave=valor` de un `--mount`, al estilo CSV: separados por comas y con comillas
+    en cualquier campo, que se quitan (K-97). Quitar todas las comillas puede juntar de más, y eso
+    solo hace la regla más estricta."""
+    return [field.strip() for field in re.sub(r"[\"']", "", value).split(",")]
 
 
 def check_copy_from_pinned(text: str) -> list[str]:

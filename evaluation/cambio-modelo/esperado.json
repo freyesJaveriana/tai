@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "descripcion": "Conjunto sintético de la prueba de cambio de modelo: 7 contradicciones sembradas (una por tipo de C6), 3 relatos coherentes y 2 casos trampa que parecen contradictorios y no lo son. Ningún relato es real.",
+  "casos": {
+    "SINT-EVAL-01": {"clase": "contradiccion", "tipo": "fecha", "turnos": ["T2", "T8"]},
+    "SINT-EVAL-02": {"clase": "contradiccion", "tipo": "numero", "turnos": ["T2", "T8"]},
+    "SINT-EVAL-03": {"clase": "contradiccion", "tipo": "lugar", "turnos": ["T2", "T8"]},
+    "SINT-EVAL-04": {"clase": "contradiccion", "tipo": "persona", "turnos": ["T2", "T8"]},
+    "SINT-EVAL-05": {"clase": "contradiccion", "tipo": "negacion", "turnos": ["T2", "T8"]},
+    "SINT-EVAL-06": {"clase": "contradiccion", "tipo": "secuencia", "turnos": ["T2", "T8"]},
+    "SINT-EVAL-07": {"clase": "contradiccion", "tipo": "otro", "turnos": ["T2", "T8"]},
+    "SINT-EVAL-08": {"clase": "coherente"},
+    "SINT-EVAL-09": {"clase": "coherente"},
+    "SINT-EVAL-10": {"clase": "coherente"},
+    "SINT-EVAL-11": {"clase": "trampa", "nota": "el testimonio corrige su propia cifra en el mismo turno"},
+    "SINT-EVAL-12": {"clase": "trampa", "nota": "dos lugares en dos años distintos: es una mudanza, no una contradicción"}
+  }
+}

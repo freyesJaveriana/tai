@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-03",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Dónde se escondieron esa noche?"},
+    {"n": 2, "hablante": "TEST", "texto": "Nos escondimos en el cafetal de la loma, detrás de la casa, tapados con hojas de plátano."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Desde ahí podían ver la casa?"},
+    {"n": 4, "hablante": "TEST", "texto": "Se veían las linternas moviéndose por el patio."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Hasta qué hora estuvieron escondidos?"},
+    {"n": 6, "hablante": "TEST", "texto": "Hasta que cantaron los gallos."},
+    {"n": 7, "hablante": "ENT", "texto": "Cuénteme otra vez dónde pasaron la noche."},
+    {"n": 8, "hablante": "TEST", "texto": "La pasamos metidos en la iglesia del pueblo, con el padre, que nos abrió la puerta de la sacristía."}
+  ]
+}

@@ -89,10 +89,12 @@ def test_the_default_catalogs_load_with_the_four_files() -> None:
         "openai": ProviderDomain("api.openai.com"),
     }
     assert all(d.port == 443 for d in catalogs.domains.values())
-    capability = catalogs.capabilities[("anthropic", "claude-sonnet-5-5")]
-    assert capability.structured_mode == "json_schema_native"
-    assert capability.effort_parameter == "effort"
-    assert len(catalogs.capabilities) == 1
+    # Sonnet 5.5 es el modelo de la demo; Opus 5.5, el de la prueba de cambio de modelo.
+    for model in ("claude-sonnet-5-5", "claude-opus-5-5"):
+        capability = catalogs.capabilities[("anthropic", model)]
+        assert capability.structured_mode == "json_schema_native"
+        assert capability.effort_parameter == "effort"
+    assert len(catalogs.capabilities) == 2
 
 
 def test_allowed_words_never_hold_a_seeded_entity_or_a_common_word_given_name() -> None:

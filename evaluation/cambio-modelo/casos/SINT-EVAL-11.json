@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-11",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Cuántas familias salieron de la vereda?"},
+    {"n": 2, "hablante": "TEST", "texto": "Salimos como treinta familias en esa semana."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Todas al mismo tiempo?"},
+    {"n": 4, "hablante": "TEST", "texto": "No, ahora que lo pienso mejor, treinta fueron en total; esa primera semana fuimos unas diez, y las demás salieron durante el mes siguiente."},
+    {"n": 5, "hablante": "ENT", "texto": "¿A dónde llegaron?"},
+    {"n": 6, "hablante": "TEST", "texto": "Al coliseo del municipio, donde nos dieron colchonetas."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Cuánto tiempo estuvieron en el coliseo?"},
+    {"n": 8, "hablante": "TEST", "texto": "Unos tres meses, hasta que cada familia buscó dónde arrendar."}
+  ]
+}

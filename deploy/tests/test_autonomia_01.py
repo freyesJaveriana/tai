@@ -35,6 +35,7 @@ def test_scripts_humano_exists_and_every_script_carries_the_mark() -> None:
     scripts = sorted((ROOT / "scripts" / "humano").glob("*.sh"))
     assert [item.name for item in scripts] == [
         "argocd-instalar.sh",
+        "cambio-modelo.sh",
         "crear-pull-secret-ghcr.sh",
         "crear-secret-anthropic.sh",
         "demo-analyzer.sh",

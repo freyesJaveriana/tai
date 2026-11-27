@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-06",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Qué pasó primero esa mañana?"},
+    {"n": 2, "hablante": "TEST", "texto": "Primero quemaron el puesto de salud y después, ya con el humo encima, llegaron a la plaza a buscar al presidente de la junta."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Dónde estaba usted?"},
+    {"n": 4, "hablante": "TEST", "texto": "En la panadería, que queda en una esquina de la plaza."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Qué hizo la gente?"},
+    {"n": 6, "hablante": "TEST", "texto": "Todos cerraron las puertas y nadie salió en horas."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Puede repetir el orden de lo que pasó?"},
+    {"n": 8, "hablante": "TEST", "texto": "Primero se llevaron al presidente de la junta desde la plaza, y solo cuando se iban, al final, le prendieron fuego al puesto de salud."}
+  ]
+}

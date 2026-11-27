@@ -64,19 +64,25 @@ def document(
     return {"schema_version": "1.0.0", "profiles": {NAME: profile}}
 
 
-def test_the_single_profile_of_the_versioned_file_is_valid_for_u1_and_is_the_demo() -> None:
+@pytest.mark.parametrize(
+    ("name", "model"),
+    [(NAME, "claude-sonnet-5-5"), ("demo-anthropic-opus", "claude-opus-5-5")],
+)
+def test_both_profiles_of_the_versioned_file_are_valid_for_u1_and_are_demos(
+    name: str, model: str
+) -> None:
     loaded = load_profiles()
 
     validated = profiles.validate(loaded, key_prefix="VERIDICUS_", kind="analyzer")
 
-    assert set(validated) == {NAME}
-    profile = validated[NAME]
+    assert set(validated) == {NAME, "demo-anthropic-opus"}
+    profile = validated[name]
     assert profile["purpose"] == "demonstration"
     assert profile["same_family_declared"] is True
     assert profile["permutation"] is True
     for role in ("judge", "verifier"):
         assert profile["roles"][role]["provider"] == "anthropic"
-        assert profile["roles"][role]["model"] == "claude-sonnet-5-5"
+        assert profile["roles"][role]["model"] == model
         assert profile["roles"][role]["scope"] == "external"
         assert profile["roles"][role]["family"] == "claude"
         assert profile["roles"][role]["api_key_ref"] == KEY_REF

@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-09",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Qué recuerda del día en que se llevaron el ganado?"},
+    {"n": 2, "hablante": "TEST", "texto": "Era domingo y yo estaba ordeñando cuando entraron cuatro hombres por el potrero de abajo."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Cuántas reses se llevaron?"},
+    {"n": 4, "hablante": "TEST", "texto": "Doce vacas y el toro; solo dejaron un ternero enfermo."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Usted denunció el robo?"},
+    {"n": 6, "hablante": "TEST", "texto": "El lunes fui a la inspección y dejé la denuncia con el número de cabezas."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Qué pasó con el ternero?"},
+    {"n": 8, "hablante": "TEST", "texto": "Se murió a la semana; después de eso ya no quedó nada en la finca."}
+  ]
+}

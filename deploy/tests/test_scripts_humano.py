@@ -20,6 +20,7 @@ FIXTURES = DEPLOY / "tests" / "fixtures" / "humano"
 K = "kube" + "ctl"
 SCRIPTS = [
     "argocd-instalar.sh",
+    "cambio-modelo.sh",
     "crear-pull-secret-ghcr.sh",
     "crear-secret-anthropic.sh",
     "demo-analyzer.sh",

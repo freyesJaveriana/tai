@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-07",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Cómo eran los hombres que llegaron?"},
+    {"n": 2, "hablante": "TEST", "texto": "Todos vestían de civil, con camisetas de fútbol y gorras, ninguno llevaba uniforme ni brazalete."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Llevaban armas?"},
+    {"n": 4, "hablante": "TEST", "texto": "Fusiles largos, y uno una pistola en la cintura."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Se identificaron de alguna manera?"},
+    {"n": 6, "hablante": "TEST", "texto": "No dijeron de qué grupo eran."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Cómo los reconoció después?"},
+    {"n": 8, "hablante": "TEST", "texto": "Por el uniforme camuflado completo que tenían todos, con botas de cuero y el brazalete rojo en el brazo."}
+  ]
+}

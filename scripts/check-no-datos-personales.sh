@@ -113,7 +113,7 @@ done < "$hallados"
 
 n=0
 detalle=""
-while IFS=: read -r archivo numero texto; do
+while IFS=: read -r archivo numero _; do
   [ -n "$archivo" ] || continue
   detalle+="  $archivo:$numero"$'\n'
   n=$((n + 1))

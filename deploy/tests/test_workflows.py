@@ -70,6 +70,17 @@ def _triggers(path: Path) -> dict[str, Any]:
     return {str(key): value for key, value in raw.items()}
 
 
+def _lone_step_violations(step: dict[str, Any]) -> list[str]:
+    """Las infracciones de `workflow_checks` sobre un workflow mínimo que solo lleva ese paso."""
+    workflow = {
+        "name": "x",
+        "on": {"pull_request": None},
+        "permissions": {"contents": "read"},
+        "jobs": {"j": {"runs-on": "ubuntu-24.04", "timeout-minutes": 1, "steps": [step]}},
+    }
+    return checks.violations("x.yml", yaml.safe_dump(workflow))
+
+
 def _mutate(text: str, old: str, new: str) -> str:
     assert old in text, f"el workflow real ya no contiene {old!r}"
     return text.replace(old, new, 1)
@@ -178,6 +189,7 @@ def test_deploy_level0_downloads_each_tool_with_the_pinned_asset_and_the_sum_of_
     assert step["run"].index("sha256sum -c") < step["run"].index(
         "tar" if asset.endswith(("gz", "xz")) else "chmod"
     )
+    assert _lone_step_violations(step) == [], "el paso entero pasa por workflow_checks (F-07)"
 
 
 @pytest.mark.parametrize("name", FAIL_RESOURCES)
@@ -283,6 +295,7 @@ def test_trivy_is_downloaded_with_the_pinned_asset_and_the_sum_of_the_table(job:
 
     assert digest in _step_text(step)
     assert "sha256sum -c" in step["run"]
+    assert _lone_step_violations(step) == [], "el paso entero pasa por workflow_checks (F-07)"
 
 
 def test_the_publish_job_scans_before_it_logs_in_and_pushes_the_commit_sha_tag() -> None:
@@ -340,6 +353,12 @@ NEGATIVES = {
     "set-relajado.yml": "set -euo pipefail",
     "verificacion-en-if.yml": "dentro de un if, while o until",
     "verificacion-en-segundo-plano.yml": "forma fija",
+    # Ronda 4 (F-07): la plantilla del script entero y el paso que descarga.
+    "verificacion-en-funcion.yml": "plantilla",  # M4
+    "verificacion-en-subshell.yml": "plantilla",  # M5
+    "verificacion-en-llaves.yml": "plantilla",  # M5b
+    "trap-err.yml": "plantilla",  # M13
+    "continue-on-error.yml": "continue-on-error",  # M14
 }
 
 
@@ -505,11 +524,12 @@ def test_negative_f05_a_verification_inside_a_control_structure_fails(nested: st
     assert any("dentro de un if, while o until" in x for x in checks.violations("x.yml", text))
 
 
-def test_f05_a_closed_structure_before_the_verification_does_not_count() -> None:
+def test_f05_a_closed_structure_before_the_verification_does_not_count_as_nesting() -> None:
+    """La línea extra ya la rechaza la plantilla (ronda 4), pero no como «dentro de un if»."""
     closed = f"if true; then true; fi\n{INDENT}{GOOD_LINE}"
     text = _mutate(_text(FIXTURES / "ok.yml"), GOOD_LINE, closed)
 
-    assert checks.violations("x.yml", text) == []
+    assert not any("dentro de un if" in item for item in checks.violations("x.yml", text))
 
 
 PROLOGUES = [
@@ -644,6 +664,189 @@ def test_negative_a_download_with_the_old_kyverno_sum_fails() -> None:
     text = _mutate(_text(DEPLOY_WORKFLOW), KYVERNO_SUM, KYVERNO_1_20_SUM)
 
     assert any("que no es la de la tabla" in item for item in checks.violations("x.yml", text))
+
+
+# --- Ronda 4 (F-07): el script que descarga es exactamente la plantilla ----------------------------
+
+REAL_VERIFY = 'echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -'
+TRIVY_STEP = "      - name: Instalar Trivy v0.76.2 verificado por SHA-256 (red)\n"
+PROLOGUE_LINE = "set -euo pipefail"
+MKDIR_LINE = 'mkdir -p "$RUNNER_TEMP/bin"'
+TAR_LINE = 'tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP/bin"'
+PATH_LINE = 'echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"'
+TEMPLATE = [PROLOGUE_LINE, MKDIR_LINE, CURL_LINE, GOOD_LINE, TAR_LINE, PATH_LINE]
+
+
+def _ok_with_script(lines: list[str]) -> str:
+    original = ("\n" + INDENT).join(TEMPLATE)
+    return _mutate(_text(FIXTURES / "ok.yml"), original, ("\n" + INDENT).join(lines))
+
+
+def test_f07_the_base_fixture_is_exactly_the_template() -> None:
+    assert _ok_with_script(TEMPLATE) == _text(FIXTURES / "ok.yml")
+    assert checks.violations("x.yml", _ok_with_script(TEMPLATE)) == []
+
+
+@pytest.mark.parametrize("after", range(len(TEMPLATE)), ids=range(len(TEMPLATE)))
+def test_negative_f07_any_extra_line_between_the_template_lines_fails(after: int) -> None:
+    lines = [*TEMPLATE[: after + 1], "echo hola", *TEMPLATE[after + 1 :]]
+    found = checks.violations("x.yml", _ok_with_script(lines))
+
+    assert any("plantilla" in item for item in found), found
+
+
+@pytest.mark.parametrize("number", range(len(TEMPLATE)), ids=range(len(TEMPLATE)))
+def test_negative_f07_a_missing_template_line_fails(number: int) -> None:
+    lines = [line for index, line in enumerate(TEMPLATE) if index != number]
+
+    assert checks.violations("x.yml", _ok_with_script(lines))
+
+
+@pytest.mark.parametrize("first", range(len(TEMPLATE) - 1), ids=range(len(TEMPLATE) - 1))
+def test_negative_f07_the_template_in_another_order_fails(first: int) -> None:
+    lines = list(TEMPLATE)
+    lines[first], lines[first + 1] = lines[first + 1], lines[first]
+
+    assert checks.violations("x.yml", _ok_with_script(lines))
+
+
+def test_negative_f07_the_extraction_before_the_verification_fails() -> None:
+    lines = [PROLOGUE_LINE, MKDIR_LINE, CURL_LINE, TAR_LINE, GOOD_LINE, PATH_LINE]
+
+    assert checks.violations("x.yml", _ok_with_script(lines))
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        f"{TAR_LINE} || true",
+        f"{TAR_LINE}; true",
+        'tar -xzf "$(echo a)" -C "$RUNNER_TEMP/bin"',
+        'tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP/bin" --to-command=sh',
+        'tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP/bin" && sh',
+        'echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH" || true',
+        'echo "$(id)" >> "$GITHUB_PATH"',
+        'echo "$RUNNER_TEMP/bin" >> "$GITHUB_ENV"',
+        'mkdir -p "$RUNNER_TEMP/bin" || true',
+        CURL_LINE.replace("-o ", "--output "),
+        CURL_LINE + " | sh",
+        'curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/$(id)"',
+        'curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz" || true',
+    ],
+    ids=range(13),
+)
+def test_negative_f07_a_template_line_with_anything_else_fails(line: str) -> None:
+    template_index = {
+        "tar": 4,
+        "echo": 5,
+        "mkdir": 1,
+        "curl": 2,
+    }[line.split()[0]]
+    lines = list(TEMPLATE)
+    lines[template_index] = line
+    found = checks.violations("x.yml", _ok_with_script(lines))
+
+    assert any("plantilla" in item for item in found), found
+
+
+def test_f07_the_mv_chmod_variant_of_the_extraction_is_part_of_the_template() -> None:
+    lines = [
+        *TEMPLATE[:4],
+        'mv "$RUNNER_TEMP/a.tar.gz" "$RUNNER_TEMP/bin/tool"',
+        'chmod +x "$RUNNER_TEMP/bin/tool"',
+        PATH_LINE,
+    ]
+
+    assert checks.violations("x.yml", _ok_with_script(lines)) == []
+
+
+@pytest.mark.parametrize(
+    "tail",
+    [
+        ['mv "$RUNNER_TEMP/a.tar.gz" "$RUNNER_TEMP/bin/tool"'],
+        ['chmod +x "$RUNNER_TEMP/bin/tool"', 'mv "$RUNNER_TEMP/a.tar.gz" "$RUNNER_TEMP/bin/tool"'],
+        ['mv "$RUNNER_TEMP/a.tar.gz" "$RUNNER_TEMP/bin/tool"', "chmod 777 x"],
+        [TAR_LINE, 'chmod +x "$RUNNER_TEMP/bin/tool"'],
+    ],
+    ids=range(4),
+)
+def test_negative_f07_a_broken_mv_chmod_variant_fails(tail: list[str]) -> None:
+    lines = [*TEMPLATE[:4], *tail, PATH_LINE]
+
+    assert any("plantilla" in x for x in checks.violations("x.yml", _ok_with_script(lines)))
+
+
+def test_f07_a_curl_with_retry_and_a_continuation_is_part_of_the_template() -> None:
+    curl = (
+        'curl -fsSL --retry 3 -o "$RUNNER_TEMP/a.tar.gz" \\\n'
+        + INDENT
+        + '  "https://example.org/a.tar.gz"'
+    )
+    lines = [*TEMPLATE[:2], curl, *TEMPLATE[3:]]
+
+    assert checks.violations("x.yml", _ok_with_script(lines)) == []
+
+
+def test_negative_f07_a_comment_in_a_continuation_that_hides_the_rest_fails() -> None:
+    curl = f'curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" \\\n{INDENT}# "https://example.org/a.tar.gz"'
+    lines = [*TEMPLATE[:2], curl, *TEMPLATE[3:]]
+
+    assert any("plantilla" in x for x in checks.violations("x.yml", _ok_with_script(lines)))
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "continue-on-error: true",
+        "continue-on-error: false",
+        "if: always()",
+        "if: github.event_name == 'push'",
+        "if: false",
+    ],
+    ids=range(5),
+)
+def test_negative_f07_the_downloading_step_cannot_be_skipped_nor_forgiven(key: str) -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        "      - name: Instalar una herramienta verificada\n",
+        f"      - name: Instalar una herramienta verificada\n        {key}\n",
+    )
+    found = checks.violations("x.yml", text)
+
+    assert any("continue-on-error" in item or "no puede llevar if" in item for item in found)
+
+
+def test_negative_f07_a_downloading_job_cannot_continue_on_error() -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        "    runs-on: ubuntu-24.04\n    timeout-minutes: 10\n    steps:",
+        "    runs-on: ubuntu-24.04\n    timeout-minutes: 10\n    continue-on-error: true\n    steps:",
+    )
+
+    assert any("continue-on-error" in item for item in checks.violations("x.yml", text))
+
+
+def test_f07_a_step_that_only_names_a_url_is_a_downloading_step() -> None:
+    step = '      - name: Descargar\n        run: wget "https://example.org/a.tar.gz"'
+    text = _mutate(_text(FIXTURES / "ok.yml"), "  publish:", f"{step}\n  publish:")
+
+    assert any("plantilla" in item for item in checks.violations("x.yml", text))
+
+
+@pytest.mark.parametrize("path", [DEPLOY_WORKFLOW, IMAGE_WORKFLOW], ids=lambda p: p.name)
+def test_f07_every_downloading_step_of_the_real_workflows_is_the_template(path: Path) -> None:
+    document = _document(path)
+    downloading = [
+        step
+        for job in document["jobs"].values()
+        for step in job["steps"]
+        if "curl" in str(step.get("run", ""))
+    ]
+
+    assert len(downloading) == (5 if path == DEPLOY_WORKFLOW else 2)
+    assert checks.violations(path.name, _text(path)) == []
+    for step in downloading:
+        assert "continue-on-error" not in step and "if" not in step
 
 
 # --- Ronda 3 (F-06): buildx, image push/tag y una etiqueta que solo contiene una variable --------
@@ -841,6 +1044,37 @@ def _real_mutants() -> dict[str, tuple[Path, str, str, str]]:
             "IMAGE_TAG: ${{ github.sha }}",
             "IMAGE_TAG: main",
             "no es el SHA",
+        ),
+        # Ronda 4 (F-07): M4, M5, M5b, M13 y M14 sobre el paso de Trivy real.
+        "M4 verificación en una función": (
+            IMAGE_WORKFLOW,
+            REAL_VERIFY,
+            f"verificar() {{\n{INDENT}{REAL_VERIFY}\n{INDENT}}}\n{INDENT}verificar || true",
+            "plantilla",
+        ),
+        "M5 verificación en un subshell": (
+            IMAGE_WORKFLOW,
+            REAL_VERIFY,
+            f"(\n{INDENT}{REAL_VERIFY}\n{INDENT}) || true",
+            "plantilla",
+        ),
+        "M5b verificación en llaves": (
+            IMAGE_WORKFLOW,
+            REAL_VERIFY,
+            f"{{\n{INDENT}{REAL_VERIFY}\n{INDENT}}} || true",
+            "plantilla",
+        ),
+        "M13 trap ERR": (
+            IMAGE_WORKFLOW,
+            "set -euo pipefail",
+            "set -euo pipefail\n          trap 'exit 0' ERR",
+            "plantilla",
+        ),
+        "M14 continue-on-error": (
+            IMAGE_WORKFLOW,
+            TRIVY_STEP,
+            TRIVY_STEP + "        continue-on-error: true\n",
+            "continue-on-error",
         ),
         # Ronda 3: N1, N2, N3 y N8 (F-05) y N5, N6 y N7 (F-06), sobre los workflows reales.
         "N1 conjunción tras la verificación": (

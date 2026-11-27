@@ -88,7 +88,17 @@ _CLOSES = re.compile(r"\b(?:fi|done|esac)\b")
 _CHAINED = ("\\", "&&", "||", "|")
 # F-07: la plantilla del script de un paso que descarga, línea lógica por línea lógica. Las rutas solo
 # admiten letras, cifras y `_ $ / . { } -`: ni comillas, ni paréntesis, ni `;`, `&`, `|`.
-_URL = re.compile(r"https?://")
+# F-10: lo que hace de un paso un paso que descarga, con o sin URL (comentarios aparte).
+_DOWNLOADERS = re.compile(
+    r"https?://|\bcurl\b|\bwget\b|\bgh\s+release\s+download\b|\burllib\b|\bpip3?\s+download\b"
+)
+# F-09 y F-10: la variable de la suma, las variables que usa la plantilla y las tres rutas.
+_VERIFY_VARIABLE = re.compile(r'echo "\$\{(\w+)\}  ')
+_USED_VARIABLE = re.compile(r"\$\{?([A-Za-z_]\w*)")
+_BUILTIN_VARIABLES = frozenset({"RUNNER_TEMP", "GITHUB_PATH"})
+_CURL_OUT = re.compile(r'curl .*?-o "([^"]+)"')
+_VERIFY_PATH = re.compile(r'echo "\$\{\w+\}  ([^"]+)"')
+_EXTRACT_SOURCE = re.compile(r'(?:tar -x[zJ]f|mv) "([^"]+)"')
 _P = r"[A-Za-z0-9_$/.{}\-]+"
 _CURL_LINE = re.compile(rf'curl -fsSL(?: --retry \d+)? -o "{_P}" "https://[A-Za-z0-9._%/$\-]+"')
 _TEMPLATE_SET = re.compile(r"set -euo pipefail")
@@ -303,19 +313,82 @@ def _download_violations(rel: str, document: dict[Any, Any]) -> list[str]:
     for job_name, job in (document.get("jobs") or {}).items():
         for index, step in enumerate((job or {}).get("steps") or []):
             if isinstance(step, dict):
-                found.extend(_download_step_violations(rel, f"{job_name}[{index}]", step, job))
+                found.extend(
+                    _download_step_violations(rel, f"{job_name}[{index}]", step, job, document)
+                )
+    return found
+
+
+def _env_keys(source: dict[str, Any]) -> set[str]:
+    env = source.get("env")
+    return {str(key) for key in env} if isinstance(env, dict) else set()
+
+
+def _binding_violations(
+    rel: str,
+    where: str,
+    step: dict[str, Any],
+    job: dict[str, Any],
+    document: dict[Any, Any],
+    run: str,
+) -> list[str]:
+    """F-09 y F-10: la suma, las variables y las rutas de la plantilla están atadas entre sí."""
+    lines, _ = _logical_lines(run)
+    verify = next((line for line in lines if _VERIFY_LINE.fullmatch(line)), None)
+    if verify is None:
+        return []  # la plantilla ya lo informa
+    found: list[str] = []
+    env = step.get("env")
+    step_env = {str(key): str(value) for key, value in env.items()} if isinstance(env, dict) else {}
+    variable = _VERIFY_VARIABLE.match(verify)
+    haystack = run + " " + " ".join(step_env.values())
+    tools = [name for name, (asset, _) in TOOLS.items() if asset in haystack]
+    if not tools:
+        found.append(
+            f"{rel}: {where} no identifica la herramienta de la tabla por su asset ni su URL"
+        )
+    elif len(tools) > 1:
+        found.append(
+            f"{rel}: {where} nombra más de una herramienta de la tabla: {', '.join(tools)}"
+        )
+    elif variable is not None and step_env.get(variable.group(1)) != TOOLS[tools[0]][1]:
+        found.append(
+            f"{rel}: {where} la variable {variable.group(1)} no se define en el env del paso "
+            f"con la suma de la tabla de {tools[0]}"
+        )
+    superior = _env_keys(job) | _env_keys(document)
+    used = {name for line in lines for name in _USED_VARIABLE.findall(line)}
+    for name in sorted(used):
+        if name in superior:
+            found.append(
+                f"{rel}: {where} la variable {name} se define también en el env del job o del workflow"
+            )
+        elif name not in step_env and name not in _BUILTIN_VARIABLES:
+            found.append(f"{rel}: {where} la variable {name} no está definida en el env del paso")
+    paths: set[str] = set()
+    for line in lines:
+        for pattern in (_CURL_OUT, _VERIFY_PATH, _EXTRACT_SOURCE):
+            match = pattern.match(line)
+            if match:
+                paths.add(match.group(1))
+    if len(paths) > 1:
+        found.append(
+            f"{rel}: {where} la ruta del curl, la de la verificación y la de la extracción "
+            "no son la misma cadena"
+        )
     return found
 
 
 def _download_step_violations(
-    rel: str, where: str, step: dict[str, Any], job: dict[str, Any]
+    rel: str, where: str, step: dict[str, Any], job: dict[str, Any], document: dict[Any, Any]
 ) -> list[str]:
     run = str(step.get("run") or "")
     code = _code(run)
     fetches = [match.start() for match in _FETCH.finditer(code)]
-    if not fetches and not _URL.search(run):
+    if not fetches and not _DOWNLOADERS.search(code):
         return []
     found = _template_violations(rel, where, step, job, run)
+    found.extend(_binding_violations(rel, where, step, job, document, run))
     if not fetches:
         return found
     found.extend(_prologue_violations(rel, where, run))

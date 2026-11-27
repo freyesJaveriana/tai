@@ -19,10 +19,11 @@ configMapGenerator:
       - entrada/coherente.json
       - entrada/contradiccion.json
 
-# La imagen que publicó analyzer-image.yml al fusionar B4-demo en main (#64, run 46028924313), con la
-# etiqueta del SHA de ese commit (paso 11 del plan). Digest publicado:
-# sha256:7e87b25c771338ed8f0ff84b2fcfa36ed90ee3aeb40d38413ee30be17bc2f4b5
+# La imagen que publicó analyzer-image.yml al fusionar #70 en main (run 46056005410), con la etiqueta
+# del SHA de ese commit: la demo imprime el motivo del error y el resumen del registro de C6.
+# La anterior (#64, run 46028924313) era 923ecfff4b03b4168814278eb7e2bdf811016642, digest
+# sha256:7e87b25c771338ed8f0ff84b2fcfa36ed90ee3aeb40d38413ee30be17bc2f4b5 (plan de reversión).
 images:
   - name: ghcr.io/freyesjaveriana/veridicus-analyzer-cli
     newName: ghcr.io/freyesjaveriana/veridicus-analyzer-cli
-    newTag: 923ecfff4b03b4168814278eb7e2bdf811016642
+    newTag: 685b12bb38ea47418d4996a447c23578e0c47e33

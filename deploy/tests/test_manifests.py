@@ -37,7 +37,7 @@ from support import DEPLOY
 MANIFESTS = DEPLOY / "demo-analyzer"
 IMAGE = "ghcr.io/freyesjaveriana/veridicus-analyzer-cli"
 # El SHA del commit de main cuya imagen publicó analyzer-image.yml (#64, paso 11 del plan).
-PUBLISHED_TAG = "923ecfff4b03b4168814278eb7e2bdf811016642"
+PUBLISHED_TAG = "685b12bb38ea47418d4996a447c23578e0c47e33"
 
 
 def _current_render() -> list[Resource]:

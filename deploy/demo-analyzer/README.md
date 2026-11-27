@@ -86,8 +86,10 @@ con `minikube image rm ghcr.io/freyesjaveriana/veridicus-analyzer-cli:<etiqueta>
 ## Plan A y plan B de la imagen
 
 Imagen: `ghcr.io/freyesjaveriana/veridicus-analyzer-cli`, con la etiqueta fijada en
-`deploy/demo-analyzer/kustomization.yaml` (`images:`). Hoy es `923ecfff4b03b4168814278eb7e2bdf811016642`, el SHA
-del commit de `main` que publicó la CI (digest `sha256:7e87b25c771338ed8f0ff84b2fcfa36ed90ee3aeb40d38413ee30be17bc2f4b5`).
+`deploy/demo-analyzer/kustomization.yaml` (`images:`). Hoy es `685b12bb38ea47418d4996a447c23578e0c47e33`, el SHA
+del commit de `main` de #70 que publicó la CI (run 46056005410), que imprime el motivo del error. Para
+volver a la anterior, `923ecfff4b03b4168814278eb7e2bdf811016642` (digest
+`sha256:7e87b25c771338ed8f0ff84b2fcfa36ed90ee3aeb40d38413ee30be17bc2f4b5`), basta un `git revert` de este cambio.
 
 - **Plan A (normal):** `.github/workflows/analyzer-image.yml` la publica en GHCR con el SHA del commit al
   fusionar el Bolt en `main`; un PR de una línea fija ese SHA en `kustomization.yaml` (paso 11). Requiere el paquete

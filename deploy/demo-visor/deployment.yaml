@@ -54,6 +54,14 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            # Tapa la copia de la imagen: el visor lee los ejemplos de la ruta que tiene en el repo.
+            - name: ejemplos
+              mountPath: /app/deploy/demo-visor/ejemplos.json
+              subPath: ejemplos.json
+              readOnly: true
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: ejemplos
+          configMap:
+            name: veridicus-visor-ejemplos

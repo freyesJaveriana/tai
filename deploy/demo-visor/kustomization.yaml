@@ -10,3 +10,12 @@ resources:
   - rbac.yaml
   - deployment.yaml
   - service.yaml
+
+# Los ejemplos del menú viajan como ConfigMap, no dentro de la imagen: un PR que cambia ejemplos.json,
+# al fusionarse en main, lo aplica Argo CD y el pod nuevo los muestra (el sufijo del nombre cambia con
+# el contenido, y con él la plantilla del Deployment). Es la demo del bucle GitOps.
+configMapGenerator:
+  - name: veridicus-visor-ejemplos
+    namespace: veridicus-visor
+    files:
+      - ejemplos.json

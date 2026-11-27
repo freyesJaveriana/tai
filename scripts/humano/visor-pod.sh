@@ -65,9 +65,13 @@ if ! minikube image ls | grep -q "veridicus-visor:demo"; then
   exit 1
 fi
 
+# La primera vez crea el visor; después Argo CD lo reconcilia desde main (deploy/argocd/) y esto no
+# cambia nada, porque aplica lo mismo que hay en main tras el git pull.
 kubectl apply -k "$raiz/deploy/demo-visor"
-# La etiqueta es fija: el reinicio hace que el pod tome la imagen recién construida.
-kubectl rollout restart deployment/veridicus-visor --namespace "$namespace"
-kubectl rollout status deployment/veridicus-visor --namespace "$namespace" --timeout=180s
+# La etiqueta es fija: se borra el pod para que el nuevo tome la imagen recién construida. No se usa
+# «rollout restart», que cambia la plantilla del Deployment y Argo CD la revertiría (selfHeal).
+kubectl delete pod --selector app.kubernetes.io/name=veridicus-visor --namespace "$namespace" --wait=true
+sleep 3
+kubectl wait --for=condition=Ready pod --selector app.kubernetes.io/name=veridicus-visor --namespace "$namespace" --timeout=180s
 
 echo "Visor listo en http://$(minikube ip):30851"

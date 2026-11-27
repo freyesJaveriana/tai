@@ -19,6 +19,7 @@ HUMANO = ROOT / "scripts" / "humano"
 FIXTURES = DEPLOY / "tests" / "fixtures" / "humano"
 K = "kube" + "ctl"
 SCRIPTS = [
+    "argocd-instalar.sh",
     "crear-pull-secret-ghcr.sh",
     "crear-secret-anthropic.sh",
     "demo-analyzer.sh",

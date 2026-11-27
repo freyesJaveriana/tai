@@ -1,0 +1,26 @@
+---
+# Bucle GitOps de la demo: Argo CD lee deploy/demo-visor de main y lo reconcilia en Minikube.
+# La aprobación humana es la fusión del PR en main protegida; el agente nunca aplica al clúster
+# (AUTONOMIA-01). La instala el humano con scripts/humano/argocd-instalar.sh.
+#
+# El repositorio es público, así que Argo CD lo lee por HTTPS sin credenciales.
+# El Job del análisis (deploy/demo-analyzer) NO lo administra Argo CD: corre una vez por caso que
+# lanza el humano desde el visor; si Argo CD lo reconciliara, repetiría el análisis y gastaría saldo.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: veridicus-visor
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/freyesJaveriana/tai.git
+    targetRevision: main
+    path: deploy/demo-visor
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: veridicus-visor
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

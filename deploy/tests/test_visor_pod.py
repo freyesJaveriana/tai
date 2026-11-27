@@ -164,7 +164,64 @@ def test_the_script_copies_what_the_viewer_reads() -> None:
         assert f'"$raiz/{source}"' in script, source
         assert (ROOT / source).exists(), source
     assert "minikube image build" in script
-    assert "rollout restart deployment/veridicus-visor" in script
+    # Argo CD revertiría un «rollout restart» (cambia la plantilla): el script borra el pod.
+    assert "rollout restart" not in _commands()
+    assert "delete pod --selector app.kubernetes.io/name=veridicus-visor" in script
+    assert "--for=condition=Ready pod" in script
+
+
+def test_the_examples_come_from_a_config_map_mounted_where_the_viewer_reads_them() -> None:
+    kustomization = yaml.safe_load((VISOR / "kustomization.yaml").read_text(encoding="utf-8"))
+    [generator] = kustomization["configMapGenerator"]
+    assert generator == {
+        "name": "veridicus-visor-ejemplos",
+        "namespace": "veridicus-visor",
+        "files": ["ejemplos.json"],
+    }
+    spec = _one("Deployment", "veridicus-visor")["spec"]["template"]["spec"]
+    [container] = spec["containers"]
+    [mount] = [item for item in container["volumeMounts"] if item["name"] == "ejemplos"]
+    assert mount["mountPath"] == "/app/deploy/demo-visor/ejemplos.json"
+    assert mount["subPath"] == "ejemplos.json"
+    assert mount["readOnly"] is True
+    [volume] = [item for item in spec["volumes"] if item["name"] == "ejemplos"]
+    assert volume["configMap"]["name"] == "veridicus-visor-ejemplos"
+    viewer = (ROOT / "scripts" / "humano" / "visor-demo.py").read_text(encoding="utf-8")
+    assert 'RAIZ / "deploy" / "demo-visor" / "ejemplos.json"' in viewer
+
+
+ARGOCD = DEPLOY / "argocd" / "veridicus-visor.yaml"
+
+
+def test_argo_cd_reconciles_the_viewer_from_main_of_this_repository() -> None:
+    application = yaml.safe_load(ARGOCD.read_text(encoding="utf-8"))
+    assert application["kind"] == "Application"
+    assert application["metadata"] == {"name": "veridicus-visor", "namespace": "argocd"}
+    source = application["spec"]["source"]
+    assert source == {
+        "repoURL": "https://github.com/freyesJaveriana/tai.git",
+        "targetRevision": "main",
+        "path": "deploy/demo-visor",
+    }
+    assert (ROOT / source["path"] / "kustomization.yaml").is_file()
+    assert application["spec"]["syncPolicy"]["automated"] == {"prune": True, "selfHeal": True}
+    assert application["spec"]["destination"]["server"] == "https://kubernetes.default.svc"
+
+
+def test_argo_cd_never_manages_the_analysis_job() -> None:
+    # El Job corre una vez por caso: reconciliarlo repetiría el análisis y gastaría saldo.
+    application = yaml.safe_load(ARGOCD.read_text(encoding="utf-8"))
+    assert "demo-analyzer" not in application["spec"]["source"]["path"]
+    assert [item.name for item in (DEPLOY / "argocd").iterdir()] == ["veridicus-visor.yaml"]
+
+
+def test_the_argo_cd_script_pins_a_version_tested_with_kubernetes_1_31() -> None:
+    script = (ROOT / "scripts" / "humano" / "argocd-instalar.sh").read_text(encoding="utf-8")
+    assert 'version="v3.2.12"' in script
+    assert "argoproj/argo-cd/$version/manifests/install.yaml" in script
+    assert "latest" not in script
+    assert "apply --server-side --force-conflicts --namespace argocd" in script
+    assert '"$raiz/deploy/argocd/veridicus-visor.yaml"' in script
 
 
 def _commands() -> str:

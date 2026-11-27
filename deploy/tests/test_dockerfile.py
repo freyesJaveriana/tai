@@ -466,6 +466,26 @@ def test_k97_a_mount_with_a_real_digest_or_from_an_internal_stage_passes_in_any_
     assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") == []
 
 
+@pytest.mark.parametrize(
+    "line",
+    [
+        'RUN --mount=type=bind,"from=img:1",target=/x echo it\'s',
+        'RUN --mount=type=bind,"FROM=img:1",target=/x echo it\'s',
+        "RUN --mount=type=bind,'from=img:1',target=/x echo it\"s",
+    ],
+)
+def test_negative_k97_a_run_with_an_unbalanced_quote_still_reads_the_quoted_mount_fields(
+    line: str,
+) -> None:
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") != []
+
+
+def test_k97_a_run_with_an_unbalanced_quote_and_a_pinned_mount_passes() -> None:
+    line = f'RUN --mount=type=bind,"from={PINNED_A}",target=/x echo it\'s'
+
+    assert check_copy_from_pinned(f"FROM x AS a\n{line}\n") == []
+
+
 def test_k97_a_quoted_mount_value_with_a_space_is_read_whole() -> None:
     line = 'RUN --mount="type=bind,target=/a b,from=img:1" true'
 

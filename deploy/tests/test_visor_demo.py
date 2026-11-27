@@ -177,3 +177,31 @@ def test_the_result_page_escapes_html_and_highlights_quotes() -> None:
     assert "&lt;b&gt;hola&lt;/b&gt;" in pagina
     assert "<mark class='a'" in pagina and "<mark class='b'" in pagina
     assert "Sugerencia de revisión 1" in pagina
+
+
+def test_the_bar_color_takes_a_valid_hex_and_lowercases_it() -> None:
+    assert visor.color_banda("#C2410C") == "#c2410c"
+    assert visor.color_banda("  #2c5697\n") == "#2c5697"
+
+
+@pytest.mark.parametrize(
+    "valor",
+    [None, "", "rojo", "#fff", "#12345g", "#c2410c;}body{display:none", "c2410c", "#c2410c00"],
+)
+def test_negative_any_other_bar_color_falls_back_to_the_usual_blue(valor: str | None) -> None:
+    assert visor.color_banda(valor) == visor.AZUL
+
+
+def test_the_bar_color_reaches_the_page_from_the_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(visor.VARIABLE_COLOR_BANDA, "#c2410c")
+    con_color = _visor()
+    assert (
+        ".banda{background:#c2410c;" in con_color.pagina_formulario("SINT-1", "TEST: hola").decode()
+    )
+    monkeypatch.setenv(visor.VARIABLE_COLOR_BANDA, "</style><script>")
+    sin_color = _visor()
+    pagina = sin_color.pagina_formulario("SINT-1", "TEST: hola").decode()
+    assert f".banda{{background:{visor.AZUL};" in pagina
+    assert "</style><script>" not in pagina

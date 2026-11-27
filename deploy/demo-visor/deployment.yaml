@@ -35,6 +35,10 @@ spec:
           ports:
             - name: http
               containerPort: 8501
+          # Solo VERIDICUS_VISOR_COLOR_BANDA; el sufijo del ConfigMap cambia con su contenido y renueva el pod.
+          envFrom:
+            - configMapRef:
+                name: veridicus-visor-apariencia
           readinessProbe:
             tcpSocket:
               port: http

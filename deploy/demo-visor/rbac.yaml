@@ -1,0 +1,76 @@
+---
+# La cuenta que administra la demo desde el pod: hace lo mismo que el humano con visor-demo.py
+# (borrar el Job, aplicar deploy/demo-analyzer con el caso y leer sus logs), y nada fuera de eso.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: veridicus-visor
+  namespace: veridicus-visor
+---
+# Al aplicar el kustomization de deploy/demo-analyzer también se aplica el Namespace veridicus-demo,
+# que es de todo el clúster: solo ese namespace, solo leer y parchear.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: veridicus-visor-namespace
+rules:
+  - apiGroups: [""]
+    resources: [namespaces]
+    resourceNames: [veridicus-demo]
+    verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: veridicus-visor-namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: veridicus-visor-namespace
+subjects:
+  - kind: ServiceAccount
+    name: veridicus-visor
+    namespace: veridicus-visor
+---
+# Dentro de veridicus-demo: los recursos que aplica el kustomization de la demo, el Job y sus logs.
+# Los dos Secrets solo se leen por nombre, porque el visor comprueba que existan antes de lanzar el
+# Job (la clave la sigue montando el Job; el visor nunca la usa).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: veridicus-visor
+  namespace: veridicus-demo
+rules:
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [get, list, watch, create, patch, delete]
+  - apiGroups: [""]
+    resources: [configmaps, serviceaccounts]
+    verbs: [get, list, create, patch]
+  - apiGroups: [networking.k8s.io]
+    resources: [networkpolicies]
+    verbs: [get, list, create, patch]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+  - apiGroups: [""]
+    resources: [secrets]
+    resourceNames: [veridicus-anthropic, veridicus-ghcr]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: veridicus-visor
+  namespace: veridicus-demo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: veridicus-visor
+subjects:
+  - kind: ServiceAccount
+    name: veridicus-visor
+    namespace: veridicus-visor

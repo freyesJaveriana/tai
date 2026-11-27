@@ -1,0 +1,12 @@
+---
+# El visor de la demo como un pod de Minikube con NodePort (solo para la demo, sin contraseña).
+# Lo aplica el humano con scripts/humano/visor-pod.sh (AUTONOMIA-01); aquí solo se declara.
+# Sin «namespace:» global: el Role y su RoleBinding viven en veridicus-demo y el resto en veridicus-visor.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - rbac.yaml
+  - deployment.yaml
+  - service.yaml

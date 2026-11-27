@@ -37,6 +37,7 @@ def test_scripts_humano_exists_and_every_script_carries_the_mark() -> None:
         "crear-pull-secret-ghcr.sh",
         "crear-secret-anthropic.sh",
         "demo-analyzer.sh",
+        "visor-pod.sh",
     ]
     for script in scripts:
         lines = script.read_text(encoding="utf-8").splitlines()

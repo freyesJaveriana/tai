@@ -1,0 +1,11 @@
+---
+# Namespace aparte: la NetworkPolicy de veridicus-demo (que niega toda salida) no toca al visor, que
+# solo habla con el servidor de la API del clúster.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: veridicus-visor
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

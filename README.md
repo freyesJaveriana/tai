@@ -2,6 +2,9 @@
 
 Grupo: Felipe Reyes Palacio | Fecha de presentación: 28 de noviembre de 2026
 
+**Presentación:** <https://claude.ai/artifact/1b1qbSiCarRWvrsfhGzw6D>. Son 24 diapositivas con las notas
+del orador; se descarga como .pptx o PDF desde la misma página.
+
 Veridicus es un analizador que propone las contradicciones internas de un testimonio. Cada
 contradicción lleva dos citas literales verificadas y nunca un veredicto de veracidad. Corre en
 Kubernetes local, y un humano decide. Es el analizador de incoherencias del Trabajo de Grado

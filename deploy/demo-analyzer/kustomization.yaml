@@ -19,8 +19,10 @@ configMapGenerator:
       - entrada/coherente.json
       - entrada/contradiccion.json
 
-# La etiqueta provisional la sustituye el SHA real de la imagen publicada (paso 11 del plan).
+# La imagen que publicó analyzer-image.yml al fusionar B4-demo en main (#64, run 46028924313), con la
+# etiqueta del SHA de ese commit (paso 11 del plan). Digest publicado:
+# sha256:7e87b25c771338ed8f0ff84b2fcfa36ed90ee3aeb40d38413ee30be17bc2f4b5
 images:
   - name: ghcr.io/freyesjaveriana/veridicus-analyzer-cli
     newName: ghcr.io/freyesjaveriana/veridicus-analyzer-cli
-    newTag: sha-pendiente
+    newTag: 923ecfff4b03b4168814278eb7e2bdf811016642

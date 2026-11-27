@@ -366,6 +366,13 @@ def test_a_file_that_is_not_a_workflow_fails() -> None:
     assert checks.violations("x.yml", "- a\n- b\n") == ["x.yml: no es un workflow"]
 
 
+def test_a_file_that_is_not_valid_yaml_fails_and_still_gets_the_text_rules() -> None:
+    found = checks.violations("x.yml", "a: [\nKUBECONFIG=x\n")
+
+    assert "x.yml: no es un YAML válido" in found
+    assert "x.yml:2: nombra un kubeconfig" in found
+
+
 def test_the_triggers_are_read_from_a_string_a_list_and_a_mapping() -> None:
     assert checks._triggers({True: "push"}) == ["push"]
     assert checks._triggers({"on": ["push", "pull_request"]}) == ["push", "pull_request"]
@@ -409,7 +416,7 @@ def _real_mutants() -> dict[str, tuple[Path, str, str, str]]:
         "kubeconfig": (
             DEPLOY_WORKFLOW,
             "set -euo pipefail",
-            "set -euo pipefail\nKUBECONFIG=x",
+            "set -euo pipefail\n          export KUBECONFIG=x",
             "kubeconfig",
         ),
         "packages en la raíz": (

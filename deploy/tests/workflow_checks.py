@@ -175,7 +175,10 @@ def violations(rel: str, text: str) -> list[str]:
             found.append(f"{rel}:{number}: nombra la herramienta del clúster")
         if _LATEST_TAG.search(line) or _DOCKER_LATEST.search(line):
             found.append(f"{rel}:{number}: etiqueta de imagen latest")
-    document = yaml.safe_load(text)
+    try:
+        document = yaml.safe_load(text)
+    except yaml.YAMLError:
+        return [*found, f"{rel}: no es un YAML válido"]
     if not isinstance(document, dict):
         return [*found, f"{rel}: no es un workflow"]
     found.extend(_permission_violations(rel, document))

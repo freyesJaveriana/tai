@@ -1,0 +1,127 @@
+# Imagen de la CLI del analizador para el Job de la demo (U2 platform, paso 9 del plan; team.md,
+# Deployment). En un pull request que toca la imagen o lo que ella copia, la construye y la escanea
+# con Trivy, sin publicar y sin permiso de escritura de paquetes. En un push a main con esas rutas,
+# la construye, la escanea y, solo si Trivy pasa, la publica en GHCR con el SHA del commit.
+# La CI no despliega: ningún paso lleva credenciales del clúster ni lo toca (AUTONOMIA-01).
+# Solo las acciones que el repositorio ya permite, fijadas por SHA; el inicio de sesión en GHCR va con
+# la CLI de docker y el token del propio job. Trivy se baja con curl y se verifica con sha256sum -c.
+# Las excepciones de Trivy, si algún día hacen falta, van en un .trivyignore versionado con su motivo
+# y su fecha de caducidad; hoy no hay ninguna.
+name: analyzer-image
+
+on:
+  pull_request:
+    paths:
+      - "libs/**"
+      - "contracts/**"
+      - "deploy/images/**"
+      - ".github/workflows/analyzer-image.yml"
+  push:
+    branches: [main]
+    paths:
+      - "libs/**"
+      - "contracts/**"
+      - "deploy/images/**"
+      - ".github/workflows/analyzer-image.yml"
+
+permissions:
+  contents: read
+
+# En un push a main no se cancela: una publicación a medias dejaría la imagen sin su resumen.
+concurrency:
+  group: analyzer-image-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  IMAGE: ghcr.io/freyesjaveriana/veridicus-analyzer-cli
+
+jobs:
+  build-scan:
+    name: analyzer-image (build-scan)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Construir la imagen (sin publicar)
+        run: docker build --tag "$IMAGE:pr" -f deploy/images/analyzer-cli/Dockerfile .
+
+      - name: Instalar Trivy v0.76.2 verificado por SHA-256 (red)
+        env:
+          ASSET: trivy_0.76.2_Linux-64bit.tar.gz
+          SHA256: "bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ASSET" \
+            "https://github.com/aquasecurity/trivy/releases/download/v0.76.2/$ASSET"
+          echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$ASSET" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Escanear la imagen (HIGH y CRITICAL con corrección bloquean)
+        run: >-
+          trivy image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1
+          "$IMAGE:pr"
+
+  publish:
+    name: analyzer-image (publish)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Construir la imagen con el SHA del commit
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: docker build --tag "$IMAGE:$IMAGE_TAG" -f deploy/images/analyzer-cli/Dockerfile .
+
+      - name: Instalar Trivy v0.76.2 verificado por SHA-256 (red)
+        env:
+          ASSET: trivy_0.76.2_Linux-64bit.tar.gz
+          SHA256: "bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ASSET" \
+            "https://github.com/aquasecurity/trivy/releases/download/v0.76.2/$ASSET"
+          echo "${SHA256}  $RUNNER_TEMP/$ASSET" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$ASSET" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Escanear la imagen (HIGH y CRITICAL con corrección bloquean)
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: >-
+          trivy image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1
+          "$IMAGE:$IMAGE_TAG"
+
+      - name: Entrar en GHCR con el token del job
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$ACTOR" --password-stdin
+
+      - name: Publicar la imagen
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: docker push "$IMAGE:$IMAGE_TAG"
+
+      - name: Escribir el digest publicado en el resumen del job
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          digest="$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$IMAGE_TAG")"
+          echo "Imagen publicada: $digest" >> "$GITHUB_STEP_SUMMARY"

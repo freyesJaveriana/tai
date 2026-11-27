@@ -623,6 +623,29 @@ def test_f01_a_tag_variable_of_the_step_env_wins_over_the_one_of_the_workflow() 
     assert any("no es el SHA" in item for item in checks.violations("x.yml", text))
 
 
+# --- Ronda 3: Kyverno 1.20 ya no ejecuta ClusterPolicy (kyverno.io/v1); la demo usa la CLI 1.19.2 -----
+
+KYVERNO_ASSET = "kyverno-cli_v1.19.2_linux_x86_64.tar.gz"
+KYVERNO_SUM = "357eaf1df8bc24ddd5a73979fadeaae6a032e8710f11af264229756e4956bf4a"
+KYVERNO_1_20_SUM = "06b8f3ca7b5626473be8fb4d343ad54ab84e317142766f72420e7d44b80942e2"
+
+
+def test_the_kyverno_cli_is_1_19_2_with_its_sum_and_the_1_20_sum_is_gone() -> None:
+    assert checks.TOOLS["kyverno"] == (KYVERNO_ASSET, KYVERNO_SUM)
+    assert KYVERNO_SUM in checks.TOOL_SUMS
+    assert KYVERNO_1_20_SUM not in checks.TOOL_SUMS
+    text = _text(DEPLOY_WORKFLOW)
+    assert KYVERNO_1_20_SUM not in text
+    assert "v1.20.0" not in text
+    assert "kyverno/kyverno/releases/download/v1.19.2/$ASSET" in text
+
+
+def test_negative_a_download_with_the_old_kyverno_sum_fails() -> None:
+    text = _mutate(_text(DEPLOY_WORKFLOW), KYVERNO_SUM, KYVERNO_1_20_SUM)
+
+    assert any("que no es la de la tabla" in item for item in checks.violations("x.yml", text))
+
+
 # --- Ronda 3 (F-06): buildx, image push/tag y una etiqueta que solo contiene una variable --------
 
 F06_COMMANDS = [

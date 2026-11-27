@@ -215,6 +215,46 @@ def test_every_copy_from_an_external_image_has_a_real_digest(real: str) -> None:
     assert "REEMPLAZAR" not in real
 
 
+FIXED_LIBZSTD = "libzstd1=1.5.7+dfsg-1+deb13u1"
+
+
+def test_the_final_stage_upgrades_libzstd1_to_the_fixed_version_before_the_user(real: str) -> None:
+    """Trivy: CVE-2026-124851 (HIGH, con corrección) en libzstd1 de la base. El digest de la base no
+    cambia, así que la etapa final actualiza ese paquete, fijado por versión (DL3008), sin
+    `.trivyignore`."""
+    final = "FROM " + real.rsplit("\nFROM ", 1)[1]
+    instructions = _instructions(final)
+    upgrades = [
+        (number, rest)
+        for number, (keyword, rest) in enumerate(instructions)
+        if keyword == "RUN" and "apt-get install" in rest
+    ]
+
+    assert len(upgrades) == 1
+    number, run = upgrades[0]
+    assert run.startswith("apt-get update"), "el índice se actualiza en la misma capa"
+    assert "--only-upgrade" in run
+    assert "-y" in run.split()
+    assert "--no-install-recommends" in run
+    assert FIXED_LIBZSTD in run.split(), "versión fijada y corregida"
+    assert run.index("apt-get install") < run.index("rm -rf /var/lib/apt/lists/*")
+    assert run.endswith("rm -rf /var/lib/apt/lists/*"), "la capa no conserva las listas de apt"
+    users = [i for i, (keyword, _) in enumerate(instructions) if keyword == "USER"]
+    assert number < users[-1], "se actualiza como root, antes del USER numérico"
+    assert "libzstd1" not in real.rsplit("\nFROM ", 1)[0], "solo la etapa final lo toca"
+    assert not (ROOT / ".trivyignore").exists(), "ninguna excepción de Trivy"
+
+
+def test_the_final_stage_stays_pinned_numeric_and_without_latest_after_the_upgrade(
+    real: str,
+) -> None:
+    assert check_from_pinned(real) == []
+    assert check_copy_from_pinned(real) == []
+    assert check_final_user(real) == []
+    assert check_latest_anywhere(real) == []
+    assert DIGEST in real
+
+
 def test_the_final_stage_copies_only_the_virtual_environment(real: str) -> None:
     final = real.rsplit("\nFROM ", 1)[1]
     copies = [rest for keyword, rest in _instructions("FROM " + final) if keyword == "COPY"]

@@ -225,6 +225,28 @@ def analizar(caso: dict[str, object]) -> tuple[str, str, float]:
 
 # ------------------------------------------------------------------ logs → hallazgos
 
+# Explicación de cada `error.codigo` de C6, para una demo académica.
+MOTIVOS = {
+    "salida_invalida": (
+        "El modelo respondió algo que no cumple el esquema JSON del contrato (por ejemplo, un campo "
+        "faltante o un JSON mal formado). El analizador no repara ni rescata respuestas a medias."
+    ),
+    "bloqueo_contenido": "El proveedor bloqueó la respuesta con sus filtros de contenido.",
+    "tiempo_agotado": "La llamada al modelo superó el plazo configurado en el perfil.",
+    "proveedor": (
+        "El proveedor devolvió un error (clave, cuota, saturación o red). Revise la clave del "
+        "Secret y el saldo de la cuenta."
+    ),
+    "anonimizador_no_disponible": (
+        "El anonimizador no estaba disponible, así que no salió ninguna llamada al proveedor."
+    ),
+    "incidente_anonimizacion": (
+        "El anonimizador detectó un problema al seudonimizar o al restaurar, y el análisis se "
+        "detuvo antes de mostrar nada."
+    ),
+    "otro": "Motivo no reconocido por el visor.",
+}
+
 _CABECERA = re.compile(r"^(\S+): estado=(ok|error), (\d+) hallazgos?$")
 _CITA = re.compile(r"^  cita ([AB]) \(turno (\S+)\): «(.*)»$")
 
@@ -237,8 +259,19 @@ def leer_logs(logs: str) -> dict[str, object]:
     hallazgo: dict[str, object] | None = None
     for linea in logs.splitlines():
         if cabecera := _CABECERA.match(linea):
-            actual = {"nombre": cabecera.group(1), "estado": cabecera.group(2), "hallazgos": []}
+            actual = {
+                "nombre": cabecera.group(1),
+                "estado": cabecera.group(2),
+                "hallazgos": [],
+                "motivo": "",
+                "registro": [],
+            }
             bloques.append(actual)
+            hallazgo = None
+        elif linea.startswith("  motivo: ") and actual is not None:
+            actual["motivo"] = linea[len("  motivo: ") :].strip()
+        elif linea.startswith(("  llamadas: ", "  tokens: ", "  descartes: ")) and actual:
+            actual["registro"].append(linea.strip())  # type: ignore[union-attr]
         elif linea.startswith("  hecho: ") and actual is not None:
             hallazgo = {"hecho": linea[len("  hecho: ") :]}
             actual["hallazgos"].append(hallazgo)  # type: ignore[union-attr]
@@ -433,8 +466,20 @@ def pagina_resultado(caso: dict[str, object], estado: str, logs: str, segundos: 
             "<div class='error'>No se encontró el resultado del caso en los logs (ver abajo).</div>"
         )
     elif bloque is not None and bloque["estado"] == "error":
+        motivo = str(bloque.get("motivo") or "")
+        if motivo:
+            explicacion = MOTIVOS.get(motivo, MOTIVOS["otro"])
+            detalle = f" Motivo: <code>{html.escape(motivo)}</code>. {html.escape(explicacion)}"
+        else:
+            detalle = " Esta versión de la imagen no informa el motivo."
         partes.append(
-            "<div class='error'>El análisis terminó en estado «error»: no hay hallazgos.</div>"
+            "<div class='error'>El análisis terminó en estado «error»: por diseño no se muestra "
+            f"ningún resultado parcial (AUTONOMIA-05).{detalle}</div>"
+        )
+    if bloque is not None and bloque.get("registro"):
+        lineas = "".join(f"<li>{html.escape(str(r))}</li>" for r in bloque["registro"])  # type: ignore[attr-defined]
+        partes.append(
+            f"<details><summary>Detalle técnico de la corrida</summary><ul>{lineas}</ul></details>"
         )
 
     marcas: dict[str, list[tuple[str, str, int]]] = {}

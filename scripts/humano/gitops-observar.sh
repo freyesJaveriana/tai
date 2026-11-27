@@ -24,6 +24,17 @@ if [ -z "$esperado" ]; then
 fi
 echo "main en GitHub: ${esperado:0:7}"
 
+if ! kubectl get crd applications.argoproj.io > /dev/null 2>&1; then
+  echo "Argo CD no está instalado en este clúster (contexto: $(kubectl config current-context))." >&2
+  echo "Instálelo una vez con: bash scripts/humano/argocd-instalar.sh   y repita este script." >&2
+  exit 2
+fi
+if ! kubectl get application "$app" --namespace "$ns_argo" > /dev/null 2>&1; then
+  echo "Argo CD está instalado, pero falta la Application $app en $ns_argo." >&2
+  echo "Regístrela con: bash scripts/humano/argocd-instalar.sh   y repita este script." >&2
+  exit 2
+fi
+
 kubectl annotate application "$app" --namespace "$ns_argo" argocd.argoproj.io/refresh=normal --overwrite > /dev/null
 limite=$((SECONDS + plazo_s))
 while true; do

@@ -4,7 +4,9 @@
 directorio de entrada y el de salida que fijan `VERIDICUS_DEMO_ENTRADA` (por omisión `/entrada`) y
 `VERIDICUS_DEMO_SALIDA` (por omisión `/salida`). Después lee cada `<nombre>.salida.json` y escribe en
 stdout, por archivo, su estado y el número de hallazgos y, por hallazgo, el hecho, el tipo y las dos
-citas con su turno.
+citas con su turno. En `error` añade el `motivo` (el `error.codigo` de C6), y en ambos estados un
+resumen del `registro`: llamadas por papel, tokens y motivos de descarte. Son solo cifras y
+vocabulario cerrado: un valor fuera del vocabulario se imprime como «otro».
 
 Reglas que este módulo hace cumplir (todas con su prueba en `tests/test_entrypoint.py`):
 
@@ -72,11 +74,39 @@ class _Finding:
     quote_b: _Quote
 
 
+# Vocabulario cerrado de C6: solo estos valores se imprimen tal cual; cualquier otro sale como «otro».
+ERROR_CODES: Final = frozenset(
+    {
+        "salida_invalida",
+        "bloqueo_contenido",
+        "tiempo_agotado",
+        "proveedor",
+        "anonimizador_no_disponible",
+        "incidente_anonimizacion",
+    }
+)
+DISCARD_REASONS: Final = frozenset(
+    {
+        "cita_no_verificada",
+        "cita_en_otro_turno",
+        "marca_alterada",
+        "campo_faltante",
+        "rechazado_verificador",
+        "rechazado_permutacion",
+        "fuera_de_tramo",
+        "vocabulario_prohibido",
+    }
+)
+ROLES: Final = ("juez", "verificador", "verificador_permutado")
+
+
 @dataclass(frozen=True)
 class _Result:
     name: str
     state: str
     findings: tuple[_Finding, ...]
+    reason: str = ""
+    trace: tuple[str, ...] = ()
 
 
 def _text(node: Any, key: str) -> str:
@@ -99,6 +129,51 @@ def _finding(node: Any) -> _Finding:
     )
 
 
+def _closed(value: Any, allowed: frozenset[str]) -> str:
+    return value if isinstance(value, str) and value in allowed else "otro"
+
+
+def _reason(document: dict[str, Any]) -> str:
+    """El `error.codigo` de C6, que es vocabulario cerrado y nunca lleva texto del relato."""
+    error = document.get("error")
+    return _closed(error.get("codigo") if isinstance(error, dict) else None, ERROR_CODES)
+
+
+def _counts(values: list[str]) -> str:
+    return ", ".join(f"{value}×{values.count(value)}" for value in sorted(set(values)))
+
+
+def _trace(document: dict[str, Any]) -> tuple[str, ...]:
+    """Resumen del `registro` de C6: cuántas llamadas por papel, tokens y motivos de descarte.
+
+    Solo cifras y vocabulario cerrado; no se imprime ni el modelo ni ningún texto libre. Un
+    `registro` ausente o con otra forma no hace fallar la demo: simplemente no se resume.
+    """
+    registro = document.get("registro")
+    if not isinstance(registro, dict):
+        return ()
+    lines: list[str] = []
+    calls = registro.get("llamadas")
+    if isinstance(calls, list):
+        roles = [
+            _closed(c.get("papel") if isinstance(c, dict) else None, frozenset(ROLES))
+            for c in calls
+        ]
+        detail = f" ({_counts(roles)})" if roles else ""
+        lines.append(f"  llamadas: {len(calls)}{detail}")
+    tokens_in, tokens_out = registro.get("tokens_entrada"), registro.get("tokens_salida")
+    if isinstance(tokens_in, int) and isinstance(tokens_out, int):
+        lines.append(f"  tokens: {tokens_in} de entrada, {tokens_out} de salida")
+    discards = registro.get("descartes")
+    if isinstance(discards, list) and discards:
+        reasons = [
+            _closed(d.get("motivo") if isinstance(d, dict) else None, DISCARD_REASONS)
+            for d in discards
+        ]
+        lines.append(f"  descartes: {len(discards)} ({_counts(reasons)})")
+    return tuple(lines)
+
+
 def _read(directory: Path, name: str, *, with_findings: bool) -> _Result:
     """Lee `<nombre>.salida.json`. Sin `with_findings` solo lee el estado y nunca los hallazgos."""
     try:
@@ -108,12 +183,14 @@ def _read(directory: Path, name: str, *, with_findings: bool) -> _Result:
     state = _text(document, "estado")
     if state not in ("ok", "error"):
         raise _UnreadableOutput
-    if not with_findings or state == "error":
+    if state == "error":
+        return _Result(name, state, (), reason=_reason(document), trace=_trace(document))
+    if not with_findings:
         return _Result(name, state, ())
     items = document.get("hallazgos")
     if not isinstance(items, list):
         raise _UnreadableOutput
-    return _Result(name, state, tuple(_finding(item) for item in items))
+    return _Result(name, state, tuple(_finding(item) for item in items), trace=_trace(document))
 
 
 def _count(number: int) -> str:
@@ -123,11 +200,14 @@ def _count(number: int) -> str:
 
 def _lines(result: _Result) -> list[str]:
     lines = [f"{result.name}: estado={result.state}, {_count(len(result.findings))}"]
+    if result.reason:
+        lines.append(f"  motivo: {result.reason}")
     for item in result.findings:
         lines.append(f"  hecho: {item.fact}")
         lines.append(f"  tipo: {item.kind}")
         lines.append(f"  cita A (turno {item.quote_a.turn}): «{item.quote_a.text}»")
         lines.append(f"  cita B (turno {item.quote_b.turn}): «{item.quote_b.text}»")
+    lines.extend(result.trace)
     return lines
 
 
@@ -146,7 +226,8 @@ def _report(out: TextIO, code: int, entrada: Path, salida: Path) -> int:
                 except _UnreadableOutput:
                     continue
                 if result.state == "error":
-                    _say(out, _lines(result)[0])
+                    for line in _lines(result):
+                        _say(out, line)
         return code
     try:
         if not names:

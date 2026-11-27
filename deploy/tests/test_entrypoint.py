@@ -343,6 +343,125 @@ def test_with_exit_0_but_a_file_in_error_state_the_code_is_4_and_no_findings_are
     assert "HECHO-ENVENENADO" not in out
 
 
+# --- Motivo del error y resumen del registro (solo vocabulario cerrado y cifras) ---------------------------
+
+
+def _registro(**changes: Any) -> dict[str, Any]:
+    base: dict[str, Any] = {
+        "llamadas": [
+            {"papel": "juez", "modelo": "MODELO-LIBRE"},
+            {"papel": "verificador", "modelo": "MODELO-LIBRE"},
+            {"papel": "verificador", "modelo": "MODELO-LIBRE"},
+        ],
+        "descartes": [{"motivo": "cita_no_verificada", "turno_a": "T2"}],
+        "fragmentado": False,
+        "tokens_entrada": 1200,
+        "tokens_salida": 340,
+    }
+    base.update(changes)
+    return base
+
+
+@pytest.mark.parametrize("code", sorted(entrypoint.ERROR_CODES))
+def test_an_error_state_prints_its_closed_reason(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, code: str
+) -> None:
+    document = {**_salida("error"), "error": {"codigo": code}, "registro": _registro()}
+    monkeypatch.setattr(entrypoint, "run", _fake_run(0, {"contradiccion": document}))
+
+    status, out = _run(stage_input(tmp_path, "contradiccion"), tmp_path / "salida", None)
+
+    assert status == 4
+    assert f"contradiccion: estado=error, 0 hallazgos\n  motivo: {code}\n" in out
+    assert "  llamadas: 3 (juez×1, verificador×2)" in out
+    assert "  tokens: 1200 de entrada, 340 de salida" in out
+    assert "  descartes: 1 (cita_no_verificada×1)" in out
+    assert "MODELO-LIBRE" not in out, "el modelo es texto libre y no se imprime"
+
+
+def test_with_exit_4_the_reason_is_printed_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    document = {**_salida("error"), "error": {"codigo": "incidente_anonimizacion"}}
+    monkeypatch.setattr(entrypoint, "run", _fake_run(4, {"contradiccion": document}))
+
+    status, out = _run(stage_input(tmp_path, "contradiccion"), tmp_path / "salida", None)
+
+    assert status == 4
+    assert "  motivo: incidente_anonimizacion" in out
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        pytest.param({"codigo": "TEXTO-DEL-RELATO"}, id="fuera-del-vocabulario"),
+        pytest.param({"codigo": 7}, id="no-es-cadena"),
+        pytest.param("TEXTO-DEL-RELATO", id="no-es-objeto"),
+        pytest.param(None, id="ausente"),
+    ],
+)
+def test_a_reason_outside_the_vocabulary_is_printed_as_otro(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error: Any
+) -> None:
+    document = _salida("error")
+    if error is not None:
+        document["error"] = error
+    monkeypatch.setattr(entrypoint, "run", _fake_run(0, {"contradiccion": document}))
+
+    _, out = _run(stage_input(tmp_path, "contradiccion"), tmp_path / "salida", None)
+
+    assert "  motivo: otro" in out
+    assert "TEXTO-DEL-RELATO" not in out
+
+
+def test_an_ok_run_summarises_the_register_after_its_findings(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    document = {**_salida("ok", [_hallazgo()]), "registro": _registro(descartes=[])}
+    monkeypatch.setattr(entrypoint, "run", _fake_run(0, {"contradiccion": document}))
+
+    status, out = _run(stage_input(tmp_path, "contradiccion"), tmp_path / "salida", None)
+
+    assert status == 0
+    assert "motivo:" not in out
+    assert out.index("  cita B") < out.index("  llamadas: 3")
+    assert "descartes:" not in out, "sin descartes no hay línea de descartes"
+
+
+@pytest.mark.parametrize(
+    "registro",
+    [
+        pytest.param("no-es-objeto", id="no-es-objeto"),
+        pytest.param({"llamadas": "x", "tokens_entrada": "1", "descartes": "x"}, id="tipos-raros"),
+        pytest.param(
+            _registro(
+                llamadas=["TEXTO-DEL-RELATO", {"papel": "TEXTO-DEL-RELATO"}],
+                descartes=["TEXTO-DEL-RELATO", {"motivo": "TEXTO-DEL-RELATO"}],
+            ),
+            id="valores-fuera-del-vocabulario",
+        ),
+        pytest.param(_registro(llamadas=[]), id="sin-llamadas"),
+    ],
+)
+def test_an_odd_register_never_fails_the_run_nor_leaks_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, registro: Any
+) -> None:
+    document = {**_salida("ok"), "registro": registro}
+    monkeypatch.setattr(entrypoint, "run", _fake_run(0, {"contradiccion": document}))
+
+    status, out = _run(stage_input(tmp_path, "contradiccion"), tmp_path / "salida", None)
+
+    assert status == 0
+    assert "TEXTO-DEL-RELATO" not in out
+    assert scan(out, []) == []
+
+
+def test_the_new_labels_pass_the_forbidden_vocabulary_scan() -> None:
+    labels = [*entrypoint.ERROR_CODES, *entrypoint.DISCARD_REASONS, *entrypoint.ROLES]
+    labels += ["motivo", "llamadas", "tokens", "de entrada", "de salida", "descartes", "otro"]
+    assert scan(" ".join(labels), []) == []
+
+
 # --- Caso sonda 3: archivo de salida que falta o está corrupto -------------------------------------------
 
 

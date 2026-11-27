@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-02",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Cuántos hijos tenía usted cuando salió de la finca?"},
+    {"n": 2, "hablante": "TEST", "texto": "Tenía dos hijos, los dos pequeños, y los cargué en brazos hasta la carretera."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Quién más salió con ustedes?"},
+    {"n": 4, "hablante": "TEST", "texto": "Mi compañero se quedó cuidando los animales y nos alcanzó dos días después."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Cómo viajaron hasta el pueblo?"},
+    {"n": 6, "hablante": "TEST", "texto": "En la chiva de las seis, sentados en el techo, porque adentro ya no cabía nadie."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Y los niños cómo aguantaron el viaje?"},
+    {"n": 8, "hablante": "TEST", "texto": "Mis cinco hijos iban llorando todo el camino; el mayor ya tenía doce años y ayudaba con los demás."}
+  ]
+}

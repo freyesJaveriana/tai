@@ -208,10 +208,14 @@ def test_f04_the_real_readme_names_the_token_kind_and_removes_the_local_image() 
 def test_every_script_in_the_folder_is_named_by_the_required_list() -> None:
     # visor-pod.sh no es de la demo del Job sino del visor; lo documenta deploy/demo-visor/README.md.
     names = sorted(path.name for path in (ROOT / "scripts" / "humano").glob("*.sh"))
-    assert names == sorted([*REQUIRED_SCRIPTS, "visor-pod.sh", "argocd-instalar.sh"])
+    assert names == sorted(
+        [*REQUIRED_SCRIPTS, "visor-pod.sh", "argocd-instalar.sh", "cambio-modelo.sh"]
+    )
     visor = (ROOT / "deploy" / "demo-visor" / "README.md").read_text(encoding="utf-8")
     assert "scripts/humano/visor-pod.sh" in visor
     assert "scripts/humano/argocd-instalar.sh" in visor
+    evaluation = (ROOT / "evaluation" / "cambio-modelo" / "README.md").read_text(encoding="utf-8")
+    assert "scripts/humano/cambio-modelo.sh" in evaluation
 
 
 def test_the_fixtures_folder_holds_only_synthetic_markdown() -> None:

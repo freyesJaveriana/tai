@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-05",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Usted vio cuando se llevaron a su vecino?"},
+    {"n": 2, "hablante": "TEST", "texto": "Sí, lo vi con mis propios ojos desde la ventana: lo subieron a una camioneta blanca."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Qué pasó con la familia del vecino?"},
+    {"n": 4, "hablante": "TEST", "texto": "La esposa se fue con los niños donde unos parientes en la ciudad."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Usted habló con alguien de lo que pasó?"},
+    {"n": 6, "hablante": "TEST", "texto": "Con el inspector, meses después."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Qué le contó al inspector?"},
+    {"n": 8, "hablante": "TEST", "texto": "Le dije que yo no vi nada, que esa noche estaba dormida y que me enteré por la mañana, cuando ya se lo habían llevado."}
+  ]
+}

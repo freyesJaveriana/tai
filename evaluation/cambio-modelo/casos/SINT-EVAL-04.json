@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-04",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Quién le avisó que tenían que irse?"},
+    {"n": 2, "hablante": "TEST", "texto": "Me avisó mi cuñado Ramiro, que llegó corriendo desde la tienda a contarme lo que había oído."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Qué le dijo exactamente?"},
+    {"n": 4, "hablante": "TEST", "texto": "Que había una lista con nombres y que el de mi esposo estaba en ella."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Qué hicieron entonces?"},
+    {"n": 6, "hablante": "TEST", "texto": "Empacamos esa misma noche."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Y quién fue la persona que le avisó?"},
+    {"n": 8, "hablante": "TEST", "texto": "Fue la profesora de la escuela, doña Inés, la única que se atrevió a venir a la casa; mi cuñado nunca supo nada."}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-01",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Cuándo llegaron los hombres armados a la vereda?"},
+    {"n": 2, "hablante": "TEST", "texto": "Llegaron un martes de marzo, el día después de la fiesta de San José, por la tarde."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Qué hicieron cuando llegaron?"},
+    {"n": 4, "hablante": "TEST", "texto": "Reunieron a la gente en la cancha y dijeron que nadie podía salir de noche."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Cuánto tiempo se quedaron?"},
+    {"n": 6, "hablante": "TEST", "texto": "Como una semana, durmiendo en la escuela."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Recuerda la fecha en que llegaron?"},
+    {"n": 8, "hablante": "TEST", "texto": "Fue en diciembre, en plena novena de aguinaldos, porque estábamos rezando en la capilla cuando entraron."}
+  ]
+}

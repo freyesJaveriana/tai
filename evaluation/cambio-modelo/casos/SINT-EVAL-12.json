@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-12",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Dónde vivía usted en esos años?"},
+    {"n": 2, "hablante": "TEST", "texto": "En 2001 vivía en la vereda Alto del Guayabo, en la finca de mis abuelos."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Siempre vivió allí?"},
+    {"n": 4, "hablante": "TEST", "texto": "No; en 2003 ya vivía en el pueblo, porque después de las amenazas nos fuimos de la finca."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Qué pasó con la finca de sus abuelos?"},
+    {"n": 6, "hablante": "TEST", "texto": "Quedó sola; mis abuelos se fueron con nosotros al pueblo."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Ha vuelto al Alto del Guayabo?"},
+    {"n": 8, "hablante": "TEST", "texto": "No he vuelto, aunque mi tío dice que la casa todavía está en pie."}
+  ]
+}

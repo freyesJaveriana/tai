@@ -9,3 +9,10 @@ entries:
     model: claude-sonnet-5-5
     structured_mode: json_schema_native
     effort_parameter: effort
+  # Opus 5.5: thinking adaptativo siempre encendido y sin temperature/top_p/top_k; el adaptador no
+  # envía ninguno de los dos y descarta los bloques thinking, así que sirve sin cambios
+  # (https://platform.claude.com/docs/en/models/opus-5-5/migration-guide).
+  - provider: anthropic
+    model: claude-opus-5-5
+    structured_mode: json_schema_native
+    effort_parameter: effort

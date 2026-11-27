@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-10",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Quién estaba con usted en la casa esa noche?"},
+    {"n": 2, "hablante": "TEST", "texto": "Mi mamá, mi hermano menor y yo; mi papá trabajaba en otra finca y dormía allá."},
+    {"n": 3, "hablante": "ENT", "texto": "¿Qué escucharon?"},
+    {"n": 4, "hablante": "TEST", "texto": "Perros ladrando y luego golpes en la puerta de la cocina."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Abrieron la puerta?"},
+    {"n": 6, "hablante": "TEST", "texto": "Mi mamá no abrió; nos metimos los tres debajo de la cama grande hasta que los golpes pararon."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Cuándo supo su papá lo que había pasado?"},
+    {"n": 8, "hablante": "TEST", "texto": "Al otro día, cuando bajó de la otra finca y vio la puerta de la cocina rota."}
+  ]
+}

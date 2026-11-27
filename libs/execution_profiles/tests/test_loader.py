@@ -1,6 +1,8 @@
 """Carga del archivo versionado y configuración efectiva (BR2.1, BR2.10, BR2.11).
 
-El archivo versionado tiene un solo perfil, `demo-anthropic` (CG-U11-12). Las claves son canarios.
+El archivo versionado tiene dos perfiles de demostración: `demo-anthropic` (CG-U11-12) y
+`demo-anthropic-opus`, el mismo con otro modelo para la prueba de cambio de modelo. Las claves son
+canarios.
 """
 
 import dataclasses
@@ -21,52 +23,75 @@ from veridicus_execution_profiles.loader import PROMPT_SHA256_UNSET, load_config
 from veridicus_execution_profiles.validate import validate_profile
 
 NAME = "demo-anthropic"
+OPUS = "demo-anthropic-opus"
 KEY_REF = "VERIDICUS_ANTHROPIC_API_KEY"
 KEY_CANARY = "sk-sintetico-canario-7f3a91c2d4e5"
 ENV = {KEY_REF: KEY_CANARY, "VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S": "300"}
 
 
-def test_the_versioned_file_has_only_the_demo_profile_with_the_agreed_fields() -> None:
+def test_the_versioned_file_has_only_the_two_demo_profiles_with_the_agreed_fields() -> None:
     document = load_profiles()
 
-    assert list(document["profiles"]) == [NAME]
-    profile = document["profiles"][NAME]
-    assert set(profile) == {
-        "purpose",
-        "same_family_declared",
-        "permutation",
-        "role_aliases",
-        "roles",
-    }
-    for role in ("judge", "verifier"):
-        assert set(profile["roles"][role]) == {
-            "provider",
-            "model",
-            "scope",
-            "family",
-            "api_key_ref",
+    assert list(document["profiles"]) == [NAME, OPUS]
+    for name in (NAME, OPUS):
+        profile = document["profiles"][name]
+        assert profile["purpose"] == "demonstration"
+        assert set(profile) == {
+            "purpose",
+            "same_family_declared",
+            "permutation",
+            "role_aliases",
+            "roles",
         }
+        for role in ("judge", "verifier"):
+            assert set(profile["roles"][role]) == {
+                "provider",
+                "model",
+                "scope",
+                "family",
+                "api_key_ref",
+            }
+
+
+def test_the_opus_profile_differs_from_the_demo_only_in_the_model() -> None:
+    document = load_profiles()
+    demo, opus = document["profiles"][NAME], document["profiles"][OPUS]
+
+    for role in ("judge", "verifier"):
+        assert demo["roles"][role]["model"] == "claude-sonnet-5-5"
+        assert opus["roles"][role]["model"] == "claude-opus-5-5"
+    swapped = {
+        **opus,
+        "roles": {
+            role: {**spec, "model": demo["roles"][role]["model"]}
+            for role, spec in opus["roles"].items()
+        },
+    }
+    assert swapped == demo
 
 
 def test_the_versioned_file_never_carries_a_key_value() -> None:
     text = (Path(loader.__file__).parents[2] / "config" / "profiles.yaml").read_text("utf-8")
 
     assert "sk-" not in text
-    assert text.count(f"api_key_ref: {KEY_REF}") == 2
+    assert text.count(f"api_key_ref: {KEY_REF}") == 4
 
 
 def test_the_versioned_file_validates_with_the_real_u1_function_without_the_key() -> None:
     validated = profiles.validate(load_profiles(), key_prefix="VERIDICUS_", kind="analyzer")
 
-    assert set(validated) == {NAME}
+    assert set(validated) == {NAME, OPUS}
 
 
-def test_the_demo_profile_starts_with_its_key_and_carries_the_same_family_warning() -> None:
-    config = load_config(NAME, ENV)
+@pytest.mark.parametrize("name", [NAME, OPUS])
+def test_the_demo_profile_starts_with_its_key_and_carries_the_same_family_warning(
+    name: str,
+) -> None:
+    config = load_config(name, ENV)
 
-    assert config.profile_name == NAME
+    assert config.profile_name == name
     assert config.limits["model_call_timeout_s"] == 300
-    assert validate_profile(load_profiles(), NAME, ENV) == ("same_family",)
+    assert validate_profile(load_profiles(), name, ENV) == ("same_family",)
 
 
 def test_the_demo_profile_does_not_start_without_its_key_and_names_the_variable() -> None:

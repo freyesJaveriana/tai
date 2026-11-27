@@ -1,0 +1,14 @@
+{
+  "entrevista": "SINT-EVAL-08",
+  "origen": "sintetico",
+  "turnos": [
+    {"n": 1, "hablante": "ENT", "texto": "¿Cuándo salió usted de la vereda?"},
+    {"n": 2, "hablante": "TEST", "texto": "Salí en abril, después de que cerraron la escuela por las amenazas."},
+    {"n": 3, "hablante": "ENT", "texto": "¿A dónde fue?"},
+    {"n": 4, "hablante": "TEST", "texto": "Al casco urbano, a la casa de una tía que vivía cerca del parque."},
+    {"n": 5, "hablante": "ENT", "texto": "¿Cuánto tiempo vivió donde su tía?"},
+    {"n": 6, "hablante": "TEST", "texto": "Casi un año, hasta que conseguí trabajo en una cocina."},
+    {"n": 7, "hablante": "ENT", "texto": "¿Volvió alguna vez a la vereda?"},
+    {"n": 8, "hablante": "TEST", "texto": "Volví una sola vez, años después, a sacar los papeles de la finca; la escuela seguía cerrada."}
+  ]
+}

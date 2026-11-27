@@ -1,0 +1,8 @@
+---
+# Quien admite los pods del Job: el controlador de Jobs de Kubernetes.
+apiVersion: cli.kyverno.io/v1alpha1
+kind: UserInfo
+metadata:
+  name: controlador-de-jobs
+userInfo:
+  username: system:serviceaccount:kube-system:job-controller

@@ -1,0 +1,19 @@
+---
+# F-05: el pod con las ownerReferences del Job, creado por alguien que no es el controlador de Jobs,
+# debe fallar. Es el mismo recurso que pasa en ../kyverno-test.yaml cuando lo admite el controlador.
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: veridicus-secret-solo-job-otro-usuario
+policies:
+  - ../policy.yaml
+resources:
+  - ../resources/pass-pod-del-job.yaml
+userinfo: userinfo.yaml
+results:
+  - policy: veridicus-secret-solo-job
+    rule: solo-el-job-referencia-el-secret
+    kind: Pod
+    resources:
+      - veridicus-analyzer-demo-abcde
+    result: fail

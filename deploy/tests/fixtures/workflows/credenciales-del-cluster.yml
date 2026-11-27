@@ -1,0 +1,16 @@
+---
+# Control negativo (caso sonda 4): un paso con credenciales del clúster.
+name: credenciales-del-cluster
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Consultar
+        env:
+          KUBECONFIG: /tmp/clave
+        run: echo hola

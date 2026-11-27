@@ -1,0 +1,108 @@
+---
+# F-03/F-04: el pod cumple, pero el securityContext del contenedor sobrescribe lo restringido.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: contenedor-root
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        runAsUser: 0
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: contenedor-no-root-falso
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        runAsNonRoot: false
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: contenedor-seccomp-unconfined
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        seccompProfile:
+          type: Unconfined
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: contenedor-con-capacidades-add
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+          add:
+            - SYS_ADMIN
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: contenedor-privilegiado
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        privileged: true
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

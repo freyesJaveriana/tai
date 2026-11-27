@@ -1,0 +1,49 @@
+---
+# Regla (d): todo contenedor declara requests y limits de CPU y memoria, también los de inicio y los
+# efímeros (igual que resources_violations de deploy/tests/policy_checks.py).
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: veridicus-recursos-requeridos
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: requests-y-limits
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - veridicus-demo
+      validate:
+        message: Todo contenedor declara requests y limits de CPU y memoria.
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  requests:
+                    cpu: "?*"
+                    memory: "?*"
+                  limits:
+                    cpu: "?*"
+                    memory: "?*"
+            =(initContainers):
+              - resources:
+                  requests:
+                    cpu: "?*"
+                    memory: "?*"
+                  limits:
+                    cpu: "?*"
+                    memory: "?*"
+            =(ephemeralContainers):
+              - resources:
+                  requests:
+                    cpu: "?*"
+                    memory: "?*"
+                  limits:
+                    cpu: "?*"
+                    memory: "?*"

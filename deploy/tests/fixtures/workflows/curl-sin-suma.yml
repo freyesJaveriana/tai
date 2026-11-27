@@ -1,0 +1,17 @@
+---
+# Control negativo (caso sonda 3): verifica con sha256sum -c, pero no hay ninguna suma que comparar.
+name: curl-sin-suma
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar sin suma
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          sha256sum -c "$RUNNER_TEMP/a.sha256"
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP"

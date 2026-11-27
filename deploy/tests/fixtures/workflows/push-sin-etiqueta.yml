@@ -1,0 +1,21 @@
+---
+# Control negativo (P3): docker push de una variable cuya definición no lleva etiqueta (latest implícito).
+name: push-sin-etiqueta
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+env:
+  IMAGE: ghcr.io/o/i
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Publicar
+        run: docker push "$IMAGE"

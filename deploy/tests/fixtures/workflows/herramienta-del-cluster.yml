@@ -1,0 +1,14 @@
+---
+# Control negativo (caso sonda 4): un paso que invoca la herramienta del clúster, aunque sea solo para leer.
+name: herramienta-del-cluster
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Consultar
+        run: kubectl get pods

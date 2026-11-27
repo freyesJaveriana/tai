@@ -1,0 +1,6 @@
+F-10: Corregido en 965119a: en los .yaml se une `command` y `args` de cada contenedor (cualquier nivel: Pod, Job, CronJob, Deployment; los tres tipos) y se aplica la regla herramienta+verbo; la regla de bloque admite ruta antes del nombre y la lista admite `)` tras el verbo. Si el YAML no parsea, sigue la regla de texto. Rojo en e5e1dd2.
+F-11: Corregido en 965119a: los dos scripts de Secrets terminan con código 2 y piden `kubectl delete secret … --namespace …` si el Secret existe con `last-applied-configuration`; el aviso de conflicto de la cabecera se corrigió. Prueba estática en test_scripts_humano.
+F-12: Corregido en 965119a (declarado, sin cambiar el match): el hueco de `pods/ephemeralcontainers` consta en el comentario de veridicus-secret-solo-job y veridicus-imagen-con-etiqueta.
+F-13: Corregido en 965119a: la regla `apply sin --server-side` ignora el comentario final (fuera de comillas) y, con `-k` o `--kustomize`, falla si la kustomization del repositorio tiene `secretGenerator`; si la ruta no se resuelve estáticamente (otra variable, sustitución, carpeta inexistente) no decide, y queda documentado en el código.
+F-06 y los demás fuera de alcance: sin cambios, como se pidió.
+Añadido: demo-analyzer.sh fija curl 8.11.1 por el digest del índice multiarquitectura; el xfail pasó a una comprobación real y no queda ninguno.

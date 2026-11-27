@@ -80,7 +80,7 @@ exentos_er="${exentos_er%|}"
 buscar "$numeros" -i -o \
   -e "(?:\\bC\\.C\\.|(?<![\\w/.\\-])CC(?![\\w/.\\-])|(?<![\\w/.\\-])CC\\.(?=\\s)|\\bc(?:é|e)dula|\\bdocumento de identidad).{0,19}?\\K(?<![\\d.])(?!(?:${exentos_er})(?![\\d]|\\.\\d))(?:\\d{6,10}|\\d{1,3}(?:\\.\\d{3}){2,3})(?![\\d])" \
   -- .
-while IFS=: read -r archivo numero texto; do
+while IFS=: read -r archivo numero _; do
   [ -n "$archivo" ] || continue
   echo "$archivo:$numero:x" >> "$salida"
 done < "$numeros"
@@ -113,7 +113,7 @@ done < "$hallados"
 
 n=0
 detalle=""
-while IFS=: read -r archivo numero texto; do
+while IFS=: read -r archivo numero _; do
   [ -n "$archivo" ] || continue
   detalle+="  $archivo:$numero"$'\n'
   n=$((n + 1))

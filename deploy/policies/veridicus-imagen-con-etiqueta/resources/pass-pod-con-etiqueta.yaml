@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: con-etiqueta
+  namespace: veridicus-demo
+spec:
+  containers:
+    - name: analyzer
+      image: ghcr.io/freyesjaveriana/veridicus-analyzer-cli:sha-abc1234

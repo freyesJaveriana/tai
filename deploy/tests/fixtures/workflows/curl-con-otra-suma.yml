@@ -1,0 +1,19 @@
+---
+# Control negativo (caso sonda 3): verifica con sha256sum -c, pero con una suma que no es la de la tabla.
+name: curl-con-otra-suma
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar con otra suma
+        env:
+          SHA256: "0000000000000000000000000000000000000000000000000000000000000000"
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP"

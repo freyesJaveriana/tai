@@ -1,0 +1,24 @@
+---
+# Control negativo (M5b): la línea fija dentro de un grupo de llaves seguido de || true.
+name: verificacion-en-llaves
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instalar con la verificación en un grupo de llaves
+        env:
+          SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"
+          {
+          echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -
+          } || true
+          tar -xzf "$RUNNER_TEMP/a.tar.gz" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"

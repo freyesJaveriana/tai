@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sin-recursos
+  namespace: veridicus-demo
+spec:
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1

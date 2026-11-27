@@ -1,0 +1,30 @@
+---
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: veridicus-secret-solo-job
+policies:
+  - policy.yaml
+resources:
+  - resources/pass-pod-del-job.yaml
+  - resources/pass-pod-sin-secret.yaml
+  - resources/fail-pod-con-envfrom.yaml
+  - resources/fail-pod-con-volumen.yaml
+  - resources/fail-pod-con-la-etiqueta-del-job.yaml
+userinfo: userinfo.yaml
+results:
+  - policy: veridicus-secret-solo-job
+    rule: solo-el-job-referencia-el-secret
+    kind: Pod
+    resources:
+      - veridicus-analyzer-demo-abcde
+      - otro-sin-secret
+    result: pass
+  - policy: veridicus-secret-solo-job
+    rule: solo-el-job-referencia-el-secret
+    kind: Pod
+    resources:
+      - otro-con-envfrom
+      - otro-con-volumen
+      - impostor-con-etiqueta
+    result: fail

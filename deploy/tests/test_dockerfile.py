@@ -238,7 +238,9 @@ def test_the_final_stage_upgrades_libzstd1_to_the_fixed_version_before_the_user(
     assert "--no-install-recommends" in run
     assert FIXED_LIBZSTD in run.split(), "versión fijada y corregida"
     assert run.index("apt-get install") < run.index("rm -rf /var/lib/apt/lists/*")
-    assert run.endswith("rm -rf /var/lib/apt/lists/*"), "la capa no conserva las listas de apt"
+    assert "rm -rf /var/lib/apt/lists/*" in run, "la capa no conserva las listas de apt"
+    assert "&&" in run.split("rm -rf /var/lib/apt/lists/*")[0], "encadenado: si apt falla, falla"
+    assert len([k for k, _ in instructions if k == "RUN"]) == 1, "una sola capa RUN (DL3059)"
     users = [i for i, (keyword, _) in enumerate(instructions) if keyword == "USER"]
     assert number < users[-1], "se actualiza como root, antes del USER numérico"
     assert "libzstd1" not in real.rsplit("\nFROM ", 1)[0], "solo la etapa final lo toca"

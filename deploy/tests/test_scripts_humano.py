@@ -490,5 +490,7 @@ def test_the_digest_checks_accept_a_real_digest_and_the_marker() -> None:
     assert REAL_DIGEST.search("curlimages/curl@sha256:REEMPLAZAR_DIGEST_CURL") is None
 
 
-def test_the_human_folder_has_only_the_three_scripts() -> None:
-    assert sorted(item.name for item in Path(HUMANO).iterdir()) == SCRIPTS
+def test_the_human_folder_has_only_the_three_scripts_and_the_demo_viewer() -> None:
+    # visor-demo.py es la interfaz web de la demo, que lanza el humano en la VM (no es un script bash).
+    names = sorted(item.name for item in Path(HUMANO).iterdir() if item.name != "__pycache__")
+    assert names == sorted([*SCRIPTS, "visor-demo.py"])

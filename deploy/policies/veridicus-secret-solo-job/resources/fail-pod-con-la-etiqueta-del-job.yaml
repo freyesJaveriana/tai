@@ -1,0 +1,19 @@
+---
+# Copia la etiqueta del Job, pero no lo tiene como dueño: debe fallar.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: impostor-con-etiqueta
+  namespace: veridicus-demo
+  labels:
+    app.kubernetes.io/name: veridicus-analyzer-demo
+spec:
+  containers:
+    - name: otro
+      image: ghcr.io/freyesjaveriana/otro:v1
+      env:
+        - name: CLAVE
+          valueFrom:
+            secretKeyRef:
+              name: veridicus-anthropic
+              key: api-key

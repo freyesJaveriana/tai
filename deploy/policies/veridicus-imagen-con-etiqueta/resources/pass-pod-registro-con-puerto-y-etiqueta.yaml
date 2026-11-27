@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: registro-con-puerto-y-etiqueta
+  namespace: veridicus-demo
+spec:
+  initContainers:
+    - name: preparar
+      image: registry:5000/img:v1
+  containers:
+    - name: analyzer
+      image: registry:5000/ruta/img:v1@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

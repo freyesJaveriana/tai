@@ -1,0 +1,9 @@
+name: deploy
+on: push
+permissions:
+  contents: read
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - run: kubectl apply -f deploy/

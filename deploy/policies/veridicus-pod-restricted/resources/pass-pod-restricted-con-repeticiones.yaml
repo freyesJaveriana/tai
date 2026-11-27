@@ -1,0 +1,38 @@
+---
+# El contenedor repite valores restringidos (runAsUser distinto de 0, seccomp Localhost): debe pasar.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: restringido-con-repeticiones
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  initContainers:
+    - name: preparar
+      image: ghcr.io/o/a:v1
+      securityContext:
+        runAsUser: 10001
+        runAsNonRoot: true
+        privileged: false
+        seccompProfile:
+          type: Localhost
+          localhostProfile: perfil.json
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        runAsUser: 10001
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

@@ -1,0 +1,74 @@
+---
+# Único pod con salida a internet y único que monta el Secret (DP-04). Lleva el anonimizador dentro
+# del proceso y falla cerrado: sin anonimizador o sin clave no sale ninguna llamada (AUTONOMIA-04).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: veridicus-analyzer-demo
+  labels:
+    app.kubernetes.io/name: veridicus-analyzer-demo
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 900
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: veridicus-analyzer-demo
+    spec:
+      restartPolicy: Never
+      serviceAccountName: veridicus-analyzer-demo
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: veridicus-ghcr
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: analyzer
+          image: ghcr.io/freyesjaveriana/veridicus-analyzer-cli
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          env:
+            - name: VERIDICUS_ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: veridicus-anthropic
+                  key: api-key
+                  optional: false
+            - name: VERIDICUS_LIMIT_MODEL_CALL_TIMEOUT_S
+              value: "300"
+            - name: VERIDICUS_DEMO_ENTRADA
+              value: /entrada
+            - name: VERIDICUS_DEMO_SALIDA
+              value: /salida
+          volumeMounts:
+            - name: entrada
+              mountPath: /entrada
+              readOnly: true
+            - name: salida
+              mountPath: /salida
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: entrada
+          configMap:
+            name: veridicus-demo-entrada
+        - name: salida
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

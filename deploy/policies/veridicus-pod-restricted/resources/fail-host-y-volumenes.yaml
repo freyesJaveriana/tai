@@ -1,0 +1,88 @@
+---
+# F-03/F-04: el pod y su contenedor cumplen, pero usan el anfitrión.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-network
+  namespace: veridicus-demo
+spec:
+  hostNetwork: true
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-pid
+  namespace: veridicus-demo
+spec:
+  hostPID: true
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-ipc
+  namespace: veridicus-demo
+spec:
+  hostIPC: true
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volumen-hostpath
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+    - name: anfitrion
+      hostPath:
+        path: /
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

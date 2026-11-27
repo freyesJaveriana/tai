@@ -1,0 +1,45 @@
+---
+# F-04: el contenedor principal declara recursos; el de inicio o el efímero no.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-sin-recursos
+  namespace: veridicus-demo
+spec:
+  initContainers:
+    - name: preparar
+      image: ghcr.io/o/a:v1
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: "1"
+          memory: 512Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: efimero-sin-limits
+  namespace: veridicus-demo
+spec:
+  ephemeralContainers:
+    - name: depurar
+      image: ghcr.io/o/a:v1
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: "1"
+          memory: 512Mi

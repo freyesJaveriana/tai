@@ -1,0 +1,84 @@
+---
+# F-04: el contenedor principal cumple; el de inicio o el efímero no.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-como-root
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  initContainers:
+    - name: preparar
+      image: ghcr.io/o/a:v1
+      securityContext:
+        runAsUser: 0
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-sin-security-context
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  initContainers:
+    - name: preparar
+      image: ghcr.io/o/a:v1
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: efimero-privilegiado
+  namespace: veridicus-demo
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ephemeralContainers:
+    - name: depurar
+      image: ghcr.io/o/a:v1
+      securityContext:
+        privileged: true
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+  containers:
+    - name: analyzer
+      image: ghcr.io/o/a:v1
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

@@ -1,0 +1,44 @@
+---
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: veridicus-pod-restricted
+policies:
+  - policy.yaml
+resources:
+  - resources/pass-pod-restricted.yaml
+  - resources/pass-pod-restricted-con-repeticiones.yaml
+  - resources/fail-pod-como-root.yaml
+  - resources/fail-pod-sin-security-context.yaml
+  - resources/fail-pod-con-escalada.yaml
+  - resources/fail-sobrescritura-contenedor.yaml
+  - resources/fail-host-y-volumenes.yaml
+  - resources/fail-init-y-efimero.yaml
+results:
+  - policy: veridicus-pod-restricted
+    rule: pod-restricted
+    kind: Pod
+    resources:
+      - restringido
+      - restringido-con-repeticiones
+    result: pass
+  - policy: veridicus-pod-restricted
+    rule: pod-restricted
+    kind: Pod
+    resources:
+      - como-root
+      - sin-security-context
+      - con-escalada
+      - contenedor-root
+      - contenedor-no-root-falso
+      - contenedor-seccomp-unconfined
+      - contenedor-con-capacidades-add
+      - contenedor-privilegiado
+      - host-network
+      - host-pid
+      - host-ipc
+      - volumen-hostpath
+      - init-como-root
+      - init-sin-security-context
+      - efimero-privilegiado
+    result: fail

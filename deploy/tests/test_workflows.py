@@ -190,6 +190,9 @@ def test_deploy_level0_downloads_each_tool_with_the_pinned_asset_and_the_sum_of_
         "tar" if asset.endswith(("gz", "xz")) else "chmod"
     )
     assert _lone_step_violations(step) == [], "el paso entero pasa por workflow_checks (F-07)"
+    # F-09: la suma de ESTE paso es la de la tabla de ESTA herramienta, y ningún env superior la pisa.
+    assert step["env"]["SHA256"] == digest
+    assert checks.violations(DEPLOY_WORKFLOW.name, _text(DEPLOY_WORKFLOW)) == []
 
 
 @pytest.mark.parametrize("name", FAIL_RESOURCES)
@@ -296,6 +299,8 @@ def test_trivy_is_downloaded_with_the_pinned_asset_and_the_sum_of_the_table(job:
     assert digest in _step_text(step)
     assert "sha256sum -c" in step["run"]
     assert _lone_step_violations(step) == [], "el paso entero pasa por workflow_checks (F-07)"
+    assert step["env"]["SHA256"] == digest
+    assert checks.violations(IMAGE_WORKFLOW.name, _text(IMAGE_WORKFLOW)) == []
 
 
 def test_the_publish_job_scans_before_it_logs_in_and_pushes_the_commit_sha_tag() -> None:
@@ -359,6 +364,11 @@ NEGATIVES = {
     "verificacion-en-llaves.yml": "plantilla",  # M5b
     "trap-err.yml": "plantilla",  # M13
     "continue-on-error.yml": "continue-on-error",  # M14
+    # Ronda 5 (F-09): la suma que usa la verificación es la de la tabla, del paso y de esa herramienta.
+    "suma-en-el-env-del-job.yml": "se define también en el env del job o del workflow",  # B8
+    "suma-en-el-env-del-workflow.yml": "se define también en el env del job o del workflow",  # B8c
+    "suma-de-otra-herramienta.yml": "suma de la tabla de trivy",
+    "suma-sin-definir.yml": "no se define en el env del paso",
 }
 
 
@@ -449,7 +459,8 @@ def test_negative_f01_a_check_whose_exit_code_is_annulled_fails(masked: str) -> 
 # --- Ronda 3 (F-05): la verificación tiene una forma fija, no una lista de máscaras ---------------
 
 GOOD_LINE = 'echo "${SHA256}  $RUNNER_TEMP/a.tar.gz" | sha256sum -c -'
-CURL_LINE = 'curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "https://example.org/a.tar.gz"'
+ASSET_URL = "https://example.org/trivy_0.76.2_Linux-64bit.tar.gz"
+CURL_LINE = f'curl -fsSL -o "$RUNNER_TEMP/a.tar.gz" "{ASSET_URL}"'
 INDENT = "          "
 
 
@@ -497,7 +508,6 @@ def test_negative_f05_a_verification_chained_to_the_previous_line_fails(chain: s
     "good",
     [
         GOOD_LINE,
-        'echo "${SHA256}  ${RUNNER_TEMP}/a.tar.gz" | sha256sum -c -',
         f"# primero se verifica\n{INDENT}{GOOD_LINE}",
     ],
 )
@@ -778,11 +788,7 @@ def test_negative_f07_a_broken_mv_chmod_variant_fails(tail: list[str]) -> None:
 
 
 def test_f07_a_curl_with_retry_and_a_continuation_is_part_of_the_template() -> None:
-    curl = (
-        'curl -fsSL --retry 3 -o "$RUNNER_TEMP/a.tar.gz" \\\n'
-        + INDENT
-        + '  "https://example.org/a.tar.gz"'
-    )
+    curl = 'curl -fsSL --retry 3 -o "$RUNNER_TEMP/a.tar.gz" \\\n' + INDENT + f'  "{ASSET_URL}"'
     lines = [*TEMPLATE[:2], curl, *TEMPLATE[3:]]
 
     assert checks.violations("x.yml", _ok_with_script(lines)) == []
@@ -848,6 +854,194 @@ def test_f07_every_downloading_step_of_the_real_workflows_is_the_template(path: 
     assert checks.violations(path.name, _text(path)) == []
     for step in downloading:
         assert "continue-on-error" not in step and "if" not in step
+
+
+# --- Ronda 5 (F-09 y F-10): la suma y las rutas de la plantilla están atadas ----------------------
+
+TRIVY_SUM = checks.TOOLS["trivy"][1]
+KUSTOMIZE_SUM = checks.TOOLS["kustomize"][1]
+FAKE_SUM = "e" * 64
+
+
+def _with_job_env(text: str, env: str) -> str:
+    return _mutate(
+        text, "    timeout-minutes: 10\n    steps:", f"    timeout-minutes: 10\n{env}    steps:"
+    )
+
+
+@pytest.mark.parametrize("name", ["SHA256", "RUNNER_TEMP", "GITHUB_PATH"])
+def test_negative_f09_a_variable_of_the_template_defined_in_the_job_env_fails(name: str) -> None:
+    text = _with_job_env(_text(FIXTURES / "ok.yml"), f'    env:\n      {name}: "{FAKE_SUM}"\n')
+
+    assert any("env del job o del workflow" in x for x in checks.violations("x.yml", text))
+
+
+@pytest.mark.parametrize("name", ["SHA256", "RUNNER_TEMP", "GITHUB_PATH"])
+def test_negative_f09_a_variable_of_the_template_defined_in_the_workflow_env_fails(
+    name: str,
+) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), "jobs:\n", f'env:\n  {name}: "{FAKE_SUM}"\njobs:\n')
+
+    assert any("env del job o del workflow" in x for x in checks.violations("x.yml", text))
+
+
+def test_f09_an_unrelated_variable_in_the_job_or_workflow_env_is_fine() -> None:
+    text = _with_job_env(_text(FIXTURES / "ok.yml"), '    env:\n      OTRA_COSA: "x"\n')
+    text = _mutate(text, "jobs:\n", 'env:\n  TAMBIEN_OTRA: "y"\njobs:\n')
+
+    assert checks.violations("x.yml", text) == []
+
+
+@pytest.mark.parametrize(
+    "value",
+    [FAKE_SUM, KUSTOMIZE_SUM, TRIVY_SUM.upper(), "", TRIVY_SUM + "0"],
+    ids=["inventada", "de otra herramienta", "en mayúsculas", "vacía", "más larga"],
+)
+def test_negative_f09_the_step_sum_must_be_exactly_the_one_of_the_tool_it_downloads(
+    value: str,
+) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), f"SHA256: {TRIVY_SUM}", f'SHA256: "{value}"')
+
+    assert checks.violations("x.yml", text)
+
+
+def test_f09_the_step_sum_of_the_right_tool_passes() -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        ASSET_URL,
+        "https://example.org/kustomize_v5.8.3_linux_amd64.tar.gz",
+    )
+    text = _mutate(text, f"SHA256: {TRIVY_SUM}", f"SHA256: {KUSTOMIZE_SUM}")
+
+    assert checks.violations("x.yml", text) == []
+
+
+def test_negative_f09_a_step_that_names_no_tool_of_the_table_fails() -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), ASSET_URL, "https://example.org/a.tar.gz")
+
+    assert any("no identifica la herramienta" in x for x in checks.violations("x.yml", text))
+
+
+def test_negative_f09_a_step_that_names_two_tools_fails() -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        "        env:\n          SHA256:",
+        f"        env:\n          OTRO: {checks.TOOLS['kustomize'][0]}\n          SHA256:",
+    )
+
+    assert any("más de una herramienta" in x for x in checks.violations("x.yml", text))
+
+
+def test_negative_f09_an_undefined_variable_in_a_path_fails() -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        'mkdir -p "$RUNNER_TEMP/bin"',
+        'mkdir -p "$RUNNER_TEMP/$OTRA"',
+    )
+    found = checks.violations("x.yml", text)
+
+    assert any("OTRA no está definida en el env del paso" in x for x in found)
+
+
+# F-10: la ruta del curl, la de la verificación y la de la extracción son la misma cadena.
+OTHER = "$RUNNER_TEMP/otro.tar.gz"
+CURL_WITH_OTHER = CURL_LINE.replace("$RUNNER_TEMP/a.tar.gz", OTHER)
+VERIFY_WITH_OTHER = GOOD_LINE.replace("$RUNNER_TEMP/a.tar.gz", OTHER)
+TAR_WITH_OTHER = TAR_LINE.replace("$RUNNER_TEMP/a.tar.gz", OTHER)
+
+PATH_MISMATCHES = {
+    "B1 curl hacia otra ruta": (CURL_LINE, CURL_WITH_OTHER),
+    "B2 sha256sum sobre otra ruta": (GOOD_LINE, VERIFY_WITH_OTHER),
+    "B3 variable sin definir en la ruta": (
+        GOOD_LINE,
+        GOOD_LINE.replace("$RUNNER_TEMP/a.tar.gz", "$RUNNER_TEMP/$OTRA"),
+    ),
+    "B4 tar de otro archivo": (TAR_LINE, TAR_WITH_OTHER),
+    "ruta con llaves": (GOOD_LINE, GOOD_LINE.replace("$RUNNER_TEMP", "${RUNNER_TEMP}")),
+    "extracción mv de otro archivo": (TAR_LINE, 'mv "$RUNNER_TEMP/b.tar.gz" "$RUNNER_TEMP/bin/t"'),
+}
+
+
+@pytest.mark.parametrize("name", PATH_MISMATCHES)
+def test_negative_f10_paths_that_are_not_the_same_literal_string_fail(name: str) -> None:
+    old, new = PATH_MISMATCHES[name]
+    text = _mutate(_text(FIXTURES / "ok.yml"), old, new)
+    if name.startswith("extracción mv"):
+        text = _mutate(text, PATH_LINE, f'chmod +x "$RUNNER_TEMP/bin/t"\n{INDENT}{PATH_LINE}')
+    found = checks.violations("x.yml", text)
+
+    assert any("la misma cadena" in x or "no está definida" in x for x in found), found
+
+
+def test_f10_the_same_literal_path_in_the_three_lines_passes_also_with_braces() -> None:
+    text = _text(FIXTURES / "ok.yml").replace("$RUNNER_TEMP", "${RUNNER_TEMP}")
+    text = text.replace("${RUNNER_TEMP}/bin", "$RUNNER_TEMP/bin")
+
+    assert checks.violations("x.yml", text) == []
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "gh release download v1 -p x && ./x",  # B9
+        'gh release download v1 --pattern "*.tar.gz"',
+        'wget -q -O "$RUNNER_TEMP/a.tar.gz" x',
+        'python3 -c "import urllib.request"',
+        "python -m pip download requests",
+        "pip3 download requests",
+    ],
+    ids=range(6),
+)
+def test_negative_f10_a_step_that_downloads_without_a_url_or_curl_is_checked_and_rejected(
+    command: str,
+) -> None:
+    step = f"      - name: Descargar\n        run: {command}"
+    text = _mutate(_text(FIXTURES / "ok.yml"), "  publish:", f"{step}\n  publish:")
+
+    assert any("plantilla" in item for item in checks.violations("x.yml", text))
+
+
+def test_f10_a_step_without_any_download_is_not_checked_by_the_template() -> None:
+    step = "      - name: Saludar\n        run: echo hola"
+    text = _mutate(_text(FIXTURES / "ok.yml"), "  publish:", f"{step}\n  publish:")
+
+    assert checks.violations("x.yml", text) == []
+
+
+def _b8_mutants() -> dict[str, tuple[Path, str, str]]:
+    """B8 (env del job), B8c (env del workflow) y B9 (gh release download) sobre pasos reales."""
+    kustomize = "      - name: Instalar kustomize v5.8.3 verificado por SHA-256 (red)\n"
+    return {
+        "B8 Trivy, env del job": (IMAGE_WORKFLOW, TRIVY_SUM, "job"),
+        "B8 kustomize, env del job": (DEPLOY_WORKFLOW, KUSTOMIZE_SUM, "job"),
+        "B8c Trivy, env del workflow": (IMAGE_WORKFLOW, TRIVY_SUM, "workflow"),
+        "B8c kustomize, env del workflow": (DEPLOY_WORKFLOW, KUSTOMIZE_SUM, "workflow"),
+        "B9 Trivy": (IMAGE_WORKFLOW, TRIVY_STEP, "gh release download v1 && ./x"),
+        "B9 kustomize": (DEPLOY_WORKFLOW, kustomize, "gh release download v1 && ./x"),
+    }
+
+
+@pytest.mark.parametrize("name", list(_b8_mutants()))
+def test_negative_b8_b8c_and_b9_on_real_download_steps_are_seen(name: str) -> None:
+    path, anchor, how = _b8_mutants()[name]
+    text = _text(path)
+    if how in {"job", "workflow"}:
+        text = _mutate(text, f'SHA256: "{anchor}"', f'SUMA_TABLA: "{anchor}"')
+        fake = f'SHA256: "{FAKE_SUM}"'
+        if how == "job":
+            text = _mutate(text, "    steps:\n", f"    env:\n      {fake}\n    steps:\n")
+        elif path == IMAGE_WORKFLOW:
+            text = _mutate(text, "env:\n  IMAGE:", f"env:\n  {fake}\n  IMAGE:")
+        else:
+            text = _mutate(text, "\njobs:\n", f"\nenv:\n  {fake}\njobs:\n")
+        expected = "se define también en el env del job o del workflow"
+    else:
+        step = f"      - name: gh\n        run: {how}\n"
+        text = _mutate(text, anchor, step + anchor)
+        expected = "plantilla"
+    found = checks.violations(path.name, text)
+
+    assert any(expected in item for item in found), found
 
 
 # --- Ronda 3 (F-06): buildx, image push/tag y una etiqueta que solo contiene una variable --------

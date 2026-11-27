@@ -24,7 +24,8 @@ Se corren desde la raíz del repositorio, con `bash`, en este orden:
    `last-applied-configuration` (entonces pide borrarlo y repetir).
 2. `bash scripts/humano/crear-pull-secret-ghcr.sh <.env>`: lee `VERIDICUS_GHCR_USER` y `VERIDICUS_GHCR_TOKEN`
    y crea el Secret `veridicus-ghcr` (tipo docker-registry) para descargar la imagen de GHCR. Sale con 2 por
-   las mismas causas, o si el usuario o el token no tienen la forma admitida (letras, cifras, guion y guion bajo).
+   las mismas causas, o si falta alguna llave o no tiene la forma admitida. Usuario: letras, cifras y guion,
+   sin guion bajo. Token: lo mismo, más guion bajo.
 3. `bash scripts/humano/demo-analyzer.sh`: sale con 2 si falta alguno de los dos Secrets; si no, borra el Job
    anterior, aplica `deploy/demo-analyzer`, espera hasta 900 s, imprime los logs, corre la prueba de red y
    termina con el código de salida del Job (0 si el análisis salió bien).
@@ -66,14 +67,20 @@ kubectl delete secret veridicus-anthropic veridicus-ghcr --namespace veridicus-d
 ```
 
 El primero elimina el Job, la `NetworkPolicy` y el namespace; los Secrets no vienen del manifiesto, así que
-se borran con el segundo comando si el namespace sigue existiendo. Borre también el `.env` de la VM al terminar.
+se borran con el segundo comando si el namespace sigue existiendo. Si usó el plan B, borre también la imagen local
+con `minikube image rm ghcr.io/freyesjaveriana/veridicus-analyzer-cli:<etiqueta>`. Borre el `.env` de la VM al terminar.
 
 ## Frontera de datos (AUTONOMIA-04)
 
 - **Job `veridicus-analyzer-demo`**: corre **dentro** del clúster. Lleva el anonimizador en el mismo proceso
   y falla cerrado: sin anonimizador o sin clave no sale ninguna llamada.
-- **Hacia fuera** solo cruza texto sintético seudonimizado hacia Anthropic, por el puerto 443, más DNS hacia CoreDNS.
-- **Ningún otro pod** tiene salida (`veridicus-deny-all`), y solo el Job monta el Secret `veridicus-anthropic`.
+- **Qué hace cada control.** La `NetworkPolicy` deja al Job salir por HTTPS (443) hacia IP públicas (no hacia
+  rangos privados) y hacer DNS hacia `kube-dns`. El destino Anthropic y la seudonimización los impone el
+  anonimizador dentro del proceso del Job, no la red. Lo que cruza es texto sintético seudonimizado.
+- **Otros pods.** `veridicus-deny-all` niega entrada y salida solo a los pods del namespace `veridicus-demo`, y
+  solo se cumple con Calico activo; los pods de `kube-system` u otros namespaces no quedan cubiertos.
+- **El Secret.** Solo el Job declara `veridicus-anthropic`. En el clúster no hay una política de admisión que lo
+  impida: Kyverno corre solo en la CI.
 - La imagen no lleva ninguna clave. No use transcripciones reales en esta demo.
 
 ## Plan A y plan B de la imagen
@@ -83,14 +90,16 @@ Imagen: `ghcr.io/freyesjaveriana/veridicus-analyzer-cli`, con la etiqueta fijada
 
 - **Plan A (normal):** `.github/workflows/analyzer-image.yml` la publica en GHCR con el SHA del commit al
   fusionar el Bolt en `main`; un PR de una línea fija ese SHA en `kustomization.yaml` (paso 11). Requiere el paquete
-  vinculado al repositorio con acceso de Actions en escritura, y el Secret `veridicus-ghcr` del script 2.
-  Con la etiqueta provisional la descarga falla (`ImagePullBackOff`).
+  vinculado al repositorio con acceso de Actions en escritura, y el Secret `veridicus-ghcr` del script 2, cuyo
+  token es un PAT clásico con `read:packages`. Con la etiqueta provisional la descarga falla (`ImagePullBackOff`).
 - **Plan B (solo para la demo, desviación de `team.md`: las imágenes salen de la CI):** si la publicación falla,
   construirla en la VM con el mismo Dockerfile y el mismo contexto (la raíz del repositorio):
   `minikube image build -t ghcr.io/freyesjaveriana/veridicus-analyzer-cli:<etiqueta de kustomization.yaml> -f deploy/images/analyzer-cli/Dockerfile .`
-  - La etiqueta debe ser exactamente la de `kustomization.yaml`; no cambie ningún manifiesto.
+  - Se construye antes del script 3 (`demo-analyzer.sh`), con la etiqueta exacta de `kustomization.yaml`; no
+    cambie ningún manifiesto.
   - `job.yaml` no fija `imagePullPolicy`: con una etiqueta que no es móvil, Kubernetes usa la imagen local si ya
     está en Minikube y solo descarga si falta.
   - El `imagePullSecret` `veridicus-ghcr` sigue declarado y `demo-analyzer.sh` exige que exista: cree el Secret con
-    el script 2 usando valores de relleno con la forma admitida; en este plan no se usa para descargar.
+    el script 2, antes de `demo-analyzer.sh`, con un `.env` que lleve `VERIDICUS_GHCR_USER=relleno` y
+    `VERIDICUS_GHCR_TOKEN=relleno`; en este plan no se usa para descargar.
   - Esa imagen no pasó por Trivy ni por la CI: regístrelo como desviación en la bitácora de la demo.

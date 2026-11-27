@@ -24,13 +24,15 @@ REQUIRED_SECTIONS = (
     "plan a y plan b",
 )
 
-_PATH = re.compile(r"(?:scripts/humano|deploy)/[\w./\-]*[\w/]")
+_PATH = re.compile(
+    r"(?<![\w.\-/])[\w.\-]*(?:\.github|scripts|deploy|libs|contracts)/[\w./\-]*[\w/]"
+)
 _BARE_SCRIPT = re.compile(r"(?<![\w/.\-])([\w\-]+\.sh)\b")
 _HEADING = re.compile(r"^#{1,6}\s+(.*)$", re.MULTILINE)
 _SECRET_SHAPES = (
     re.compile(r"sk-ant-"),
     re.compile(r"\bsk-[A-Za-z0-9_\-]{20,}"),
-    re.compile(r"\bghp_[A-Za-z0-9]{10,}"),
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{10,}"),
     re.compile(r"\bgithub_pat_[A-Za-z0-9_]{10,}"),
 )
 _KUBECONFIG = re.compile(r"kubeconfig", re.IGNORECASE)
@@ -55,6 +57,13 @@ def violations(text: str, root: Path) -> list[str]:
     for keyword in REQUIRED_SECTIONS:
         if not any(keyword in heading for heading in headings):
             found.append(f"falta la sección «{keyword}»")
+    if any(sum(keyword in heading for keyword in REQUIRED_SECTIONS) > 1 for heading in headings):
+        found.append("un encabezado cubre varias secciones obligatorias")
+
+    for line in text.lower().splitlines():
+        if "usuario" in line and "guion bajo" in line and "sin guion bajo" not in line:
+            found.append("dice que el usuario admite guion bajo")
+            break
 
     if any(pattern.search(text) for pattern in _SECRET_SHAPES):
         found.append("lleva algo con forma de clave o token")
@@ -63,7 +72,8 @@ def violations(text: str, root: Path) -> list[str]:
     if _LATEST.search(text):
         found.append("usa latest como etiqueta de imagen")
 
-    starts = [line for line in text.splitlines() if "minikube start" in line]
+    joined = text.replace("\\\n", " ")
+    starts = [line for line in joined.splitlines() if "minikube start" in line]
     if not starts or any("--cni=calico" not in line for line in starts):
         found.append("el comando minikube start no lleva --cni=calico")
 

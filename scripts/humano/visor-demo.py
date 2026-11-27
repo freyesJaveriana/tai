@@ -5,6 +5,7 @@ Lo lanza el humano en la VM de la demo, desde la raíz del repositorio y con su 
 
     python3 scripts/humano/visor-demo.py            # escucha en http://127.0.0.1:8501
     python3 scripts/humano/visor-demo.py --host 0.0.0.0 --port 8501
+    python3 scripts/humano/visor-demo.py --logo ~/escudo.png   # escudo institucional, no versionado
 
 Desde la anfitriona se abre con un túnel: ssh -L 8501:127.0.0.1:8501 <usuario>@<vm>
 y luego http://127.0.0.1:8501 en el navegador.
@@ -22,6 +23,8 @@ Solo usa la biblioteca estándar de Python.
 """
 
 import argparse
+import base64
+import hashlib
 import html
 import json
 import re
@@ -46,6 +49,19 @@ PLAZO_S = 900
 MAX_CARACTERES = 60_000
 
 _ocupado = threading.Lock()
+
+UNIVERSIDAD = "Pontificia Universidad Javeriana"
+ASIGNATURA = "Tópicos Avanzados de Informática"
+PROFESOR = "Luis Felipe Ariza"
+AUTOR = "Felipe Reyes Palacio"
+CORREO = "freyes@javeriana.edu.co"
+# Colores aproximados de la identidad javeriana (azul institucional y acento dorado).
+AZUL = "#2c5697"
+AZUL_OSCURO = "#1b3a6b"
+DORADO = "#f2b705"
+
+# Escudo opcional (--logo): se incrusta como data URI; el archivo nunca entra al repositorio.
+_logo: dict[str, str] = {"uri": ""}
 
 AVISO_PROPOSITO = (
     "Los hallazgos son sugerencias de revisión sobre la coherencia interna del relato, "
@@ -222,9 +238,28 @@ def leer_logs(logs: str) -> dict[str, object]:
 
 # ------------------------------------------------------------------ HTML
 
-_ESTILO = """
-body{font-family:system-ui,sans-serif;max-width:1100px;margin:1.5rem auto;padding:0 1rem;color:#1f2328}
-h1{font-size:1.4rem;margin-bottom:.2rem} h2{font-size:1.1rem;margin-top:1.5rem}
+_ESTILO = f"""
+body{{font-family:system-ui,sans-serif;margin:0;color:#1f2328;background:#f4f6fa}}
+main{{max-width:1100px;margin:0 auto;padding:1rem 1rem 2rem;background:#fff;min-height:70vh}}
+.banda{{background:{AZUL};color:#fff;border-bottom:5px solid {DORADO}}}
+.banda .dentro{{max-width:1100px;margin:0 auto;padding:.8rem 1rem;display:flex;align-items:center;gap:1rem}}
+.banda img{{height:56px;background:#fff;border-radius:4px;padding:4px}}
+.banda .u{{font-size:1.15rem;font-weight:700;letter-spacing:.02em}}
+.banda .a{{font-size:.9rem;opacity:.92}}
+footer{{background:{AZUL_OSCURO};color:#e8edf6;font-size:.85rem}}
+footer .dentro{{max-width:1100px;margin:0 auto;padding:.9rem 1rem}}
+footer a{{color:#fff}}
+h1{{font-size:1.4rem;margin-bottom:.2rem;color:{AZUL_OSCURO}}} h2{{font-size:1.1rem;margin-top:1.5rem;color:{AZUL_OSCURO}}}
+button{{background:{AZUL};color:#fff;border:0;border-radius:4px}}
+button:hover{{background:{AZUL_OSCURO}}} button:disabled{{opacity:.5;cursor:wait}}
+.cargando{{position:fixed;inset:0;background:rgba(255,255,255,.88);display:flex;flex-direction:column;
+align-items:center;justify-content:center;z-index:10;font-size:1.6rem;color:{AZUL_OSCURO};cursor:wait}}
+.cargando[hidden]{{display:none}}
+.cargando small{{font-size:.95rem;margin-top:.6rem}}
+.giro{{width:56px;height:56px;border:6px solid #d6deea;border-top-color:{AZUL};border-radius:50%;
+animation:giro 1s linear infinite;margin-bottom:1rem}}
+@keyframes giro{{to{{transform:rotate(360deg)}}}}"""
+_ESTILO += """
 .aviso{background:#fff8e1;border-left:4px solid #b58100;padding:.6rem .8rem;margin:.6rem 0;font-size:.92rem}
 .error{background:#fdecea;border-left:4px solid #b3261e;padding:.6rem .8rem;margin:.6rem 0}
 textarea{width:100%;min-height:22rem;font-family:ui-monospace,monospace;font-size:.9rem}
@@ -244,15 +279,64 @@ small{color:#57606a} pre{white-space:pre-wrap;font-size:.8rem;background:#f6f8fa
 """
 
 
+# Al enviar «Analizar»: muestra el aviso a pantalla completa, bloquea los botones y cuenta segundos.
+# Los campos quedan de solo lectura (no deshabilitados) para que el formulario siga enviándolos.
+_GUION = """
+document.addEventListener('submit', function (e) {
+  if (e.target.id !== 'analizar') return;
+  var capa = document.getElementById('cargando'), t0 = Date.now();
+  capa.hidden = false;
+  document.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+  document.querySelectorAll('textarea, input[type=text]').forEach(function (c) { c.readOnly = true; });
+  setInterval(function () {
+    document.getElementById('segundos').textContent = Math.round((Date.now() - t0) / 1000);
+  }, 1000);
+});
+window.addEventListener('pageshow', function () {
+  var capa = document.getElementById('cargando');
+  if (capa) capa.hidden = true;
+  document.querySelectorAll('button').forEach(function (b) { b.disabled = false; });
+});
+"""
+_HASH_GUION = base64.b64encode(hashlib.sha256(_GUION.encode()).digest()).decode()
+CSP = (
+    "default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'self'; "
+    f"script-src 'sha256-{_HASH_GUION}'"
+)
+
+
+def _banda() -> str:
+    escudo = f"<img src='{html.escape(_logo['uri'])}' alt='{UNIVERSIDAD}'>" if _logo["uri"] else ""
+    return (
+        f"<header class='banda'><div class='dentro'>{escudo}<div>"
+        f"<div class='u'>{UNIVERSIDAD}</div>"
+        f"<div class='a'>{html.escape(ASIGNATURA)} · Prof. {PROFESOR}</div>"
+        "</div></div></header>"
+    )
+
+
+def _pie() -> str:
+    return (
+        "<footer><div class='dentro'>"
+        f"Por: {AUTOR} · <a href='mailto:{CORREO}'>{CORREO}</a> · "
+        f"para la asignatura «{html.escape(ASIGNATURA)}» del profesor {PROFESOR}. "
+        f"{UNIVERSIDAD}."
+        "</div></footer>"
+    )
+
+
 def _pagina(cuerpo: str) -> bytes:
     return (
         "<!doctype html><html lang='es'><head><meta charset='utf-8'>"
         "<title>Veridicus · demo del analizador</title>"
-        f"<style>{_ESTILO}</style></head><body>"
+        f"<style>{_ESTILO}</style></head><body>{_banda()}<main>"
         "<h1>Veridicus · demo del analizador de incoherencias</h1>"
         "<small>Herramienta de demostración. Solo casos sintéticos.</small>"
         f"<div class='aviso'><strong>Aviso de propósito limitado.</strong> {html.escape(AVISO_PROPOSITO)}</div>"
-        f"{cuerpo}</body></html>"
+        f"{cuerpo}</main>{_pie()}"
+        "<div id='cargando' class='cargando' hidden><div class='giro'></div>Analizando…"
+        "<small><span id='segundos'>0</span> s · suele tardar alrededor de un minuto</small></div>"
+        f"<script>{_GUION}</script></body></html>"
     ).encode()
 
 
@@ -260,7 +344,7 @@ def pagina_formulario(entrevista: str, relato: str, error: str = "") -> bytes:
     aviso_error = f"<div class='error'>{html.escape(error)}</div>" if error else ""
     return _pagina(
         f"""{aviso_error}
-<form method='post' action='/analizar'>
+<form id='analizar' method='post' action='/analizar'>
 <h2>1. Escriba el caso</h2>
 <p>Un turno por línea, empezando por <code>ENT:</code> (entrevistador) o <code>TEST:</code> (relato que se
 analiza). Una línea sin prefijo continúa el turno anterior. Los turnos se numeran T1, T2, … en orden.</p>
@@ -269,7 +353,7 @@ analiza). Una línea sin prefijo continúa el turno anterior. Los turnos se nume
 <textarea name='relato'>{html.escape(relato)}</textarea>
 <div class='aviso'>El anonimizador de esta versión seudonimiza con reglas y listas y no reconoce cualquier
 nombre. <strong>No escriba datos reales</strong>: el texto se envía, seudonimizado, a un proveedor externo.</div>
-<p><label><input type='checkbox' name='sintetico' value='si'> Confirmo que el caso es sintético.</label></p>
+<p><label><input type='checkbox' name='sintetico' value='si' required> Confirmo que el caso es sintético.</label></p>
 <p><button type='submit'>Analizar</button> <small>Tarda alrededor de un minuto; no cierre la página.</small></p>
 </form>
 <form method='get' action='/'><button type='submit' name='ejemplo' value='si'>Cargar el ejemplo</button></form>"""
@@ -370,10 +454,7 @@ class Visor(BaseHTTPRequestHandler):
     def _responder(self, cuerpo: bytes, codigo: int = 200) -> None:
         self.send_response(codigo)
         self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header(
-            "Content-Security-Policy",
-            "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'",
-        )
+        self.send_header("Content-Security-Policy", CSP)
         self.send_header("Content-Length", str(len(cuerpo)))
         self.end_headers()
         self.wfile.write(cuerpo)
@@ -431,15 +512,37 @@ class Visor(BaseHTTPRequestHandler):
         sys.stderr.write(f"{self.command} {self.path.split('?')[0]}\n")
 
 
+def logo_data_uri(ruta: Path) -> str:
+    tipos = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".svg": "image/svg+xml",
+    }
+    tipo = tipos.get(ruta.suffix.lower())
+    if tipo is None:
+        sys.exit("El escudo debe ser PNG, JPG o SVG.")
+    try:
+        datos = ruta.expanduser().read_bytes()
+    except OSError as error:
+        sys.exit(f"No se pudo leer el escudo: {error}")
+    return f"data:{tipo};base64,{base64.b64encode(datos).decode()}"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Visor web de la demo del analizador (solo casos sintéticos)."
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8501)
+    parser.add_argument(
+        "--logo", type=Path, help="PNG, JPG o SVG del escudo (opcional, no versionado)"
+    )
     opciones = parser.parse_args()
     if shutil.which("kubectl") is None:
         sys.exit("Falta kubectl en el PATH.")
+    if opciones.logo is not None:
+        _logo["uri"] = logo_data_uri(opciones.logo)
     servidor = ThreadingHTTPServer((opciones.host, opciones.port), Visor)
     print(f"Visor de la demo en http://{opciones.host}:{opciones.port}  (Ctrl+C para salir)")
     try:

@@ -29,8 +29,9 @@ TOOLS: dict[str, tuple[str, str]] = {
         "9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883",
     ),
     "kyverno": (
-        "kyverno-cli_v1.20.0_linux_x86_64.tar.gz",
-        "06b8f3ca7b5626473be8fb4d343ad54ab84e317142766f72420e7d44b80942e2",
+        # 1.19.2 y no 1.20: Kyverno 1.20 quitó la ejecución de ClusterPolicy (kyverno.io/v1). K-107.
+        "kyverno-cli_v1.19.2_linux_x86_64.tar.gz",
+        "357eaf1df8bc24ddd5a73979fadeaae6a032e8710f11af264229756e4956bf4a",
     ),
     "hadolint": (
         "hadolint-linux-x86_64",

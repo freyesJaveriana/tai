@@ -222,6 +222,22 @@ def test_the_final_stage_copies_only_the_virtual_environment(real: str) -> None:
     assert copies == ["--from=build /app/.venv /app/.venv"]
 
 
+SOURCE_LABEL = 'org.opencontainers.image.source="https://github.com/freyesJaveriana/tai"'
+
+
+def test_the_final_stage_carries_the_oci_source_label_that_links_the_ghcr_package(
+    real: str,
+) -> None:
+    """Sin esta etiqueta el paquete de GHCR no se vincula al repositorio y el GITHUB_TOKEN no puede
+    publicarlo (F-04)."""
+    final = real.rsplit("\nFROM ", 1)[1]
+    labels = [rest for keyword, rest in _instructions("FROM " + final) if keyword == "LABEL"]
+    build = real.rsplit("\nFROM ", 1)[0]
+
+    assert labels == [SOURCE_LABEL]
+    assert "LABEL" not in build, "solo la etapa final lleva la etiqueta"
+
+
 def test_no_copy_of_env_tests_or_local_results_and_no_secret_in_the_image(real: str) -> None:
     assert check_no_forbidden_copy(real) == []
     assert not re.search(r"sk-[A-Za-z0-9_-]{6,}", real), "ninguna clave en el Dockerfile"

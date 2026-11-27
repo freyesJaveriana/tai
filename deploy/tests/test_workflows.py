@@ -223,10 +223,15 @@ def test_the_secret_policy_control_passes_the_user_of_the_request() -> None:
 
 # --- analyzer-image --------------------------------------------------------------------------------
 
+# K-105: la imagen copia deploy/src, deploy/pyproject.toml y deploy/uv.lock; un cambio solo ahí también
+# la reconstruye, la escanea y, en main, la publica.
 IMAGE_PATHS = [
     "libs/**",
     "contracts/**",
     "deploy/images/**",
+    "deploy/src/**",
+    "deploy/pyproject.toml",
+    "deploy/uv.lock",
     ".github/workflows/analyzer-image.yml",
 ]
 ONLY_MAIN = "github.event_name == 'push' && github.ref == 'refs/heads/main'"
@@ -324,6 +329,12 @@ NEGATIVES = {
     "credenciales-del-cluster.yml": "nombra un kubeconfig",
     "herramienta-del-cluster.yml": "nombra la herramienta del clúster",
     "imagen-latest.yml": "etiqueta de imagen latest",
+    # Ronda 2 (F-01, F-02): un mutante de la revisión por fixture.
+    "if-con-or.yml": "no es exactamente la condición de push a main",
+    "sha256sum-anulado.yml": "anula el código de salida de sha256sum",
+    "push-sin-etiqueta.yml": "sin etiqueta",
+    "build-sin-etiqueta.yml": "sin etiqueta",
+    "expresion-en-run.yml": "expresión de Actions dentro de un run",
 }
 
 
@@ -386,6 +397,165 @@ def test_a_job_with_packages_write_is_fine_when_the_workflow_has_no_pull_request
     assert checks.violations("x.yml", text) == []
 
 
+# --- Ronda 2: variantes de F-01 y F-02 sobre el workflow base ------------------------------------
+
+VERIFY = "sha256sum -c -"
+MASKED_VERIFY = [
+    f"{VERIFY} || true",
+    f"{VERIFY} || :",
+    f"{VERIFY} || exit 0",
+    f"{VERIFY}; true",
+    f"{VERIFY} | cat",
+    f"{VERIFY} \\\n          || true",
+    f"{VERIFY}\n          || true",
+]
+
+
+@pytest.mark.parametrize("masked", MASKED_VERIFY, ids=range(len(MASKED_VERIFY)))
+def test_negative_f01_a_check_whose_exit_code_is_annulled_fails(masked: str) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), VERIFY, masked)
+
+    assert any("anula" in item for item in checks.violations("x.yml", text))
+
+
+@pytest.mark.parametrize("kept", [f"{VERIFY} && echo ok", f"{VERIFY} && true"])
+def test_f01_a_check_followed_by_a_conjunction_still_passes(kept: str) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), VERIFY, kept)
+
+    assert checks.violations("x.yml", text) == []
+
+
+def _with_env(text: str, env: str) -> str:
+    return _mutate(text, "jobs:\n", f"env:\n{env}jobs:\n")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        'docker push "ghcr.io/o/i"',
+        "docker push ghcr.io/o/i",
+        "docker push --quiet ghcr.io/o/i",
+        "docker push localhost:5000/img",
+        "docker tag a:1 ghcr.io/o/i",
+        "docker tag ghcr.io/o/i ghcr.io/o/i",
+        "docker build --tag ghcr.io/o/i .",
+        'docker build -t "ghcr.io/o/i" .',
+        "docker build --pull --tag ghcr.io/o/i -f Dockerfile .",
+        'docker push "$IMAGE"',
+        "docker push ${IMAGE}",
+        'docker build --tag "$IMAGE" .',
+        'docker push "$IMAGE:$TAG"',
+        'docker push "$SIN_DEFINIR"',
+    ],
+)
+def test_negative_f01_an_image_reference_without_a_tag_is_an_implicit_latest(command: str) -> None:
+    base = _with_env(_text(FIXTURES / "ok.yml"), "  IMAGE: ghcr.io/o/i\n  TAG: main\n")
+    text = _mutate(base, 'docker push "ghcr.io/o/i:${GITHUB_SHA}"', command)
+    found = checks.violations("x.yml", text)
+
+    assert any("sin etiqueta" in item or "no es el SHA" in item for item in found), found
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        'docker push "ghcr.io/o/i:${GITHUB_SHA}"',
+        'docker push "ghcr.io/o/i:$GITHUB_SHA"',
+        'docker push "ghcr.io/o/i:abc1234"',
+        "docker push localhost:5000/img:v1",
+        'docker push "ghcr.io/o/i@sha256:' + "a" * 64 + '"',
+        'docker push "$REF"',
+        'docker push "$IMAGE:$SHA"',
+        'docker build --tag "$IMAGE:pr" -f Dockerfile .',
+        "docker tag a:1 ghcr.io/o/i:abc1234",
+    ],
+)
+def test_f01_a_tagged_reference_or_a_variable_defined_with_the_sha_passes(command: str) -> None:
+    env = "  IMAGE: ghcr.io/o/i\n  REF: ghcr.io/o/i:${{ github.sha }}\n  SHA: ${{ github.sha }}\n"
+    text = _mutate(
+        _with_env(_text(FIXTURES / "ok.yml"), env),
+        'docker push "ghcr.io/o/i:${GITHUB_SHA}"',
+        command,
+    )
+
+    assert checks.violations("x.yml", text) == []
+
+
+def test_f01_a_tag_variable_of_the_step_env_wins_over_the_one_of_the_workflow() -> None:
+    step = (
+        "      - name: x\n        env:\n          TAG: main\n"
+        '        run: docker push "ghcr.io/o/i:$TAG"'
+    )
+    text = _with_env(_text(FIXTURES / "ok.yml"), "  TAG: ${{ github.sha }}\n")
+    text = _mutate(text, '      - run: docker push "ghcr.io/o/i:${GITHUB_SHA}"', step)
+
+    assert any("no es el SHA" in item for item in checks.violations("x.yml", text))
+
+
+@pytest.mark.parametrize(
+    "condition",
+    [
+        "github.event_name == 'push' && github.ref == 'refs/heads/main' || always()",
+        "always() || github.event_name == 'push' && github.ref == 'refs/heads/main'",
+        "(github.event_name == 'push' && github.ref == 'refs/heads/main')",
+        "github.ref == 'refs/heads/main' && github.event_name == 'push'",
+        "github.event_name == 'push'",
+        "!cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main'",
+    ],
+)
+def test_negative_f01_a_packages_write_condition_that_is_not_exactly_the_main_one_fails(
+    condition: str,
+) -> None:
+    text = _mutate(_text(FIXTURES / "ok.yml"), f"if: {ONLY_MAIN}", f"if: {condition}")
+
+    assert any("exactamente" in item for item in checks.violations("x.yml", text))
+
+
+def test_f01_the_exact_main_condition_is_required_even_without_a_pull_request_trigger() -> None:
+    text = _text(FIXTURES / "ok.yml").replace("  pull_request:\n", "")
+    text = _mutate(text, f"if: {ONLY_MAIN}", "if: github.event_name == 'push'")
+
+    assert any("exactamente" in item for item in checks.violations("x.yml", text))
+
+
+def test_f01_a_packages_write_job_without_an_if_fails_even_without_a_pull_request() -> None:
+    text = _text(FIXTURES / "ok.yml").replace("  pull_request:\n", "")
+    text = _mutate(text, f"    if: {ONLY_MAIN}\n", "")
+
+    assert any("exactamente" in item for item in checks.violations("x.yml", text))
+
+
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "${{ github.event.pull_request.title }}",
+        "${{github.sha}}",
+        "${{ secrets.GITHUB_TOKEN }}",
+        "$${{ github.sha }}",
+    ],
+)
+def test_negative_f02_an_actions_expression_inside_run_fails(expression: str) -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        "set -euo pipefail",
+        f"set -euo pipefail\n          echo {expression}",
+    )
+    found = checks.violations("x.yml", text)
+
+    assert any("expresión de Actions dentro de un run" in item for item in found)
+
+
+def test_f02_an_expression_in_env_or_with_is_fine_and_a_plain_dollar_in_run_too() -> None:
+    text = _mutate(
+        _text(FIXTURES / "ok.yml"),
+        "SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf",
+        "SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf\n"
+        "          TITLE: ${{ github.event.pull_request.title }}",
+    )
+
+    assert checks.violations("x.yml", text) == []
+
+
 # --- Cada regla, con un cambio en memoria de los workflows reales --------------------------------
 
 
@@ -432,6 +602,49 @@ def _real_mutants() -> dict[str, tuple[Path, str, str, str]]:
             "pull_request",
         ),
         "etiqueta latest": (IMAGE_WORKFLOW, "$IMAGE:$IMAGE_TAG", "$IMAGE:latest", "latest"),
+        # Ronda 2: los mutantes P1 a P5 de la revisión, sobre los workflows reales.
+        "P1 if de publish con or": (
+            IMAGE_WORKFLOW,
+            f"if: {ONLY_MAIN}",
+            f"if: {ONLY_MAIN} || github.event_name == 'pull_request'",
+            "exactamente",
+        ),
+        "P2 verificación anulada en la imagen": (
+            IMAGE_WORKFLOW,
+            "sha256sum -c -",
+            "sha256sum -c - || true",
+            "anula",
+        ),
+        "P2 verificación anulada en deploy": (
+            DEPLOY_WORKFLOW,
+            "sha256sum -c -",
+            "sha256sum -c - || :",
+            "anula",
+        ),
+        "P3 push sin etiqueta": (
+            IMAGE_WORKFLOW,
+            'docker push "$IMAGE:$IMAGE_TAG"',
+            'docker push "$IMAGE"',
+            "sin etiqueta",
+        ),
+        "P4 expresión en un run": (
+            IMAGE_WORKFLOW,
+            'echo "Imagen publicada: $digest"',
+            'echo "Imagen publicada: ${{ github.sha }}"',
+            "expresión de Actions dentro de un run",
+        ),
+        "P5 build sin etiqueta": (
+            IMAGE_WORKFLOW,
+            'docker build --tag "$IMAGE:$IMAGE_TAG"',
+            'docker build --tag "$IMAGE"',
+            "sin etiqueta",
+        ),
+        "etiqueta que no es el SHA": (
+            IMAGE_WORKFLOW,
+            "IMAGE_TAG: ${{ github.sha }}",
+            "IMAGE_TAG: main",
+            "no es el SHA",
+        ),
     }
 
 

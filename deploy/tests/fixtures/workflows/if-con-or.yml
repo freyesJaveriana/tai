@@ -1,0 +1,20 @@
+---
+# Control negativo (P1): el if del job con packages: write contiene la condición de main, pero otra la
+# anula con un or: el job corre también en un pull_request.
+name: if-con-or
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

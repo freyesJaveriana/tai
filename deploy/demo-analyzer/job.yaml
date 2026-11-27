@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/name: veridicus-analyzer-demo
 spec:
   backoffLimit: 0
-  activeDeadlineSeconds: 900
+  activeDeadlineSeconds: "900"
   ttlSecondsAfterFinished: 3600
   template:
     metadata:

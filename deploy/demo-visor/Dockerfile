@@ -3,8 +3,9 @@
 # armado en una carpeta temporal: el visor, deploy/demo-analyzer, los ejemplos y, si se da, el escudo.
 FROM python:3.12-slim
 
-# kubectl de la misma versión que el servidor del clúster (el script la pasa como build-arg) y
-# verificado contra el SHA-256 que publica dl.k8s.io.
+# kubectl de la misma versión que el servidor del clúster y verificado contra el SHA-256 que publica
+# dl.k8s.io. El script reescribe estas dos líneas ARG en su copia del Dockerfile: con containerd,
+# minikube image build no acepta build-arg.
 ARG KUBECTL_VERSION=v1.31.0
 ARG KUBECTL_ARCH=amd64
 ADD https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl /usr/local/bin/kubectl

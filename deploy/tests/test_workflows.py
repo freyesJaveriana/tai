@@ -695,8 +695,9 @@ def test_negative_f07_any_extra_line_between_the_template_lines_fails(after: int
     assert any("plantilla" in item for item in found), found
 
 
-@pytest.mark.parametrize("number", range(len(TEMPLATE)), ids=range(len(TEMPLATE)))
+@pytest.mark.parametrize("number", [0, 1, 3, 4, 5])
 def test_negative_f07_a_missing_template_line_fails(number: int) -> None:
+    """Sin la línea del curl el script ya no descarga nada y no es un paso que descarga."""
     lines = [line for index, line in enumerate(TEMPLATE) if index != number]
 
     assert checks.violations("x.yml", _ok_with_script(lines))

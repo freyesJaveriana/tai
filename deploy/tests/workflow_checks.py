@@ -86,6 +86,36 @@ _RELAXES_SET = re.compile(r"(?:^|[;&|(])\s*set\s+\+")
 _OPENS = re.compile(r"\b(?:if|while|until|case|for|select)\b")
 _CLOSES = re.compile(r"\b(?:fi|done|esac)\b")
 _CHAINED = ("\\", "&&", "||", "|")
+# F-07: la plantilla del script de un paso que descarga, línea lógica por línea lógica. Las rutas solo
+# admiten letras, cifras y `_ $ / . { } -`: ni comillas, ni paréntesis, ni `;`, `&`, `|`.
+_URL = re.compile(r"https?://")
+_P = r"[A-Za-z0-9_$/.{}\-]+"
+_CURL_LINE = re.compile(rf'curl -fsSL(?: --retry \d+)? -o "{_P}" "https://[A-Za-z0-9._%/$\-]+"')
+_TEMPLATE_SET = re.compile(r"set -euo pipefail")
+_TEMPLATE_MKDIR = re.compile(rf'mkdir -p "{_P}"')
+_TEMPLATE_TAR = re.compile(rf'tar -x[zJ]f "{_P}" -C "{_P}"(?: --strip-components=\d)?')
+_TEMPLATE_MV = re.compile(rf'mv "{_P}" "{_P}"')
+_TEMPLATE_CHMOD = re.compile(rf'chmod \+x "{_P}"')
+_TEMPLATE_PATH = re.compile(rf'echo "{_P}" >> "\$GITHUB_PATH"')
+_SEQUENCES = (
+    (
+        _TEMPLATE_SET,
+        _TEMPLATE_MKDIR,
+        _CURL_LINE,
+        _VERIFY_LINE,
+        _TEMPLATE_TAR,
+        _TEMPLATE_PATH,
+    ),
+    (
+        _TEMPLATE_SET,
+        _TEMPLATE_MKDIR,
+        _CURL_LINE,
+        _VERIFY_LINE,
+        _TEMPLATE_MV,
+        _TEMPLATE_CHMOD,
+        _TEMPLATE_PATH,
+    ),
+)
 _WHOLE_VAR = re.compile(r"^\$(?:\{(\w+)\}|(\w+))$")
 _SHA_EXPRESSION = "${{ github.sha }}"
 _SHA_VARIABLE = "GITHUB_SHA"
@@ -219,37 +249,98 @@ def _nesting_violations(rel: str, where: str, run: str) -> list[str]:
     return []
 
 
+def _logical_lines(run: str) -> tuple[list[str], list[str]]:
+    """Las líneas lógicas del script (continuaciones unidas, sin vacías ni comentarios) y los problemas.
+
+    Un comentario que sigue a una continuación con barra la oculta: se informa como problema.
+    """
+    lines: list[str] = []
+    problems: list[str] = []
+    pending: str | None = None
+    for raw in run.splitlines():
+        piece = raw.strip()
+        if pending is None and (not piece or piece.startswith("#")):
+            continue
+        if pending is not None and piece.startswith("#"):
+            problems.append("un comentario sigue a una continuación con barra")
+        joined = piece if pending is None else f"{pending} {piece}"
+        if piece.endswith("\\"):
+            pending = joined[:-1].rstrip()
+        else:
+            lines.append(joined)
+            pending = None
+    if pending is not None:
+        problems.append("el script termina con una continuación con barra")
+    return lines, problems
+
+
+def _template_violations(
+    rel: str, where: str, step: dict[str, Any], job: dict[str, Any], run: str
+) -> list[str]:
+    """F-07: el script de un paso que descarga es exactamente la plantilla y el paso no se salta."""
+    found: list[str] = []
+    if "continue-on-error" in step or "if" in step or "continue-on-error" in job:
+        found.append(f"{rel}: {where} el paso que descarga no puede llevar continue-on-error ni if")
+    lines, problems = _logical_lines(run)
+    found.extend(f"{rel}: {where} fuera de la plantilla: {problem}" for problem in problems)
+    if any("$(" in line or "`" in line for line in lines):
+        found.append(f"{rel}: {where} fuera de la plantilla: una sustitución de comandos")
+    fits = any(
+        len(sequence) == len(lines)
+        and all(shape.fullmatch(line) for shape, line in zip(sequence, lines, strict=True))
+        for sequence in _SEQUENCES
+    )
+    if not fits:
+        found.append(
+            f"{rel}: {where} el script que descarga no sigue la plantilla: set -euo pipefail, "
+            "mkdir, curl, la verificación, la extracción y el PATH, en ese orden y sin otras líneas"
+        )
+    return found
+
+
 def _download_violations(rel: str, document: dict[Any, Any]) -> list[str]:
     found: list[str] = []
-    for where, step in _steps(document):
-        code = _code(str(step.get("run") or ""))
-        fetches = [match.start() for match in _FETCH.finditer(code)]
-        if not fetches:
-            continue
-        run = str(step.get("run") or "")
-        found.extend(_prologue_violations(rel, where, run))
-        found.extend(_verify_line_violations(rel, where, run))
-        found.extend(_nesting_violations(rel, where, run))
-        sums = set(_SUM.findall(code + " " + str(step.get("env") or "")))
-        if not sums:
-            found.append(f"{rel}: {where} descarga con curl y no lleva ninguna suma SHA-256")
-        for unknown in sorted(sums - TOOL_SUMS):
-            found.append(f"{rel}: {where} usa la suma {unknown[:12]}…, que no es la de la tabla")
-        bounds = [*fetches, len(code)]
-        for number, start in enumerate(fetches):
-            segment = code[start : bounds[number + 1]]
-            first_line = segment.split("\n", 1)[0]
-            if "|" in first_line:
-                found.append(f"{rel}: {where} canaliza la descarga a otro comando")
-            verify = _VERIFY.search(segment)
-            if verify is None:
-                found.append(f"{rel}: {where} no verifica la descarga con sha256sum -c")
-            elif _USE.search(segment[: verify.start()]):
-                found.append(f"{rel}: {where} usa lo descargado antes de verificarlo")
-            else:
-                line, _, following = segment[verify.end() :].partition("\n")
-                if _MASKS_EXIT.search(line) or _NEXT_LINE_MASKS.match(following):
-                    found.append(f"{rel}: {where} anula el código de salida de sha256sum")
+    for job_name, job in (document.get("jobs") or {}).items():
+        for index, step in enumerate((job or {}).get("steps") or []):
+            if isinstance(step, dict):
+                found.extend(_download_step_violations(rel, f"{job_name}[{index}]", step, job))
+    return found
+
+
+def _download_step_violations(
+    rel: str, where: str, step: dict[str, Any], job: dict[str, Any]
+) -> list[str]:
+    run = str(step.get("run") or "")
+    code = _code(run)
+    fetches = [match.start() for match in _FETCH.finditer(code)]
+    if not fetches and not _URL.search(run):
+        return []
+    found = _template_violations(rel, where, step, job, run)
+    if not fetches:
+        return found
+    found.extend(_prologue_violations(rel, where, run))
+    found.extend(_verify_line_violations(rel, where, run))
+    found.extend(_nesting_violations(rel, where, run))
+    sums = set(_SUM.findall(code + " " + str(step.get("env") or "")))
+    if not sums:
+        found.append(f"{rel}: {where} descarga con curl y no lleva ninguna suma SHA-256")
+    for unknown in sorted(sums - TOOL_SUMS):
+        found.append(f"{rel}: {where} usa la suma {unknown[:12]}…, que no es la de la tabla")
+    bounds = [*fetches, len(code)]
+    for number, start in enumerate(fetches):
+        segment = code[start : bounds[number + 1]]
+        first_line = segment.split("\n", 1)[0]
+        if "|" in first_line:
+            found.append(f"{rel}: {where} canaliza la descarga a otro comando")
+        verify = _VERIFY.search(segment)
+        if verify is None:
+            found.append(f"{rel}: {where} no verifica la descarga con sha256sum -c")
+        elif _USE.search(segment[: verify.start()]):
+            found.append(f"{rel}: {where} usa lo descargado antes de verificarlo")
+        else:
+            line, _, following = segment[verify.end() :].partition("\n")
+            if _MASKS_EXIT.search(line) or _NEXT_LINE_MASKS.match(following):
+                found.append(f"{rel}: {where} anula el código de salida de sha256sum")
     return found
 
 

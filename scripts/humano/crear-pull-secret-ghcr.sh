@@ -55,7 +55,9 @@ if ! kubectl get namespace "$namespace" > /dev/null 2>&1; then
   kubectl create namespace "$namespace"
 fi
 
-if kubectl get secret veridicus-ghcr --namespace "$namespace" -o jsonpath='{.metadata.annotations.kubectl\.kubernetes\.io/last-applied-configuration}' 2> /dev/null | grep -q .; then
+# La plantilla imprime solo el literal «si» cuando la anotación existe: su valor se evalúa dentro de
+# kubectl y nunca pasa por un pipe, una variable ni la salida (K-104).
+if [ "$(kubectl get secret veridicus-ghcr --namespace "$namespace" -o go-template='{{if index .metadata.annotations "kubectl.kubernetes.io/last-applied-configuration"}}si{{end}}' 2> /dev/null)" = "si" ]; then
   echo "El Secret veridicus-ghcr ya existe con la anotación last-applied-configuration, que guarda el valor del token." >&2
   echo "Bórrelo y repita este script: kubectl delete secret veridicus-ghcr --namespace $namespace" >&2
   exit 2

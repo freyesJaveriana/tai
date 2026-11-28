@@ -5,6 +5,8 @@ Grupo: Felipe Reyes Palacio | Fecha de presentación: 28 de noviembre de 2026
 **Presentación:** <https://claude.ai/artifact/1b1qbSiCarRWvrsfhGzw6D>. Son 23 diapositivas con las notas
 del orador; se descarga como .pptx o PDF desde la misma página.
 
+**Grabación de la demo:** <https://youtu.be/G7dx5ePYBMo>.
+
 Veridicus es un analizador que propone las contradicciones internas de un testimonio. Cada
 contradicción lleva dos citas literales verificadas y nunca un veredicto de veracidad. Corre en
 Kubernetes local, y un humano decide. Es el analizador de incoherencias del Trabajo de Grado
@@ -337,7 +339,7 @@ Reversión: `kubectl delete -k deploy/demo-analyzer`, `kubectl delete -k deploy/
 | La NetworkPolicy no excluye 100.64.0.0/10 (K-100) | Registrado en `docs/loop/CANDIDATAS.md` para un PR propio |
 | Microservicios, consola y nivel 2 sin construir | Primero la rebanada mínima (CLI y Job); el resto va en B11b y siguientes |
 | Un solo proveedor de modelos (solo existe el adaptador de Anthropic) | Los perfiles y el esquema están listos para otros adaptadores |
-| Un CI lento durante la demo en vivo del bucle GitOps | Se usa una grabación de respaldo |
+| Un CI lento durante la demo en vivo del bucle GitOps | Se usa la [grabación de respaldo](https://youtu.be/G7dx5ePYBMo) |
 
 Fuentes: [`risk-and-sequencing-rationale.md`](./aidlc/spaces/default/intents/261002-veridicus-mvp/inception/delivery-planning/risk-and-sequencing-rationale.md),
 [`docs/loop/CANDIDATAS.md`](./docs/loop/CANDIDATAS.md).
